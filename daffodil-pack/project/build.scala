@@ -145,5 +145,5 @@ object DaffodilBuild extends Build {
     res
   })
 
-  s ++= Seq(Keys.libraryDependencies <+= Keys.version(v => "edu.illinois.ncsa" %% "daffodil-core" % v))
+  s ++= Seq(Keys.libraryDependencies <+= Keys.version(v => "edu.illinois.ncsa" %% "daffodil-cli" % v))
 }

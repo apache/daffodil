@@ -63,12 +63,12 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
-                             .dependsOn(cli)
+                             .dependsOn(cliUnit)
 
   lazy val perf    = Project(id = "daffodil-perf", base = file("daffodil-perf"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(tdml)
+                             .dependsOn(cliUnit)
 
   //set up 'sbt stage' as a dependency
   //TODO: find a way to clean this up and reduce repetition

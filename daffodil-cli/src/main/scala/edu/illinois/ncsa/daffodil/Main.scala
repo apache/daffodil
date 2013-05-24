@@ -334,7 +334,7 @@ object Main extends Logging {
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
 
-    if (Conf.trace()) {
+    if (conf.trace()) {
       Debugger.setDebugging(true)
       Debugger.setDebugger(new TraceDebugger)
     } else if (conf.debug.isDefined) {

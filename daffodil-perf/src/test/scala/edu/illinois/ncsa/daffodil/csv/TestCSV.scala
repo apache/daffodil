@@ -42,12 +42,6 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-<<<<<<< HEAD
-
-=======
-import org.junit.contrib.java.lang.system.ExpectedSystemExit
-import org.junit.contrib.java.lang.system.internal.CheckExitCalled
->>>>>>> Refactored code to speed up development cycle.
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream

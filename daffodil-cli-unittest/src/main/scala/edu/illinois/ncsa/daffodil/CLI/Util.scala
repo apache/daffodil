@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.CLI.Util
+package edu.illinois.ncsa.daffodil.CLI
 
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,16 +32,9 @@ package edu.illinois.ncsa.daffodil.CLI.Util
  * SOFTWARE.
  */
 
-import junit.framework.Assert._
-import org.junit.Test
 import scala.xml._
-import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
 import expectj.ExpectJ
 import expectj.Spawn
 
@@ -49,41 +42,41 @@ object Util {
 
   val testDir = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
   val outputDir = testDir + "output/"
-  
+
   val ex = new ExpectJ(30);
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
-  
+
   def getExpectedString(filename: String): String = {
     val source = scala.io.Source.fromFile(outputDir + filename)
     var lines = source.mkString.trim()
     source.close()
-    if (isWindows){
+    if (isWindows) {
       return fileConvert(lines)
     } else {
-    return lines
+      return lines
     }
   }
 
   def getShell(cmd: String): Spawn = {
-    val spawnCmd = if (isWindows){
+    val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
 
     val shell = ex.spawn(spawnCmd)
-    if (!isWindows){
+    if (!isWindows) {
       shell.send(cmd)
     }
     return shell
   }
 
   def cmdConvert(str: String): String = {
-      var newstr = str.replaceAll("""\\n?""", "")
-      newstr = newstr.replaceAll("/", """\\\\""")
-      return newstr
+    var newstr = str.replaceAll("""\\n?""", "")
+    newstr = newstr.replaceAll("/", """\\\\""")
+    return newstr
   }
-  
+
   def fileConvert(str: String): String = {
     var newstr = str.replaceAll("\\r\\n", "\n")
     return newstr

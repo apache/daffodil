@@ -17,6 +17,7 @@ transitiveClassifiers := Seq("sources", "javadoc")
 libraryDependencies in ThisBuild := Seq(
   "junit" % "junit" % "4.11",
   "com.novocode" % "junit-interface" % "0.10-M4",
+  "com.github.stefanbirkner" % "system-rules" % "1.2.0",  
   "org.jdom" % "jdom" % "1.1.3",
   "net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath",
   "com.ibm.icu" % "icu4j" % "51.1",// classifier "" classifier "charset" classifier "localespi",

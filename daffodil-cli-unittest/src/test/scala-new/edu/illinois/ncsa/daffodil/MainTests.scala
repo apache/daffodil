@@ -33,12 +33,12 @@ package edu.illinois.ncsa.daffodil
  */
 
 import junit.framework.Assert._
-import org.junit.contrib.java.lang.system.ExpectedSystemExit
-import org.junit.contrib.java.lang.system.internal.CheckExitCalled
 import org.junit.Test
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
+import org.junit.contrib.java.lang.system.ExpectedSystemExit
+import org.junit.contrib.java.lang.system.internal.CheckExitCalled
 
 class MainTests {
 
@@ -163,24 +163,23 @@ class MainTests {
       case c: CheckExitCalled => assertEquals(c.getStatus, 1)
     }
   }
-  <!-- 
-  val cli_unboundedBinary= testDir + "unboundedBinary.dfdl.xsd"
 
-  @Test def test_main_parse_unboundedBinary() {
-    try {
-      val schema = Misc.getRequiredResource(cli_unboundedBinary).getPath
-      val data = "abab4545babab73645454756565743"
-      val is = new ByteArrayInputStream(data.getBytes())
-      val oldSysin = System.in
-      System.setIn(is)
-
-      Main.main(Array("parse", "-s", schema, "-"))
-
-      System.setIn(oldSysin)
-    } catch {
-      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
-    }
-  }
--->
+  //  val cli_unboundedBinary= testDir + "unboundedBinary.dfdl.xsd"
+  //
+  //  @Test def test_main_parse_unboundedBinary() {
+  //    try {
+  //      val schema = Misc.getRequiredResource(cli_unboundedBinary).getPath
+  //      val data = "abab4545babab73645454756565743"
+  //      val is = new ByteArrayInputStream(data.getBytes())
+  //      val oldSysin = System.in
+  //      System.setIn(is)
+  //
+  //      Main.main(Array("parse", "-s", schema, "-"))
+  //
+  //      System.setIn(oldSysin)
+  //    } catch {
+  //      case c: CheckExitCalled => assertEquals(c.getStatus, 0)
+  //    }
+  //  }
 
 }

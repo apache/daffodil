@@ -44,29 +44,30 @@ import edu.illinois.ncsa.daffodil.CLI.Util._
 import java.io.File
 import expectj.ExpectJ
 import expectj.Spawn
+import edu.illinois.ncsa.daffodil.CLI.Util
 
 class TestCLIlisting {
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
-    val cmd = "./daffodil-core/target/start test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
+    val cmd = "./daffodil-cli/target/start test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
     val shell = Util.getShell(cmd)
     shell.expect("byte_entities_6_08")
     shell.send("exit\n")
     shell.expectClose()
   }
-/* 
+  /* 
   @Test def test_993_CLI_Executing_Listing_listAll() {
     val shell = ex.spawn("/bin/bash")
     shell.send("/bin/grep -c 'parserTestCase>' daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml\n")
     val num = shell.getCurrentStandardOutContents()
-    shell.send("./daffodil-core/target/start test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml | tee /dev/tty | wc -l\n")
+    shell.send("./daffodil-cli/target/start test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml | tee /dev/tty | wc -l\n")
     shell.expect(num)
     shell.send("exit\n")
     shell.expectClose()
   }
   
   @Test def test_999_CLI_Executing_Listing_listRegex01() {
-    val cmd = """./daffodil-core/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml "escape_entry4-\\d+"\n"""
+    val cmd = """./daffodil-cli/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml "escape_entry4-\\d+"\n"""
     val shell = Util.getShell(cmd)
     shell.expect("escape_entry4-20")
     shell.expect("escape_entry4-21")
@@ -75,7 +76,7 @@ class TestCLIlisting {
   }
   
   @Test def test_1000_CLI_Executing_Listing_listRegex02() {
-    val cmd = "./daffodil-core/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entryb-\\d+'\n"
+    val cmd = "./daffodil-cli/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entryb-\\d+'\n"
     val shell = Util.getShell(cmd)
     val output = shell.getCurrentStandardOutContents()
     if (output != ""){
@@ -85,16 +86,16 @@ class TestCLIlisting {
     shell.expectClose()
   }
 */
- 
+
   @Test def test_1016_CLI_Executing_Listing_listVerbose() {
-    val cmd = "./daffodil-core/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
+    val cmd = "./daffodil-cli/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell = Util.getShell(cmd)
     shell.expect("assertPatternAndExp")
-    val cmd2 = "./daffodil-core/target/start -v test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
+    val cmd2 = "./daffodil-cli/target/start -v test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell2 = Util.getShell(cmd2)
     shell2.expect("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R")
     shell2.send("exit\n")
     shell2.expectClose()
   }
- 
+
 }
