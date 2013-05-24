@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format terminator="" separator="" ignoreCase="no" alignment="1" alignmentUnits="bytes" trailingSkip="0" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:include schemaLocation="subfolder/multi_B_15.dfdl.xsd"/>
+
+  <xs:element name="nestSequence">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="nestSeq" ref="nest"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

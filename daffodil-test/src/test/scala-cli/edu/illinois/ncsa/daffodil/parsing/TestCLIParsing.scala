@@ -51,7 +51,36 @@ class TestCLIparsing {
   val output5 = Util.getExpectedString("output5.txt")
   val output6 = Util.getExpectedString("output6.txt")
   val output8 = Util.getExpectedString("output8.txt")
+  val output9 = Util.getExpectedString("output9.txt")
+  val output10 = Util.getExpectedString("output10.txt")
   
+  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
+    var cmd = "echo test| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
+    var shell = Util.getShell(cmd)
+    
+    shell.expect(output9)
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+
+  @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
+    var cmd = "echo test| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+    var shell = Util.getShell(cmd)
+    
+    shell.expect(output10)
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+  
+  @Test def test_1587_CLI_Parsing_MultifileSchema_methodImportSameDir2() {
+    var cmd = "echo test| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_16.dfdl.xsd\n"
+    var shell = Util.getShell(cmd)
+    
+    shell.expect(output10)
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+
   @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli() {
 
     var cmd = "echo abcabcabc| daffodil-core/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"

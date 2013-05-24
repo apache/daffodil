@@ -54,7 +54,11 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
- 
+  
+  @Test def test_schemaSameDir_01() { runner.runOneTest("schemaSameDir_01") }
+  @Test def test_schemaSameDir_02() { runner.runOneTest("schemaSameDir_02") }
+  @Test def test_schemaSameDir_03() { runner.runOneTest("schemaSameDir_03") }
+
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message 
   // which is the file with the content responsible for the error, not the file
