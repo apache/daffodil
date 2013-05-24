@@ -7,12 +7,14 @@
 	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/resources"/>
 	<classpathentry kind="src" output="target/eclipse/debug-classes" path="src/test/scala-debug"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/daffodil-core"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.github.stefanbirkner/system-rules/system-rules-1.2.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

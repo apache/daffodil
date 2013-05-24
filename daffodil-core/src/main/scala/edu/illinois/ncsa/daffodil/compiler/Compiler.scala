@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.api.DFDL._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Misc.hex2Bytes
-import junit.framework.Assert.assertEquals
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
@@ -251,6 +250,8 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
  */
 object Compiler {
 
+  //FIXME: These tunables need to be changable per compilation, not global like this. 
+  //Some - like time limits, should be settable on the processor, not the PF or Compiler.
   //TODO: make tunable via setter call of compiler
   def maxFieldContentLengthInBytes: Long = 1024 // Can be as large as Int.MaxValue
   def occursCountMax: Long = 1024 // Can be as large as Int.MaxValue 
@@ -261,116 +262,5 @@ object Compiler {
 
   def apply() = new Compiler()
 
-  def stringToReadableByteChannel(s: String): DFDL.Input = {
-    val bytes = s.getBytes("utf-8") // never use default charset. NEVER.
-    byteArrayToReadableByteChannel(bytes)
-  }
-
-  def stringToWritableByteChannel(s: String): DFDL.Output = {
-    val size = s.length() // TODO: get byte count by encoding
-    byteArrayToWritableByteChannel(size)
-  }
-
-  def byteArrayToReadableByteChannel(bytes: Array[Byte]): DFDL.Input = {
-    val inputStream = new ByteArrayInputStream(bytes);
-    val rbc = java.nio.channels.Channels.newChannel(inputStream);
-    rbc
-  }
-
-  def byteArrayToWritableByteChannel(size: Int): DFDL.Output = {
-    val outputStream = new ByteArrayOutputStream(size);
-    val wbc = java.nio.channels.Channels.newChannel(outputStream);
-    wbc
-  }
-
-  def fileToReadableByteChannel(file: java.io.File): DFDL.Input = {
-    val inputStream = new java.io.FileInputStream(file)
-    val rbc = java.nio.channels.Channels.newChannel(inputStream);
-    rbc
-  }
-
-  def runSchemaOnData(testSchema: Node, data: DFDL.Input) = {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    val isError = pf.isError
-    val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-
-    if (isError) {
-      throw new Exception(msgs)
-    }
-    val p = pf.onPath("/")
-    val pIsError = p.isError
-    if (pIsError) {
-      throw new Exception(msgs)
-    }
-    val d = data
-    val actual = p.parse(d)
-    if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    actual
-  }
-
-  def testString(testSchema: Node, data: String) = {
-    runSchemaOnData(testSchema, Compiler.stringToReadableByteChannel(data))
-  }
-
-  def testBinary(testSchema: Node, hexData: String) = {
-    val b = hex2Bytes(hexData)
-    val rbc = byteArrayToReadableByteChannel(b)
-    runSchemaOnData(testSchema, rbc)
-  }
-
-  def testFile(testSchema: Node, fileName: String) = {
-    runSchemaOnData(testSchema, Compiler.fileToReadableByteChannel(new java.io.File(fileName)))
-  }
-
-  def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    if (pf.isError) {
-      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    val u = pf.onPath("/")
-    if (u.isError) {
-      val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    val outputStream = new java.io.ByteArrayOutputStream()
-    val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
-    if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    val unparsed = outputStream.toString
-    //    System.err.println("parsed: " + infoset)
-    //    System.err.println("unparsed: " + unparsed)
-    out.close()
-    assertEquals(unparseTo, unparsed)
-  }
-
-  def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
-    val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
-    val u = pf.onPath("/")
-    val outputStream = new java.io.ByteArrayOutputStream()
-    val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
-    if (actual.isError) {
-      val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(msgs)
-    }
-    val unparsed = outputStream.toByteArray()
-    //        System.err.println("parsed: " + infoset)
-    //        System.err.println("unparsed: " + unparsed)
-    out.close()
-    assertEquals(unparsed.length, unparseTo.length)
-    for (i <- 0 until unparsed.length) {
-      assertEquals(unparseTo(i), unparsed(i))
-    }
-  }
 }
 

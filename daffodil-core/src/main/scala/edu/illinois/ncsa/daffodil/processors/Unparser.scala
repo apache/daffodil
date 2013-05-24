@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.util.{ Logging, LogLevel, Debug }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.processors.EscapeScheme.log
-import junit.framework.Assert.assertTrue
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -51,6 +50,7 @@ import java.io.FileOutputStream
 import java.io.File
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.util.Misc
 
 class UnparseAlternativeFailed(sc: SchemaComponent, state: UState, val errors: Seq[Diagnostic])
   extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
@@ -468,7 +468,7 @@ object UState {
    * For testing it is convenient to just hand it strings for data.
    */
   def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom.Document): UState = {
-    val out = Compiler.stringToWritableByteChannel(data)
+    val out = Misc.stringToWritableByteChannel(data)
     createInitialState(rootElemDecl, out, document, data.length)
   }
 

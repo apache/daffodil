@@ -33,22 +33,19 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import java.math.BigInteger
-
 import scala.collection.mutable.Queue
 import scala.util.matching.Regex
 import scala.xml._
-
 import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
-
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.util.TestUtils
 import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.util.SchemaUtils
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -1197,7 +1194,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
  * holds true even when we're not building up a "real" schema.
  */
 object Fakes {
-  lazy val sch = TestUtils.dfdlTestSchema(
+  lazy val sch = SchemaUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
     <xs:element name="fake2" type="tns:fakeCT"/>

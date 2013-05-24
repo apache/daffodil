@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
-import edu.illinois.ncsa.daffodil.Main
 
 class TestPerfExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/expressions/"

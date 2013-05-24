@@ -460,7 +460,7 @@ case class PState(
     val res = currentElement.schemaComponent(this)
     res
   }
-  
+
   /**
    * Added because ThrowsSDE is a SchemaFileLocatable
    */
@@ -468,7 +468,7 @@ case class PState(
     val ctxt = getContext()
     ctxt.contextLocatable
   }
-  
+
   /**
    * Added because ThrowsSDE is a SchemaFileLocatable
    */
@@ -476,7 +476,7 @@ case class PState(
     val ctxt = getContext()
     ctxt.fileName
   }
-  
+
   /**
    * Added because ThrowsSDE is a SchemaFileLocatable
    */
@@ -491,7 +491,7 @@ case class PState(
     val rsde = new RuntimeSchemaDefinitionError(ctxt, this, str, args: _*)
     ctxt.toss(rsde)
   }
-  
+
   // TODO: Do we want these to reside on PState at all? SDEButContinue and SDW
   // Had to implement so that we could add ThrowsSDE as a trait to PState
   // Could just make private and Assert.impossible
@@ -501,7 +501,7 @@ case class PState(
     val rsde = new RuntimeSchemaDefinitionError(ctxt, this, id, args: _*)
     ctxt.error(rsde)
   }
-  
+
   def SDW(id: String, args: Any*): Unit = {
     ExecutionMode.requireRuntimeMode
     val ctxt = getContext
@@ -681,7 +681,7 @@ object PState {
    * For testing it is convenient to just hand it strings for data.
    */
   def createInitialState(scr: SchemaComponentRegistry, rootElemDecl: GlobalElementDecl, data: String, bitOffset: Long): PState = {
-    val in = Compiler.stringToReadableByteChannel(data)
+    val in = Misc.stringToReadableByteChannel(data)
     createInitialState(scr, rootElemDecl, in, data.length, bitOffset)
   }
 

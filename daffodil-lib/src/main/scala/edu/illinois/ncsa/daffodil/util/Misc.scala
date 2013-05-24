@@ -38,6 +38,10 @@ import java.io.InputStream
 import java.io.File
 import java.net.URL
 import java.net.URI
+import java.io.ByteArrayInputStream
+import java.nio.channels.ReadableByteChannel
+import java.nio.channels.WritableByteChannel
+import java.io.ByteArrayOutputStream
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -157,6 +161,36 @@ object Misc {
     val converted = bytes.flatMap { cvtByte(_) }
     val res = converted.mkString
     res
+  }
+
+  // Moved here from Compiler object.
+
+  def stringToReadableByteChannel(s: String): ReadableByteChannel = {
+    val bytes = s.getBytes("utf-8") // never use default charset. NEVER.
+    byteArrayToReadableByteChannel(bytes)
+  }
+
+  def stringToWritableByteChannel(s: String): WritableByteChannel = {
+    val size = s.length() // TODO: get byte count by encoding
+    byteArrayToWritableByteChannel(size)
+  }
+
+  def byteArrayToReadableByteChannel(bytes: Array[Byte]): ReadableByteChannel = {
+    val inputStream = new ByteArrayInputStream(bytes);
+    val rbc = java.nio.channels.Channels.newChannel(inputStream);
+    rbc
+  }
+
+  def byteArrayToWritableByteChannel(size: Int): WritableByteChannel = {
+    val outputStream = new ByteArrayOutputStream(size);
+    val wbc = java.nio.channels.Channels.newChannel(outputStream);
+    wbc
+  }
+
+  def fileToReadableByteChannel(file: java.io.File): ReadableByteChannel = {
+    val inputStream = new java.io.FileInputStream(file)
+    val rbc = java.nio.channels.Channels.newChannel(inputStream);
+    rbc
   }
 
 }

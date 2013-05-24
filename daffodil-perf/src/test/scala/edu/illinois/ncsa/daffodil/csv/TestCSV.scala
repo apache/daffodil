@@ -42,20 +42,25 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+<<<<<<< HEAD
 
+=======
+import org.junit.contrib.java.lang.system.ExpectedSystemExit
+import org.junit.contrib.java.lang.system.internal.CheckExitCalled
+>>>>>>> Refactored code to speed up development cycle.
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
-import edu.illinois.ncsa.daffodil.Main
 import edu.illinois.ncsa.daffodil.Tak._
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
+import edu.illinois.ncsa.daffodil.Tak
 
 class TestCSV {
   val testDir = "/edu/illinois/ncsa/daffodil/csv/"
   val aa = testDir + "csv.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def testTakCalibration { Tak.calibrate }
 
   @Test def test_csv_test() { runner.runPerfTest("csv_test") }
@@ -69,6 +74,5 @@ class TestCSV {
   //@Test def test_csv_test_526m() { runner.runPerfTest("csv_test_526m") }
   //@Test def test_csv_test_877m() { runner.runPerfTest("csv_test_877m") }
   //@Test def test_csv_test_1g() { runner.runPerfTest("csv_test_1g") }
-
 
 }
