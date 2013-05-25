@@ -14,12 +14,16 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
-                             .aggregate(propgen, lib, libUnit, core, coreUnit, tdml, tdmlUnit, cli, cliUnit, test)
+                             .aggregate(propgen, lib, libUnit, core, coreUnit, tdml, tdmlUnit, testIBM1, cli, cliUnit, test)
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
 
+  //We really need to redo dependency on propgen. This causes far too much recompilation
+  //on the eclipse side of things. We should regenerate the source only if either the propgen code or the 
+  //XSD files it consumes have changed.
+  //
   lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
@@ -29,7 +33,7 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(lib)
 
-  lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s ++ startScriptSettings)
+  lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(lib)
@@ -54,21 +58,26 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(tdml)
                              
-  lazy val cliUnit    = Project(id = "daffodil-cli-unittest", base = file("daffodil-cli-unittest"), settings = s ++ nopub)
+  lazy val cliUnit    = Project(id = "daffodil-cli-unittest", base = file("daffodil-cli-unittest"), settings = s ++ stageTaskSettings ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
+                             .configs(CliTest)                             
                              .dependsOn(cli)                               
 
-  lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ stageTaskSettings ++ nopub)
+  lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .configs(CliTest)
-                             .dependsOn(cliUnit)
+                             .dependsOn(tdml)
 
   lazy val perf    = Project(id = "daffodil-perf", base = file("daffodil-perf"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(cliUnit)
+                             .dependsOn(tdml)
+
+  lazy val testIBM1    = Project(id = "daffodil-test-ibm1", base = file("daffodil-test-ibm1"), settings = s ++ nopub)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(tdml)
 
   //set up 'sbt stage' as a dependency
   //TODO: find a way to clean this up and reduce repetition

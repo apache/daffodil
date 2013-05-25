@@ -451,7 +451,6 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
           val selfRelative = enclosingSchemaAbsURI match {
             case None => None
             case Some(enclosingAbsURI) => {
-              System.err.println(enclosingAbsURI + "\n" + fileURI + "\n\n")
               val absURI = (new URL(enclosingAbsURI.toURL, fileURI.toString)).toURI
               val absFile = new File(absURI)
               if (absFile.exists())

@@ -40,7 +40,7 @@ import expectj.Spawn
 
 object Util {
 
-  val testDir = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
+  val testDir = "daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
   val outputDir = testDir + "output/"
 
   val ex = new ExpectJ(30);

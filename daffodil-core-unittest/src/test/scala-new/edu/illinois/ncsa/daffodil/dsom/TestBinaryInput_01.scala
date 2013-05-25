@@ -38,18 +38,10 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
 // Do no harm number 16 of 626 fail in regression, 154 in total of 797
 
 class TestBinaryInput_01 {
-
-  var runner = {
-    val testDir = "/test-suite/tresys-contributed/"
-    val aa = testDir + "BinaryInput_01.tdml"
-    lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-    runner
-  }
 
   /*** DFDL-334 ***/
   // Verify Bit Extraction
@@ -250,9 +242,5 @@ class TestBinaryInput_01 {
     val inStream = InStream.fromByteChannel(null, in, 3, -1)
     assertTrue(inStream.getBitSequence(2, 22, java.nio.ByteOrder.LITTLE_ENDIAN)._1 == 1313101)
   }
-
-  /*** DFDL-307 ***/
-  @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
-  @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
 }

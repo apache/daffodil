@@ -1322,7 +1322,12 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
+      <tdml:error>Type</tdml:error>
+      <tdml:error>double</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>implicit</tdml:error>
+      <tdml:error>representation</tdml:error>
+      <tdml:error>text</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1428,8 +1433,12 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
-    </tdml:errors>
+      <tdml:error>Type</tdml:error>
+      <tdml:error>byte</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>implicit</tdml:error>
+      <tdml:error>representation</tdml:error>
+      <tdml:error>text</tdml:error>    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -1534,8 +1543,12 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
-    </tdml:errors>
+      <tdml:error>Type</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>implicit</tdml:error>
+      <tdml:error>representation</tdml:error>
+      <tdml:error>text</tdml:error>    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -1639,8 +1652,12 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
-    </tdml:errors>
+      <tdml:error>Type</tdml:error>
+      <tdml:error>int</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>implicit</tdml:error>
+      <tdml:error>representation</tdml:error>
+      <tdml:error>text</tdml:error>    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -4412,7 +4429,7 @@
     
     <xs:simpleType name="stHexBinary_02" >
       <xs:restriction base="xs:hexBinary">
-        <xs:minLength value="5"/>
+        <xs:minLength value="10"/>
         <xs:maxLength value="10"/>
       </xs:restriction>
     </xs:simpleType>

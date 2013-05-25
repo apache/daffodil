@@ -655,7 +655,7 @@ trait ElementBaseGrammarMixin
       //          }
       //          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
       //        }
-      case _ => schemaDefinitionError("Unrecognized primitive type: " + primType.name)
+      case _ => notYetImplemented("Type %s when representation='binary'", primType.name)
     }
     res
   }

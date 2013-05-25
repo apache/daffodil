@@ -3324,7 +3324,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MinLength facet must be &lt;= MaxLength</tdml:error>
+      <tdml:error>MinLength facet</tdml:error>
+      <tdml:error>less than or equal to</tdml:error>
+      <tdml:error>maxLength facet</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3378,7 +3380,13 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MinLength facet can only be applied to string or hexBinary.</tdml:error>
+      <tdml:error>facets</tdml:error>
+      <tdml:error>minLength</tdml:error>
+      <tdml:error>maxLength</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>type</tdml:error>
+      <tdml:error>derived</tdml:error>
+      <tdml:error>dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4128,8 +4136,13 @@
     <tdml:document>12345</tdml:document>
     <tdml:errors>
      <tdml:error>Schema Definition Error</tdml:error>
-     <tdml:error>MinLength facet can only be applied to string or hexBinary.</tdml:error>
-    </tdml:errors>
+      <tdml:error>facets</tdml:error>
+      <tdml:error>minLength</tdml:error>
+      <tdml:error>maxLength</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>type</tdml:error>
+      <tdml:error>derived</tdml:error>
+      <tdml:error>int</tdml:error>    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--
@@ -4204,7 +4217,13 @@
 
     <tdml:document>12345</tdml:document>
     <tdml:errors>
-      <tdml:error>MaxLength facet can only be applied to string or hexBinary.</tdml:error>
+      <tdml:error>facets</tdml:error>
+      <tdml:error>minLength</tdml:error>
+      <tdml:error>maxLength</tdml:error>
+      <tdml:error>not allowed</tdml:error>
+      <tdml:error>type</tdml:error>
+      <tdml:error>derived</tdml:error>
+      <tdml:error>int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

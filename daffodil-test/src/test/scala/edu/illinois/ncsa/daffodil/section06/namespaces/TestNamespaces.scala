@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
-import edu.illinois.ncsa.daffodil.Main
 
 class TestNamespaces {
 
@@ -54,7 +53,7 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false)
-  
+
   @Test def test_schemaSameDir_01() { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02() { runner.runOneTest("schemaSameDir_02") }
   @Test def test_schemaSameDir_03() { runner.runOneTest("schemaSameDir_03") }
@@ -76,7 +75,7 @@ class TestNamespaces {
     }
   }
 
-/*  
+  /*  
   @Test def test_errorLocations_01() {
     try {
       // Must turn off the Info logging messages, because those will have the filename in them
@@ -91,7 +90,7 @@ class TestNamespaces {
 
   @Test def test_defaultNamespaceInExpression() { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2() { runner.runOneTest("defaultNamespaceInExpression2") }
-  
+
   @Test def test_namespaces_qnames() { runner.runOneTest("namespaces_qnames") }
   @Test def test_namespaces_qnames2() { runner.runOneTest("namespaces_qnames2") }
   @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
@@ -157,8 +156,8 @@ class TestNamespaces {
   @Test def test_multi_encoding_01() { runner.runOneTest("multi_encoding_01") }
   @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
   @Test def test_multi_encoding_03() { runner.runOneTest("multi_encoding_03") }
-//  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DFDL-716
-//  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DFDL-715
+  //  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") } //DFDL-716
+  //  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") } //DFDL-715
 
   // Preliminary tests for import format schemas
   @Test def test_import_format_01() { runner.runOneTest("import_format_01") }
@@ -198,7 +197,7 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_02() { runner.runOneTest("nonsense_namespace_02") }
   @Test def test_nonsense_namespace_03() { runner.runOneTest("nonsense_namespace_03") }
   @Test def test_nonsense_namespace_04() { runner.runOneTest("nonsense_namespace_04") }
- 
+
   val tdmlFile = testDir + "includeImport.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdmlFile))
 

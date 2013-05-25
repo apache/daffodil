@@ -31,7 +31,12 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>schEmA deFinitIon erRor</tdml:error>
-      <tdml:error>maxlength was asked for when iSsimplEType(true) and ispriMitivetyPe(trUe)</tdml:error>
+      <tdml:error>Type</tdml:error>
+      <tdml:error>double</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>implicit</tdml:error>
+      <tdml:error>representation</tdml:error>
+      <tdml:error>text</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
