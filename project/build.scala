@@ -84,7 +84,7 @@ object DaffodilBuild extends Build {
   lazy val testOnlyTaskDebug = Keys.testOnly in DebugTest
   lazy val testQuickTaskDebug = Keys.testQuick in DebugTest
 
-  lazy val stageTask = SbtStartScript.stage in Compile in core
+  lazy val stageTask = SbtStartScript.stage in Compile in cli
 
   lazy val stageTaskSettings = Seq(
     //cli test tasks
