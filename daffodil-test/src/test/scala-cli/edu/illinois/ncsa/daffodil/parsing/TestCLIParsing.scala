@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import junit.framework.Assert.assertEquals
 import java.io.File
 import edu.illinois.ncsa.daffodil.CLI.Util
 
@@ -54,6 +55,16 @@ class TestCLIparsing {
   val output8 = Util.getExpectedString("output8.txt")
   val output9 = Util.getExpectedString("output9.txt")
   val output10 = Util.getExpectedString("output10.txt")
+  
+  @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
+    var cmd = "daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/TopLevel.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/DefaultProperties.xsd -o outfile.txt daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/02nine_headers.txt\n"
+    var shell = Util.getShell(cmd)
+
+    val err = shell.getCurrentStandardErrContents()
+    assertEquals(err, "")
+    shell.send("exit\n")
+    shell.expectClose()
+  }
 
   @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
     var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
