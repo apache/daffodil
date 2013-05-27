@@ -57,13 +57,18 @@ class TestCLIparsing {
   val output10 = Util.getExpectedString("output10.txt")
   
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
-    var cmd = "daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/TopLevel.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/DefaultProperties.xsd -o outfile.txt daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/02nine_headers.txt\n"
+    val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
+    var cmd = "daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/TopLevel.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/DefaultProperties.xsd -o " + tmp_filename + " daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/02nine_headers.txt\n"
     var shell = Util.getShell(cmd)
 
     val err = shell.getCurrentStandardErrContents()
     assertEquals(err, "")
     shell.send("exit\n")
     shell.expectClose()
+
+    //Remove the temporary output file
+    val file = new File(tmp_filename)
+    assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
   }
 
   @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
@@ -114,8 +119,7 @@ class TestCLIparsing {
   }
   /*  
   @Test def test_978_CLI_Parsing_SimpleParse_outFile() {
-
-    val tmp_filename: Long = System.currentTimeMillis / 1000
+    val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
 //    val cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -o " + tmp_filename + "\n"
     val shell = Util.getShell(cmd)
 
@@ -124,6 +128,9 @@ class TestCLIparsing {
 //    shell.send("rm -f " + tmp_filename + "\n")
     shell.send("exit\n")
     shell.expectClose()
+
+    val file = new File(tmp_filename)
+    assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
   }
 */
   @Test def test_979_CLI_Parsing_SimpleParse_inFile() {
