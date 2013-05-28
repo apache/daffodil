@@ -260,7 +260,7 @@ abstract class ParseResult(dp: DataProcessor)
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 
-  lazy val resultAsJDOM =
+  lazy val resultAsJDOMContent =
     if (resultState.status == Success) {
       val xmlNoHidden = resultState.infoset.jdomElt match {
         case Some(e) => XMLUtils.removeHiddenElements(e)
@@ -271,6 +271,12 @@ abstract class ParseResult(dp: DataProcessor)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
+  
+  lazy val resultAsJDOMDocument = {
+    val doc = new org.jdom.Document
+    doc.addContent(resultAsJDOMContent)
+    doc
+  }
 }
 
 abstract class UnparseResult(dp: DataProcessor)

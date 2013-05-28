@@ -9,23 +9,28 @@ import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
+import java.io.IOException
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import edu.illinois.ncsa.daffodil.processors.{ ParseResult => SParseResult }
-import edu.illinois.ncsa.daffodil.compiler.{ ProcessorFactory => SProcessorFactory }
-import edu.illinois.ncsa.daffodil.processors.{ DataProcessor => SDataProcessor }
-import edu.illinois.ncsa.daffodil.processors.InfosetDocument
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.api.{ WithDiagnostics => SWithDiagnostics }
-import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
-import edu.illinois.ncsa.daffodil.api.{ LocationInSchemaFile => SLocationInSchemaFile }
-import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ ConsoleWriter => SConsoleWriter }
-import edu.illinois.ncsa.daffodil.util.{ FileWriter => SFileWriter }
-import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
-import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
-import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
+
+import scala.collection.JavaConversions.seqAsJavaList
+
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.{DataLocation => SDataLocation}
+import edu.illinois.ncsa.daffodil.api.{Diagnostic => SDiagnostic}
+import edu.illinois.ncsa.daffodil.api.{LocationInSchemaFile => SLocationInSchemaFile}
+import edu.illinois.ncsa.daffodil.api.{WithDiagnostics => SWithDiagnostics}
+import edu.illinois.ncsa.daffodil.compiler.{Compiler => SCompiler}
+import edu.illinois.ncsa.daffodil.compiler.{ProcessorFactory => SProcessorFactory}
+import edu.illinois.ncsa.daffodil.processors.{DataProcessor => SDataProcessor}
+import edu.illinois.ncsa.daffodil.processors.{ParseResult => SParseResult}
+import edu.illinois.ncsa.daffodil.util.{ConsoleWriter => SConsoleWriter}
+import edu.illinois.ncsa.daffodil.util.{FileWriter => SFileWriter}
+import edu.illinois.ncsa.daffodil.util.{Glob => SGlob}
+import edu.illinois.ncsa.daffodil.util.{LogLevel => SLogLevel}
+import edu.illinois.ncsa.daffodil.util.{LogWriter => SLogWriter}
+import edu.illinois.ncsa.daffodil.util.{LoggingDefaults => SLoggingDefaults}
+import edu.illinois.ncsa.daffodil.util.{NullLogWriter => SNullLogWriter}
 
 /**
  * API Suitable for Java programmers to use.
@@ -189,14 +194,7 @@ class ParseResult(pr: SParseResult)
    * because in that case there is no result document.
    */
   def result(): org.jdom.Document = {
-
-    // TODO: avoid conversion to/from scala.xml.Nodes just to scrub unneeded
-    // attributes, scrub hidden elements. Should be able to start from the raw
-    // jdom document.
-
-    val docNode = new org.jdom.Document()
-    docNode.addContent(pr.resultAsJDOM)
-    docNode
+    pr.resultAsJDOMDocument
   }
 
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
