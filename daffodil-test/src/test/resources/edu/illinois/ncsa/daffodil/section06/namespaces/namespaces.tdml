@@ -2226,5 +2226,45 @@ jonesington,david,frederick,1986-02-19
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: typeNameOverlap_01
+    Schema: multi_base_18.dfdl.xsd
+    Root: e
+    Purpose: This test demonstrates the issue seen in bug DFDL-563. When a custom type name overlaps
+    with a built-in type, the built-in type is used, regardless of namespace prefix used.
+  -->
+
+  <tdml:parserTestCase name="typeNameOverlap_01" root="e"
+    model="multi_base_18.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="bits">10000111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>135</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: typeNameOverlap_02
+    Schema: multi_base_19.dfdl.xsd
+    Root: e
+    Purpose: This test demonstrates the issue seen in bug DFDL-563. When a custom type name overlaps
+    with a built-in type, the built-in type is used, regardless of namespace prefix used.
+  -->
+
+  <tdml:parserTestCase name="typeNameOverlap_02" root="e"
+    model="multi_base_19.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document>
+      <tdml:documentPart type="bits">10000111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e>135</e>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>

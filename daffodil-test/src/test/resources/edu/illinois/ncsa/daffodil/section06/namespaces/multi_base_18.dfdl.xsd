@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:ex1="http://example.com/1" targetNamespace="http://example.com/1">
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" alignment="1" alignmentUnits="bytes" trailingSkip="0" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" binaryNumberRep="binary" byteOrder="bigEndian" representation="binary" textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:simpleType name="int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:lengthUnits="bytes">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <xs:element name="e" type="ex1:int"/>
+
+</xs:schema>

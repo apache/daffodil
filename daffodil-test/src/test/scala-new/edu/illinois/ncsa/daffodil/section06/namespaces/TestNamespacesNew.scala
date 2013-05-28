@@ -58,10 +58,6 @@ class TestNamespacesNew extends Logging {
   // JIRA DFDL-586
   @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
 
-  // Both of these are about JIRA DFDL-563
-  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-  @Test def test_primTypesPrefixes01() { runner.runOneTest("primTypesPrefixes01") }
-
   // Fixed test (missing one terminator in mid-chain). Jira DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
 

@@ -180,9 +180,11 @@ class TestNamespaces {
 
   @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
   @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
-  //  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-
+  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
   @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
+  @Test def test_primTypesPrefixes01() { runner.runOneTest("primTypesPrefixes01") }
+  @Test def test_typeNameOverlap_01() { runner.runOneTest("typeNameOverlap_01") }
+  @Test def test_typeNameOverlap_02() { runner.runOneTest("typeNameOverlap_02") }
 
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
