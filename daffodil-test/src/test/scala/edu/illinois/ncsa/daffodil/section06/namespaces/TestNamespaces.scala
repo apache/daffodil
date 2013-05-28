@@ -58,6 +58,8 @@ class TestNamespaces {
   @Test def test_schemaSameDir_01() { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02() { runner.runOneTest("schemaSameDir_02") }
   @Test def test_schemaSameDir_03() { runner.runOneTest("schemaSameDir_03") }
+  
+  @Test def test_schemaSameDirClasspath_01() { runner.runOneTest("schemaSameDirClasspath_01") }
 
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message 

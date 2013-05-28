@@ -2204,5 +2204,27 @@ jonesington,david,frederick,1986-02-19
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaSameDirClasspath_01
+    Schema: multi_base_17.dfdl.xsd
+    Root: e17
+    Purpose: This test demonstrates that when a schemaLocation is provided, the parser should look
+    in the same directory alongside the file doing the include. This test combines that method with 
+    providing a schema location on the classpath.
+  -->
+
+  <tdml:parserTestCase name="schemaSameDirClasspath_01" root="e17"
+    model="multi_base_17.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    <tdml:document><![CDATA[aElem,bElem]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e17>
+          <A>aElem</A>
+          <B>bElem</B>
+        </e17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </testSuite>
