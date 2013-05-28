@@ -51,7 +51,7 @@ class TestCLIdebugger {
   @Test def test_1339_CLI_Debugger_removeHidden() { 
     val output7 = Util.getExpectedString("output7.txt")
     val cmd = "./daffodil-cli/target/start -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     shell.send("set removeHidden false\n")
@@ -71,7 +71,7 @@ class TestCLIdebugger {
 
   @Test def test_1591_CLI_Debugger_invalidCommandError() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1591 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
     shell.expect("error: undefined command: garbage")
     shell.expectClose()
@@ -79,7 +79,7 @@ class TestCLIdebugger {
 
   @Test def test_1331_CLI_Debugger_breakpointTesting4() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1331 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("break element.cell\n")
@@ -126,13 +126,13 @@ class TestCLIdebugger {
   /* 
   @Test def test_1335_CLI_Debugger_dataAndWrapLength() {
     val cmd = "daffodil-cli/target/start -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
   }
 */
 
   @Test def test_1338_CLI_Debugger_discriminatorInfo() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1338 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r Item2 daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("break element.e3\n")
@@ -153,7 +153,7 @@ class TestCLIdebugger {
 
   @Test def test_982_CLI_Debugger_simpleDebugger() {
     val cmd = "./daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/982 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
     //    shell.send("continue\n")
 
@@ -163,7 +163,7 @@ class TestCLIdebugger {
 
   @Test def test_1326_CLI_Debugger_displaysTesting() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1326 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("display eval (.)\n")
@@ -195,7 +195,7 @@ class TestCLIdebugger {
 
   @Test def test_1328_CLI_Debugger_breakpointTesting() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1328 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("display info infoset\n")
@@ -225,7 +225,7 @@ class TestCLIdebugger {
 
   @Test def test_1329_CLI_Debugger_breakpointTesting2() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1329 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("display info infoset\n")
@@ -251,7 +251,7 @@ class TestCLIdebugger {
 
   @Test def test_1330_CLI_Debugger_breakpointTesting3() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1330 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //  display info arrayIndex
@@ -284,7 +284,7 @@ class TestCLIdebugger {
 
   @Test def test_1333_CLI_Debugger_settingInfosetLines() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1333 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("display info infoset\n")
@@ -318,7 +318,7 @@ class TestCLIdebugger {
 
   @Test def test_1334_CLI_Debugger_infoBitPosition() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1334 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("display info bitPosition\n")
@@ -343,7 +343,7 @@ class TestCLIdebugger {
 
   @Test def test_1337_CLI_Debugger_childIndex() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1337 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input4.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("break element.cell\n")
@@ -372,7 +372,7 @@ class TestCLIdebugger {
   @Test def test_1340_CLI_Debugger_infoPath() {
     val output1 = Util.getExpectedString("output1.txt")
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1340 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("break element.cell\n")
@@ -391,7 +391,7 @@ class TestCLIdebugger {
 
   @Test def test_1382_CLI_Debugger_dataAndWrapLength2() {
     val cmd = "daffodil-cli/target/start -d daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1382 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect("(debug)")
 
     //    shell.send("break element.cell\n")

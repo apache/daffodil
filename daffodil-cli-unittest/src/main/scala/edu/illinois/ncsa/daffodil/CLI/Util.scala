@@ -57,19 +57,35 @@ object Util {
     }
   }
 
-  def getShell(cmd: String): Spawn = {
+  def start(cmd: String): Spawn = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
 
+    return getShell(cmd, spawnCmd)
+  }
+ 
+  // This function will be used if you are providing two separate commands
+  // and doing the os check on the 'front end' (not within this utility class)
+  def startNoConvert(cmd: String): Spawn = {
+    val spawnCmd = if (isWindows) {
+      "cmd /k" + cmd
+    } else {
+      "/bin/bash"
+    }
+
+    return getShell(cmd, spawnCmd)
+  }
+  
+  def getShell(cmd: String, spawnCmd: String): Spawn = {
     val shell = ex.spawn(spawnCmd)
     if (!isWindows) {
       shell.send(cmd)
     }
     return shell
-  }
+  } 
 
   def cmdConvert(str: String): String = {
     var newstr = str.replaceAll("""\\n?""", "")

@@ -55,7 +55,7 @@ class TestCLIexecuting {
 
   @Test def test_995_CLI_Executing_Listing_negativeTest01() {
     val cmd = "./daffodil-cli/target/start test daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml escape_entry1 escape_entry2-11 escape_entry1-5 escape_entry4_3\n"
-    val shell = Util.getShell(cmd)
+    val shell = Util.start(cmd)
     shell.expect(output3)
     shell.send("exit\n")
     shell.expectClose()
