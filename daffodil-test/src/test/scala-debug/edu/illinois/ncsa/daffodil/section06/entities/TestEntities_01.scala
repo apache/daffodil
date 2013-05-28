@@ -64,7 +64,4 @@ class TestEntities_01 {
   val tdml_03 = testDir_01 + "charClassEntities.tdml"
   lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
 
-  //DFDL-721
-  @Test def test_doubleNL() { runner_03.runOneTest("doubleNL") }
-
 }

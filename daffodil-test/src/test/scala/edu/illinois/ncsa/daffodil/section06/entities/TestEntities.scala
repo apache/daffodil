@@ -48,8 +48,6 @@ class TestEntities {
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-//  fails because of bug DFDL-721
-//  @Test def test_doubleNL() { runner.runOneTest("doubleNL") }
   @Test def test_doubleNL2() { runner.runOneTest("doubleNL2") }
 
   @Test def test_entityInError() { runner.runOneTest("entityInError") }
