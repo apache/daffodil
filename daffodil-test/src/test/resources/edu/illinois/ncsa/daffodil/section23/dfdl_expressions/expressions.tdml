@@ -1544,18 +1544,34 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-<!--    
+    
+    <dfdl:defineVariable name="v_literal_bracket" type="xs:string"
+      defaultValue="{{"/>
+    <dfdl:defineVariable name="v_literal_bracket2" type="xs:string"
+      defaultValue="{{}"/>
+ 
     <xs:element name="e_03" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator=".">
           <xs:element name="e1" type="xs:int"
             dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="e2" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{{" />
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:v_literal_bracket }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
--->
+    
+    <xs:element name="e_04" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="e1" type="xs:int"
+            dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="e2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:v_literal_bracket2 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -1613,10 +1629,31 @@
     <tdml:document>3</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e_01>
+        <ex:e_03>
           <ex:e1>3</ex:e1>
-          <ex:e2>}</ex:e2>
-        </ex:e_01>
+          <ex:e2>{</ex:e2>
+        </ex:e_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: expressionRules04
+        Schema: expressionRules
+          Root: e_04
+       Purpose: This test demonstrates that {{ as the first characters are treated as the literal '{' and not a DFDL expression 
+-->
+  
+  <tdml:parserTestCase name="expressionRules04" root="e_04"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e_03>
+          <ex:e1>3</ex:e1>
+          <ex:e2>{}</ex:e2>
+        </ex:e_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
