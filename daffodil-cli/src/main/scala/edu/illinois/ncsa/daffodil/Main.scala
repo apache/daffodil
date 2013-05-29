@@ -6,8 +6,7 @@ import java.io.FileInputStream
 import java.io.File
 import scala.xml.SAXParseException
 import org.rogach.scallop
-import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebugger, CLIDebuggerRunner }
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
@@ -334,19 +333,20 @@ object Main extends Logging {
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
 
-    if (conf.trace()) {
+    if (conf.trace() || conf.debug.isDefined) {
+      val runner =
+        if (conf.trace()) {
+          new TraceDebuggerRunner
+        } else {
+          if (System.console == null) {
+            log(LogLevel.Warning, "Using --debug on a non-interactive console may result in display issues")
+          }
+          conf.debug() match {
+            case Some(f) => new CLIDebuggerRunner(new File(f))
+            case None => new CLIDebuggerRunner()
+          }
+        }
       Debugger.setDebugging(true)
-      Debugger.setDebugger(new TraceDebugger)
-    } else if (conf.debug.isDefined) {
-      if (System.console == null) {
-        log(LogLevel.Warning, "Using --debug on a non-interactive console may result in display issues")
-      }
-
-      Debugger.setDebugging(true)
-      val runner = conf.debug() match {
-        case Some(f) => new CLIDebuggerRunner(new File(f))
-        case None => new CLIDebuggerRunner()
-      }
       Debugger.setDebugger(new InteractiveDebugger(runner))
     }
 

@@ -68,9 +68,12 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI1() throws IOException {
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugging(true);
+		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
 		java.io.File[] schemaFiles = new java.io.File[2];
@@ -102,10 +105,14 @@ public class TestJavaAPI {
 		assertEquals(0, lw.warnings.size());
 		assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
+		assertTrue(debugger.lines.size() > 0);
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 
-		// reset the global logging state
+		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugging(false);
+		Daffodil.setDebugger(null);
 	}
 
 	@Test

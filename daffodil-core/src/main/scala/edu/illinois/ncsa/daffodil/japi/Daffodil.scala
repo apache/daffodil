@@ -2,7 +2,9 @@ package edu.illinois.ncsa.daffodil.japi
 
 import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.japi.debugger._
+import edu.illinois.ncsa.daffodil.debugger.{ Debugger => SDebugger }
+import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -45,6 +47,21 @@ object Daffodil {
   def setLoggingLevel(lvl: LogLevel): Unit = {
     SLoggingDefaults.setLoggingLevel(SLogLevel.fromJava(lvl))
   }
+
+  def setDebugging(flag: Boolean) {
+    SDebugger.setDebugging(flag)
+  }
+
+  def setDebugger(dr: DebuggerRunner) {
+    val debugger =
+      if (dr != null) {
+        val runner = new JavaInteractiveDebuggerRunner(dr)
+        new SInteractiveDebugger(runner)
+      } else {
+        null
+      }
+    SDebugger.setDebugger(debugger)
+  }
 }
 
 class Compiler {
@@ -65,10 +82,6 @@ class Compiler {
 
   def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
     sCompiler.setExternalDFDLVariable(name, namespace, value)
-  }
-
-  def setDebugging(flag: Boolean) {
-    sCompiler.setDebugging(flag)
   }
 
 }
@@ -234,4 +247,3 @@ private class JavaLogWriter(logWriter: LogWriter)
     }
   }
 }
-

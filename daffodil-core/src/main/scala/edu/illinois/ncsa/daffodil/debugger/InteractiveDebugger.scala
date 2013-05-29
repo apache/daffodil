@@ -51,67 +51,18 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import javax.xml.xpath.{ XPathConstants, XPathException }
 import java.io.File
-import jline.console.ConsoleReader
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import scala.io.Source
 import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
-import jline.console.completer._
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
   def getCommand: String
   def lineOutput(line: String): Unit
   def fini(): Unit
-}
-
-class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerRunner {
-  def this() {
-    this(Iterator.empty)
-  }
-
-  def this(file: File) {
-    this(Source.fromFile(file).getLines)
-  }
-
-  def this(seq: Seq[String]) {
-    this(seq.iterator)
-  }
-
-  var reader: Option[ConsoleReader] = None
-
-  def init(id: InteractiveDebugger): Unit = {
-    val r = new ConsoleReader()
-    r.setPrompt("(debug) ")
-    r.addCompleter(id.DebugCommandBase.completer)
-    reader = Some(r)
-  }
-
-  def fini(): Unit = {
-    reader.get.shutdown
-    reader = None
-  }
-
-  def getCommand: String = {
-    val cmd = if (cmdsIter.hasNext) {
-      val line = cmdsIter.next
-      if (line.length > 0) {
-        reader.get.getHistory.add(line)
-      }
-      println("%s%s".format(reader.get.getPrompt, line))
-      line
-    } else {
-      val line = reader.get.readLine
-      if (line == null) "quit" else line
-    }
-    cmd.trim
-  }
-
-  def lineOutput(line: String): Unit = {
-    println("  " + line)
-  }
 }
 
 class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {

@@ -112,7 +112,6 @@ object DFDL {
      */
     def setDistinguishedRootNode(name: String, namespace: String)
     def setExternalDFDLVariable(name: String, namespace: String, value: String)
-    def setDebugging(flag: Boolean)
 
     /**
      * Compilation returns a parser factory, which must be interrogated for diagnostics

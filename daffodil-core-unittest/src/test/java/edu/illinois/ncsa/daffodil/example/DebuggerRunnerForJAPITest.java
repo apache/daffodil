@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.debugger
+package edu.illinois.ncsa.daffodil.example;
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,35 +32,19 @@ package edu.illinois.ncsa.daffodil.debugger
  * SOFTWARE.
  */
 
-class TraceRunner() extends InteractiveDebuggerRunner {
-  val traceIter = Seq("display info parser",
-                      "display info data",
-                      "display info infoset",
-                      "display info diff",
-                      "trace").iterator
+import edu.illinois.ncsa.daffodil.japi.debugger.*;
 
-  def init(id: InteractiveDebugger): Unit = {}
+import java.util.ArrayList;
 
-  def getCommand: String = {
-    if (traceIter.hasNext) {
-      traceIter.next
-    } else {
-      // If the traceItr commands are good this should never happen. The only
-      // time this would ever get hit is if something caused the debugger to
-      // break. So if this does happen, just keep running trace. We should
-      // eventually finish parsing.
-      "trace"
-    }
-  }
+public class DebuggerRunnerForJAPITest extends TraceRunner {
+	ArrayList<String> lines;
 
-  def lineOutput(line: String): Unit = {
-    println(line)
-  }
+	public void init() {
+		lines = new ArrayList<String>();
+	}
 
-  def fini(): Unit = {}
+	public void lineOutput(String line) {
+		lines.add(line + "\n");
+	}
 }
 
-
-class TraceDebugger() extends InteractiveDebugger(new TraceRunner) {
-
-}

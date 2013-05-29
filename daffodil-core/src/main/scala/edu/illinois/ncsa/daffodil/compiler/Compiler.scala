@@ -147,10 +147,6 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     Assert.notYetImplemented()
   }
 
-  def setDebugging(flag: Boolean) {
-    Debugger.setDebugging(flag)
-  }
-
   /**
    * Controls whether we check everything in the schema, or just the element
    * we care about (and everything reachable from it.)
