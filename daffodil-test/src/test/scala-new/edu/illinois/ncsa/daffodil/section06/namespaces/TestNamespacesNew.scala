@@ -53,8 +53,6 @@ class TestNamespacesNew extends Logging {
 
   @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
-  @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
-
   // JIRA DFDL-586
   @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
 

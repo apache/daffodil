@@ -197,6 +197,7 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_01() { runner.runOneTest("nonsense_namespace_01") }
   @Test def test_nonsense_namespace_02() { runner.runOneTest("nonsense_namespace_02") }
   @Test def test_nonsense_namespace_03() { runner.runOneTest("nonsense_namespace_03") }
+  @Test def test_nonsense_namespace_04() { runner.runOneTest("nonsense_namespace_04") }
  
   val tdmlFile = testDir + "includeImport.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdmlFile))

@@ -1749,6 +1749,21 @@
       <tdml:error>Prefix fn has not been declared</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonsense_namespace_04
+    Schema: ABC_invalid_2.xsd
+    Root: a
+    Purpose: This test demonstrates that you cannot put non-native attributes on DFDL annotation elements.
+  -->
+
+  <tdml:parserTestCase name="nonsense_namespace_04" root="a" model="ABC_invalid_2.xsd" description="">
+    <tdml:document><![CDATA[a]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Attribute 'rando:hm' is not allowed to appear in element 'dfdl:discriminator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
   <!--
     Test name: namespaceLimit
