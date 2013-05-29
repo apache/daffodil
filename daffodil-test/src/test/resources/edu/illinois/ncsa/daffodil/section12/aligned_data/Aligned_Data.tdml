@@ -1405,7 +1405,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>The given alignment (4 bits) must be a multiple of the encoding specified alignment (8 bits) for (String)</tdml:error>
+      <tdml:error>The given alignment (4 bits) must be a multiple of the encoding specified alignment (8 bits) for String</tdml:error>
       <tdml:error>representation='text'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -1542,7 +1542,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>The given alignment (2 bits) must be a multiple of the encoding specified alignment (8 bits) for (String) when representation='text'</tdml:error>
+      <tdml:error>The given alignment (2 bits) must be a multiple of the encoding specified alignment (8 bits) for String when representation='text'</tdml:error>
       <tdml:error>Encoding: UTF-32BE</tdml:error>
     </tdml:errors> 
   </tdml:parserTestCase>

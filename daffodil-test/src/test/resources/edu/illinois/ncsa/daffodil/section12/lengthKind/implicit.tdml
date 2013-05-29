@@ -70,10 +70,11 @@
 
   </tdml:defineSchema>
   
-  <!--
+ <!--
     Test name: implicit_with_len
     Schema: implicit_tests_embedded
-    Purpose: This test demonstrates
+    Purpose: This test demonstrates SDE when lengthKind="implicit"
+    representation is text, and type is not string or hexbinary.
   -->
   
   <tdml:parserTestCase name="implicit_with_len" root="elem01"
@@ -81,11 +82,13 @@
 
     <tdml:document><![CDATA[1234]]></tdml:document>
     <tdml:errors>
-      <!-- I don't think that this is the appropriate error message
-           as the error should be caused by the fact that the element
-           has dfdl:lengthKind="implicit" and then dfdl:length="5" -->
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>MaxLength was asked for when isSimpleType(true) and isPrimitiveType(true)</tdml:error>
+      <tdml:error>type</tdml:error>                        
+      <tdml:error>int</tdml:error>      
+      <tdml:error>representation</tdml:error>           
+      <tdml:error>text</tdml:error>                 
+      <tdml:error>lengthKind</tdml:error>                       
+      <tdml:error>implicit</tdml:error>                             
     </tdml:errors>
   </tdml:parserTestCase>
 

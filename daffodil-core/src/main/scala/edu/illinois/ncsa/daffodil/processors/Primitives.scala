@@ -1684,7 +1684,7 @@ trait Padded { self: Terminal =>
   val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
     case TextTrimKind.PadChar if eBase.isSimpleType => {
-      val theJust = eBase.primType.myPrimitiveType match {
+      val theJust = eBase.primType match {
 
         case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
           PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |

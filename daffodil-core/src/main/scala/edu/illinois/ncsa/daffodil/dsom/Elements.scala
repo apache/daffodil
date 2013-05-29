@@ -156,6 +156,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def elementComplexType: ComplexTypeBase
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
+
+  lazy val simpleType = {
+    Assert.usage(isSimpleType)
+    typeDef.asInstanceOf[SimpleTypeBase]
+  }
+
   def isScalar: Boolean
 
   def elementRef: Option[ElementRef]
@@ -208,7 +214,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType.myPrimitiveType, representation)
+  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, representation)
 
   lazy val alignmentValueInBits: Int = {
     alignment match {
@@ -227,8 +233,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           representation match {
             case Representation.Text => {
               if ((alignInBits % implicitAlignmentInBits) != 0)
-                SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for (%s) when representation='text'. Encoding: %s",
-                  alignInBits, implicitAlignmentInBits, primType.myPrimitiveType, this.knownEncodingName)
+                SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
+                  alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
             case _ => /* Non textual data, no need to compare alignment to encoding's expected alignment */
           }
@@ -435,7 +441,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (isSimpleType && !isPrimitiveType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasPattern) {
-        val pt = st.primitiveType.myPrimitiveType
+        val pt = st.primitiveType
         if (pt != PrimType.String) SDE("Pattern is only allowed to be applied to string and types derived from string.")
         st.patternValues
       } else SDE("Pattern was not found in this context.")
@@ -450,79 +456,64 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
   }
 
-  //TODO: refactor minLength and maxLength calculation. 
-  // 
-  // It would be much clearer as a match-case 
-  // on a pair of (hasMinLength, hasMaxLength), and should compute
-  // lazy val (minLength: BigDecimal, maxLength: BigDecimal) = {
-  //   schemaDefinitionUnless(isSimpleType && !isPrimitiveType && pt == PrimType.String || pt == PrimType.HexBinary), "Facets minLength and maxLength only apply to simpleTypes derived from xs:string or xs:hexBinary")
-  //   (hasMinLength, hasMaxLength) match {
-  //       case (true, true) if (isImplicitString) => // check for equal
-  //       case (true, true) if (st.minLengthValue <= st.maxLengthValue) => (st.minLengthValue, st.maxLengthValue)
-  //       case (false, true) if (isImplicitString) => (st.maxLengthValue, st.maxLengthValue)
-  //       case (false, true) => (0, st.maxLengthValue)
-  //       case (_, false) if (isImplicitString) => SDE("maxLength is required for implicit length strings.")
-  //       case (false, false) => (0, -1) // -1 means unbounded right? 
-  //       and so on.
-  // Right now, it's much too hard to fix a bug in here.
-  // I'd have to fix this in two places right now.
-  //
-  // This same comment applies below to many of these other facet pairs
-  // which can be computed together instead of a separate lazy val for
-  // each. 
-  // 
-  lazy val minLength: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
-      // Facets cannot be applied to primitive types
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      val pt = st.primitiveType.myPrimitiveType
-      val lk = this.lengthKind
-      if (lk == LengthKind.Implicit && pt == PrimType.String) {
-        // minLength and maxLength must be equal
-        if (st.hasMinLength && st.hasMaxLength) {
-          val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res != 0) SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
-        } else SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
-      }
-      if (st.hasMinLength) {
-        // May only apply to string/hexBinary
-        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) SDE("MinLength facet can only be applied to string or hexBinary.")
-        if (st.hasMaxLength) {
-          val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res > 0) SDE("MinLength facet must be <= MaxLength facet.")
-        }
-        st.minLengthValue
-      } else SDE("MinLength was not found in this context.")
+  /**
+   * Compute minLength and maxLength together to share error-checking
+   * and case dispatch that would otherwise have to be repeated.
+   */
+  lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) = computeMinMaxLength
+  // TODO: why are we using java.math.BigDecimal, when scala has a much 
+  // nicer decimal class?
+  val zeroBD = new java.math.BigDecimal(0)
+  val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
 
-    } else SDE("MinLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+  private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
+    schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
+    elementSimpleType match {
+      case prim: PrimitiveType => {
+        //
+        // We handle text numbers by getting a stringValue first, then
+        // we convert to the number type. 
+        // 
+        // This means we cannot check and SDE here on incorrect simple type.
+        return (zeroBD, unbBD)
+      }
+      case st: SimpleTypeDefBase => {
+        val pt = st.primitiveType
+        val typeOK = pt == PrimType.String || pt == PrimType.HexBinary
+        schemaDefinitionWhen(!typeOK && (hasMinLength || hasMaxLength),
+          "Facets minLength and maxLength are not allowed on types derived from type %s.\nThey are allowed only on typed derived from string and hexBinary.",
+          pt.name)
+        val res = (hasMinLength, hasMaxLength, lengthKind) match {
+          case (true, true, LengthKind.Implicit) => {
+            schemaDefinitionUnless(
+              st.minLengthValue.compareTo(st.maxLengthValue) == 0,
+              "The minLength and maxLength must be equal for type %s with lengthKind='implicit'. Values were minLength of %s, maxLength of %s.",
+              pt.name, st.minLengthValue, st.maxLengthValue)
+            (st.minLengthValue, st.maxLengthValue)
+          }
+          case (true, true, _) => {
+            schemaDefinitionWhen(
+              st.minLengthValue.compareTo(st.maxLengthValue) > 0,
+              // always true, so we don't bother to specify the type in the message.
+              "The minLength facet value must be less than or equal to the maxLength facet value. Values were minLength of %s, maxLength of %s.",
+              st.minLengthValue, st.maxLengthValue)
+            (st.minLengthValue, st.maxLengthValue)
+          }
+          case (_, _, LengthKind.Implicit) => SDE("When lengthKind='implicit', both minLength and maxLength facets must be specified.")
+          case (false, true, _) => (zeroBD, st.maxLengthValue)
+          case (false, false, _) => (zeroBD, unbBD)
+          case (true, false, _) => (st.minLengthValue, unbBD)
+          case _ => Assert.impossible()
+        }
+        res
+      }
+      case _ => Assert.invariantFailed("should only be a PrimitiveType or SimpleTypeDefBase")
+    }
   }
 
-  lazy val maxLength: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
-      val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-      val pt = st.primitiveType.myPrimitiveType
-      val lk = this.lengthKind
-      if (lk == LengthKind.Implicit && pt == PrimType.String) {
-        // minLength and maxLength must be equal
-        if (st.hasMinLength && st.hasMaxLength) {
-          val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res != 0) SDE("When LengthKind.Implicit for string, min and maxLength must be equal.")
-        } else SDE("When LengthKind.Implicit for string, min and maxLength must be specified and equal.")
-      }
-      if (st.hasMaxLength) {
-        // May only apply to string/hexBinary
-        if ((pt != PrimType.String) && (pt != PrimType.HexBinary)) SDE("MaxLength facet can only be applied to string or hexBinary.")
-        if (st.hasMinLength) {
-          val res = st.minLengthValue.compareTo(st.maxLengthValue)
-          if (res > 0) SDE("MinLength facet must be <= MaxLength facet.")
-        }
-        st.maxLengthValue
-      } else SDE("MaxLength was not found in this context.")
-
-    } else SDE("MaxLength was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
-  }
-
-  // TODO: see comment above about refactoring minLength, maxLength
+  // TODO: see code above that computes minLength, maxLength
+  // simultaneously to avoid redundant check code.
+  // 
   // Same thing applies to the other paired facets where there is lots of 
   // common logic associated with checking.
   lazy val minInclusive: java.math.BigDecimal = {

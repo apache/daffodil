@@ -43,6 +43,6 @@ abstract class Enum {
   type Type <: EnumValueType
 
   // Base class for enum values
-  protected abstract class EnumValueType
+  protected trait EnumValueType
 
 }

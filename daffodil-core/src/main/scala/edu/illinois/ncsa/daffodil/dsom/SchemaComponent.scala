@@ -962,13 +962,11 @@ class SchemaSet(
   }
   def getDefineEscapeScheme(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
-  lazy val primitiveTypes = XMLUtils.DFDL_SIMPLE_BUILT_IN_TYPES.map { new PrimitiveType(_) }
-
   def getPrimitiveType(ns: NS, localName: String) = {
     if (ns != XMLUtils.XSD_NAMESPACE) // must check namespace
       None
     else
-      primitiveTypes.find { _.name == localName }
+      PrimType.allPrimitiveTypes.find { _.name == localName }
   }
 
   lazy val variableMap = {

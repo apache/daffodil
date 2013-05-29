@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -49,6 +48,6 @@ class TestLengthKindImplicitDebug {
   val aa = testDir + "implicit.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_implicit_with_len() { runner.runOneTest("implicit_with_len") }
+  // @Test def test_implicit_with_len() { runner.runOneTest("implicit_with_len") }
 
 }

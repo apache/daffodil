@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -54,7 +55,7 @@ import edu.illinois.ncsa.daffodil.util.SchemaUtils
 trait TypeBase
   extends HasIsError
 
-trait SimpleTypeBase
+sealed trait SimpleTypeBase
   extends TypeBase
   with TypeChecks {
   def context: SchemaComponent
@@ -660,7 +661,7 @@ trait Facets { self: SimpleTypeDefBase =>
   }
 
   private def convertFacetToBigDecimal(facet: String): java.math.BigDecimal = {
-    self.primitiveType.myPrimitiveType match {
+    self.primitiveType match {
       case PrimType.DateTime => dateToBigDecimal(facet, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
       case PrimType.Date => dateToBigDecimal(facet, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
       case PrimType.Time => dateToBigDecimal(facet, "HH:mm:ss.SSSSSSxxx", PrimType.Time.toString(), context)
@@ -680,7 +681,7 @@ trait Facets { self: SimpleTypeDefBase =>
         Facet.minExclusive | Facet.minInclusive | Facet.enumeration => {
         // Here we're just doing range checking for the
         // specified primitive type
-        primitiveType.myPrimitiveType match {
+        primitiveType match {
           case PrimType.Int => {
             if (!isFacetInIntRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of Int range.",
@@ -1022,7 +1023,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
     rsb.head.text
   }
 
-  lazy val myPrimitiveType = {
+  lazy val optPrimitiveType = {
     val (nsURI, localName) = baseTypeQName
     if (nsURI == XMLUtils.XSD_NAMESPACE) {
       // XSD namespace
@@ -1041,7 +1042,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val myBaseTypeFactory = {
     Assert.invariant(restrictionBase.length() != 0)
     val (nsURI, localName) = baseTypeQName
-    Assert.invariant(myPrimitiveType == None)
+    Assert.invariant(optPrimitiveType == None)
     val factory = schemaDocument.schemaSet.getGlobalSimpleTypeDef(nsURI, localName)
     factory
   }
@@ -1058,7 +1059,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
   lazy val baseTypeQName = XMLUtils.QName(xml, restrictionBase, schemaDocument)
 
   lazy val myBaseType: SimpleTypeBase = {
-    myPrimitiveType match {
+    optPrimitiveType match {
       case Some(pt) => pt
       case None => {
         val bt = myBaseTypeFactory.map { _.forDerivedType(this) }
@@ -1220,34 +1221,23 @@ object Fakes {
 
 }
 
-object PrimType extends Enum {
-  sealed abstract trait Type extends EnumValueType
-  case object String extends Type
-  case object Int extends Type
-  case object Byte extends Type
-  case object Short extends Type
-  case object Long extends Type
-  case object Integer extends Type
-  case object Decimal extends Type
-  case object UInt extends Type
-  case object UByte extends Type
-  case object UShort extends Type
-  case object ULong extends Type
-  case object NonNegativeInteger extends Type
-  case object Double extends Type
-  case object Float extends Type
-  case object HexBinary extends Type
-  case object Boolean extends Type
-  case object DateTime extends Type
-  case object Date extends Type
-  case object Time extends Type
-}
-
 // Primitives are not "global" because they don't appear in any schema document
-class PrimitiveType(pname: String)
+sealed abstract class PrimitiveType
   extends SchemaComponent(<primitive/>, null)
-  with SimpleTypeBase // use fake schema document {
+  with SimpleTypeBase
   with NamedMixin {
+
+  /**
+   * When class name is isomorphic to the type name, compute automatically.
+   */
+  lazy val pname = {
+    val cname = Misc.getNameFromClass(this)
+    val first = cname(0).toLower
+    val rest = cname.substring(1)
+    first + rest
+  }
+  override lazy val namespace = XMLUtils.XSD_NAMESPACE
+  override lazy val prefix = "xsd"
 
   import PrimType._
 
@@ -1264,32 +1254,49 @@ class PrimitiveType(pname: String)
   // override val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
 
   override lazy val schemaDocument = Fakes.fakeSD
+}
 
-  lazy val myPrimitiveType: PrimType.Type = {
-    name match {
-      case "string" => PrimType.String
-      case "int" => PrimType.Int
-      case "byte" => PrimType.Byte
-      case "short" => PrimType.Short
-      case "long" => PrimType.Long
-      case "integer" => PrimType.Integer
-      case "decimal" => PrimType.Decimal
-      case "unsignedInt" => PrimType.UInt
-      case "unsignedByte" => PrimType.UByte
-      case "unsignedShort" => PrimType.UShort
-      case "unsignedLong" => PrimType.ULong
-      case "nonNegativeInteger" => PrimType.NonNegativeInteger
-      case "double" => PrimType.Double
-      case "float" => PrimType.Float
-      case "hexBinary" => PrimType.HexBinary
-      case "boolean" => PrimType.Boolean //notYetImplemented("PrimitiveType: boolean")
-      case "dateTime" => PrimType.DateTime
-      case "date" => PrimType.Date
-      case "time" => PrimType.Time
-      case _ => schemaDefinitionError("Unrecognized primitive type: " + name)
-    }
-  }
-
+object PrimType {
+  type Type = PrimitiveType
+  case object String extends Type
+  case object Int extends Type
+  case object Byte extends Type
+  case object Short extends Type
+  case object Long extends Type
+  case object Integer extends Type
+  case object Decimal extends Type
+  case object UInt extends Type { override lazy val pname = "unsignedInt" }
+  case object UByte extends Type { override lazy val pname = "unsignedByte" }
+  case object UShort extends Type { override lazy val pname = "unsignedShort" }
+  case object ULong extends Type { override lazy val pname = "unsignedLong" }
+  case object NonNegativeInteger extends Type
+  case object Double extends Type
+  case object Float extends Type
+  case object HexBinary extends Type
+  case object Boolean extends Type
+  case object DateTime extends Type
+  case object Date extends Type
+  case object Time extends Type
+  lazy val allPrimitiveTypes: Seq[PrimitiveType] = List(
+    String,
+    Int,
+    Byte,
+    Short,
+    Long,
+    Integer,
+    Decimal,
+    UInt,
+    UByte,
+    UShort,
+    ULong,
+    NonNegativeInteger,
+    Double,
+    Float,
+    HexBinary,
+    Boolean,
+    DateTime,
+    Date,
+    Time)
 }
 
 /**

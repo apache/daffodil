@@ -175,7 +175,7 @@ trait ElementBaseGrammarMixin
   //  }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
-  lazy val implicitBinaryLengthInBits: Long = primType.myPrimitiveType match {
+  lazy val implicitBinaryLengthInBits: Long = primType match {
     case PrimType.Byte | PrimType.UByte => 8
     case PrimType.Short | PrimType.UShort => 16
     case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
@@ -311,7 +311,11 @@ trait ElementBaseGrammarMixin
       case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => stringDelimitedEndOfDataDynamic
       case LengthKind.Delimited => stringDelimitedEndOfDataStatic
       case LengthKind.Pattern => stringPatternMatched
-      case LengthKind.Implicit => implicitLengthString
+      case LengthKind.Implicit => {
+        val pt = this.simpleType.primitiveType
+        Assert.invariant(pt == PrimType.String)
+        implicitLengthString
+      }
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     })
     res
@@ -538,7 +542,7 @@ trait ElementBaseGrammarMixin
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
     // this gets used for array contents also.
     {
-      primType.myPrimitiveType match {
+      primType match {
         case PrimType.String => stringValue
         case PrimType.HexBinary => hexBinaryValue
         case _ => {
@@ -576,7 +580,7 @@ trait ElementBaseGrammarMixin
   lazy val maximumUnsignedLong = two.pow(64).subtract(new BigInteger("1"))
 
   lazy val binaryValue: Gram = {
-    Assert.invariant(primType.myPrimitiveType != PrimType.String)
+    Assert.invariant(primType != PrimType.String)
 
     subset(byteOrder.isConstant, "Dynamic byte order is not currently supported.")
 
@@ -586,10 +590,10 @@ trait ElementBaseGrammarMixin
     // being defined. 
     // The DFDL spec has a section where it gives the precedence order of properties. 
     // This is in the spirit of that section.
-    val res: Gram = primType.myPrimitiveType match {
+    val res: Gram = primType match {
 
       //      case PrimType.HexBinary =>
-      //        (primType.myPrimitiveType, binary) match { // TODO: Only takes explicit length
+      //        (primType, binary) match { // TODO: Only takes explicit length
       //          case (PrimType.HexBinary, b) => new BinaryNumberBase[Array[Byte]](this, this.length.constantAsLong) {
       //            def getNum(bp : Long, in : InStream, bo : BO) = {
       //              // FIXME: size constraints, overflow
@@ -621,7 +625,7 @@ trait ElementBaseGrammarMixin
       }
 
       case PrimType.Double | PrimType.Float =>
-        (primType.myPrimitiveType, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
+        (primType, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
           case (_, -1, BinaryFloatRep.Ieee) => SDE("Floating point binary numbers may not have runtime-specified lengths.")
           case (PrimType.Float, 32, BinaryFloatRep.Ieee) => new FloatKnownLengthRuntimeByteOrderBinaryNumber(this, 32)
           case (PrimType.Float, n, BinaryFloatRep.Ieee) => SDE("binary xs:float must be 32 bits. Length in bits was %s.", n)
@@ -630,7 +634,7 @@ trait ElementBaseGrammarMixin
           case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
 
-      //        (primType.myPrimitiveType, staticBinaryFloatRep) match {
+      //        (primType, staticBinaryFloatRep) match {
       //          case (PrimType.Double, ieee) => new BinaryNumber[Double](this, 64) {
       //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
       //            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
@@ -657,9 +661,14 @@ trait ElementBaseGrammarMixin
   }
 
   lazy val textValue: Gram = {
-    Assert.invariant(primType.myPrimitiveType != PrimType.String)
-    val res = primType.myPrimitiveType match {
-
+    val pt = primType
+    Assert.invariant(pt != PrimType.String)
+    Assert.invariant(pt != PrimType.HexBinary)
+    Assert.invariant(representation == Representation.Text)
+    schemaDefinitionWhen(lengthKind == LengthKind.Implicit,
+      "Type %s cannot have lengthKind='implicit' when representation='text'",
+      pt.name)
+    val res = primType match {
       case PrimType.Int => textInt
       case PrimType.Byte => textByte
       case PrimType.Short => textShort
@@ -672,7 +681,7 @@ trait ElementBaseGrammarMixin
       case PrimType.NonNegativeInteger => textNonNegativeInteger // Should be treated as unsigned xs:integer
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat
-      case PrimType.HexBinary => schemaDefinitionError("Primitive hexBinary must be representation='binary'.")
+      case PrimType.HexBinary => Assert.invariantFailed("Primitive hexBinary must be representation='binary'.")
       case PrimType.Boolean => notYetImplemented("textValue: boolean")
       case PrimType.Date => textDate
       case PrimType.Time => textTime

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -50,7 +49,7 @@ class TestLengthKindImplicit {
 
   @Test def test_nested_seq() { runner_01.runOneTest("nested_seq") }
   @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }
-  
-//  @Test def test_implicit_with_len() { runner_01.runOneTest("implicit_with_len") }
+
+  @Test def test_implicit_with_len() { runner_01.runOneTest("implicit_with_len") }
 
 }
