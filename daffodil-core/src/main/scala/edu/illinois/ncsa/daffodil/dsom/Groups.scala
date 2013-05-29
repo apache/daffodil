@@ -44,6 +44,7 @@ import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.util.ListUtils
 
 /////////////////////////////////////////////////////////////////
 // Groups System

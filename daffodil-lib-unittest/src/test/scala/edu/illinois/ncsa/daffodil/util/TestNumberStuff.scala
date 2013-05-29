@@ -38,6 +38,8 @@ import com.ibm.icu.text.DecimalFormat
 import java.text.ParsePosition
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
+import org.junit.Test
+import scala.math.BigInt.int2bigInt
 
 /**
  * Tests that characterize ICU number parsing specifically with respect

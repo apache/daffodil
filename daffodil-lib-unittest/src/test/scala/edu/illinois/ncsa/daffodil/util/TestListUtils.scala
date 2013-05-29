@@ -34,8 +34,8 @@ package edu.illinois.ncsa.daffodil.util
 
 
 import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import edu.illinois.ncsa.daffodil.util._
+import org.junit.Test
 import org.junit.Test
 
 class TestListUtils {
