@@ -598,9 +598,9 @@ object Main extends Logging {
                           |!!   An unexpected exception occurred. This is a bug!   !!
                           |!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                           |
-                          | Please help us fix this by opening a bug report at:
+                          | Please report this bug and help us fix it:
                           |
-                          |  https://opensource.ncsa.illinois.edu/jira/browse/DFDL
+                          |  https://opensource.ncsa.illinois.edu/confluence/display/DFDL/How+to+Report+a+Bug
                           |
                           | Please include the following exception, the command you
                           | ran, and any input, schema, or tdml files used that led
