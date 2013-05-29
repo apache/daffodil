@@ -189,7 +189,7 @@ object DFDLStringFunction extends DFDLFunction("string", 1) {
         pstate.SDE("Type error. Argument was not a string: %s", other)
       }
     }
-    val dfdlString = EntityReplacer.replaceAll(xmlString)
+    val dfdlString = EntityReplacer.replaceAll(xmlString, Some(pstate))
     val remappedString = XMLUtils.remapXMLIllegalCharactersToPUA(dfdlString)
     remappedString
   }

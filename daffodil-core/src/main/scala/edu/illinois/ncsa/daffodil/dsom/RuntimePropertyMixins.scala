@@ -56,7 +56,7 @@ trait CommonRuntimeValuedPropertiesMixin
     // FIXME unparser: outputNewLineRaw might be a literal, in which case
     // we do entity replacements. However, if it is an expression, we don't 
     // do entity replacements. This code just always replaces entities.
-    val exprOrLiteral = EntityReplacer.replaceAll(outputNewLineRaw.value)
+    val exprOrLiteral = EntityReplacer.replaceAll(outputNewLineRaw.value, Some(decl))
 
     val c = expressionCompiler.compile(ConvertToType.String, Found(exprOrLiteral, outputNewLineRaw.location))
     if (c.isConstant) {

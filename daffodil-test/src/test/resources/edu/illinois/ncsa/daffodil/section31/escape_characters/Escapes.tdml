@@ -25,13 +25,13 @@
 
     <dfdl:defineEscapeScheme name="table2">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="%"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="%%"
         extraEscapedCharacters="?" />
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="table4">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="'" escapeBlockEnd="'" 
-        escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e1" type="type1" />
@@ -76,7 +76,7 @@
 
     <dfdl:defineEscapeScheme name="table3">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[" escapeBlockEnd="]" 
-        escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
 
   </tdml:defineSchema>
@@ -1235,7 +1235,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e5>
-          <element5>..%..</element5>
+          <element5>..%%..</element5>
         </e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>

@@ -75,7 +75,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
   val staticTexts = delim.split("\\s").toList
   val staticTextsCooked: Queue[String] = new Queue
 
-  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x)))
+  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x, Some(e))))
 
   val delimsRaw = e.allTerminatingMarkup.map {
     case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)

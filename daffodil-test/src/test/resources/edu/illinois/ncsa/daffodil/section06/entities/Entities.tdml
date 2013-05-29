@@ -417,7 +417,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
     description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
     model="Entities_01-Embedded.dfdl.xsd" root="seq_08">
     <tdml:document>
-      <tdml:documentPart type="text">98% 53% 100%</tdml:documentPart>
+      <tdml:documentPart replaceDFDLEntities="false" type="text">98% 53% 100%</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -453,7 +453,7 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
     description="Section 6.3 DFDL Character Entities - use of %% - DFDL-6-086R"
     model="Entities_01-Embedded.dfdl.xsd" root="seq_09">
     <tdml:document>
-      <tdml:documentPart type="text">98% 53% 100</tdml:documentPart>
+      <tdml:documentPart replaceDFDLEntities="false" type="text">98% 53% 100</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

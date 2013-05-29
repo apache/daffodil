@@ -91,7 +91,7 @@
   
   <tdml:parserTestCase name="xml_illegal_chars_01" root="e3"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding is utf-8 - DFDL-11-002R">
-    <tdml:document>%#xFFFF;</tdml:document>
+    <tdml:document><tdml:documentPart replaceDFDLEntities="true" type="text">%#xFFFF;</tdml:documentPart></tdml:document>
     <!-- Note that we use an illegal codepoint above that is NOT a high surrogate or a low surrogate,
     but a character that is a valid codepoint for unicode, but not for XML.
     The problem is, if we use a surrogate (high or low), the decoder will not accept it so 

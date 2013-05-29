@@ -820,7 +820,7 @@ case class DocumentPart(part: Node, parent: Document) {
 
   lazy val replaceDFDLEntities: Boolean = {
     val res = (part \ "@replaceDFDLEntities")
-    if (res.length == 0) { true }
+    if (res.length == 0) { false }
     else { res(0).toString().toBoolean }
   }
   lazy val partContentType = (part \ "@type").toString match {
@@ -846,7 +846,8 @@ case class DocumentPart(part: Node, parent: Document) {
 
   lazy val textContentWithoutEntities = {
     if (replaceDFDLEntities) {
-      EntityReplacer.replaceAll(partRawContent)
+      try { EntityReplacer.replaceAll(partRawContent) }
+      catch { case (e: Exception) => Assert.abort(e.getMessage()) }
     } else partRawContent
   }
 

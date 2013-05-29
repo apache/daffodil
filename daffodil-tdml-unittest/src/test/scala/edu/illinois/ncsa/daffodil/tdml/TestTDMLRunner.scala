@@ -122,7 +122,7 @@ class TestTDMLRunner {
 
   @Test def testDocWithDFDLEntities() {
     val xml = <document>
-                <documentPart type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%#IGNORED;</documentPart>
+                <documentPart replaceDFDLEntities="true" type="text">\%#x24;%#xA2;%#x20AC;%%%NUL;%LS;%%#IGNORED;</documentPart>
               </document>
     val doc = new Document(xml, null)
     val docPart = doc.documentParts(0)

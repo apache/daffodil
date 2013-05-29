@@ -389,7 +389,7 @@
     model="charClassEntities.dfdl.xsd"
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
 
-    <document>%#x00a9;</document>
+    <document><documentPart replaceDFDLEntities="true" type="text">%#x00a9;</documentPart></document>
     <infoset>
       <dfdlInfoset>
         <hcp>&#169;</hcp>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+
+	<tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
+
+		<dfdl:format ref="rdefFormat" encoding="utf-8" byteOrder="bigEndian"
+			ignoreCase="no" textStringJustification="left"
+			textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
+			documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
+			emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
+
+		<dfdl:defineFormat name="rdefFormat">
+			<dfdl:format initiator="" terminator="" leadingSkip="0"
+				trailingSkip="0" separator="" textBidi="no" floating="no" encoding="ascii"
+				byteOrder="bigEndian" ignoreCase="no" outputNewLine="%LF;"
+				truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
+				alignmentUnits="bytes" fillByte="1" occursCountKind="implicit"
+				escapeSchemeRef="" representation="text" lengthUnits="characters"
+				lengthKind="explicit" />
+		</dfdl:defineFormat>
+
+
+		<xs:element name="e1" type="xs:string" dfdl:initiator="%BLAH;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e2" type="xs:string" dfdl:initiator="%#A;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e3" type="xs:string" dfdl:initiator="%#xTT;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e4" type="xs:string" dfdl:initiator="%#rTT;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e5" type="xs:string"
+			dfdl:initiator="%NL; %WSP*; %#09; %#xAA; %#rTT;" dfdl:terminator="%LS;"
+			dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e6" type="xs:string"
+			dfdl:initiator="%NL;blah%WSP*;blah%#09;blah%#xAA;blah%#rTT;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+		<xs:element name="e7" type="xs:string" dfdl:initiator="%%#rTT;"
+			dfdl:terminator="%LS;" dfdl:length="2">
+		</xs:element>
+
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="text_invalid_entity_name"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e1">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%BLAH;) found in "%BLAH;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_invalid_entity_decimalCodePoint"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e2">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%#A;) found in "%#A;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_invalid_entity_hexaDecimalCodePoint"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e3">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%#xTT;) found in "%#xTT;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_invalid_entity_rawBytes"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e4">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%#rTT;) found in "%#rTT;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_invalid_entity_among_multiple_valid"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e5">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%#rTT;) found in "%#rTT;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase
+		name="text_invalid_entity_among_multiple_valid_combined" description="Invalid char entity"
+		model="Entities-Embedded.dfdl.xsd" root="e6">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Invalid DFDL Entity (%#rTT;) found in "%NL;blah%WSP*;blah%#09;blah%#xAA;blah%#rTT;"</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="text_invalid_entity_escaped"
+		description="Invalid char entity" model="Entities-Embedded.dfdl.xsd"
+		root="e7">
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[%#rTT;ab ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e7>ab</e7>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

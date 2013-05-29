@@ -53,7 +53,7 @@ import scala.util.matching.Regex
 class EntityReplacer {
 
   val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
-  val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+"
+  val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
 
   val entityCharacterUnicode: List[(String, String, Pattern)] =
     List(
@@ -103,6 +103,13 @@ class EntityReplacer {
   val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
   val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE)
 
+  val charEntityRegex = ("(%(?:" + dfdlEntityName + ");)(.*)").r
+  val hexRegex = "(%#x[0-9a-fA-F]+;)(.*)".r
+  val decRegex = "(%#[0-9]+;)(.*)".r
+  val byteRegex = "(%#r[0-9a-fA-F]{2};)(.*)".r
+  val charClassEntityRegex = ("(%(?:" + dfdlCharClassEntityName + ");)(.*)").r
+  val dfdlEntityRegex = "(%[^%]*?;)(.*)".r
+
   def hasDfdlEntity(input: String): Boolean = {
     if (hasDfdlCharEntity(input) ||
       hasDecimalCodePoint(input) ||
@@ -114,35 +121,13 @@ class EntityReplacer {
     false
   }
 
-  def hasDfdlCharClassEntity(input: String): Boolean = {
-    val p: Pattern = charClassEntityPattern
-    val m: Matcher = p.matcher(input)
-    m.find()
-  }
+  private def isMatched(input: String, p: Pattern): Boolean = p.matcher(input).find()
 
-  def hasDfdlCharEntity(input: String): Boolean = {
-    val p: Pattern = charEntityPattern
-    val m: Matcher = p.matcher(input)
-    m.find()
-  }
-
-  def hasDecimalCodePoint(input: String): Boolean = {
-    val p: Pattern = decPattern
-    val m: Matcher = p.matcher(input)
-    m.find()
-  }
-
-  def hasHexCodePoint(input: String): Boolean = {
-    val p: Pattern = hexPattern
-    val m: Matcher = p.matcher(input)
-    m.find()
-  }
-
-  def hasByteCodePoint(input: String): Boolean = {
-    val p: Pattern = bytePattern
-    val m: Matcher = p.matcher(input)
-    m.find()
-  }
+  def hasDfdlCharClassEntity(input: String): Boolean = isMatched(input, charClassEntityPattern)
+  def hasDfdlCharEntity(input: String): Boolean = isMatched(input, charEntityPattern)
+  def hasDecimalCodePoint(input: String): Boolean = isMatched(input, decPattern)
+  def hasHexCodePoint(input: String): Boolean = isMatched(input, hexPattern)
+  def hasByteCodePoint(input: String): Boolean = isMatched(input, bytePattern)
 
   def replaceHex(input: String, prefix: String): String = {
     var res: String = input
@@ -236,16 +221,112 @@ class EntityReplacer {
     replace(input, escapeReplacements)
   }
 
-  def replaceAll(input: String, shouldReplaceByte: Boolean = true): String = {
-    var res: String = input
+  private def replaceEntity(proposedEntity: String, orig: String, context: Option[ThrowsSDE]): String = {
+    val result = proposedEntity match {
+      case charClassEntityRegex(_, _) => { proposedEntity } // WSP, WSP+/*, NL, etc. Don't get replaced.
+      case hexRegex(entity, rest) => { replaceHex(proposedEntity) }
+      case decRegex(entity, rest) => { replaceDecimal(proposedEntity) }
+      case byteRegex(entity, rest) => { replaceByte(proposedEntity) }
+      case charEntityRegex(entity, rest) => { replace(proposedEntity, entityCharacterUnicode) }
+      case dfdlEntityRegex(invalidEntity, rest) => {
+        // Because we didn't match any of the previously acceptable formats
+        // this must be an invalid entity since it's still in the generic
+        // %<something>; dfdl entity format.
+        context match {
+          case Some(ctxt) => ctxt.SDE("Invalid DFDL Entity (%s) found in \"%s\"", invalidEntity, orig)
+          case None => {
+            val msg = "Invalid DFDL Entity (%s) found in \"%s\"".format(invalidEntity, orig)
+            throw new Exception(msg)
+          }
+        }
+      }
+      case nonEntity => nonEntity
+    }
+    result
+  }
 
-    if (shouldReplaceByte) { res = replaceByte(input) }
-    res = replaceHex(res)
-    res = replaceDecimal(res)
-    res = replace(res, entityCharacterUnicode)
-    res = replace(res, escapeReplacements)
+  /**
+   * We'll consider something 'malformed' if:
+   * 	1. It starts with a '%' but is not terminated by ';'. Ex: %foo
+   * 	2. Within it it has '%' followed by any character (not a '%' or ';') followed by '%'. Ex: %foo%bar;
+   *  	3. Within it it has '%#' but is not terminated by ';'. Ex: %#foo
+   *  	3. Has a '%' immediately followed by ';'. Ex: %;
+   */
+  private val malformedEntityFormat = Pattern.compile("((?:%[^%#;]*?%)|(?:%[^%#;]*?$)|(?:%#[^%;]*?$)|(?:%;))", Pattern.MULTILINE)
+  private def checkForMalformedEntityFormat(input: String, context: Option[ThrowsSDE]) = {
+    // At this point, we're assuming the escaped percent literals have already been removed.
+    // So we want to look for malformed entities just as a preliminary check.
 
+    val m = malformedEntityFormat.matcher(input)
+    if (m.find()) {
+      val invalidEntity = m.group(1)
+      context match {
+        case Some(ctxt) => ctxt.SDE("Invalid DFDL Entity (%s) found in \"%s\"", invalidEntity, input)
+        case None => {
+          val msg = "Invalid DFDL Entity (%s) found in \"%s\"".format(invalidEntity, input)
+          throw new Exception(msg)
+        }
+      }
+    }
+  }
+
+  private def process(input: String, orig: String, context: Option[ThrowsSDE]): String = {
+    if (!input.contains("%")) { return input }
+
+    // Has a % in it, possibly an entity.  Try to see if we can
+    // detect if it's malformed.
+    checkForMalformedEntityFormat(input, context)
+
+    val tokens = input.split("""(?<!%)%""")
+    val tokens2 = tokens.map(tok => (tok, tok.split("[^%]*?;")))
+
+    val tokens3 = tokens2.map {
+      case (ent: String, Array()) => {
+        // The initial split for 'tokens' removed the %
+        // we have to add it back in here.
+        replaceEntity("%" + ent, orig, context)
+      }
+      case (ent: String, Array("", rest)) => {
+        // The initial split for 'tokens' removed the %
+        // we have to add it back in here.
+        replaceEntity("%" + ent, orig, context)
+      }
+      case (tok: String, Array(tok2)) => {
+        Assert.invariant(tok == tok2) // not an entity
+        tok
+      }
+      case _ => Assert.impossibleCase
+    }
+    val res = tokens3.mkString
     res
+  }
+
+  private def hasDoublePercentEnding(input: String): Boolean = {
+    if (input == "" || input.length() < 2) false
+    else {
+      if ((input.charAt(input.length() - 2) == '%') && (input.last == '%')) true
+      else false
+    }
+  }
+
+  /**
+   * Replaces all valid dfdl entities with their appropriate values.
+   */
+  def replaceAll(input: String, context: Option[ThrowsSDE] = None): String = {
+    if (!input.contains("%")) { return input } // No entities, no replacement.
+    if (!input.contains("%%")) { return process(input, input, context) } // No escaped percents, just process
+
+    // We have escaped percent literals, we need to also determine if we ended
+    // in an escaped percent.  If so, we'll need to append it to the result.
+    val endedWithDoublePercent = hasDoublePercentEnding(input)
+    val splitByDoublePercent = input.split("%%") // Effectively removes escaped percents
+
+    // Below we process each token and at the end call mkString to add back in
+    // the escaped % literals if necessary. This works automatically except in the case where a
+    // double percent occurred at the end of the input.
+    val replaced = splitByDoublePercent.map(token => process(token, input, context))
+    val recomposedWithLiteralPercents = replaced.mkString("%") + (if (endedWithDoublePercent) "%" else "")
+    recomposedWithLiteralPercents
   }
 
   // Replacement helper function
@@ -290,7 +371,7 @@ abstract class StringLiteralBase(rawArg: String) {
  */
 class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer.replaceAll(raw)
+  def cooked = EntityReplacer.replaceAll(raw, Some(context))
 }
 
 class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE)
@@ -305,7 +386,7 @@ class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
 
 class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer.replaceAll(raw)
+  def cooked = EntityReplacer.replaceAll(raw, Some(context))
   // deal with raw bytes entities
   // deal with character class entities
 
