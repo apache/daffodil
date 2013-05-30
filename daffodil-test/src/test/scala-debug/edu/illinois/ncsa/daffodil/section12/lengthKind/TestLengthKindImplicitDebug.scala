@@ -48,6 +48,7 @@ class TestLengthKindImplicitDebug {
   val aa = testDir + "implicit.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  // I just leave one of these here commented out to use as a template
   // @Test def test_implicit_with_len() { runner.runOneTest("implicit_with_len") }
 
 }

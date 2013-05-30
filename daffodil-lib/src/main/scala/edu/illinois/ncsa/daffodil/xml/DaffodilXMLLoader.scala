@@ -47,14 +47,11 @@ import java.net.URL
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import javax.xml.parsers.SAXParserFactory
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.dsom.SchemaDocument
+
 import org.apache.xml.resolver.CatalogManager
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionWarning
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import javax.xml.validation.SchemaFactory
 import javax.xml.XMLConstants
