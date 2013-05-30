@@ -118,12 +118,20 @@ object DaffodilBuild extends Build {
   lazy val propgenSettings = Seq(
     sourceGenerators in Compile <+= (propertyGenerator in Compile),
     propertyGenerator in Compile <<=
-      (sourceManaged in Compile, dependencyClasspath in Runtime in propgen) map {
-        (outdir, cp) => runPropertyGenerator(outdir, cp.files)
+      (cacheDirectory, sourceManaged in Compile, dependencyClasspath in Runtime in propgen, sources in Compile in propgen, resources in Compile in propgen, streams in propgen) map {
+        (cache, outdir, cp, inSrc, inRSrc, stream) => {
+          // FileFunction.cached will only run the property generator if any
+          // source or resources in propgen subproject changed
+          val filesToWatch = (inSrc ++ inRSrc).toSet
+          val cachedFun = FileFunction.cached(cache / "propgen", FilesInfo.lastModified, FilesInfo.exists) {
+            (in: Set[File]) => runPropertyGenerator(outdir, cp.files, stream.log)
+          }
+          cachedFun(filesToWatch).toSeq
+        }
       }
   )
 
-  def runPropertyGenerator(outdir: File, cp: Seq[File]): Seq[File] = {
+  def runPropertyGenerator(outdir: File, cp: Seq[File], log: Logger): Set[File] = {
     val mainClass = "edu.illinois.ncsa.daffodil.propGen.PropertyGenerator"
     val out = new java.io.ByteArrayOutputStream()
     val ret = new Fork.ForkScala(mainClass).fork(None, Nil, cp, Seq(outdir.toString), None, false, CustomOutput(out)).exitValue()
@@ -133,7 +141,10 @@ object DaffodilBuild extends Build {
     val in = new java.io.InputStreamReader(new java.io.ByteArrayInputStream(out.toByteArray))
     val bin = new java.io.BufferedReader(in)
     val iterator = Iterator.continually(bin.readLine()).takeWhile(_ != null)
-    val files = iterator.map(f => new File(f)).toList
+    val files = iterator.map { f =>
+      log.info("Generated %s".format(f))
+      new File(f)
+    }.toSet
     files
   }
 
