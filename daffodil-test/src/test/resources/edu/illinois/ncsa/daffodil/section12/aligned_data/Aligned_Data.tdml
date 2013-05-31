@@ -1546,5 +1546,25 @@
       <tdml:error>Encoding: UTF-32BE</tdml:error>
     </tdml:errors> 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignmentUnitsInvalid
+        Schema: InvalidAlignSchema.dfdl.xsd
+          Root: e_invalid
+       Purpose: This test demonstrates that DFDL properly handles a case where alignmentUnits is invalid
+  -->
+
+  <tdml:parserTestCase name="alignmentUnitsInvalid" root="e_invalid"
+    model="InvalidAlignSchema.dfdl.xsd" description="Section 12 - Aligned Data - alignmentUnits - DFDL-12-003R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value 'characters' is not facet-valid with respect to enumeration '[bits, bytes]'</tdml:error>
+      <tdml:error>It must be a value from the enumeration</tdml:error>
+    </tdml:errors> 
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
