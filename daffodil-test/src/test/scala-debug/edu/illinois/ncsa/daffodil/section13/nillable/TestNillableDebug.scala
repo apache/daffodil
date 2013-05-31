@@ -50,8 +50,6 @@ class TestNillableDebug {
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_empty_infoset() { runnerAA.runOneTest("empty_infoset") }
-  
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
 

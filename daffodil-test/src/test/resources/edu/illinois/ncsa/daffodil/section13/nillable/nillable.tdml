@@ -278,19 +278,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="empty_infoset" root="doc_07"
-    model="s1" description="nil - DFDL-13-199R">
-
-    <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[catblablahblah]]></tdml:documentPart>
-    </tdml:document>
-
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
   <tdml:parserTestCase name="nillable1" root="doc_08"
     model="s1" description="literal nil - DFDL-13-234R">
 
