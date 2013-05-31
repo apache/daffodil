@@ -1,5 +1,0 @@
-<ex:e xmlns:ex="http://example.com">
-  <ex:sneaky>5</ex:sneaky>
-  <ex:f>42</ex:f>
-  <ex:g>2</ex:g>
-</ex:e>

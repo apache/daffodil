@@ -46,29 +46,20 @@ import expectj.ExpectJ
 import expectj.Spawn
 
 class TestCLIdebugger {
-  /*
-  //DFDL-604 "CLI Debugger: removeHidden "false" does not work"
-  @Test def test_1339_CLI_Debugger_removeHidden() { 
-    val output7 = Util.getExpectedString("output7.txt")
-    val cmd = "./daffodil-cli/target/start -d parse -s daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
-    val shell = Util.start(cmd)
-
-    shell.expect("(debug)")
-
-    shell.send("set removeHidden false\n")
-
-    shell.send("continue\n")
-    shell.expect(output7)
-
-    shell.send("complete\n")
-    shell.expectClose()
-  }
-*/
 
   // TODO: the 'send' commands are currently commented-out because ExpectJ does not seem to communicate
   // with the debugger on Windows. The commands are sent via an instructions file. The commands have been
   // left in this file so it is obvious which input goes with which output; also, if this issue is
   // resolved, the commands will be used again.
+  
+  @Test def test_1339_CLI_Debugger_removeHidden() { 
+    val cmd = "./daffodil-cli/target/start -d daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1339 parse -s daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
+    val shell = Util.start(cmd)
+
+    shell.expect("(debug)")
+    shell.expect("<ex:sneaky>5</ex:sneaky>")
+    shell.expectClose()
+  }
 
   @Test def test_1591_CLI_Debugger_invalidCommandError() {
     val cmd = "daffodil-cli/target/start -d daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1591 parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli-unittest/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
