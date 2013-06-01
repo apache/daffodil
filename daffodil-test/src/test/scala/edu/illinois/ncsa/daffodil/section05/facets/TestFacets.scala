@@ -120,12 +120,12 @@ class TestFacets {
 
 //  @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
 //  @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
-//  @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
-//  @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
+  @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
+  @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
 //  @Test def test_fractionTotalDigitsPass() { runner.runOneTest("fractionTotalDigitsPass") }
 //  @Test def test_fractionTotalDigitsFail2() { runner.runOneTest("fractionTotalDigitsFail2") }
 //  @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
-//  @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
+  @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
  
   @Test def test_arraysMinOccursZero() { runner.runOneTest("arraysMinOccursZero") }
   @Test def test_arraysOccurInRange_01() { runner.runOneTest("arraysOccursInRange_01") }

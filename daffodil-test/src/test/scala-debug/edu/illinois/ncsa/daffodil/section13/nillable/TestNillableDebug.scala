@@ -53,8 +53,4 @@ class TestNillableDebug {
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  val entity = testDir_01 + "entities_01.tdml"
-  lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
-  @Test def test_entity_success_06() { runnerEntity.runOneTest("entity_success_06") }
 }

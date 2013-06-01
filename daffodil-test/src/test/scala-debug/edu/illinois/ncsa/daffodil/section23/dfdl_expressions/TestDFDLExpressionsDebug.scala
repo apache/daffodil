@@ -57,7 +57,6 @@ class TestDFDLExpressionsDebug {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }

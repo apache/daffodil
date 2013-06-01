@@ -47,9 +47,6 @@ class TestRegularExpressions2 {
   val tdml = testDir + "RegularExpressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  // This test requires Java 7 in order to function
-  @Test def testRegEx_03() { runner.runOneTest("testRegEx_03") }
-
   // Unsupported Java 7 features (should return Schema Definition Errors)
   @Test def testRegEx_04() { runner.runOneTest("testRegEx_04") }
   @Test def testRegEx_05() { runner.runOneTest("testRegEx_05") }

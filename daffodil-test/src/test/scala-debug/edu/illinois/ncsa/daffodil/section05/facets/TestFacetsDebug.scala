@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 class TestFacetsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
   // Note, these won't pass until Decimal is implemented
   @Test def test_totalDigits_Pass_Decimal{ runner.runOneTest("checkTotalDigits_Pass_Decimal") }
@@ -60,21 +60,13 @@ class TestFacetsDebug {
 
   @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
   @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
-  @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
-  @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
   @Test def test_fractionTotalDigitsPass() { runner.runOneTest("fractionTotalDigitsPass") }
   @Test def test_fractionTotalDigitsFail2() { runner.runOneTest("fractionTotalDigitsFail2") }
   @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
-  @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
 
   @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
   @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
-
-  @Test def test_minMaxInEx02() { runner.runOneTest("minMaxInEx02") }
-  @Test def test_minMaxInEx04() { runner.runOneTest("minMaxInEx04") }
-  @Test def test_minMaxInEx08() { runner.runOneTest("minMaxInEx08") }
-  @Test def test_minMaxInEx14() { runner.runOneTest("minMaxInEx14") }
 
 }

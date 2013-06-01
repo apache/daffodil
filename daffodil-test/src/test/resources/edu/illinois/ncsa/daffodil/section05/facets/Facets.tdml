@@ -6456,45 +6456,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-<!--    
-    <xs:simpleType name="fD_st4">
-      <xs:restriction>
-        <xs:fractionDigits value="-3" />
-      </xs:restriction>
-    </xs:simpleType>
-    
-    <xs:element name="fD_e4" type="xs:float" dfdl:lengthKind="delimited">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
-            message="Assertion failed for dfdl:checkConstraints(.)" />
-        </xs:appinfo>
-      </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="ex:fD_st4">
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:element>
-    
-    <xs:simpleType name="fD_st5">
-      <xs:restriction>
-        <xs:fractionDigits value=".3" />
-      </xs:restriction>
-    </xs:simpleType>
-    
-    <xs:element name="fD_e5" type="xs:float" dfdl:lengthKind="delimited">
-      <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
-            message="Assertion failed for dfdl:checkConstraints(.)" />
-        </xs:appinfo>
-      </xs:annotation>
-      <xs:simpleType>
-        <xs:restriction base="ex:fD_st5">
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:element>
--->
+
   </tdml:defineSchema>
   
   <!--
@@ -6532,15 +6494,16 @@
   
   <!--
     Test name: fractionDigitsFailNeg
-    Schema: fractionDigitsSchema 
+    Schema: facetSchema2.dfdl.xsd
     Purpose: This test should fail because the value of fractionDigits is negative.
   -->
 
   <tdml:parserTestCase name="fractionDigitsFailNeg" root="fD_e4"
-    model="fractionDigitsSchema" description="Section 5 - Facets - fractionDigits - DFDL-5-056R">
+    model="facetSchema2.dfdl.xsd" description="Section 5 - Facets - fractionDigits - DFDL-5-056R">
     <tdml:document>4.22466</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Value '-3' is not facet-valid with respect to minInclusive '0' for type 'nonNegativeInteger'</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6556,6 +6519,7 @@
     <tdml:document>4.22466</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>FractionDigits facet must not exceed TotalDigits</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6612,15 +6576,16 @@
   
   <!--
     Test name: fractionDigitsFailNotInt
-    Schema: fractionDigitsSchema 
+    Schema: facetSchema.dfdl.xsd
     Purpose: This test should fail because the value of fractionDigits is not an integer.
   -->
 
   <tdml:parserTestCase name="fractionDigitsFailNotInt" root="fD_e5"
-    model="fractionDigitsSchema" description="Section 5 - Facets - fractionDigits - DFDL-5-056R">
+    model="facetSchema.dfdl.xsd" description="Section 5 - Facets - fractionDigits - DFDL-5-056R">
     <tdml:document>4.22466</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>'.3' is not a valid value for 'integer'</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <dfdl:format initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
+        fillByte="f" occursCountKind="parsed"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" textTrimKind="none" />
+    </appinfo>
+  </annotation>
+  
+    <simpleType name="fD_st4">
+      <restriction>
+        <fractionDigits value="-3" />
+      </restriction>
+    </simpleType>
+    
+    <element name="fD_e4" type="float" dfdl:lengthKind="delimited">
+      <annotation>
+        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </appinfo>
+      </annotation>
+      <simpleType>
+        <restriction base="tns:fD_st4">
+        </restriction>
+      </simpleType>
+    </element>
+
+</schema>
