@@ -48,7 +48,7 @@ class TestVariables {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-//  @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
+  @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
   @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
 
   @Test def test_setVar1() { runner.runOneTest("setVar1") }
@@ -67,7 +67,12 @@ class TestVariables {
   @Test def test_setVarExpression() { runner.runOneTest("setVarExpression") }
   @Test def test_setVarExpression2() { runner.runOneTest("setVarExpression2") }
   @Test def test_setVarBadScope() { runner.runOneTest("setVarBadScope") }
-
 //  @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
+  
+  val tdml_01 = testDir + "variables_01.tdml"
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+
+  @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
+  @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
 
 }
