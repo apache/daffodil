@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section06.entities
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -58,9 +57,9 @@ class TestEntities_01 {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   // Needs dfdl:utf16Width='variable' implementation
   @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
-  
+
   @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
-  
+
   val tdml_03 = testDir_01 + "charClassEntities.tdml"
   lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
 
