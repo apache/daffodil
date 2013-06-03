@@ -71,7 +71,7 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
   @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
-  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
+//  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   @Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }

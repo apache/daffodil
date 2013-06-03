@@ -664,8 +664,7 @@ C</MessageHeaders>
   <tdml:parserTestCase name="NumSeq_10" root="NS_10"
     model="lengthKindDelimited-Embedded.dfdl.xsd" description="Section 12 lengthKind-delimited - DFDL-12-038R">
 
-<tdml:document><![CDATA[1,2,3,4,5,6
-  ]]></tdml:document>
+<tdml:document><![CDATA[1,2,3,4,5,6]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
