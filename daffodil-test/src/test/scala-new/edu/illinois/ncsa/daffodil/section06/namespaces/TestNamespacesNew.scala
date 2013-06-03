@@ -53,9 +53,6 @@ class TestNamespacesNew extends Logging {
 
   @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
 
-  // JIRA DFDL-586
-  @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
-
   // Fixed test (missing one terminator in mid-chain). Jira DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
 
@@ -73,7 +70,5 @@ class TestNamespacesNew extends Logging {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
   }
-
-  @Test def test_multi_encoding_02() { runner.runOneTest("multi_encoding_02") }
 
 }

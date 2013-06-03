@@ -65,6 +65,11 @@ class TestPropertyScoping {
   @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
   @Test def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
+  @Test def test_property_scoping_07() { runner_01.runOneTest("property_scoping_07") }
+  @Test def test_property_scoping_08() { runner_01.runOneTest("property_scoping_08") }
+  @Test def test_property_scoping_09() { runner_01.runOneTest("property_scoping_09") }
+  @Test def test_property_scoping_10() { runner_01.runOneTest("property_scoping_10") }
+  @Test def test_property_scoping_11() { runner_01.runOneTest("property_scoping_11") }
   @Test def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 
   @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
