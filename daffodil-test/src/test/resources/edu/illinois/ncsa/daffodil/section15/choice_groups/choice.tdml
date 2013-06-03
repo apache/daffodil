@@ -1029,6 +1029,13 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
+  
+<!--
+     Test Name: choiceWithSequence1
+        Schema: ch1
+          Root: choiceWithSequence
+       Purpose: This test demonstrates that a choice can contain a sequence
+-->
 
   <tdml:parserTestCase name="choiceWithSequence1"
     root="ch1" model="choiceWithSequence"
@@ -1046,6 +1053,14 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: choiceWithSequence2
+        Schema: ch1
+          Root: choiceWithSequence
+       Purpose: This test demonstrates that a choice can contain a sequence. In this case the second branch,
+                which is not a sequence, is applicable and therefore selected.
+-->
 
   <tdml:parserTestCase name="choiceWithSequence2"
     root="ch1" model="choiceWithSequence"
@@ -1063,7 +1078,6 @@
 
   </tdml:parserTestCase>
 
-
   <tdml:defineSchema name="choiceWithChoice">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
 
@@ -1079,6 +1093,14 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
+  
+  <!--
+     Test Name: choiceWithChoiceInt
+        Schema: ch1
+          Root: choiceWithChoice
+       Purpose: This test demonstrates that a choice can contain a choice. In this case the first branch of the outer
+                choice is selected, and the first branch within that nested choice.
+  -->
 
   <tdml:parserTestCase name="choiceWithChoiceInt"
     root="ch1" model="choiceWithChoice"
@@ -1096,6 +1118,14 @@
 
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: choiceWithChoiceFloat
+        Schema: ch1
+          Root: choiceWithChoice
+       Purpose: This test demonstrates that a choice can contain a choice. In this case the first branch of the outer
+                choice is selected, and the second branch within that nested choice.
+  -->
+  
   <tdml:parserTestCase name="choiceWithChoiceFloat"
     root="ch1" model="choiceWithChoice"
     description="Choice with choice - float choice">
@@ -1111,6 +1141,14 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: choiceWithChoiceString
+        Schema: ch1
+          Root: choiceWithChoice
+       Purpose: This test demonstrates that a choice can contain a choice. In this case the second branch of the outer
+                choice is selected.
+  -->
   
   <tdml:parserTestCase name="choiceWithChoiceString"
     root="ch1" model="choiceWithChoice"
@@ -1141,6 +1179,14 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
+  
+  <!--
+     Test Name: choiceWithArrayInts
+        Schema: ch1
+          Root: choiceWithArray
+       Purpose: This test demonstrates that a choice can contain an array of elements. In this case
+                all of the elements are ints
+  -->
 
   <tdml:parserTestCase name="choiceWithArrayInts"
     root="ch1" model="choiceWithArray"
@@ -1165,6 +1211,14 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: choiceWithArrayFloats
+        Schema: ch1
+          Root: choiceWithArray
+       Purpose: This test demonstrates that a choice can contain an array of elements. In this case
+                the elements are all interpreted as floats, because one of the elements is a float.
+  -->
 
   <tdml:parserTestCase name="choiceWithArrayFloats"
     root="ch1" model="choiceWithArray"
@@ -1189,6 +1243,14 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: choiceWithArrayString
+        Schema: ch1
+          Root: choiceWithArray
+       Purpose: This test demonstrates that the parser was able to determine the correct branch even though the other
+                branches would have been viable options up until the 'a'
+  -->
 
   <tdml:parserTestCase name="choiceWithArrayString"
     root="ch1" model="choiceWithArray"

@@ -56,8 +56,6 @@ class TestChoice {
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }
   
-//  @Test def test_choiceWithSequence() { runnerCH.runOneTest("choiceWithSequence") }
-
   @Test def test_choiceWithInitsAndTermsInt() { runnerCH.runOneTest("choiceWithInitsAndTermsInt") }
   @Test def test_choiceWithInitsAndTermsStr() { runnerCH.runOneTest("choiceWithInitsAndTermsStr") }
   @Test def test_choiceWithInitsAndTermsError() { runnerCH.runOneTest("choiceWithInitsAndTermsError") }
@@ -66,6 +64,15 @@ class TestChoice {
   @Test def test_nestedChoiceWithInitsAndTermsNestedInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt") }
   @Test def test_nestedChoiceWithInitsAndTermsNestedStr() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr") }
   @Test def test_nestedChoiceWithInitsAndTermsInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt") }
+  
+  @Test def test_choiceWithSequence1() { runnerCH.runOneTest("choiceWithSequence1") }
+  @Test def test_choiceWithSequence2() { runnerCH.runOneTest("choiceWithSequence2") }
+  @Test def test_choiceWithChoiceInt() { runnerCH.runOneTest("choiceWithChoiceInt") }
+  @Test def test_choiceWithChoiceFloat() { runnerCH.runOneTest("choiceWithChoiceFloat") }
+  @Test def test_choiceWithChoiceString() { runnerCH.runOneTest("choiceWithChoiceString") }
+  @Test def test_choiceWithArrayInt() { runnerCH.runOneTest("choiceWithArrayInts") }
+  @Test def test_choiceWithArrayFloat() { runnerCH.runOneTest("choiceWithArrayFloats") }
+  @Test def test_choiceWithArrayString() { runnerCH.runOneTest("choiceWithChoiceString") }
 
   @Test def test_choice5() { runnerCH.runOneTest("choice5") }
   @Test def test_choice6() { runnerCH.runOneTest("choice6") }
