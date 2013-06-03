@@ -194,6 +194,8 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <dfdl:defineVariable name="badscope" type="xs:int" defaultValue="70"/>
 
   </tdml:defineSchema>
 
@@ -337,6 +339,7 @@
     <dfdl:defineVariable name="v_with_default" type="xs:int"
       defaultValue="42" />
     <dfdl:defineVariable name="myVar1" type="xs:int" />
+
     <dfdl:format ref="ex:daffodilTest1" />
 
     <xs:element name="r1">
@@ -383,6 +386,75 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <dfdl:defineVariable name="holder" type="xs:int" />
+    
+    <xs:element name="r4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:holder" value="{ (.) }" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:holder - 1 }"/>
+          <xs:element name="three" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:holder + 1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <dfdl:defineVariable name="holder2" type="xs:int" />
+    
+    <xs:element name="r5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:holder2" value="{ (.) }" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="two" type="xs:int" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ $ex:holder - 1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <dfdl:defineVariable name="counter" type="xs:int" />
+
+    <xs:element name="r6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:setVariable ref="ex:counter" value="{ if ((xs:int(../ex:one)) lt 5) then 1 else 0 }" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="three" type="xs:int" dfdl:inputValueCalc=" { $ex:counter } " dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r7" type="xs:int" dfdl:inputValueCalc=" { $ex:badscope } " dfdl:lengthKind="delimited"/>
+    <xs:element name="r8" type="xs:int" dfdl:inputValueCalc=" { $ex:v_no_default } " dfdl:lengthKind="delimited"/>
+    
+    <dfdl:defineVariable name="varb" type="xs:int" />
+
+    <xs:element name="r9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="." dfdl:separatorPosition="infix">
+        <xs:choice>
+          <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited"/>
+        </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -409,7 +481,6 @@
     <xs:simpleType name="reffed" dfdl:separator="{ /ex:elem/ex:header/ex:sep/text() }" dfdl:terminator="{ /ex:elem/ex:header/ex:term/text() }">
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
-
 
   </tdml:defineSchema>
   
@@ -489,5 +560,129 @@
       <tdml:error>Cannot convert BEEEP to Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test: setVarCurrVal
+   Schema: setVarSchema
+     Root: r4
+  Purpose: This test sets a variable with the value of the first element
+-->
+  
+  <tdml:parserTestCase name="setVarCurrVal" root="r4"
+    model="setVarSchema" description="Section 7 - setVariable - relative path value - DFDL-7-125R">
+    <tdml:document>54</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <r4>
+        <one>54</one>
+        <two>53</two>
+        <three>55</three>
+      </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarMismatchRelative
+   Schema: setVarSchema
+     Root: r5
+  Purpose: This test sets a variable with the value of the first element with an incorrect type
+-->
+  
+  <tdml:parserTestCase name="setVarMismatchRelative" root="r5"
+    model="setVarSchema" description="Section 7 - setVariable - relative path value - DFDL-7-125R">
+    <tdml:document>boat</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression { (.) } evaluated to something that is not a number (NaN): boat.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarExpression
+   Schema: setVarSchema
+     Root: r6
+  Purpose: This test sets a variable with a relative expression
+-->
+  
+  <tdml:parserTestCase name="setVarExpression" root="r6"
+    model="setVarSchema" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
+    <tdml:document>8,is it less than 5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r6>
+          <one>8</one>
+          <two>is it less than 5</two>
+          <three>0</three>
+        </r6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarExpression2
+   Schema: setVarSchema
+     Root: r6
+  Purpose: This test sets a variable with a relative expression
+-->
+  
+  <tdml:parserTestCase name="setVarExpression2" root="r6"
+    model="setVarSchema" description="Section 7 - setVariable - relative path expression - DFDL-7-126R">
+    <tdml:document>3,is it less than 5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r6>
+          <one>3</one>
+          <two>is it less than 5</two>
+          <three>1</three>
+        </r6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarBadScope
+   Schema: setVarSchema
+     Root: r7
+  Purpose: This test tries to use a variable that is defined in another schema
+-->
+  
+  <tdml:parserTestCase name="setVarBadScope" root="r7"
+    model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
+    <tdml:document>6</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test: setVarBadScope2
+   Schema: setVarSchema
+     Root: r8
+  Purpose: This test tries to use a variable that is given a value outside of the scope
+-->
+  
+  <tdml:parserTestCase name="setVarBadScope2" root="r8"
+    model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
+    <tdml:document>6</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choiceInSequenceWithSeparators">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix">
+          <xs:choice>
+            <xs:element name="foo" type="xs:int" />
+            <xs:element name="bar" type="xs:string" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
 
 </tdml:testSuite>

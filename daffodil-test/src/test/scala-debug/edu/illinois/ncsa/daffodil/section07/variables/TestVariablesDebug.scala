@@ -51,7 +51,7 @@ class TestVariablesDebug {
   @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
-  @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
+  @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
 
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))

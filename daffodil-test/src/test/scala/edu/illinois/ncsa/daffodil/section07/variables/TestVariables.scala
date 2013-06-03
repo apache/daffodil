@@ -61,6 +61,13 @@ class TestVariables {
   
   @Test def test_setVarValAttribute() { runner.runOneTest("setVarValAttribute") }
   @Test def test_setVarValAttribute2() { runner.runOneTest("setVarValAttribute2") }
-//  @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
+  @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
+  @Test def test_setVarCurrVal() { runner.runOneTest("setVarCurrVal") }
+  @Test def test_setVarMismatchRelative() { runner.runOneTest("setVarMismatchRelative") }
+  @Test def test_setVarExpression() { runner.runOneTest("setVarExpression") }
+  @Test def test_setVarExpression2() { runner.runOneTest("setVarExpression2") }
+  @Test def test_setVarBadScope() { runner.runOneTest("setVarBadScope") }
+
+//  @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
 
 }
