@@ -1,0 +1,1 @@
+Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99

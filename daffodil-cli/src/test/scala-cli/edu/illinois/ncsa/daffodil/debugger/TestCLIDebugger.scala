@@ -408,5 +408,20 @@ class TestCLIdebugger {
     //    shell.send("quit\n")
     shell.expectClose()
   }
+  
+  @Test def test_1863_CLI_Debugger_groupIndex01() {
+    val cmd = "daffodil-cli/target/start -d daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1863 parse -r list -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect("(debug)")
+
+    shell.expect("1: element.price")
+    shell.expect("2: element.comment")
+    shell.expect("groupIndex: 2")
+    shell.expect("groupIndex: 4")
+    shell.expect("groupIndex: 2")
+    shell.expect("groupIndex: 4")
+    shell.expect("<ex:price>89.99</ex:price>")
+    shell.expectClose()
+  }
 
 }
