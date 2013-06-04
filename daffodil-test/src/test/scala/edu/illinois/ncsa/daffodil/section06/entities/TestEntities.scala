@@ -65,6 +65,8 @@ class TestEntities {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  
+//  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
   @Test def test_doubleNLterminator() { runner_01.runOneTest("doubleNLterminator") }
   @Test def test_doubleNLseparator() { runner_01.runOneTest("doubleNLseparator") }
