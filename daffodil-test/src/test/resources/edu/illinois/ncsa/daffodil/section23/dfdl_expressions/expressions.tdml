@@ -351,7 +351,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
     <xs:element name="ocke" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:initiator="">
@@ -370,6 +370,85 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ocke2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="">
+          <xs:element name="nrows" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="ncols" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="rows" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="cols" type="xs:int"
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited"
+                  dfdl:terminator="," dfdl:occursCountKind="expression"
+                  dfdl:occursCount="
+                  { ../../ex:ncols } " />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ocke3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="">
+          <xs:element name="nrows" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="ncols" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="rows" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="cols" type="xs:int"
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited"
+                  dfdl:terminator="," dfdl:occursCountKind="expression"
+                  dfdl:occursCount=" { ../../ex:ncols } " />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ocke4" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="">
+          <xs:element name="nrows" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="ncols" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="rows" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="cols" type="xs:int"
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited"
+                  dfdl:terminator="," dfdl:occursCountKind="expression"
+                  dfdl:occursCount=" { ../../ex:ncols }
+                  " />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dummy" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="value" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc=" { '    a    b    ' } "  />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -424,6 +503,96 @@
             <cols>6</cols>
           </rows>
         </ocke>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- New line infront of expression. Space after expression.  -->
+  <tdml:parserTestCase name="ocke_rel2" root="ocke2"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2,3,1,2,3,4,5,6,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ocke2>
+          <nrows>2</nrows>
+          <ncols>3</ncols>
+          <rows>
+            <cols>1</cols>
+            <cols>2</cols>
+            <cols>3</cols>
+          </rows>
+          <rows>
+            <cols>4</cols>
+            <cols>5</cols>
+            <cols>6</cols>
+          </rows>
+        </ocke2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- Space before and after expression  -->
+  <tdml:parserTestCase name="ocke_rel3" root="ocke3"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2,3,1,2,3,4,5,6,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ocke3>
+          <nrows>2</nrows>
+          <ncols>3</ncols>
+          <rows>
+            <cols>1</cols>
+            <cols>2</cols>
+            <cols>3</cols>
+          </rows>
+          <rows>
+            <cols>4</cols>
+            <cols>5</cols>
+            <cols>6</cols>
+          </rows>
+        </ocke3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- Space before expression.  Newline after expression  -->
+  <tdml:parserTestCase name="ocke_rel4" root="ocke4"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2,3,1,2,3,4,5,6,]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ocke4>
+          <nrows>2</nrows>
+          <ncols>3</ncols>
+          <rows>
+            <cols>1</cols>
+            <cols>2</cols>
+            <cols>3</cols>
+          </rows>
+          <rows>
+            <cols>4</cols>
+            <cols>5</cols>
+            <cols>6</cols>
+          </rows>
+        </ocke4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- Check Space preserved in expression  -->
+  <tdml:parserTestCase name="internal_space_preserved" root="expr_space"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space>
+          <dummy>2</dummy>
+          <value><![CDATA[    a    b    ]]></value>
+        </expr_space>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

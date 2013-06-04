@@ -47,4 +47,25 @@ class TestDFDLExpressionsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
+
+  // DFDL-313
+  // Believe this is no longer an issue as the spaces in the
+  // following tests do not negatively affect the parse.
+  //
+  @Test def test_ocke_rel2() { runner.runOneTest("ocke_rel2") } // NL expr SP
+  @Test def test_ocke_rel3() { runner.runOneTest("ocke_rel3") } // SP expr SP
+  @Test def test_ocke_rel4() { runner.runOneTest("ocke_rel4") } // SP expr NL
+  @Test def test_internal_space_preserved() { runner.runOneTest("internal_space_preserved") } // space preservation w/in expr
+
+  val tdml2 = testDir + "expression_fail.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2), validateTDMLFile = false)
+
+  // DFDL-313
+  // Verified that we do get an error regarding an improperly formatted
+  // DFDL expression.  This test needs its own file since it fails at the
+  // schema loading (SAXParse) level and would cause other tests within
+  // the same file to fail.
+  //
+  @Test def test_no_closing_brace() { runner2.runOneTest("no_closing_brace") } // no closing } for expression
 }
+

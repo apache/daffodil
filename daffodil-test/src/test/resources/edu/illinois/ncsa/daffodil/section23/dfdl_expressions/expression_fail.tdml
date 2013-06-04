@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="expressions"
+  description="lengthKind explicit and occursCountKind expression"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+<tdml:defineSchema name="expressions-Embedded.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" />
+    
+    <xs:element name="ocke" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="">
+          <xs:element name="nrows" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="ncols" type="xs:int"
+            dfdl:lengthKind="delimited" dfdl:terminator="," />
+          <xs:element name="rows" maxOccurs="unbounded"
+            dfdl:occursCountKind="expression" dfdl:occursCount="{ ../ex:nrows }">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="cols" type="xs:int"
+                  maxOccurs="unbounded" dfdl:lengthKind="delimited"
+                  dfdl:terminator="," dfdl:occursCountKind="expression"
+                  dfdl:occursCount="{ ../../ex:ncols " />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  
+  <!-- No closing } for expression  -->
+  <tdml:parserTestCase name="no_closing_brace" root="ocke"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2,3,1,2,3,4,5,6,]]></tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema</tdml:error>
+    	<tdml:error>Definition</tdml:error>
+    	<tdml:error>Error</tdml:error>
+    	<tdml:error>loading</tdml:error>
+    	<tdml:error>schema</tdml:error>
+    	<tdml:error>SAXParseException</tdml:error>
+    	<tdml:error>not</tdml:error>
+    	<tdml:error>facet-valid</tdml:error>
+    	<tdml:error>dfdl:occursCount</tdml:error>
+    	<tdml:error>DFDLExpression</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
