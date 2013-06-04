@@ -47,12 +47,5 @@ class TestEntitiesNew {
 
   val tdml_01 = testDir + "InvalidEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-  @Test def test_entity_fail_01() { runner.runOneTest("text_invalid_entity_name") }
-  @Test def test_entity_fail_02() { runner.runOneTest("text_invalid_entity_decimalCodePoint") }
-  @Test def test_entity_fail_03() { runner.runOneTest("text_invalid_entity_hexaDecimalCodePoint") }
-  @Test def test_entity_fail_04() { runner.runOneTest("text_invalid_entity_rawBytes") }
-  @Test def test_entity_fail_05() { runner.runOneTest("text_invalid_entity_among_multiple_valid") }
-  @Test def test_entity_fail_06() { runner.runOneTest("text_invalid_entity_among_multiple_valid_combined") }
-  @Test def test_entity_fail_07() { runner.runOneTest("text_invalid_entity_escaped") }
 
 }
