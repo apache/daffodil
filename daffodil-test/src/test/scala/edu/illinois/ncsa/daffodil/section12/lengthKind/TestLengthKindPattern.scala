@@ -50,7 +50,10 @@ class TestLengthKindPattern {
 
   @Test def test_AI000_rev() { runner.runOneTest("AI000_rev") }
   @Test def testLengthKindPattern() { runner.runOneTest("LengthKindPattern") }
-  //  @Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+  //DFDL-744
+  //@Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+  //DFDL-745
+  //@Test def testLengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
   @Test def test_lengthKindPattern_01() { runner.runOneTest("lengthKindPattern_01") }
   @Test def test_lengthKindPattern_02() { runner.runOneTest("lengthKindPattern_02") }
   @Test def test_lengthKindPattern_03() { runner.runOneTest("lengthKindPattern_03") }
@@ -60,7 +63,7 @@ class TestLengthKindPattern {
   @Test def test_LengthPatternLegalBits_01() { runner.runOneTest("LengthPatternLegalBits_01") }
   
   // Fails after implementation of Scanability check
-  //  @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
+  //@Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
   @Test def testlengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }

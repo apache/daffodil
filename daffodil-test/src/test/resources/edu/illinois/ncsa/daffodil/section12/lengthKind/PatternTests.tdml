@@ -293,6 +293,27 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="abc2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="nul" dfdl:lengthKind="explicit"
+            type="xs:int" dfdl:length="{1}" />
+          <xs:element name="ab" dfdl:lengthKind="explicit" dfdl:length="8">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="name" type="xs:string"
+                  dfdl:lengthKind="delimited" />
+                <xs:element name="item" type="xs:string"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c" dfdl:lengthKind="explicit"
+            type="xs:int" dfdl:length="{1}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="def" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="!!.*!!" dfdl:encoding="utf-8">
@@ -373,6 +394,31 @@
 
   <tdml:parserTestCase name="LengthKindPatternCompound"
     root="abc" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+    <tdml:document><![CDATA[0aaa,bb//5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <abc>
+          <nul>0</nul>
+          <ab>
+            <name>aaa</name>
+            <item>bb//</item>
+          </ab>
+          <c>5</c>
+        </abc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+       Test Name: LengthKindPatternCompound2
+          Schema: DFDL-207-Embedded.dfdl.xsd
+         Purpose: This test demonstrates an error I was running into when trying
+         to troubleshoot test LengthKindPatternCompound
+  -->
+
+  <tdml:parserTestCase name="LengthKindPatternCompound2"
+    root="abc2" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12">
     <tdml:document><![CDATA[0aaa,bb//5]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
