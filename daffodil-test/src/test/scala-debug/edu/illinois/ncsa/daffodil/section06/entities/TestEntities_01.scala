@@ -51,8 +51,6 @@ class TestEntities_01 {
   @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
   //@Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
-  @Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
-  @Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
