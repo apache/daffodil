@@ -518,8 +518,8 @@ is multiple bytes in UTF-8 encoding that is used"
       lengthKind="delimited" />
     
     <dfdl:defineEscapeScheme name="table1">
-      <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[ start ]" escapeBlockEnd="[ end ]" 
-        escapeEscapeCharacter="%" extraEscapedCharacters="?"/>
+      <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[ start ]" escapeBlockEnd="[ end ]"
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e1" type="type1" />
