@@ -720,7 +720,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case Some(seqNodes) => seqNodes.toString
     case None => ""
   }
-  val xsdSchema = TestUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
+  val xsdSchema = SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
 }
 
 sealed abstract class DocumentContentType

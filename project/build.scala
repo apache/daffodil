@@ -14,55 +14,31 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
-                             .aggregate(propgen, lib, libUnit, core, coreUnit, tdml, tdmlUnit, testIBM1, cli, cliUnit, test)
+                             .aggregate(propgen, lib, core, tdml, testIBM1, cli, test)
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
 
-  //We really need to redo dependency on propgen. This causes far too much recompilation
-  //on the eclipse side of things. We should regenerate the source only if either the propgen code or the 
-  //XSD files it consumes have changed.
-  //
   lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)
                              .configs(DebugTest)
-                             .configs(NewTest)
-                             
-  lazy val libUnit     = Project(id = "daffodil-lib-unittest", base = file("daffodil-lib-unittest"), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(lib)
+                             .configs(NewTest)   
 
   lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(lib)
-                             
-  lazy val coreUnit    = Project(id = "daffodil-core-unittest", base = file("daffodil-core-unittest"), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(tdml)          
+                             .dependsOn(lib) 
                              
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
                              
-  lazy val tdmlUnit    = Project(id = "daffodil-tdml-unittest", base = file("daffodil-tdml-unittest"), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(tdml)  
-                             
   lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
-                             
-  lazy val cliUnit    = Project(id = "daffodil-cli-unittest", base = file("daffodil-cli-unittest"), settings = s ++ stageTaskSettings ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .configs(CliTest)                             
-                             .dependsOn(cli)                               
+                                                         
 
   lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
                              .configs(DebugTest)

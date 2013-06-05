@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" output="target/eclipse/classes" path="src/main/scala"/>
-	<classpathentry kind="src" output="target/eclipse/classes" path="src/test/java"/>
-	<classpathentry kind="src" output="target/eclipse/classes" path="src/main/resources"/>
-	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala"/>
-	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/scala-new"/>
-	<classpathentry kind="src" output="target/eclipse/test-classes" path="src/test/resources"/>
-	<classpathentry kind="src" output="target/eclipse/debug-classes" path="src/test/scala-debug"/>
+	<classpathentry kind="src" path="test/scala-new"/>
+	<classpathentry kind="src" path="test/java"/>
+	<classpathentry kind="src" path="test/scala"/>
+	<classpathentry kind="src" path="test/resources"/>
+	<classpathentry kind="src" path="test/scala-debug"/>
 	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
@@ -67,6 +65,5 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>
