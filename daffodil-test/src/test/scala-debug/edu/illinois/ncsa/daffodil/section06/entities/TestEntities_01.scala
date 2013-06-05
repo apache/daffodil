@@ -52,6 +52,9 @@ class TestEntities_01 {
 
   //@Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
 
+  //DFDL-258 - raw byte entities
+  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
+
   val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
