@@ -49,6 +49,10 @@ class TestDFDLExpressionsDebug {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
+  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
+  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
   @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
   @Test def test_expressionRules04() { runner.runOneTest("expressionRules04") }

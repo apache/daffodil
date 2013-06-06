@@ -452,6 +452,30 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="expr_space2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dummy" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="value" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc=" { 'a
+b
+c' } "  />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dummy" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="value" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc=" { ' a b c ' } "  />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -482,6 +506,12 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: ocke_rel
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates the use of relative paths in an occursCount expression 
+-->
 
   <tdml:parserTestCase name="ocke_rel" root="ocke"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
@@ -507,7 +537,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- New line infront of expression. Space after expression.  -->
+<!--
+     Test Name: ocke_rel2
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that whitespace surrounding an expression is collapsed. In this case,
+                there is a newline in front of the expression and a space afterwards. 
+-->
+  
   <tdml:parserTestCase name="ocke_rel2" root="ocke2"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
@@ -532,7 +568,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- Space before and after expression  -->
+<!--
+     Test Name: ocke_rel3
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that whitespace surrounding an expression is collapsed. In this case,
+                there is a space in front of the expression and a space afterwards. 
+-->
+  
   <tdml:parserTestCase name="ocke_rel3" root="ocke3"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
@@ -557,7 +599,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- Space before expression.  Newline after expression  -->
+<!--
+     Test Name: ocke_rel4
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that whitespace surrounding an expression is collapsed. In this case,
+                there is a space in front of the expression and a newline afterwards. 
+-->
+  
   <tdml:parserTestCase name="ocke_rel4" root="ocke4"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
@@ -582,7 +630,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- Check Space preserved in expression  -->
+<!--
+     Test Name: internal_space_preserved
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that whitespace surrounding an expression is collapsed, but whitespace
+                within the expression is preserved.
+-->
+  
   <tdml:parserTestCase name="internal_space_preserved" root="expr_space"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
@@ -593,6 +647,70 @@
           <dummy>2</dummy>
           <value><![CDATA[    a    b    ]]></value>
         </expr_space>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: internal_space_preserved2
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that whitespace surrounding an expression is collapsed, but whitespace
+                within the expression is preserved.
+-->
+  
+  <tdml:parserTestCase name="internal_space_preserved2" root="expr_space2"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space2>
+          <dummy>2</dummy>
+          <value><![CDATA[a
+            b                                    c]]></value>
+        </expr_space2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: internal_space_preserved3a
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that the TDML runner is providing false positives because it is not taking whitespace
+                into account
+-->
+  
+  <tdml:parserTestCase name="internal_space_preserved3a" root="expr_space3"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space3>
+          <dummy>2</dummy>
+          <value><![CDATA[a            b                                    c]]></value>
+        </expr_space3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: internal_space_preserved3b
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that the TDML runner is providing false positives because it is not taking whitespace
+                into account
+-->
+  
+  <tdml:parserTestCase name="internal_space_preserved3b" root="expr_space3"
+    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+
+    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space3>
+          <dummy>2</dummy>
+          <value><![CDATA[a     b     c]]></value>
+        </expr_space3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

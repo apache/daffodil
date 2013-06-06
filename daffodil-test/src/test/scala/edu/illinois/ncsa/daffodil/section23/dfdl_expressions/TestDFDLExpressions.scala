@@ -72,7 +72,16 @@ class TestDFDLExpressions {
   @Test def test_expression_type_error3() { runner.runOneTest("expression-type-error3") }
   @Test def test_expression_type_error4() { runner.runOneTest("expression-type-error4") }
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression-unknown-prefix") }
+
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
+  @Test def test_ocke_rel2() { runner.runOneTest("ocke_rel2") }
+  @Test def test_ocke_rel3() { runner.runOneTest("ocke_rel3") }
+  @Test def test_ocke_rel4() { runner.runOneTest("ocke_rel4") }
+  @Test def test_internal_space_preserved() { runner.runOneTest("internal_space_preserved") }
+//  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
+//  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
+//  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_checkConstraints() { runner.runOneTest("dfdlCheckConstraints") }
