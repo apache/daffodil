@@ -92,8 +92,16 @@
 		</xs:element>
 
 	</tdml:defineSchema>
+  
+<!--
+     Test Name: ExplicitLengthBitsNotFixed
+        Schema: test_ExplicitLengthBits
+          Root: notFixed
+       Purpose: This test demonstrates using lengthUnits = bits for textual data when the length is
+                determined by an expression.
+-->
 
-	<tdml:parserTestCase name="test_ExplicitLengthBitsNotFixed"
+	<tdml:parserTestCase name="ExplicitLengthBitsNotFixed"
 		root="notFixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000180
@@ -114,8 +122,15 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+<!--
+     Test Name: ExplicitLengthBitsFixed
+        Schema: test_ExplicitLengthBits
+          Root: fixed
+       Purpose: This test demonstrates using lengthUnits = bits for textual data when the length is fixed
+-->
 
-	<tdml:parserTestCase name="test_ExplicitLengthBitsFixed"
+	<tdml:parserTestCase name="ExplicitLengthBitsFixed"
 		root="fixed" model="test_ExplicitLengthBits" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>
@@ -455,14 +470,17 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-	
-	<!-- test case for 12.3.7.3 "Length of Complex Element of Specified Length"
   
-    Here we are expecting the parser to pad out to 50 on each element and pull in two addresses. There are two "extra" bytes ("XX") in the data for each address.
+<!--
+     Test Name: ExplicitLengthBytesFixed50
+        Schema: test_ExplicitLengthBytes
+          Root: fixed_50
+       Purpose: This test demonstrates using explicit lengths for complex elements
+                Here we are expecting the parser to pad out to 50 on each element and pull in two addresses.
+                There are two "extra" bytes ("XX") in the data for each address.
+-->
     
-    -->
-    
-  <tdml:parserTestCase name="test_ExplicitLengthBytesFixed50"
+  <tdml:parserTestCase name="ExplicitLengthBytesFixed50"
     root="fixed_50" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NYXX000118Ridgewood Circle    Rochester           NYXX]]></tdml:documentPart>
@@ -608,8 +626,16 @@
 
 
 	</tdml:defineSchema>
+  
+<!--
+     Test Name: ExplicitLengthCharsNotFixed
+        Schema: test_ExplicitLengthChars
+          Root: notFixed
+       Purpose: This test demonstrates using lengthUnits = chars for textual data when the length is determined
+                by an expression.
+-->
 
-	<tdml:parserTestCase name="test_ExplicitLengthCharsNotFixed"
+	<tdml:parserTestCase name="ExplicitLengthCharsNotFixed"
 		root="notFixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="byte">00000030
@@ -630,8 +656,15 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+<!--
+     Test Name: ExplicitLengthCharsFixed
+        Schema: test_ExplicitLengthChars
+          Root: fixed
+       Purpose: This test demonstrates using lengthUnits = chars for textual data when the length is fixed
+-->
 
-	<tdml:parserTestCase name="test_ExplicitLengthCharsFixed"
+	<tdml:parserTestCase name="ExplicitLengthCharsFixed"
 		root="fixed" model="test_ExplicitLengthChars" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY]]></tdml:documentPart>

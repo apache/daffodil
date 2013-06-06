@@ -51,7 +51,13 @@ class TestLengthKindExplicit {
 
   @Test def test_Lesson1_lengthKind_explicit() { runner.runOneTest("Lesson1_lengthKind_explicit") }
   @Test def test_ExplicitLengthBytesNotFixed() = { runner.runOneTest("test_ExplicitLengthBytesNotFixed") }
+  @Test def test_ExplicitLengthBitsFixed() = { runner.runOneTest("ExplicitLengthBitsFixed") }
   @Test def test_ExplicitLengthBytesFixed() = { runner.runOneTest("test_ExplicitLengthBytesFixed") }
+  @Test def test_ExplicitLengthBitsNotFixed() = { runner.runOneTest("ExplicitLengthBitsNotFixed") }
+  @Test def test_ExplicitLengthCharsNotFixed() = { runner.runOneTest("ExplicitLengthCharsNotFixed") }
+  @Test def test_ExplicitLengthCharsFixed() = { runner.runOneTest("ExplicitLengthCharsFixed") }
+  @Test def test_ExplicitLengthBytesFixed50() = { runner.runOneTest("ExplicitLengthBytesFixed50") }
+  
   // This test should give runtime SDE, not parse error (DFDL-710)
   //@Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
   @Test def test_ExplicitLengthBytesBroken() = { runner.runOneTest("test_ExplicitLengthBytesBroken") }
