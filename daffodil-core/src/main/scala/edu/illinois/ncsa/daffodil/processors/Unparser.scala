@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.util.{ Logging, LogLevel, Debug }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
-import edu.illinois.ncsa.daffodil.processors.EscapeScheme.log
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler._

@@ -12,5 +12,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/icu4j-charset-51_1.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/icu4j-localespi-51_1.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

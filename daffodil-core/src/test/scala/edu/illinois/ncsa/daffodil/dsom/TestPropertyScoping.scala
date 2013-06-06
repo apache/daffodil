@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
-import edu.illinois.ncsa.daffodil.util.{ TestUtils, Misc, Logging }
+import edu.illinois.ncsa.daffodil.util.{ Misc, Logging }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }

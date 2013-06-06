@@ -62,7 +62,6 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
-	<classpathentry kind="lib" path="/daffodil-core/lib/icu4j-charset-51_1.jar"/>
-	<classpathentry kind="lib" path="/daffodil-core/lib/icu4j-localespi-51_1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

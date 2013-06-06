@@ -52,7 +52,6 @@ import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -60,6 +59,7 @@ import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.compiler.CompilerTunableParameters
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -75,6 +75,9 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
   with FindPropertyMixin
   with LookupLocation
   with PropTypes {
+
+  lazy val primitiveFactory: PrimitiveFactoryBase = schemaSet.primitiveFactory
+  lazy val prims = primitiveFactory
 
   val context: SchemaComponent = parent
 
@@ -304,7 +307,7 @@ trait ElementFormDefaultMixin
             // then we just take head of this list, and we get tryPre
             // Note: this does NOT create the giant list of all Int values.
             val uniqueSuffix = if (i == 0) "" else i.toString
-            val prefixStem = Compiler.generatedNamespacePrefixStem
+            val prefixStem = CompilerTunableParameters.generatedNamespacePrefixStem
             val tryPre = prefixStem + uniqueSuffix
             if (xml.scope.getURI(tryPre) == null)
               Some(tryPre) // tryPre is not bound to a namespace, so we can use it.
@@ -644,13 +647,15 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
  * doesn't correspond to any user-specified schema object. And unlike other
  * schema components obviously it does not live within a schema document.
  */
-class SchemaSet(
+class SchemaSet(primFactory: PrimitiveFactoryBase,
   schemaFilesArg: Seq[File],
   rootSpec: Option[RootSpec] = None,
   checkAllTopLevelArg: Boolean = false,
   parent: SchemaComponent = null)
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
+
+  override lazy val primitiveFactory = primFactory
 
   requiredEvaluations(
     isValid,
@@ -682,12 +687,13 @@ class SchemaSet(
   /**
    * This constructor for unit testing only
    */
-  def this(sch: Node, rootNamespace: String = null, root: String = null) =
-    this({
-      val file = XMLUtils.convertNodeToTempFile(sch)
-      val files = List(file)
-      files
-    },
+  def this(primFact: PrimitiveFactoryBase, sch: Node, rootNamespace: String = null, root: String = null) =
+    this(primFact,
+      {
+        val file = XMLUtils.convertNodeToTempFile(sch)
+        val files = List(file)
+        files
+      },
       if (root == null) None else {
         if (rootNamespace == null) Some(RootSpec(None, root))
         else Some(RootSpec(Some(NS(rootNamespace)), root))

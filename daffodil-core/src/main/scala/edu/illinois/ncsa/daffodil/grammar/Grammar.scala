@@ -49,6 +49,8 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
   extends OOLAGHost(contextArg) {
 
+  lazy val prims = context.prims
+
   def rethrowAsDiagnostic(th: Throwable) = contextArg.rethrowAsDiagnostic(th)
 
   val context: AnnotatedSchemaComponent = contextArg
@@ -156,7 +158,8 @@ object SeqComp {
     res
   }
 }
-class SeqComp(context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
+
+class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
   def op = "~"
   def open = "("
   def close = ")"
@@ -181,7 +184,8 @@ object AltComp {
     res
   }
 }
-class AltComp(context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
+
+class AltComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
   def op = "|"
   def open = "["
   def close = "]"
@@ -189,34 +193,6 @@ class AltComp(context: AnnotatedSchemaComponent, children: Seq[Gram]) extends Bi
   def parser = new AltCompParser(context, children)
   def unparser = new AltCompUnparser(context, children)
 }
-
-abstract class Rep3Arg(f: (LocalElementBase, Long, => Gram) => Gram) {
-  def apply(context: LocalElementBase, n: Long, rr: => Gram) = {
-    val r = rr
-    if (n == 0 || r.isEmpty) EmptyGram
-    else f(context, n, r)
-  }
-}
-
-abstract class Rep2Arg(f: (LocalElementBase, => Gram) => Gram) {
-  def apply(context: LocalElementBase, r: => Gram) = {
-    val rr = r
-    if (rr.isEmpty) EmptyGram
-    else f(context, r)
-  }
-}
-
-object RepExactlyN extends Rep3Arg(new RepExactlyNPrim(_, _, _))
-
-object RepAtMostTotalN extends Rep3Arg(new RepAtMostTotalNPrim(_, _, _))
-
-object RepUnbounded extends Rep2Arg(new RepUnboundedPrim(_, _))
-
-object RepExactlyTotalN extends Rep3Arg(new RepExactlyTotalNPrim(_, _, _))
-
-object RepAtMostOccursCount extends Rep3Arg(new RepAtMostOccursCountPrim(_, _, _))
-
-object RepExactlyTotalOccursCount extends Rep2Arg(new RepExactlyTotalOccursCountPrim(_, _))
 
 object EmptyGram extends Gram(null) {
   override def isEmpty = true
@@ -299,7 +275,6 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
         log(Compile("Prod %s removed.", name))
         EmptyGram
       }
-      // case None => ErrorGram
     }
   }
 

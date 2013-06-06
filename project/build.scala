@@ -14,7 +14,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
-                             .aggregate(propgen, lib, core, tdml, testIBM1, cli, test)
+                             .aggregate(propgen, lib, core, runtime1, tdml, testIBM1, cli, test)
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
@@ -28,11 +28,16 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(lib) 
+
+  lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(core) 
                              
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(core)
+                             .dependsOn(runtime1)
                              
   lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings)
                              .configs(DebugTest)

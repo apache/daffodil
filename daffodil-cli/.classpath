@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.9.2.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

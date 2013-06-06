@@ -39,9 +39,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.Misc.bytes2Hex
 import com.ibm.icu.text.NumberFormat
-import edu.illinois.ncsa.daffodil.processors._
 import java.math.BigInteger
 
 trait GrammarMixin {
@@ -70,17 +68,17 @@ trait InitiatedTerminatedMixin
 
   lazy val hasTerminator = terminator.isKnownNonEmpty
 
-  lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
+  lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, prims.InitiatedContent(this))
 
   lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, initiatorItself ~ initiatorDiscriminator)
   lazy val initiatorItself = {
-    if (initiator.isConstant) StaticInitiator(this)
-    else DynamicInitiator(this)
+    if (initiator.isConstant) prims.StaticInitiator(this)
+    else prims.DynamicInitiator(this)
   }
 
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
-    if (terminator.isConstant) StaticTerminator(this)
-    else DynamicTerminator(this))
+    if (terminator.isConstant) prims.StaticTerminator(this)
+    else prims.DynamicTerminator(this))
 }
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
@@ -126,9 +124,9 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 }
 
 trait AlignedMixin { self: Term =>
-  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, LeadingSkipRegion(this))
-  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, TrailingSkipRegion(this))
-  lazy val alignmentFill = Prod("alignmentFill", this, AlignmentFill(this))
+  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, prims.LeadingSkipRegion(this))
+  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, prims.TrailingSkipRegion(this))
+  lazy val alignmentFill = Prod("alignmentFill", this, prims.AlignmentFill(this))
 }
 
 /////////////////////////////////////////////////////////////////
@@ -146,7 +144,7 @@ trait ElementBaseGrammarMixin
   // 
 
   lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == NilKind.LogicalValue,
-    nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator)
+    nilElementInitiator ~ prims.LogicalNilValue(this) ~ nilElementTerminator)
 
   lazy val parsedValue = {
     val res = Prod("parsedValue", this, initiatorRegion ~ allowedValue ~ terminatorRegion)
@@ -203,9 +201,9 @@ trait ElementBaseGrammarMixin
 
   lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
-      //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+      case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
+      //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Characters, true) => {
         //
         // we deal with the fact that some encodings have characters taking up smaller than 
@@ -216,30 +214,30 @@ trait ElementBaseGrammarMixin
         val lengthInBytes = lengthInBits / 8
         val hasWholeBytesOnly = (lengthInBits % 8) == 0
         if (hasWholeBytesOnly)
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
+          prims.StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
         else
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
+          prims.StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
       }
       //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
+      case (LengthUnits.Characters, false) => prims.StringFixedLengthInVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
       case _ => Assert.invariantFailed("all cases should have been exhausted.")
     })
 
   lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
+      case LengthUnits.Bytes => prims.HexBinaryFixedLengthInBytes(this, fixedLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 
   lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, facetMaxLength) // TODO: make sure it divides evenly.
-      //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => StringFixedLengthInBytesVariableWidthCharacters(this, facetMaxLength)
+      case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, facetMaxLength) // TODO: make sure it divides evenly.
+      //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, facetMaxLength)
       case (LengthUnits.Characters, true) => {
         //
         // we deal with the fact that some encodings have characters taking up smaller than 
@@ -250,20 +248,20 @@ trait ElementBaseGrammarMixin
         val lengthInBytes = lengthInBits / 8
         val hasWholeBytesOnly = (lengthInBits % 8) == 0
         if (hasWholeBytesOnly)
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
+          prims.StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
         else
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
+          prims.StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
       }
       //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
+      case (LengthUnits.Characters, false) => prims.StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     })
 
   lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, facetMaxLength)
+      case LengthUnits.Bytes => prims.HexBinaryFixedLengthInBytes(this, facetMaxLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
@@ -281,26 +279,26 @@ trait ElementBaseGrammarMixin
       //// 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       //case (LengthUnits.Bits, _) =>
       //  SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
-      case (LengthUnits.Bytes, true) => StringVariableLengthInBytes(this)
-      case (LengthUnits.Bytes, false) => StringVariableLengthInBytesVariableWidthCharacters(this)
-      case (LengthUnits.Characters, true) => StringVariableLengthInBytes(this)
+      case (LengthUnits.Bytes, true) => prims.StringVariableLengthInBytes(this)
+      case (LengthUnits.Bytes, false) => prims.StringVariableLengthInBytesVariableWidthCharacters(this)
+      case (LengthUnits.Characters, true) => prims.StringVariableLengthInBytes(this)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => StringVariableLengthInVariableWidthCharacters(this)
+      case (LengthUnits.Characters, false) => prims.StringVariableLengthInVariableWidthCharacters(this)
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
 
   lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
     lengthUnits match {
-      case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
+      case LengthUnits.Bytes => prims.HexBinaryVariableLengthInBytes(this)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 
   //lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
-  lazy val stringDelimitedEndOfDataStatic = Prod("stringDelimitedEndOfDataStatic", this, StringDelimitedEndOfDataStatic(this))
-  lazy val stringDelimitedEndOfDataDynamic = Prod("stringDelimitedEndOfDataDynamic", this, StringDelimitedEndOfDataDynamic(this))
-  lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
+  lazy val stringDelimitedEndOfDataStatic = Prod("stringDelimitedEndOfDataStatic", this, prims.StringDelimitedEndOfDataStatic(this))
+  lazy val stringDelimitedEndOfDataDynamic = Prod("stringDelimitedEndOfDataDynamic", this, prims.StringDelimitedEndOfDataDynamic(this))
+  lazy val stringPatternMatched = Prod("stringPatternMatched", this, prims.StringPatternMatched(this))
 
   lazy val stringValue = stringValue_.value
   private val stringValue_ = LV('stringValue) {
@@ -321,8 +319,8 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  lazy val hexBinaryDelimitedEndOfDataStatic = Prod("hexBinaryDelimitedEndOfDataStatic", this, HexBinaryDelimitedEndOfDataStatic(this))
-  lazy val hexBinaryDelimitedEndOfDataDynamic = Prod("hexBinaryDelimitedEndOfDataDynamic", this, HexBinaryDelimitedEndOfDataDynamic(this))
+  lazy val hexBinaryDelimitedEndOfDataStatic = Prod("hexBinaryDelimitedEndOfDataStatic", this, prims.HexBinaryDelimitedEndOfDataStatic(this))
+  lazy val hexBinaryDelimitedEndOfDataDynamic = Prod("hexBinaryDelimitedEndOfDataDynamic", this, prims.HexBinaryDelimitedEndOfDataDynamic(this))
 
   lazy val hexBinaryValue = hexBinaryValue_.value
   private val hexBinaryValue_ = LV('hexBinaryValue) {
@@ -417,27 +415,27 @@ trait ElementBaseGrammarMixin
   // depending on the length kind.
   // 
   lazy val standardTextInteger = Prod("standardTextInteger", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntegerPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextIntegerPrim(this))
   lazy val standardTextNonNegativeInteger = Prod("standardTextNonNegativeInteger", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextNonNegativeIntegerPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextNonNegativeIntegerPrim(this))
   lazy val standardTextLong = Prod("standardTextLong", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextLongPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextLongPrim(this))
   lazy val standardTextInt = Prod("standardTextInt", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextIntPrim(this))
   lazy val standardTextShort = Prod("standardTextShort", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextShortPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextShortPrim(this))
   lazy val standardTextByte = Prod("standardTextByte", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextBytePrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextBytePrim(this))
   lazy val standardTextUnsignedLong = Prod("standardTextUnsignedLong", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedLongPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextUnsignedLongPrim(this))
   lazy val standardTextUnsignedInt = Prod("standardTextUnsignedInt", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedIntPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextUnsignedIntPrim(this))
   lazy val standardTextUnsignedShort = Prod("standardTextUnsignedShort", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedShortPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextUnsignedShortPrim(this))
   lazy val standardTextUnsignedByte = Prod("standardTextUnsignedByte", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedBytePrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextUnsignedBytePrim(this))
   lazy val zonedTextInt = Prod("zonedTextInt", this,
-    textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
+    textNumberRep == TextNumberRep.Zoned, prims.ZonedTextIntPrim(this))
 
   //  lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
   //    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
@@ -469,7 +467,7 @@ trait ElementBaseGrammarMixin
     subsetError("ibm390Hex not supported"))
 
   lazy val standardTextDouble = Prod("standardTextDouble", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextDoublePrim(this))
 
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
@@ -504,17 +502,17 @@ trait ElementBaseGrammarMixin
   //    subsetError("ibm390Hex not supported"))
 
   lazy val standardTextFloat = Prod("standardTextFloat", this,
-    textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextFloatPrim(this))
 
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
   lazy val textDate = Prod("textDate", this, representation == Representation.Text,
-    stringValue ~ ConvertTextDatePrim(this))
+    stringValue ~ prims.ConvertTextDatePrim(this))
   lazy val textTime = Prod("textTime", this, representation == Representation.Text,
-    stringValue ~ ConvertTextTimePrim(this))
+    stringValue ~ prims.ConvertTextTimePrim(this))
   lazy val textDateTime = Prod("textDateTime", this, representation == Representation.Text,
-    stringValue ~ ConvertTextDateTimePrim(this))
+    stringValue ~ prims.ConvertTextDateTimePrim(this))
 
   // shorthand
   lazy val primType = {
@@ -611,25 +609,25 @@ trait ElementBaseGrammarMixin
       case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
-          case -1 => new SignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+          case -1 => prims.SignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
+          case _ => prims.SignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
         }
       }
 
       case PrimType.UByte | PrimType.UShort | PrimType.UInt | PrimType.ULong | PrimType.NonNegativeInteger => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
-          case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
-          case _ => new UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+          case -1 => prims.UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
+          case _ => prims.UnsignedKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
         }
       }
 
       case PrimType.Double | PrimType.Float =>
         (primType, binaryNumberKnownLengthInBits, staticBinaryFloatRep) match {
           case (_, -1, BinaryFloatRep.Ieee) => SDE("Floating point binary numbers may not have runtime-specified lengths.")
-          case (PrimType.Float, 32, BinaryFloatRep.Ieee) => new FloatKnownLengthRuntimeByteOrderBinaryNumber(this, 32)
+          case (PrimType.Float, 32, BinaryFloatRep.Ieee) => prims.FloatKnownLengthRuntimeByteOrderBinaryNumber(this, 32)
           case (PrimType.Float, n, BinaryFloatRep.Ieee) => SDE("binary xs:float must be 32 bits. Length in bits was %s.", n)
-          case (PrimType.Double, 64, BinaryFloatRep.Ieee) => new DoubleKnownLengthRuntimeByteOrderBinaryNumber(this, 64)
+          case (PrimType.Double, 64, BinaryFloatRep.Ieee) => prims.DoubleKnownLengthRuntimeByteOrderBinaryNumber(this, 64)
           case (PrimType.Double, n, BinaryFloatRep.Ieee) => SDE("binary xs:double must be 64 bits. Length in bits was %s.", n)
           case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
@@ -706,17 +704,17 @@ trait ElementBaseGrammarMixin
    */
   lazy val complexImplicitEmpty = Prod("complexImplicitEmpty", this, NYI &&
     isComplexType && lengthKind == LengthKind.Implicit,
-    SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
-      RestoreInputStream(this) ~ emptyElementTerminator)
+    prims.SaveInputStream(this) ~ prims.SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
+      prims.RestoreInputStream(this) ~ emptyElementTerminator)
 
   lazy val emptyDefaulted = Prod("emptyDefaulted", this,
     isDefaultable && emptyIsAnObservableConcept,
-    empty ~ TheDefaultValue(this))
+    empty ~ prims.TheDefaultValue(this))
 
   lazy val nilElementInitiator = Prod("nilElementInitiator", this, hasNilValueInitiator,
-    if (initiator.isConstant) StaticInitiator(this) else DynamicInitiator(this))
+    if (initiator.isConstant) prims.StaticInitiator(this) else prims.DynamicInitiator(this))
   lazy val nilElementTerminator = Prod("nilElementTerminator", this, hasNilValueTerminator,
-    if (terminator.isConstant) StaticTerminator(this) else DynamicTerminator(this))
+    if (terminator.isConstant) prims.StaticTerminator(this) else prims.DynamicTerminator(this))
 
   lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator, EmptyGram)
   lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator, EmptyGram)
@@ -731,20 +729,20 @@ trait ElementBaseGrammarMixin
         // if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
-          case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => LiteralNilDelimitedEndOfDataDynamic(this)
-          case LengthKind.Delimited => LiteralNilDelimitedEndOfDataStatic(this)
-          case LengthKind.Pattern => LiteralNilPattern(this)
+          case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => prims.LiteralNilDelimitedEndOfDataDynamic(this)
+          case LengthKind.Delimited => prims.LiteralNilDelimitedEndOfDataStatic(this)
+          case LengthKind.Pattern => prims.LiteralNilPattern(this)
           case LengthKind.Explicit => {
             lengthUnits match {
               case LengthUnits.Bits => notYetImplemented("nilKind='literalValue' with lengthKind='bits'")
-              case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
-              case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
+              case LengthUnits.Bytes => prims.LiteralNilExplicitLengthInBytes(this)
+              case LengthUnits.Characters => prims.LiteralNilExplicitLengthInChars(this)
             }
           }
           case LengthKind.Implicit => {
             schemaDefinitionUnless(representation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
             val lengthInBytes = implicitBinaryLengthInBits / 8
-            LiteralNilKnownLengthInBytes(this, lengthInBytes)
+            prims.LiteralNilKnownLengthInBytes(this, lengthInBytes)
           }
           case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
           case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
@@ -766,13 +764,13 @@ trait ElementBaseGrammarMixin
 
   def specifiedLength(body: => Gram) = {
     lengthKind match {
-      case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && isFixedLength => new SpecifiedLengthExplicitBitsFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && !isFixedLength => new SpecifiedLengthExplicitBits(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && isFixedLength => new SpecifiedLengthExplicitBytesFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && !isFixedLength => new SpecifiedLengthExplicitBytes(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength => new SpecifiedLengthExplicitCharactersFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && !isFixedLength => new SpecifiedLengthExplicitCharacters(this, body)
+      case LengthKind.Pattern => prims.SpecifiedLengthPattern(this, body)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && isFixedLength => prims.SpecifiedLengthExplicitBitsFixed(this, body, fixedLength)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && !isFixedLength => prims.SpecifiedLengthExplicitBits(this, body)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && isFixedLength => prims.SpecifiedLengthExplicitBytesFixed(this, body, fixedLength)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && !isFixedLength => prims.SpecifiedLengthExplicitBytes(this, body)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength => prims.SpecifiedLengthExplicitCharactersFixed(this, body, fixedLength)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && !isFixedLength => prims.SpecifiedLengthExplicitCharacters(this, body)
       case _ => {
         // TODO: implement other specified length restrictions
         // for now, no restriction
@@ -794,15 +792,15 @@ trait ElementBaseGrammarMixin
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
   lazy val elementLeftFraming = Prod("elementLeftFraming", this,
-    leadingSkipRegion ~ alignmentFill ~ PrefixLength(this))
+    leadingSkipRegion ~ alignmentFill ~ prims.PrefixLength(this))
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
-  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, ElementBegin(this))
+  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, prims.ElementBegin(this))
 
   lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
-    if (isRepresented) ElementEnd(this)
-    else ElementEndNoRep(this)
+    if (isRepresented) prims.ElementEnd(this)
+    else prims.ElementEndNoRep(this)
   })
 
   //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
@@ -810,7 +808,7 @@ trait ElementBaseGrammarMixin
   //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
-    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+    prims.StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   //  def scalarDefaultable: Prod
@@ -830,11 +828,11 @@ trait ElementBaseGrammarMixin
 
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption.isInstanceOf[Found],
-    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
-      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
+    prims.StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
+      prims.InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
 
   lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this, {
-    val res = StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+    val res = prims.StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
       scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd
     res
   })
@@ -854,7 +852,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
 
-  lazy val notStopValue = Prod("notStopValue", this, hasStopValue, NotStopValue(this))
+  lazy val notStopValue = Prod("notStopValue", this, hasStopValue, prims.NotStopValue(this))
 
   lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForPosition(empty))
   lazy val separatedScalarDefaultable = Prod("separatedScalarDefaultable", this, isScalar, separatedForPosition(scalarDefaultable))
@@ -866,7 +864,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val recurrance = Prod("recurrance", this,
     !isScalar,
-    StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
+    prims.StartArray(this) ~ arrayContents ~ prims.EndArray(this) ~ prims.FinalUnusedRegion(this))
 
   override lazy val asTermInChoice = {
     val res = Prod("asTermInChoice", this, nonSeparatedScalarDefaultable | recurrance)
@@ -877,9 +875,9 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
    * speculate parsing forward until we get an error
    */
   lazy val separatedContentUnboundedWithoutTrailingEmpties = Prod("separatedContentUnboundedWithoutTrailingEmpties", this, isRecurring,
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepUnbounded(self, separatedRecurringNonDefault) ~
-      StopValue(this))
+    prims.RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+      prims.RepUnbounded(self, separatedRecurringNonDefault) ~
+      prims.StopValue(this))
 
   lazy val separatedContentUnbounded = Prod("separatedContentUnbounded", this, isRecurring,
     separatedContentUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
@@ -888,9 +886,9 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
     )
 
   lazy val separatedContentAtMostNWithoutTrailingEmpties = Prod("separatedContentAtMostNWithoutTrailingEmpties", this, isRecurring,
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
-      StopValue(this))
+    prims.RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+      prims.RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
+      prims.StopValue(this))
 
   // TODO: Do we have to adjust the count to take stopValue into account?
   // Answer: No because the counts are never used when there is a stopValue (at least in current
@@ -898,7 +896,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val separatedContentAtMostN = Prod("separatedContentAtMostN", this, isRecurring,
     separatedContentAtMostNWithoutTrailingEmpties ~
-      RepAtMostTotalN(self, maxOccurs, separatedEmpty)) // absorb extra separators, if found.
+      prims.RepAtMostTotalN(self, maxOccurs, separatedEmpty)) // absorb extra separators, if found.
 
   /**
    *  parse counted number of occurrences exactly.
@@ -909,16 +907,16 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
   // symmetric with parsing in these situations.
   def separatedContentExactlyN(count: Long) = {
-    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
-      StopValue(this) ~
-      RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
+    prims.RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+      prims.RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
+      prims.StopValue(this) ~
+      prims.RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
   }
 
   lazy val separatedContentExactlyNComputed = {
-    OccursCountExpression(this) ~
-      RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
-      RepExactlyTotalOccursCount(this, separatedRecurringNonDefault)
+    prims.OccursCountExpression(this) ~
+      prims.RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
+      prims.RepExactlyTotalOccursCount(this, separatedRecurringNonDefault)
   }
 
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
@@ -935,7 +933,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val contentUnbounded = {
 
-    val res = Prod("contentUnbounded", this, isRecurring, RepUnbounded(self, separatedRecurringDefaultable))
+    val res = Prod("contentUnbounded", this, isRecurring, prims.RepUnbounded(self, separatedRecurringDefaultable))
     res
   }
 
@@ -960,7 +958,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (Fixed_____, min_, max) if (min_ != max) => SDE("occursCountKind='fixed' requires minOccurs and maxOccurs to be equal (%d != %d)", min_, max)
       case (Fixed_____, ____, max) => separatedContentExactlyN(max)
       case (Implicit__, ZERO, UNB) => contentUnbounded // same as parsed
-      case (Implicit__, min_, UNB) => RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
+      case (Implicit__, min_, UNB) => prims.RepExactlyN(self, min_, separatedRecurringDefaultable) ~ contentUnbounded // respects minOccurs      
       case (Implicit__, ____, __2) => separatedContentAtMostN // uses min and maxOccurs
       case (Parsed____, ____, __2) => contentUnbounded
       case (StopValue_, ____, __2) => contentUnbounded
@@ -1013,7 +1011,7 @@ trait GlobalElementDeclGrammarMixin
   lazy val documentElement = Prod("documentElement", this, scalarDefaultable)
 
   lazy val document = Prod("document", this, {
-    UnicodeByteOrderMark(this) ~ documentElement
+    prims.UnicodeByteOrderMark(this) ~ documentElement
   })
 
 }
@@ -1086,10 +1084,10 @@ trait TermGrammarMixin { self: Term =>
   def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
   lazy val staticSeparator = Prod("staticSeparator", this, !ignoreES && hasES && es.separator.isConstant,
-    StaticSeparator(es, self))
+    prims.StaticSeparator(es, self))
 
   lazy val dynamicSeparator = Prod("dynamicSeparator", this, !ignoreES && hasES && !es.separator.isConstant,
-    DynamicSeparator(es, self))
+    prims.DynamicSeparator(es, self))
 
   lazy val sepRule = staticSeparator | dynamicSeparator
 
@@ -1112,15 +1110,15 @@ trait TermGrammarMixin { self: Term =>
 
   lazy val infixSepRule = Prod("infixSepRule", this,
     !ignoreES && hasES && es.hasInfixSep, {
-      if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
+      if (isStaticallyFirst) prims.Nada(this) // we're first, no infix sep.
       else if (hasPriorRequiredSiblings) infixSep // always in this case
       else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
         // runtime check for group pos such that we need a separator.
         // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
         // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
         // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-        (ArrayPosGreaterThan(1, self) ~ infixSep) |
-          ((GroupPosGreaterThan(1, self) ~ infixSep) | Nada(this))
+        (prims.ArrayPosGreaterThan(1, self) ~ infixSep) |
+          ((prims.GroupPosGreaterThan(1, self) ~ infixSep) | prims.Nada(this))
       } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
     })
 
@@ -1168,7 +1166,7 @@ trait ChoiceGrammarMixin { self: Choice =>
 
 trait SequenceGrammarMixin { self: Sequence =>
 
-  lazy val groupContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldRight(mt)(folder) ~ EndSequence(this))
+  lazy val groupContent = Prod("sequenceContent", this, prims.StartSequence(this) ~ terms.foldRight(mt)(folder) ~ prims.EndSequence(this))
 
   def folder(p: Gram, q: Gram): Gram = p ~ q
 
@@ -1204,8 +1202,8 @@ trait GroupRefGrammarMixin { self: GroupRef =>
 /////////////////////////////////////////////////////////////////
 
 trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val startChildren = StartChildren(this, true)
-  lazy val endChildren = EndChildren(this, true)
+  lazy val startChildren = prims.StartChildren(this, true)
+  lazy val endChildren = prims.EndChildren(this, true)
 
   lazy val mainGrammar = Prod("mainGrammar", self.element, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
 

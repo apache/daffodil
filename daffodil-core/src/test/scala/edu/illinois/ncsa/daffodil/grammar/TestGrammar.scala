@@ -202,21 +202,4 @@ class TestGrammar {
 
   }
 
-  @Test def testUnary() {
-
-    object first extends Primitive1(fakeTerm)
-    object mid extends Primitive1(fakeTerm)
-    object last extends Primitive1(fakeTerm)
-
-    lazy val prod1 = Prod("prod1", fakeTerm, first ~ RepExactlyN(null, 1, mid) | last)
-
-    assertFalse(prod1.isEmpty)
-
-    val exp = prod1.gram
-    // println(exp)
-    assertTrue(exp.name.contains("AltComp"))
-    assertTrue(exp.toString.contains("RepExactlyN"))
-
-  }
-
 }

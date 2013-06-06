@@ -1,4 +1,0 @@
-<schema xmlns="http://www.w3.org/2001/XMLSchema">
-<!-- fake. Here just so we can test TDML runner ability to grab files on the IBM directory structure
-by spoofing those locations for our own. -->
-</schema>
