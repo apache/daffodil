@@ -124,24 +124,36 @@ object DaffodilBuild extends Build {
     })
   }
 
-  // get the version from the latest tag
-  s ++= Seq(Keys.version := {
+  def exec(cmd: String): Seq[String] = {
     val r = java.lang.Runtime.getRuntime()
-    val p = r.exec("git describe HEAD")
+    val p = r.exec(cmd)
     p.waitFor()
     val ret = p.exitValue()
     if (ret != 0) {
-      sys.error("Failed to get daffodil version")
+      sys.error("Command failed: " + cmd)
     }
-    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
-    val version = b.readLine()
-    val parts = version.split("-")
-    val res =
-      if (parts.length == 1) {
-        parts(0)
-      } else {
-        parts(0) + "-SNAPSHOT"
+    val is = p.getInputStream
+    val res = scala.io.Source.fromInputStream(is).getLines()
+    res.toSeq
+  }
+
+  // get the version from the latest tag
+  s ++= Seq(Keys.version := {
+    val describe = exec("git describe --long HEAD")
+    assert(describe.length == 1)
+
+    val VersionRegex = """^(.+)-(.+)-(.+)$""".r
+    val res = describe(0) match {
+      case VersionRegex(v, "0", hash) => {
+        val status = exec("git status --porcelain")
+        if (status.length > 0) {
+          v + "-SNAPSHOT"
+        } else {
+          v
+        }
       }
+      case VersionRegex(v, _, hash) => v + "-SNAPSHOT"
+    }
     res
   })
 
