@@ -70,6 +70,8 @@ import edu.illinois.ncsa.daffodil.Tak._
 import java.net.URLDecoder
 import scala.xml.parsing.ConstructingParser
 import edu.illinois.ncsa.daffodil.Tak
+import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -102,26 +104,26 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   extends Logging {
 
   val errorHandler = new org.xml.sax.ErrorHandler {
-    def warning(exception: SAXParseException) = {
+    def warning(exception : SAXParseException) = {
       loadingExceptions == exception +: loadingExceptions
       System.err.println("TDMLRunner Warning: " + exception.getMessage())
     }
 
-    def error(exception: SAXParseException) = {
+    def error(exception : SAXParseException) = {
       loadingExceptions = exception :: loadingExceptions
       System.err.println("TDMLRunner Error: " + exception.getMessage())
       isLoadingError = true
     }
-    def fatalError(exception: SAXParseException) = {
+    def fatalError(exception : SAXParseException) = {
       loadingExceptions == exception +: loadingExceptions
       System.err.println("TDMLRunner Fatal Error: " + exception.getMessage())
       isLoadingError = true
     }
   }
 
-  var isLoadingError: Boolean = false
+  var isLoadingError : Boolean = false
 
-  var loadingExceptions: List[Exception] = Nil
+  var loadingExceptions : List[Exception] = Nil
 
   def getLoadingDiagnosticMessages() = {
     val msgs = loadingExceptions.map { _.toString() }.mkString(" ")
@@ -138,7 +140,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   /**
    * Detects the encoding of the File for us.
    */
-  def determineEncoding(theFile: File): String = {
+  def determineEncoding(theFile : File) : String = {
     val encH = scala.xml.include.sax.EncodingHeuristics
     val is = new java.io.FileInputStream(theFile)
     val bis = new java.io.BufferedInputStream(is)
@@ -159,7 +161,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
      * loader.loadFile(file) call here.
      */
     val tuple = aNodeFileOrURL match {
-      case tsNode: Node => {
+      case tsNode : Node => {
         val tempFile = XMLUtils.convertNodeToTempFile(tsNode)
         val enc = determineEncoding(tempFile)
         val input = scala.io.Source.fromURI(tempFile.toURI)(enc)
@@ -167,7 +169,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         val newNode = ConstructingParser.fromSource(input, true).document.docElem
         (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
       }
-      case tdmlFile: File => {
+      case tdmlFile : File => {
         log(LogLevel.Debug, "loading TDML file: %s", tdmlFile)
         val enc = determineEncoding(tdmlFile)
         val input = scala.io.Source.fromURI(tdmlFile.toURI)(enc)
@@ -177,7 +179,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
         log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
         res
       }
-      case tsURI: URI => {
+      case tsURI : URI => {
         val f = new File(tsURI)
         val enc = determineEncoding(f)
         val input = scala.io.Source.fromURI(tsURI)(enc)
@@ -193,8 +195,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
 
   lazy val isTDMLFileValid = !this.isLoadingError
 
-  var checkAllTopLevel: Boolean = false
-  def setCheckAllTopLevel(flag: Boolean) {
+  var checkAllTopLevel : Boolean = false
+  def setCheckAllTopLevel(flag : Boolean) {
     checkAllTopLevel = flag
   }
 
@@ -204,7 +206,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   // We will use their TDML file names, but in the code here, we call it an UnparserTestCase
   //
   val unparserTestCases = (ts \ "serializerTestCase").map { node => UnparserTestCase(node, this) }
-  val testCases: Seq[TestCase] = parserTestCases ++
+  val testCases : Seq[TestCase] = parserTestCases ++
     unparserTestCases
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
@@ -219,7 +221,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
       Assert.usageError("More than one definition for embedded schema " + name)
   }
 
-  def runAllTests(schema: Option[Node] = None) {
+  def runAllTests(schema : Option[Node] = None) {
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
@@ -227,9 +229,9 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     }
   }
 
-  def runPerfTest(testName: String, schema: Option[Node] = None) {
-    var bytesProcessed: Long = 0
-    var charsProcessed: Long = 0
+  def runPerfTest(testName : String, schema : Option[Node] = None) {
+    var bytesProcessed : Long = 0
+    var charsProcessed : Long = 0
     Tak.calibrate
     val ns = Timer.getTimeNS(testName, {
       val (by, ch) = runOneTestWithDataVolumes(testName, schema)
@@ -244,11 +246,11 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None) {
+  def runOneTest(testName : String, schema : Option[Node] = None) {
     runOneTestWithDataVolumes(testName, schema)
   }
 
-  def runOneTestWithDataVolumes(testName: String, schema: Option[Node] = None): (Long, Long) = {
+  def runOneTestWithDataVolumes(testName : String, schema : Option[Node] = None) : (Long, Long) = {
     if (isTDMLFileValid) {
       val testCase = testCases.find(_.name == testName)
       testCase match {
@@ -271,7 +273,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
    * so we look for the schema/model/tdml resources in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findTDMLResource(fileName: String): Option[File] = {
+  def findTDMLResource(fileName : String) : Option[File] = {
     // try it as is. Maybe it will be in the cwd or relative to that or absolute
     val firstTry = new File(fileName)
     if (firstTry.exists()) return Some(firstTry)
@@ -310,7 +312,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     None
   }
 
-  def findEmbeddedSchema(modelName: String): Option[Node] = {
+  def findEmbeddedSchema(modelName : String) : Option[Node] = {
     // schemas defined with defineSchema take priority as names.
     val es = embeddedSchemas.find { defSch => defSch.name == modelName }
     es match {
@@ -319,14 +321,14 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
     }
   }
 
-  def findSchemaFileName(modelName: String) = findTDMLResource(modelName)
+  def findSchemaFileName(modelName : String) = findTDMLResource(modelName)
 
 }
 
 abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
-  def toOpt[T](n: Seq[T]) = {
+  def toOpt[T](n : Seq[T]) = {
     n match {
       case Seq() => None
       case Seq(a) => Some(a)
@@ -338,6 +340,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   val infoset = toOpt(ptc \ "infoset").map { node => new Infoset(node, this) }
   val errors = toOpt(ptc \ "errors").map { node => new ExpectedErrors(node, this) }
   val warnings = toOpt(ptc \ "warnings").map { node => new ExpectedWarnings(node, this) }
+  val validationErrors = toOpt(ptc \ "validationErrors").map { node => new ExpectedValidationErrors(node, this) }
 
   val name = (ptc \ "@name").text
   val ptcID = (ptc \ "@ID").text
@@ -350,17 +353,26 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     case "false" => false
     case _ => false
   }
+  val validationMode = (ptc \ "@validation").text match {
+    case "on" => ValidationMode.Full
+    case "limited" => ValidationMode.Limited
+    case _ => ValidationMode.Off
+  }
+  val shouldValidate = validationMode != ValidationMode.Off
+  val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
 
-  var suppliedSchema: Option[Node] = None
+  var suppliedSchema : Option[Node] = None
 
-  protected def runProcessor(processor: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    nBits: Option[Long],
-    infoset: Option[Infoset],
-    errors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]): Unit
+  protected def runProcessor(processor : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    nBits : Option[Long],
+    infoset : Option[Infoset],
+    errors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings],
+    validationErrors : Option[ExpectedValidationErrors],
+    validationMode : ValidationMode.Type) : Unit
 
-  def run(schema: Option[Node] = None): (Long, Long) = {
+  def run(schema : Option[Node] = None) : (Long, Long) = {
     suppliedSchema = schema
     val sch = schema match {
       case Some(node) => {
@@ -384,14 +396,15 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = sch match {
-      case node: Node => compiler.compile(node)
-      case theFile: File => compiler.compile(theFile)
+      case node : Node => compiler.compile(node)
+      case theFile : File => compiler.compile(theFile)
       case _ => Assert.invariantFailed("can only be Node or File") //Assert.invariantFailed("can only be Node or String")
     }
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
 
-    runProcessor(pf, data, nBits, infoset, errors, warnings)
+    runProcessor(pf, data, nBits, infoset, errors, warnings, validationErrors, validationMode)
+
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
     println("Bytes processed: " + bytesProcessed)
@@ -402,9 +415,9 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     // log(LogLevel.Debug, "Test %s passed.", id))
   }
 
-  def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {
+  def verifyAllDiagnosticsFound(actual : WithDiagnostics, expectedDiags : Option[ErrorWarningBase]) = {
     val actualDiags = actual.getDiagnostics
-    if (actualDiags.length == 0) {
+    if (actualDiags.length == 0 && expectedDiags.isDefined) {
       throw new Exception("""No diagnostic objects found.""")
     } else {
       actualDiags.foreach { ad => log(Error(ad.toString)) }
@@ -427,29 +440,40 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
+  def verifyNoValidationErrorsFound(actual: WithDiagnostics) = {
+    val actualDiags = actual.getDiagnostics.filter(d => d.isInstanceOf[ValidationError])
+    if (actualDiags.length != 0) {
+      val actualDiagMsgs = actualDiags.map { _.toString }
+      throw new Exception("Validation errors found where none were expected by the test case.\n" +
+        actualDiagMsgs.mkString("\n"))
+    }
+  }
+
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
-    data: Option[DFDL.Input],
-    lengthLimitInBits: Option[Long],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    data : Option[DFDL.Input],
+    lengthLimitInBits : Option[Long],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings],
+    validationErrors : Option[ExpectedValidationErrors],
+    validationMode : ValidationMode.Type) = {
 
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, nBits, infoset, warnings)
-      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, nBits, errors, warnings)
+      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
+      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
 
   }
 
-  def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
+  def verifyParseInfoset(actual : DFDL.ParseResult, infoset : Infoset) {
     val trimmed = Utility.trim(actual.result)
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
@@ -499,11 +523,13 @@ Differences were (path, expected, actual):
     }
   }
 
-  def runParseExpectErrors(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
+  def runParseExpectErrors(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    lengthLimitInBits : Long,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings],
+    validationErrors : Option[ExpectedValidationErrors],
+    validationMode : ValidationMode.Type) {
 
     val objectToDiagnose =
       if (pf.isError) pf
@@ -515,6 +541,7 @@ Differences were (path, expected, actual):
           if (actual.isError) actual
           else {
             val loc: DataLocation = actual.resultState.currentLocation
+
             if (!loc.isAtEnd) {
               actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
               actual
@@ -524,8 +551,10 @@ Differences were (path, expected, actual):
               throw new Exception("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
             }
           }
+          actual
         }
       }
+
     // check for any test-specified errors
     verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
 
@@ -535,11 +564,13 @@ Differences were (path, expected, actual):
 
   }
 
-  def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+  def runParseExpectSuccess(pf : DFDL.ProcessorFactory,
+    dataToParse : DFDL.Input,
+    lengthLimitInBits : Long,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings],
+    validationErrors : Option[ExpectedValidationErrors],
+    validationMode : ValidationMode.Type) {
 
     val isError = pf.isError
     val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -553,6 +584,7 @@ Differences were (path, expected, actual):
         val diags = diagObjs.map(_.getMessage).mkString("\n")
         throw new Exception(diags)
       }
+      processor.setValidationMode(validationMode)
       val actual = processor.parse(dataToParse, lengthLimitInBits)
 
       if (!actual.canProceed) {
@@ -562,8 +594,16 @@ Differences were (path, expected, actual):
         val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }
+      
+      validationMode match {
+        case ValidationMode.Off => // Don't Validate
+        case mode => {
+          if (actual.isValidationSuccess) { println("Validation Succeeded!") }
+        }
+      }
 
       val loc: DataLocation = actual.resultState.currentLocation
+
       val leftOverException = if (!loc.isAtEnd) {
         val leftOverMsg = "Left over data: " + loc.toString
         println(leftOverMsg)
@@ -571,6 +611,13 @@ Differences were (path, expected, actual):
       } else None
 
       verifyParseInfoset(actual, infoset)
+      
+      (shouldValidate, expectsValidationError) match {
+        case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
+        case (true, false) => verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        case (false, true) => throw new Exception("Test case invalid. Validation is off but the test expects an error.")
+        case (false, false) => // Nothing to do here.
+      }
 
       leftOverException.map { throw _ } // if we get here, throw the left over data exception.
 
@@ -587,12 +634,14 @@ Differences were (path, expected, actual):
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    optNBits: Option[Long],
-    optInfoset: Option[Infoset],
-    optErrors: Option[ExpectedErrors],
-    warnings: Option[ExpectedWarnings]) = {
+  def runProcessor(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    optNBits : Option[Long],
+    optInfoset : Option[Infoset],
+    optErrors : Option[ExpectedErrors],
+    warnings : Option[ExpectedWarnings],
+    validationErrors : Option[ExpectedValidationErrors],
+    validationMode : ValidationMode.Type) = {
 
     val infoset = optInfoset.get
 
@@ -604,7 +653,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def verifyData(data: DFDL.Input, outStream: java.io.ByteArrayOutputStream) {
+  def verifyData(data : DFDL.Input, outStream : java.io.ByteArrayOutputStream) {
     val actualBytes = outStream.toByteArray
 
     val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
@@ -637,10 +686,10 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     }
   }
 
-  def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-    data: DFDL.Input,
-    infoset: Infoset,
-    warnings: Option[ExpectedWarnings]) {
+  def runUnparserExpectSuccess(pf : DFDL.ProcessorFactory,
+    data : DFDL.Input,
+    infoset : Infoset,
+    warnings : Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -664,11 +713,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-    optData: Option[DFDL.Input],
-    infoset: Infoset,
-    errors: ExpectedErrors,
-    warnings: Option[ExpectedWarnings]) {
+  def runUnparserExpectErrors(pf : DFDL.ProcessorFactory,
+    optData : Option[DFDL.Input],
+    infoset : Infoset,
+    errors : ExpectedErrors,
+    warnings : Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
@@ -702,7 +751,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
 }
 
-case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
+case class DefinedSchema(xml : Node, parent : DFDLTestSuite) {
   val name = (xml \ "@name").text.toString
 
   val defineFormats = (xml \ "defineFormat")
@@ -734,7 +783,7 @@ case object ContentTypeBits extends DocumentContentType
 case object ContentTypeFile extends DocumentContentType
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
-case class Document(d: NodeSeq, parent: TestCase) {
+case class Document(d : NodeSeq, parent : TestCase) {
 
   val Seq(<document>{ children @ _* }</document>) = d
 
@@ -773,7 +822,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
    * needed at all.
    */
   lazy val documentBits = documentParts.map { _.contentAsBits }.mkString
-  lazy val nBits: Long =
+  lazy val nBits : Long =
     if (isDPFile) -1
     else documentBits.length
   lazy val nFragBits = (nBits % 8).toInt
@@ -818,11 +867,11 @@ case class Document(d: NodeSeq, parent: TestCase) {
 
 }
 
-case class DocumentPart(part: Node, parent: Document) {
+case class DocumentPart(part : Node, parent : Document) {
   val validHexDigits = "0123456789abcdefABCDEF"
   val validBinaryDigits = "01"
 
-  lazy val replaceDFDLEntities: Boolean = {
+  lazy val replaceDFDLEntities : Boolean = {
     val res = (part \ "@replaceDFDLEntities")
     if (res.length == 0) { false }
     else { res(0).toString().toBoolean }
@@ -851,7 +900,7 @@ case class DocumentPart(part: Node, parent: Document) {
   lazy val textContentWithoutEntities = {
     if (replaceDFDLEntities) {
       try { EntityReplacer.replaceAll(partRawContent) }
-      catch { case (e: Exception) => Assert.abort(e.getMessage()) }
+      catch { case (e : Exception) => Assert.abort(e.getMessage()) }
     } else partRawContent
   }
 
@@ -866,9 +915,9 @@ case class DocumentPart(part: Node, parent: Document) {
     bytes.toArray
   }
 
-  def byteList(args: Int*) = args.map { _.toByte }
+  def byteList(args : Int*) = args.map { _.toByte }
 
-  def utf8LikeEncode(s: String): Seq[Byte] = {
+  def utf8LikeEncode(s : String) : Seq[Byte] = {
     // 
     // Scala/Java strings represent characters above 0xFFFF as a surrogate pair
     // of two codepoints. 
@@ -897,7 +946,7 @@ case class DocumentPart(part: Node, parent: Document) {
    *
    */
 
-  def utf8LikeEncoding(prev: Char, c: Char, next: Char): Seq[Byte] = {
+  def utf8LikeEncoding(prev : Char, c : Char, next : Char) : Seq[Byte] = {
     // handles 16-bit codepoints only
     Assert.usage(prev <= 0xFFFF)
     Assert.usage(c <= 0xFFFF)
@@ -918,7 +967,7 @@ case class DocumentPart(part: Node, parent: Document) {
      * create 4-byte utf-8 encoding from surrogate pair found
      * in a scala string.
      */
-    def fourByteEncode(leadingSurrogate: Char, trailingSurrogate: Char) = {
+    def fourByteEncode(leadingSurrogate : Char, trailingSurrogate : Char) = {
       val h = leadingSurrogate.toInt // aka 'h for high surrogate'
       val l = trailingSurrogate.toInt // aka 'l for low surrogate'
       val cp = 0x10000 + ((h - 0xD800) * 0x400) + (l - 0xDC00)
@@ -1006,12 +1055,12 @@ case class DocumentPart(part: Node, parent: Document) {
   }
 }
 
-case class Infoset(i: NodeSeq, parent: TestCase) {
+case class Infoset(i : NodeSeq, parent : TestCase) {
   lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
   lazy val contents = dfdlInfoset.contents
 }
 
-case class DFDLInfoset(di: Node, parent: Infoset) {
+case class DFDLInfoset(di : Node, parent : Infoset) {
   lazy val Seq(contents) = {
     Assert.usage(di.child.size == 1, "dfdlInfoset element must contain a single root element")
 
@@ -1033,10 +1082,12 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
   }
 }
 
-abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
+abstract class ErrorWarningBase(n : NodeSeq, parent : TestCase) {
   lazy val matchAttrib = (n \ "@match").text
-  protected def diagnosticNodes: Seq[Node]
+  protected def diagnosticNodes : Seq[Node]
   lazy val messages = diagnosticNodes.map { _.text }
+
+  def hasDiagnostics: Boolean = diagnosticNodes.length > 0
 }
 
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
@@ -1050,5 +1101,12 @@ case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
   extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
+
+}
+
+case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
+  extends ErrorWarningBase(node, parent) {
+
+  val diagnosticNodes = node \\ "error"
 
 }

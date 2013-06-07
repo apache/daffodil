@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.Misc
-import org.junit.Test
+import edu.illinois.ncsa.daffodil.api._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -71,7 +71,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
                                                  <element name="root" type="xs:string"/>
                                                </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
@@ -115,7 +115,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d)
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d,null)
     val rootns = root.namespace
     val child2 = root.getChild("e2", rootns)
     val c2state = initialState.withParent(child2)
@@ -140,12 +140,12 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
                                                  <element name="root" type="xs:string"/>
                                                </schema>)
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     context = edecl
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0)
+    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0,null)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
         val R(res, _) = compiled.evaluate(root, new VariableMap(), dummyState)

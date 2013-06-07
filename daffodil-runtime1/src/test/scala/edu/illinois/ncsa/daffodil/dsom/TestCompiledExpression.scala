@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.api._
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -66,7 +67,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
       val R(result, newVMap) = compiled.evaluate(root, new VariableMap(), dummyState)
@@ -96,7 +97,7 @@ class TestCompiledExpression {
     val root = null // won't be used.
     val sset = new SchemaSet(PrimitiveFactory,testSchema)
     val edecl = sset.getGlobalElementDecl(NoNamespace, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
 
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ 42 }"
@@ -138,7 +139,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
@@ -160,7 +161,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/tns:child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
@@ -179,7 +180,7 @@ class TestCompiledExpression {
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
 
     val child2 = root.getChild("child1").getChild("child2")
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     val R(result, _) = compiled.evaluate(child2, new VariableMap(), dummyState)
 
     assertEquals("19", result)
@@ -194,7 +195,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../../../child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     val child3 = root.getChild("child1").getChild("child2").getChild("child3")
     val R(result, _) = compiled.evaluate(child3, new VariableMap(), dummyState)
 
@@ -210,7 +211,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../e1 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     val child2 = root.getChild("e2")
     val R(result, _) = compiled.evaluate(child2, new VariableMap(), dummyState)
 
@@ -234,7 +235,7 @@ class TestCompiledExpression {
     val r = XMLUtils.elem2Element(<data xmlns={ example }><e1>42</e1><e2/></data>)
     val sset = new SchemaSet(PrimitiveFactory,testSchema)
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
     val Seq(e1, e2) = seq.groupMembers
@@ -271,7 +272,7 @@ class TestCompiledExpression {
     val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d)
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, null)
     val doc = new org.jdom.Document(r) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2", example.toJDOM)

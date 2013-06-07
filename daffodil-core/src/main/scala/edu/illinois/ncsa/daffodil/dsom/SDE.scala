@@ -82,6 +82,34 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaComponentBase],
   val diagnosticKind = "Warning"
 }
 
+class ValidationError(schemaContext: Option[SchemaComponentBase],
+  runtimeContext: PState,
+  kind: String,
+  args: Any*)
+  extends SchemaDefinitionDiagnosticBase(
+    schemaContext, Some(runtimeContext), None, kind, args: _*) {
+
+  override def isError = false
+  val diagnosticKind = "Error"
+
+  override def contextInfo(msg: String,
+    diagnosticKind: String,
+    schContextLocDescription: String,
+    annContextLocDescription: String,
+    schemaContext: Option[SchemaComponentBase]): String = {
+    val dataLocDescription =
+      Some(runtimeContext).map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
+    val res = "Validation " + diagnosticKind + ": " + msg +
+      "\nSchema context: " + Some(schemaContext).getOrElse("top level") + "." +
+      // TODO: should be one or the other, never(?) both
+      schContextLocDescription +
+      annContextLocDescription + dataLocDescription
+
+    res
+  }
+
+}
+
 abstract class SchemaDefinitionDiagnosticBase(
   val schemaContext: Option[SchemaComponentBase],
   val runtimeContext: Option[PState],
@@ -119,6 +147,22 @@ abstract class SchemaDefinitionDiagnosticBase(
   def diagnosticKind: String
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = schemaContext.toList
 
+  def contextInfo(msg: String,
+    diagnosticKind: String,
+    schContextLocDescription: String,
+    annContextLocDescription: String,
+    schemaContext: Option[SchemaComponentBase]): String = {
+    val runtime = if (runtimeContext.isDefined) "Runtime " else ""
+    val dataLocDescription =
+      runtimeContext.map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
+    val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
+      "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
+      // TODO: should be one or the other, never(?) both
+      schContextLocDescription +
+      annContextLocDescription + dataLocDescription
+    res
+  }
+
   // TODO: Alternate constructor that allows data locations.
   // Because some SDEs are caught only once Processing starts. 
   // They're still SDE but they will have data location information.
@@ -151,14 +195,8 @@ abstract class SchemaDefinitionDiagnosticBase(
       val annContextLocDescription =
         annotationContext.map { " " + _.locationDescription + "." }.getOrElse("")
 
-      val runtime = if (runtimeContext.isDefined) "Runtime " else ""
-      val dataLocDescription =
-        runtimeContext.map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
-      val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
-        "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
-        // TODO: should be one or the other, never(?) both
-        schContextLocDescription +
-        annContextLocDescription + dataLocDescription
+      val res = contextInfo(msg, diagnosticKind, schContextLocDescription,
+        annContextLocDescription, schemaContext)
 
       res
     }

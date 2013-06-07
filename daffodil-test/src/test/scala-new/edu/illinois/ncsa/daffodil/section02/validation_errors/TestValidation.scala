@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.section02.validation_errors
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,55 +32,31 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.collection.mutable.HashMap
-import java.util.UUID
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-
-/**
- * Used to navigate from the Infoset back to schema components relevant
- * to a part of the Infoset.
+/* This section00 is for testing general features of DFDL that are
+ * not related to any specific requirement
  */
-class SchemaComponentRegistry {
 
-  private val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
+import junit.framework.Assert._
+import org.junit.Test
+import scala.xml._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import org.junit.Test
+import org.junit.Test
 
-  def getComponentByID(uid: String): Option[ElementBase] = {
-    val ctxMap = contextMap
-    // TODO: why this try/catch??
-    try {
-      val uuid = UUID.fromString(uid)
-      return ctxMap.get(uuid)
-    } catch {
-      case u: UnsuppressableException => throw u
-      case e: Exception => {
-        Assert.impossibleCase() // Let's see if this happens. 
-        // TODO: if the above never happens, eliminate the try/catch
-        return None
-      }
-    }
-    None
-  }
+class TestValidation {
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
+  val aa = testDir + "Validation.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  def addComponent(sc: ElementBase): String = {
-    val ctxMap = contextMap
-    val uuid = UUID.randomUUID()
-    ctxMap.put(uuid, sc)
-    uuid.toString
-  }
-  
-  def getSchemas(): Option[Seq[String]] = {
-    if (contextMap.size > 0) {
-      val uuid = contextMap.keySet.head
-      val e = contextMap.get(uuid) match {
-        case Some(x) => x
-        case None => return None
-      }
-      val schemas = e.schemaDocument.schemaSet.schemas.map(s => s.fileName)
-      Some(schemas)
-    }
-    else None
-  }
+  @Test def test_facetPattern01() { runner.runOneTest("facetPattern01") }
+  @Test def test_facetPattern01_fail_limited() { runner.runOneTest("facetPattern01_fail_limited") }
+  @Test def test_facetPattern01_fail_full() { runner.runOneTest("facetPattern01_fail_full") }
+  @Test def test_facetPattern01_success_limited() { runner.runOneTest("facetPattern01_success_limited") }
+  @Test def test_facetPattern01_success_full() { runner.runOneTest("facetPattern01_success_full") }
+
+  @Test def test_arrayElements_fail_limited() { runner.runOneTest("arrayElements_fail_limited") }
+  @Test def test_arrayElements_fail_full() { runner.runOneTest("arrayElements_fail_full") }
 
 }
-

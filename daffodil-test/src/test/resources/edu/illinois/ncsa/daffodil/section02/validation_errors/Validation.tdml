@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="FacetTests" description="Section 5 - facets"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+
+	<!-- ===================================================================== 
+		Schemas ======================================================================= -->
+
+	<tdml:defineSchema name="pattern">
+		<dfdl:format ref="ex:daffodilTest1" />
+
+		<xs:element name="e1" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:pattern value="[0-8]+" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:element name="e2" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:element name="e3" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="ex:st1">
+					<xs:pattern value="1" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:element name="e4" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="ex:st4">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:element name="e5" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="ex:st6">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:element name="e6" dfdl:lengthKind="delimited">
+			<xs:simpleType>
+				<xs:restriction base="ex:st5">
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:element>
+
+		<xs:simpleType name="st1">
+			<xs:restriction base="ex:st2">
+				<xs:pattern value="[0-9]+" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st2">
+			<xs:restriction base="ex:st3">
+				<xs:pattern value="[0-9]{3}" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st3">
+			<xs:restriction base="xs:string">
+				<xs:pattern value="[0-9]*" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st4">
+			<xs:restriction base="ex:st5">
+				<xs:pattern value="6" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st5">
+			<xs:restriction base="xs:string">
+				<xs:pattern value="[0-5]" />
+				<xs:pattern value="[7-9]" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st6">
+			<xs:restriction base="ex:st7">
+				<xs:pattern value=".*(a|e|i|o|u).*" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:simpleType name="st7">
+			<xs:restriction base="xs:string">
+				<xs:pattern value=".*(t|n).*" />
+			</xs:restriction>
+		</xs:simpleType>
+
+		<xs:element name="doc" dfdl:lengthKind="implicit">
+			<xs:complexType>
+				<xs:sequence dfdl:separator="," dfdl:terminator=";">
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited" />
+					<xs:element name="e2" nillable="true" type="ex:st8"
+						dfdl:lengthKind="delimited" dfdl:nilValueDelimiterPolicy="terminator"
+						dfdl:nilValue="567 %ES;" dfdl:nilKind="literalValue">
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:simpleType name="st8">
+			<xs:restriction base="xs:string">
+				<xs:pattern value="\d{1,2}" />
+			</xs:restriction>
+		</xs:simpleType>
+	</tdml:defineSchema>
+
+	<!-- Test name: facetPattern01 Schema: pattern Purpose: This document meets 
+		the constraints in the schema and should pass -->
+
+	<tdml:parserTestCase name="facetPattern01" root="e1"
+		model="pattern" validation="off">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>6</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- Test name: facetPattern01_success_limited Schema: pattern Purpose: 
+		This document meets the constraints in the schema and should pass -->
+
+	<tdml:parserTestCase name="facetPattern01_success_limited"
+		root="e1" model="pattern" validation="limited">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>6</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- Test name: facetPattern01 Schema: pattern Purpose: This document meets 
+		the constraints in the schema and should pass -->
+
+	<tdml:parserTestCase name="facetPattern01_success_full"
+		root="e1" model="pattern" validation="on">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>6</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>6</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+	<!-- Test name: facetPattern01_fail Schema: pattern Purpose: This document 
+		meets the constraints in the schema and should pass -->
+
+	<tdml:parserTestCase name="facetPattern01_fail_limited"
+		root="e1" model="pattern" validation="limited">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>9</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>9</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+			<tdml:error>Validation Error</tdml:error>
+			<tdml:error>element.e1</tdml:error>
+			<tdml:error>pattern</tdml:error>
+			<tdml:error>[0-8]+</tdml:error>
+
+
+		</tdml:validationErrors>
+	</tdml:parserTestCase>
+
+	<!-- Test name: facetPattern01_fail Schema: pattern Purpose: This document 
+		meets the constraints in the schema and should pass -->
+
+	<tdml:parserTestCase name="facetPattern01_fail_full"
+		root="e1" model="pattern" validation="on">
+		<!-- Tests basic pattern facet -->
+		<tdml:document>9</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>9</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+			<tdml:error>Validation Error</tdml:error>
+			<tdml:error>element.e1</tdml:error>
+			<tdml:error>pattern</tdml:error>
+			<tdml:error>[0-8]+</tdml:error>
+
+
+			<tdml:error>'9'</tdml:error>
+			<tdml:error>not facet-valid</tdml:error>
+			<tdml:error>pattern</tdml:error>
+			<tdml:error>'[0-8]+'</tdml:error>
+
+		</tdml:validationErrors>
+	</tdml:parserTestCase>
+
+	<!-- Schema name: min2max5 Purpose: This schema tests the condition that 
+		minOccurs is 2 and maxOccurs is 20 in a simple array -->
+
+	<tdml:defineSchema name="min2max5">
+
+		<dfdl:format ref="ex:daffodilTest1" initiator=""
+			terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+			floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+			alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+			lengthKind="delimited" nilValueDelimiterPolicy="both"
+			emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
+			initiatedContent="no" separatorSuppressionPolicy="anyEmpty"
+			separatorPosition="infix" />
+
+
+		<xs:element name="array" type="arrayType" dfdl:lengthKind="implicit" />
+
+		<xs:complexType name="arrayType">
+			<xs:sequence dfdl:separator="|">
+				<xs:element name="data" type="xs:int" minOccurs="2"
+					maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+
+	</tdml:defineSchema>
+
+	<!-- Test name: arrayElements_fail_limited Schema: min2max5 Purpose: This 
+		document has an array of entries and should be correctly parsed. -->
+
+	<tdml:parserTestCase name="arrayElements_fail_limited"
+		root="array" model="min2max5"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-057R"
+		validation="limited">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<array>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+					<data>6</data>
+					<data>7</data>
+					<data>8</data>
+					<data>9</data>
+				</array>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+			<tdml:error>element.data</tdml:error>
+			<tdml:error>occurred</tdml:error>
+			<tdml:error>'9'</tdml:error>
+			<tdml:error>expected</tdml:error>
+			<tdml:error>minimum of '2'</tdml:error>
+			<tdml:error>maximum of '5'</tdml:error>
+
+		</tdml:validationErrors>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="arrayElements_fail_full"
+		root="array" model="min2max5"
+		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-057R"
+		validation="on">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[1|2|3|4|5|6|7|8|9]]></tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<array>
+					<data>1</data>
+					<data>2</data>
+					<data>3</data>
+					<data>4</data>
+					<data>5</data>
+					<data>6</data>
+					<data>7</data>
+					<data>8</data>
+					<data>9</data>
+				</array>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+			<tdml:error>element.data</tdml:error>
+			<tdml:error>occurred</tdml:error>
+			<tdml:error>'9'</tdml:error>
+			<tdml:error>expected</tdml:error>
+			<tdml:error>minimum of '2'</tdml:error>
+			<tdml:error>maximum of '5'</tdml:error>
+
+
+			<tdml:error>'ex:data'</tdml:error>
+			<tdml:error>occur</tdml:error>
+			<tdml:error>maximum of '5'</tdml:error>
+			<tdml:error>exceeded</tdml:error>
+
+		</tdml:validationErrors>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

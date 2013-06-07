@@ -318,6 +318,28 @@ class TestCLIparsing {
     shell.send("exit\n")
     shell.expectClose()
   }
+  /**
+   * Validation Error: src-resolve.4.2: Error resolving component 'a08:aElem'. 
+   * It was detected that 'a08:aElem' is in namespace 'http://a08.com', but 
+   * components from this namespace are not referenceable from schema document 
+   * 'file:/home/developer/GIT/daffodil/daffodil-test/src/test/resources/edu/
+   * illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd'. 
+   * If this is the incorrect namespace, perhaps the prefix of 'a08:aElem' 
+   * needs to be changed. If this is the correct namespace, then an appropriate 
+   * 'import' tag should be added to 'file:/home/developer/GIT/daffodil/
+   * daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/
+   * namespaces/multi_base_08.dfdl.xsd'.
+   * 
+   */
+  @Test def test_1267_CLI_Parsing_MultifileSchema_basicTest_validationOn() {
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd -V on\n"
+    val shell = Util.start(cmd)
+    shell.expectErr("Validation Error")
+    shell.expect(output5)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
   /*
   //On hold until I implement a way to set the classpath before executing
   @Test def test_1313_CLI_Parsing_assertionFailure() {

@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
 import java.io.File
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.api.ValidationMode
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -179,7 +180,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val parse = new scallop.Subcommand("parse") {
     banner("""|Usage: daffodil parse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
               |                       -P <parser>)
-              |                      [-D<variable>=<value>...] [-o <output>] [infile]
+              |                      [-D<variable>=<value>...] [-o <output>]
+              |                      [-V <validationMode>] [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
               |
@@ -195,6 +197,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing.")
+    val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -216,7 +219,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val unparse = new scallop.Subcommand("unparse") {
     banner("""|Usage: daffodil unparse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
               |                         -P <parser>)
-              |                        [-D<variable>=<value>...] [-o <output>] [infile]
+              |                        [-D<variable>=<value>...] [-o <output>]
+              |                        [-V <validationMode>] [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved paser
               |
@@ -232,6 +236,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing.")
+    val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
     validateOpt(debug, infile) {
@@ -252,7 +257,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   // Save Subcommand Options
   val save = new scallop.Subcommand("save-parser") {
     banner("""|Usage: daffodil save-parser -s <schema>... [-r <root> [-n <namespace>]]
-              |                            [-p <path>] [outfile]
+              |                            [-p <path>] [-V <validationMode>] [outfile]
               |
               |Create and save a parser using a DFDL schema
               |
@@ -265,6 +270,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val root = opt[String](argName = "node", descr = "the root element of the XML file to use. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema.")
     val namespace = opt[String](argName = "ns", descr = "the namespace of the root element. Requires --root.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
+    val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
 
@@ -311,16 +317,19 @@ object Main extends Logging {
     "display info diff",
     "trace")
 
-  def createProcessorFromParser(parseFile: String, path: Option[String]) = {
+  def createProcessorFromParser(parseFile: String, path: Option[String], mode: ValidationMode.Type) = {
     val compiler = Compiler()
     val processorFactory = Timer.getResult("reloading", compiler.reload(parseFile))
     if (processorFactory.canProceed) {
       val processor = processorFactory.onPath(path.getOrElse("/"))
+      processor.setValidationMode(mode)
       Some(processor)
     } else None
   }
 
-  def createProcessorFromSchemas(schemaFiles: List[File], root: Option[String], namespace: Option[String], path: Option[String], vars: Map[String, String]) = {
+  def createProcessorFromSchemas(schemaFiles: List[File], root: Option[String],
+    namespace: Option[String], path: Option[String], vars: Map[String, String],
+    mode: ValidationMode.Type) = {
     val compiler = Compiler()
 
     val ns = namespace.getOrElse(null)
@@ -344,6 +353,7 @@ object Main extends Logging {
       val processorFactory = compiler.compile(schemaFiles: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
+        processor.setValidationMode(mode)
         Some(processor) // note: processor could still be isError == true
         // but we do definitely get a processor.
       } else
@@ -388,13 +398,28 @@ object Main extends Logging {
       case Some(conf.parse) => {
         val parseOpts = conf.parse
 
+        val validationMode =
+          if (parseOpts.validationMode.isDefined) {
+            parseOpts.validationMode.get match {
+              case Some(vMode) => {
+                vMode.toLowerCase() match {
+                  case "on" => ValidationMode.Full
+                  case "limited" => ValidationMode.Limited
+                  case _ => ValidationMode.Off
+                }
+              }
+              case None => ValidationMode.Off
+            }
+
+          } else ValidationMode.Off
+
         val processor = {
           if (parseOpts.parser.isDefined) {
-            createProcessorFromParser(parseOpts.parser(), parseOpts.path.get)
+            createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validationMode)
           } else {
             val files: List[File] = parseOpts.schemas().map(s => new File(s))
 
-            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars)
+            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars, validationMode)
           }
         }
 
@@ -414,6 +439,8 @@ object Main extends Logging {
               }
             }
             val inChannel = java.nio.channels.Channels.newChannel(input);
+
+            processor.setValidationMode(validationMode)
 
             val parseResult = Timer.getResult("parsing",
               optDataSize match {
@@ -466,12 +493,27 @@ object Main extends Logging {
       case Some(conf.unparse) => {
         val unparseOpts = conf.unparse
 
+        val validationMode =
+          if (unparseOpts.validationMode.isDefined) {
+            unparseOpts.validationMode.get match {
+              case Some(vMode) => {
+                vMode.toLowerCase() match {
+                  case "on" => ValidationMode.Full
+                  case "limited" => ValidationMode.Limited
+                  case _ => ValidationMode.Off
+                }
+              }
+              case None => ValidationMode.Off
+            }
+
+          } else ValidationMode.Off
+
         val processor = {
           if (unparseOpts.parser.isDefined) {
-            createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get)
+            createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validationMode)
           } else {
             val files: List[File] = unparseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars)
+            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars, validationMode)
           }
         }
 
@@ -506,7 +548,21 @@ object Main extends Logging {
 
         val files: List[File] = saveOpts.schemas().map(s => new File(s))
 
-        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars)
+        val validationMode = if (saveOpts.validationMode.isDefined) {
+          saveOpts.validationMode.get match {
+            case Some(vMode) => {
+              vMode.toLowerCase() match {
+                case "on" => ValidationMode.Full
+                case "limited" => ValidationMode.Limited
+                case _ => ValidationMode.Off
+              }
+            }
+            case None => ValidationMode.Off
+          }
+
+        } else ValidationMode.Off
+
+        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars, validationMode)
 
         val output = saveOpts.outfile.get match {
           case Some("-") | None => System.out

@@ -79,6 +79,7 @@
         <element ref="tns:errors" />
       </choice>
       <element ref="tns:warnings" minOccurs='0' />
+      <element ref="tns:validationErrors" minOccurs="0" />
     </sequence>
     <attributeGroup ref="tns:testCaseAttribs" />
   </complexType>
@@ -98,6 +99,7 @@
   <simpleType name="onOff">
     <restriction base="xs:token">
       <enumeration value="on" />
+      <enumeration value="limited"/>
       <enumeration value="off" />
     </restriction>
   </simpleType>
@@ -106,6 +108,7 @@
   <element name="infoset" type="tns:infosetType" />
   <element name="errors" type="tns:errorsType" />
   <element name="warnings" type="tns:warningsType" />
+  <element name="validationErrors" type="tns:validationErrorsType"/>
 
   <complexType name="documentType" mixed="true">
     <sequence>
@@ -163,6 +166,15 @@
     </sequence>
     <attributeGroup ref="tns:errorWarnAttribs" />
   </complexType>
+  
+  <complexType name="validationErrorsType">
+    <sequence>
+      <element ref="tns:error" maxOccurs="unbounded"
+        minOccurs="0" />
+      <!-- use <validationErrors/> to indicate no validation should occur. -->
+    </sequence>
+    <attributeGroup ref="tns:errorWarnAttribs" />
+  </complexType>
 
   <element name="error" type="xs:string" />
   <element name="warning" type="xs:string" />
@@ -187,7 +199,6 @@
       <element ref="tns:errors" minOccurs="0" />
       <element ref="tns:warnings" minOccurs='0' />
     </sequence>
-    <attributeGroup ref="tns:testCaseAttribs" />
   </complexType>
 
 </xsd:schema>

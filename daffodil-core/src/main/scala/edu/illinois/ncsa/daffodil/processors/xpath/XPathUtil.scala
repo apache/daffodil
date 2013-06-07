@@ -106,6 +106,7 @@ import edu.illinois.ncsa.daffodil.processors.UState
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.math.BigDecimal
+import edu.illinois.ncsa.daffodil.dsom.PrimitiveType
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -403,15 +404,49 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   import util.control.Breaks._
   import edu.illinois.ncsa.daffodil.dsom.PrimType._
 
+  /**
+   * Used for facet checks via XPath calls.
+   *
+   * @param args a list of arguments passed to the function.
+   * @param pstate the current parse state.
+   */
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     // Assumes that a JDOM element was already created
-    val expr = args.get(0)
+    val res = executeCheck(pstate) match {
+      case Right(boolVal) => java.lang.Boolean.TRUE
+      case Left(msg) => java.lang.Boolean.FALSE
+    }
+    res
+  }
+
+  /**
+   * Used for validation purposes when ValidationMode is Limited or Full.
+   *
+   * Provides the result Unit on Success or a message (String) on Failure.
+   *
+   * @param pstate the state containing the currentElement, data, primitiveType and context.
+   *
+   * @return a Boolean on success, String (message) on failure.
+   */
+  def validate(pstate: PState): Either[String, Unit] = {
+    // Assumes that a JDOM element was already created
+    executeCheck(pstate)
+  }
+
+  /**
+   * Performs the constraint checks using information contained within the
+   * PState object.
+   *
+   * @param pstate the current parser state.
+   *
+   * @return a Unit on success, String (message) on failure.
+   */
+  def executeCheck(pstate: PState): Either[String, Unit] = {
     val currentElement = pstate.parentElement
-    val e = pstate.getContext() //getContext(pstate)
+    val e = pstate.getContext()
     val data = currentElement.dataValue
     val primType = e.primType
 
-    // TODO: Not SimpleType, issue an SDE
     if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
 
     // We have an ElementBase, retrieve the constraints
@@ -420,7 +455,8 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       if (!currentElement.isNil && patterns.size > 0) {
         val check = checkPatterns(data, patterns)
         if (!check) {
-          return java.lang.Boolean.FALSE
+          val patternStrings = patterns.map { case (_, pattern) => pattern }.mkString(",")
+          return Left("facet pattern(s): %s".format(patternStrings))
         }
       }
     }
@@ -430,7 +466,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       if (!currentElement.isNil && enumerations.size > 0) {
         val check = checkEnumerations(data, enumerations)
         if (!check) {
-          return java.lang.Boolean.FALSE
+          return Left("facet enumeration(s): %s".format(enumerations.mkString(",")))
         }
       }
     }
@@ -440,7 +476,8 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       val minLength = e.minLength
       val isMinLengthGreaterThanEqToZero = minLength.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isMinLengthGreaterThanEqToZero) {
-        if (!checkMinLength(data, minLength, e, primType)) return java.lang.Boolean.FALSE
+        if (!checkMinLength(data, minLength, e, primType))
+          return Left("facet minLength (%s)".format(minLength))
       }
     }
     // Check maxLength
@@ -448,35 +485,40 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       val maxLength = e.maxLength
       val isMaxLengthGreaterThanEqToZero = maxLength.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isMaxLengthGreaterThanEqToZero) {
-        if (!checkMaxLength(data, maxLength, e, primType)) return java.lang.Boolean.FALSE
+        if (!checkMaxLength(data, maxLength, e, primType))
+          return Left("facet maxLength (%s)".format(maxLength))
       }
     }
     // Check minInclusive
     if (e.hasMinInclusive) {
       val minInclusive = e.minInclusive
       if (!currentElement.isNil) {
-        if (!checkMinInc(data, minInclusive, primType, e)) return java.lang.Boolean.FALSE
+        if (!checkMinInc(data, minInclusive, primType, e))
+          return Left("facet minInclusive (%s)".format(minInclusive))
       }
     }
     // Check maxInclusive
     if (e.hasMaxInclusive) {
       val maxInclusive = e.maxInclusive
       if (!currentElement.isNil) {
-        if (!checkMaxInc(data, maxInclusive, primType, e)) return java.lang.Boolean.FALSE
+        if (!checkMaxInc(data, maxInclusive, primType, e))
+          return Left("facet maxInclusive (%s)".format(maxInclusive))
       }
     }
     // Check minExclusive
     if (e.hasMinExclusive) {
       val minExclusive = e.minExclusive
       if (!currentElement.isNil) {
-        if (!checkMinExc(data, minExclusive, primType, e)) return java.lang.Boolean.FALSE
+        if (!checkMinExc(data, minExclusive, primType, e))
+          return Left("facet minExclusive (%s)".format(minExclusive))
       }
     }
     // Check maxExclusive
     if (e.hasMaxExclusive) {
       val maxExclusive = e.maxExclusive
       if (!currentElement.isNil) {
-        if (!checkMaxExc(data, maxExclusive, primType, e)) return java.lang.Boolean.FALSE
+        if (!checkMaxExc(data, maxExclusive, primType, e))
+          return Left("facet maxExclusive (%s)".format(maxExclusive))
       }
     }
     // Check totalDigits
@@ -484,7 +526,8 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       val totalDigits = e.totalDigits
       val isTotalDigitsGreaterThanEqToZero = totalDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isTotalDigitsGreaterThanEqToZero) {
-        if (!checkTotalDigits(data, totalDigits)) return java.lang.Boolean.FALSE
+        if (!checkTotalDigits(data, totalDigits))
+          return Left("facet totalDigits (%s)".format(totalDigits))
       }
     }
     // Check fractionDigits
@@ -492,12 +535,13 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       val fractionDigits = e.fractionDigits
       val isFractionDigitsGreaterThanEqToZero = fractionDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isFractionDigitsGreaterThanEqToZero) {
-        if (!checkFractionDigits(data, fractionDigits)) return java.lang.Boolean.FALSE
+        if (!checkFractionDigits(data, fractionDigits))
+          return Left("facet fractionDigits (%s)".format(fractionDigits))
       }
     }
 
     // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
-    java.lang.Boolean.TRUE
+    Right(java.lang.Boolean.TRUE)
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,

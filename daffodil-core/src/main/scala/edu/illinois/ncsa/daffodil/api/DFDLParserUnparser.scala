@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
+import edu.illinois.ncsa.daffodil.processors.PState
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -151,6 +152,8 @@ object DFDL {
   }
 
   trait DataProcessor extends WithDiagnostics {
+    def setValidationMode(mode: ValidationMode.Type): Unit
+    def getValidationMode(): ValidationMode.Type
     def save(output: Output): Unit
 
     /**
@@ -170,6 +173,8 @@ object DFDL {
   trait ParseResult extends Result with WithDiagnostics {
     def result: scala.xml.Node
     def briefResult = XMLUtils.removeAttributes(result)
+    def resultState: PState
+    def isValidationSuccess: Boolean
   }
 
   trait UnparseResult extends Result with WithDiagnostics
@@ -192,7 +197,7 @@ object DFDL {
    * Interface for Parse and Unparse results
    */
   abstract class Result {
-    def resultState: State
+    protected def resultState: State
     var diagnostics: Seq[Diagnostic] = Nil
 
     def getDiagnostics = {

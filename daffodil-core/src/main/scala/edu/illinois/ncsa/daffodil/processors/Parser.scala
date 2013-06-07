@@ -32,35 +32,35 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.api._
-import java.nio._
-import java.nio.charset._
-import scala.collection.JavaConversions._
-import scala.util.logging.ConsoleLogger
-import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import java.io.ByteArrayInputStream
-import scala.collection.immutable.Stack
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.util.Misc._
-import java.io.InputStreamReader
-import java.io.BufferedReader
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import scala.util.parsing.input.Reader
-import java.util.UUID
-import java.math.BigInteger
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import scala.xml.Node
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.api.DFDL.DataProcessor
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -442,7 +442,8 @@ case class PState(
   val arrayIndexStack: List[Long],
   val occursCountStack: List[Long],
   val diagnostics: List[Diagnostic],
-  val discriminatorStack: List[Boolean]) extends DFDL.State with ThrowsSDE {
+  val discriminatorStack: List[Boolean],
+  val dataProc: DataProcessor) extends DFDL.State with ThrowsSDE {
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
@@ -549,6 +550,16 @@ case class PState(
     copy(occursCountStack = oc :: occursCountStack.tail)
   def withOccursCountStack(ocs: List[Long]) =
     copy(occursCountStack = ocs)
+
+  def withValidationError(msg: String, args: Any*) = {
+    val ctxt = getContext()
+    val vde = new ValidationError(Some(ctxt), this, msg, args: _*)
+    copy(diagnostics = vde :: diagnostics)
+  }
+  def withValidationErrorNoContext(msg: String, args: Any*) = {
+    val vde = new ValidationError(None, this, msg, args: _*)
+    copy(diagnostics = vde :: diagnostics)
+  }
 
   def failed(msg: => String): PState =
     failed(new GeneralParseFailure(msg))
@@ -660,8 +671,10 @@ object PState {
    */
   def createInitialState(scr: SchemaComponentRegistry,
     rootElemDecl: GlobalElementDecl,
-    in: InStream): PState = {
+    in: InStream,
+    dataProc: DataProcessor): PState = {
 
+    val dataProcessor = dataProc
     val doc = Infoset.newDocument()
     val variables = rootElemDecl.schemaDocument.schemaSet.variableMap
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
@@ -673,16 +686,21 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
-    val newState = PState(scr, in, doc, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false))
+    val newState = PState(scr, in, doc, variables, targetNamespace, status, groupIndexStack,
+      childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc)
     newState
   }
 
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(scr: SchemaComponentRegistry, rootElemDecl: GlobalElementDecl, data: String, bitOffset: Long): PState = {
+  def createInitialState(scr: SchemaComponentRegistry,
+    rootElemDecl: GlobalElementDecl,
+    data: String,
+    bitOffset: Long,
+    dataProc: DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
-    createInitialState(scr, rootElemDecl, in, data.length, bitOffset)
+    createInitialState(scr, rootElemDecl, in, dataProc, data.length, bitOffset)
   }
 
   /**
@@ -691,11 +709,12 @@ object PState {
   def createInitialState(scr: SchemaComponentRegistry,
     rootElemDecl: GlobalElementDecl,
     input: DFDL.Input,
+    dataProc: DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
     val inStream =
       InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit)
-    createInitialState(scr, rootElemDecl, inStream)
+    createInitialState(scr, rootElemDecl, inStream, dataProc)
   }
 
 }

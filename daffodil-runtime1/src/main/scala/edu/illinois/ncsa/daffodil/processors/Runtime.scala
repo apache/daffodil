@@ -1,4 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors
+
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -7,12 +8,22 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.jdom.Namespace
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.util.Validator
+import org.xml.sax.SAXParseException
+import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
+import org.xml.sax.SAXException
+import edu.illinois.ncsa.daffodil.util.ValidationException
+import edu.illinois.ncsa.daffodil.api.ValidationMode
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -32,6 +43,11 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   extends SchemaComponentBase(<dp/>, pf)
   with ImplementsThrowsSDE
   with DFDL.DataProcessor {
+
+  private var validationMode: ValidationMode.Type = ValidationMode.Off
+
+  def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
+  def getValidationMode() = validationMode
 
   def minMajorJVersion = 1
   def minMinorJVersion = 7
@@ -110,6 +126,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val initialState = PState.createInitialState(this.processorFactory.sset.schemaComponentRegistry,
       rootElem,
       input,
+      this,
       bitOffset = 0,
       bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
     try {
@@ -125,7 +142,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = parser
-        val resultState = { // Not lazy. We want to parse right now.
+        val postParseState = { // Not lazy. We want to parse right now.
           try {
             p.parse1(initialState, rootElem)
           } catch {
@@ -157,6 +174,28 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
             }
           }
         }
+
+        val resultState = {
+          val finalState = validateResult(postParseState)
+          finalState
+        }
+
+        lazy val isValidationSuccess = {
+          val res = getValidationMode match {
+            case ValidationMode.Off => true
+            case _ => {
+              val res = resultState.diagnostics.exists { d =>
+                d match {
+                  case ve: ValidationError => true
+                  case _ => false
+                }
+              }
+              res
+            }
+          }
+          res
+        }
+
       }
       pr
     }
@@ -216,9 +255,53 @@ abstract class ParseResult(dp: DataProcessor)
   with WithDiagnosticsImpl {
 
   def resultState: PState
+  protected def postParseState: PState
+  def isValidationSuccess: Boolean
+
+  /**
+   * Xerces validation.
+   */
+  private def validateWithXerces(state: PState): Unit = {
+    if (state.status == Success) {
+      val schemaFileNames = state.schemaComponentRegistry.getSchemas
+      Validator.validateXMLSources(schemaFileNames.get, result)
+    } else {
+      Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
+    }
+  }
+
+  /**
+   * To be successful here, we need to capture xerces parse/validation
+   * errors and add them to the Diagnostics list in the PState.
+   *
+   * @param state the initial parse state.
+   * @return the final parse state with any validation diagnostics.
+   */
+  def validateResult(state: PState) = {
+    val resultState =
+      if (dp.getValidationMode == ValidationMode.Full) {
+        val postValidateState =
+          try {
+            validateWithXerces(state)
+            state
+          } catch {
+            case (spe: SAXParseException) =>
+              state.withValidationErrorNoContext(spe.getMessage)
+
+            case (se: SAXException) =>
+              state.withValidationErrorNoContext(se.getMessage)
+
+            case (ve: ValidationException) =>
+              state.withValidationErrorNoContext(ve.getMessage)
+          }
+        postValidateState
+      } else state
+
+    resultState
+  }
 
   lazy val result =
-    if (resultState.status == Success) {
+    if (postParseState.status == Success) {
       if (resultAsJDOMDocument.hasRootElement()) XMLUtils.element2Elem(resultAsJDOMDocument.getRootElement())
       else <dafint:document xmlns:dafint={ XMLUtils.INT_NS }/>
     } else {
@@ -226,8 +309,8 @@ abstract class ParseResult(dp: DataProcessor)
     }
 
   lazy val resultAsJDOMDocument =
-    if (resultState.status == Success) {
-      val xmlClean = resultState.infoset.jdomElt match {
+    if (postParseState.status == Success) {
+      val xmlClean = postParseState.infoset.jdomElt match {
         case Some(e) => {
           XMLUtils.removeHiddenElements(e)
           XMLUtils.removeAttributesJDOM(e, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))

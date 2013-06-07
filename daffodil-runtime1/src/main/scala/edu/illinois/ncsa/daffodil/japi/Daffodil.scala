@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
 import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
+import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
 
 /**
  * API Suitable for Java programmers to use.
@@ -187,6 +188,9 @@ class LocationInSchemaFile(lsf: SLocationInSchemaFile) {
 class DataProcessor(dp: SDataProcessor)
   extends WithDiagnostics(dp) {
 
+  def setValidationMode(mode: ValidationMode): Unit = dp.setValidationMode(SValidationMode.fromJava(mode))
+  def getValidationMode(): ValidationMode = SValidationMode.forJava(dp.getValidationMode)
+  
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
   /**
