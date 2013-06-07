@@ -60,19 +60,18 @@ class TestDFDLExpressions {
 //  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
 //  @Test def test_expressionRules04() { runner.runOneTest("expressionRules04") }
 
-  @Test def test_expressions_lke3_rel() { runner.runOneTest("lke3_rel") }
-  @Test def test_expressions_lke1_rel() { runner.runOneTest("lke1_rel") }
-  @Test def test_expressions_lke1_abs() { runner.runOneTest("lke1_abs") }
-  @Test def test_expressions_ocke1() { runner.runOneTest("ocke1") }
-  @Test def test_expressions_ocke2() { runner.runOneTest("ocke2") }
+  @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
+  @Test def test_lke1_rel() { runner.runOneTest("lke1_rel") }
+  @Test def test_lke1_abs() { runner.runOneTest("lke1_abs") }
+  @Test def test_ocke1() { runner.runOneTest("ocke1") }
+  @Test def test_ocke2() { runner.runOneTest("ocke2") }
   @Test def test_ArrayOptElem_01() { runner.runOneTest("ArrayOptElem_01") }
-  @Test def test_expressions_lke2_rel() { runner.runOneTest("lke2_rel") }
-  @Test def test_expression_type_error1() { runner.runOneTest("expression-type-error1") }
-  @Test def test_expression_type_error2() { runner.runOneTest("expression-type-error2") }
-  @Test def test_expression_type_error3() { runner.runOneTest("expression-type-error3") }
-  @Test def test_expression_type_error4() { runner.runOneTest("expression-type-error4") }
-  @Test def test_expression_unknown_prefix() { runner.runOneTest("expression-unknown-prefix") }
-
+  @Test def test_lke2_rel() { runner.runOneTest("lke2_rel") }
+  @Test def test_expression_type_error1() { runner.runOneTest("expression_type_error1") }
+  @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
+  @Test def test_expression_type_error3() { runner.runOneTest("expression_type_error3") }
+  @Test def test_expression_type_error4() { runner.runOneTest("expression_type_error4") }
+  @Test def test_expression_unknown_prefix() { runner.runOneTest("expression_unknown_prefix") }
   @Test def test_ocke_rel() { runner.runOneTest("ocke_rel") }
   @Test def test_ocke_rel2() { runner.runOneTest("ocke_rel2") }
   @Test def test_ocke_rel3() { runner.runOneTest("ocke_rel3") }
@@ -84,7 +83,7 @@ class TestDFDLExpressions {
 
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
-  @Test def test_checkConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
 
   @Test def test_nonFunctionIsDetected() = { runner.runOneTest("nonFunctionIsDetected") }
   @Test def test_constantFunction1() { runner.runOneTest("constantFunction1") }

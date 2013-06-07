@@ -57,10 +57,10 @@ class TestContentFramingProperties {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   @Test def test_UTF_16_01() { runner2.runOneTest("UTF_16_01") }
-  @Test def test_xml_illegal_char_01() { runner2.runOneTest("xml_illegal_chars_01") }
+  @Test def test_xml_illegal_chars_01() { runner2.runOneTest("xml_illegal_chars_01") }
   @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
-  @Test def test_xml_illegal_char_02() { runner2.runOneTest("xml_illegal_chars_02") }
-  @Test def test_xml_illegal_char() { runner2.runOneTest("xml_illegal_chars") }
+  @Test def test_xml_illegal_chars_02() { runner2.runOneTest("xml_illegal_chars_02") }
+  @Test def test_xml_illegal_chars() { runner2.runOneTest("xml_illegal_chars") }
   @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
   
   @Test def test_alignmentPacked7BitASCII() { runner2.runOneTest("alignmentPacked7BitASCII") } 

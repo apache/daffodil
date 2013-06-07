@@ -70,8 +70,8 @@ class TestChoice {
   @Test def test_choiceWithChoiceInt() { runnerCH.runOneTest("choiceWithChoiceInt") }
   @Test def test_choiceWithChoiceFloat() { runnerCH.runOneTest("choiceWithChoiceFloat") }
   @Test def test_choiceWithChoiceString() { runnerCH.runOneTest("choiceWithChoiceString") }
-  @Test def test_choiceWithArrayInt() { runnerCH.runOneTest("choiceWithArrayInts") }
-  @Test def test_choiceWithArrayFloat() { runnerCH.runOneTest("choiceWithArrayFloats") }
+  @Test def test_choiceWithArrayInts() { runnerCH.runOneTest("choiceWithArrayInts") }
+  @Test def test_choiceWithArrayFloats() { runnerCH.runOneTest("choiceWithArrayFloats") }
   @Test def test_choiceWithArrayString() { runnerCH.runOneTest("choiceWithChoiceString") }
 
   @Test def test_choice5() { runnerCH.runOneTest("choice5") }
@@ -96,13 +96,13 @@ class TestChoice {
   @Test def test_nestedChoiceAllFloat() { runnerCH.runOneTest("nestedChoiceAllFloat") }
   @Test def test_nestedChoiceAllInt() { runnerCH.runOneTest("nestedChoiceAllInt") }
 
-  @Test def test_choiceInSeq1() { runnerCH.runOneTest("choiceInSequenceWithSeparators1") }
-  @Test def test_choiceInSeq2() { runnerCH.runOneTest("choiceInSequenceWithSeparators2") }
+  @Test def test_choiceInSequenceWithSeparators1() { runnerCH.runOneTest("choiceInSequenceWithSeparators1") }
+  @Test def test_choiceInSequenceWithSeparators2() { runnerCH.runOneTest("choiceInSequenceWithSeparators2") }
 
-  @Test def test_seqInChoiceInSeq1() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators1") }
-  @Test def test_seqInChoiceInSeq2() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators2") }
-  @Test def test_seqInChoiceInSeq3() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1") }
-  @Test def test_seqInChoiceInSeq4() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2") }
+  @Test def test_sequenceInChoiceInSequenceWithSeparators1() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators1") }
+  @Test def test_sequenceInChoiceInSequenceWithSeparators2() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSeparators2") }
+  @Test def test_sequenceInChoiceInSequenceWithSameSeparators1() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators1") }
+  @Test def test_sequenceInChoiceInSequenceWithSameSeparators2() { runnerCH.runOneTest("sequenceInChoiceInSequenceWithSameSeparators2") }
 
   @Test def test_choice_minOccurs() { runnerCH.runOneTest("choice_minOccurs") }
   @Test def test_choice_maxOccurs() { runnerCH.runOneTest("choice_maxOccurs") }

@@ -57,6 +57,7 @@ class TestFacets {
   @Test def test_minMaxInExdateTime06() { runner.runOneTest("minMaxInExdateTime06") }
 
   @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
+  @Test def test_minMaxInEx15() { runner.runOneTest("minMaxInEx15") }
   @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
  
   @Test def test_maxLength07() { runner.runOneTest("maxLength07") }
@@ -82,15 +83,16 @@ class TestFacets {
   @Test def test_facetEnumChoice02() { runner.runOneTest("facetEnumChoice02") }
   @Test def test_facetEnumChoice03() { runner.runOneTest("facetEnumChoice03") }
 
-  @Test def test_facet_pattern_01() { runner.runOneTest("facetPattern01") }
-  @Test def test_facet_pattern_02() { runner.runOneTest("facetPattern02") }
-  @Test def test_facet_pattern_03() { runner.runOneTest("facetPattern03") }
-  @Test def test_facet_pattern_04() { runner.runOneTest("facetPattern04") }
-  @Test def test_facet_pattern_05() { runner.runOneTest("facetPattern05") }
-  @Test def test_facet_pattern_06() { runner.runOneTest("facetPattern06") }
-  @Test def test_facet_pattern_07() { runner.runOneTest("facetPattern07") }
-  @Test def test_facet_pattern_08() { runner.runOneTest("facetPattern08") }
-  @Test def test_facet_pattern_09() { runner.runOneTest("facetPattern09") }
+  @Test def test_facetPattern01() { runner.runOneTest("facetPattern01") }
+  @Test def test_facetPattern02() { runner.runOneTest("facetPattern02") }
+  @Test def test_facetPattern03() { runner.runOneTest("facetPattern03") }
+  @Test def test_facetPattern04() { runner.runOneTest("facetPattern04") }
+  @Test def test_facetPattern05() { runner.runOneTest("facetPattern05") }
+  @Test def test_facetPattern06() { runner.runOneTest("facetPattern06") }
+  @Test def test_facetPattern07() { runner.runOneTest("facetPattern07") }
+  @Test def test_facetPattern08() { runner.runOneTest("facetPattern08") }
+  @Test def test_facetPattern09() { runner.runOneTest("facetPattern09") }
+  @Test def test_facetPattern10() { runner.runOneTest("facetPattern10") }
 
   @Test def test_facetEnum01() { runner.runOneTest("facetEnum01") }
   @Test def test_facetEnum02() { runner.runOneTest("facetEnum02") }
@@ -136,43 +138,43 @@ class TestFacets {
   @Test def test_arraysOccursOutOfRange_01() { runner.runOneTest("arraysOccursOutOfRange_01") }
   @Test def test_arraysOccursOutOfRange_02() { runner.runOneTest("arraysOccursOutOfRange_02") }
 
-  @Test def test_minInclusive_Pass { runner.runOneTest("checkMinInclusive_Pass")}
-  @Test def test_maxInclusive_Pass { runner.runOneTest("checkMaxInclusive_Pass")}
-  @Test def test_minInclusive_Fail { runner.runOneTest("checkMinInclusive_Fail")}
-  @Test def test_maxInclusive_Fail { runner.runOneTest("checkMaxInclusive_Fail")}
-  @Test def test_maxInclusive_Pass_MaxInt { runner.runOneTest("checkMaxInclusive_Pass_MaxInt")}  
-  @Test def test_maxInclusive_Fail_MaxInt { runner.runOneTest("checkMaxInclusive_Fail_MaxInt")}
-  @Test def test_minInclusive_Fail_MinInt { runner.runOneTest("checkMinInclusive_Fail_MinInt")}  
+  @Test def test_checkMinInclusive_Pass { runner.runOneTest("checkMinInclusive_Pass")}
+  @Test def test_checkMaxInclusive_Pass { runner.runOneTest("checkMaxInclusive_Pass")}
+  @Test def test_checkMinInclusive_Fail { runner.runOneTest("checkMinInclusive_Fail")}
+  @Test def test_checkMaxInclusive_Fail { runner.runOneTest("checkMaxInclusive_Fail")}
+  @Test def test_checkMaxInclusive_Pass_MaxInt { runner.runOneTest("checkMaxInclusive_Pass_MaxInt")}  
+  @Test def test_checkMaxInclusive_Fail_MaxInt { runner.runOneTest("checkMaxInclusive_Fail_MaxInt")}
+  @Test def test_checkMinInclusive_Fail_MinInt { runner.runOneTest("checkMinInclusive_Fail_MinInt")}  
   
-  @Test def test_minExclusive_Fail { runner.runOneTest("checkMinExclusive_Fail")}
-  @Test def test_maxExclusive_Fail { runner.runOneTest("checkMaxExclusive_Fail")}
-  @Test def test_minExclusive_Pass { runner.runOneTest("checkMinExclusive_Pass")}
-  @Test def test_maxExclusive_Pass { runner.runOneTest("checkMaxExclusive_Pass")}
-  @Test def test_combining_Pass { runner.runOneTest("checkCombining_Pass")}
-  @Test def test_combining_Fail { runner.runOneTest("checkCombining_Fail")}
-  @Test def test_combining_Fail_1 { runner.runOneTest("checkCombining_Fail_1")}
+  @Test def test_checkMinExclusive_Fail { runner.runOneTest("checkMinExclusive_Fail")}
+  @Test def test_checkMaxExclusive_Fail { runner.runOneTest("checkMaxExclusive_Fail")}
+  @Test def test_checkMinExclusive_Pass { runner.runOneTest("checkMinExclusive_Pass")}
+  @Test def test_checkMaxExclusive_Pass { runner.runOneTest("checkMaxExclusive_Pass")}
+  @Test def test_checkCombining_Pass { runner.runOneTest("checkCombining_Pass")}
+  @Test def test_checkCombining_Fail { runner.runOneTest("checkCombining_Fail")}
+  @Test def test_checkCombining_Fail_1 { runner.runOneTest("checkCombining_Fail_1")}
   
-  @Test def test_enumeration_Pass { runner.runOneTest("checkEnumeration_Pass")}
-  @Test def test_enumeration_Fail { runner.runOneTest("checkEnumeration_Fail")}
-  @Test def test_enumeration_Pass_Subset { runner.runOneTest("checkEnumeration_Pass_Subset")}
-  @Test def test_enumeration_Fail_Subset { runner.runOneTest("checkEnumeration_Fail_Subset")}
+  @Test def test_checkEnumeration_Pass { runner.runOneTest("checkEnumeration_Pass")}
+  @Test def test_checkEnumeration_Fail { runner.runOneTest("checkEnumeration_Fail")}
+  @Test def test_checkEnumeration_Pass_Subset { runner.runOneTest("checkEnumeration_Pass_Subset")}
+  @Test def test_checkEnumeration_Fail_Subset { runner.runOneTest("checkEnumeration_Fail_Subset")}
   
   // Satisfied that Date and Time should also work if DateTime works.
   @Test def test_maxInclusive_Pass_DateTime { runner.runOneTest("checkMaxInclusive_Pass_DateTime")}
   @Test def test_maxInclusive_Fail_DateTime { runner.runOneTest("checkMaxInclusive_Fail_DateTime")}
 
-  @Test def test_minLength_Pass { runner.runOneTest("checkMinLength_Pass") }
-  @Test def test_minLength_Fail { runner.runOneTest("checkMinLength_Fail") }
-  @Test def test_minLength_Fail_NotString { runner.runOneTest("checkMinLength_Fail_NotString") }
-  @Test def test_minLength_Fail_Combining { runner.runOneTest("checkMinLength_Fail_Combining") }
-  @Test def test_minLength_Pass_Combining { runner.runOneTest("checkMinLength_Pass_Combining") }
-  @Test def test_maxLength_Pass { runner.runOneTest("checkMaxLength_Pass") }
-  @Test def test_maxLength_Fail { runner.runOneTest("checkMaxLength_Fail") }
-  @Test def test_maxLength_Fail_NotString { runner.runOneTest("checkMaxLength_Fail_NotString") }
-  @Test def test_maxLength_Fail_Combining { runner.runOneTest("checkMaxLength_Fail_Combining") }
-  @Test def test_maxLength_Pass_Combining { runner.runOneTest("checkMaxLength_Pass_Combining") }
-  @Test def test_totalDigits_Pass{ runner.runOneTest("checkTotalDigits_Pass") }
-  @Test def test_totalDigits_Fail{ runner.runOneTest("checkTotalDigits_Fail") }
+  @Test def test_checkMinLength_Pass { runner.runOneTest("checkMinLength_Pass") }
+  @Test def test_checkMinLength_Fail { runner.runOneTest("checkMinLength_Fail") }
+  @Test def test_checkMinLength_Fail_NotString { runner.runOneTest("checkMinLength_Fail_NotString") }
+  @Test def test_checkMinLength_Fail_Combining { runner.runOneTest("checkMinLength_Fail_Combining") }
+  @Test def test_checkMinLength_Pass_Combining { runner.runOneTest("checkMinLength_Pass_Combining") }
+  @Test def test_checkMaxLength_Pass { runner.runOneTest("checkMaxLength_Pass") }
+  @Test def test_checkMaxLength_Fail { runner.runOneTest("checkMaxLength_Fail") }
+  @Test def test_checkMaxLength_Fail_NotString { runner.runOneTest("checkMaxLength_Fail_NotString") }
+  @Test def test_checkMaxLength_Fail_Combining { runner.runOneTest("checkMaxLength_Fail_Combining") }
+  @Test def test_checkMaxLength_Pass_Combining { runner.runOneTest("checkMaxLength_Pass_Combining") }
+  @Test def test_checkTotalDigits_Pass{ runner.runOneTest("checkTotalDigits_Pass") }
+  @Test def test_checkTotalDigits_Fail{ runner.runOneTest("checkTotalDigits_Fail") }
  
   @Test def test_minMaxInEx01() { runner.runOneTest("minMaxInEx01") }
 

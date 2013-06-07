@@ -66,7 +66,7 @@ class TestLengthKindPattern {
   //@Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
-  @Test def testlengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }
+  @Test def test_lengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }
 
   @Test def test_ComplexWithBinaryChild() { runner.runOneTest("ComplexWithBinaryChild") }
 

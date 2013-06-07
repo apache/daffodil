@@ -74,14 +74,14 @@ class TestLengthProperties {
   @Test def test_LengthProp_byteLength_UTF16fail() { runner_02.runOneTest("LengthProp_byteLength_UTF16fail") }
   @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
   @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
-  @Test def test_LengthProp_lengthExpression() { runner_02.runOneTest("LengthProp_lengthExpression1") }
+  @Test def test_LengthProp_lengthExpression1() { runner_02.runOneTest("LengthProp_lengthExpression1") }
 
   @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
   @Test def test_LengthProp_bits_02() { runner_02.runOneTest("LengthProp_bits_02") }
   
-  @Test def test_oneBitLeftOver() { runner_02.runOneTest("OneBitLeftOver") }
-  @Test def test_oneBit1() { runner_02.runOneTest("OneBit1") }
-  @Test def test_threeBit1() { runner_02.runOneTest("ThreeBit1") }
+  @Test def test_OneBitLeftOver() { runner_02.runOneTest("OneBitLeftOver") }
+  @Test def test_OneBit1() { runner_02.runOneTest("OneBit1") }
+  @Test def test_ThreeBit1() { runner_02.runOneTest("ThreeBit1") }
   @Test def test_seqBit1() { runner_02.runOneTest("seqBit1") }
   @Test def test_seqBitLeftOver() { runner_02.runOneTest("seqBitLeftOver") }
 

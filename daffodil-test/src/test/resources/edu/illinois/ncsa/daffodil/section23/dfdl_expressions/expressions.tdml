@@ -766,7 +766,7 @@ c' } "  />
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="expression-type-error1"
+  <tdml:parserTestCase name="expression_type_error1"
     root="e" model="expression-type-errors.dfdl.xsd"
     description="get a type error from an expression at runtime - DFDL-23-006R">
 
@@ -778,7 +778,7 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="expression-type-error2"
+  <tdml:parserTestCase name="expression_type_error2"
     root="f" model="expression-type-errors.dfdl.xsd"
     description="get a type error from an expression at runtime - DFDL-23-006R">
     <tdml:document />
@@ -788,7 +788,7 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="expression-type-error3"
+  <tdml:parserTestCase name="expression_type_error3"
     root="g" model="expression-type-errors.dfdl.xsd"
     description="get a type error from an expression at runtime - DFDL-23-006R">
     <tdml:document />
@@ -801,7 +801,7 @@ c' } "  />
       <e3>2</e3> </g> </tdml:dfdlInfoset> </tdml:infoset> -->
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="expression-type-error4"
+  <tdml:parserTestCase name="expression_type_error4"
     root="h" model="expression-type-errors.dfdl.xsd"
     description="get a type error from an expression at compilation time - specific requirement label TBD">
     <tdml:document />
@@ -818,7 +818,7 @@ c' } "  />
       dfdl:inputValueCalc="{ theUnknownPrefix:x }" />
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="expression-unknown-prefix"
+  <tdml:parserTestCase name="expression_unknown_prefix"
     root="theElementName" model="unknown-prefix"
     description="get compilation time error due to unknown prefix - DFDL-2-001R requirement makes a reference to this test -Assigned to requirement DFDL-23-011R">
     <tdml:document />

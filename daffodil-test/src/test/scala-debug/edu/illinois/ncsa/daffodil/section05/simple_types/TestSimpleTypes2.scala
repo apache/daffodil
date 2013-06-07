@@ -61,10 +61,6 @@ class TestSimpleTypes2 {
   //  @Test def test_Long3() {runner.runOneTest("Long3")}
   //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
-///////////////////////// DFDL-105, DFDL-102, DFDL-100 /////////////////////////////
-
-  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
-
 //////////////////////// DFDL-529 /////////////////////////////
 
   @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }

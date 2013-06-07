@@ -5940,7 +5940,8 @@
     model="minMaxInExSchema" description="Section 5 - Facets - min/max In/Exclusive - DFDL-5-055R">
     <tdml:document>.75</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int): Unable to parse '.75'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

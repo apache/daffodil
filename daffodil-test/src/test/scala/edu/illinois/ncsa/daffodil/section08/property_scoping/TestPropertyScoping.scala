@@ -50,7 +50,7 @@ class TestPropertyScoping {
 
   @Test def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
   @Test def test_property_scoping_06() { runner.runOneTest("property_scoping_06") }
-  @Test def test_property_group_ref() { runner.runOneTest("group_ref") }
+  @Test def test_group_ref() { runner.runOneTest("group_ref") }
 
   // Moved back to debug, because validation is no longer detecting the error it is
   // expecting
@@ -70,7 +70,7 @@ class TestPropertyScoping {
   @Test def test_property_scoping_09() { runner_01.runOneTest("property_scoping_09") }
   @Test def test_property_scoping_10() { runner_01.runOneTest("property_scoping_10") }
   @Test def test_property_scoping_11() { runner_01.runOneTest("property_scoping_11") }
-  @Test def testNearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
+  @Test def test_NearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 
   @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
 

@@ -104,7 +104,7 @@ class TestSimpleTypes {
   @Test def test_datePattern08b() { runner.runOneTest("datePattern08b") }
 
   @Test def test_datePattern03() { runner.runOneTest("datePattern03") }
-  //  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
+  @Test def test_datePattern04() { runner.runOneTest("datePattern04") }
   @Test def test_datePattern05() { runner.runOneTest("datePattern05") }
   @Test def test_datePattern06() { runner.runOneTest("datePattern06") }
   @Test def test_datePattern07() { runner.runOneTest("datePattern07") }
@@ -183,9 +183,9 @@ class TestSimpleTypes {
 
   @Test def test_dateTimeImplicitPattern() { runner.runOneTest("dateTimeImplicitPattern") }
   @Test def test_dateTimeImplicitPatternFail() { runner.runOneTest("dateTimeImplicitPatternFail") }
-  @Test def test_dateTimeImplicitPattern2() { runner.runOneTest("dateTimeImplicitPatternFail2") }
-  @Test def test_dateTimeImplicitPattern3() { runner.runOneTest("dateTimeImplicitPatternFail3") }
-  @Test def test_dateTimeImplicitPattern4() { runner.runOneTest("dateTimeImplicitPatternFail4") }
+  @Test def test_dateTimeImplicitPatternFail2() { runner.runOneTest("dateTimeImplicitPatternFail2") }
+  @Test def test_dateTimeImplicitPatternFail3() { runner.runOneTest("dateTimeImplicitPatternFail3") }
+  @Test def test_dateTimeImplicitPatternFail4() { runner.runOneTest("dateTimeImplicitPatternFail4") }
 
   @Test def test_datePattern01() { runner.runOneTest("datePattern01") }
   //  @Test def test_datePattern01b() { runner.runOneTest("datePattern01b") }

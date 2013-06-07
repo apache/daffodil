@@ -302,7 +302,7 @@
 
   -->
 
-  <tdml:parserTestCase name="escape_entry2-1"
+  <tdml:parserTestCase name="escape_entry2_1"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[unaltered text]]></tdml:document>
@@ -316,7 +316,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-2"
+  <tdml:parserTestCase name="escape_entry2_2"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[....%/....]]></tdml:document>
@@ -330,7 +330,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-3"
+  <tdml:parserTestCase name="escape_entry2_3"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[.%/..%/.]]></tdml:document>
@@ -344,7 +344,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-4"
+  <tdml:parserTestCase name="escape_entry2_4"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[.%/%/.]]></tdml:document>
@@ -358,7 +358,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-5"
+  <tdml:parserTestCase name="escape_entry2_5"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[%/escapebeginning]]></tdml:document>
@@ -372,7 +372,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-6"
+  <tdml:parserTestCase name="escape_entry2_6"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[escapeEnd%/]]></tdml:document>
@@ -386,7 +386,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-7"
+  <tdml:parserTestCase name="escape_entry2_7"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[%/....%/....]]></tdml:document>
@@ -400,7 +400,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry2-8"
+  <tdml:parserTestCase name="escape_entry2_8"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[....%/....%/]]></tdml:document>
@@ -415,7 +415,7 @@
   </tdml:parserTestCase>
 
 
-  <tdml:parserTestCase name="escape_entry2-9"
+  <tdml:parserTestCase name="escape_entry2_9"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[..../;....]]></tdml:document>
@@ -429,7 +429,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-10"
+  <tdml:parserTestCase name="escape_entry2_10"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[....%//;....]]></tdml:documentPart></tdml:document>
@@ -443,7 +443,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-11"
+  <tdml:parserTestCase name="escape_entry2_11"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[/;........]]></tdml:document>
@@ -457,7 +457,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-12"
+  <tdml:parserTestCase name="escape_entry2_12"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[..../?....]]></tdml:document>
@@ -471,7 +471,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-13"
+  <tdml:parserTestCase name="escape_entry2_13"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[....%....]]></tdml:document>
@@ -485,7 +485,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-14"
+  <tdml:parserTestCase name="escape_entry2_14"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[....%%/....]]></tdml:documentPart></tdml:document>
@@ -499,7 +499,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-15"
+  <tdml:parserTestCase name="escape_entry2_15"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e2">
     <tdml:document><![CDATA[....%/%....]]></tdml:document>
@@ -513,7 +513,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry2-16"
+  <tdml:parserTestCase name="escape_entry2_16"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e3">
     <tdml:document><![CDATA[..../sep....]]></tdml:document>
@@ -526,7 +526,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry2-17"
+  <tdml:parserTestCase name="escape_entry2_17"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e3">
     <tdml:document><![CDATA[....%//sep....]]></tdml:document>
@@ -539,7 +539,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry2-18"
+  <tdml:parserTestCase name="escape_entry2_18"
     description="Section 31.2 (Appendix A) DFDL Escape Character different from dfdl:escapeEscapeCharacter"
     model="EscapesSchema" root="e3">
     <tdml:document><![CDATA[/sep....]]></tdml:document>
@@ -593,7 +593,7 @@
 
 -->
 
-  <tdml:parserTestCase name="escape_entry3-1"
+  <tdml:parserTestCase name="escape_entry3_1"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[nothing!]]></tdml:document>
@@ -606,7 +606,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-2"
+  <tdml:parserTestCase name="escape_entry3_2"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[...]]]></tdml:document>
@@ -619,7 +619,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-3"
+  <tdml:parserTestCase name="escape_entry3_3"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[]...]]></tdml:document>
@@ -632,7 +632,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-4"
+  <tdml:parserTestCase name="escape_entry3_4"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[..[..]]></tdml:document>
@@ -645,7 +645,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-5"
+  <tdml:parserTestCase name="escape_entry3_5"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[...............].....................]]></tdml:document>
@@ -658,7 +658,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-6"
+  <tdml:parserTestCase name="escape_entry3_6"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[....................................]]]></tdml:document>
@@ -671,7 +671,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-7"
+  <tdml:parserTestCase name="escape_entry3_7"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[[....................................]]]></tdml:document>
@@ -684,7 +684,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-8"
+  <tdml:parserTestCase name="escape_entry3_8"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[....]]]]></tdml:document>
@@ -697,7 +697,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-9"
+  <tdml:parserTestCase name="escape_entry3_9"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[....[[....]]></tdml:document>
@@ -710,7 +710,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-10"
+  <tdml:parserTestCase name="escape_entry3_10"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[....]]....]]></tdml:document>
@@ -723,7 +723,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-11"
+  <tdml:parserTestCase name="escape_entry3_11"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[....%]]]]></tdml:document>
@@ -736,7 +736,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-12"
+  <tdml:parserTestCase name="escape_entry3_12"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[................%]....................]]]></tdml:document>
@@ -749,7 +749,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-13"
+  <tdml:parserTestCase name="escape_entry3_13"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[................[....................]]]></tdml:document>
@@ -762,7 +762,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-14"
+  <tdml:parserTestCase name="escape_entry3_14"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[...............[.....................%]]]]></tdml:document>
@@ -775,7 +775,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry3-15"
+  <tdml:parserTestCase name="escape_entry3_15"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[................%]....................%]]]]></tdml:document>
@@ -788,7 +788,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-16"
+  <tdml:parserTestCase name="escape_entry3_16"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[[....................................%]]]]></tdml:document>
@@ -801,7 +801,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-17"
+  <tdml:parserTestCase name="escape_entry3_17"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[....................................%]%]]]]></tdml:document>
@@ -814,7 +814,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-18"
+  <tdml:parserTestCase name="escape_entry3_18"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[[....................................%]%]]]]></tdml:document>
@@ -827,7 +827,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-19"
+  <tdml:parserTestCase name="escape_entry3_19"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[..%..]]></tdml:document>
@@ -840,7 +840,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-20"
+  <tdml:parserTestCase name="escape_entry3_20"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[..%%..]]></tdml:documentPart></tdml:document>
@@ -853,7 +853,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-21"
+  <tdml:parserTestCase name="escape_entry3_21"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[..%[..]]></tdml:document>
@@ -866,7 +866,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-22"
+  <tdml:parserTestCase name="escape_entry3_22"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[..%]..]]></tdml:document>
@@ -879,7 +879,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-23"
+  <tdml:parserTestCase name="escape_entry3_23"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[%[...]]></tdml:document>
@@ -892,7 +892,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-24"
+  <tdml:parserTestCase name="escape_entry3_24"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[..%]]]></tdml:document>
@@ -905,7 +905,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-25"
+  <tdml:parserTestCase name="escape_entry3_25"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[%[....................................%]]]></tdml:document>
@@ -918,7 +918,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-26"
+  <tdml:parserTestCase name="escape_entry3_26"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[[............%........................%]]]]></tdml:document>
@@ -931,7 +931,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-27"
+  <tdml:parserTestCase name="escape_entry3_27"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[[[............%%]........................%]]]]></tdml:documentPart></tdml:document>
@@ -944,7 +944,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-28"
+  <tdml:parserTestCase name="escape_entry3_28"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[................;....................]]]></tdml:document>
@@ -957,7 +957,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-29"
+  <tdml:parserTestCase name="escape_entry3_29"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[[................%;....................]]]></tdml:documentPart></tdml:document>
@@ -970,7 +970,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-30"
+  <tdml:parserTestCase name="escape_entry3_30"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA[[[................;....................%]]]]></tdml:documentPart></tdml:document>
@@ -983,7 +983,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry3-31"
+  <tdml:parserTestCase name="escape_entry3_31"
     description="Section 31.3 (Appendix A) Escape block with different start and end characters"
     model="EscapesSchema" root="e4">
     <tdml:document><![CDATA[[................?....................]]]></tdml:document>
@@ -1033,7 +1033,7 @@
 
 -->
 
-  <tdml:parserTestCase name="escape_entry4-1"
+  <tdml:parserTestCase name="escape_entry4_1"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[nochange]]></tdml:document>
@@ -1046,7 +1046,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-2"
+  <tdml:parserTestCase name="escape_entry4_2"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'..']]></tdml:document>
@@ -1059,7 +1059,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-3"
+  <tdml:parserTestCase name="escape_entry4_3"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[...'...]]></tdml:document>
@@ -1072,7 +1072,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-4"
+  <tdml:parserTestCase name="escape_entry4_4"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[....']]></tdml:document>
@@ -1085,7 +1085,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-5"
+  <tdml:parserTestCase name="escape_entry4_5"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'%'....................................']]></tdml:document>
@@ -1098,7 +1098,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-6"
+  <tdml:parserTestCase name="escape_entry4_6"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[....'']]></tdml:document>
@@ -1111,7 +1111,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-7"
+  <tdml:parserTestCase name="escape_entry4_7"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[...''...]]></tdml:document>
@@ -1124,7 +1124,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-8"
+  <tdml:parserTestCase name="escape_entry4_8"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'....................................%'']]></tdml:document>
@@ -1137,7 +1137,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-9"
+  <tdml:parserTestCase name="escape_entry4_9"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'................%'....................']]></tdml:document>
@@ -1150,7 +1150,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-10"
+  <tdml:parserTestCase name="escape_entry4_10"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[..'..']]></tdml:document>
@@ -1163,7 +1163,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-11"
+  <tdml:parserTestCase name="escape_entry4_11"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'...............%'.....................%'']]></tdml:document>
@@ -1176,7 +1176,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-12"
+  <tdml:parserTestCase name="escape_entry4_12"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'%'....................................%'']]></tdml:document>
@@ -1189,7 +1189,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-13"
+  <tdml:parserTestCase name="escape_entry4_13"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'....................................%'%'']]></tdml:document>
@@ -1202,7 +1202,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-14"
+  <tdml:parserTestCase name="escape_entry4_14"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'%'....................................%'%'']]></tdml:document>
@@ -1215,7 +1215,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-15"
+  <tdml:parserTestCase name="escape_entry4_15"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[..%..]]></tdml:document>
@@ -1228,7 +1228,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-16"
+  <tdml:parserTestCase name="escape_entry4_16"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[..%%..]]></tdml:document>
@@ -1241,7 +1241,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-17"
+  <tdml:parserTestCase name="escape_entry4_17"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[...%'...]]></tdml:document>
@@ -1254,7 +1254,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-18"
+  <tdml:parserTestCase name="escape_entry4_18"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[%'...]]></tdml:document>
@@ -1267,7 +1267,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-19"
+  <tdml:parserTestCase name="escape_entry4_19"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[....................................%']]></tdml:document>
@@ -1281,7 +1281,7 @@
   </tdml:parserTestCase>
   
   
-  <tdml:parserTestCase name="escape_entry4-20"
+  <tdml:parserTestCase name="escape_entry4_20"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA['%'....................................%%'']]></tdml:documentPart></tdml:document>
@@ -1294,7 +1294,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <tdml:parserTestCase name="escape_entry4-21"
+  <tdml:parserTestCase name="escape_entry4_21"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA[%'....................................%']]></tdml:document>
@@ -1307,7 +1307,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-22"
+  <tdml:parserTestCase name="escape_entry4_22"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['%'............%........................%'']]></tdml:document>
@@ -1320,7 +1320,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-23"
+  <tdml:parserTestCase name="escape_entry4_23"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA['%'............%%'........................%'']]></tdml:documentPart></tdml:document>
@@ -1333,7 +1333,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-24"
+  <tdml:parserTestCase name="escape_entry4_24"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['................;....................']]></tdml:document>
@@ -1346,7 +1346,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-25"
+  <tdml:parserTestCase name="escape_entry4_25"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA['................%;....................']]></tdml:documentPart></tdml:document>
@@ -1359,7 +1359,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-26"
+  <tdml:parserTestCase name="escape_entry4_26"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><tdml:documentPart type="text" replaceDFDLEntities="false"><![CDATA['%'................;....................%'']]></tdml:documentPart></tdml:document>
@@ -1372,7 +1372,7 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="escape_entry4-27"
+  <tdml:parserTestCase name="escape_entry4_27"
     description="Section 31.4 (Appendix A) Escape block with same start and end characters"
     model="EscapesSchema" root="e5">
     <tdml:document><![CDATA['................?....................']]></tdml:document>

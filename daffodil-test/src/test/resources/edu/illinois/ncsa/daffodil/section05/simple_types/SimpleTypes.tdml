@@ -2656,11 +2656,10 @@
     model="dateTimeSchema" description="Section 13 Simple Types - calendarPattern - DFDL-13-146R">
 
     <tdml:document><![CDATA[Q2 2012]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <date13>2013-02-13+00:00</date13>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Character 'Q' not allowed in dfdl:calendarPattern for date</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
