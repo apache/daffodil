@@ -9,12 +9,19 @@ object DaffodilBuild extends Build {
   var s = Defaults.defaultSettings
   lazy val nopub = Seq(publish := {}, publishLocal := {})
 
+  // sbt uses reflection to find suprojects. we need to also add the projects
+  // in daffodil-extra, which can't be detected via reflection
+  override def projects: Seq[Project] = super.projects ++ extraProjects
+
   // daffodil projects
-  lazy val root    = Project(id = "daffodil", base = file("."), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .configs(CliTest)
-                             .aggregate(propgen, lib, core, runtime1, tdml, testIBM1, cli, test)
+  lazy val root = {
+    val r = Project(id = "daffodil", base = file("."), settings = s ++ nopub)
+                    .configs(DebugTest)
+                    .configs(NewTest)
+                    .configs(CliTest)
+                    .aggregate(propgen, lib, core, runtime1, tdml, testIBM1, cli, test)
+    extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
+  }
 
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
@@ -60,6 +67,18 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
+
+  // any directories in daffodil-extra are treated as subprojects. this is
+  // useful for symlinking tests that should not be committed to the git repo
+  // but still be compiled/tested as part of daffodil
+  lazy val extrasDir = new File("daffodil-extra")
+  lazy val extraProjects = extrasDir.listFiles.filter { _.isDirectory }.map { dir =>
+    Project(id = dir.name, base = dir, settings = s ++ nopub)
+           .configs(DebugTest)
+           .configs(NewTest)
+           .dependsOn(tdml)
+  }
+   
 
   //set up 'sbt stage' as a dependency
   //TODO: find a way to clean this up and reduce repetition

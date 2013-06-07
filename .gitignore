@@ -25,3 +25,4 @@ daffodil-test/src/test/daffodil-test.iml
 out
 .scala_dependencies
 .settings
+daffodil-extra/*
