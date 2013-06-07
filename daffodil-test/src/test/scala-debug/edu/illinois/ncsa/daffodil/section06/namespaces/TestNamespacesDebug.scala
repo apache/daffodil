@@ -51,6 +51,9 @@ class TestNamespacesDebug {
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
   @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }
   @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") }
+
+  //DFDL-530
+  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
   
   @Test def test_errorLocations_01() {
     try {

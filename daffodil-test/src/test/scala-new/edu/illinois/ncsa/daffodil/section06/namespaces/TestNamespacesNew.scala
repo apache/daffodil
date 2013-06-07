@@ -51,8 +51,6 @@ class TestNamespacesNew extends Logging {
 
   @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
 
-  @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
-
   // Fixed test (missing one terminator in mid-chain). Jira DFDL-571
   @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
 
