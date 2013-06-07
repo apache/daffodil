@@ -39,9 +39,10 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(runtime1)
                              
-  lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings)
+  lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings ++ stageTaskSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
+                             .configs(CliTest)
                              .dependsOn(tdml)
                                                          
 
@@ -74,7 +75,7 @@ object DaffodilBuild extends Build {
   lazy val testOnlyTaskDebug = Keys.testOnly in DebugTest
   lazy val testQuickTaskDebug = Keys.testQuick in DebugTest
 
-  lazy val stageTask = SbtStartScript.stage in Compile in cli
+  lazy val stageTask = SbtStartScript.stage in Compile //  in cli
 
   lazy val stageTaskSettings = Seq(
     //cli test tasks
