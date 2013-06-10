@@ -57,6 +57,7 @@ import javax.xml.namespace.QName
 import javax.xml.XMLConstants
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom._
+import scala.collection.JavaConversions._
 
 /**
  * Utilities for handling XML
@@ -973,41 +974,45 @@ object XMLUtils {
     res
   }
 
-  def removeHiddenElements(e: Element): Element = {
-    //val f = new org.jdom.filter.ElementFilter
-    val newNode: Element = e.clone.asInstanceOf[Element]
-    newNode.removeContent()
+  private lazy val hiddenNS = Namespace.getNamespace(INT_NS)
 
-    val f = new ElementIsHiddenFilter
-    val itr = e.getDescendants(f)
-    val q: scala.collection.mutable.Queue[Any] = scala.collection.mutable.Queue.empty[Any]
-    while (itr.hasNext()) {
-      val elem: Element = itr.next().asInstanceOf[Element].clone().asInstanceOf[Element]
-      elem.detach()
-      q.enqueue(elem)
+  def isHiddenElement(e: Element): Boolean = {
+    e.getAttribute("hidden", hiddenNS) match {
+      case null => false
+      case attr: Attribute => {
+        Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
+        true
+      }
     }
-    newNode.addContent(q)
+  }
+
+  /**
+   * Copies a JDOM Element and removes all hidden
+   * elements from the copy and its children.
+   *
+   * @param e the Element to copy and remove hidden elements from.
+   * @return a copy of Element without hidden elements.
+   */
+  def copyWithoutHiddenElements(e: Element): Element = {
+    val newNode: Element = e.clone.asInstanceOf[Element]
+    removeHiddenElements(newNode)
     newNode
   }
 
-  class ElementIsHiddenFilter extends org.jdom.filter.Filter {
-    def isHidden(e: Element): Boolean = {
-      val ns = Namespace.getNamespace(INT_NS)
-      val res = e.getAttribute("hidden", ns) match {
-        case null => false
-        case attr: Attribute => {
-          Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
-          true
-        }
+  /**
+   * Removes hidden elements from a JDOM Element and
+   * all its children.
+   *
+   * @param e the Element to remove hidden elements from.
+   */
+  def removeHiddenElements(e: Element): Unit = {
+    val children = e.getChildren().toList.asInstanceOf[List[Element]]
+    for (child <- children) {
+      if (isHiddenElement(child)) {
+        if (!e.removeContent(child)) Assert.abort("removeHiddenElements - JDOM failed to remove hidden element.")
+      } else {
+        removeHiddenElements(child)
       }
-      res
-    }
-
-    def matches(o: Any): Boolean = {
-      if (o.isInstanceOf[Element]) {
-        return !isHidden(o.asInstanceOf[Element])
-      }
-      false
     }
   }
 
@@ -1111,17 +1116,16 @@ object XMLUtils {
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
    */
-  def removeAttributesJDOM(c: org.jdom.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): org.jdom.Content = {
+  def removeAttributesJDOM(c: org.jdom.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): Unit = {
     c match {
       case e: Element => {
         val attrs = e.getAttributes().map(x => x.asInstanceOf[Attribute])
-        attrs.map(attr =>
+        attrs.foreach(attr =>
           ns.find(n => n.getURI() == attr.getNamespaceURI()) match {
             case Some(_) => e.removeAttribute(attr)
             case None => // Don't remove
           })
-        e.getChildren().map(x => removeAttributesJDOM(x.asInstanceOf[org.jdom.Content], ns))
-        e
+        e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom.Content], ns))
       }
       case other => other
     }
