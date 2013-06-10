@@ -26,3 +26,5 @@ out
 .scala_dependencies
 .settings
 daffodil-extra/*
+# ignore all emacs backup files
+*~
