@@ -3179,7 +3179,7 @@
       </xs:simpleType>
     </xs:element>
   </tdml:defineSchema>
-<!--
+
   <tdml:defineSchema name="lengthFacetsIsolate">
     <dfdl:format ref="ex:daffodilTest1" representation="text"/>
     <xs:element name="e7" dfdl:lengthKind="delimited" dfdl:lengthUnits="bytes">
@@ -3215,7 +3215,7 @@
       </xs:simpleType>
     </xs:element>
   </tdml:defineSchema>
--->
+
 
   <!--
     Test name: maxLength01
@@ -6200,7 +6200,7 @@
     </xs:element>
   
   </tdml:defineSchema>
- <!-- 
+
   <tdml:defineSchema name="totalDigitsSchemaIsolate">
     <dfdl:format ref="ex:daffodilTest1" />
 
@@ -6246,7 +6246,6 @@
       </xs:simpleType>
     </xs:element>
   </tdml:defineSchema>    
--->
 
   <!--
     Test name: totalDigits01
