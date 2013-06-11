@@ -130,11 +130,11 @@ class TestFacets {
   @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
  
   @Test def test_arraysMinOccursZero() { runner.runOneTest("arraysMinOccursZero") }
-  @Test def test_arraysOccurInRange_01() { runner.runOneTest("arraysOccursInRange_01") }
-  @Test def test_arraysOccurInRange_02() { runner.runOneTest("arraysOccursInRange_02") }
-  @Test def test_arraysOccurInRange_03() { runner.runOneTest("arraysOccursInRange_03") }
-  @Test def test_arraysOccurInRange_04() { runner.runOneTest("arraysOccursInRange_04") }
-  @Test def test_arraysOccurInRange_05() { runner.runOneTest("arraysOccursInRange_05") }
+  @Test def test_arraysOccursInRange_01() { runner.runOneTest("arraysOccursInRange_01") }
+  @Test def test_arraysOccursInRange_02() { runner.runOneTest("arraysOccursInRange_02") }
+  @Test def test_arraysOccursInRange_03() { runner.runOneTest("arraysOccursInRange_03") }
+  @Test def test_arraysOccursInRange_04() { runner.runOneTest("arraysOccursInRange_04") }
+  @Test def test_arraysOccursInRange_05() { runner.runOneTest("arraysOccursInRange_05") }
   @Test def test_arraysOccursOutOfRange_01() { runner.runOneTest("arraysOccursOutOfRange_01") }
   @Test def test_arraysOccursOutOfRange_02() { runner.runOneTest("arraysOccursOutOfRange_02") }
 
