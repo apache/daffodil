@@ -51,7 +51,7 @@ class TestChoice {
   @Test def test_choiceOfGroupRefs() { runnerCH.runOneTest("choiceOfGroupRefs") }
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  @Test def test_basicChoice() { runnerCH.runOneTest("basic") }
+  @Test def test_basic() { runnerCH.runOneTest("basic") }
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }

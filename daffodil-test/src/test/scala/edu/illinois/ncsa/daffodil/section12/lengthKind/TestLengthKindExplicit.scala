@@ -67,7 +67,7 @@ class TestLengthKindExplicit {
 
   @Test def test_ExplicitLengthBytesChoiceRef() = { runner.runOneTest("test_ExplicitLengthBytesChoiceRef") }
   @Test def test_ExplicitLengthChildLengthLessParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars") }
-  @Test def test_ExplicitLengthChildLengthLessParent_Bits() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bytes") }
+  @Test def test_ExplicitLengthChildLengthLessParent_Bytes() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bytes") }
   @Test def test_ExplicitLengthChildLengthMoreParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthMoreParent_Chars") }
 
 }
