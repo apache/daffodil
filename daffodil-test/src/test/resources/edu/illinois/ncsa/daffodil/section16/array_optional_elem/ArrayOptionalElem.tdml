@@ -224,5 +224,176 @@
         </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="arrayExpressions">
+    <dfdl:format ref="ex:daffodilTest1" />
+    
+    <dfdl:defineVariable name="counter" type="xs:int" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert testKind="expression" test="{xs:int(.) eq dfdl:position()}" message="Assertion failed for expression 'xs:int(.) eq dfdl:position()'" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="a2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{/ex:e2/ex:a1}">
+                <xs:element name="num" type="xs:int" maxOccurs="3" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="a2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=".">
+                <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort " 
+                    maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (/ex:e3/ex:a1 eq b) then bigEndian else littleEndian }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="explicit" dfdl:length="1">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <dfdl:assert testKind="expression" test="{ dfdl:position()+2 }"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: arrayExpressions03
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case, the property is byteOrder
+-->
+
+  <tdml:parserTestCase name="arrayExpressions03" model="arrayExpressions" root="e3"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="byte">62|003A|6C|003A</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <a1>b</a1>
+          <num>58</num>
+          <a1>l</a1>
+          <num>14848</num>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions02
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions02" model="arrayExpressions" root="e2"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">.|1.2.3|,|1,2,3|#|3#9#1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <a1>.</a1>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <a1>,</a1>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <a1>#</a1>
+          <num>3</num>
+          <num>9</num>
+          <num>1</num>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions01
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the expression is used in an assertion.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions01" model="arrayExpressions" root="e1"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">1.2.3.4.5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <num>1</num>
+          <num>2</num>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions04
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the expression is used with an assertion
+-->
+
+  <tdml:parserTestCase name="arrayExpressions04" model="arrayExpressions" root="e4"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">3|4|5|6</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <num>3</num>
+          <num>4</num>
+          <num>5</num>
+          <num>6</num>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
