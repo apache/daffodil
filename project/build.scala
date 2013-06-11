@@ -230,50 +230,49 @@ object DaffodilBuild extends Build {
   lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++
                                  Seq(mainClass in Compile := Some("edu.illinois.ncsa.daffodil.Main"))
 
-  // get the version from the latest tag
-  s ++= Seq(version := {
+  def exec(cmd: String): Seq[String] = {
     val r = java.lang.Runtime.getRuntime()
-    val p = r.exec("git describe HEAD")
+    val p = r.exec(cmd)
     p.waitFor()
     val ret = p.exitValue()
     if (ret != 0) {
-      sys.error("Failed to get daffodil version")
+      sys.error("Command failed: " + cmd)
     }
-    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
-    val version = b.readLine()
-    val parts = version.split("-")
-    val res =
-      if (parts.length == 1) {
-        parts(0)
-      } else {
-        parts(0) + "-SNAPSHOT"
+    val is = p.getInputStream
+    val res = scala.io.Source.fromInputStream(is).getLines()
+    res.toSeq
+  }
+
+  // get the version from the latest tag
+  s ++= Seq(version := {
+    val describe = exec("git describe --long HEAD")
+    assert(describe.length == 1)
+
+    val VersionRegex = """^(.+)-(.+)-(.+)$""".r
+    val res = describe(0) match {
+      case VersionRegex(v, "0", hash) => {
+        val status = exec("git status --porcelain")
+        if (status.length > 0) {
+          v + "-SNAPSHOT"
+        } else {
+          v
+        }
       }
+      case VersionRegex(v, _, hash) => v + "-SNAPSHOT"
+    }
     res
   })
 
   def gitShortHash(): String = {
-    val r = java.lang.Runtime.getRuntime()
-    val p = r.exec("git rev-parse --short HEAD")
-    p.waitFor()
-    val ret = p.exitValue()
-    if (ret != 0) {
-      sys.error("Failed to get git hash")
-    }
-    val b = new java.io.BufferedReader(new java.io.InputStreamReader(p.getInputStream))
-    val line = b.readLine()
-    line
+    val hash = exec("git rev-parse --short HEAD")
+    assert(hash.length == 1)
+    hash(0)
   }
 
 
   // update the manifest version to include the git hash
   lazy val manifestVersion = packageOptions in (Compile, packageBin) <++= version map { v => {
-    val parts = v.split("-")
-    val version =
-      if (parts.length == 1) {
-        "%s-%s".format(parts(0), gitShortHash)
-      } else {
-        "%s-%s [SNAPSHOT]".format(parts(0), gitShortHash)
-      }
+    val version = "%s-%s".format(v, gitShortHash)
     Seq(
       Package.ManifestAttributes(java.util.jar.Attributes.Name.IMPLEMENTATION_VERSION -> version),
       Package.ManifestAttributes(java.util.jar.Attributes.Name.SPECIFICATION_VERSION -> version)
