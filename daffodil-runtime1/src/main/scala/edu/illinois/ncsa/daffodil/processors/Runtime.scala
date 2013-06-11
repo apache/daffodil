@@ -219,31 +219,26 @@ abstract class ParseResult(dp: DataProcessor)
 
   lazy val result =
     if (resultState.status == Success) {
-      val xmlNode = resultState.infoset.toXML
-      val xmlNoHidden = XMLUtils.removeHiddenElements(xmlNode)
-      val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
-      xmlClean
+      if (resultAsJDOMDocument.hasRootElement()) XMLUtils.element2Elem(resultAsJDOMDocument.getRootElement())
+      else <dafint:document xmlns:dafint={ XMLUtils.INT_NS }/>
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 
-  lazy val resultAsJDOMContent =
+  lazy val resultAsJDOMDocument =
     if (resultState.status == Success) {
-      val xmlNoHidden = resultState.infoset.jdomElt match {
-        case Some(e) => XMLUtils.removeHiddenElements(e)
+      val xmlClean = resultState.infoset.jdomElt match {
+        case Some(e) => {
+          XMLUtils.removeHiddenElements(e)
+          XMLUtils.removeAttributesJDOM(e, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))
+          e.getDocument()
+        }
         case None => Assert.impossibleCase() // Shouldn't happen, success means there IS a result.
       }
-      val xmlClean = XMLUtils.removeAttributesJDOM(xmlNoHidden, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))
       xmlClean
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
-
-  lazy val resultAsJDOMDocument = {
-    val doc = new org.jdom.Document
-    doc.addContent(resultAsJDOMContent)
-    doc
-  }
 }
 
 abstract class UnparseResult(dp: DataProcessor)
