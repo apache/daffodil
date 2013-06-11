@@ -49,10 +49,10 @@ class TestLengthKindPatternDebug {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   //DFDL-744
-  @Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+  @Test def test_LengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
 
   //DFDL-745
-  @Test def testLengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
+  @Test def test_LengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
   
   // Now fail due to scanability check 
   @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }

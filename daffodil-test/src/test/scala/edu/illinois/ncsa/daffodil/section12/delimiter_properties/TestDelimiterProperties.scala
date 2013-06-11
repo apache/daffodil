@@ -60,8 +60,8 @@ class TestDelimiterProperties {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
   @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
-  @Test def testParseSequence4() { runner_02.runOneTest("ParseSequence4") }
-  @Test def testParseSequence5() { runner_02.runOneTest("ParseSequence5") }
+  @Test def test_ParseSequence4() { runner_02.runOneTest("ParseSequence4") }
+  @Test def test_ParseSequence5() { runner_02.runOneTest("ParseSequence5") }
   //@Test def testParseSequence_4a() { runner_02.runOneTest("ParseSequence_4a") }
   @Test def test_DelimProp_02() { runner_02.runOneTest("DelimProp_02") }
   @Test def test_DelimProp_03() { runner_02.runOneTest("DelimProp_03") }

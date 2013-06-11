@@ -49,7 +49,7 @@ class TestLengthKindPattern {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_AI000_rev() { runner.runOneTest("AI000_rev") }
-  @Test def testLengthKindPattern() { runner.runOneTest("LengthKindPattern") }
+  @Test def test_LengthKindPattern() { runner.runOneTest("LengthKindPattern") }
   //DFDL-744
   //@Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
   //DFDL-745
