@@ -244,6 +244,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     // is an instance of PrimParser, then check if the primitive representing
     // the prim parser is an instance of ElementBegin. This should be changed
     // if we ever get rid of anonymous parsers.
+    //
+    // Note: we use strings and getClass.getName here to get late binding. The ElementBegin class isn't defined
+    // in the same module this is. (Layering structure issue.)
+    //
     if (!DebuggerConfig.breakOnlyOnCreation ||
       (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.getClass.getName.contains("ElementBegin"))) {
       val foundBreakpoint =

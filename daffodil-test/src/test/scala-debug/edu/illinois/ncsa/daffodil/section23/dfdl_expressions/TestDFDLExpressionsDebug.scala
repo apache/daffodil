@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -56,18 +55,18 @@ class TestDFDLExpressionsDebug {
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
   @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
   @Test def test_expressionRules04() { runner.runOneTest("expressionRules04") }
-  
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
   @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
   @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
 
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
-  
+
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 

@@ -48,30 +48,32 @@
     network: link-layer header type, specifying the type of headers at the beginning of the packet (e.g. 1 for Ethernet, see tcpdump.org's link-layer header types page for details); this can be various types such as 802.11, 802.11 with various radio information, PPP, Token Ring, FDDI, etc.
 
 -->
-	<xs:element name="global_header" minOccurs="1" maxOccurs="1">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element name="magic_number" type="ex:uint32" dfdl:byteOrder="bigEndian">
-					<xs:annotation>
-						<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-							<!-- ?? How do you type a hexadecimal number as a constant in XPath?? -->
-							<dfdl:setVariable ref="ex:bOrd"><![CDATA[{
+  <xs:element name="global_header" minOccurs="1" maxOccurs="1">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="magic_number" type="ex:uint32"
+          dfdl:byteOrder="bigEndian">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <!-- ?? How do you type a hexadecimal number as a constant 
+                in XPath?? -->
+              <dfdl:setVariable ref="ex:bOrd"><![CDATA[{
             if (xs:unsignedInt(.) eq 2712847316) then 'bigEndian'
             else if (xs:unsignedInt(.) eq 3569595041) then 'littleEndian'
-            else error(ex:magic_number, "magic number was not 0xA1B2C3D4 or 0xD4C3B2A1.")
+            else error(ex:magic_number, "Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian).")
             }]]></dfdl:setVariable>
-						</xs:appinfo>
-					</xs:annotation>
-				</xs:element>
-				<xs:element name="version_major" type="ex:uint16" />
-				<xs:element name="version_minor" type="ex:uint16" />
-				<xs:element name="thiszone" type="ex:int32" />
-				<xs:element name="sigfigs" type="ex:uint32" />
-				<xs:element name="snaplen" type="ex:uint32" />
-				<xs:element name="network" type="ex:uint32" />
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="version_major" type="ex:uint16" />
+        <xs:element name="version_minor" type="ex:uint16" />
+        <xs:element name="thiszone" type="ex:int32" />
+        <xs:element name="sigfigs" type="ex:uint32" />
+        <xs:element name="snaplen" type="ex:uint32" />
+        <xs:element name="network" type="ex:uint32" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
 <!--
   typedef struct pcaprec_hdr_s {

@@ -58,6 +58,9 @@ class TestDFDLExpressionsNew {
   @Test def test_byteOrderExpr3 { runner3.runOneTest("byteOrderExpr3") }
   @Test def test_byteOrderExpr4 { runner3.runOneTest("byteOrderExpr4") }
   @Test def test_byteOrderExpr5 { runner3.runOneTest("byteOrderExpr5") }
-  @Test def test_byteOrderExpr6 { runner3.runOneTest("byteOrderExpr5") }
+  @Test def test_byteOrderExpr6 { runner3.runOneTest("byteOrderExpr6") }
+
+  @Test def test_variableRefError { runner3.runOneTest("variableRefError") }
+
 }
 
