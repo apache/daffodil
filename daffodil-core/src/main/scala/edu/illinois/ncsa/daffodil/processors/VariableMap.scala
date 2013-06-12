@@ -219,7 +219,16 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
             (converted, vmap)
           }
 
-          case _ => Assert.invariantFailed()
+          case _ => {
+            // Fix DFDL-766
+            val msg = "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
+            currentPState match {
+              // Runtime error:
+              case Some(pstate) => pstate.SDE(msg, expandedName)
+              // Compile time error:
+              case None => referringContext.SDE(msg, expandedName)
+            }
+          }
         }
 
       case Some(Nil) => Assert.invariantFailed()
