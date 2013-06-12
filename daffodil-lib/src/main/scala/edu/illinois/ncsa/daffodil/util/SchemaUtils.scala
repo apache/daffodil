@@ -106,20 +106,10 @@ object SchemaUtils {
     }.head.asInstanceOf[Elem]
     val realSchema = schemaNode
     //
-    // It is essential to stringify and then reload the above schema because the
-    // pieces being spliced in don't have the namespace definitions for the prefixes.
-    // This massively reduces clutter for creation of test schemas in tests.
+    // Note: no longer needs to write out and re-load to get namespaces 
+    // right due to the surroundingElement trick above
     //
-    // Writing it out to a string, and reloading
-    // forces reinterpretation of all the prefixes as new nodes are created. The 
-    // enclosing nodes created above have the namespace definitions.
-    // 
-    // TODO: Consider: we may not need to do this anymore, given that all schemas
-    // are placed into files (tmp files if they started out as Node objects)
-    //
-    val realSchemaText = realSchema.toString()
-    val real = XML.loadString(realSchemaText)
-    real
+    schemaNode
   }
 
 }
