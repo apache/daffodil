@@ -162,5 +162,16 @@ class TestDFDLExpressions {
 
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+  
+  val tdml3 = testDir + "expression_fail.tdml"
+  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
+
+  // DFDL-313
+  // Verified that we do get an error regarding an improperly formatted
+  // DFDL expression.  This test needs its own file since it fails at the
+  // schema loading (SAXParse) level and would cause other tests within
+  // the same file to fail.
+  //
+  @Test def test_no_closing_brace() { runner3.runOneTest("no_closing_brace") } // no closing } for expression
 
 }
