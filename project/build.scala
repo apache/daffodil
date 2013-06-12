@@ -265,11 +265,11 @@ object DaffodilBuild extends Build {
         // get the current branch
         val branch = exec("git rev-parse --abbrev-ref HEAD")
         assert(branch.length == 1)
-        val VersionBranchRegex = """^\d+\.\d+\.\d+$""".r
+        val VersionBranchRegex = """^(\d+\.\d+\.\d+)$""".r
         branch(0) match {
-          case VersionBranchRegex => {
+          case VersionBranchRegex(versionBranch) => {
             // we are developing on a version branch, create a snapshot
-            branch + "-SNAPSHOT"
+            versionBranch + "-SNAPSHOT"
           }
           case _ => {
             // not on a version branch (e.g. a review branch), try to figure
