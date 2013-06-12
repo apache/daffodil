@@ -46,6 +46,9 @@ class TestSimpleTypes {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
+  @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
   @Test def test_nonNegativeInteger() { runner.runOneTest("NonNegativeInteger") }
   @Test def test_nonNegativeInteger_Fail() { runner.runOneTest("NonNegativeInteger_Fail") }
