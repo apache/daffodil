@@ -548,13 +548,17 @@ Differences were (path, expected, actual):
     } else {
       val processor = pf.onPath("/")
       if (processor.isError) {
-        val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+        val diagObjs = processor.getDiagnostics
+        if (diagObjs.length == 1) throw diagObjs(0)
+        val diags = diagObjs.map(_.getMessage).mkString("\n")
         throw new Exception(diags)
       }
       val actual = processor.parse(dataToParse, lengthLimitInBits)
 
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
+        val diagObjs = actual.getDiagnostics
+        if (diagObjs.length == 1) throw diagObjs(0)
         val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }

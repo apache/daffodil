@@ -55,7 +55,6 @@ import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
 import edu.illinois.ncsa.daffodil.processors.PrimParser
-import edu.illinois.ncsa.daffodil.processors.ElementBegin
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -246,7 +245,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     // the prim parser is an instance of ElementBegin. This should be changed
     // if we ever get rid of anonymous parsers.
     if (!DebuggerConfig.breakOnlyOnCreation ||
-      (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.isInstanceOf[ElementBegin])) {
+      (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.getClass.getName.contains("ElementBegin"))) {
       val foundBreakpoint =
         DebuggerConfig.breakpoints
           .filter(_.enabled)

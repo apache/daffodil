@@ -188,8 +188,6 @@ trait ImplementsThrowsSDE
 
   def schemaComponent: SchemaComponentBase
 
-  // TODO: create a trait to share various error stuff with DFDLAnnotation class.
-  // Right now there is small code duplication since annotations aren't schema components.
   def SDE(id: String, args: Any*): Nothing = {
     ExecutionMode.requireCompilerMode
     val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)

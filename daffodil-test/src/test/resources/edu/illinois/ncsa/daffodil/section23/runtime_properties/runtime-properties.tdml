@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="runtime-properties"
+	description="properties that can have expressions to compute their values from data"
+	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+	<tdml:defineSchema name="s1">
+		<dfdl:format ref="ex:daffodilTest1" representation="binary"
+			byteOrder="bigEndian" binaryNumberRep="binary" lengthKind="implicit" />
+
+
+
+		<xs:element name="e1" type="xs:int" dfdl:byteOrder="{ 'bigEndian' }" />
+
+		<xs:element name="e2">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="bom" type="xs:unsignedByte" />
+					<xs:element name="num" type="xs:int">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:element>
+									<dfdl:property name="byteOrder"><![CDATA[{
+          if (fn:trace(fn:trace(xs:unsignedByte(../bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          else if (fn:trace(xs:unsignedByte(../bom) eq 20, 'pred2')) then 'littleEndian'
+          else fn:error()
+      }]]></dfdl:property>
+								</dfdl:element>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<xs:element name="e3">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="bom" type="xs:unsignedShort" />
+					<xs:element name="num" type="xs:int">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<dfdl:element>
+									<dfdl:property name="byteOrder"><![CDATA[{
+          if (fn:trace(fn:trace(xs:unsignedShort(../bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
+          else if (fn:trace(xs:unsignedShort(../bom) eq 65534, 'pred2')) then 'littleEndian'
+          else fn:error()
+      }]]></dfdl:property>
+								</dfdl:element>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+		<dfdl:defineVariable name="bom" type="xs:unsignedShort" />
+
+		<xs:element name="e4">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="bom" type="xs:unsignedShort">
+						<xs:annotation>
+							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+								<!-- hoist calculation so we do it only once -->
+								<dfdl:setVariable ref="bom"><![CDATA[{
+          if (fn:trace(fn:trace(xs:unsignedShort(.), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
+          else if (fn:trace(xs:unsignedShort(.) eq 65534, 'pred2')) then 'littleEndian'
+          else fn:error()
+      }]]></dfdl:setVariable>
+							</xs:appinfo>
+						</xs:annotation>
+					</xs:element>
+					<xs:element name="num" type="xs:int" dfdl:byteOrder="{ $bom }" />
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+
+
+	</tdml:defineSchema>
+
+
+
+	<tdml:parserTestCase name="byteOrderExpr1" root="e1"
+		model="s1" description="simplest byte order">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">01000100
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e1>16777472</ex:e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="byteOrderExpr2" root="e2"
+		model="s1" description="byte order based on flag byte before the data">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">0A01000100
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e2>
+					<ex:bom>10</ex:bom>
+					<ex:num>16777472</ex:num>
+				</ex:e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="byteOrderExpr3" root="e2"
+		model="s1" description="byte order based on flag byte before the data">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">14 0 0 0 1 0 0 0 1
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e2>
+					<ex:bom>20</ex:bom>
+					<ex:num>16777472</ex:num>
+				</ex:e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="byteOrderExpr4" root="e3"
+		model="s1"
+		description="byte order based on two bytes of a utf-16 byte order mark before the data">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">FE FF 01 00 01 00
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e3>
+					<ex:bom>65279</ex:bom>
+					<ex:num>16777472</ex:num>
+				</ex:e3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="byteOrderExpr5" root="e3"
+		model="s1"
+		description="byte order based on two bytes of a utf-16 byte order mark before the data">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">FF FE 0 0 0 1 0 0 0 1
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e3>
+					<ex:bom>65534</ex:bom>
+					<ex:num>16777472</ex:num>
+				</ex:e3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+	<tdml:parserTestCase name="byteOrderExpr6" root="e4"
+		model="s1"
+		description="byte order based on two bytes of a utf-16 byte order mark before the data">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">FF FE 0 0 0 1 0 0 0 1
+			</tdml:documentPart>
+		</tdml:document>
+
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<ex:e4>
+					<ex:bom>65534</ex:bom>
+					<ex:num>16777472</ex:num>
+				</ex:e4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+	</tdml:parserTestCase>
+
+</tdml:testSuite>

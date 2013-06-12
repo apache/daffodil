@@ -7,7 +7,8 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 
 abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
-  extends DaffodilParser(contextArg) {
+  extends DaffodilParser(contextArg)
+  with WithParseErrorThrowing {
 
   def primitive = gram
 

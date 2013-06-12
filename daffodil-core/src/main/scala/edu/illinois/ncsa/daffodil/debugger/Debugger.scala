@@ -14,7 +14,7 @@ abstract class Debugger {
 
 object Debugger {
 
-  // private var debugger: Debugger = new TraceDebugger
+  private var debugger: Debugger = new InteractiveDebugger(new TraceDebuggerRunner)
 
   // Late binding code.... but it seems we get away with just setting the var 
   // to null. The CLI has to set this before using it. 
@@ -22,7 +22,7 @@ object Debugger {
   //  val idbName = pkgName + ".InteractiveDebugger"
   //  val idbClass = Class.forName(idbName)
   //  val idb = idbClass.newInstance().asInstanceOf[Debugger]
-  private var debugger: Debugger = null
+  // private var debugger: Debugger = null
 
   /**
    * Wrap things to debug with this rather than just calling setDebugging(true).

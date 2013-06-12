@@ -580,8 +580,6 @@ trait ElementBaseGrammarMixin
   lazy val binaryValue: Gram = {
     Assert.invariant(primType != PrimType.String)
 
-    subset(byteOrder.isConstant, "Dynamic byte order is not currently supported.")
-
     // We have to dispatch carefully here. We cannot force evaluation of properties 
     // that may not be necessary. E.g., float does not need property binaryNumberRep, so
     // if our dispatch table uses that, it will create a false dependency on the property

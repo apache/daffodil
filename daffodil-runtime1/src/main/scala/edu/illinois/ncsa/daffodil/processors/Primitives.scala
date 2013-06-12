@@ -835,14 +835,17 @@ trait UnsignedNumberMixin[T] {
 // TODO: Double Conversion as a Sign-Trait
 
 abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
-  lazy val primName = e.primType.name
+  val primName = e.primType.name
 
-  lazy val staticByteOrderString = e.byteOrder.constantAsString
-  lazy val staticByteOrder = ByteOrder(staticByteOrderString, context)
-
-  lazy val (staticJByteOrder, label) = staticByteOrder match {
-    case ByteOrder.BigEndian => (java.nio.ByteOrder.BIG_ENDIAN, "BE")
-    case ByteOrder.LittleEndian => (java.nio.ByteOrder.LITTLE_ENDIAN, "LE")
+  val (staticJByteOrder, label) = {
+    if (e.byteOrder.isConstant) {
+      val staticByteOrderString = e.byteOrder.constantAsString
+      val staticByteOrder = ByteOrder(staticByteOrderString, context)
+      staticByteOrder match {
+        case ByteOrder.BigEndian => (java.nio.ByteOrder.BIG_ENDIAN, "BE")
+        case ByteOrder.LittleEndian => (java.nio.ByteOrder.LITTLE_ENDIAN, "LE")
+      }
+    } else (null, "Runtime")
   }
 
   //def getNum(t: Number): BigInt
@@ -858,7 +861,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
   def parser = new PrimParser(this, e) {
     override def toString = gram.toString
 
-    def parse(start0: PState): PState = {
+    def parse(start0: PState): PState = withParseErrorThrowing(start0) {
       try {
         val (start1, nBits) = getBitLength(start0)
         val (start, bo) = getByteOrder(start1)
@@ -881,7 +884,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
       } catch {
         case e: IndexOutOfBoundsException => { return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage()) }
         case u: UnsuppressableException => throw u
-        case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e.getStackTraceString) }
+        case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
       }
     }
   }
