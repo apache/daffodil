@@ -69,6 +69,7 @@ class TestNillable {
   @Test def test_text_05() { runnerLN.runOneTest("text_05") }
   @Test def test_text_06() = { runnerLN.runOneTest("text_06") }
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
+  @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
 
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val entity = testDir_01 + "entities_01.tdml"
