@@ -141,18 +141,48 @@ object DaffodilBuild extends Build {
   s ++= Seq(Keys.version := {
     val describe = exec("git describe --long HEAD")
     assert(describe.length == 1)
-
-    val VersionRegex = """^(.+)-(.+)-(.+)$""".r
+    
+    val DescribeRegex = """^(.+)-(.+)-(.+)$""".r
     val res = describe(0) match {
-      case VersionRegex(v, "0", hash) => {
+      case DescribeRegex(taggedVersion, "0", hash) => {
+        // we are on a tag, build a tag release
         val status = exec("git status --porcelain")
         if (status.length > 0) {
-          v + "-SNAPSHOT"
+          taggedVersion + "-SNAPSHOT"
         } else {
-          v
+          taggedVersion
         }
       }
-      case VersionRegex(v, _, hash) => v + "-SNAPSHOT"
+      case DescribeRegex(version, _, hash) => {
+        // not on a tag
+
+        // get the current branch
+        val branch = exec("git rev-parse --abbrev-ref HEAD")
+        assert(branch.length == 1)
+        val VersionBranchRegex = """^\d+\.\d+\.\d+$""".r
+        branch(0) match {
+          case VersionBranchRegex => {
+            // we are developing on a version branch, create a snapshot
+            branch + "-SNAPSHOT"
+          }
+          case _ => {
+            // not on a version branch (e.g. a review branch), try to figure
+            // out the tracking branch
+            val trackingBranch = exec("git for-each-ref --format=%(upstream:short) refs/heads/" + branch(0))
+            assert(trackingBranch.length == 1)
+            val TrackingBranchRegex = """^[^/]+/(.+)$""".r
+            trackingBranch(0) match {
+              case TrackingBranchRegex(trackingVersion) => {
+                trackingVersion + "-SNAPSHOT"
+              }
+              case _ => {
+                // no idea what the version is, set it to a fefault
+                "0.0.0-SNAPSHOT"
+              }
+            }
+          }
+        }
+      }
     }
     res
   })
