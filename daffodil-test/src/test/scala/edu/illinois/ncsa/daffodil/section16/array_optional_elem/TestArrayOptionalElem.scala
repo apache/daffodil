@@ -68,7 +68,7 @@ class TestArrayOptionalElem {
 
   val testDir01 = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val ab = testDir01 + "Facets.tdml"
-  lazy val runner01 = new DFDLTestSuite(Misc.getRequiredResource(ab))
+  lazy val runner01 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false)
   @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
   
   val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
