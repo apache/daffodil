@@ -18,7 +18,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1024380740</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -40,7 +40,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1216691588</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -62,7 +62,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1130986970</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -84,7 +84,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1367244575</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -106,7 +106,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1367258064</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -128,7 +128,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1367328226</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -150,7 +150,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1216691588</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -172,7 +172,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <pcap2>
-          <mn>2712847316</mn>
+          <mn>3569595041</mn>
           <last>1216691588</last>
         </pcap2>
       </tdml:dfdlInfoset>
@@ -195,7 +195,7 @@
       <tdml:dfdlInfoset>
         <ex:pcap xmlns:ex="http://example.com">
           <ex:global_header>
-            <ex:magic_number>2712847316</ex:magic_number>
+            <ex:magic_number>3569595041</ex:magic_number>
             <ex:version_major>2</ex:version_major>
             <ex:version_minor>4</ex:version_minor>
             <ex:thiszone>0</ex:thiszone>
