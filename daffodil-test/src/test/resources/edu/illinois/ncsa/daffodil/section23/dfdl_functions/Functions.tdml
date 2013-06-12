@@ -111,8 +111,66 @@
 					<xs:element name="i1" type="xs:int" />
 					<xs:element name="i2" type="xs:int" />
 					<xs:element name="i3" type="xs:int" />
-					<!-- <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ 
-						dfdl:occursCount( /ex:occursCount/* ) }" /> -->
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="occursCount1">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 3 }"
+						message="Assertion 
+            failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="i1" type="xs:int" dfdl:initiator="#:" minOccurs="1" maxOccurs="10"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="occursCount1b">
+			<xs:annotation>
+				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 1 }"
+						message="Assertion 
+            failed for dfdl:occursCount( /ex:occursCount/* ) eq 1" />
+				</xs:appinfo>
+			</xs:annotation>
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+					<xs:element name="i1" type="xs:int" dfdl:initiator="#:" minOccurs="1" maxOccurs="10"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="occursCount2">
+			<xs:complexType>
+				<xs:sequence dfdl:separator=",">
+          <xs:element name="array">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="i1" type="xs:int" dfdl:initiator="#:" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount2/ex:array/*) }"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+    
+    <xs:element name="occursCount3">
+			<xs:complexType>
+				<xs:sequence>
+          <xs:element name="array">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="i1" type="xs:int" dfdl:initiator="#:" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount3/ex:array/ex:i1) }"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -368,6 +426,13 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_0
+       Schema: Functions.dfdl.xsd
+         Root: occursCount
+      Purpose: This test demonstrates the use of the occursCount function
+-->
 
 	<tdml:parserTestCase name="occursCount_0" root="occursCount"
 		model="Functions.dfdl.xsd" description="Section 23 ">
@@ -382,8 +447,142 @@
 					<i1>1</i1>
 					<i2>2</i2>
 					<i3>3</i3>
-					<!-- <occurs>4</occurs> -->
 				</occursCount>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_1
+       Schema: Functions.dfdl.xsd
+         Root: occursCount1
+      Purpose: This test demonstrates the use of the occursCount function
+-->
+
+	<tdml:parserTestCase name="occursCount_1" root="occursCount1"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1,#:2,#:3]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<occursCount1>
+					<i1>1</i1>
+					<i1>2</i1>
+					<i1>3</i1>
+				</occursCount1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_1b
+       Schema: Functions.dfdl.xsd
+         Root: occursCount1b
+      Purpose: This test demonstrates the use of the occursCount function
+-->
+
+	<tdml:parserTestCase name="occursCount_1b" root="occursCount1b"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<occursCount1>
+					<i1>1</i1>
+					<i1>2</i1>
+					<i1>3</i1>
+				</occursCount1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_2
+       Schema: Functions.dfdl.xsd
+         Root: occursCount2
+      Purpose: This test demonstrates the use of the occursCount function
+-->
+
+	<tdml:parserTestCase name="occursCount_2" root="occursCount2"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1,#:2,#:3,#:4,#:5]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <occursCount2>
+          <array>
+            <i1>1</i1>
+            <i1>2</i1>
+            <i1>3</i1>
+            <i1>4</i1>
+            <i1>5</i1>
+          </array>
+					<occurs>5</occurs>
+				</occursCount2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_3
+       Schema: Functions.dfdl.xsd
+         Root: occursCount3
+      Purpose: This test demonstrates the use of the occursCount function
+-->
+
+	<tdml:parserTestCase name="occursCount_3" root="occursCount3"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1,#:2,#:3]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <occursCount3>
+          <array>
+            <i1>1</i1>
+            <i1>2</i1>
+            <i1>3</i1>
+          </array>
+					<occurs>3</occurs>
+				</occursCount3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: occursCount_3b
+       Schema: Functions.dfdl.xsd
+         Root: occursCount3
+      Purpose: This test demonstrates the use of the occursCount function
+               In this case there is only one occurrence.      
+-->
+
+	<tdml:parserTestCase name="occursCount_3b" root="occursCount3"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <occursCount3>
+          <array>
+            <i1>1</i1>
+          </array>
+					<occurs>1</occurs>
+				</occursCount3>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
