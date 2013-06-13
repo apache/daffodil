@@ -53,7 +53,7 @@ class TestEntityReplacer {
     assertEquals("Text%#%Text", EntityReplacer.replaceAll("Text%%#%%Text")) // Works multiple
 
     val f2 = intercept[Exception] { EntityReplacer.replaceAll("Text%%%#%%Text") }
-    assertEquals("Invalid DFDL Entity (%#) found in \"%#\"", f2.getMessage) // Works multiple
+    assertEquals("Invalid DFDL Entity (%#) found in \"Text%%%#%%Text\"", f2.getMessage) // Works multiple
     assertEquals("Text%AText", EntityReplacer.replaceAll("Text%%%#65;Text")) // Works multiple
   }
 
@@ -146,21 +146,21 @@ class TestEntityReplacer {
     assertEquals(solution1, EntityReplacer.replaceAll(testString1, None))
 
     val f1 = intercept[Exception] { EntityReplacer.replaceAll(testString2, None) }
-    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1\"", f1.getMessage)
+    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2\"", f1.getMessage)
 
     val f2 = intercept[Exception] { EntityReplacer.replaceAll(testString3, None) }
-    assertEquals("Invalid DFDL Entity (%) found in \"Text2%\"", f2.getMessage)
+    assertEquals("Invalid DFDL Entity (%) found in \"Text1%%%%%%%%%%Text2%\"", f2.getMessage)
 
     val f3 = intercept[Exception] { EntityReplacer.replaceAll(testString4) }
-    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1\"", f3.getMessage)
+    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%\"", f3.getMessage)
 
     assertEquals(solution5, EntityReplacer.replaceAll(testString5, None))
 
     val f4 = intercept[Exception] { EntityReplacer.replaceAll(testString6) }
-    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1\"", f4.getMessage)
+    assertEquals("Invalid DFDL Entity (%Text1) found in \"%Text1%%%%%%%%%%Text2%%\"", f4.getMessage)
 
     val f5 = intercept[Exception] { EntityReplacer.replaceAll(testString7) }
-    assertEquals("Invalid DFDL Entity (%) found in \"Text2%\"", f5.getMessage)
+    assertEquals("Invalid DFDL Entity (%) found in \"%%Text1%%%%%%%%%%Text2%\"", f5.getMessage)
 
     assertEquals(solution8, EntityReplacer.replaceAll(testString8, None))
     assertEquals(solution9, EntityReplacer.replaceAll(testString9, None))
@@ -185,6 +185,11 @@ class TestEntityReplacer {
     assertEquals(testString7, EntityReplacer.replaceAll(testString7, None))
     assertEquals(testString8, EntityReplacer.replaceAll(testString8, None))
     assertEquals(testString9, EntityReplacer.replaceAll(testString9, None))
+  }
+  
+  @Test def testSemiColonSP = {
+    val testString = ";%SP;"
+    assertEquals("; ", EntityReplacer.replaceAll(testString))
   }
 
 }
