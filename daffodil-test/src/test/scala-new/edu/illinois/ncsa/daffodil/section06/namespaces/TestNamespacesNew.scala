@@ -49,24 +49,4 @@ class TestNamespacesNew extends Logging {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_double_nesting_01() { runner.runOneTest("double_nesting_01") }
-
-  // Fixed test (missing one terminator in mid-chain). Jira DFDL-571
-  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
-
-  // See comments in related bug. JIRA-549
-  // This test is looking for a specific file to be mentioned in an error message 
-  // which is the file with the content responsible for the error, not the file
-  // of the object where the error was detected.
-  @Test def test_combinations_02() {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("combinations_02")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
-
 }
