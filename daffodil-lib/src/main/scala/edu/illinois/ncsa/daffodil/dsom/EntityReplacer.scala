@@ -253,7 +253,7 @@ class EntityReplacer {
    *  	3. Has a '%' immediately followed by ';'. Ex: %;
    */
   private val malformedEntityFormat = Pattern.compile("((?:%[^%#;]*?%)|(?:%[^%#;]*?$)|(?:%#[^%;]*?$)|(?:%;))", Pattern.MULTILINE)
-  private def checkForMalformedEntityFormat(input: String, context: Option[ThrowsSDE]) = {
+  private def checkForMalformedEntityFormat(input: String, orig: String, context: Option[ThrowsSDE]) = {
     // At this point, we're assuming the escaped percent literals have already been removed.
     // So we want to look for malformed entities just as a preliminary check.
 
@@ -261,9 +261,9 @@ class EntityReplacer {
     if (m.find()) {
       val invalidEntity = m.group(1)
       context match {
-        case Some(ctxt) => ctxt.SDE("Invalid DFDL Entity (%s) found in \"%s\"", invalidEntity, input)
+        case Some(ctxt) => ctxt.SDE("Invalid DFDL Entity (%s) found in \"%s\"", invalidEntity, orig)
         case None => {
-          val msg = "Invalid DFDL Entity (%s) found in \"%s\"".format(invalidEntity, input)
+          val msg = "Invalid DFDL Entity (%s) found in \"%s\"".format(invalidEntity, orig)
           throw new Exception(msg)
         }
       }
@@ -275,7 +275,7 @@ class EntityReplacer {
 
     // Has a % in it, possibly an entity.  Try to see if we can
     // detect if it's malformed.
-    checkForMalformedEntityFormat(input, context)
+    checkForMalformedEntityFormat(input, orig, context)
 
     val tokens = input.split("""(?<!%)%""")
     val tokens2 = tokens.map(tok => (tok, tok.split("[^%]*?;")))
@@ -314,18 +314,28 @@ class EntityReplacer {
    */
   def replaceAll(input: String, context: Option[ThrowsSDE] = None): String = {
     if (!input.contains("%")) { return input } // No entities, no replacement.
-    if (!input.contains("%%")) { return process(input, input, context) } // No escaped percents, just process
+
+    val startOfPossibleEntity = input.indexOf("%")
+    val inputUntilPossibleEntity = input.substring(0, startOfPossibleEntity)
+    val inputWithPossibleEntity = input.substring(startOfPossibleEntity)
+
+    if (!inputWithPossibleEntity.contains("%%")) {
+      // No escaped percents, just process
+      val processedInput = process(inputWithPossibleEntity, input, context)
+      val fullResult = inputUntilPossibleEntity + processedInput
+      return fullResult
+    }
 
     // We have escaped percent literals, we need to also determine if we ended
     // in an escaped percent.  If so, we'll need to append it to the result.
-    val endedWithDoublePercent = hasDoublePercentEnding(input)
-    val splitByDoublePercent = input.split("%%") // Effectively removes escaped percents
+    val endedWithDoublePercent = hasDoublePercentEnding(inputWithPossibleEntity)
+    val splitByDoublePercent = inputWithPossibleEntity.split("%%") // Effectively removes escaped percents
 
     // Below we process each token and at the end call mkString to add back in
     // the escaped % literals if necessary. This works automatically except in the case where a
     // double percent occurred at the end of the input.
     val replaced = splitByDoublePercent.map(token => process(token, input, context))
-    val recomposedWithLiteralPercents = replaced.mkString("%") + (if (endedWithDoublePercent) "%" else "")
+    val recomposedWithLiteralPercents = inputUntilPossibleEntity + replaced.mkString("%") + (if (endedWithDoublePercent) "%" else "")
     recomposedWithLiteralPercents
   }
 
