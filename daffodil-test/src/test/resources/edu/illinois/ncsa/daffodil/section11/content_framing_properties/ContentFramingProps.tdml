@@ -209,6 +209,15 @@
     
     <xs:element name="e7" type="xs:string" dfdl:lengthKind="delimited"
       dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="6" dfdl:leadingSkip="5"/>
+    
+    <xs:element name="e8" type="xs:string" dfdl:lengthKind="delimited"
+      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="1" />
+    
+    <xs:element name="e9" type="xs:string" dfdl:lengthKind="delimited"
+      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="2" dfdl:leadingSkip="1"/>
+    
+    <xs:element name="e10" type="xs:string" dfdl:lengthKind="delimited"
+      dfdl:terminator="" dfdl:representation="text" dfdl:alignmentUnits="bits" dfdl:alignment="5" />
 
   </tdml:defineSchema>
 
@@ -426,7 +435,7 @@
       <tdml:error>Left over data</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <!--
     Test name: alignmentPacked7BitASCII
     Schema: packed7BitASCII
@@ -461,6 +470,63 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e7>42</e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+ 
+<!--
+    Test name: alignmentPacked7BitASCII_03
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates that the required alignment for 7-bit ASCII is 1 bit.
+             Therefore, the alignment can be any multiple of 1 bit, meaning it can be any positive integer value.
+  -->
+
+  <tdml:parserTestCase name="alignmentPacked7BitASCII_03" root="e8"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[0110100 0110010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e8>42</e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: alignmentPacked7BitASCII_04
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates that the required alignment for 7-bit ASCII is 1 bit.
+             Therefore, the alignment can be any multiple of 1 bit, meaning it can be any positive integer value.
+  -->
+
+  <tdml:parserTestCase name="alignmentPacked7BitASCII_04" root="e9"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[11 0110100 0110010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>42</e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: alignmentPacked7BitASCII_05
+    Schema: packed7BitASCII
+    Purpose: This test demonstrates that the required alignment for 7-bit ASCII is 1 bit.
+             Therefore, the alignment can be any multiple of 1 bit, meaning it can be any positive integer value.
+  -->
+
+  <tdml:parserTestCase name="alignmentPacked7BitASCII_05" root="e10"
+    model="packed7BitASCII">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[0110100 0110010]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>42</e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
