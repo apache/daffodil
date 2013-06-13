@@ -109,7 +109,7 @@ class TestVariables {
   @Test def test_variables2() {
     val testSuite = variables2
     lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testVariables2")
+    ts.runOneTest("variables2")
   }
 
   val variables3 =
@@ -146,6 +146,6 @@ class TestVariables {
     // Debugger.setDebugging(true)
     val testSuite = variables3
     lazy val ts = new DFDLTestSuite(testSuite)
-    ts.runOneTest("testVariables3")
+    ts.runOneTest("variables3")
   }
 }
