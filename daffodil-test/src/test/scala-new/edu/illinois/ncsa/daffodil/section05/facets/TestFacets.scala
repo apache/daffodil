@@ -44,10 +44,10 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-//class TestFacetsNew {
-//  val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
-//  val aa = testDir + "Facets.tdml"
-//  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+class TestFacetsNew {
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
+  val aa = testDir + "Facets.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+}
 
-//}

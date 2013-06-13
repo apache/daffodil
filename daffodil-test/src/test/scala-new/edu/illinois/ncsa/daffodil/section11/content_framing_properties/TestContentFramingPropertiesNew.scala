@@ -48,6 +48,4 @@ class TestContentFramingPropertiesNew {
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-  @Test def test_alignmentPacked7BitASCII() { runner2.runOneTest("alignmentPacked7BitASCII") }
-
 }

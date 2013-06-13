@@ -48,6 +48,4 @@ class TestRepProps2 {
   val tdml1 = testDir_01 + "RepProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
-  @Test def test_repPropMissing3() { runner.runOneTest("repPropMissing3") }
-
 }

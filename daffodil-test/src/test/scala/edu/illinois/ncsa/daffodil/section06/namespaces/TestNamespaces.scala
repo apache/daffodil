@@ -134,8 +134,7 @@ class TestNamespaces {
   @Test def test_long_chain_02() { runner.runOneTest("long_chain_02") }
   @Test def test_long_chain_03() { runner.runOneTest("long_chain_03") }
   @Test def test_long_chain_04() { runner.runOneTest("long_chain_04") }
-  // Fails after implementation of DFDL-336. See created issue DFDL-571.
-  //  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
+  @Test def test_long_chain_05() { runner.runOneTest("long_chain_05") }
   @Test def test_long_chain_06() { runner.runOneTest("long_chain_06") }
   @Test def test_long_chain_06b() { runner.runOneTest("long_chain_06b") }
   @Test def test_long_chain_07() { runner.runOneTest("long_chain_07") }
