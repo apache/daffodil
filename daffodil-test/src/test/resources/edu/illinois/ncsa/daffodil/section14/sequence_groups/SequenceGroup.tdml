@@ -245,6 +245,35 @@
     </xs:element>
   </tdml:defineSchema>
   
+  <tdml:defineSchema name="hiddenGroupEmpty">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="e">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="elem" dfdl:hiddenGroupRef=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: hiddenGroupEmpty
+       Schema: hiddenGroupEmpty
+      Purpose: This test demonstrates that hidden group references cannot be the empty string.
+  -->
+  
+  <tdml:parserTestCase name="hiddenGroupEmpty" root="e"
+    model="hiddenGroup3" description="Section 14 - Hidden Elements DFDL-14-037R.">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[42,2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     Test name: hiddenGroupWithAssert
        Schema: hiddenGroup3
