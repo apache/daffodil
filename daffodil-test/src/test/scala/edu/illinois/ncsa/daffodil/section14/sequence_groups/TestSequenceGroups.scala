@@ -70,7 +70,7 @@ class TestSequenceGroups {
   @Test def test_sequenceWithinSequence() { runner_01.runOneTest("sequenceWithinSequence") }
 
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile=false)
 
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }
@@ -95,6 +95,7 @@ class TestSequenceGroups {
   @Test def test_hiddenGroupAttributeNotation() { runner_02.runOneTest("hiddenGroupAttributeNotation") }
   @Test def test_hiddenGroupElementNotation() { runner_02.runOneTest("hiddenGroupElementNotation") }
   //  @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
+//  @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
 
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }
