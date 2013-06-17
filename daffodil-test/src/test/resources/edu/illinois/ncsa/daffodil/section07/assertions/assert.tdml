@@ -125,6 +125,22 @@
       </xs:annotation>
     </xs:element>
     
+    <xs:element name="e10" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert>     { xs:int(.) eq 42 }      </dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e11" type="xs:int" dfdl:inputValueCalc="{ 42 }">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <dfdl:assert><![CDATA[     { xs:int(.) eq 42 }     ]]></dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
     <xs:element name="seq_01" dfdl:terminator="">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
@@ -245,6 +261,40 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: assertWithWhitespace
+    Schema: s1
+    Purpose: This document contains the value that is asserted by the schema
+    and should pass.
+  -->
+
+  <tdml:parserTestCase name="assertWithWhitespace" root="e10"
+    model="s1" description="Section 7 - assert can have leading and trailing whitespace - DFDL-7-045R">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10>42</e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: assertWithWhitespaceAndCdata
+    Schema: s1
+    Purpose: This document contains the value that is asserted by the schema
+    and should pass.
+  -->
+
+  <tdml:parserTestCase name="assertWithWhitespaceAndCdata" root="e11"
+    model="s1" description="Section 7 - assert can have leading and trailing whitespace - DFDL-7-045R">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e11>42</e11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: assertPatternMatch
     Schema: s1
