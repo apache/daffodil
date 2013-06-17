@@ -648,5 +648,153 @@ is multiple bytes in UTF-8 encoding that is used"
       <tdml:error>␊</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="EntitiesMix">
+
+    <dfdl:format ref="ex:daffodilTest1" encoding="utf-8"
+      byteOrder="bigEndian" representation="text" lengthUnits="characters"
+      textNumberRep="standard" lengthKind="delimited" initiator=""
+      ignoreCase="no" initiatedContent="no" />
+
+    <xs:element name="seq_01" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int"
+            dfdl:terminator=";%SP;" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:terminator=":%SP;" />
+          <xs:element name="e3" type="xs:int"
+            dfdl:terminator=":%NL;;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="seq_02" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int" dfdl:initiator="%SP;;" />
+          <xs:element name="e2" type="xs:int" dfdl:initiator="%SP;SP" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="seq_03" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int"
+            dfdl:initiator="%SP;;%SP;" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:initiator="%SP;SP" />
+          <xs:element name="e3" type="xs:int"
+            dfdl:initiator="%%%SP;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="seq_04" dfdl:terminator="">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";%NL;;" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int"
+            dfdl:initiator="%SP;SP" />
+          <xs:element name="e2" type="xs:int"
+            dfdl:initiator="%SP;;%SP;" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+    Test Name: entityAndNonMix_01
+       Schema: EntitiesMix
+      Purpose: This test demonstrates the ability to combine characters entities with non-entities in delimiters.
+  -->
+
+  <tdml:parserTestCase name="entityAndNonMix_01" root="seq_01" model="EntitiesMix"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1; 2: 3:
+;]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_01>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </seq_01>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: entityAndNonMix_02
+       Schema: EntitiesMix
+      Purpose: This test demonstrates the ability to combine characters entities with non-entities in delimiters.
+  -->
+
+  <tdml:parserTestCase name="entityAndNonMix_02" root="seq_02" model="EntitiesMix"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ ;1 SP2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_02>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </seq_02>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: entityAndNonMix_03
+       Schema: EntitiesMix
+      Purpose: This test demonstrates the ability to combine characters entities with non-entities in delimiters.
+  -->
+
+  <tdml:parserTestCase name="entityAndNonMix_03" root="seq_03" model="EntitiesMix"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ ; 1| SP2|% 3]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_03>
+          <e1>1</e1>
+          <e2>2</e2>
+          <e3>3</e3>
+        </seq_03>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: entityAndNonMix_04
+       Schema: EntitiesMix
+      Purpose: This test demonstrates the ability to combine characters entities with non-entities in delimiters.
+  -->
+
+  <tdml:parserTestCase name="entityAndNonMix_04" root="seq_04" model="EntitiesMix"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ SP1;
+; ; 2]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq_04>
+          <e1>1</e1>
+          <e2>2</e2>
+        </seq_04>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
