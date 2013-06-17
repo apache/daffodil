@@ -46,6 +46,8 @@ class TestAssertions {
   @Test def test_assertPass() { runner.runOneTest("assertPass") }
   @Test def test_assertFail1() { runner.runOneTest("assertFail1") }
   @Test def test_assertFail2() { runner.runOneTest("assertFail2") }
+  @Test def test_assertWithWhitespace() { runner.runOneTest("assertWithWhitespace") }
+  @Test def test_assertWithWhitespaceAndCdata() { runner.runOneTest("assertWithWhitespaceAndCdata") }
 
   @Test def test_assertGuidesChoice() { runner.runOneTest("assertGuidesChoice") }
 
