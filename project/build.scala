@@ -230,6 +230,14 @@ object DaffodilBuild extends Build {
   lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++
                                  Seq(mainClass in Compile := Some("edu.illinois.ncsa.daffodil.Main"))
 
+
+  // test report plugin configuration
+  lazy val testReportSettings = testListeners <+= (crossTarget) map {
+    ct => new com.dadrox.sbt.test.reports.Xml(ct.getPath)
+  }
+  s ++= Seq(testReportSettings)
+
+
   def exec(cmd: String): Seq[String] = {
     val r = java.lang.Runtime.getRuntime()
     val p = r.exec(cmd)

@@ -13,3 +13,6 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-start-script" % "0.8.0")
 
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
+
+
+addSbtPlugin("com.dadrox" % "sbt-test-reports" % "0.1")
