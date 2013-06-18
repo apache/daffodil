@@ -4,16 +4,18 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
+<include schemaLocation="xsd/built-in-formats.xsd"/>
+
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
-      <dfdl:format lengthKind="delimited" separator=""
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
-        documentFinalTerminatorCanBeMissing='yes'
+        documentFinalTerminatorCanBeMissing='yes' emptyValueDelimiterPolicy="none"
         byteOrder="bigEndian" binaryNumberRep='binary'
-        representation="text"
-        occursCountKind='parsed'/>
+        representation="text" occursCountKind='parsed' occursStopValue="-1"
+        alignment="1"  alignmentUnits="bytes"/>
 
 
   <!-- Schema Escaping: define -->

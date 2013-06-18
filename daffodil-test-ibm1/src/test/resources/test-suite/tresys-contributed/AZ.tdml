@@ -12,8 +12,9 @@
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1">
           <character>item0</character>
-          <character>item1</character>
-          <character>item2</character>
+          <character>itemX1</character>
+          <character>item
+2</character>
         </list>
       </dfdlInfoset>
     </infoset>
