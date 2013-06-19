@@ -671,7 +671,7 @@ is multiple bytes in UTF-8 encoding that is used"
     
     <xs:element name="seq_02" dfdl:terminator="">
       <xs:complexType>
-        <xs:sequence dfdl:separator="" dfdl:terminator="">
+        <xs:sequence dfdl:separator="%%SP" dfdl:terminator="">
           <xs:element name="e1" type="xs:int" dfdl:initiator="%SP;;" />
           <xs:element name="e2" type="xs:int" dfdl:initiator="%SP;SP" />
         </xs:sequence>
@@ -737,14 +737,13 @@ is multiple bytes in UTF-8 encoding that is used"
   <tdml:parserTestCase name="entityAndNonMix_02" root="seq_02" model="EntitiesMix"
     description="">
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[ ;1 SP2]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[ ;1%SP SP2]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <seq_02>
           <e1>1</e1>
           <e2>2</e2>
-          <e3>3</e3>
         </seq_02>
       </tdml:dfdlInfoset>
 

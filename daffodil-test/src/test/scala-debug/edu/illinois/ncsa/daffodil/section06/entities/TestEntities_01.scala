@@ -49,8 +49,6 @@ class TestEntities_01 {
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
 
   @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
-  //DFDL-765
-  @Test def test_entityAndNonMix_02() { runner_01.runOneTest("entityAndNonMix_02") }
 
   //@Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
 
