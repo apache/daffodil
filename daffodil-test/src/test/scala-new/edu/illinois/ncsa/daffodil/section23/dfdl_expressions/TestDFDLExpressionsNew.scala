@@ -53,13 +53,6 @@ class TestDFDLExpressionsNew {
   val rp = testDir3 + "runtime-properties.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
-  @Test def test_byteOrderExpr1 { runner3.runOneTest("byteOrderExpr1") }
-  @Test def test_byteOrderExpr2 { runner3.runOneTest("byteOrderExpr2") }
-  @Test def test_byteOrderExpr3 { runner3.runOneTest("byteOrderExpr3") }
-  @Test def test_byteOrderExpr4 { runner3.runOneTest("byteOrderExpr4") }
-  @Test def test_byteOrderExpr5 { runner3.runOneTest("byteOrderExpr5") }
-  @Test def test_byteOrderExpr6 { runner3.runOneTest("byteOrderExpr6") }
-
   @Test def test_variableRefError { runner3.runOneTest("variableRefError") }
 
 }

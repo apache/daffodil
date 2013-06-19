@@ -12,6 +12,7 @@
 
 
     <xs:element name="e1" type="xs:int" dfdl:byteOrder="{ 'bigEndian' }" />
+    <xs:element name="e1b" type="xs:int" dfdl:byteOrder="{ 'middleEndian' }" />
 
     <xs:element name="e2">
       <xs:complexType>
@@ -77,6 +78,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bOm" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="."/>
+          <xs:element name="num" type="xs:int" dfdl:byteOrder="{ xs:string(../ex:bOm) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="b0m" type="xs:string" dfdl:terminator="."/>
+          <xs:element name="num" type="xs:int" dfdl:byteOrder="{ xs:string(../ex:bOm) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <dfdl:defineVariable name="myVar" type="xs:string"/>
     
@@ -100,7 +119,13 @@
 
   </tdml:defineSchema>
 
-
+<!--
+     Test Name: byteOrderExpr1
+        Schema: s1
+          Root: e1
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                This is the simplest case and just uses the string "bigEndian" within the expression.
+-->
 
   <tdml:parserTestCase name="byteOrderExpr1" root="e1"
     model="s1" description="simplest byte order">
@@ -117,6 +142,39 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr1b
+        Schema: s1
+          Root: e1b
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                This is the simplest case and uses the invalid "middleEndian" within the expression.
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr1b" root="e1b"
+    model="s1" description="simplest byte order">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01000100
+			</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>16777472</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr2
+        Schema: s1
+          Root: e2
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the first element is a flag that determines the byteOrder. Since the first byte is
+                hex for 10, the rest of the data is bigEndian
+-->
 
   <tdml:parserTestCase name="byteOrderExpr2" root="e2"
     model="s1" description="byte order based on flag byte before the data">
@@ -136,12 +194,21 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr3
+        Schema: s1
+          Root: e2
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the first element is a flag that determines the byteOrder. Since the first byte is
+                hex for 20, the rest of the data is littleEndian
+-->
 
   <tdml:parserTestCase name="byteOrderExpr3" root="e2"
     model="s1" description="byte order based on flag byte before the data">
 
     <tdml:document>
-      <tdml:documentPart type="byte">14 0 0 0 1 0 0 0 1
+      <tdml:documentPart type="byte">14 00 01 00 01
 			</tdml:documentPart>
     </tdml:document>
 
@@ -155,6 +222,15 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr4
+        Schema: s1
+          Root: e3
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the first element is a flag that determines the byteOrder. Since the first two bytes
+                translate to 65279, the remaining data is in bigEndian
+-->
 
   <tdml:parserTestCase name="byteOrderExpr4" root="e3"
     model="s1"
@@ -175,13 +251,22 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr5
+        Schema: s1
+          Root: e3
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the first element is a flag that determines the byteOrder. Since the first two bytes
+                translate to 65534, the remaining data is in littleEndian
+-->
 
   <tdml:parserTestCase name="byteOrderExpr5" root="e3"
     model="s1"
     description="byte order based on two bytes of a utf-16 byte order mark before the data">
 
     <tdml:document>
-      <tdml:documentPart type="byte">FF FE 0 0 0 1 0 0 0 1
+      <tdml:documentPart type="byte">FF FE 00 01 00 01
 			</tdml:documentPart>
     </tdml:document>
 
@@ -195,13 +280,21 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr6
+        Schema: s1
+          Root: e4
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                The difference in this test is that it stores the byteOrder in a variable to be used later.       
+-->
 
   <tdml:parserTestCase name="byteOrderExpr6" root="e4"
     model="s1"
     description="byte order based on two bytes of a utf-16 byte order mark before the data">
 
     <tdml:document>
-      <tdml:documentPart type="byte">FF FE 0 0 0 1 0 0 0 1
+      <tdml:documentPart type="byte">FF FE 00 01 00 01
 			</tdml:documentPart>
     </tdml:document>
 
@@ -211,6 +304,117 @@
           <ex:bom>65534</ex:bom>
           <ex:num>16777472</ex:num>
         </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr7
+        Schema: s1
+          Root: e5
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the byte order for the second element is set to whatever is specified in the first element. 
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr7" root="e5"
+    model="s1"
+    description="byte order based on string">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">6C 69 74 74 6C 65 45 6E 64 69 61 6E 2E</tdml:documentPart> <!-- littleEndian. -->
+      <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <bOm>littleEndian</bOm>
+          <num>16777472</num>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr7b
+        Schema: s1
+          Root: e5b
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr7b" root="e5b"
+    model="s1"
+    description="byte order based on string">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">6C 69 74 74 6C 65 45 6E 64 69 61 6E 2E</tdml:documentPart> <!-- littleEndian. -->
+      <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5b>
+          <bOm>littleEndian</bOm>
+          <num>16777472</num>
+        </e5b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr8
+        Schema: s1
+          Root: e5
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the byte order for the second element is set to whatever is specified in the first element. 
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr8" root="e5"
+    model="s1"
+    description="byte order based on string">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">62 69 67 45 6E 64 69 61 6E 2E</tdml:documentPart> <!-- bigEndian. -->
+      <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:bOm>bigEndian</ex:bOm>
+          <ex:num>65537</ex:num>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: byteOrderExpr9
+        Schema: s1
+          Root: e5
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+                In this case the byte order for the second element is set to whatever is specified in the first element. 
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr9" root="e5"
+    model="s1"
+    description="byte order based on string">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">66 61 74 45 6E 64 69 61 6E 2E</tdml:documentPart> <!-- fatEndian. -->
+      <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:bom>bigEndian</ex:bom>
+          <ex:num>65537</ex:num>
+        </ex:e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

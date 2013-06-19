@@ -69,5 +69,12 @@ class TestDFDLExpressionsDebug {
 
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
+  
+  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
+  val rp = testDir4 + "runtime-properties.tdml"
+  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
+  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
+  @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
+  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
 }

@@ -45,6 +45,27 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  
+  // I'm not sure these belong in section23, but there is no section of the spec that 
+  // is about all these properties together, yet, since there is common mechanism here
+  // I really think their tests should not be scattered all over to the sections where each
+  // property is defined.
+  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
+  val rp = testDir4 + "runtime-properties.tdml"
+  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
+
+  @Test def test_byteOrderExpr1 { runner4.runOneTest("byteOrderExpr1") }
+//  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
+  @Test def test_byteOrderExpr2 { runner4.runOneTest("byteOrderExpr2") }
+  @Test def test_byteOrderExpr3 { runner4.runOneTest("byteOrderExpr3") }
+  @Test def test_byteOrderExpr4 { runner4.runOneTest("byteOrderExpr4") }
+  @Test def test_byteOrderExpr5 { runner4.runOneTest("byteOrderExpr5") }
+  @Test def test_byteOrderExpr6 { runner4.runOneTest("byteOrderExpr6") }
+  @Test def test_byteOrderExpr7 { runner4.runOneTest("byteOrderExpr7") }
+//  @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
+  @Test def test_byteOrderExpr8 { runner4.runOneTest("byteOrderExpr8") }
+//  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
+
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 
