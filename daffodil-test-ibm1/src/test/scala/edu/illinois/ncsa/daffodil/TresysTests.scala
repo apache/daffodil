@@ -50,10 +50,6 @@ class TresysTests {
 
   val testDir = "/test-suite/tresys-contributed/"
 
-  val az = testDir + "AZ.tdml"
-  lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
-  @Test def test_AZ000() { runnerAZ.runOneTest("AZ000") } // escape schemes
-
   val delimited = testDir + "dpaext1.tdml"
   lazy val runnerDelimited = new DFDLTestSuite(Misc.getRequiredResource(delimited))
 

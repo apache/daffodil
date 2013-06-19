@@ -5,14 +5,14 @@
 
   <parserTestCase name="AZ000" root="list" model="AZ.dfdl.xsd"
     description="defineEscapeScheme">
-    <document><![CDATA[item0,item#X1,item#
+    <document><![CDATA[item0,item#,1,item#
 2
 ]]></document>
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1">
           <character>item0</character>
-          <character>itemX1</character>
+          <character>item,1</character>
           <character>item
 2</character>
         </list>

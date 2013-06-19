@@ -109,6 +109,10 @@ class TresysTests2 {
   @Test def test_AW000() { runnerAW.runOneTest("AW000") } // escape schemes
   @Test def test_AW001() { runnerAW.runOneTest("AW001") }
 
+  val az = testDir + "AZ.tdml"
+  lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
+  @Test def test_AZ000() { runnerAZ.runOneTest("AZ000") } // escape schemes
+
   // AY should just be debugged. Uses escape schemes. The test might be wrong
   // or the implementation. But the feature is implemented.
   val ay = testDir + "AY.tdml"

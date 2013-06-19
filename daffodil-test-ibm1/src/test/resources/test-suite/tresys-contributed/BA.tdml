@@ -5,31 +5,33 @@
 
   <parserTestCase name="BA000" root="list" model="BA.dfdl.xsd"
     description="Schema Escaping: escape escape character, variable length">
-    <document><![CDATA[:item1,item#X2,item!#3,item!4,item!!5
-:item1,item#X2,item##3,item###A4
-:item1,itemSTARTXXXXXEND2,item!STARTXXXEND3,item!S4
-:item1,itemS2,itemSS3,itemSTARTXXXEND4,itemSSTARTXXXEND5
+    <document><![CDATA[:item1,item#,2,item!#3,item!4,item!!5
+:item1,item#
+2,item##3,item###,4
+:item1,itemSTART,,,,,END2,item!STARTXXXEND3,item!S4
+:item1,itemS2,itemSS3,itemSTART,,,END4,itemSSTARTXXXEND5
 ]]></document>
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1">
           <character1>item1</character1>
-          <character1>itemX2</character1>
+          <character1>item,2</character1>
           <character1>item#3</character1>
           <character1>item!4</character1>
           <character1>item!!5</character1>
           <character2>item1</character2>
-          <character2>itemX2</character2>
+          <character2>item
+2</character2>
           <character2>item#3</character2>
-          <character2>item#A4</character2>
+          <character2>item#,4</character2>
           <block1>item1</block1>
-          <block1>itemXXXXX2</block1>
+          <block1>item,,,,,2</block1>
           <block1>itemSTARTXXXEND3</block1>
           <block1>item!S4</block1>
           <block2>item1</block2>
           <block2>itemS2</block2>
           <block2>itemSS3</block2>
-          <block2>itemXXX4</block2>
+          <block2>item,,,4</block2>
           <block2>itemSTARTXXXEND5</block2>
         </list>
       </dfdlInfoset>
