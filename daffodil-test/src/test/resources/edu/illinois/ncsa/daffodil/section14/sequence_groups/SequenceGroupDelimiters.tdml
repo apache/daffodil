@@ -409,5 +409,43 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="nextInitNotDelim">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard"
+      initiatedContent="no" />
+ 
+    <xs:element name="elem">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="quantity" type="xs:int"/>
+          <xs:element name="item" type="xs:string" dfdl:initiator="Item: " />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: delimitedByNextInitFail
+       Schema: nextInitNotDelim
+      Purpose: This test demonstrates that the next element's initiator is not a sufficient
+               delimiter for an element of lengthKind "delimited"
+  -->
+
+  <tdml:parserTestCase name="delimitedByNextInitFail" root="elem" model="nextInitNotDelim"
+    description="">
+
+    <tdml:document><![CDATA[450Item: Shirts]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse '450Item: Shirts'</tdml:error>
+      <tdml:error>(using up all characters)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
