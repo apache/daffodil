@@ -8,7 +8,7 @@
     <document><![CDATA[:item1,item#,2,item!#3,item!4,item!!5
 :item1,item#
 2,item##3,item###,4
-:item1,itemSTART,,,,,END2,item!STARTXXXEND3,item!S4
+:item1,itemSTART,,,,,END2,itemSTARTXXX!END3,item!S4
 :item1,itemS2,itemSS3,itemSTART,,,END4,itemSSTARTXXXEND5
 ]]></document>
     <infoset>
@@ -32,7 +32,7 @@
           <block2>itemS2</block2>
           <block2>itemSS3</block2>
           <block2>item,,,4</block2>
-          <block2>itemSTARTXXXEND5</block2>
+          <block2>itemSXXX5</block2>
         </list>
       </dfdlInfoset>
     </infoset>
