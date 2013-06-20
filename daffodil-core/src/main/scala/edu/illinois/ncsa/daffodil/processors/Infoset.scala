@@ -144,6 +144,7 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
     val res = par match {
       case e: org.jdom.Element => new InfosetElement(e)
       case d: org.jdom.Document => new InfosetDocument(d)
+      case _ => null
     }
     res
   }

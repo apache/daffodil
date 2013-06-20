@@ -1247,9 +1247,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         def getInfoset(currentNode: InfosetItem) = {
           val rootNode =
             if (currentNode.isInstanceOf[InfosetElement]) {
+
               var tmpNode = currentNode.asInstanceOf[InfosetElement]
-              while (tmpNode.parent.isInstanceOf[InfosetElement]) {
-                tmpNode = tmpNode.parent.asInstanceOf[InfosetElement]
+              if (tmpNode.parent != null) {
+                while (tmpNode.parent.isInstanceOf[InfosetElement]) {
+                  tmpNode = tmpNode.parent.asInstanceOf[InfosetElement]
+                }
               }
               tmpNode
             } else {
@@ -1309,7 +1312,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current Daffodil parser"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          debugPrintln("%s: %s".format(name, parser.toString))
+          debugPrintln("%s: %s".format(name, parser.toBriefXML(2))) // only 2 levels of output, please!
           DebugState.Pause
         }
       }
