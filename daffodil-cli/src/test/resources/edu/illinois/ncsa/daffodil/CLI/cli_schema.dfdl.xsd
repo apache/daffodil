@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://example.com"
   xmlns:ex="http://example.com"> 
   <xs:annotation> 
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" >
+    <xs:appinfo source="http://www.ogf.org/dfdl/" >
       <dfdl:format initiator="" terminator="" separator=""
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         alignment="implicit" alignmentUnits="bits" trailingSkip="0"
@@ -14,7 +14,7 @@
     
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d;" message="discriminator failed for pattern '\d;'" />
         </xs:appinfo>
@@ -42,7 +42,7 @@
       <xs:complexType>
         <xs:group ref="ex:namedGroup">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:discriminator testKind="pattern"
                 testPattern="\p{L}{3},\d{3}"
                 message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
@@ -57,7 +57,7 @@
         <xs:choice>
           <xs:group ref="ex:namedGroup">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\p{L}{3},\d{3}"
                   message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
@@ -66,7 +66,7 @@
           </xs:group>
           <xs:group ref="ex:namedGroup2">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\p{L}{3}|\d{3}"
                   message="discriminator failed for pattern '\p{L}{3}|\d{3}'" />

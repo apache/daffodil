@@ -1,7 +1,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com" xmlns:tns="http://example.com" targetNamespace="http://example.com">
 
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:defineFormat name="format1">
             <dfdl:format lengthUnits="bytes" encoding="US-ASCII" byteOrder='littleEndian' 
             		   binaryNumberRep='binary'
@@ -14,7 +14,7 @@
 
       <xs:element name="BMP" type="tns:example1">
         <xs:annotation>
-          <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:element alignmentUnits="bytes"/>
           </xs:appinfo>
         </xs:annotation>

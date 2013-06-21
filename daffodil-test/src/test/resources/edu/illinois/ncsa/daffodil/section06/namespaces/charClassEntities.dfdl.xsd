@@ -5,7 +5,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"

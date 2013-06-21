@@ -53,7 +53,7 @@ import org.junit.Test
 class TestDsomCompiler2 extends Logging {
 
   val xsd = XMLUtils.XSD_NAMESPACE
-  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val dfdl = XMLUtils.dfdlAppinfoSource
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 

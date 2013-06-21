@@ -4,7 +4,7 @@
   targetNamespace="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" initiator="" terminator=""
         leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" lengthKind="delimited" lengthUnits="bits"

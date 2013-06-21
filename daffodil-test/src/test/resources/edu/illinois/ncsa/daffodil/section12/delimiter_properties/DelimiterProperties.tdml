@@ -472,7 +472,7 @@
           dfdl:separatorPosition="prefix">
           <xs:element name="A" type="xs:string">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert>{ fn:true() }</dfdl:assert>
                 <!-- Somehow, having this assert trips up the finding of 
                   the next prefix separator

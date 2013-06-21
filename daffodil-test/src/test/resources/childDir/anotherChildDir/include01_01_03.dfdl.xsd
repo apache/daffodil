@@ -5,7 +5,7 @@
 <!-- This one comes from the classpath - from inside the jar actually -->
   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>      
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
     <dfdl:defineFormat name="myFormat">
         <dfdl:format ref="daffodilTest1"/>
      </dfdl:defineFormat>      

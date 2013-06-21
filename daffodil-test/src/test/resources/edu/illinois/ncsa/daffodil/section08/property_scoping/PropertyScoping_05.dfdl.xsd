@@ -4,7 +4,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" dfdl:documentFinalSeparatorCanBeMissing="yes">
 
-   <annotation><appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+   <annotation><appinfo source="http://www.ogf.org/dfdl/">
     <dfdl:defineFormat name="def">
       <dfdl:format ref="tns:def1" encoding="utf-8"
         lengthKind="explicit" lengthUnits="characters" length="5"
@@ -32,7 +32,7 @@
 
     <element name="easy" type="int" dfdl:textNumberRep="standard">
       <annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element>
             <dfdl:property name="ref">tns:def</dfdl:property><!-- not allowed for ref -->
           </dfdl:element>

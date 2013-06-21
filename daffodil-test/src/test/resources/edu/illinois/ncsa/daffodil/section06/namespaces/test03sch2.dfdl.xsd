@@ -4,7 +4,7 @@
 
   <!-- intended for import into other schemas -->
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="test03fmt1">
         <dfdl:format ref="daffodilTest1" />
       </dfdl:defineFormat>

@@ -5,7 +5,7 @@
 	<xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat" schemaLocation="IBMdefined/GeneralPurposeFormat.xsd"/>
     
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:GeneralPurposeFormat"/>
     </xs:appinfo>
   </xs:annotation>

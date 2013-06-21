@@ -5,7 +5,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format initiator="" terminator="" encoding="utf-8"
         binaryNumberRep="binary" initiatedContent="no" />
     </appinfo>
@@ -15,13 +15,13 @@
     <!-- should have representation from locally, and byteOrder from the 
       simpleType -->
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element representation="binary" />
       </appinfo>
     </annotation>
     <simpleType>
       <xsd:annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType byteOrder="bigEndian" />
         </appinfo>
       </xsd:annotation>
@@ -31,7 +31,7 @@
 
   <element name="aa" type="tns:c">
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element representation="binary" />
       </appinfo>
     </annotation>
@@ -39,7 +39,7 @@
 
   <simpleType name="c">
     <xsd:annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType byteOrder="bigEndian" />
       </appinfo>
     </xsd:annotation>

@@ -20,7 +20,7 @@
             <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"
                maxOccurs="unbounded">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:element lengthKind="explicit" length="3"/>
                 </xs:appinfo>
               </xs:annotation>
@@ -39,7 +39,7 @@
             <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"
                maxOccurs="unbounded">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:element lengthKind="explicit" length="3">
                     <dfdl:property name="lengthKind">explicit</dfdl:property>
                   </dfdl:element>
@@ -59,7 +59,7 @@
           <xs:sequence>
             <xs:element name="e1" type="xs:int" maxOccurs="unbounded">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:element lengthKind="explicit" length="3">
                     <dfdl:property name="lengthKind">explicit</dfdl:property>
                     <dfdl:property name="length">3</dfdl:property>
@@ -80,7 +80,7 @@
           <xs:sequence>
             <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="3" type="xs:int" maxOccurs="unbounded">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:element>
                     <dfdl:property name="lengthKind">explicit</dfdl:property>
                     <dfdl:property name="length">3</dfdl:property>
@@ -183,7 +183,7 @@
             <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"
                maxOccurs="unbounded">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:element lengthKind="explicit" length="3"/>
                 </xs:appinfo>
               </xs:annotation>

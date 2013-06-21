@@ -6,7 +6,7 @@
   xmlns:gpf='http://www.ibm.com/dfdl/GeneralPurposeFormat'>
 
 <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="gpf:GeneralPurposeFormat" lengthKind="delimited" separator=""
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator=""

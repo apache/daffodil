@@ -266,7 +266,7 @@ class TestXMLCatalogAndValidate {
     System.setProperty("xml.catalog.ignoreMissing", "false")
 
     val testSuite = <schema xmlns={ xsd } targetNamespace={ ex1 } xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
-                      <annotation><appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                      <annotation><appinfo source="http://www.ogf.org/dfdl/">
                                     <dfdl:format foobar="quuxly"/>
                                   </appinfo></annotation>
                     </schema>

@@ -6,7 +6,7 @@
 
   <include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/test01sch2.dfdl.xsd" />
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:test01fmt1" />
     </appinfo>
   </annotation>

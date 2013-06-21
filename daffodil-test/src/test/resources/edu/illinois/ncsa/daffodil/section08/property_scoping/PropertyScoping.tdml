@@ -25,7 +25,7 @@
           <xs:element name="Test2">
             <xs:simpleType>
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:simpleType ref="format_01"/>
                 </xs:appinfo>
               </xs:annotation>

@@ -62,7 +62,7 @@
     </xs:element>
     <xs:element name="foo" type="xs:float">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:format /> <!-- wrong annotation. Should be dfdl:element -->
         </xs:appinfo>
       </xs:annotation>

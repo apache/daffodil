@@ -100,7 +100,7 @@
 
 		<xs:element name="occursCount">
 			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
 					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount/* ) eq 3 }"
 						message="Assertion 
             failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
@@ -117,7 +117,7 @@
     
     <xs:element name="occursCount1">
 			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
 					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 3 }"
 						message="Assertion 
             failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
@@ -132,7 +132,7 @@
     
     <xs:element name="occursCount1b">
 			<xs:annotation>
-				<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+				<xs:appinfo source="http://www.ogf.org/dfdl/">
 					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 1 }"
 						message="Assertion 
             failed for dfdl:occursCount( /ex:occursCount/* ) eq 1" />

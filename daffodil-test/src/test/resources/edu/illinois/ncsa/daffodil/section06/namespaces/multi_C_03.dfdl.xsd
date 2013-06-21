@@ -3,7 +3,7 @@
    targetNamespace="http://c03.com" xmlns:c03="http://c03.com" xmlns:d03="http://d03.com">
  
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" length="4" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="C" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
@@ -29,7 +29,7 @@
   <xs:simpleType name="nestType4b" dfdl:terminator="C!">
     <xs:restriction base="d03:nestBase4">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:format>
             <dfdl:property name="terminator">C!</dfdl:property>
           </dfdl:format>

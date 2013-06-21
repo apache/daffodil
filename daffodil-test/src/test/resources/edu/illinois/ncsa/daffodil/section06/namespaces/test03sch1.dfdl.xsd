@@ -5,7 +5,7 @@
   <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/test03sch2.dfdl.xsd" />
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="test03fmt1" />
     </xs:appinfo>
   </xs:annotation>

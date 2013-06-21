@@ -50,7 +50,7 @@
     <xs:element name="LP_05" type="lp_05" />
     <xs:simpleType name="lp_05">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType lengthKind="explicit" length="3"
             encoding="ASCII" />
         </xs:appinfo>

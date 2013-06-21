@@ -3,13 +3,13 @@
    targetNamespace="http://f03.com" xmlns:f03="http://f03.com">
  
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="F" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
     </xs:appinfo>
   </xs:annotation>
 
 	<xs:annotation>
-		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="format_01">
         <dfdl:format initiator="f:" encoding="ASCII" textTrimKind="padChar" lengthUnits="characters"/>
       </dfdl:defineFormat>
@@ -17,7 +17,7 @@
   </xs:annotation>
 	
   <xs:annotation>
-		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="format_02">
         <dfdl:format initiator="" encoding="ASCII" representation="binary" lengthUnits="bytes"/>
       </dfdl:defineFormat>
@@ -25,7 +25,7 @@
   </xs:annotation>
   
   <xs:annotation>
-		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="format_03">
         <dfdl:format initiator="" length="10" encoding="ASCII" representation="binary" lengthUnits="bytes"/>
       </dfdl:defineFormat>
@@ -33,7 +33,7 @@
   </xs:annotation>
   
   <xs:annotation>
-		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="format_04">
         <dfdl:format initiator="" encoding="ASCII" representation="text" lengthUnits="characters"/>
       </dfdl:defineFormat>
@@ -41,7 +41,7 @@
   </xs:annotation>
   
   <xs:annotation>
-		<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="format_05">
         <dfdl:format initiator="" length="6" terminator="F!" encoding="ASCII" representation="text" lengthUnits="characters"/>
       </dfdl:defineFormat>

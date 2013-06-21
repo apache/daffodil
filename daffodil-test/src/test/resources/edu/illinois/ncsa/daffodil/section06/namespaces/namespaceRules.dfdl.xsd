@@ -2,7 +2,7 @@
 <_-_-_:schema xmlns:_-_-_="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ψ="http://example.com" targetNamespace="http://example.com">
       
   <_-_-_:annotation>
-    <_-_-_:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <_-_-_:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>

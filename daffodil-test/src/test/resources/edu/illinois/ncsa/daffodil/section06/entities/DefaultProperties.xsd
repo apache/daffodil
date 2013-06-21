@@ -3,7 +3,7 @@
 targetNamespace="http://example.com"
 xmlns:tns="http://example.com">
 	<annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineEscapeScheme name="DefaultPropertiesEscapeScheme">
 				<dfdl:escapeScheme escapeBlockEnd="&quot;" escapeBlockStart="&quot;"
 					escapeCharacter="&quot;" escapeEscapeCharacter="&quot;" escapeKind="escapeBlock"

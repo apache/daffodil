@@ -5,7 +5,7 @@
   <xs:include schemaLocation="include01_01_03.dfdl.xsd"/> 
    
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="myFormat"/>
     </xs:appinfo>
   </xs:annotation>

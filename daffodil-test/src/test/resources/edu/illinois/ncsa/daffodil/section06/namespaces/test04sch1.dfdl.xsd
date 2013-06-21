@@ -9,7 +9,7 @@
   <import namespace="urn:example2" schemaLocation="test/multiFile/test04sch2.dfdl.xsd" />
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns2:test04fmt1" />
     </appinfo>
   </annotation>

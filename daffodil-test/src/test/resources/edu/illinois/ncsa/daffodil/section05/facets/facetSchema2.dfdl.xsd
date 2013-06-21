@@ -5,7 +5,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
@@ -26,7 +26,7 @@
     
     <element name="fD_e4" type="float" dfdl:lengthKind="delimited">
       <annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
             message="Assertion failed for dfdl:checkConstraints(.)" />
         </appinfo>

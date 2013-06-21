@@ -19,7 +19,7 @@
         <xs:sequence>
           <xs:element name="e1" type="st1" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
                   message="Assertion failed for dfdl:checkConstraints(.)" />
               </xs:appinfo>
@@ -44,7 +44,7 @@
         <xs:sequence>
           <xs:element name="e1" type="xs:int" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d(?=\D+)">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="\d\d(?=\D+)"
                   message="Assertion failed for pattern '\d\d'" />
               </xs:appinfo>
@@ -1172,7 +1172,7 @@ c' } "  />
     </xs:element>
     <xs:element name="e2" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
             message="Assertion failed for dfdl:checkConstraints(.)" />
         </xs:appinfo>
@@ -1185,7 +1185,7 @@ c' } "  />
     </xs:element>
     <xs:element name="e3" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
             message="Assertion failed for dfdl:checkConstraints(.)" />
         </xs:appinfo>
@@ -1197,7 +1197,7 @@ c' } "  />
     </xs:element>
     <xs:element name="e4" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"
             message="Assertion failed for dfdl:checkConstraints(.)" />
         </xs:appinfo>
@@ -1215,7 +1215,7 @@ c' } "  />
           <xs:element name="a" minOccurs="0" maxOccurs="3"
             type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
                   message="Assertion failed for dfdl:checkConstraints(.)" />
               </xs:appinfo>
@@ -1231,7 +1231,7 @@ c' } "  />
           <xs:element name="a" minOccurs="0" maxOccurs="unbounded"
             type="xs:int" dfdl:occursCountKind="parsed" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
                   message="Assertion failed for dfdl:checkConstraints(.)" />
               </xs:appinfo>
@@ -1306,7 +1306,7 @@ c' } "  />
                   <xs:complexType>
                     <xs:sequence>
                       <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ 
                                     dfdl:position() = 1 
                                     or 
@@ -1489,7 +1489,7 @@ c' } "  />
     <xs:group name="more">
       <xs:sequence>
         <xs:annotation>
-          <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator><![CDATA[{ 
                                     dfdl:position() = 1 
                                     or 

@@ -101,6 +101,10 @@ public class TestJavaAPI {
 		System.err.println("bitPos = " + res.location().bitPos());
 		System.err.println("bytePos = " + res.location().bytePos());
 
+		for (String e : lw.errors)
+			System.err.println(e);
+		for (String e : lw.warnings)
+			System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
 		assertTrue(lw.infos.size() > 0);

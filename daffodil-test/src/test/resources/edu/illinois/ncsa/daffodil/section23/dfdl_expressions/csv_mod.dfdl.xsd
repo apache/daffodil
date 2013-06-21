@@ -3,7 +3,7 @@
   targetNamespace="http://example.com">
       
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" occursCountKind="parsed" emptyValueDelimiterPolicy="both" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"/>

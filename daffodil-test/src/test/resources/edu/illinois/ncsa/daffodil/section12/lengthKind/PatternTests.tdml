@@ -160,7 +160,7 @@
     <xs:element name="e8" type="xs:string" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\p{L}{2,5}">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\p{L}{2,5}"
             message="Assertion failed for pattern '\p{L}{2,5}'" />
         </xs:appinfo>

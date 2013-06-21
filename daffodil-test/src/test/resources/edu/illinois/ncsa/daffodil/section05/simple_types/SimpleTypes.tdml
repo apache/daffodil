@@ -4400,7 +4400,7 @@
 					<xs:element name="text" type="ex:stHexBinary_01" maxOccurs="unbounded"
 						minOccurs="0" dfdl:lengthKind="implicit">
 						<xs:annotation>
-							<xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+							<xs:appinfo source="http://www.ogf.org/dfdl/">
 								<dfdl:assert test="{ dfdl:checkConstraints(.) }"
 									message="Assertion failed for dfdl:checkConstraints(.)" />
 							</xs:appinfo>

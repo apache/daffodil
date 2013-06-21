@@ -4,7 +4,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="utf-16"
         byteOrder="bigEndian" utf16Width="fixed" alignment="8" alignmentUnits="bits"

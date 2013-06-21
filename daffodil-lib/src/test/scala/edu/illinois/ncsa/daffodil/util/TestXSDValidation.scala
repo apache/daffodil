@@ -115,7 +115,7 @@ import java.io.InputStreamReader; //class TestXSDValidation {
 //    val sch =
 //      <xs:schema xmlns:xs={ xsdSubsetURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } targetNamespace={ targetNS }>
 //        <xs:annotation>
-//          <xs:appinfo source={ dfdlURI }>
+//          <xs:appinfo source={ dfdlAppinfoSource }>
 //            { topLevelAnnotations }
 //          </xs:appinfo>
 //        </xs:annotation>
@@ -140,7 +140,7 @@ import java.io.InputStreamReader; //class TestXSDValidation {
 //    val sch =
 //      <schema xmlns={ xsdSubsetURI } xmlns:xs={ xsdSubsetURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } targetNamespace={ targetNS }>
 //        <annotation>
-//          <appinfo source={ dfdlURI }>
+//          <appinfo source={ dfdlAppinfoSource }>
 //            { topLevelAnnotations }
 //          </appinfo>
 //        </annotation>

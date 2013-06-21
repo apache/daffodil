@@ -7,7 +7,7 @@
 	<!-- include the default properties -->
 	<xsd:include schemaLocation="DefaultProperties.xsd"/>
 	<xsd:annotation>
-    <xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xsd:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format ref="tns:DefaultPropertiesFormat" separator=""/>
 		</xsd:appinfo>
 	</xsd:annotation>

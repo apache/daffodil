@@ -6,7 +6,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
   <xsd:annotation>
-    <xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineVariable name="v_no_default" type="xsd:int" />
       <dfdl:defineVariable name="v_with_default"
         type="xsd:int" defaultValue="42" />
@@ -14,7 +14,7 @@
   </xsd:annotation>
 
   <xsd:annotation>
-    <xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format representation="text" lengthUnits="bytes"
         encoding="US-ASCII" alignment='1' alignmentUnits='bytes'
         textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
@@ -35,7 +35,7 @@
         <xs:element name="d" type="xsd:int"
           dfdl:inputValueCalc="{ $ex:v_with_default }">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>
@@ -50,7 +50,7 @@
     <xs:complexType>
       <xs:sequence>
         <xs:annotation>
-          <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
             <dfdl:setVariable ref="ex:v_no_default">{ 42 }</dfdl:setVariable>
           </xs:appinfo>
@@ -69,7 +69,7 @@
         <xs:element name="e" type="xsd:string"
           dfdl:inputValueCalc="{ 'just here to carry the setVariable annotation' }">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:v_with_default">{ 41 }</dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>

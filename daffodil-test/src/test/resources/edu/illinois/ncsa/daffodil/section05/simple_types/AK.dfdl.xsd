@@ -4,7 +4,7 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" initiator="" terminator=""
         emptyValueDelimiterPolicy="none" lengthKind="implicit"
         textNumberRep="standard" binaryNumberRep="binary" byteOrder="bigEndian"

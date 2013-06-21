@@ -14,7 +14,7 @@
  -->    
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="myFmt" xmlns:d="http://www.ogf.org/dfdl/dfdl-1.0/">
         <d:format xmlns:ex="http://example.com/1" ref="ex:daffodilTest1" initiator=""
           terminator="" separator="" encoding="utf-8" ignoreCase="no"
@@ -24,7 +24,7 @@
   </xs:annotation>
 
   <xs:annotation xmlns="http://example.com/1">
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="myFmt" />
     </xs:appinfo>
   </xs:annotation>
@@ -34,7 +34,7 @@
 
   <xs:simpleType name="numType" dfdl:lengthKind="explicit">
     <xs:annotation xmlns:ex1="http://example.com/1">
-      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType length="{ ../ex1:len }" />
       </xs:appinfo>
     </xs:annotation>

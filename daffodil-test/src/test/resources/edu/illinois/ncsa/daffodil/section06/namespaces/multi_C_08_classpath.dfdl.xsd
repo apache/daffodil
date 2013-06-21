@@ -3,7 +3,7 @@
    targetNamespace="http://c08_cp.com" xmlns:c08_cp="http://c08_cp.com">
       
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
     </xs:appinfo>

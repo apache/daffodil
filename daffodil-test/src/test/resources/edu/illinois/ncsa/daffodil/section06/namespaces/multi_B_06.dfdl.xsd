@@ -3,7 +3,7 @@
    targetNamespace="http://b06.com" xmlns:b06="http://b06.com">
  
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="US-ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=''/>

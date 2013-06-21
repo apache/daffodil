@@ -89,7 +89,7 @@ object SchemaUtils {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ targetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
                <xs:annotation>
-                 <xs:appinfo source={ dfdlURI }>
+                 <xs:appinfo source={ dfdlAppinfoSource }>
                    { test1 }
                    { topLevelAnnotations }
                  </xs:appinfo>

@@ -196,6 +196,7 @@ object XMLUtils {
   //  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
   val xsdURI = XSD_NAMESPACE
   val dfdlURI = DFDL_NAMESPACE
+  val dfdlAppinfoSource = "http://www.ogf.org/dfdl/"
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
   val fnURI = XPATH_FUNCTION_NAMESPACE
@@ -1150,8 +1151,8 @@ object XMLUtils {
   }
 
   def computeDiffOne(as: Seq[Node], bs: Seq[Node],
-                     aCounters: Map[String, Long],
-                     path: Seq[String]): Seq[(String, String, String)] = {
+    aCounters: Map[String, Long],
+    path: Seq[String]): Seq[(String, String, String)] = {
     lazy val zPath = path.reverse.mkString("/")
     (as, bs) match {
       case (a1 :: ars, b1 :: brs) if (a1.isInstanceOf[Elem] && b1.isInstanceOf[Elem]) => {

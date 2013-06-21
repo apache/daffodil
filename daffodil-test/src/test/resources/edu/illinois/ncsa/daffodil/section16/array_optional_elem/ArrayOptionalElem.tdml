@@ -235,7 +235,7 @@
         <xs:sequence dfdl:separator=".">
           <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="expression" test="{xs:int(.) eq dfdl:position()}" message="Assertion failed for expression 'xs:int(.) eq dfdl:position()'" />
               </xs:appinfo>
             </xs:annotation>
@@ -280,7 +280,7 @@
         <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
           <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="explicit" dfdl:length="1">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="expression" test="{ dfdl:position()+2 }"/>
               </xs:appinfo>
             </xs:annotation>

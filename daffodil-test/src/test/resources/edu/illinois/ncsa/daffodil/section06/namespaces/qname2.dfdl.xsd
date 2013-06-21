@@ -9,7 +9,7 @@
     schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/qname3.dfdl.xsd" />
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="myFmt" xmlns:d="http://www.ogf.org/dfdl/dfdl-1.0/">
         <d:format xmlns:ex="http://example.com/2" ref="ex:daffodilTest1" initiator=""
           terminator="" separator="" encoding="utf-8" ignoreCase="no"
@@ -19,13 +19,13 @@
   </xs:annotation>
 
   <xs:annotation xmlns="http://example.com/2">
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="myFmt" />
     </xs:appinfo>
   </xs:annotation>
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/"> 
+    <xs:appinfo source="http://www.ogf.org/dfdl/"> 
       <dfdl:defineEscapeScheme name="esc1">
         <dfdl:escapeScheme escapeCharacter='/'
           escapeKind="escapeCharacter" escapeEscapeCharacter="/"
@@ -36,7 +36,7 @@
 
   <xs:simpleType name="escapedType" dfdl:lengthKind="delimited">
     <xs:annotation xmlns:what="http://example.com/2">
-      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType escapeSchemeRef="what:esc1"/>
       </xs:appinfo>
     </xs:annotation>
@@ -45,7 +45,7 @@
   
   <xs:simpleType name="escapedType2" dfdl:lengthKind="delimited">
     <xs:annotation>
-      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType escapeSchemeRef="what:esc1"/>
       </xs:appinfo>
     </xs:annotation>

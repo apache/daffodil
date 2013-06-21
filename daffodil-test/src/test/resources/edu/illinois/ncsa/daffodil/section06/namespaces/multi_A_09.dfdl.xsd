@@ -3,7 +3,7 @@
    targetNamespace="http://a09.com" xmlns:a09="http://a09.com">
       
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="." initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" textNumberRep="standard" lengthKind="delimited" utf16Width="fixed" encoding="US-ASCII"/>
     </xs:appinfo>

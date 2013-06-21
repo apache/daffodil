@@ -19,7 +19,7 @@
           <xs:element name="d" type="xsd:int"
             dfdl:inputValueCalc="{ $ex:v_with_default }">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -34,7 +34,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
               <dfdl:setVariable ref="ex:v_no_default">{ 42 }</dfdl:setVariable>
             </xs:appinfo>
@@ -53,7 +53,7 @@
           <xs:element name="e" type="xsd:string"
             dfdl:inputValueCalc="{ 'just here to carry the setVariable annotation' }">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v_with_default">{ 41 }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -66,7 +66,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:newVariableInstance ref="ex:myVar1"
                 defaultValue="7" />
             </xs:appinfo>
@@ -100,7 +100,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>
@@ -108,7 +108,7 @@
             dfdl:inputValueCalc="{ $ex:v1_no_default }" />
           <xs:element ref="day" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v2_with_default">{ 9 }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -124,14 +124,14 @@
         <xs:sequence>
           <xs:choice>
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
             <xs:element name="Sale" type="xs:string"
               dfdl:lengthKind="delimited">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:setVariable ref="ex:v2_with_default">{ 29 }</dfdl:setVariable>
                   <dfdl:assert><![CDATA[{ xs:string(.) eq "Friday" }]]></dfdl:assert>
                 </xs:appinfo>
@@ -140,7 +140,7 @@
             <xs:element name="NoSale" type="xs:string"
               dfdl:lengthKind="delimited">
               <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:assert><![CDATA[{ xs:string(.) eq "Monday" }]]></dfdl:assert>
                   <dfdl:setVariable ref="ex:v2_with_default">{ 36 }</dfdl:setVariable>
                 </xs:appinfo>
@@ -157,7 +157,7 @@
 
     <xs:simpleType name="s1">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
         </xs:appinfo>
       </xs:annotation>
@@ -177,7 +177,7 @@
       <xs:complexType>
         <xs:group ref="ex:g5">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>
@@ -347,7 +347,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v_no_default" value="{ 41 }" />
               </xs:appinfo>
             </xs:annotation>
@@ -362,7 +362,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v_no_default" value="{ 41 }">{ 42 }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -377,7 +377,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:int" dfdl:inputValueCalc="{ $ex:v_with_default }" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:v_no_default">{ "BEEEP" }</dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -394,7 +394,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:holder" value="{ (.) }" />
               </xs:appinfo>
             </xs:annotation>
@@ -412,7 +412,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:holder2" value="{ (.) }" />
               </xs:appinfo>
             </xs:annotation>
@@ -430,7 +430,7 @@
           <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
           <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:setVariable ref="ex:counter" value="{ if ((xs:int(../ex:one)) lt 5) then 1 else 0 }" />
               </xs:appinfo>
             </xs:annotation>

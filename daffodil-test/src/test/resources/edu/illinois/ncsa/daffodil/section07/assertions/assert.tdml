@@ -9,7 +9,7 @@
 
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert><![CDATA[{ . eq '42' }]]></dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -23,7 +23,7 @@
 
     <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -31,7 +31,7 @@
 
     <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ 43 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -47,7 +47,7 @@
           <xs:element name="a" type="xs:string"
             dfdl:inputValueCalc="{ 'ok' }">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert><![CDATA[{ xs:int(../ex:v) ne 42 }]]></dfdl:assert>
               </xs:appinfo>
             </xs:annotation>
@@ -58,7 +58,7 @@
 
     <xs:element name="e4" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d"
             message="Assertion failed for pattern '\d\d'" />
         </xs:appinfo>
@@ -67,7 +67,7 @@
 
     <xs:element name="e5" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d\d"
             message="Assertion failed for pattern '\d\d\d'" />
         </xs:appinfo>
@@ -76,7 +76,7 @@
     <xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d"
             message="Assertion failed for pattern '\d\d'" />
           <dfdl:assert testKind="pattern" testPattern="\d\d:"
@@ -87,7 +87,7 @@
 
     <xs:element name="e7" type="xs:string" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\p{L}{2,5}"
             message="Assertion failed for pattern '\p{L}{2,5}'" />
         </xs:appinfo>
@@ -98,7 +98,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:assert testKind="pattern" testPattern="\p{L}{3},\d{3}"
                 message="Assertion failed for pattern '\p{L}{3},\d{3}'" />
             </xs:appinfo>
@@ -118,7 +118,7 @@
 
     <xs:element name="e9" type="xs:int" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="ex:table1">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="12345"
             message="Assertion failed for pattern '12345'" />
         </xs:appinfo>
@@ -127,7 +127,7 @@
     
     <xs:element name="e10" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert>     { xs:int(.) eq 42 }      </dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -135,7 +135,7 @@
 
     <xs:element name="e11" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert><![CDATA[     { xs:int(.) eq 42 }     ]]></dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -143,7 +143,7 @@
 
     <xs:element name="seq_01" dfdl:terminator="">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d:\d;\d,\d."
             message="Assertion failed for pattern '12345'" />
         </xs:appinfo>
@@ -177,7 +177,7 @@
       <xs:complexType>
         <xs:group ref="ex:namedGroup">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:assert testKind="pattern" testPattern="\p{L}{3},\d{3}"
                 message="Assertion failed for pattern '\p{L}{3},\d{3}'" />
             </xs:appinfo>
@@ -192,7 +192,7 @@
           dfdl:separatorPosition="infix">
           <xs:element ref="ex:description" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="\p{L}{3}"
                   message="Assertion failed for pattern '\p{L}{3}'" />
               </xs:appinfo>
@@ -200,7 +200,7 @@
           </xs:element>
           <xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="\d{3}"
                   message="Assertion failed for pattern '\d{3}'" />
               </xs:appinfo>
@@ -345,7 +345,7 @@
                 <xs:element name="a1" type="xs:string"
                   dfdl:inputValueCalc="{ 'a1' }">
                   <xs:annotation>
-                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:assert>
                         { xs:int(../../ex:v) ne 42 }
                       </dfdl:assert>
@@ -507,7 +507,7 @@
           dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="e1" type="xs:string">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern">XYZZY</dfdl:assert>
               </xs:appinfo>
             </xs:annotation>
@@ -517,14 +517,14 @@
     </xs:element>
     <xs:element name="combined1" type="xs:string">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern">\dNUM\d</dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
     <xs:element name="combined2" type="xs:string">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern">three digit number: \d\d\d</dfdl:assert>
         </xs:appinfo>
       </xs:annotation>
@@ -627,7 +627,7 @@
 
     <xs:element name="e1" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ xs:int(.) eq 42}">
             <![CDATA[{ xs:int(.) eq 42 }]]>
           </dfdl:assert>
@@ -637,7 +637,7 @@
     
     <xs:element name="e2" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d">
             <![CDATA[\d\d]]>
           </dfdl:assert>
@@ -647,7 +647,7 @@
     
     <xs:element name="e3" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ xs:int(.) eq 42}" testPattern="\d\d"/>
         </xs:appinfo>
       </xs:annotation>
@@ -655,7 +655,7 @@
     
     <xs:element name="e4" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" test="{ xs:int(.) eq 42}" testPattern="\d\d"/>
         </xs:appinfo>
       </xs:annotation>
@@ -663,7 +663,7 @@
     
     <xs:element name="e5" type="xs:int" dfdl:inputValueCalc="{ 42 }">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="expression" test="{ xs:int(.) eq 42 }"/>
         </xs:appinfo>
       </xs:annotation>
@@ -675,7 +675,7 @@
           <xs:element name="base" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited"/>
           <xs:element name="less" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ xs:int(.) eq ( xs:int(/ex:e6/ex:base) -1) }"/>
               </xs:appinfo>
             </xs:annotation>
@@ -689,7 +689,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="base" type="xs:int" dfdl:initiator="" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ xs:int(.) eq ( xs:int(/ex:e7/ex:less) +1) }"/>
               </xs:appinfo>
             </xs:annotation>
@@ -701,7 +701,7 @@
 <!--
     <xs:element name="e8" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test=""/>
         </xs:appinfo>
       </xs:annotation>
@@ -710,7 +710,7 @@
 
     <xs:element name="e9" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern=""/>
         </xs:appinfo>
       </xs:annotation>
@@ -718,7 +718,7 @@
     
     <xs:element name="e10" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d\d"
             message="Your data is completely wrong!'" />
         </xs:appinfo>
@@ -898,7 +898,7 @@
 
     <xs:element name="e1" type="xs:int">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\+\d\d;">
           </dfdl:assert>
         </xs:appinfo>

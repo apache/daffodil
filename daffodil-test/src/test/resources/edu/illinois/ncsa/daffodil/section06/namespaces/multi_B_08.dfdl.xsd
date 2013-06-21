@@ -3,7 +3,7 @@
    targetNamespace="http://b08.com" xmlns:b08="http://b08.com" xmlns:c08="http://c08.com">
       
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"
@@ -15,7 +15,7 @@
 
   <xs:element name="bElem" type="c08:cString">
     <xs:annotation>
-      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:assert test="{ dfdl:checkConstraints(.) }"
           message="Assertion failed for dfdl:checkConstraints(.)"/>
       </xs:appinfo>
@@ -24,7 +24,7 @@
   
   <xs:element name="bElem2">
     <xs:annotation>
-      <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:assert test="{ dfdl:checkConstraints(.) }"
           message="Assertion failed for dfdl:checkConstraints(.)"/>
       </xs:appinfo>

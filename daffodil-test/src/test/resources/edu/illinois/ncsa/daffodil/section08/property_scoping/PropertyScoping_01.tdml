@@ -31,7 +31,7 @@
 
     <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element ref="tns:def"/>
         </xs:appinfo>
       </xs:annotation>
@@ -72,7 +72,7 @@
     <!-- global simple type definition -->
     <xs:simpleType name="aType">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType representation="binary" />
         </xs:appinfo>
       </xs:annotation>
@@ -83,7 +83,7 @@
     <!-- global simple type definition (used as a base) -->
     <xs:simpleType name="aaType">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType byteOrder="bigEndian" />
         </xs:appinfo>
       </xs:annotation>
@@ -102,13 +102,13 @@
       <!-- should have representation from locally, and byteOrder from the 
         simpleType -->
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element representation="binary" />
         </xs:appinfo>
       </xs:annotation>
       <xs:simpleType>
         <xs:annotation>
-          <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+          <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:simpleType byteOrder="bigEndian" />
           </xs:appinfo>
         </xs:annotation>
@@ -118,7 +118,7 @@
 
     <xs:element name="aa" type="tns:c">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element representation="binary" />
         </xs:appinfo>
       </xs:annotation>
@@ -126,7 +126,7 @@
 
     <xs:simpleType name="c">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType byteOrder="bigEndian" />
         </xs:appinfo>
       </xs:annotation>
@@ -222,7 +222,7 @@
 
     <xs:element name="aa" type="tns:c">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:element representation="binary" />
         </xs:appinfo>
       </xs:annotation>
@@ -230,7 +230,7 @@
 
     <xs:simpleType name="c">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType byteOrder="bigEndian" />
         </xs:appinfo>
       </xs:annotation>
@@ -243,7 +243,7 @@
           <xs:element ref="tns:aa" dfdl:occursCountKind="fixed"
             minOccurs="3" maxOccurs="3">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element ref="tns:dummy" />
               </xs:appinfo>
             </xs:annotation>
@@ -269,7 +269,7 @@
           <xs:element name="overlap" type="xs:string"
             dfdl:occursCountKind="parsed" dfdl:ref="tns:aFormat">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element ref="tns:aFormat" />
               </xs:appinfo>
             </xs:annotation>

@@ -5,7 +5,7 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" dfdl:documentFinalSeparatorCanBeMissing="yes">
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:def1" initiator="" terminator=""
         encoding="utf-8" binaryNumberRep="binary" />
     </appinfo>
@@ -23,7 +23,7 @@
   <!-- global simple type definition -->
   <simpleType name="aType">
     <xsd:annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType representation="binary" />
       </appinfo>
     </xsd:annotation>
@@ -34,7 +34,7 @@
   <!-- global simple type definition (used as a base) -->
   <simpleType name="aaType">
     <xsd:annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:simpleType byteOrder="bigEndian" />
       </appinfo>
     </xsd:annotation>

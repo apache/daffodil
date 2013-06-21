@@ -3,7 +3,7 @@
            xmlns:ex="http://example.com">
 
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="ex:daffodilTest1" />
     </xs:appinfo>
   </xs:annotation>

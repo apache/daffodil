@@ -5,7 +5,7 @@
   <!-- intended for inclusion into other schemas
     has no targetNamespace on purpose -->
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="test01fmt1">
         <dfdl:format ref="daffodilTest1" />
       </dfdl:defineFormat>

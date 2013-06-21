@@ -24,7 +24,7 @@
           <xs:element name="folder" type="xs:string"
             maxOccurs="unbounded">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element representation="text"
                   lengthKind="delimited" terminator="/" />
               </xs:appinfo>

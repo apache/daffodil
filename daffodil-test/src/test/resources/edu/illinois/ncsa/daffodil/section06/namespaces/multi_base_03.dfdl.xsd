@@ -3,7 +3,7 @@
    targetNamespace="http://baseSchema.com" xmlns:base03="http://baseSchema.com" xmlns:a03="http://a03.com">
       
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"

@@ -15,7 +15,7 @@
     </documentation>
 
     <!-- top level dfdl annotations to create named, reusable definitions -->
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
 
       <dfdl:defineFormat name="def1">
         <dfdl:format occursCountKind="parsed" ref="tns:def2" />
@@ -52,7 +52,7 @@
   <!-- Tests chaining of named properties -->
   <element name="easy" type="xsd:int">
     <annotation>
-      <xsd:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <xsd:appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element ref="tns:def1" />
         <!-- should get occursCountKind from def1, lengthKind from def2, 
           and
@@ -65,13 +65,13 @@
   <element name="a">
     <!-- should have nilKind from locally, and alignmentUnits from the simpleType -->
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element nilKind="literalValue" />
       </appinfo>
     </annotation>
     <simpleType>
       <xsd:annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType alignmentUnits="bytes" />
         </appinfo>
       </xsd:annotation>
@@ -92,13 +92,13 @@
   <element name="b">
     <!-- should Error. Same property defined both by element and its type. -->
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element lengthKind="explicit" />
       </appinfo>
     </annotation>
     <simpleType>
       <xsd:annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType lengthKind="pattern" />
         </appinfo>
       </xsd:annotation>
@@ -111,13 +111,13 @@
     <!-- occursCountKind from def1, binaryNumberRep and representation from 
       def3 -->
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element nilKind="literalValue" />
       </appinfo>
     </annotation>
     <simpleType>
       <xsd:annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType alignmentUnits="bytes" ref="tns:def1" />
         </appinfo>
       </xsd:annotation>
@@ -130,13 +130,13 @@
     <!-- occursCountKind from def1, binaryNumberRep and representation from 
       def3 -->
     <annotation>
-      <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+      <appinfo source="http://www.ogf.org/dfdl/">
         <dfdl:element nilKind="literalValue" />
       </appinfo>
     </annotation>
     <simpleType>
       <xsd:annotation>
-        <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType alignmentUnits="bytes" />
         </appinfo>
       </xsd:annotation>

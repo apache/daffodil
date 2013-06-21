@@ -3,7 +3,7 @@
    targetNamespace="shi:shi" xmlns:shishi="shi:shi" xmlns:shishishi="shi:shi:shi">
       
   <shi:annotation>
-    <shi:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <shi:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="shi" initiator="shi" terminator="shi" leadingSkip='0' lengthUnits="characters" textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
     </shi:appinfo>

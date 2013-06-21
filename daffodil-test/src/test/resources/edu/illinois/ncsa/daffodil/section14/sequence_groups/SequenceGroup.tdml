@@ -228,7 +228,7 @@
       <xs:sequence>
         <xs:element name="f" type="xs:int">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
             </xs:appinfo>
           </xs:annotation>
@@ -732,7 +732,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
       <xs:complexType>
           <xs:sequence>
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:sequence hiddenGroupRef="ex:ab"/>
               </xs:appinfo>
             </xs:annotation>
@@ -753,7 +753,7 @@ Date: Mon Feb 23 15:20:47 CST 2009
       <xs:complexType>
           <xs:sequence>
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:sequence>
                   <dfdl:property name="hiddenGroupRef">ex:ab</dfdl:property>
                 </dfdl:sequence>

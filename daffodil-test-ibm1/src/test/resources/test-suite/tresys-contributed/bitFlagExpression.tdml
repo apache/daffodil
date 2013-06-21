@@ -35,7 +35,7 @@
       Works in conjunction with a presenceBit element. -->
     <xs:element name="repeatBit" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:length="1">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator><![CDATA[{
             if (fn:trace((fn:trace(../../ex:presenceBit,"presenceBit") = 0),"pbIsZero")) then fn:false()
             else if

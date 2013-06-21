@@ -4,7 +4,7 @@
   <!-- intended for inclusion into other schemas
     has no targetNamespace on purpose -->
   <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="daffodilTest1">
         <dfdl:format alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary" byteOrder="bigEndian" calendarPatternKind="implicit" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both" encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bytes" occursCountKind="parsed" representation="text" separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered" terminator="" textNumberCheckPolicy="strict" textNumberRep="standard" textStandardBase="10" textStringJustification="left" textTrimKind="none" trailingSkip="0" utf16Width="fixed"/>
       </dfdl:defineFormat>

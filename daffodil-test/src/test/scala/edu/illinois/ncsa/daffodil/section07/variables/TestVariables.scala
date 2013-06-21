@@ -122,7 +122,7 @@ class TestVariables {
             <xs:sequence>
               <xs:element name="e1" type="xs:double" dfdl:lengthKind="delimited">
                 <xs:annotation>
-                  <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:setVariable ref="tns:x" value="{ . }"/>
                   </xs:appinfo>
                 </xs:annotation>

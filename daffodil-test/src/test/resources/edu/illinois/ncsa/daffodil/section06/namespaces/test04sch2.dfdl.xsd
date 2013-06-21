@@ -6,7 +6,7 @@
 
   <!-- intended for import into other schemas -->
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="test04fmt1">
         <dfdl:format ref="tns:daffodilTest1" />
       </dfdl:defineFormat>

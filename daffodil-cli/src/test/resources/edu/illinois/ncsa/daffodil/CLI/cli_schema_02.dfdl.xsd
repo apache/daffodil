@@ -2,7 +2,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" targetNamespace="http://example.com"
   xmlns:ex="http://example.com"> 
   <xs:annotation> 
-    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" >
+    <xs:appinfo source="http://www.ogf.org/dfdl/" >
       <dfdl:format initiator="" terminator="" separator=""
         alignment="implicit" alignmentUnits="bits" trailingSkip="0"
         lengthKind="delimited" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII"

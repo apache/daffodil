@@ -6,7 +6,7 @@
   <include schemaLocation="xsd/built-in-formats.xsd" />
 
   <annotation>
-    <appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+    <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:daffodilTest1" alignment="implicit" alignmentUnits="bits" />
     </appinfo>
   </annotation>

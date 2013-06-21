@@ -10,7 +10,7 @@
 
     <xs:simpleType name="simpleAssert">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d;" message="discriminator failed for pattern '\d;'" />
         </xs:appinfo>
@@ -38,7 +38,7 @@
       <xs:complexType>
         <xs:group ref="ex:namedGroup">
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:discriminator testKind="pattern"
                 testPattern="\p{L}{3},\d{3}"
                 message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
@@ -53,7 +53,7 @@
         <xs:choice>
           <xs:group ref="ex:namedGroup">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\p{L}{3},\d{3}"
                   message="discriminator failed for pattern '\p{L}{3},\d{3}'" />
@@ -62,7 +62,7 @@
           </xs:group>
           <xs:group ref="ex:namedGroup2">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\p{L}{3}|\d{3}"
                   message="discriminator failed for pattern '\p{L}{3}|\d{3}'" />
@@ -84,7 +84,7 @@
           dfdl:separatorPosition="infix">
           <xs:element ref="ex:description" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\p{L}{3}"
                   message="discriminator failed for pattern '\p{L}{3}'" />
@@ -93,7 +93,7 @@
           </xs:element>
           <xs:element ref="ex:quantity" dfdl:lengthKind="delimited">
             <xs:annotation>
-              <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator testKind="pattern"
                   testPattern="\d{3}" message="discriminator failed for pattern '\d{3}'" />
               </xs:appinfo>
@@ -196,7 +196,7 @@
                 <xs:element name="a1" type="xs:int"
                   dfdl:lengthKind="explicit" dfdl:length="4">
                   <xs:annotation>
-                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:discriminator testKind="pattern"
                         testPattern="\d;"
                         message="discriminator failed for pattern '\d;'" />
@@ -244,7 +244,7 @@
                   <xs:complexType>
                     <xs:sequence>
                       <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -268,7 +268,7 @@
     <dfdl:format ref="ex:daffodilTest1" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
         </xs:appinfo>
@@ -277,7 +277,7 @@
 
     <xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d\d\d" message="Discriminator failed for pattern '\d\d\d'" />
         </xs:appinfo>
@@ -287,7 +287,7 @@
     <xs:element name="e3" type="xs:int" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
           <dfdl:discriminator testKind="pattern"
@@ -299,7 +299,7 @@
     <xs:element name="e4" type="xs:int" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             testPattern="\d\d" message="Discriminator failed for pattern '\d\d'" />
           <dfdl:discriminator testKind="pattern"
@@ -313,7 +313,7 @@
     <xs:element name="e5" type="xs:int" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d"
             message="Assertion failed for pattern '\d\d'" />
           <dfdl:discriminator testKind="pattern"
@@ -325,7 +325,7 @@
     <xs:element name="e6" type="xs:int" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="\d\d" dfdl:terminator=": ,">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\d\d\d"
             message="Assertion failed for pattern '\d\d\d'" />
           <dfdl:discriminator testKind="pattern"
@@ -343,7 +343,7 @@
                 <xs:element name="a1" type="xs:int"
                   dfdl:lengthKind="explicit" dfdl:length="5">
                   <xs:annotation>
-                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:discriminator testKind="pattern"
                         testPattern="\d{4}"
                         message="discriminator failed for pattern '\d{4}'" />
@@ -369,7 +369,7 @@
                 <xs:element name="a1" type="xs:int"
                   dfdl:lengthKind="explicit" dfdl:length="3">
                   <xs:annotation>
-                    <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:discriminator testKind="pattern"
                         testPattern="\d{4}"
                         message="discriminator failed for pattern '\d{4}'" />
@@ -465,7 +465,7 @@
     <dfdl:format ref="ex:daffodilTest1" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="pattern"
             test='{. eq "123"}' testPattern="\d\d"
             message="Discriminator failed for pattern '\d\d'" />
@@ -487,7 +487,7 @@
     <dfdl:format ref="ex:daffodilTest1" />
     <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="expression"
             test='{. eq "123"}' message="Discriminator failed for expression '{. eq '123'}'" />
         </xs:appinfo>
@@ -496,7 +496,7 @@
 
     <xs:element name="e2" type="xs:string" dfdl:lengthKind="delimited">
       <xs:annotation>
-        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="expression"
             test='{. eq fn:lower-case("CATS")}' message="Discriminator failed." />
         </xs:appinfo>
@@ -547,7 +547,7 @@
                   <xs:complexType>
                     <xs:sequence>
                       <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -604,7 +604,7 @@
                   <xs:complexType>
                     <xs:sequence>
                       <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -637,7 +637,7 @@
                   <xs:complexType>
                     <xs:sequence>
                       <xs:annotation>
-                        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ fn:false() }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -704,7 +704,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
               <dfdl:discriminator testKind="pattern" testPattern="o_o" message="Discriminator failed for pattern 'o_o'" />
             </xs:appinfo>
@@ -719,7 +719,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:annotation>
-            <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/">
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
               <dfdl:setVariable ref="ex:var">{ 41 }</dfdl:setVariable>
               <dfdl:discriminator testKind="pattern" testPattern="41" message="Discriminator failed for pattern '41'" />
             </xs:appinfo>
