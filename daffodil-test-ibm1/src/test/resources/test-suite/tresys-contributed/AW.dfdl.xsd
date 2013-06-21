@@ -17,8 +17,6 @@
         representation="text" emptyValueDelimiterPolicy="none"
         occursCountKind='parsed' lengthUnits="bytes"/>
 
-      <!--dfdl:format
-        occursCountKind="expression" /-->
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter="\"
           escapeKind="escapeCharacter" />
