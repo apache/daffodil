@@ -113,9 +113,55 @@
     <xs:element name="e10">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="one" type="ex:explUIntByte" dfdl:length="1" dfdl:alignment="1"/>
-          <xs:element name="two" type="ex:explUIntByte" minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:alignment="1"/>
-          <xs:element name="three" type="ex:explUIntByte" dfdl:length="3" dfdl:alignment="4"/>
+          <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
+            dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
+            minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
+            dfdl:length="3" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e10a">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="1" dfdl:alignment="1"/>
+          <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            dfdl:length="1" dfdl:lengthUnits="bits" dfdl:alignment="2"/>
+          <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            dfdl:length="3" dfdl:lengthUnits="bits" dfdl:alignment="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e10b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="varArr">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e" type="xs:unsignedInt" dfdl:lengthKind="explicit" 
+                  minOccurs="0" maxOccurs="5" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="2"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e10c">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"/>
+          <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignment="2"/>
+          <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            dfdl:length="3" dfdl:lengthUnits="bits" dfdl:alignment="4"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1381,9 +1427,64 @@
     model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
 
     <tdml:document>
-      <tdml:documentPart type="bits">00000001 00001100 00010100 00000000 10000000 00000000 00000001</tdml:documentPart>
-      <!--                           |        |                          |                             -->
-      <!--                           one      two                        three                         -->
+      <tdml:documentPart type="bits">1 0 101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignmentOptionalElem02
+        Schema: alignmentSchema
+          Root: e10a
+       Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
+                that follow them, or a SDE will be thrown.
+  -->
+
+  <tdml:parserTestCase name="alignmentOptionalElem02" root="e10a"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0 1 101</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignmentOptionalElem03
+        Schema: alignmentSchema
+          Root: e10b
+       Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
+                that follow them, or a SDE will be thrown.
+  -->
+
+  <tdml:parserTestCase name="alignmentOptionalElem03" root="e10b"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">10101011 00100100 11111110 01001001</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: alignmentOptionalElem04
+        Schema: alignmentSchema
+          Root: e10c
+       Purpose: This test demonstrates that optional elements cannot have alignment properties different from the items
+                that follow them, or a SDE will be thrown.
+  -->
+
+  <tdml:parserTestCase name="alignmentOptionalElem04" root="e10c"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01000001 00001000 101</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
