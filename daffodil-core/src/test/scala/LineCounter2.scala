@@ -63,7 +63,7 @@ object LineCounter2 extends App {
   /**
    * What modules within the sandbox to count
    */
-  val modulesToInclude = List("daffodil-core", "daffodil-runtime1", "daffodil-lib", "daffodil-propgen", "daffodil-cli", "daffodil-tdml") // , "daffodil-test"
+  val modulesToInclude = List("daffodil-core", "daffodil-runtime1", "daffodil-lib", "daffodil-propgen", "daffodil-cli", "daffodil-tdml", "daffodil-test-ibm1") // , "daffodil-test"
 
   /**
    * Where is this freakin' sandbox anyway....edit to point to yours.

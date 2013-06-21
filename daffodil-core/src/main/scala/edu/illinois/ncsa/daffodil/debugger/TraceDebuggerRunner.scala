@@ -34,10 +34,11 @@ package edu.illinois.ncsa.daffodil.debugger
 
 class TraceDebuggerRunner extends InteractiveDebuggerRunner {
   val traceIter = Seq("display info parser",
-                      "display info data",
-                      "display info infoset",
-                      "display info diff",
-                      "trace").iterator
+    "display info data",
+    // "display info infoset", // entire infoset
+    "display eval node ..", // by default, just this node's parent on down.
+    "display info diff",
+    "trace").iterator
 
   def init(id: InteractiveDebugger): Unit = {}
 
