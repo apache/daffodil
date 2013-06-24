@@ -485,7 +485,7 @@ trait AnnotatedMixin
             // come out, this code may change to tolerate different source
             // attributes that call out distinct versions of the standard.
             //
-            val officialAppinfoSourceAttribute = "http://www.ogf.org/dfdl/"
+            val officialAppinfoSourceAttribute = XMLUtils.dfdlAppinfoSource
             val hasRightSource = (str == officialAppinfoSourceAttribute)
             val isAcceptable = str.contains("ogf") && str.contains("dfdl")
             schemaDefinitionWarningWhen(!hasRightSource && isAcceptable,
