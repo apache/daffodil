@@ -8,6 +8,9 @@
   <tdml:defineSchema name="implicit_tests_embedded">
 
     <dfdl:format ref="ex:daffodilTest1" />
+    
+    <xs:element name="timeImp" type="xs:time"
+      dfdl:lengthKind="implicit" dfdl:representation="text"/>
 
     <xs:element name="data_01" type="xs:string"
       dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)" />
@@ -166,6 +169,22 @@
         </nested_seq_01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: implicitLenTime
+    Schema: implicit_tests_embedded
+    Purpose: This test demonstrates that you can not have lengthKind="implicit" for a textual representation of a time element.
+  -->
+  
+  <tdml:parserTestCase name="implicitLenTime" root="timeImp"
+    model="implicit_tests_embedded" description="Section 12 - Length Kind implicit - DFDL-12-067R">
+
+    <tdml:document><![CDATA[04:44:23.3000]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Type time cannot have lengthKind='implicit' when representation='text'</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
