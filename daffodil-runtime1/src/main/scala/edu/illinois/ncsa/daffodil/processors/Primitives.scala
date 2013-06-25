@@ -649,8 +649,10 @@ case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertText
   protected override def isInvalidRange(n: java.lang.Number): Boolean = {
     if (n == null) false // we tolerate null here. Something else figures out the error.
     else {
-      val l = n.longValue
-      l < 0
+      val value = BigDecimal(n.toString)
+      val isNegative = value.signum == -1
+      if (isNegative) return true
+      false
     }
   }
   def min = -1 // ignored

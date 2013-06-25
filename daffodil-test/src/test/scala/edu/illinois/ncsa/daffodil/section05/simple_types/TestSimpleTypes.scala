@@ -394,4 +394,6 @@ class TestSimpleTypes {
   // Verification that user's test works for DFDL-677
   @Test def test_unsignedInt() { runner.runOneTest("TestUnsignedInt") }
 
+  @Test def test_nonNegativeInteger_text() { runner.runOneTest("nonNegativeInteger_text") }
+
 }
