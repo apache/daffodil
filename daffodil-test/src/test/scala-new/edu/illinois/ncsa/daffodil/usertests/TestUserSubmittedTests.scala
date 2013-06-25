@@ -62,6 +62,11 @@ class TestUserSubmittedTestsNew {
     Debugger.setDebugger(db)
 
     runner.runOneTest("test_DFDL_782")
+
+    // Comment out these two lines to see issue
+    // documented in DFDL-790
+    Debugger.setDebugging(false)
+    Debugger.setDebugger(null)
   }
 
 }
