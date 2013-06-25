@@ -10,8 +10,7 @@ object DaffodilBuild extends Build {
     "bin" -> "/bin",
     "build.sbt" -> "/build.sbt",
     "README" -> "/README",
-    "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/pcap/" -> "/examples/pcap",
-    "../daffodil-perf/src/test/resources/edu/illinois/ncsa/daffodil/csv/" -> "/examples/csv"
+    "../daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/" -> "/examples"
   )
 
   lazy val packTask = TaskKey[Unit]("pack", "Generate distributable pack files", KeyRanks.APlusTask)
