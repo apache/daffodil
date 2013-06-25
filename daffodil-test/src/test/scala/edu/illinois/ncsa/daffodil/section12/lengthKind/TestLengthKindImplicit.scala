@@ -51,5 +51,6 @@ class TestLengthKindImplicit {
   @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }
 
   @Test def test_implicit_with_len() { runner_01.runOneTest("implicit_with_len") }
+  @Test def test_implicitLenTime() { runner_01.runOneTest("implicitLenTime") }
 
 }
