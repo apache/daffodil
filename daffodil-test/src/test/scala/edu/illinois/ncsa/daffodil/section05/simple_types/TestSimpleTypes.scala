@@ -395,5 +395,6 @@ class TestSimpleTypes {
   @Test def test_unsignedInt() { runner.runOneTest("TestUnsignedInt") }
 
   @Test def test_nonNegativeInteger_text() { runner.runOneTest("nonNegativeInteger_text") }
+  @Test def test_nonNegativeInteger_text_fail() { runner.runOneTest("nonNegativeInteger_text_fail") }
 
 }
