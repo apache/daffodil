@@ -395,6 +395,9 @@ trait ElementBaseGrammarMixin
   lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
     standardTextInteger | zonedTextInt)
 
+  lazy val textDecimal = Prod("textDecimal", this, representation == Representation.Text,
+    standardTextDecimal | zonedTextInt)
+
   lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, representation == Representation.Text,
     standardTextNonNegativeInteger | zonedTextInt)
 
@@ -416,6 +419,8 @@ trait ElementBaseGrammarMixin
   // 
   lazy val standardTextInteger = Prod("standardTextInteger", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextIntegerPrim(this))
+  lazy val standardTextDecimal = Prod("standardTextDecimal", this,
+    textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextDecimalPrim(this))
   lazy val standardTextNonNegativeInteger = Prod("standardTextNonNegativeInteger", this,
     textNumberRep == TextNumberRep.Standard, stringValue ~ prims.ConvertTextNonNegativeIntegerPrim(this))
   lazy val standardTextLong = Prod("standardTextLong", this,
@@ -670,6 +675,7 @@ trait ElementBaseGrammarMixin
       case PrimType.Short => textShort
       case PrimType.Long => textLong
       case PrimType.Integer => textInteger
+      case PrimType.Decimal => textDecimal
       case PrimType.UInt => textUnsignedInt
       case PrimType.UByte => textUnsignedByte
       case PrimType.UShort => textUnsignedShort

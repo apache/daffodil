@@ -642,6 +642,16 @@ case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumb
   def max = -1 // ignored
 }
 
+case class ConvertTextDecimalPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigDecimal](e, true) {
+  override def numFormat = NumberFormat.getNumberInstance()
+  protected override def getNum(num: Number) = new java.math.BigDecimal(num.toString)
+  protected override val GramName = "decimal"
+  protected override val GramDescription = "Unbounded Decimal"
+  protected override def isInvalidRange(n: java.lang.Number): Boolean = false
+  def min = -1 // ignored
+  def max = -1 // ignored
+}
+
 case class ConvertTextNonNegativeIntegerPrim(e: ElementBase) extends ConvertTextIntegerNumberPrim[BigInteger](e, true) {
   protected override def getNum(num: Number) = new BigInteger(num.toString)
   protected override val GramName = "nonNegativeInteger"

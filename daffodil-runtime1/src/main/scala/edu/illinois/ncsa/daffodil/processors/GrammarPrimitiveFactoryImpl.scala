@@ -16,6 +16,7 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def ElementEndNoRep(e: ElementBase): Terminal = new ElementEndNoRep(e)
   //def ComplexElementEndPattern(e: ElementBase): Terminal = new ComplexElementEndPattern(e)
   def ConvertTextIntegerPrim(e: ElementBase): Terminal = new ConvertTextIntegerPrim(e)
+  def ConvertTextDecimalPrim(e: ElementBase): Terminal = new ConvertTextDecimalPrim(e)
   def ConvertTextNonNegativeIntegerPrim(e: ElementBase): Terminal = new ConvertTextNonNegativeIntegerPrim(e)
   def ConvertTextLongPrim(e: ElementBase): Terminal = new ConvertTextLongPrim(e)
   def ConvertTextIntPrim(e: ElementBase): Terminal = new ConvertTextIntPrim(e)

@@ -50,23 +50,7 @@ class TestFacetsDebug {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
   // Note, these won't pass until Decimal is implemented
-  @Test def test_totalDigits_Pass_Decimal{ runner.runOneTest("checkTotalDigits_Pass_Decimal") }
-  @Test def test_totalDigits_Fail_Decimal{ runner.runOneTest("checkTotalDigits_Fail_Decimal") }
-  @Test def test_fractionDigits_Pass{ runner.runOneTest("checkFractionDigits_Pass") }
-  @Test def test_fractionDigits_Fail{ runner.runOneTest("checkFractionDigits_Fail") }
-  @Test def test_fractionDigits_Pass_LessDigits{ runner.runOneTest("checkFractionDigits_Pass_LessDigits")} 
-  @Test def test_totalDigitsAndFractionDigits_Pass { runner.runOneTest("checkTotalDigitsFractionDigits_Pass")}  
   @Test def test_totalDigitsAndFractionDigits_Fail { runner.runOneTest("checkTotalDigitsFractionDigits_Fail")}  
 
-  @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
-  @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
-  @Test def test_fractionTotalDigitsPass() { runner.runOneTest("fractionTotalDigitsPass") }
-  @Test def test_fractionTotalDigitsFail2() { runner.runOneTest("fractionTotalDigitsFail2") }
   @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
-
-  @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
-  @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
-
-  @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
-
 }

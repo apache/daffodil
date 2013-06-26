@@ -4393,13 +4393,15 @@
       Purpose: This test demonstrates the use of validation for the fractionDigits and totalDigits facet.
                Note that this test will not work until decimal is implemented.
   -->
-  <tdml:parserTestCase name="checkTotalDigitsFractionDigits_Fail"
+  <tdml:parserTestCase name="checkTotalDigitsFractionDigits_Pass2"
     root="e4_1_2" model="TestFacets">
 
     <tdml:document>123.010</tdml:document>
-    <tdml:errors>
-      <tdml:error>Assertion failed. Assertion failed for dfdl:checkConstraints(.)</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_1_2>123.01</e4_1_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -6167,7 +6169,7 @@
     </xs:element>
     
     <xs:simpleType name="tD_st4b">
-      <xs:restriction>
+      <xs:restriction base="xs:decimal">
         <xs:totalDigits value="2" />
       </xs:restriction>
     </xs:simpleType>
@@ -6560,18 +6562,18 @@
   <!--
     Test name: fractionTotalDigitsFail3
        Schema: fractionDigitsSchema 
-      Purpose: This test should fail because the document matches the specified number of 
-               totalDigits but not fractionDigits
+      Purpose: This test should pass even though the document matches the specified number of 
+	       totalDigits but not fractionDigits
   -->
 
-  <tdml:parserTestCase name="fractionTotalDigitsFail3" root="fD_e3"
+  <tdml:parserTestCase name="fractionTotalDigitsPass2" root="fD_e3"
     model="fractionDigitsSchema" description="Section 5 - Facets - fractionDigits - DFDL-5-056R">
     <tdml:document>45.22</tdml:document>
-      <tdml:errors>
-        <tdml:error>Assertion</tdml:error>
-        <tdml:error>failed</tdml:error>
-        <tdml:error>dfdl:checkConstraints</tdml:error>
-      </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <fD_e3>45.22</fD_e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--

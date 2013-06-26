@@ -41,6 +41,7 @@ trait PrimitiveFactoryBase {
   //def ComplexElementEndPattern(e: ElementBase): Terminal
   //def StringFixedLengthInBytes(e: ElementBase, nBytes: Long) : Terminal
   def ConvertTextIntegerPrim(e: ElementBase): Terminal
+  def ConvertTextDecimalPrim(e: ElementBase): Terminal
   def ConvertTextNonNegativeIntegerPrim(e: ElementBase): Terminal
   def ConvertTextLongPrim(e: ElementBase): Terminal
   def ConvertTextIntPrim(e: ElementBase): Terminal
