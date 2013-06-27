@@ -5,7 +5,7 @@
 
   <parserTestCase name="AV002" root="wholeFile" model="AV.dfdl.xsd"
     description="HR/CU Medical data">
-    <document><![CDATA[%#x1b;E%#x1b;(s5TTR0104                            CENTRAMAX.M                      Page:    1
+    <document>%#x1b;E%#x1b;(s5TTR0104                            CENTRAMAX.M                      Page:    1
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -62,7 +62,7 @@
                                SOB                 3
                                SUNBURN             1
                                SWOLLEN             1
-%#x0c;TR0104                            CENTRAMAX.M                      Page:    2
+&#x0a;TR0104                            CENTRAMAX.M                      Page:    2
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -77,9 +77,8 @@
                                VOMITING            8
                                WEAKNESS            1
                                WOUND               1
-
                          Grand Total:            109
-%#x0c;%#x1b;E]]></document>
+%#x0c;%#x1b;E</document>
     <infoset>
       <dfdlInfoset>
         <wholeFile xmlns="http://www.example.org/example1/"
@@ -87,10 +86,10 @@
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <table>
             <metadata>
-              <repdate type="xs:date">2008-04-10</repdate>
-              <reptime type="xs:time">04:37:00-0600</reptime>
-              <startDate type="xs:date">2008-03-30</startDate>
-              <endDate type="xs:date">2008-03-30</endDate>
+              <repdate type="xs:date">2008-04-10-06:00</repdate>
+              <reptime type="xs:time">04:37:00.000000-06:00</reptime>
+              <startDate type="xs:date">2008-03-30-06:00</startDate>
+              <endDate type="xs:date">2008-03-30-06:00</endDate>
             </metadata>
             <data>
               <Symptom type="xs:string">ABDPAINS</Symptom>
@@ -288,10 +287,10 @@
           </table>
           <table>
             <metadata>
-              <repdate type="xs:date">2008-04-10</repdate>
-              <reptime type="xs:time">04:37:00-0600</reptime>
-              <startDate type="xs:date">2008-03-30</startDate>
-              <endDate type="xs:date">2008-03-30</endDate>
+              <repdate type="xs:date">2008-04-10-06:00</repdate>
+              <reptime type="xs:time">04:37:00.000000-06:00</reptime>
+              <startDate type="xs:date">2008-03-30-06:00</startDate>
+              <endDate type="xs:date">2008-03-30-06:00</endDate>
             </metadata>
             <data>
               <Symptom type="xs:string">URINFREQ</Symptom>

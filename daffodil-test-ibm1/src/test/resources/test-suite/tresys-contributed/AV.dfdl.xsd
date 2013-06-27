@@ -50,7 +50,7 @@
               dfdl:inputValueCalc="{ 'Another page coming' }">
               <annotation>
                 <appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator test="{ ../../tns:theNextByte = 12 }" />
+                  <dfdl:discriminator test="{ ../../tns:theNextByte = 10 }" />
                 </appinfo>
               </annotation>
             </element>
@@ -162,7 +162,7 @@
       <element name="reptime" type="xs:time" maxOccurs="1"
         dfdl:terminator="%NL;" dfdl:encoding="ASCII"
         dfdl:representation="text" dfdl:lengthKind="delimited"
-        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="kk:mm' 'a" />
+        dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm' 'a" />
       <sequence dfdl:hiddenGroupRef="tns:junk5" />
       <sequence dfdl:hiddenGroupRef="tns:junk6" />
       <element name="startDate" type="xs:date" maxOccurs="1"
@@ -187,7 +187,7 @@
   <complexType name="dataline">
     <sequence>
       <element name="Symptom" type="xs:string" dfdl:lengthKind="pattern"
-        dfdl:lengthPattern="[A-Z]+" dfdl:encoding="ASCII"
+        dfdl:lengthPattern="[\s]+[A-Z]+" dfdl:encoding="ASCII"
         dfdl:textStringJustification="right"
         dfdl:textStringPadCharacter=" " />
       <element name="Count" type="xs:int" dfdl:lengthKind="delimited"

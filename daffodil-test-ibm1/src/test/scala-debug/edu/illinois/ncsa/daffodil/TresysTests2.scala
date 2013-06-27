@@ -86,22 +86,6 @@ class TresysTests2 {
   lazy val runnerAU = new DFDLTestSuite(Misc.getRequiredResource(au))
   @Test def test_AU000() { runnerAU.runOneTest("AU000") } // packed and bcd 
 
-  val av0 = testDir + "AV000.tdml"
-  lazy val runnerAV000 = new DFDLTestSuite(Misc.getRequiredResource(av0))
-  @Test def test_AV000() { runnerAV000.runOneTest("AV000") } // needs date
-
-  val av1 = testDir + "AV001.tdml"
-  lazy val runnerAV001 = new DFDLTestSuite(Misc.getRequiredResource(av1))
-  @Test def test_AV001() { runnerAV001.runOneTest("AV001") } // needs date
-
-  val av2 = testDir + "AV002.tdml"
-  lazy val runnerAV002 = new DFDLTestSuite(Misc.getRequiredResource(av2))
-  @Test def test_AV002() { runnerAV002.runOneTest("AV002") } // needs date
-
-  val av3 = testDir + "AV003.tdml"
-  lazy val runnerAV003 = new DFDLTestSuite(Misc.getRequiredResource(av3))
-  @Test def test_AV003() { runnerAV003.runOneTest("AV003") } // needs date
-
   // AW should just be debugged. Uses escape schemes. The test might be wrong
   // or the implementation. But the feature is implemented.
   val aw = testDir + "AW.tdml"

@@ -52,7 +52,6 @@
                                URINPAIN            1
                                VOMITING            3
                                WEAKNESS            1
-
                          Grand Total:             75
 %#x0c;%#x1b;E]]></document>
     <infoset>
@@ -62,10 +61,10 @@
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <table>
             <metadata>
-              <repdate type="xs:date">2008-04-10</repdate>
-              <reptime type="xs:time">04:38:00-0600</reptime>
-              <startDate type="xs:date">2008-03-31</startDate>
-              <endDate type="xs:date">2008-03-31</endDate>
+              <repdate type="xs:date">2008-04-10-06:00</repdate>
+              <reptime type="xs:time">04:38:00.000000-06:00</reptime>
+              <startDate type="xs:date">2008-03-31-06:00</startDate>
+              <endDate type="xs:date">2008-03-31-06:00</endDate>
             </metadata>
             <data>
               <Symptom type="xs:string">ABDPAINS</Symptom>
