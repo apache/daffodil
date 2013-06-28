@@ -50,8 +50,6 @@ class TestEntities_01 {
 
   @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
-  //@Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
-
   //DFDL-258 - raw byte entities
   @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
 

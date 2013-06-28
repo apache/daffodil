@@ -58,8 +58,6 @@ class TestSimpleTypes2 {
     }
     assertTrue(exc.getMessage().contains("Did not find"))
   }
-  //  @Test def test_Long3() {runner.runOneTest("Long3")}
-  //  @Test def test_Long4() {runner.runOneTest("Long4")}
 
 //////////////////////// DFDL-529 /////////////////////////////
 
