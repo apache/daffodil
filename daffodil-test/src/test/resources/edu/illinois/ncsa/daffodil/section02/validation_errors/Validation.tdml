@@ -116,12 +116,15 @@
 		</xs:simpleType>
 	</tdml:defineSchema>
 
-	<!-- Test name: facetPattern01 Schema: pattern Purpose: This document meets 
-		the constraints in the schema and should pass -->
+<!--
+    Test name: facetPattern01_validation_off
+       Schema: pattern 
+      Purpose: This document meets the constraints in the schema and should pass
+               For this test validation is OFF.
+-->
 
-	<tdml:parserTestCase name="facetPattern01" root="e1"
+	<tdml:parserTestCase name="facetPattern01_validation_off" root="e1"
 		model="pattern" validation="off">
-		<!-- Tests basic pattern facet -->
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -130,12 +133,15 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<!-- Test name: facetPattern01_success_limited Schema: pattern Purpose: 
-		This document meets the constraints in the schema and should pass -->
+<!-- 
+     Test name: facetPattern01_success_limited 
+        Schema: pattern 
+       Purpose: This document meets the constraints in the schema and should pass 
+                For this test validation is LIMITED.
+-->
 
 	<tdml:parserTestCase name="facetPattern01_success_limited"
 		root="e1" model="pattern" validation="limited">
-		<!-- Tests basic pattern facet -->
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -144,12 +150,15 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<!-- Test name: facetPattern01 Schema: pattern Purpose: This document meets 
-		the constraints in the schema and should pass -->
+<!-- 
+     Test name: facetPattern01_success_full 
+        Schema: pattern 
+       Purpose: This document meets the constraints in the schema and should pass
+                For this test validation is ON.
+-->
 
 	<tdml:parserTestCase name="facetPattern01_success_full"
 		root="e1" model="pattern" validation="on">
-		<!-- Tests basic pattern facet -->
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -158,12 +167,16 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
-	<!-- Test name: facetPattern01_fail Schema: pattern Purpose: This document 
-		meets the constraints in the schema and should pass -->
+<!-- 
+     Test name: facetPattern01_fail_limited
+        Schema: pattern 
+       Purpose: This document does not meet the constraints in the schema (any number of digits of value 0-8, document is 9) and should
+                cause validation errors.
+                For this test validation is LIMITED.
+-->
 
 	<tdml:parserTestCase name="facetPattern01_fail_limited"
 		root="e1" model="pattern" validation="limited">
-		<!-- Tests basic pattern facet -->
 		<tdml:document>9</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -181,12 +194,16 @@
 		</tdml:validationErrors>
 	</tdml:parserTestCase>
 
-	<!-- Test name: facetPattern01_fail Schema: pattern Purpose: This document 
-		meets the constraints in the schema and should pass -->
+<!-- 
+     Test name: facetPattern01_fail_full
+        Schema: pattern 
+       Purpose: This document does not meet the constraints in the schema (any number of digits of value 0-8, document is 9) and should
+                cause validation errors.
+                For this test validation is ON.
+-->
 
 	<tdml:parserTestCase name="facetPattern01_fail_full"
 		root="e1" model="pattern" validation="on">
-		<!-- Tests basic pattern facet -->
 		<tdml:document>9</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -236,12 +253,17 @@
 
 	</tdml:defineSchema>
 
-	<!-- Test name: arrayElements_fail_limited Schema: min2max5 Purpose: This 
-		document has an array of entries and should be correctly parsed. -->
+<!-- 
+     Test name: arrayElements_fail_limited
+        Schema: min2max5
+       Purpose: This document does not meet the constraints in the schema (array with min 2 elements, max 5. Document has 9)
+                and should cause validation errors.
+                For this test validation is LIMITED.
+-->
 
 	<tdml:parserTestCase name="arrayElements_fail_limited"
 		root="array" model="min2max5"
-		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-057R"
+		description="Section 2 - Non-conformance with xs:maxOccurs is a validation error - DFDL-2-010R"
 		validation="limited">
 
 		<tdml:document>
@@ -275,10 +297,18 @@
 		</tdml:validationErrors>
 
 	</tdml:parserTestCase>
+  
+<!-- 
+     Test name: arrayElements_fail_full
+        Schema: min2max5
+       Purpose: This document does not meet the constraints in the schema (array with min 2 elements, max 5. Document has 9)
+                and should cause validation errors.
+                For this test validation is ON.
+-->
 
 	<tdml:parserTestCase name="arrayElements_fail_full"
 		root="array" model="min2max5"
-		description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-057R"
+		description="Section 2 - Non-conformance with xs:maxOccurs is a validation error - DFDL-2-010R"
 		validation="on">
 
 		<tdml:document>
@@ -318,5 +348,897 @@
 		</tdml:validationErrors>
 
 	</tdml:parserTestCase>
+  
+  <tdml:defineSchema name="TestFacets">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="e2_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="ex:stMinLength_1">
+          <xs:minLength value="2" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="e3_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="ex:stMaxLength_2">
+          <xs:maxLength value="1" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="e4_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:totalDigits value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="e4_1_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal">
+          <xs:totalDigits value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_1_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal">
+          <xs:totalDigits value="5" />
+          <xs:fractionDigits value="2"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:decimal">
+          <xs:fractionDigits value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_3" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="-5" />
+          <xs:maxInclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_3_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="-2147483648" />
+          <xs:maxInclusive value="2147483647" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_3_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="-2147483648" />
+          <xs:maxInclusive value="2147483649" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_3_3" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="-2147483649" />
+          <xs:maxInclusive value="2147483647" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_4_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minExclusive value="-5" />
+          <xs:maxExclusive value="5" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_5_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="ex:stValue250to500">
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_6_1" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="RED"/>
+          <xs:enumeration value="BLUE"/>
+          <xs:enumeration value="GREEN"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    <xs:element name="e4_6_2" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="ex:stWeekend" />
+      </xs:simpleType>
+    </xs:element>
+
+    <xs:element name="dateTimeImp" dfdl:calendarPatternKind="implicit" 
+      dfdl:lengthKind="explicit" dfdl:length="19">
+      <xs:simpleType>
+        <xs:restriction base="xs:dateTime">
+          <xs:maxInclusive value="2013-03-24T03:45:30.000000+00:00"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:simpleType name="stWeekend">
+      <xs:restriction base="ex:stWeekdays">
+        <xs:enumeration value="SATURDAY"/>
+        <xs:enumeration value="SUNDAY"/>
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="stWeekdays">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="MONDAY"/>
+        <xs:enumeration value="TUESDAY"/>
+        <xs:enumeration value="WEDNESDAY"/>
+        <xs:enumeration value="THURSDAY"/>
+        <xs:enumeration value="FRIDAY"/>
+        <xs:enumeration value="SATURDAY"/>
+        <xs:enumeration value="SUNDAY"/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="stValue250to500">
+      <xs:restriction base="ex:stValue0to10000">
+        <xs:minInclusive value="250" />
+        <xs:maxInclusive value="500"/>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stValue0to10000">
+      <xs:restriction base="ex:stLength5">
+        <xs:minInclusive value="0" />
+        <xs:maxInclusive value="1000"/>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stLength5">
+      <xs:restriction base="ex:stLength10">
+        <xs:totalDigits value="5"/>
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stLength10">
+      <xs:restriction base="xs:int">
+        <xs:totalDigits value="10"/>
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="stMinLength_1">
+      <xs:restriction base="xs:string">
+        <xs:minLength value="1" />
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stMaxLength_2">
+      <xs:restriction base="xs:string">
+        <xs:maxLength value="2" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="stTotalDigits_1">
+      <xs:restriction base="xs:integer">
+        <xs:maxLength value="1" />
+      </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="stFractionDigits_2">
+      <xs:restriction base="xs:integer">
+        <xs:maxLength value="2" />
+      </xs:restriction>
+    </xs:simpleType>
+    
+  </tdml:defineSchema>
+  
+<!--
+    Test name: checkMinLength_Fail_Combining_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the minLength facet. In this case the test fails validation (limited).
+               Specifically we're verifying that the combining of minLengthBase(1) and minLengthLocal(2) that minLengthLocal wins.
+-->
+  <tdml:parserTestCase name="checkMinLength_Fail_Combining_limited"
+    root="e2_2" model="TestFacets" validation="limited">
+
+    <tdml:document>1</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <e2_2>1</e2_2>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    
+    <tdml:validationErrors>
+
+      <tdml:error>element.e2_2</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error> 
+      <tdml:error>facet minLength</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkEnumeration_Pass_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               enumeration facet. Validation = LIMITED
+-->
+
+  <tdml:parserTestCase name="checkEnumeration_Pass_limited"
+    root="e4_6_2" model="TestFacets" validation="limited">
+
+    <tdml:document>SATURDAY</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_6_2>SATURDAY</e4_6_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkEnumeration_Fail_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               enumeration facet. Validation = LIMITED
+-->
+
+  <tdml:parserTestCase name="checkEnumeration_Fail_limited"
+    root="e4_6_2" model="TestFacets" validation="limited">
+
+    <tdml:document>MONDAY</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_6_2>MONDAY</e4_6_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_6_2</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet enumeration(s)</tdml:error>
+      <tdml:error>S,A,T,U,R,D,A,Y,|,S,U,N,D,A,Y</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkEnumeration_Fail_on
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               enumeration facet. Validation = ON
+-->
+
+  <tdml:parserTestCase name="checkEnumeration_Fail_on"
+    root="e4_6_2" model="TestFacets" validation="on">
+
+    <tdml:document>MONDAY</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_6_2>MONDAY</e4_6_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: checkMaxInclusive_Fail_DateTime_limited
+        Schema: TestFacets
+          Root: dateTimeImp
+       Purpose: This test demonstrates MaxInclusive facet works with DateTime.
+                Specifically this test fails because the DateTime exceeds the
+                value specified by the facet.
+-->
+  
+  <tdml:parserTestCase name="checkMaxInclusive_Fail_DateTime_limited" root="dateTimeImp"
+    model="TestFacets" description="" validation="limited">
+
+    <tdml:document><![CDATA[2014-03-24T03:45:30]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTimeImp>2014-03-24T03:45:30.000000+00:00</dateTimeImp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.dateTimeImp</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxInclusive (1364096730000)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkMinExclusive_Fail_off
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet.
+               Validation = OFF.
+  -->
+  <tdml:parserTestCase name="checkMinExclusive_Fail_off"
+    root="e4_4_1" model="TestFacets" validation="off">
+
+    <tdml:document>-5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_4_1>-5</e4_4_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkMinExclusive_Fail_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet.
+               Validation = LIMITED.
+-->
+  <tdml:parserTestCase name="checkMinExclusive_Fail_limited"
+    root="e4_4_1" model="TestFacets" validation="limited">
+
+    <tdml:document>-5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_4_1>-5</e4_4_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_4_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet minExclusive (-5)</tdml:error>
+
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkMinExclusive_Fail_on
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the maxInclusive facet.
+               Validation = ON.
+-->
+  <tdml:parserTestCase name="checkMinExclusive_Fail_on"
+    root="e4_4_1" model="TestFacets" validation="on">
+
+    <tdml:document>-5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_4_1>-5</e4_4_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_4_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet minExclusive (-5)</tdml:error>
+
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkCombining_Fail_off
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               max/minInclusive, max/minLength and totalDigits facets.
+               Validation = OFF.
+-->
+  <tdml:parserTestCase name="checkCombining_Fail_off"
+    root="e4_5_1" model="TestFacets" validation="off">
+
+    <tdml:document>501</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_5_1>501</e4_5_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkCombining_Fail_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               max/minInclusive, max/minLength and totalDigits facets.
+               Validation = LIMITED.
+-->
+  <tdml:parserTestCase name="checkCombining_Fail_limited"
+    root="e4_5_1" model="TestFacets" validation="limited">
+
+    <tdml:document>501</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_5_1>501</e4_5_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_5_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>due to facet maxInclusive (500)</tdml:error>
+
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkCombining_Fail_on
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the 
+               max/minInclusive, max/minLength and totalDigits facets.
+               Validation = ON.
+-->
+  <tdml:parserTestCase name="checkCombining_Fail_on"
+    root="e4_5_1" model="TestFacets" validation="on">
+
+    <tdml:document>501</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4_5_1>501</e4_5_1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_5_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>due to facet maxInclusive (500)</tdml:error>
+
+    </tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkMaxLength_Fail_Combining_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the minLength facet. In this case the test fails validation.
+               Specifically we're verifying that the combining of maxLengthBase(2) and maxLengthLocal(1) that maxLengthLocal wins.
+  -->
+  <tdml:parserTestCase name="checkMaxLength_Fail_Combining_limited"
+    root="e3_2" model="TestFacets" validation="limited">
+
+    <tdml:document>12</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3_2>12</e3_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e3_2</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>due to facet maxLength (1)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkTotalDigits_Fail_off
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the totalDigits facet.
+               This test WOULD fail because expected 5 digits and received 6. However, 
+               Validation = OFF.
+--> 
+  <tdml:parserTestCase name="checkTotalDigits_Fail_off"
+    root="e4_1" model="TestFacets" validation="off">
+
+    <tdml:document>123456</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <e4_1>123456</e4_1>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkTotalDigits_Fail_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the totalDigits facet.
+               This test fails because expected 5 digits and received 6. 
+               Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="checkTotalDigits_Fail_limited"
+    root="e4_1" model="TestFacets" validation="limited">
+
+    <tdml:document>123456</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <e4_1>123456</e4_1>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet totalDigits (5)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: checkTotalDigits_Fail_on
+       Schema: TestFacets
+      Purpose: This test demonstrates the use of validation for the totalDigits facet.
+               This test fails because expected 5 digits and received 6. 
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="checkTotalDigits_Fail_on"
+    root="e4_1" model="TestFacets" validation="on">
+
+    <tdml:document>123456</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <e4_1>123456</e4_1>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_1</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet totalDigits (5)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="facetCombos">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="intRestrict" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:totalDigits value="1"/>
+          <xs:minInclusive value="1" />
+          <xs:maxInclusive value="10"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="arrayCombo" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="e" dfdl:lengthKind="delimited" minOccurs="3" maxOccurs="unbounded">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:maxExclusive value="3"/>
+                <xs:totalDigits value="1"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+<!--
+    Test name: facetCombos_fail_off
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               totalDigits, minInclusive and maxInclusive facets.
+               This test will pass because validation is off, even though the data doesn't meet
+               the facet restrictions.
+               Validation = OFF.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_off"
+    root="intRestrict" model="facetCombos" validation="off">
+
+    <tdml:document>12</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <intRestrict>12</intRestrict>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: facetCombos_fail_limited
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               totalDigits, minInclusive and maxInclusive facets.
+               This test will fail because validation is limited, and the data doesn't meet
+               the facet restrictions.
+               Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_limited"
+    root="intRestrict" model="facetCombos" validation="limited">
+
+    <tdml:document>12</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <intRestrict>12</intRestrict>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.intRestrict</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxInclusive (10)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: facetCombos_fail_on
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               totalDigits, minInclusive and maxInclusive facets.
+               This test will fail because validation is on, and the data doesn't meet
+               the facet restrictions.
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_on"
+    root="intRestrict" model="facetCombos" validation="on">
+
+    <tdml:document>12</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <intRestrict>12</intRestrict>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.intRestrict</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxInclusive (10)</tdml:error>
+
+      <tdml:error>intRestrict</tdml:error>
+      <tdml:error>Value '12' has 2 total digits</tdml:error>
+      <tdml:error>total digits has been limited to 1.</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: facetCombos_fail_off_02
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               minOccurs, totalDigits, and maxExclusive facets.
+               This test will pass even though the data is invalid because validation is off.
+               Validation = OFF.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_off_02"
+    root="arrayCombo" model="facetCombos" validation="off">
+
+    <tdml:document>4,5,6,7,8,9,10</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <arrayCombo>
+          <e>4</e>
+          <e>5</e>
+          <e>6</e>
+          <e>7</e>
+          <e>8</e>
+          <e>9</e>
+          <e>10</e>
+        </arrayCombo>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: facetCombos_fail_limited_02
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               minOccurs, totalDigits, and maxExclusive facets.
+               This test will fail because validation is on but limited.
+               Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_limited_02"
+    root="arrayCombo" model="facetCombos" validation="limited">
+
+    <tdml:document>4,5,6,7,8,9,10</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <arrayCombo>
+          <e>4</e>
+          <e>5</e>
+          <e>6</e>
+          <e>7</e>
+          <e>8</e>
+          <e>9</e>
+          <e>10</e>
+        </arrayCombo>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e occurred '7' times</tdml:error>
+      <tdml:error>minimum of '3'</tdml:error>
+      <tdml:error>maximum of '-1' times.</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 14</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 11</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 9</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 7</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 5</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 3</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 1</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: facetCombos_fail_on_02
+       Schema: facetCombos
+      Purpose: This test demonstrates the use of validation for a combination of the
+               minOccurs, totalDigits, and maxExclusive facets.
+               This test will fail because validation is on.
+               Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="facetCombos_fail_on_02"
+    root="arrayCombo" model="facetCombos" validation="on">
+
+    <tdml:document>4,5,6,7,8,9,10</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <arrayCombo>
+          <e>4</e>
+          <e>5</e>
+          <e>6</e>
+          <e>7</e>
+          <e>8</e>
+          <e>9</e>
+          <e>10</e>
+        </arrayCombo>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e occurred '7' times</tdml:error>
+      <tdml:error>minimum of '3'</tdml:error>
+      <tdml:error>maximum of '-1' times.</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 14</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 11</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 9</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 7</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 5</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 3</tdml:error>
+
+      <tdml:error>element.e</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet maxExclusive (3)</tdml:error>
+      <tdml:error>Data Context: byte 1</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="assertValidation">
+    <dfdl:format ref="ex:daffodilTest1" />
+    
+    <xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert><![CDATA[{ xs:int(.) eq 42 }]]></dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+    
+    <xs:element name="e3"><!-- like e2, but assert uses a path to a 
+        peer
+        element -->
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="v" type="xs:int"
+            dfdl:inputValueCalc="{ 42 }" />
+          <xs:element name="a" type="xs:string"
+            dfdl:inputValueCalc="{ 'ok' }">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert><![CDATA[{ xs:int(../ex:v) ne 42 }]]></dfdl:assert>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5" type="xs:int" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="\d\d\d"
+            message="Assertion failed for pattern '\d\d\d'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  
+  </tdml:defineSchema>
+  
+<!--
+    Test name: assert_validation_on
+       Schema: assertValidation
+      Purpose: This test demonstrates that assert checks are different than validation and are performed
+               regardless of the state of validation.
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="assert_validation_on"
+    root="e1" model="assertValidation" description="Section 07 - dfdl:assert checks are separate from validation checking - DFDL-7-039R"
+    validation="on">
+
+    <tdml:document>44</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: assert_validation_limited
+       Schema: assertValidation
+      Purpose: This test demonstrates that assert checks are different than validation and are performed
+               regardless of the state of validation.
+               Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="assert_validation_limited"
+    root="e1" model="assertValidation" description="Section 07 - dfdl:assert checks are separate from validation checking - DFDL-7-039R"
+    validation="on">
+
+    <tdml:document>44</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: assert_validation_off
+       Schema: assertValidation
+      Purpose: This test demonstrates that assert checks are different than validation and are performed
+               regardless of the state of validation.
+               Validation = OFF.
+--> 
+  <tdml:parserTestCase name="assert_validation_off"
+    root="e1" model="assertValidation" description="Section 07 - dfdl:assert checks are separate from validation checking - DFDL-7-039R"
+    validation="on">
+
+    <tdml:document>44</tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
 
 </tdml:testSuite>

@@ -32,10 +32,6 @@ package edu.illinois.ncsa.daffodil.section02.validation_errors
  * SOFTWARE.
  */
 
-/* This section00 is for testing general features of DFDL that are
- * not related to any specific requirement
- */
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -43,20 +39,13 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
-import org.junit.Test
 
-class TestValidation {
+class TestValidationErrDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
   val aa = testDir + "Validation.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_facetPattern01() { runner.runOneTest("facetPattern01") }
-  @Test def test_facetPattern01_fail_limited() { runner.runOneTest("facetPattern01_fail_limited") }
-  @Test def test_facetPattern01_fail_full() { runner.runOneTest("facetPattern01_fail_full") }
-  @Test def test_facetPattern01_success_limited() { runner.runOneTest("facetPattern01_success_limited") }
-  @Test def test_facetPattern01_success_full() { runner.runOneTest("facetPattern01_success_full") }
-
-  @Test def test_arrayElements_fail_limited() { runner.runOneTest("arrayElements_fail_limited") }
-  @Test def test_arrayElements_fail_full() { runner.runOneTest("arrayElements_fail_full") }
+  @Test def test_checkEnumeration_Fail_on() { runner.runOneTest("checkEnumeration_Fail_on") }
+  
 
 }
