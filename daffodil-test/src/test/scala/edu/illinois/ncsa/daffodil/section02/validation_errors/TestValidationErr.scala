@@ -79,8 +79,8 @@ class TestValidationErr {
   @Test def test_facetCombos_fail_on() { runner.runOneTest("facetCombos_fail_on") }
   
   @Test def test_facetCombos_fail_off_02() { runner.runOneTest("facetCombos_fail_off_02") }
-  @Test def test_facetCombos_fail_limited_02() { runner.runOneTest("facetCombos_fail_limited_02") }
-  @Test def test_facetCombos_fail_on_02() { runner.runOneTest("facetCombos_fail_on_02") }
+//  @Test def test_facetCombos_fail_limited_02() { runner.runOneTest("facetCombos_fail_limited_02") }
+//  @Test def test_facetCombos_fail_on_02() { runner.runOneTest("facetCombos_fail_on_02") }
 
   @Test def test_assert_validation_on() { runner.runOneTest("assert_validation_on") }
   @Test def test_assert_validation_limited() { runner.runOneTest("assert_validation_limited") }

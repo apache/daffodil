@@ -124,7 +124,8 @@
 -->
 
 	<tdml:parserTestCase name="facetPattern01_validation_off" root="e1"
-		model="pattern" validation="off">
+    model="pattern" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R" 
+    validation="off">
 		<tdml:document>6</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -541,7 +542,8 @@
                Specifically we're verifying that the combining of minLengthBase(1) and minLengthLocal(2) that minLengthLocal wins.
 -->
   <tdml:parserTestCase name="checkMinLength_Fail_Combining_limited"
-    root="e2_2" model="TestFacets" validation="limited">
+    root="e2_2" model="TestFacets" description="Section 2 - Validate XSDL minLength, maxLength - DFDL-2-022R" 
+    validation="limited">
 
     <tdml:document>1</tdml:document>
 		<tdml:infoset>
@@ -567,7 +569,8 @@
 -->
 
   <tdml:parserTestCase name="checkEnumeration_Pass_limited"
-    root="e4_6_2" model="TestFacets" validation="limited">
+    root="e4_6_2" model="TestFacets" description="Section 2 - Validate XSDL enumeration - DFDL-2-024R" 
+    validation="limited">
 
     <tdml:document>SATURDAY</tdml:document>
     <tdml:infoset>
@@ -585,7 +588,8 @@
 -->
 
   <tdml:parserTestCase name="checkEnumeration_Fail_limited"
-    root="e4_6_2" model="TestFacets" validation="limited">
+    root="e4_6_2" model="TestFacets" description="Section 2 - Validate XSDL enumeration - DFDL-2-024R" 
+    validation="limited">
 
     <tdml:document>MONDAY</tdml:document>
     <tdml:infoset>
@@ -611,7 +615,8 @@
 -->
 
   <tdml:parserTestCase name="checkEnumeration_Fail_on"
-    root="e4_6_2" model="TestFacets" validation="on">
+    root="e4_6_2" model="TestFacets" description="Section 2 - Validate XSDL enumeration - DFDL-2-024R" 
+    validation="on">
 
     <tdml:document>MONDAY</tdml:document>
     <tdml:infoset>
@@ -619,6 +624,14 @@
         <e4_6_2>MONDAY</e4_6_2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+    <tdml:validationErrors>
+
+      <tdml:error>element.e4_6_2</tdml:error>
+      <tdml:error>failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet enumeration(s)</tdml:error>
+      <tdml:error>S,A,T,U,R,D,A,Y,|,S,U,N,D,A,Y</tdml:error>
+
+		</tdml:validationErrors>
   </tdml:parserTestCase>
   
 <!--
@@ -631,7 +644,8 @@
 -->
   
   <tdml:parserTestCase name="checkMaxInclusive_Fail_DateTime_limited" root="dateTimeImp"
-    model="TestFacets" description="" validation="limited">
+    model="TestFacets" description="Section 2 - Validate XSDL minInclusive, minExclusive, maxInclusive, maxExclusive - DFDL-2-023R" 
+    validation="limited">
 
     <tdml:document><![CDATA[2014-03-24T03:45:30]]></tdml:document>
     <tdml:infoset>
@@ -654,8 +668,9 @@
       Purpose: This test demonstrates the use of validation for the maxInclusive facet.
                Validation = OFF.
   -->
-  <tdml:parserTestCase name="checkMinExclusive_Fail_off"
-    root="e4_4_1" model="TestFacets" validation="off">
+  <tdml:parserTestCase name="checkMinExclusive_Fail_off" root="e4_4_1"
+    model="TestFacets" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R" 
+    validation="off">
 
     <tdml:document>-5</tdml:document>
     <tdml:infoset>
@@ -672,7 +687,8 @@
                Validation = LIMITED.
 -->
   <tdml:parserTestCase name="checkMinExclusive_Fail_limited"
-    root="e4_4_1" model="TestFacets" validation="limited">
+    root="e4_4_1" model="TestFacets" description="Section 2 - Validate XSDL minInclusive, minExclusive, maxInclusive, maxExclusive - DFDL-2-023R"
+    validation="limited">
 
     <tdml:document>-5</tdml:document>
     <tdml:infoset>
@@ -697,7 +713,8 @@
                Validation = ON.
 -->
   <tdml:parserTestCase name="checkMinExclusive_Fail_on"
-    root="e4_4_1" model="TestFacets" validation="on">
+    root="e4_4_1" model="TestFacets" description="Section 2 - Validate XSDL minInclusive, minExclusive, maxInclusive, maxExclusive - DFDL-2-023R"
+    validation="on">
 
     <tdml:document>-5</tdml:document>
     <tdml:infoset>
@@ -723,7 +740,8 @@
                Validation = OFF.
 -->
   <tdml:parserTestCase name="checkCombining_Fail_off"
-    root="e4_5_1" model="TestFacets" validation="off">
+    root="e4_5_1" model="TestFacets" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R"
+    validation="off">
 
     <tdml:document>501</tdml:document>
     <tdml:infoset>
@@ -741,7 +759,8 @@
                Validation = LIMITED.
 -->
   <tdml:parserTestCase name="checkCombining_Fail_limited"
-    root="e4_5_1" model="TestFacets" validation="limited">
+    root="e4_5_1" model="TestFacets" description="Section 2 - Parsing must successfully construct the infoset from the representation - DFDL-2-015R"
+    validation="limited">
 
     <tdml:document>501</tdml:document>
     <tdml:infoset>
@@ -766,7 +785,8 @@
                Validation = ON.
 -->
   <tdml:parserTestCase name="checkCombining_Fail_on"
-    root="e4_5_1" model="TestFacets" validation="on">
+    root="e4_5_1" model="TestFacets" description="Section 2 - Parsing must successfully construct the infoset from the representation - DFDL-2-015R"
+    validation="limited">
 
     <tdml:document>501</tdml:document>
     <tdml:infoset>
@@ -786,11 +806,12 @@
 <!--
     Test name: checkMaxLength_Fail_Combining_limited
        Schema: TestFacets
-      Purpose: This test demonstrates the use of validation for the minLength facet. In this case the test fails validation.
+      Purpose: This test demonstrates the use of validation for the maxLength facet. In this case the test fails validation.
                Specifically we're verifying that the combining of maxLengthBase(2) and maxLengthLocal(1) that maxLengthLocal wins.
   -->
   <tdml:parserTestCase name="checkMaxLength_Fail_Combining_limited"
-    root="e3_2" model="TestFacets" validation="limited">
+    root="e3_2" model="TestFacets" description="Section 2 - Validate XSDL minLength, maxLength - DFDL-2-022R"
+    validation="limited">
 
     <tdml:document>12</tdml:document>
     <tdml:infoset>
@@ -815,7 +836,8 @@
                Validation = OFF.
 --> 
   <tdml:parserTestCase name="checkTotalDigits_Fail_off"
-    root="e4_1" model="TestFacets" validation="off">
+    root="e4_1" model="TestFacets" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R"
+    validation="off">
 
     <tdml:document>123456</tdml:document>
 		<tdml:infoset>
@@ -915,7 +937,8 @@
                Validation = OFF.
 --> 
   <tdml:parserTestCase name="facetCombos_fail_off"
-    root="intRestrict" model="facetCombos" validation="off">
+    root="intRestrict" model="facetCombos" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R"
+    validation="off">
 
     <tdml:document>12</tdml:document>
 		<tdml:infoset>
@@ -992,7 +1015,8 @@
                Validation = OFF.
 --> 
   <tdml:parserTestCase name="facetCombos_fail_off_02"
-    root="arrayCombo" model="facetCombos" validation="off">
+    root="arrayCombo" model="facetCombos" description="Section 21 - Validation Detection - External Switch - DFDL-21-002R"
+    validation="off">
 
     <tdml:document>4,5,6,7,8,9,10</tdml:document>
 		<tdml:infoset>
@@ -1036,10 +1060,6 @@
       </tdml:dfdlInfoset>
 		</tdml:infoset>
     <tdml:validationErrors>
-
-      <tdml:error>element.e occurred '7' times</tdml:error>
-      <tdml:error>minimum of '3'</tdml:error>
-      <tdml:error>maximum of '-1' times.</tdml:error>
 
       <tdml:error>element.e</tdml:error>
       <tdml:error>failed dfdl:checkConstraints</tdml:error>
@@ -1105,10 +1125,6 @@
       </tdml:dfdlInfoset>
 		</tdml:infoset>
     <tdml:validationErrors>
-
-      <tdml:error>element.e occurred '7' times</tdml:error>
-      <tdml:error>minimum of '3'</tdml:error>
-      <tdml:error>maximum of '-1' times.</tdml:error>
 
       <tdml:error>element.e</tdml:error>
       <tdml:error>failed dfdl:checkConstraints</tdml:error>
