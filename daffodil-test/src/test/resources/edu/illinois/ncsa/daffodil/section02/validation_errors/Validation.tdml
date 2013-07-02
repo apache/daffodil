@@ -1301,6 +1301,60 @@
         </xs:choice>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="trigger" dfdl:lengthKind="delimited">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:totalDigits value="1"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator><![CDATA[{ xs:int(../../ex:trigger) eq 12 }]]></dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="one" dfdl:inputValueCalc="{ 42 }" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minExclusive value="42"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -1326,6 +1380,67 @@
 
       <tdml:error>max3</tdml:error>
       <tdml:error>Value '8' is not facet-valid with respect to maxInclusive '3'</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: choice_ignoreValidationErr_02
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when resolving points of uncertainty, validation errors are ignored.
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="choice_ignoreValidationErr_02"
+    root="root2" model="choiceValidation" description="Section 02 - When resolving points of uncertainty, validation errors are ignored - DFDL-2-019R"
+    validation="on">
+
+    <tdml:document>12,123</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <root2>
+          <trigger>12</trigger>
+          <choice>
+            <one>123</one>
+          </choice>
+        </root2>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+      <tdml:error>trigger</tdml:error>
+      <tdml:error>Value '12' has 2 total digits</tdml:error>
+      <tdml:error>number of total digits has been limited to 1.</tdml:error>
+
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>element.trigger failed dfdl:checkConstraints</tdml:error>
+      <tdml:error>facet totalDigits (1)</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: choice_ignoreValidationErr_03
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when resolving points of uncertainty, validation errors are ignored.
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="choice_ignoreValidationErr_03"
+    root="root3" model="choiceValidation" description="Section 02 - When resolving points of uncertainty, validation errors are ignored - DFDL-2-019R"
+    validation="on">
+
+    <tdml:document></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <root3>
+          <one>42</one>
+        </root3>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+      <tdml:error>Value '42' is not facet-valid with respect to minExclusive '42'</tdml:error>
+      
+      <tdml:error>element.one failed dfdl:checkConstraints due to facet minExclusive (42)</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
