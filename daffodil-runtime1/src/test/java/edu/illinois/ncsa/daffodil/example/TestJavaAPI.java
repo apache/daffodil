@@ -469,4 +469,79 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
+
+	/**
+	 * Verify that hidden elements do not appear in the resulting infoset
+	 */
+        @Test
+        public void testJavaAPI10() throws IOException {
+
+                Compiler c = Daffodil.compiler();
+                java.io.File[] schemaFiles = new java.io.File[1];
+                schemaFiles[0] = getResource("/test/japi/mySchema4.dfdl.xsd");
+                ProcessorFactory pf = c.compile(schemaFiles);
+                DataProcessor dp = pf.onPath("/");
+                java.io.File file = getResource("/test/japi/myData4.dat");
+                java.io.FileInputStream fis = new java.io.FileInputStream(file);
+                java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+                                .newChannel(fis);
+                ParseResult res = dp.parse(rbc);
+                boolean err = res.isError();
+                if (!err) {
+                        org.jdom.Document doc = res.result();
+                        org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+                        xo.setFormat(Format.getPrettyFormat());
+                        xo.output(doc, System.out);
+                        org.jdom.Element rootNode = doc.getRootElement();
+                        org.jdom.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
+                        assertTrue(null == hidden);
+                }
+                java.util.List<Diagnostic> diags = res.getDiagnostics();
+                for (Diagnostic d : diags) {
+                        System.err.println(d.getMessage());
+                }
+                assertTrue(res.location().isAtEnd());
+        }
+
+	/**
+	 * Verify that nested elements do not appear as duplicates
+	 */
+        @Test
+        public void testJavaAPI11() throws IOException {
+
+                Compiler c = Daffodil.compiler();
+                java.io.File[] schemaFiles = new java.io.File[1];
+                schemaFiles[0] = getResource("/test/japi/mySchema5.dfdl.xsd");
+                ProcessorFactory pf = c.compile(schemaFiles);
+                DataProcessor dp = pf.onPath("/");
+                java.io.File file = getResource("/test/japi/myData5.dat");
+                java.io.FileInputStream fis = new java.io.FileInputStream(file);
+                java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+                                .newChannel(fis);
+                ParseResult res = dp.parse(rbc);
+                boolean err = res.isError();
+                if (!err) {
+                        org.jdom.Document doc = res.result();
+                        org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+                        xo.setFormat(Format.getPrettyFormat());
+                        xo.output(doc, System.out);
+                        org.jdom.Element rootNode = doc.getRootElement();
+                        org.jdom.Element elementGroup = rootNode.getChild("elementGroup", rootNode.getNamespace());
+                        assertTrue(null != elementGroup);
+                        org.jdom.Element groupE2 = elementGroup.getChild("e2", rootNode.getNamespace());
+                        assertTrue(null != groupE2);
+                        org.jdom.Element groupE3 = elementGroup.getChild("e3", rootNode.getNamespace());
+                        assertTrue(null != groupE3);
+                        org.jdom.Element rootE2 = rootNode.getChild("e2", rootNode.getNamespace());
+                        assertTrue(null == rootE2);
+                        org.jdom.Element rootE3 = rootNode.getChild("e3", rootNode.getNamespace());
+                        assertTrue(null == rootE3);
+                }
+                java.util.List<Diagnostic> diags = res.getDiagnostics();
+                for (Diagnostic d : diags) {
+                        System.err.println(d.getMessage());
+                }
+                assertTrue(res.location().isAtEnd());
+        }
+
 }
