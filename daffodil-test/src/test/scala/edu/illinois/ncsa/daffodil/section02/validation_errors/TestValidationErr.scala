@@ -86,4 +86,6 @@ class TestValidationErr {
   @Test def test_assert_validation_limited() { runner.runOneTest("assert_validation_limited") }
   @Test def test_assert_validation_off() { runner.runOneTest("assert_validation_off") }
 
+  @Test def test_minOccurs_notValidationErr_limited() { runner.runOneTest("minOccurs_notValidationErr_limited") }
+//  @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
 }

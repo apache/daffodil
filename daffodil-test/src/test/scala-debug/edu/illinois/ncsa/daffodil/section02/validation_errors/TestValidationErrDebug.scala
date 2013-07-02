@@ -48,6 +48,6 @@ class TestValidationErrDebug {
   @Test def test_checkEnumeration_Fail_on() { runner.runOneTest("checkEnumeration_Fail_on") }
   @Test def test_facetCombos_fail_limited_02() { runner.runOneTest("facetCombos_fail_limited_02") }
   @Test def test_facetCombos_fail_on_02() { runner.runOneTest("facetCombos_fail_on_02") }
-  
+  @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
 
 }

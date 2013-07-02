@@ -191,7 +191,6 @@
 			<tdml:error>pattern</tdml:error>
 			<tdml:error>[0-8]+</tdml:error>
 
-
 		</tdml:validationErrors>
 	</tdml:parserTestCase>
 
@@ -1256,5 +1255,79 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+<!--
+    Test name: minOccurs_notValidationErr_limited
+       Schema: TestFacets
+      Purpose: This test demonstrates that nonconformance with the minOccurs facet is a processing error, NOT a validation 
+               error. Validation = LIMITED.
+--> 
+  <tdml:parserTestCase name="minOccurs_notValidationErr_limited"
+    root="arrayCombo" model="facetCombos" description="Section 02 - Nonconformance with minOccurs is a processing error (not validation) - DFDL-2-009R"
+    validation="on">
+
+    <tdml:document>1,2</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Sep(',') - sequence: Delimiter not found</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="choiceValidation">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="root">
+      <xs:complexType>
+         <xs:choice>
+           <xs:element name="max3" dfdl:lengthKind="delimited">
+             <xs:simpleType>
+               <xs:restriction base="xs:int">
+                 <xs:maxInclusive value="3" />
+               </xs:restriction>
+             </xs:simpleType>
+           </xs:element>
+           <xs:element name="max5" dfdl:lengthKind="delimited">
+             <xs:simpleType>
+               <xs:restriction base="xs:int">
+                 <xs:maxInclusive value="5" />
+               </xs:restriction>
+             </xs:simpleType>
+           </xs:element>
+           <xs:element name="max7" dfdl:lengthKind="delimited">
+             <xs:simpleType>
+               <xs:restriction base="xs:int">
+                 <xs:maxInclusive value="7" />
+               </xs:restriction>
+             </xs:simpleType>
+           </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+    Test name: choice_ignoreValidationErr_01
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when resolving points of uncertainty, validation errors are ignored.
+               Validation = ON.
+--> 
+  <tdml:parserTestCase name="choice_ignoreValidationErr_01"
+    root="root" model="choiceValidation" description="Section 02 - When resolving points of uncertainty, validation errors are ignored - DFDL-2-019R"
+    validation="on">
+
+    <tdml:document>8</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <root>
+          <max3>8</max3>
+        </root>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+
+      <tdml:error>max3</tdml:error>
+      <tdml:error>Value '8' is not facet-valid with respect to maxInclusive '3'</tdml:error>
+
+		</tdml:validationErrors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
