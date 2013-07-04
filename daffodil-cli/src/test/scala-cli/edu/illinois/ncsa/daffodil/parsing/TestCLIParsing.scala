@@ -412,4 +412,13 @@ class TestCLIparsing {
     assert(shell.getExitValue() == 1)
   }
 
+  @Test def test_1941_CLI_Parsing_SimpleParse_leftOverData() {
+    val cmd = "echo 1,2,3,4,,,|./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
+    val shell = Util.start(cmd)
+
+    shell.expectErr("Left over data")
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+
 }
