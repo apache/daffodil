@@ -910,6 +910,103 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="ceil" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(4.2) }"/>
+
+    <xs:element name="ceil02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ceil03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ceil04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="ceilval" type="xs:int" dfdl:inputValueCalc="{ tst:ceiling(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="floor" type="xs:int" dfdl:inputValueCalc="{ fn:floor(4.2) }"/>
+
+    <xs:element name="floor02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="floor03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="floor04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:int" dfdl:inputValueCalc="{ tst:floor(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="round" type="xs:int" dfdl:inputValueCalc="{ fn:round(4.2) }"/>
+
+    <xs:element name="round02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="round03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="round04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="roundval" type="xs:int" dfdl:inputValueCalc="{ tst:round(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="round-hte">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="num" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="precision" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round-half-to-even(../ex:num,../ex:precision) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -998,5 +1095,547 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+<!--
+    Test Name: xPathFunc_ceil_01
+       Schema: XPathFunctions
+         Root: ceil
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_ceil_01" root="ceil"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <ceil>5</ceil>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_ceil_02
+       Schema: XPathFunctions
+         Root: ceil02
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_ceil_02" root="ceil02"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">6.1</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil02>
+          <val>6.1</val>
+          <ceilval>7</ceilval>
+        </ceil02>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_ceil_03
+       Schema: XPathFunctions
+         Root: ceil03
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_ceil_03" root="ceil03"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">string</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_ceil_04
+       Schema: XPathFunctions
+         Root: ceil04
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_ceil_04" root="ceil04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">4.2</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil04>
+          <val>4.2</val>
+          <ceilval>5</ceilval>
+        </ceil04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_ceil_05
+       Schema: XPathFunctions
+         Root: ceil04
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_ceil_05" root="ceil04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-3.4</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil04>
+          <val>-3.4</val>
+          <ceilval>-3</ceilval>
+        </ceil04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_floor_01
+       Schema: XPathFunctions
+         Root: floor
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_floor_01" root="floor"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <floor>4</floor>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_floor_02
+       Schema: XPathFunctions
+         Root: floor02
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_floor_02" root="floor02"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">6.1</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floor02>
+          <val>6.1</val>
+          <floorval>6</floorval>
+        </floor02>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_floor_03
+       Schema: XPathFunctions
+         Root: floor03
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_floor_03" root="floor03"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">string</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_floor_04
+       Schema: XPathFunctions
+         Root: floor04
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_floor_04" root="floor04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">4.2</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floor04>
+          <val>4.2</val>
+          <floorval>4</floorval>
+        </floor04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_floor_05
+       Schema: XPathFunctions
+         Root: floor04
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_floor_05" root="floor04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-3.4</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floor04>
+          <val>-3.4</val>
+          <floorval>-4</floorval>
+        </floor04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_01
+       Schema: XPathFunctions
+         Root: round
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_01" root="round"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <round>4</round>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_02
+       Schema: XPathFunctions
+         Root: round02
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_02" root="round02"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">6.1</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round02>
+          <val>6.1</val>
+          <roundval>6</roundval>
+        </round02>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_03
+       Schema: XPathFunctions
+         Root: round03
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_03" root="round03"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">string</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_04
+       Schema: XPathFunctions
+         Root: round04
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_04" root="round04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">4.2</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round04>
+          <val>4.2</val>
+          <roundval>4</roundval>
+        </round04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_05
+       Schema: XPathFunctions
+         Root: round04
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_05" root="round04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-3.4</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round04>
+          <val>-3.4</val>
+          <roundval>-3</roundval>
+        </round04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_06
+       Schema: XPathFunctions
+         Root: round04
+      Purpose: This test demonstrates the round function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_06" root="round04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">.5</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round04>
+          <val>.5</val>
+          <roundval>1</roundval>
+        </round04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_01
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_01" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.45,0</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.45</num>
+          <precision>0</precision>
+          <roundval>3.0</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_02
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.455 and we're rounding to the hundredths place.
+               Since our determining value is a 5, we round the digit in the hundredths place to the even value - 6 in this case. 
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_02" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.455,2</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.455</num>
+          <precision>2</precision>
+          <roundval>3.46</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_03
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.0000065 and we're rounding to the 6th digit.
+               Since our determining value is a 5, we round the 6th digit to the even value - 6 in this case. 
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_03" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.0000065,6</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.0000065</num>
+          <precision>6</precision>
+          <roundval>3.000006</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_04
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.000065 and we're rounding to the 4th digit.
+               Since our determining value is a 5, we round the 4th digit to the even value - 6 in this case. 
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_04" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.00065,4</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.00065</num>
+          <precision>4</precision>
+          <roundval>3.0006</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_05
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.000065 and we're rounding to the 5th digit.
+               Since our determining value is a 5, we round the 5th digit to the even value - 6 in this case. 
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_05" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.000065,5</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.000065</num>
+          <precision>5</precision>
+          <roundval>3.00006</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_06
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.0000064 and we're rounding to the 6th digit.
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_06" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.0000064,6</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.0000064</num>
+          <precision>6</precision>
+          <roundval>3.000006</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_07
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.0000075 and we're rounding to the 6th digit.
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_07" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.0000075,6</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.0000075</num>
+          <precision>6</precision>
+          <roundval>3.000008</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_round_hte_08
+       Schema: XPathFunctions
+         Root: round-hte
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.00000075 and we're rounding to the 7th digit.
+-->
+
+	<tdml:parserTestCase name="xPathFunc_round_hte_08" root="round-hte"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3.00000075,7</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte>
+          <num>3.00000075</num>
+          <precision>7</precision>
+          <roundval>3.0000008</roundval>
+        </round-hte>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>

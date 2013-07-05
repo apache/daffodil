@@ -189,6 +189,34 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_abs_03() { runner2.runOneTest("xPathFunc_abs_03") }
   @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
   
+  @Test def test_xPathFunc_ceil_01() { runner2.runOneTest("xPathFunc_ceil_01") }
+  @Test def test_xPathFunc_ceil_02() { runner2.runOneTest("xPathFunc_ceil_02") }
+  @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
+  @Test def test_xPathFunc_ceil_04() { runner2.runOneTest("xPathFunc_ceil_04") }
+  @Test def test_xPathFunc_ceil_05() { runner2.runOneTest("xPathFunc_ceil_05") }
+  
+  @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
+  @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
+  @Test def test_xPathFunc_floor_03() { runner2.runOneTest("xPathFunc_floor_03") }
+  @Test def test_xPathFunc_floor_04() { runner2.runOneTest("xPathFunc_floor_04") }
+  @Test def test_xPathFunc_floor_05() { runner2.runOneTest("xPathFunc_floor_05") }
+  
+  @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
+  @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
+  @Test def test_xPathFunc_round_03() { runner2.runOneTest("xPathFunc_round_03") }
+  @Test def test_xPathFunc_round_04() { runner2.runOneTest("xPathFunc_round_04") }
+  @Test def test_xPathFunc_round_05() { runner2.runOneTest("xPathFunc_round_05") }
+  @Test def test_xPathFunc_round_06() { runner2.runOneTest("xPathFunc_round_06") }
+  
+  @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
+  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
+//  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
+  @Test def test_xPathFunc_round_hte_04() { runner2.runOneTest("xPathFunc_round_hte_04") }
+  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
+  @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
+//  @Test def test_xPathFunc_round_hte_07() { runner2.runOneTest("xPathFunc_round_hte_07") }
+//  @Test def test_xPathFunc_round_hte_08() { runner2.runOneTest("xPathFunc_round_hte_08") }
+  
   val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aab = testDir2b + "Functions-neg.tdml"
   lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
