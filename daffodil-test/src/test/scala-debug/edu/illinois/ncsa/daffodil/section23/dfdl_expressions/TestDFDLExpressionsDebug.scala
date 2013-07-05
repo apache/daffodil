@@ -77,4 +77,10 @@ class TestDFDLExpressionsDebug {
   @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
   @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
   @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
+  
+  val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aab = testDir2b + "Functions-neg.tdml"
+  lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
+  //DFDL-691
+  @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
 }

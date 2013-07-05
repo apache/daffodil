@@ -184,6 +184,18 @@ class TestDFDLExpressions {
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
   
+  @Test def test_xPathFunc_abs_01() { runner2.runOneTest("xPathFunc_abs_01") }
+  @Test def test_xPathFunc_abs_02() { runner2.runOneTest("xPathFunc_abs_02") }
+  @Test def test_xPathFunc_abs_03() { runner2.runOneTest("xPathFunc_abs_03") }
+  @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
+  
+  val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aab = testDir2b + "Functions-neg.tdml"
+  lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
+
+  //DFDL-691
+//  @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
+  
   val tdml3 = testDir + "expression_fail.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
 

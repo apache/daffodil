@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="Functions.dfdl.xsd">
 		<dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -878,5 +878,125 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+  <tdml:defineSchema name="XPathFunctions">
+    <dfdl:format ref="ex:daffodilTest1"/>
+
+    <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
+
+    <xs:element name="abs02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="abs03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="abs04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="absval" type="xs:int" dfdl:inputValueCalc="{ tst:abs(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+    Test Name: xPathFunc_abs_01
+       Schema: XPathFunctions
+         Root: abs
+      Purpose: This test demonstrates abs (absolute value) function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_abs_01" root="abs"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <abs>9</abs>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_abs_02
+       Schema: XPathFunctions
+         Root: abs02
+      Purpose: This test demonstrates abs (absolute value) function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_abs_02" root="abs02"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-30</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs02>
+          <val>-30</val>
+          <absval>30</absval>
+        </abs02>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_abs_03
+       Schema: XPathFunctions
+         Root: abs03
+      Purpose: This test demonstrates abs (absolute value) function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_abs_03" root="abs03"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">string</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: xPathFunc_abs_04
+       Schema: XPathFunctions
+         Root: abs04
+      Purpose: This test demonstrates abs (absolute value) function
+-->
+
+	<tdml:parserTestCase name="xPathFunc_abs_04" root="abs04"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-30</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs04>
+          <val>-30</val>
+          <absval>30</absval>
+        </abs04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
 
 </tdml:testSuite>
