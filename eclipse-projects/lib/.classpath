@@ -4,8 +4,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/main/scala"/>
-	<classpathentry kind="src" path="src/main/scala-debug"/>
-	<classpathentry kind="src" path="src/main/scala-new"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom/jdom-1.1.3.jar" sourcepath="lib_managed/srcs/org.jdom/jdom/jdom-1.1.3-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom/jdom-1.1.3-javadoc.jar!/"/>
