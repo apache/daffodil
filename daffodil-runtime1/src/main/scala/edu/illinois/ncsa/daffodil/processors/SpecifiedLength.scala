@@ -112,15 +112,15 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
     log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
-    
+
     log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit)
-    
+
     val postState3 = postState2.withEndBitLimit(pstate.bitLimit)
     val finalState = postState3.status match {
       case Success => {
         // Check that the parsed length is less than or equal to the length of the parent
         //Assert.invariant(postState2.bitPos <= endBitPos)
-        this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children was greater than that of the parent.")
+        this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children (%s bits) was greater than that of the parent (%s bits).", postState2.bitPos, endBitPos)
         postState3.withPos(endBitPos, -1, None)
       }
       case _ => postState3
@@ -135,8 +135,8 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
 
   val charset = e.knownEncodingCharset
   val pattern = e.lengthPattern
-  
-  if(!e.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
+
+  if (!e.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val in = start.inStream

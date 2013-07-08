@@ -296,7 +296,8 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>The parsed length of the children was greater than that of the parent.</tdml:error>
+      <tdml:error>The parsed length of the children</tdml:error>
+      <tdml:error>was greater than that of the parent</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

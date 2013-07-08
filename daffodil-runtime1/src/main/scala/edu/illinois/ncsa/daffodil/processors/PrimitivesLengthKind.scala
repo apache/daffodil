@@ -494,9 +494,17 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
+  val gram = this
+
   def parser: DaffodilParser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<" + gram.name + " " + delimListForPrint + "/>"
+    }
+
+    lazy val delimListForPrint = tm.map { case (delimValue, _, _) => delimValue.prettyExpr }
     //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
-    override def toString = cname + "(" + tm.map { case (delimValue, _, _) => delimValue.prettyExpr } + ")"
+    override def toString = cname + "(" + delimListForPrint + ")"
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 

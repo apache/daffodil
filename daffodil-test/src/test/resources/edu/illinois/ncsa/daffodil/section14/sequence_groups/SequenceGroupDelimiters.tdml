@@ -3,7 +3,8 @@
   description="Section 14 - Sequence Groups with Delimiters" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com" >
 
   <tdml:defineSchema name="SequenceGroupDelimiters-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -446,6 +447,55 @@
       <tdml:error>Unable to parse '450Item: Shirts'</tdml:error>
       <tdml:error>(using up all characters)</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="lastElts">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="implicit" ignoreCase="no" representation="text"
+      lengthKind="delimited" textNumberRep="standard" initiatedContent="no"
+      textTrimKind="none" textStringPadCharacter="%SP;" textNumberPadCharacter="%SP;"
+      textStringJustification="center" textNumberJustification="right"/>
+
+    <xs:group name="lastElts">
+    <!-- DFDL badly needs %SP+; and %S+; the latter meaning whitespace other than line endings. -->
+      <xs:sequence dfdl:separator="%SP; %SP;%SP; %SP;%SP;%SP; %SP;%SP;%SP;%SP; %SP;%SP;%SP;%SP;%SP; %SP;%SP;%SP;%SP;%SP;%SP;" 
+      dfdl:terminator="%NL;">
+
+        <xs:element name="code" type="xs:string"
+          dfdl:lengthKind="delimited" />
+        <xs:element name="another" type="xs:string"
+          dfdl:lengthKind="delimited" minOccurs="0"/>
+        <xs:element name="note" minOccurs="0" type="xs:string"
+               dfdl:lengthKind="pattern" dfdl:lengthPattern=".{0,30}(?=\n)"/>
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="testLastElts">
+      <xs:complexType>
+        <xs:group ref="tns:lastElts" />
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="lastElts" root="testLastElts" 
+    model="lastElts" description="test for last optional element contains the separator, but is not escaped.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[G2  R1
+]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:testLastElts>
+          <tns:code>G2</tns:code>
+          <tns:another>R1</tns:another>
+        </tns:testLastElts>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
   </tdml:parserTestCase>
 
 </tdml:testSuite>

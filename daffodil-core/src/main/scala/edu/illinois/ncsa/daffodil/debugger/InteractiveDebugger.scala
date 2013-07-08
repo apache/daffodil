@@ -53,6 +53,7 @@ import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 
@@ -857,10 +858,17 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           try {
             DFDLFunctions.currentPState = Some(state)
             val expression = expressionList.mkString(" ")
-            val compiledExpr = XPathUtil.compileExpression(expression, parser.context.namespaces, parser.context)
-            val element = state.infoset.asInstanceOf[InfosetElement]
-            val res = element.evalExpression(expression, compiledExpr, state.variableMap, evalType)
-            res match {
+            val element = state.infoset match {
+              case e: InfosetElement => Some(e)
+              case d: InfosetDocument => d.getRootElement()
+            }
+            val res = element.map { e =>
+              val adjustedExpression =
+                if (e.parent.isInstanceOf[InfosetDocument] && (expression == "..")) "." else expression
+              val compiledExpr = XPathUtil.compileExpression(adjustedExpression, parser.context.namespaces, parser.context)
+              e.evalExpression(expression, compiledExpr, state.variableMap, evalType)
+            }
+            res.map {
               case NotANumberResult(v) => debugPrintln(v)
               case NumberResult(n) => debugPrintln(n)
               case StringResult(s) => debugPrintln(s)
@@ -873,11 +881,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
                   } else {
                     xmlNode
                   }
-                val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
-                val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-                val pp = new scala.xml.PrettyPrinter(wrap, 2)
-                val xml = pp.format(xmlClean)
-                debugPrintln(xml)
+                if (xmlNoHidden.length > 0) {
+                  val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
+                  val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
+                  val pp = new scala.xml.PrettyPrinter(wrap, 2)
+                  val xml = pp.format(xmlClean)
+                  debugPrintln(xml)
+                }
               }
             }
           } catch {
@@ -1066,43 +1076,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the input data"
         val longDesc = desc
 
-        val controlPicturesMapping = Map[String, String](
-          ("\u0000", "\u2400"), // NULL
-          ("\u0001", "\u2401"), // START OF HEADING
-          ("\u0002", "\u2402"), // START OF TEXT
-          ("\u0003", "\u2403"), // END OF TEXT
-          ("\u0004", "\u2404"), // END OF TRANSMISSION
-          ("\u0005", "\u2405"), // ENQUIRY
-          ("\u0006", "\u2406"), // ACKNOWLEDGE
-          ("\u0007", "\u2407"), // BELL
-          ("\u0008", "\u2408"), // BACKSPACE
-          ("\u0006", "\u2409"), // HORIZONTAL TABULATION
-          ("\u000A", "\u240A"), // LINE FEED
-          ("\u000B", "\u240B"), // VERTICAL TABULATION
-          ("\u000C", "\u240C"), // FORM FEED
-          ("\u000D", "\u240D"), // CARRIAGE RETURN
-          ("\u000E", "\u240E"), // SHIFT OUT
-          ("\u000F", "\u240F"), // SHIFT IN
-          ("\u0010", "\u2410"), // DATA LINK ESCAPE
-          ("\u0011", "\u2411"), // DEVICE CONTROL ONE
-          ("\u0012", "\u2412"), // DEVICE CONTROL TWO
-          ("\u0013", "\u2413"), // DEVICE CONTROL THREE
-          ("\u0014", "\u2414"), // DEVICE CONTROL FOUR
-          ("\u0015", "\u2415"), // NEGATIVE ACKNOWLEDGE
-          ("\u0016", "\u2416"), // SYNCHRONOUS IDLE
-          ("\u0017", "\u2417"), // END OF TRANSMISSION BLOCK
-          ("\u0018", "\u2418"), // CANCEL
-          ("\u0019", "\u2419"), // END OF MEDIUM
-          ("\u001A", "\u241A"), // SUBSTITUTE
-          ("\u001B", "\u241B"), // ESCAPE
-          ("\u001C", "\u241C"), // FILE SEPARATOR
-          ("\u001D", "\u241D"), // GROUP SEPARATOR
-          ("\u001E", "\u241E"), // RECORD SEPARATOR
-          ("\u001F", "\u241F"), // UNIT SEPARATOR
-          //("\u0020", "\u2420"), // SPACE
-          ("\u007F", "\u2421") // DELETE
-          )
-
         def printData(l: Int, prestate: PState, state: PState, parser: Parser) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
 
@@ -1142,7 +1115,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
               val paddedFormatStr = "%s" + formatStr + " (%d to %d)".format(dumpLoc + numPrespaces, dumpLoc + numSpaces)
 
               val rawUtf8 = dataLoc.utf8Dump(length)
-              val utf8 = controlPicturesMapping.foldLeft(rawUtf8) { (s, m) => s.replaceAll(m._1, m._2) }
+              val utf8 = Misc.remapControlsAndLineEndingsToVisibleGlyphs(rawUtf8)
               val lines = utf8.grouped(wrap)
 
               debugPrintln(paddedFormatStr.format(" " * numPrespaces), "  ")

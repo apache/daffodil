@@ -186,14 +186,23 @@ class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
   val jdomElt = {
     if (jDoc.hasRootElement()) Some(jDoc.getRootElement())
     else None
-  }//None
+  }
 
   def toXML: scala.xml.Node = {
     if (jDoc.hasRootElement()) XMLUtils.element2Elem(jDoc.getRootElement())
     else <dafint:document xmlns:dafint={ XMLUtils.INT_NS }/>
   }
 
+  var rootElement: Option[InfosetElement] =
+    if (jDoc.hasRootElement()) Some(new InfosetElement(jDoc.getRootElement))
+    else None
+
+  def getRootElement() = {
+    rootElement
+  }
+
   def addElement(e: InfosetElement) = {
+    rootElement = Some(e)
     // Content of the document is the root element.
     jDoc.setRootElement(e.jdomElt.get)
     // jDoc.addContent(e.jdomElt.get)
@@ -201,7 +210,7 @@ class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
 
 }
 
-abstract class InfosetItem {
+sealed abstract class InfosetItem {
 
   def jdomElt: Option[org.jdom.Element]
 

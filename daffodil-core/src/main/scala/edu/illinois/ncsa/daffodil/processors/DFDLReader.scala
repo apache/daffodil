@@ -405,7 +405,10 @@ class IteratorInputStream(psb: PagedSeq[Byte], startBytePos0b: Int, endBytePos0b
       || !psb.isDefinedAt(currentBytePos0b)) -1
     else {
       IteratorInputStream.calls += 1
-      val res = psb(currentBytePos0b)
+      val byte = psb(currentBytePos0b)
+      // Signed byte comes back. Character code 0xFF or 255 comes back here as -1 since this is a PagedSeq[Byte]
+      // So, if it's a negative byte, convert to a positive int.
+      val res: Int = if (byte < 0) byte + 256 else byte
       currentBytePos0b += 1
       res
     }

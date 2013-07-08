@@ -191,4 +191,65 @@ object Misc {
     rbc
   }
 
+  /**
+   * This function creates a representation of data which doesn't
+   * contain any whitespace characters that jump around the screen.
+   * It replaces those with characters that have a simple glyph.
+   *
+   * The point of this is when you display the stream of data for
+   * debugging, or for a diagnostic message,
+   * the characters which control position like CR, LF, FF,
+   * VT, HT, BS, etc. all make it hard to figure out what is going on.
+   * Replacing these with the picture characters (designed for this purpose)
+   * in the unicode x2400 block helps.
+   */
+  def remapControlsAndLineEndingsToVisibleGlyphs(s: String) = {
+    def remap(c: Char) = {
+      val URC = 0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
+      val code = c.toInt match {
+        //
+        // C0 Control pictures
+        case n if (n <= 0x1F) => n + 0x2400
+        case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
+        case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
+        //
+        // Unicode separators & joiners
+        case 0x00A0 => URC // no-break space
+        case 0x200B => URC // zero width space
+        case 0x2028 => URC // line separator 
+        case 0x2029 => URC // paragraph separator 
+        case 0x200C => URC // zero width non-joiner
+        case 0x200D => URC // zero width joiner
+        case 0x2060 => URC // word joiner
+        // bi-di controls
+        case 0x200E | 0x200F => URC
+        case b if (b >= 0x202A && b <= 0x202E) => URC
+        // byte order mark
+        case 0xFFFE => URC // ZWNBS aka Byte Order Mark
+        case 0xFFFF => URC // non-character FFFF
+        // we assume surrogate codepoints all have a glyph (depends on font used of course)
+        //
+        // TODO: this could go on and on. There's a flock of 'space' characters (EM SPACE)
+        // all over the place in Unicode. 
+        // 
+        // TODO: combining characters,
+        // all whitespace, zero-width, and combining/joining characters would be 
+        // represented by a separate glyph-character.
+        //
+        // Probably could be done by checking the character against some
+        // unicode regex character classes like \p{M} which is the class 
+        // of combining mark characters
+        //
+        //
+        // Special case - if incoming character is one of the glyph
+        // characters we're remapping onto, then change to URC
+        //
+        case n if (n > 0x2400 && n < 0x2423) => URC
+        case _ => c
+      }
+      code.toChar
+    }
+    s.map { remap(_) }.mkString
+  }
+
 }
