@@ -58,6 +58,7 @@ class TestCLIdebugger {
 
     shell.expect("(debug)")
     shell.expect("<ex:sneaky>5</ex:sneaky>")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -66,6 +67,7 @@ class TestCLIdebugger {
     val shell = Util.start(cmd)
     shell.expect("(debug)")
     shell.expect("error: undefined command: garbage")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -113,6 +115,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
     shell.expect("<tns:cell>3</tns:cell>")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
   /* 
@@ -140,6 +143,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
     shell.expect("<ex:e4>400</ex:e4>")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -150,6 +154,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
 
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -182,6 +187,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
     shell.expect("<tns:matrix")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -212,6 +218,7 @@ class TestCLIdebugger {
     //    shell.send("delete breakpoint 1\n")
     //    shell.send("continue\n")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -238,6 +245,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
     shell.expect("<tns:cell>6</tns:cell>")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -269,6 +277,7 @@ class TestCLIdebugger {
     shell.expect("<tns:cell>6</tns:cell>")
 
     //  quit
+    shell.stop()
     shell.expectClose()
   }
 
@@ -305,6 +314,7 @@ class TestCLIdebugger {
     //    shell.send("disable breakpoint 1\n")
     //    shell.send("continue\n")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -328,6 +338,7 @@ class TestCLIdebugger {
 
     //    shell.send("continue\n")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -354,6 +365,7 @@ class TestCLIdebugger {
     //    shell.send("disable breakpoint 1\n")
     //    shell.send("continue\n")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -378,6 +390,7 @@ class TestCLIdebugger {
     //    shell.send("continue\n")
     shell.expect(output1)
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
 
@@ -406,6 +419,7 @@ class TestCLIdebugger {
     //    shell.send("disable breakpoint 1\n")
     //    shell.send("continue\n")
     //    shell.send("quit\n")
+    shell.stop()
     shell.expectClose()
   }
   
@@ -421,6 +435,7 @@ class TestCLIdebugger {
     shell.expect("groupIndex: 2")
     shell.expect("groupIndex: 4")
     shell.expect("<ex:price>89.99</ex:price>")
+    shell.stop()
     shell.expectClose()
   }
 
