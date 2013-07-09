@@ -6420,7 +6420,7 @@
     Purpose: This test should fail because the value of totalDigits is 0 and therefore not valid.
   -->
 
-  <tdml:parserTestCase name="totalDigits09" root="tD_e2"
+  <tdml:parserTestCase name="totalDigits09" root="tD_e6"
     model="totalDigitsSchemaIsolate3" description="Section 5 - Facets - totalDigits - DFDL-5-056R">
     <tdml:document>4.224</tdml:document>
       <tdml:errors>
