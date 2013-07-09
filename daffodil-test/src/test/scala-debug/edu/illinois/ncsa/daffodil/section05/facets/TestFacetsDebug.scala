@@ -49,8 +49,5 @@ class TestFacetsDebug {
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
-  // Note, these won't pass until Decimal is implemented
-  @Test def test_totalDigitsAndFractionDigits_Fail { runner.runOneTest("checkTotalDigitsFractionDigits_Fail")}  
 
-  @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
 }

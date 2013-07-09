@@ -110,23 +110,15 @@ class TestFacets {
   @Test def test_maxLength05() { runner.runOneTest("maxLength05") }
   @Test def test_maxLength06() { runner.runOneTest("maxLength06") }
 
-//  @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
-//  @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
   @Test def test_totalDigits03() { runner.runOneTest("totalDigits03") }
   @Test def test_totalDigits04() { runner.runOneTest("totalDigits04") }
   @Test def test_totalDigits05() { runner.runOneTest("totalDigits05") }
-//  @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits06() { runner.runOneTest("totalDigits06") }
   @Test def test_totalDigits07() { runner.runOneTest("totalDigits07") }
   @Test def test_totalDigits08() { runner.runOneTest("totalDigits08") }
 
-//  @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
-//  @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
   @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
   @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
-//  @Test def test_fractionTotalDigitsPass() { runner.runOneTest("fractionTotalDigitsPass") }
-//  @Test def test_fractionTotalDigitsFail2() { runner.runOneTest("fractionTotalDigitsFail2") }
-//  @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
   @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
  
   @Test def test_arraysMinOccursZero() { runner.runOneTest("arraysMinOccursZero") }
@@ -226,10 +218,11 @@ class TestFacets {
   @Test def test_fractionTotalDigitsPass() { runner.runOneTest("fractionTotalDigitsPass") }
   @Test def test_fractionTotalDigitsFail2() { runner.runOneTest("fractionTotalDigitsFail2") }
   @Test def test_fractionTotalDigitsPass2() { runner.runOneTest("fractionTotalDigitsPass2") }
+  @Test def test_fractionTotalDigitsFail3() { runner.runOneTest("fractionTotalDigitsFail3") }
 
   @Test def test_totalDigits01() { runner.runOneTest("totalDigits01") }
   @Test def test_totalDigits02() { runner.runOneTest("totalDigits02") }
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
-
+  @Test def test_totalDigits09() { runner.runOneTest("totalDigits09") }
 }
