@@ -121,6 +121,8 @@
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
       lengthUnits="bytes" />
     <xs:element name="integer01" type="xs:integer" />
+    <xs:element name="integer02" type="xs:integer"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="32" />
     <xs:element name="posint01" type="xs:nonNegativeInteger" />
     <xs:element name="int01" type="xs:int" />
     <xs:element name="l_1" type="xs:long" />
@@ -1130,6 +1132,34 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <uL_01>55</uL_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="integer_binary"
+    root="integer02" model="SimpleTypes-binary"
+    description="Section 5 Schema types-unsignedShort - DFDL-5-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0000000000000000000000000000000000000000000000010000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>18446744073709551616</integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="integer_binary_02"
+    root="integer02" model="SimpleTypes-binary"
+    description="Section 5 Schema types-unsignedShort - DFDL-5-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF0000000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>-18446744073709551616</integer02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
