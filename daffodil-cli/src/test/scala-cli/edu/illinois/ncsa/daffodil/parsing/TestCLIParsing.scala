@@ -381,5 +381,35 @@ class TestCLIparsing {
     shell.send("exit\n")
     shell.expectClose()
   }
+  
+  @Test def test_1971_CLI_Parsing_traceMode01() {
+    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expect("parser: <ElementEnd name='rabbitHole'/>")
+
+    shell.send("exit\n")
+    shell.expectClose()
+    assert(shell.getExitValue() == 0)
+  }
+  
+  @Test def test_1972_CLI_Parsing_traceMode02() {
+    val cmd = "echo random,data,should,work| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expect("parser: <ElementEnd name='base'/>")
+
+    shell.send("exit\n")
+    shell.expectClose()
+    assert(shell.getExitValue() == 0)
+  }
+  
+  @Test def test_1973_CLI_Parsing_traceMode03() {
+    val cmd = "echo 0,1,2,3,,,,| ./daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expectErr("Left over data.")
+
+    shell.send("exit\n")
+    shell.expectClose()
+    assert(shell.getExitValue() == 1)
+  }
 
 }
