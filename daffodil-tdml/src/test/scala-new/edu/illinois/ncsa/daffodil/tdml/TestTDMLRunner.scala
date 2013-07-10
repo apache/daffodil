@@ -101,9 +101,7 @@ class TestTDMLRunnerNew {
             </tdml:dfdlInfoset>
           </tdml:infoset>
           <tdml:validationErrors>
-            
-              <tdml:error>Specifying this should throw exception</tdml:error>
-            
+            <tdml:error>Specifying this should throw exception</tdml:error>
           </tdml:validationErrors>
         </tdml:parserTestCase>
       </tdml:testSuite>
@@ -265,4 +263,107 @@ class TestTDMLRunnerNew {
     assertTrue(msg.contains("Validation errors found where none were expected"))
   }
 
+  /**
+   * Test to make sure we can use freeform regex and also use the comment syntax.
+   */
+  @Test def testRegexWithFreeFormAndComments1() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1"/>
+          <xsd:element name="data" type="xsd:string" dfdl:lengthKind="pattern" dfdl:terminator="abcdef">
+            <xsd:annotation>
+              <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element>
+                  <dfdl:property name="lengthPattern"><![CDATA[(?x) # free form
+                 abc # a comment
+                 # a line with only a comment
+                 123 # another comment It has to see this to fail the match resulting in zero length
+              ]]></dfdl:property>
+                </dfdl:element>
+              </xsd:appinfo>
+            </xsd:annotation>
+          </xsd:element>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <data/>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testRegex")
+  }
+
+  @Test def testRegexWithFreeFormAndComments2() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1"/>
+          <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
+            <xsd:annotation>
+              <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                <!-- This assert passes only if free form works, and comments work. -->
+                <dfdl:assert testKind='pattern'><![CDATA[(?x) # free form
+                 abc # a comment
+                 # a line with only a comment
+                 123 # another comment
+              ]]></dfdl:assert>
+              </xsd:appinfo>
+            </xsd:annotation>
+          </xsd:element>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abc123]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <data>abc123</data>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testRegex")
+  }
+
+  @Test def testRegexWithFreeFormAndComments3() = {
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1"/>
+          <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
+            <xsd:annotation>
+              <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                <!-- This assert passes only if free form works, and comments work. -->
+                <dfdl:assert testKind='pattern'><![CDATA[(?x) # free form
+                 abc # a comment
+                 # a line with only a comment
+                 123 # another comment
+              ]]></dfdl:assert>
+              </xsd:appinfo>
+            </xsd:annotation>
+          </xsd:element>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:errors>
+            <tdml:error>assertion failed</tdml:error>
+          </tdml:errors>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testRegex")
+  }
 }

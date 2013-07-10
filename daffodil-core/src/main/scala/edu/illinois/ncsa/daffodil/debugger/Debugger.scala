@@ -16,6 +16,13 @@ object Debugger {
 
   private var debugger: Debugger = new InteractiveDebugger(new TraceDebuggerRunner)
 
+  def withTracing(removeHidden: Boolean = true) = {
+    Debugger.setDebugging(true)
+    val idbg = new InteractiveDebugger(new TraceDebuggerRunner)
+    idbg.DebuggerConfig.removeHidden = removeHidden
+    Debugger.setDebugger(idbg)
+  }
+
   /**
    * Wrap things to debug with this rather than just calling setDebugging(true).
    * That way it doesn't get turned on for every subsequent test after when

@@ -25,9 +25,57 @@
     <xs:element name="regExpr_06" type="xs:string"
       dfdl:lengthKind="pattern" dfdl:lengthPattern="(?U-U)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
     <xs:element name="regExpr_07" type="xs:string"
-      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?imsx-imsx:X)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+      dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="(?imsx-imsx:X)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+
+  <xs:element name="data_01" type="xs:string"
+    dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert testKind="pattern" testPattern="(a|b|c)"
+          message="Did not find a or b or c" /> 
+          <!-- THIS ASSERT SHOULD FAIL IN TEST testAssertWithPattern1 -->
+      </xs:appinfo>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="data_02" type="xs:string"
+    dfdl:lengthKind="pattern" dfdl:lengthPattern="(1|2|3)" />
+
+  <xs:element name="a1" dfdl:lengthKind="pattern"
+    dfdl:lengthPattern="(a|b|c|1|2|3).">
+    <xs:complexType>
+      <xs:sequence >
+        <xs:choice>
+          <xs:element ref="data_01"/>
+          <!-- Note that if you put the assert from data_01 above right here, then the test will pass. -->
+          <xs:element ref="data_02">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="pattern" testPattern="(1|2|3)"
+                  message="Did not find 1 or 2 or 3" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
   </tdml:defineSchema>
+  
+   <tdml:parserTestCase name="testAssertWithPattern1" root="a1"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
+    <tdml:document>1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+         <a1>
+          <data_02>1</data_02>
+        </a1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:parserTestCase name="testRegEx_01" root="regExpr_01"
     model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions - DFDL-24-002R">

@@ -369,9 +369,12 @@ case class StringPatternMatched(e: ElementBase)
 
         val postState = result match {
           case _: DelimParseFailure => {
-            // TODO: Is this right? A no match constitutes zero length.  So Nil would need to be checked?
+            // A no match means zero length.  
             // Because we check for Nil first, this is valid and allowed.
-            PE(start, "%s: No match found!", this.toString())
+            // Since it's zero length, the start state is the end state. 
+            val currentElement = start.parentElement
+            currentElement.setDataValue("") // empty string is the value.
+            start
           }
           case s: DelimParseSuccess => {
             val endBitPos = start.bitPos + s.numBits

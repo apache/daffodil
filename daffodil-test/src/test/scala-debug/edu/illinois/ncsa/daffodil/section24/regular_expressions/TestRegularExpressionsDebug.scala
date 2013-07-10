@@ -52,4 +52,6 @@ class TestRegularExpressions2 {
   @Test def test_testRegEx_05() { runner.runOneTest("testRegEx_05") }
   @Test def test_testRegEx_06() { runner.runOneTest("testRegEx_06") }
   @Test def test_testRegEx_07() { runner.runOneTest("testRegEx_07") }
+
+  @Test def test_assertWithPattern1() { runner.runOneTest("testAssertWithPattern1") }
 }

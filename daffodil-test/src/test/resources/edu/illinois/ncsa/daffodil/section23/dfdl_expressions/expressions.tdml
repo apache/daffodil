@@ -1970,18 +1970,20 @@ c' } "  />
      Test Name: regexLookaheadFail
         Schema: newRegex 
           Root: s1
-       Purpose: This test demonstrates the case that a lookahead regex fails to find a match 
+       Purpose: This test demonstrates the case that a lookahead regex fails to find a match. 
+       Note that for lengthKind='pattern' no match means zero length. Not an error.
 -->
   
   <tdml:parserTestCase name="regexLookaheadFail" root="s1"
     model="newRegex" description="Section -  - DFDL-R">
 
     <tdml:document>45</tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>StringPatternMatched</tdml:error>
-      <tdml:error>No match found!</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+    <tdml:dfdlInfoset>
+    <s1><e1></e1><extra>45</extra></s1>
+    </tdml:dfdlInfoset>
+    </tdml:infoset>
+ 
   </tdml:parserTestCase>
 
 <!--

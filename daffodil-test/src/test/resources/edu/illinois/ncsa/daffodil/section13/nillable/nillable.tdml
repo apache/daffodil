@@ -67,7 +67,7 @@
         <xs:sequence>
           <xs:element name="e1" type="xs:string"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="cat"
-            minOccurs="0" maxOccurs="1" />
+            minOccurs="0" maxOccurs="1" dfdl:occursCountKind="implicit"/>
           <xs:element name="e2" type="xs:string" nillable="true"
             dfdl:lengthKind="pattern" dfdl:lengthPattern="\d"
             dfdl:nilKind="literalValue" dfdl:nilValue="5" />

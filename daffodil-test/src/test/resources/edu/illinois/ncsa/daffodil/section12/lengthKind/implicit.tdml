@@ -12,32 +12,55 @@
     <xs:element name="timeImp" type="xs:time"
       dfdl:lengthKind="implicit" dfdl:representation="text"/>
 
-    <xs:element name="data_01" type="xs:string"
-      dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)" />
+  <xs:element name="data_01" type="xs:string"
+    dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)" />
 
-    <xs:element name="data_02" type="xs:string"
-      dfdl:lengthKind="pattern" dfdl:lengthPattern="(1|2|3)" />
+  <xs:element name="data_02" type="xs:string"
+    dfdl:lengthKind="pattern" dfdl:lengthPattern="(1|2|3)" />
+
+  <!-- There are asserts on the element refs below. It would be better if 
+    those were moved onto the data_01 and data_02 element declarations, but due 
+    to bug DFDL-809, that doesn't work as of updating these tests to work with 
+    the fix for DFDL-808. -->
 
     <xs:element name="seq_01">
       <xs:complexType>
         <xs:sequence>
-          <xs:element ref="ex:data_02" />
-          <xs:element ref="ex:data_01" />
+          <xs:element ref="ex:data_02">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="pattern" testPattern="(1|2|3)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element ref="ex:data_01">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="pattern" testPattern="(a|b|c)"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="seq_02" dfdl:lengthKind="implicit"
-      dfdl:initiator="?">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:choice>
-            <xs:element ref="ex:seq_01" />
-            <xs:element ref="ex:data_01" />
-          </xs:choice>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
+  <xs:element name="seq_02" dfdl:lengthKind="implicit"
+    dfdl:initiator="?">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:choice>
+          <xs:element ref="ex:seq_01" />
+          <xs:element ref="ex:data_01">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert testKind="pattern" testPattern="(a|b|c)" />
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 
     <xs:element name="seq_03" dfdl:lengthKind="implicit"
       dfdl:initiator="%WSP*;">
