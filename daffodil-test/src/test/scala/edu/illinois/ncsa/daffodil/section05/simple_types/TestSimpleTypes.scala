@@ -402,5 +402,9 @@ class TestSimpleTypes {
 
   @Test def test_nonNegativeInteger_bin() { runner.runOneTest("nonNegativeInteger_bin") }
   @Test def test_nonNegativeInteger_bin2() { runner.runOneTest("nonNegativeInteger_bin2") }
+  @Test def test_nonNegativeInteger_bin3() { runner.runOneTest("nonNegativeInteger_bin3") }
+  @Test def test_nonNegativeInteger_bin4() { runner.runOneTest("nonNegativeInteger_bin4") }
+  @Test def test_nonNegativeInteger_bin5() { runner.runOneTest("nonNegativeInteger_bin5") }
+  @Test def test_nonNegativeInteger_bin6() { runner.runOneTest("nonNegativeInteger_bin6") }
 
 }

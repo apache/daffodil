@@ -75,11 +75,19 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
     <xs:element name="nonNegIntTextFail3" type="xs:nonNegativeInteger"
       dfdl:lengthKind="implicit" />
+
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
     <xs:element name="nonNegIntBin2" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
-	<xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
+    <xs:element name="nonNegIntBin3" type="xs:nonNegativeInteger"
+      dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 120 }"/>
+    <xs:element name="nonNegIntBin4" type="xs:nonNegativeInteger"
+      dfdl:representation="binary" dfdl:lengthKind="implicit"/>
+    <xs:element name="nonNegIntBin5" type="xs:nonNegativeInteger" 
+      dfdl:representation="binary" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ -30 }"/>
+  
+  <xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
 	  dfdl:lengthKind="explicit" dfdl:length="{ 23 }" />
 	<xs:element name="timeText" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
 	  dfdl:lengthKind="explicit" dfdl:length="{ 8 }" />
@@ -1240,6 +1248,12 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+    Test name: nonNegativeInteger_bin
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the binary (byte) representation of a nonNegativeInteger 
+-->
+  
   <tdml:parserTestCase name="nonNegativeInteger_bin" root="nonNegIntBin"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
 
@@ -1320,6 +1334,12 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+<!--
+    Test name: nonNegativeInteger_bin2
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the binary (byte) representation of a nonNegativeInteger 
+-->
+  
   <tdml:parserTestCase name="nonNegativeInteger_bin2" root="nonNegIntBin2"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
 
@@ -1340,6 +1360,72 @@
         <nonNegIntBin2>11175693</nonNegIntBin2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: nonNegativeInteger_bin3
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the binary (byte) representation of an incredibly large (120-byte) nonNegativeInteger 
+-->
+  
+  <tdml:parserTestCase name="nonNegativeInteger_bin3" root="nonNegIntBin3"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><tdml:documentPart type="byte">ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff ff ff fb ff</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntBin3>9745311687936079042843746757026091197042946705165743876959785908244667854052986275254933377841396794395998120145029104503341270419780205915373182931007470944525469396117371327135150410607606360284466138738258885090248076626632045692502435376365495969243226354423446700666685349234716179455</nonNegIntBin3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: nonNegativeInteger_bin4
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that binary representations of nonNegativeIntegers cannot have lengthKind "implicit" 
+-->
+  
+  <tdml:parserTestCase name="nonNegativeInteger_bin4" root="nonNegIntBin4"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 12 - Implicit Length Values - nonNegativeInteger - DFDL-12-060R">
+
+    <tdml:document><tdml:documentPart type="byte">ff ff fb ff ff ff fb</tdml:documentPart></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Size of binary data 'nonNegativeInteger' cannot be determined implicitly.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: nonNegativeInteger_bin5
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the binary (bit) representation of a nonNegativeInteger 
+-->
+  
+  <tdml:parserTestCase name="nonNegativeInteger_bin5" root="nonNegIntBin2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><tdml:documentPart type="bits">10101010 10000111 00001101</tdml:documentPart></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntBin2>11175693</nonNegIntBin2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test name: nonNegativeInteger_bin6
+    Schema: SimpleTypes-Embedded.dfdl.xsd
+    Purpose: This test demonstrates the nonNegativeInteger simple type
+-->
+  
+  <tdml:parserTestCase name="nonNegativeInteger_bin6" root="nonNegIntBin5"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><tdml:documentPart type="byte"></tdml:documentPart></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Cannot convert -30 to NonNegativeInteger</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="dateText" root="dateText"

@@ -246,6 +246,9 @@
     <xs:element name="uByte" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
     <xs:element name="float" type="xs:float" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="double" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    
+    <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    <xs:element name="nonNeg2" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
       
  <!-- TEXTUAL DATA -->
       
@@ -1666,6 +1669,70 @@
       <tdml:error>Value 'characters' is not facet-valid with respect to enumeration '[bits, bytes]'</tdml:error>
       <tdml:error>It must be a value from the enumeration</tdml:error>
     </tdml:errors> 
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentNonNegativeInteger
+        Schema: implicitAlignmentSchema
+          Root: nonNeg
+          Purpose: This test demonstrates that the implicit alignment for nonNegativeIntegers is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentNonNegativeInteger" root="nonNeg"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01110101 11010010</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">00000000 00000000 00000000 00000010 00000001</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg>513</nonNeg>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentNonNegativeInteger2
+        Schema: implicitAlignmentSchema
+          Root: nonNeg
+          Purpose: This test demonstrates that the implicit alignment for nonNegativeIntegers is 1 byte
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentNonNegativeInteger2" root="nonNeg"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">00 00 00 02 01</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg>513</nonNeg>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentNonNegativeInteger3
+        Schema: implicitAlignmentSchema
+          Root: nonNeg2
+          Purpose: This test demonstrates that the implicit alignment for nonNegativeIntegers is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentNonNegativeInteger3" root="nonNeg2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">1001010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 10001001</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg2>137</nonNeg2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
