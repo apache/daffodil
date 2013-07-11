@@ -395,10 +395,12 @@ class TestSimpleTypes {
   @Test def test_unsignedInt() { runner.runOneTest("TestUnsignedInt") }
 
   @Test def test_nonNegativeInteger_text() { runner.runOneTest("nonNegativeInteger_text") }
+  @Test def test_nonNegativeInteger_text2() { runner.runOneTest("nonNegativeInteger_text2") }
   @Test def test_nonNegativeInteger_text_fail() { runner.runOneTest("nonNegativeInteger_text_fail") }
+  @Test def test_nonNegativeInteger_text_fail2() { runner.runOneTest("nonNegativeInteger_text_fail2") }
+  @Test def test_nonNegativeInteger_text_fail3() { runner.runOneTest("nonNegativeInteger_text_fail3") }
 
   @Test def test_nonNegativeInteger_bin() { runner.runOneTest("nonNegativeInteger_bin") }
   @Test def test_nonNegativeInteger_bin2() { runner.runOneTest("nonNegativeInteger_bin2") }
-
 
 }

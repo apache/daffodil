@@ -67,8 +67,14 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="nonNegIntText" type="xs:nonNegativeInteger"
       dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+    <xs:element name="nonNegIntText2" type="xs:nonNegativeInteger"
+      dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
     <xs:element name="nonNegIntTextFail" type="xs:nonNegativeInteger"
       dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
+    <xs:element name="nonNegIntTextFail2" type="xs:nonNegativeInteger"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+    <xs:element name="nonNegIntTextFail3" type="xs:nonNegativeInteger"
+      dfdl:lengthKind="implicit" />
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
     <xs:element name="nonNegIntBin2" type="xs:nonNegativeInteger"
@@ -1193,6 +1199,17 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="nonNegativeInteger_text2" root="nonNegIntText2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><![CDATA[0]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntText2>0</nonNegIntText2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="nonNegativeInteger_text_fail" root="nonNegIntTextFail"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
 
@@ -1203,6 +1220,26 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="nonNegativeInteger_text_fail2" root="nonNegIntTextFail2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><![CDATA[1.5]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Non Negative Integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nonNegativeInteger_text_fail3" root="nonNegIntTextFail3"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
+
+    <tdml:document><![CDATA[0]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Type nonNegativeInteger cannot have lengthKind='implicit' when representation='text'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="nonNegativeInteger_bin" root="nonNegIntBin"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-nonNegativeInteger - DFDL-5-016R">
 
