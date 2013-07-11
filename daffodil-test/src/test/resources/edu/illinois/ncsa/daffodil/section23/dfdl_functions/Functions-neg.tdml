@@ -13,10 +13,9 @@
 
 <!--
     Test Name: fn_not_declared
-       Schema: XPathFunctions
+       Schema: Functions.dfdl.xsd
          Root: abs
-      Purpose: This test demonstrates that if a function uses the fn prefix but it is not defined,
-               an SDE occurs.
+      Purpose: This test demonstrates that tdml-embedded schemas include default namespaces.
 -->
 
 	<tdml:parserTestCase name="fn_not_declared" root="abs"
@@ -25,8 +24,30 @@
 		<tdml:document>
 			<tdml:documentPart type="text"></tdml:documentPart>
 		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs>9</abs>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: fn_not_declared_2
+       Schema: Functions-neg.dfdl.xsd
+         Root: abs
+      Purpose: This test demonstrates that if a function uses the fn prefix but it is not defined,
+               an SDE occurs.
+-->
+
+	<tdml:parserTestCase name="fn_not_declared_2" root="abs"
+		model="Functions-neg.dfdl.xsd" description="">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Prefix fn has not been declared</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -221,8 +221,8 @@ class TestDFDLExpressions {
   val aab = testDir2b + "Functions-neg.tdml"
   lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
 
-  //DFDL-691
-//  @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
+  @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
+  @Test def test_fn_not_declared_2() { runner2b.runOneTest("fn_not_declared_2") }
   
   val tdml3 = testDir + "expression_fail.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
