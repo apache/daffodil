@@ -50,4 +50,8 @@ class TestValidationErrDebug {
   @Test def test_facetCombos_fail_on_02() { runner.runOneTest("facetCombos_fail_on_02") }
   @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
 
+  //DFDL-812
+  @Test def test_choice_errorNotSuppressed_01() { runner.runOneTest("choice_errorNotSuppressed_01") }
+  @Test def test_choice_errorNotSuppressed_02() { runner.runOneTest("choice_errorNotSuppressed_02") }
+
 }
