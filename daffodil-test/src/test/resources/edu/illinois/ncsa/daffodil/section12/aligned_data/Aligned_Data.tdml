@@ -249,6 +249,9 @@
     
     <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="nonNeg2" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
+    
+    <xs:element name="integer" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    <xs:element name="integer2" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
       
  <!-- TEXTUAL DATA -->
       
@@ -1731,6 +1734,70 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <nonNeg2>137</nonNeg2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentInteger1
+        Schema: implicitAlignmentSchema
+          Root: integer2
+          Purpose: This test demonstrates that the implicit alignment for integer is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentInteger1" root="integer2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">1001010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 10001001</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer2>137</integer2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentInteger2
+        Schema: implicitAlignmentSchema
+          Root: integer
+          Purpose: This test demonstrates that the implicit alignment for integer is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentInteger2" root="integer"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+    
+    <tdml:document>
+      <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">00 00 00 02 01</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer>513</integer>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: impAlignmentInteger3
+        Schema: implicitAlignmentSchema
+          Root: integer
+          Purpose: This test demonstrates that the implicit alignment for integer is 8 bits
+  -->
+  
+  <tdml:parserTestCase name="impAlignmentInteger3" root="integer"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - integer - DFDL-12-017R">
+    
+    <tdml:document>
+      <tdml:documentPart type="byte">01 01</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">ff ff ff fd ff</tdml:documentPart> <!-- nonNeg -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer>-513</integer>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

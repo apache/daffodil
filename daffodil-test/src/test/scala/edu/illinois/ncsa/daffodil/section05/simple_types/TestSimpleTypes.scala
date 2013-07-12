@@ -368,8 +368,6 @@ class TestSimpleTypes {
 
   @Test def test_int_implicit() { runner.runOneTest("int_implicit") }
 
-  @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
-
   //  @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
   @Test def test_literalChar_padding() { runner.runOneTest("literalChar_padding") }
@@ -406,5 +404,11 @@ class TestSimpleTypes {
   @Test def test_nonNegativeInteger_bin4() { runner.runOneTest("nonNegativeInteger_bin4") }
   @Test def test_nonNegativeInteger_bin5() { runner.runOneTest("nonNegativeInteger_bin5") }
   @Test def test_nonNegativeInteger_bin6() { runner.runOneTest("nonNegativeInteger_bin6") }
+  
+  @Test def test_integer_binary() { runner.runOneTest("integer_binary") }
+  @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
+  @Test def test_integer_binary_02() { runner.runOneTest("integer_binary_02") }
+  @Test def test_integer_binary_03() { runner.runOneTest("integer_binary_03") }
+  @Test def test_integer_binary_04() { runner.runOneTest("integer_binary_04") }
 
 }
