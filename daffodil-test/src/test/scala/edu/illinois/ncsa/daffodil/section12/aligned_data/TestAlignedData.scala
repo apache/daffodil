@@ -132,6 +132,9 @@ class TestAlignedData {
   @Test def test_impAlignmentInteger1() = { runner1.runOneTest("impAlignmentInteger1") }
   @Test def test_impAlignmentInteger2() = { runner1.runOneTest("impAlignmentInteger2") }
   @Test def test_impAlignmentInteger3() = { runner1.runOneTest("impAlignmentInteger3") }
+  @Test def test_implicitAlignmentNonNegativeIntegerT() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT") }
+  @Test def test_implicitAlignmentNonNegativeIntegerT2() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT2") }
+  @Test def test_implicitAlignmentNonNegativeIntegerT_Fail() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT_Fail") }
 
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))

@@ -276,6 +276,7 @@
     <xs:element name="dateT2" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="EEEE 'in' MMMM - yyyy" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
     <xs:element name="timeT" type="xs:time" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
     <xs:element name="dateTimeT" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="EEEE MM yyyy - hh:mm:ss" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
+    <xs:element name="nonNegativeIntegerT" type="xs:nonNegativeInteger" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
     
     <xs:element name="intT" type="xs:int" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="shortT" type="xs:short" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="6"/>
@@ -1802,4 +1803,73 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+     Test Name: implicitAlignmentNonNegativeIntegerT
+        Schema: implicitAlignmentSchema
+          Root: nonNegativeIntegerT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'nonNegativeInteger' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT" root="nonNegativeIntegerT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- nonNegativeIntegerT -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegativeIntegerT>42</nonNegativeIntegerT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentNonNegativeIntegerT2
+        Schema: implicitAlignmentSchema
+          Root: nonNegativeIntegerT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'nonNegativeInteger' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT2" root="nonNegativeIntegerT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">10101010</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- nonNegativeIntegerT -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegativeIntegerT>42</nonNegativeIntegerT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentNonNegativeIntegerT_Fail
+        Schema: implicitAlignmentSchema
+          Root: nonNegativeIntegerT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'nonNegativeInteger' is encoding-specific (generally 8 bits) and will fail with improper alignment.
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT_Fail" root="nonNegativeIntegerT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- nonNegativeIntegerT -->
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Non Negative Integer (for xs:nonNegativeInteger)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>(using up all characters).</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>
