@@ -23,6 +23,8 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
     <xs:element name="integer02" type="xs:integer"
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+    <xs:element name="integer03" type="xs:integer"
+      dfdl:lengthKind="implicit" />
     <xs:element name="int01" type="xs:int" dfdl:lengthKind="explicit"
       dfdl:length="13" />
     <xs:element name="int02" type="xs:int" dfdl:lengthKind="explicit"
@@ -202,6 +204,38 @@
         <integer01 xs:type="xs:integer">55555555555555555555</integer01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="integer2" root="integer02"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
+
+    <tdml:document><![CDATA[-123]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <integer02 xs:type="xs:integer">-123</integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="integer_fail" root="integer02"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
+
+    <tdml:document><![CDATA[1.23]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unbounded Integer (for xs:integer)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="integer_fail2" root="integer03"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-integer - DFDL-5-011R">
+
+    <tdml:document><![CDATA[123]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Type Integer cannot have lengthKind='implicit' when representation='text'</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="Int01" root="int01"

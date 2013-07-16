@@ -207,6 +207,10 @@ class TestSimpleTypes {
   @Test def test_Long1() { runner.runOneTest("Long1") }
   @Test def test_BigInteger1() { runner.runOneTest("BigInteger1") }
   @Test def test_Integer01() { runner.runOneTest("Integer01") }
+  @Test def test_integer2() { runner.runOneTest("integer2") }
+  @Test def test_integer_fail() { runner.runOneTest("integer_fail") }
+  @Test def test_integer_fail2() { runner.runOneTest("integer_fail2") }
+
   @Test def test_Int01() { runner.runOneTest("Int01") }
   @Test def test_int_error() { runner.runOneTest("int_error") }
 
