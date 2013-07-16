@@ -153,7 +153,12 @@
     <xs:element name="uB_01" type="xs:unsignedByte" />
     <xs:element name="uL_01" type="xs:unsignedLong" />
     <xs:element name="d_01" type="xs:double" />
-    <xs:element name="dec_01" type="xs:decimal" />
+    <xs:element name="dec_01" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="0"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
+    <xs:element name="dec_02" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="5"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
+    <xs:element name="dec_03" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="-5"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
     <xs:element name="hb_01" type="xs:hexBinary" 
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
   </tdml:defineSchema>
@@ -1068,6 +1073,19 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="decimal_binary"
+    root="dec_01" model="SimpleTypes-binary"
+    description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
+    <tdml:document>
+      <tdml:documentPart type="byte">0000000000000001</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_01>1</dec_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="unsignedInt_binary2"
     root="uI_01" model="SimpleTypes-binary"
     description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
@@ -1603,7 +1621,43 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+   <tdml:parserTestCase name="decimal_binary_01" root="dec_01"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_01>123456789</dec_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_02" root="dec_02"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_02>1234.56789</dec_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_03" root="dec_03"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_03>12345678900000</dec_03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+ 
   <!--
     Test name: double_binary_03
     Schema: SimpleTypes-binary

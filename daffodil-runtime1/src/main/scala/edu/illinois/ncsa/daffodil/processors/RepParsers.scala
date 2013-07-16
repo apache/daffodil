@@ -54,10 +54,10 @@ abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends U
 
   abstract class RepParser(context: LocalElementBase, baseName: String) extends Parser(context) {
     def checkN(pstate: PState, n: Long): Option[PState] = {
-      if (n > CompilerTunableParameters.occursCountMax) {
+      if (n > DaffodilTunableParameters.occursCountMax) {
         // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
         // after all....
-        Some(PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, CompilerTunableParameters.occursCountMax))
+        Some(PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.occursCountMax))
       } else None
     }
 
@@ -279,7 +279,7 @@ case class OccursCountExpression(e: ElementBase)
         priorElement.removeContent(pseudoElement) // TODO: faster way? This might involve searching. We should keep the index.
         val ocLong = oc.asInstanceOf[Long]
         if (ocLong < 0 ||
-          ocLong > CompilerTunableParameters.occursCountMax) {
+          ocLong > DaffodilTunableParameters.occursCountMax) {
           return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", exprText, ocLong)
         }
         postEvalState.setOccursCount(ocLong)

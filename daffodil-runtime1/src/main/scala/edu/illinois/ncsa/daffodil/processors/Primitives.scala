@@ -908,7 +908,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //  start.parentElement.setDataValue(asString.toString())
         //} else
         val convertedValue: T = convertValue(value, nBits.toInt)
-        start.parentElement.setDataValue(convertedValue.toString)
+        start.parentElement.setDataValue(convertValueToString(convertedValue))
         start.withPos(newPos, -1, None)
       } catch {
         case e: IndexOutOfBoundsException => { return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage()) }
@@ -916,6 +916,10 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
       }
     }
+  }
+
+  def convertValueToString(n: T): String = {
+    n.toString
   }
 
   def unparser = DummyUnparser
@@ -1012,6 +1016,21 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
       case _ => Assert.invariantFailed("byte array should be 9 long")
     }
     res
+  }
+}
+
+class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
+  extends BinaryNumberBase[BigDecimal](e)
+  with RuntimeExplicitByteOrderMixin[BigDecimal]
+  with KnownLengthInBitsMixin[BigDecimal] {
+
+  final def convertValue(n: BigInt, ignored_msb: Int): BigDecimal = {
+    val res = BigDecimal(n, e.binaryDecimalVirtualPoint)
+    res
+  }
+
+  override def convertValueToString(n: BigDecimal): String = {
+    n.underlying.toPlainString
   }
 }
 
@@ -1202,7 +1221,7 @@ case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e,
 
     def parse(start: PState): PState = {
       val postState1 = start.withArrayIndexStack(1L :: start.arrayIndexStack)
-      val postState2 = postState1.withOccursCountStack(CompilerTunableParameters.occursCountMax :: postState1.occursCountStack)
+      val postState2 = postState1.withOccursCountStack(DaffodilTunableParameters.occursCountMax :: postState1.occursCountStack)
       postState2
     }
   }
@@ -1287,8 +1306,8 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
 case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
-  e.schemaDefinitionUnless(e.leadingSkip < CompilerTunableParameters.maxSkipLength,
-    "Property leadingSkip %s is larger than limit %s", e.leadingSkip, CompilerTunableParameters.maxSkipLength)
+  e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
+    "Property leadingSkip %s is larger than limit %s", e.leadingSkip, DaffodilTunableParameters.maxSkipLength)
 
   val alignment = e.alignmentUnits match {
     case AlignmentUnits.Bits => 1
@@ -1335,10 +1354,10 @@ case class AlignmentFill(e: Term) extends Terminal(e, !(e.alignment == "1" && e.
 }
 
 case class TrailingSkipRegion(e: Term) extends Terminal(e, e.trailingSkip > 0) {
-  //e.SDE(e.trailingSkip < CompilerTunableParameters.maxSkipLength, 
+  //e.SDE(e.trailingSkip < DaffodilTunableParameters.maxSkipLength, 
   //      "Property trailingSkip %s is larger than limit %s", e.trailingSkip, Compiler.maxSkipLength)
-  e.schemaDefinitionUnless(e.trailingSkip < CompilerTunableParameters.maxSkipLength,
-    "Property trailingSkip %s is larger than limit %s", e.trailingSkip, CompilerTunableParameters.maxSkipLength)
+  e.schemaDefinitionUnless(e.trailingSkip < DaffodilTunableParameters.maxSkipLength,
+    "Property trailingSkip %s is larger than limit %s", e.trailingSkip, DaffodilTunableParameters.maxSkipLength)
   val alignment = e.alignmentUnits match {
     case AlignmentUnits.Bits => 1
     case AlignmentUnits.Bytes => 8

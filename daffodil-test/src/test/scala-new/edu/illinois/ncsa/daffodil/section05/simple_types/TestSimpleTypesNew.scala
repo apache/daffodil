@@ -47,5 +47,9 @@ class TestSimpleTypesNew {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_decimal_binary() { runner.runOneTest("decimal_binary") }
+  @Test def test_decimal_binary_01() { runner.runOneTest("decimal_binary_01") }
+  @Test def test_decimal_binary_02() { runner.runOneTest("decimal_binary_02") }
+  @Test def test_decimal_binary_03() { runner.runOneTest("decimal_binary_03") }
 
 }

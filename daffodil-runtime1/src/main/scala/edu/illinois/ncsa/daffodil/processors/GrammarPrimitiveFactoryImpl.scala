@@ -40,6 +40,7 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def HexBinaryRuntimeLengthBinaryNumber(e: ElementBase): Terminal = new HexBinaryRuntimeLengthBinaryNumber(e)
   def FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal = new FloatKnownLengthRuntimeByteOrderBinaryNumber(e, len)
   def DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal = new DoubleKnownLengthRuntimeByteOrderBinaryNumber(e, len)
+  def DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal = new DecimalKnownLengthRuntimeByteOrderBinaryNumber(e, len)
   def PackedIntPrim(e: ElementBase): Terminal = new PackedIntPrim(e)
   def BCDIntPrim(e: ElementBase): Terminal = new BCDIntPrim(e)
   def StartChildren(ct: ComplexTypeBase, guard: Boolean = true): Terminal = new StartChildren(ct: ComplexTypeBase, guard)

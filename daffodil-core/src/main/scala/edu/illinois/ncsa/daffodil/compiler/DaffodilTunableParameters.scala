@@ -9,7 +9,7 @@ package edu.illinois.ncsa.daffodil.compiler
  * and fail (and backtrack to try something else) when, for an example, a delimiter
  * is missing from the data.
  */
-object CompilerTunableParameters {
+object DaffodilTunableParameters {
 
   //FIXME: These tunables need to be changable per compilation hence
   //stored on the ProcessorFactory, not global like this. 
@@ -23,6 +23,7 @@ object CompilerTunableParameters {
   def maxFieldContentLengthInBytes: Long = 1024 // Can be as large as Int.MaxValue
   def occursCountMax: Long = 1024 // Can be as large as Int.MaxValue 
   def maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
+  def maxBinaryDecimalVirtualPoint: Int = 200 // Can be as large as Int.MaxValue
 
   // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
 

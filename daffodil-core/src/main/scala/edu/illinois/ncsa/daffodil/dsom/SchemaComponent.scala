@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.compiler.CompilerTunableParameters
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -307,7 +307,7 @@ trait ElementFormDefaultMixin
             // then we just take head of this list, and we get tryPre
             // Note: this does NOT create the giant list of all Int values.
             val uniqueSuffix = if (i == 0) "" else i.toString
-            val prefixStem = CompilerTunableParameters.generatedNamespacePrefixStem
+            val prefixStem = DaffodilTunableParameters.generatedNamespacePrefixStem
             val tryPre = prefixStem + uniqueSuffix
             if (xml.scope.getURI(tryPre) == null)
               Some(tryPre) // tryPre is not bound to a namespace, so we can use it.

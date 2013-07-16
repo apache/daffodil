@@ -65,6 +65,7 @@ trait PrimitiveFactoryBase {
   def HexBinaryRuntimeLengthBinaryNumber(e: ElementBase): Terminal
   def FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal
   def DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal
+  def DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, len: Long): Terminal
   def PackedIntPrim(e: ElementBase): Terminal
   def BCDIntPrim(e: ElementBase): Terminal
   def StartChildren(ct: ComplexTypeBase, guard: Boolean = true): Terminal

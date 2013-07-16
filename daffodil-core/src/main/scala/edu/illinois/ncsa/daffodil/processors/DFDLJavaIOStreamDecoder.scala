@@ -52,7 +52,7 @@ import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.processors.charset.SupportsInitialBitOffset
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.charset.CharacterSetAlignmentError
-import edu.illinois.ncsa.daffodil.compiler.CompilerTunableParameters
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -66,7 +66,7 @@ import edu.illinois.ncsa.daffodil.compiler.CompilerTunableParameters
  */
 object DFDLJavaIOStreamDecoder {
 
-  private val DEFAULT_BYTE_BUFFER_SIZE: Int = CompilerTunableParameters.readerByteBufferSize.toInt
+  private val DEFAULT_BYTE_BUFFER_SIZE: Int = DaffodilTunableParameters.readerByteBufferSize.toInt
 
   def forInputStreamReader(in: InputStream, charset: Charset, bitOffset0to7: Int, bitLimit: Long): DFDLJavaIOStreamDecoder = {
 

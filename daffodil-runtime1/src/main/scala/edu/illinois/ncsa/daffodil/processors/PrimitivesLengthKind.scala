@@ -258,7 +258,7 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
   }
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }
@@ -274,7 +274,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     (nBytes, pstate)
   }
 
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }
@@ -286,7 +286,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: 
   lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
   lazy val lengthText = e.length.constantAsString
 
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }
@@ -299,7 +299,7 @@ case class StringVariableLengthInBytes(e: ElementBase)
   lazy val parserName = "StringVariableLengthInBytes"
   lazy val lengthText = exprText
 
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }
@@ -312,7 +312,7 @@ case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
   lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
   lazy val lengthText = exprText
 
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }
@@ -324,7 +324,7 @@ case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
   lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
   lazy val lengthText = e.length.constantAsString
 
-  // val maxBytes = CompilerTunableParameters.maxFieldContentLengthInBytes
+  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
   //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
   //  var cbufSize = 0
 }

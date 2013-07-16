@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
@@ -635,6 +636,12 @@ trait ElementBaseGrammarMixin
           case (_, _, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
         }
 
+      case PrimType.Decimal => {
+        Assert.invariant(binaryIntRep == bin)
+        if (math.abs(binaryDecimalVirtualPoint) > DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
+          SDE("Property binaryDecimalVirtualPoint %s is larger than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
+        prims.DecimalKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
+      }
       //        (primType, staticBinaryFloatRep) match {
       //          case (PrimType.Double, ieee) => new BinaryNumber[Double](this, 64) {
       //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
