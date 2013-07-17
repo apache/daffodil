@@ -135,6 +135,7 @@ class TestAlignedData {
 
   @Test def test_implicitAlignmentNonNegativeIntegerT() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT") }
   @Test def test_implicitAlignmentNonNegativeIntegerT2() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT2") }
+  @Test def test_implicitAlignmentNonNegativeIntegerT3() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT3") }
   @Test def test_implicitAlignmentNonNegativeIntegerT_Fail() = { runner1.runOneTest("implicitAlignmentNonNegativeIntegerT_Fail") }
 
   @Test def test_implicitAlignmentIntegerT() = { runner1.runOneTest("implicitAlignmentIntegerT") }

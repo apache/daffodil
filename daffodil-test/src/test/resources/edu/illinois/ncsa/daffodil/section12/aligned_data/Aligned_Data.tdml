@@ -277,6 +277,7 @@
     <xs:element name="timeT" type="xs:time" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
     <xs:element name="dateTimeT" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="EEEE MM yyyy - hh:mm:ss" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
     <xs:element name="nonNegativeIntegerT" type="xs:nonNegativeInteger" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
+    <xs:element name="nonNegativeIntegerTBits" type="xs:nonNegativeInteger" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     <xs:element name="integerT" type="xs:integer" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
     <xs:element name="integerTBits" type="xs:integer" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     
@@ -1852,6 +1853,30 @@
   </tdml:parserTestCase>
 
   <!--
+     Test Name: implicitAlignmentNonNegativeIntegerT3
+        Schema: implicitAlignmentSchema
+          Root: nonNegativeIntegerTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'nonNegativeInteger' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentNonNegativeIntegerT3" root="nonNegativeIntegerTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - nonNegativeInteger (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- nonNegativeIntegerTBits -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegativeIntegerTBits>42</nonNegativeIntegerTBits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
      Test Name: implicitAlignmentNonNegativeIntegerT_Fail
         Schema: implicitAlignmentSchema
           Root: nonNegativeIntegerT
@@ -1911,7 +1936,7 @@
     <tdml:document>
       <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
       <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
-      <tdml:documentPart type="text">42</tdml:documentPart> <!-- integerT -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- integerTBits -->
     </tdml:document>
 
     <tdml:infoset>
