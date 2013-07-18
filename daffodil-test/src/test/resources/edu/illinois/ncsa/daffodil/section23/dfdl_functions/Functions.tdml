@@ -1637,5 +1637,187 @@
       </tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
+  
+  <tdml:defineSchema name="constructorSchema">
+    <dfdl:format ref="daffodilTest1" />
+
+    <xs:element name="integer01" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(45.4) }"/>
+    <xs:element name="integer02">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="intified" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="integer03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="float" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="intified" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(../ex:float) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="integer04" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(xs:float(45.4)) }"/>
+
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: integer_constructor_01
+       Schema: constructorSchema
+         Root: integer01
+      Purpose: This tests demonstrates the use of the xs:integer constructor function and its ability to
+               convert a fractional number to an integer
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_01" root="integer01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer01>45</integer01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_02
+       Schema: constructorSchema
+         Root: integer02
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a string representation
+               of an integer to an integer type
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_02" root="integer02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">184</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>
+          <string>184</string>
+          <intified>184</intified>
+        </integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_03
+       Schema: constructorSchema
+         Root: integer02
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a string representation
+               of an integer to an integer type. In this case the string cannot be converted to an integer and an error should occur.
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_03" root="integer02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">forty-eight</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "forty-eight" to an integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_04
+       Schema: constructorSchema
+         Root: integer02
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a string representation
+               of an integer to an integer type
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_04" root="integer02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-184</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>
+          <string>-184</string>
+          <intified>-184</intified>
+        </integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_05
+       Schema: constructorSchema
+         Root: integer02
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a string representation
+               of a fractional number to an integer type
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_05" root="integer02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-184.7</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>
+          <string>-184.7</string>
+          <intified>-185</intified>
+        </integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_06
+       Schema: constructorSchema
+         Root: integer03
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a string representation
+               of a fractional number to an integer type
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_06" root="integer03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">45.4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer02>
+          <float>45.4</float>
+          <intified>45</intified>
+        </integer02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: integer_constructor_07
+       Schema: constructorSchema
+         Root: integer04
+      Purpose: This tests demonstrates the use of the xs:integer constructor function to convert a float representation
+               of a fractional number to an integer type
+  -->
+
+  <tdml:parserTestCase name="integer_constructor_07" root="integer04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:integer()  - DFDL-23-078R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <integer04>45</integer04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

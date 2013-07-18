@@ -150,6 +150,15 @@ class TestDFDLExpressions {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_integer_constructor_01() { runner2.runOneTest("integer_constructor_01") }
+  @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }
+  @Test def test_integer_constructor_03() { runner2.runOneTest("integer_constructor_03") }
+  @Test def test_integer_constructor_04() { runner2.runOneTest("integer_constructor_04") }
+//  DFDL-818
+//  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
+//  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
+  @Test def test_integer_constructor_07() { runner2.runOneTest("integer_constructor_07") }
 
   @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_1() { runner2.runOneTest("testBit_1") }

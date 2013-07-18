@@ -60,6 +60,10 @@ class TestDFDLExpressionsDebug {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+//  DFDL-818
+  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
+  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
+
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
   @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
   @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
