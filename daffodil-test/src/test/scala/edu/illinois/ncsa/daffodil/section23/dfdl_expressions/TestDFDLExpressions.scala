@@ -150,6 +150,13 @@ class TestDFDLExpressions {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+//  DFDL-622  
+//  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
+//  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
+//  DFDL-821
+//  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
+  @Test def test_fnDateTime_constructor_04() { runner2.runOneTest("fnDateTime_constructor_04") }
   
   @Test def test_integer_constructor_01() { runner2.runOneTest("integer_constructor_01") }
   @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }

@@ -1659,6 +1659,34 @@
       </xs:complexType>
     </xs:element>
     <xs:element name="integer04" type="xs:integer" dfdl:inputValueCalc="{ xs:integer(xs:float(45.4)) }"/>
+    
+    <xs:element name="dateTime01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="dateTime02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMMM-dd-yy"/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ssZ"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="dateTime03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMMM-dd-yyZ"/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ssZ"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -1816,6 +1844,106 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <integer04>45</integer04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_01
+       Schema: constructorSchema
+         Root: dateTime01
+      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_01" root="dateTime01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03-31-1996,04:55:30</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime01>
+          <date>1996-03-31+00:00</date>
+          <time>04:55:30.000000+00:00</time>
+          <dateTime>1996-03-31T04:55:30.000000+00:00</dateTime>
+        </dateTime01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_02
+       Schema: constructorSchema
+         Root: dateTime01
+      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_02" root="dateTime01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">01-31-1996,04:55:30</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime01>
+          <date>1996-01-31+00:00</date>
+          <time>04:55:30.000000+00:00</time>
+          <dateTime>1996-01-31T04:55:30.000000+00:00</dateTime>
+        </dateTime01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_03
+       Schema: constructorSchema
+         Root: dateTime02
+      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_03" root="dateTime02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">March-31-96,04:55:30-0800</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime01>
+          <date>1996-01-31+00:00</date>
+          <time>04:55:30.000000-08:00</time>
+          <dateTime>1996-01-31T04:55:30.000000-08:00</dateTime>
+        </dateTime01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_04
+       Schema: constructorSchema
+         Root: dateTime03
+      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_04" root="dateTime03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">March-31-96-0800,04:55:30-0800</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <dateTime03>
+            <date>1996-03-31-08:00</date>
+            <time>04:55:30.000000-08:00</time>
+            <dateTime>1996-03-31T04:55:30-08:00</dateTime>
+          </dateTime03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

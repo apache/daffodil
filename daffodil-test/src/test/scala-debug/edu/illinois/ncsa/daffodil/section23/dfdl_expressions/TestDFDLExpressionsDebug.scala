@@ -64,6 +64,13 @@ class TestDFDLExpressionsDebug {
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
 
+//  DFDL-622
+  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
+  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
+
+//  DFDL-821
+  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
+
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
   @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
   @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
