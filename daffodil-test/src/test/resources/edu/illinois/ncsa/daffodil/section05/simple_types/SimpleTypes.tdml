@@ -77,6 +77,14 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
     <xs:element name="nonNegIntTextFail3" type="xs:nonNegativeInteger"
       dfdl:lengthKind="implicit" />
+    <xs:element name="decimalText" type="xs:decimal"
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+    <xs:element name="decimalText2" type="xs:decimal"
+      dfdl:lengthKind="explicit" dfdl:length="{ 3 }" />
+    <xs:element name="decimalText3" type="xs:decimal"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+    <xs:element name="decimalTextFail" type="xs:decimal"
+      dfdl:lengthKind="implicit" />
 
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
@@ -1536,6 +1544,59 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="decimal_text" root="decimalText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R">
+
+    <tdml:document><![CDATA[1.8446744073709551615]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalText>1.8446744073709551615</decimalText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_text2" root="decimalText2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R">
+
+    <tdml:document><![CDATA[.55]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalText2>0.55</decimalText2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_text3" root="decimalText3"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-010R">
+
+    <tdml:document><![CDATA[-1.5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalText3>-1.5</decimalText3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_text_fail" root="decimalTextFail"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-decimal - DFDL-5-016R">
+
+    <tdml:document><![CDATA[1.5]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Type decimal cannot have lengthKind='implicit' when representation='text'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="characterDuringValidDecimal" root="decimalText2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid decimal - DFDL-5-016R">
+
+    <tdml:document><![CDATA[9a9]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Unbounded Decimal (for xs:decimal)</tdml:error>
+      <tdml:error>Unable to parse '9a9'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="dateText" root="dateText"
     model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-date - DFDL-5-016R">
 

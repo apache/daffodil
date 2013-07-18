@@ -415,4 +415,9 @@ class TestSimpleTypes {
   @Test def test_integer_binary_03() { runner.runOneTest("integer_binary_03") }
   @Test def test_integer_binary_04() { runner.runOneTest("integer_binary_04") }
 
+  @Test def test_decimal_text() { runner.runOneTest("decimal_text") }
+  @Test def test_decimal_text2() { runner.runOneTest("decimal_text2") }
+  @Test def test_decimal_text3() { runner.runOneTest("decimal_text3") }
+  @Test def test_decimal_text_fail() { runner.runOneTest("decimal_text_fail") }
+  @Test def test_characterDuringValidDecimal() { runner.runOneTest("characterDuringValidDecimal") }
 }

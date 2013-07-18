@@ -280,7 +280,8 @@
     <xs:element name="nonNegativeIntegerTBits" type="xs:nonNegativeInteger" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     <xs:element name="integerT" type="xs:integer" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
     <xs:element name="integerTBits" type="xs:integer" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
-    
+    <xs:element name="decimalT" type="xs:decimal" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
+    <xs:element name="decimalTBits" type="xs:decimal" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     <xs:element name="intT" type="xs:int" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="shortT" type="xs:short" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="6"/>
     <xs:element name="byteT" type="xs:byte" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
@@ -1951,7 +1952,7 @@
      Test Name: implicitAlignmentIntegerT_Fail
         Schema: implicitAlignmentSchema
           Root: integerT
-       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'nonNegativeInteger' is encoding-specific (generally 8 bits) and will fail with improper alignment.
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'integer' is encoding-specific (generally 8 bits) and will fail with improper alignment.
   -->
 
   <tdml:parserTestCase name="implicitAlignmentIntegerT_Fail" root="integerT"
@@ -1965,6 +1966,77 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Convert to Unbounded Integer (for xs:integer)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>(using up all characters).</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDecimalT
+        Schema: implicitAlignmentSchema
+          Root: decimalT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'decimal' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDecimalT" root="decimalT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42.3</tdml:documentPart> <!-- decimalT -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalT>42.3</decimalT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDecimalT2
+        Schema: implicitAlignmentSchema
+          Root: decimalTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'decimal' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDecimalT2" root="decimalTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">42.3</tdml:documentPart> <!-- decimalTBits -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalTBits>42.3</decimalTBits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDecimalT_Fail
+        Schema: implicitAlignmentSchema
+          Root: decimalT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'decimal' is encoding-specific (generally 8 bits) and will fail with improper alignment.
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDecimalT_Fail" root="decimalT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal (text) - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- decimalT -->
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unbounded Decimal (for xs:decimal)</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
       <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>
