@@ -2046,7 +2046,7 @@
     Test name: fnDateTime_constructor_01
        Schema: constructorSchema
          Root: dateTime01
-      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
                xs:time into an xs:dateTime
   -->
 
@@ -2071,7 +2071,7 @@
     Test name: fnDateTime_constructor_02
        Schema: constructorSchema
          Root: dateTime01
-      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
                xs:time into an xs:dateTime
   -->
 
@@ -2096,7 +2096,7 @@
     Test name: fnDateTime_constructor_03
        Schema: constructorSchema
          Root: dateTime02
-      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
                xs:time into an xs:dateTime
   -->
 
@@ -2121,7 +2121,7 @@
     Test name: fnDateTime_constructor_04
        Schema: constructorSchema
          Root: dateTime03
-      Purpose: This tests demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
                xs:time into an xs:dateTime
   -->
 
@@ -3058,7 +3058,7 @@
       <tdml:dfdlInfoset>
         <dateTime04>
           <string>1996-02-04T12:30:34</string>
-          <dateTime>1996-02-04T12:30:34</dateTime>
+          <dateTime>1996-02-04T12:30:34.000000+00:00</dateTime>
         </dateTime04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3166,7 +3166,7 @@
       <tdml:dfdlInfoset>
         <time01>
           <string>12:49:00</string>
-          <time>12:49:00</time>
+          <time>12:49:00.000000+00:00</time>
         </time01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3270,7 +3270,7 @@
       <tdml:dfdlInfoset>
         <date01>
           <string>1991-03-04</string>
-          <date>1991-03-04</date>
+          <date>1991-03-04+00:00</date>
         </date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3314,7 +3314,7 @@
       <tdml:dfdlInfoset>
         <date01>
           <string>2013-03-04</string>
-          <date>2013-03-04</date>
+          <date>2013-03-04+00:00</date>
         </date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
