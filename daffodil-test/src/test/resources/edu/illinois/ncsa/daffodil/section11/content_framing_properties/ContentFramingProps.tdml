@@ -531,4 +531,29 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="iso-8859-1">
+    <dfdl:format ref="daffodilTest1" representation="text" encoding="iso-8859-1"
+      separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string" />
+  </tdml:defineSchema>
+
+  <!--
+    Test name: encoding_iso-8859-1
+    Schema: iso-8859-1
+    Purpose: This test demonstrates that the byte 0xFF does not end data.
+  -->
+  <tdml:parserTestCase name="encoding_iso-8859-1" root="e1" model="iso-8859-1"
+    description="">
+    <tdml:document>
+     <tdml:documentPart type="byte"><![CDATA[FF 31 32 33]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+          <e1>ÿ123</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
