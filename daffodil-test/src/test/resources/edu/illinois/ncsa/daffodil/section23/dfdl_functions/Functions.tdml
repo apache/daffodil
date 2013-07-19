@@ -1674,7 +1674,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MMMM-dd-yy"/>
           <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ssZ"/>
-          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(fn:adjust-date-to-timezone(../ex:date, fn:timezone-from-time(../ex:time)), ../ex:time) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1915,9 +1915,9 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <dateTime01>
-          <date>1996-01-31+00:00</date>
+          <date>1996-03-31+00:00</date>
           <time>04:55:30.000000-08:00</time>
-          <dateTime>1996-01-31T04:55:30.000000-08:00</dateTime>
+          <dateTime>1996-03-30T04:55:30.000000-08:00</dateTime>
         </dateTime01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
