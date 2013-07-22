@@ -1687,6 +1687,70 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="int01" type="xs:int" dfdl:inputValueCalc="{ xs:int(45.2) }"/>
+    <xs:element name="int02" type="xs:int" dfdl:inputValueCalc="{ xs:int(60) }"/>
+    <xs:element name="int03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="intified" type="xs:int" dfdl:inputValueCalc="{ xs:int(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="int04" type="xs:int" dfdl:inputValueCalc="{ xs:int(-60) }"/>
+    
+    <xs:element name="long01" type="xs:long" dfdl:inputValueCalc="{ xs:long(-50) }"/>
+    <xs:element name="long02" type="xs:long" dfdl:inputValueCalc="{ xs:long(12345678987654321) }"/>
+    <xs:element name="long03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="longified" type="xs:long" dfdl:inputValueCalc="{ xs:long(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ulong01" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(-50) }"/>
+    <xs:element name="ulong02" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(12345678987654321) }"/>
+    <xs:element name="ulong03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="ulongified" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedLong(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ushort01" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(-50) }"/>
+    <xs:element name="ushort02" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(12345678987654321) }"/>
+    <xs:element name="ushort03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="ushortified" type="xs:unsignedShort" dfdl:inputValueCalc="{ xs:unsignedShort(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="short01" type="xs:short" dfdl:inputValueCalc="{ xs:short(-50) }"/>
+    <xs:element name="short02" type="xs:short" dfdl:inputValueCalc="{ xs:short(12345678987654321) }"/>
+    <xs:element name="short03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="shortified" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="short04">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="delimited"/>
+          <xs:element name="shortified" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -1944,6 +2008,515 @@
             <time>04:55:30.000000-08:00</time>
             <dateTime>1996-03-31T04:55:30-08:00</dateTime>
           </dateTime03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_constructor_01
+       Schema: constructorSchema
+         Root: int01
+      Purpose: This test demonstrates the use of the xs:int constructor function and its ability to
+               convert a fractional number to an int
+  -->
+
+  <tdml:parserTestCase name="int_constructor_01" root="int01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:int()  - DFDL-23-080R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int01>45</int01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_constructor_02
+       Schema: constructorSchema
+         Root: int02
+      Purpose: This test demonstrates the use of the xs:int constructor function and its ability to
+               convert a value to an int type
+  -->
+
+  <tdml:parserTestCase name="int_constructor_02" root="int02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:int()  - DFDL-23-080R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int02>60</int02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_constructor_03
+       Schema: constructorSchema
+         Root: int03
+      Purpose: This test demonstrates the use of the xs:int constructor function and its ability to
+               convert a parsed value into an int
+  -->
+
+  <tdml:parserTestCase name="int_constructor_03" root="int03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:int()  - DFDL-23-080R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">44444444</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <int03>
+          <string>44444444</string>
+          <intified>44444444</intified>
+        </int03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: int_constructor_04
+       Schema: constructorSchema
+         Root: int03
+      Purpose: This test demonstrates the use of the xs:int constructor function and its ability to
+               convert a parsed value into an int. In this case the data is invalid and an error should occur.
+  -->
+
+  <tdml:parserTestCase name="int_constructor_04" root="int03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:int()  - DFDL-23-080R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not an int!</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>Cannot convert string "not an int!" to an integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_constructor_01
+       Schema: constructorSchema
+         Root: long01
+      Purpose: This test demonstrates the use of the xs:long constructor function and its ability to
+               convert a number to a long
+  -->
+
+  <tdml:parserTestCase name="long_constructor_01" root="long01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:long()  - DFDL-23-079R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <long01>-50</long01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_constructor_02
+       Schema: constructorSchema
+         Root: long02
+      Purpose: This test demonstrates the use of the xs:long constructor function and its ability to
+               convert a number to a long
+  -->
+
+  <tdml:parserTestCase name="long_constructor_02" root="long02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:long()  - DFDL-23-079R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <long02>12345678987654321</long02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_constructor_03
+       Schema: constructorSchema
+         Root: long03
+      Purpose: This test demonstrates the use of the xs:long constructor function and its ability to
+               convert a string (numeric) to a long
+  -->
+
+  <tdml:parserTestCase name="long_constructor_03" root="long03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:long()  - DFDL-23-079R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <long03>
+          <string>123456789</string>
+          <longified>123456789</longified>
+        </long03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: long_constructor_04
+       Schema: constructorSchema
+         Root: long04
+      Purpose: This test demonstrates that if you provide a non-numeric string to the long constructor you get an appropriate error
+  -->
+
+  <tdml:parserTestCase name="long_constructor_04" root="long03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:long()  - DFDL-23-079R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not longable</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "not longable"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ulong_constructor_01
+       Schema: constructorSchema
+         Root: ulong01
+      Purpose: This test demonstrates the use of the xs:unsignedLong constructor function and its ability to
+               convert a number to an unsigned long
+  -->
+
+  <tdml:parserTestCase name="ulong_constructor_01" root="ulong01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedLong</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ulong_constructor_02
+       Schema: constructorSchema
+         Root: ulong02
+      Purpose: This test demonstrates the use of the xs:unsignedLong constructor function and its ability to
+               convert a number to an unsigned long
+  -->
+
+  <tdml:parserTestCase name="ulong_constructor_02" root="ulong02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ulong02>12345678987654321</ulong02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ulong_constructor_03
+       Schema: constructorSchema
+         Root: ulong03
+      Purpose: This test demonstrates the use of the xs:unsignedLong constructor function and its ability to
+               convert a string (numeric) to an unsigned Long
+  -->
+
+  <tdml:parserTestCase name="ulong_constructor_03" root="ulong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ulong03>
+          <string>123456789</string>
+          <ulongified>123456789</ulongified>
+        </ulong03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ulong_constructor_04
+       Schema: constructorSchema
+         Root: ulong04
+      Purpose: This test demonstrates that if you provide a non-numeric string to the unsigned long constructor you get an appropriate error
+  -->
+
+  <tdml:parserTestCase name="ulong_constructor_04" root="ulong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not longable</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "not longable"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ulong_constructor_05
+       Schema: constructorSchema
+         Root: ulong03
+      Purpose: This test demonstrates the use of the xs:unsignedLong constructor function and its ability to
+               convert a string (numeric) to an unsigned Long. The max value for an unsigned long is 18,446,744,073,709,551,615, 
+               so this test should fail.
+  -->
+
+  <tdml:parserTestCase name="ulong_constructor_05" root="ulong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedLong()  - DFDL-23-084R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">18446744073709551616</tdml:documentPart>
+    </tdml:document>
+      <tdml:errors>
+        <tdml:error>Parse Error</tdml:error>
+        <tdml:error>Integer value is out of range for subtype xs:unsignedLong</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ushort_constructor_01
+       Schema: constructorSchema
+         Root: ushort01
+      Purpose: This test demonstrates the use of the xs:unsignedShort constructor function and its ability to
+               convert a number to an unsigned short
+  -->
+
+  <tdml:parserTestCase name="ushort_constructor_01" root="ushort01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedShort()  - DFDL-23-086R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ushort_constructor_02
+       Schema: constructorSchema
+         Root: ushort02
+      Purpose: This test demonstrates the use of the xs:unsignedShort constructor function and its ability to
+               convert a number to an unsigned short
+  -->
+
+  <tdml:parserTestCase name="ushort_constructor_02" root="ushort02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedShort()  - DFDL-23-086R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value 12345678987654321 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ushort_constructor_03
+       Schema: constructorSchema
+         Root: ushort03
+      Purpose: This test demonstrates the use of the xs:unsignedShort constructor function and its ability to
+               convert a string (numeric) to an unsigned short
+  -->
+
+  <tdml:parserTestCase name="ushort_constructor_03" root="ushort03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedShort()  - DFDL-23-086R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">65535</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ushort03>
+          <string>65535</string>
+          <ushortified>65535</ushortified>
+        </ushort03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ushort_constructor_04
+       Schema: constructorSchema
+         Root: ushort03
+      Purpose: This test demonstrates the use of the xs:unsignedShort constructor function and its ability to
+               convert a string (numeric) to an unsigned short
+  -->
+
+  <tdml:parserTestCase name="ushort_constructor_04" root="ushort03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedShort()  - DFDL-23-086R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">65536</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value 65536 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ushort_constructor_05
+       Schema: constructorSchema
+         Root: ushort04
+      Purpose: This test demonstrates that if you provide a non-numeric string to the unsigned short constructor you get an appropriate error
+  -->
+
+  <tdml:parserTestCase name="ushort_constructor_05" root="ushort03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedShort()  - DFDL-23-086R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not shortable</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "not shortable"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: short_constructor_01
+       Schema: constructorSchema
+         Root: short01
+      Purpose: This test demonstrates the use of the xs:short constructor function and its ability to
+               convert a number to an unsigned short
+  -->
+
+  <tdml:parserTestCase name="short_constructor_01" root="short01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <short01>-50</short01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: short_constructor_02
+       Schema: constructorSchema
+         Root: short02
+      Purpose: This test demonstrates the use of the xs:short constructor function and its ability to
+               convert a number to a short
+  -->
+
+  <tdml:parserTestCase name="short_constructor_02" root="short02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Value 12345678987654321 cannot be converted to integer subtype xs:short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: short_constructor_03
+       Schema: constructorSchema
+         Root: short03
+      Purpose: This test demonstrates the use of the xs:short constructor function and its ability to
+               convert a string (numeric) to a short
+  -->
+
+  <tdml:parserTestCase name="short_constructor_03" root="short03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-32768</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <short03>
+          <string>-32768</string>
+          <shortified>-32768</shortified>
+        </short03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: short_constructor_04
+       Schema: constructorSchema
+         Root: short03
+      Purpose: This test demonstrates the use of the xs:short constructor function and its ability to
+      convert a string (numeric) to a short. The range for short is -32768 to 32767 so this
+      test should fail with a parse error.
+  -->
+
+  <tdml:parserTestCase name="short_constructor_04" root="short03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-32769</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value -32769 cannot be converted to integer subtype xs:short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: short_constructor_05
+       Schema: constructorSchema
+         Root: short04
+      Purpose: This test demonstrates that if you provide a non-numeric string to the unsigned short constructor you get an appropriate error
+  -->
+
+  <tdml:parserTestCase name="short_constructor_05" root="short03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not shortable</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "not shortable"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: short_constructor_06
+       Schema: constructorSchema
+         Root: short04
+      Purpose: This test demonstrates the use of the xs:short constructor function and its ability to
+               convert a string (numeric - binary rep) to a short
+  -->
+
+  <tdml:parserTestCase name="short_constructor_06" root="short04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:short()  - DFDL-23-081R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00101101 00110011 00110010 00110111 00110110 00111000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <short04>
+          <string>-32768</string>
+          <shortified>-32768</shortified>
+        </short04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
