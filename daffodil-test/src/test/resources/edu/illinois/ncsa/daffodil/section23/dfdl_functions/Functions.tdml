@@ -1687,6 +1687,14 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="dateTime04">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="int01" type="xs:int" dfdl:inputValueCalc="{ xs:int(45.2) }"/>
     <xs:element name="int02" type="xs:int" dfdl:inputValueCalc="{ xs:int(60) }"/>
@@ -1748,6 +1756,54 @@
         <xs:sequence>
           <xs:element name="string" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="delimited"/>
           <xs:element name="shortified" type="xs:short" dfdl:inputValueCalc="{ xs:short(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="decimal01" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(45.2) }"/>
+    <xs:element name="decimal02" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(60) }"/>
+    <xs:element name="decimal03">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="decified" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="decimal04" type="xs:decimal" dfdl:inputValueCalc="{ xs:decimal(-60) }"/>
+    
+    <xs:element name="float01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="floatified" type="xs:float" dfdl:inputValueCalc="{ xs:float(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="float02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="floatified" type="xs:float" dfdl:inputValueCalc="{ xs:float(../ex:string + ../ex:string2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="double01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="doublified" type="xs:double" dfdl:inputValueCalc="{ xs:double(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="double02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="doublified" type="xs:double" dfdl:inputValueCalc="{ xs:double(../ex:string + ../ex:string2) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2519,6 +2575,503 @@
         </short04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_01
+       Schema: constructorSchema
+         Root: decimal01
+      Purpose: This test demonstrates the use of the xs:decimal constructor function and its ability to
+               convert a number to a decimal
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_01" root="decimal01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal01>45.2</decimal01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_02
+       Schema: constructorSchema
+         Root: decimal02
+      Purpose: This test demonstrates the use of the xs:decimal constructor function and its ability to
+               convert a number to a decimal
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_02" root="decimal02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal02>60</decimal02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_03
+       Schema: constructorSchema
+         Root: decimal03
+      Purpose: This test demonstrates the use of the xs:decimal constructor function and its ability to
+               convert a string (numeric) to a decimal
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_03" root="decimal03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">0.123456789</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal03>
+          <string>0.123456789</string>
+          <decified>0.123456789</decified>
+        </decimal03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_04
+       Schema: constructorSchema
+         Root: decimal03
+      Purpose: This test demonstrates that if you provide a non-numeric string to the unsigned short constructor you get an appropriate error
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_04" root="decimal03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">not decimalable</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "not decimalable"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_05
+       Schema: constructorSchema
+         Root: decimal04
+      Purpose: This test demonstrates that the xs:decimal constructor can handle negative values
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_05" root="decimal04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal04>-60</decimal04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: decimal_constructor_06
+       Schema: constructorSchema
+         Root: decimal03
+      Purpose: This test demonstrates the use of the xs:decimal constructor function and its ability to
+               convert a string (numeric) to a decimal
+  -->
+
+  <tdml:parserTestCase name="decimal_constructor_06" root="decimal03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:decimal()  - DFDL-23-071R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">0.1234567898765432123456789</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal03>
+          <string>0.1234567898765432123456789</string>
+          <decified>0.1234567898765432123456789</decified>
+        </decimal03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: float_constructor_01
+       Schema: constructorSchema
+         Root: float01
+      Purpose: This test demonstrates the use of the xs:float constructor function and its ability to
+               convert a number to a float
+  -->
+
+  <tdml:parserTestCase name="float_constructor_01" root="float01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:float()  - DFDL-23-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float01>
+          <string>4.3</string>
+          <floatified>4.3</floatified>
+        </float01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: float_constructor_02
+       Schema: constructorSchema
+         Root: float02
+      Purpose: This test demonstrates the use of the xs:float constructor function and its ability to
+               convert a string (numeric) to a float
+  -->
+
+  <tdml:parserTestCase name="float_constructor_02" root="float02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:float()  - DFDL-23-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.3,1.5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float02>
+          <string>4.3</string>
+          <string2>1.5</string2>
+          <floatified>5.8</floatified>
+        </float02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: float_constructor_03
+       Schema: constructorSchema
+         Root: float02
+      Purpose: This test demonstrates the use of the xs:float constructor function and its ability to
+      convert a string (numeric) to a float. In this case we are trying to add a non-numeric
+      string to a numeric one, which should result in an error.
+  -->
+
+  <tdml:parserTestCase name="float_constructor_03" root="float02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:float()  - DFDL-23-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.3,one</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "one"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: float_constructor_04
+       Schema: constructorSchema
+         Root: float02
+      Purpose: This test demonstrates the use of the xs:float constructor function and its ability to
+               convert a string (numeric) to a float
+  -->
+
+  <tdml:parserTestCase name="float_constructor_04" root="float02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:float()  - DFDL-23-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.3,1.987654</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float02>
+          <string>4.3</string>
+          <string2>1.987654</string2>
+          <floatified>6.287654</floatified>
+        </float02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_01
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number to a double
+  -->
+
+  <tdml:parserTestCase name="double_constructor_01" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double01>
+          <string>4.3</string>
+          <doublified>4.3</doublified>
+        </double01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_02
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number to a double. This test demonstrates that the limit for double is 15 decimal places.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_02" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4.10101010101010101019</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double01>
+          <string>4.10101010101010101019</string>
+          <doublified>4.101010101010101</doublified>
+        </double01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_03
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number to a double. This test demonstrates that the limit for double is 15 decimal places.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_03" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456789.11111111111111911111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double01>
+          <string>123456789.11111111111111911111</string>
+          <doublified>1.234567891111111E8</doublified>
+        </double01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_04
+       Schema: constructorSchema
+         Root: double02
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number to a double.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_04" root="double02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">10000000000.40,10000000000.30</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double02>
+          <string>10000000000.40</string>
+          <string2>10000000000.30</string2>
+          <doublified>2.0000000000699997E10</doublified>
+        </double02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_05
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number (scientific notation) to a double.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_05" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.123456789E9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double01>
+          <string>1.123456789E9</string>
+          <doublified>1.123456789E9</doublified>
+        </double01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_06
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number (scientific notation) to a double.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_06" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.23E</tdml:documentPart>
+    </tdml:document>
+      <tdml:errors>
+        <tdml:error>Parse Error</tdml:error>
+        <tdml:error>Cannot convert string "1.23E" to a double</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: double_constructor_07
+       Schema: constructorSchema
+         Root: double01
+      Purpose: This test demonstrates the use of the xs:double constructor function and its ability to
+               convert a number (scientific notation) to a double.
+  -->
+
+  <tdml:parserTestCase name="double_constructor_07" root="double01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:double()  - DFDL-23-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.23E-9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double01>
+          <string>1.23E-9</string>
+          <doublified>1.23E-9</doublified>
+        </double01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_01
+       Schema: constructorSchema
+         Root: dateTime04
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_01" root="dateTime04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1996-02-04T12:30:34</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime04>
+          <string>1996-02-04T12:30:34</string>
+          <dateTime>1996-02-04T12:30:34</dateTime>
+        </dateTime04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_02
+       Schema: constructorSchema
+         Root: dateTime04
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_02" root="dateTime04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">02-03-1998T12:30:34</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid dateTime value "02-03-1998T12:30:34" (Year is less than four digits)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_03
+       Schema: constructorSchema
+         Root: dateTime04
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_03" root="dateTime04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1998-03-04T12:30:34.123456+00:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime04>
+          <string>1998-03-04T12:30:34.123456+00:00</string>
+          <dateTime>1998-03-04T12:30:34.123456+00:00</dateTime>
+        </dateTime04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_04
+       Schema: constructorSchema
+         Root: dateTime04
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_04" root="dateTime04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1996-03-04T28:30:34</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid dateTime value "1996-03-04T28:30:34" (Hour is out of range)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_05
+       Schema: constructorSchema
+         Root: dateTime04
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_05" root="dateTime04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">about four-thirty or so, on a Wednesday in June.</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid dateTime value "about four-thirty or so" (Non-numeric year component)</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
