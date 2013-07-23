@@ -25,6 +25,382 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="a" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict" >
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit" >
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty" dfdl:initiator="[" dfdl:terminator="]">
+            <xs:element name="c" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty" >
+            <xs:element name="c" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:sequence dfdl:separator=";" dfdl:separatorSuppressionPolicy="trailingEmpty" >
+            <xs:element name="c" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:choice>
+            <xs:element name="c" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="d" type="xs:int" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:choice>
+            <xs:element name="c" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="d" type="xs:int" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r10">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:choice>
+            <xs:element name="c" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+              dfdl:initiator="(" dfdl:terminator=")">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="d" type="xs:int" minOccurs="0" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:occursCountKind="implicit"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r11">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:choice>
+            <xs:element name="c" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                    message="Assertion failed for dfdl:checkConstraints(.)" />
+                </xs:appinfo>
+              </xs:annotation>
+              <xs:simpleType>
+                <xs:restriction base="xs:string">
+                  <xs:maxLength value="2" />
+                  <xs:minLength value="2" />
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:occursCountKind="implicit"/>
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r12">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict" >
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern"
+            dfdl:lengthPattern=".*" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r13">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict" >
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+                  message="Assertion failed for dfdl:checkConstraints(.)" />
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:maxLength value="2" />
+                <xs:minLength value="2" />
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern"
+            dfdl:lengthPattern="ab" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <!--
@@ -79,6 +455,207 @@
     <tdml:document><![CDATA[(1)]]></tdml:document>
     <tdml:errors>
       <tdml:error>placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit5
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there are
+    two unbounded, required elements
+  -->
+  <tdml:parserTestCase name="ockImplicit5" root="r3"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(12),(23),24,25]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit6
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case only the
+    last unbounded element is required
+  -->
+  <tdml:parserTestCase name="ockImplicit6" root="r4"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[23,25]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r4>
+          <b>23</b>
+          <b>25</b>
+        </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit7
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a sequence that has an initiator/terminator
+    which means it has required syntax.
+  -->
+  <tdml:parserTestCase name="ockImplicit7" root="r5"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),[48]]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit8
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a sequence that doesn't have an initiator/terminator
+    or contains a required element which means it doesn't have required syntax.
+  -->
+  <tdml:parserTestCase name="ockImplicit8" root="r6"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r6>
+          <b>23</b>
+          <b>25</b>
+          <c>48</c>
+        </r6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit9
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a sequence that has contains a required
+    element.
+  -->
+  <tdml:parserTestCase name="ockImplicit9" root="r7"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit10
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a choice that doesn't have an initiator/terminator
+    and not every option contains a required element which means it doesn't have required syntax.
+  -->
+  <tdml:parserTestCase name="ockImplicit10" root="r8"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r8>
+          <b>23</b>
+          <b>25</b>
+          <c>ab</c>
+        </r8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit11
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a choice that contains a required
+    element in every option.
+  -->
+  <tdml:parserTestCase name="ockImplicit11" root="r9"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit12
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a choice that doesn't contain a required
+    element in every option.  However, the option selected does contain a required
+    element which should case an SDE at runtime.
+  -->
+  <tdml:parserTestCase name="ockImplicit12" root="r10"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit13
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by a choice that contains a required element
+    in every option. In this case one of the required choice options is a string that
+    has a length known to be greater than 0, making it required.
+  -->
+  <tdml:parserTestCase name="ockImplicit13" root="r11"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit14
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by an element with lengthKind="pattern" with
+    a pattern that will match an empty string.  This should generate an SDE at runtime.
+  -->
+  <tdml:parserTestCase name="ockImplicit14" root="r12"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: ockImplicit15
+    Schema: s1
+    Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+    is only allowed on the last required element of a sequence.  In this case there is
+    a required unbounded element followed by an element with lengthKind="pattern" with
+    a pattern that won't match an empty string.  This should generate an SDE at compile.
+  -->
+  <tdml:parserTestCase name="ockImplicit15" root="r13"
+    model="s1" description="Section 14.2.2">
+    <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

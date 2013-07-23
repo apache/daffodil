@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -207,21 +208,29 @@ class RepExactlyTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) exten
   def unparser = DoNothingUnparser(context) // all elements will already have been output
 }
 
-class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(context, 1, r) {
+class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r) {
 
-  def parser = new RepParser(context, "Unbounded") {
+  def parser = new RepParser(e, "Unbounded") {
 
     def parseAllRepeats(pstate: PState): PState = {
 
       var pResult = pstate
       while (pResult.status == Success) {
 
+        if ((e.occursCountKind == OccursCountKind.Implicit) &&
+            (e.maxOccurs == -1)) {
+          if (pResult.arrayPos-1 <= e.minOccurs) {
+            // Is required element
+            // Somehow need to return that this element is required
+          }
+        }
+
         val cloneNode = pResult.captureInfosetElementState
         //
         // Every parse is a new point of uncertainty.
         val newpou = pResult.withNewPointOfUncertainty
         Debugger.beforeRepetition(newpou, this)
-        val pNext = rParser.parse1(newpou, context)
+        val pNext = rParser.parse1(newpou, e)
         Debugger.afterRepetition(newpou, pNext, this)
         if (pNext.status != Success) {
           // 
@@ -247,7 +256,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
           return PE(pNext,
             "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
               "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
-            pResult.bytePos, context.prettyName)
+            pResult.bytePos, e.prettyName)
         }
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
@@ -256,7 +265,7 @@ class RepUnboundedPrim(context: LocalElementBase, r: => Gram) extends RepPrim(co
     }
   }
 
-  def unparser = new RepUnboundedUnparser(context, r)
+  def unparser = new RepUnboundedUnparser(e, r)
 }
 
 case class OccursCountExpression(e: ElementBase)

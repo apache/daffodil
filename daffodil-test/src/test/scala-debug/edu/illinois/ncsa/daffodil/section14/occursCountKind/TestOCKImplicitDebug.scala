@@ -53,4 +53,6 @@ class TestOCKImplicitDebug {
   @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }
   // Waiting on DFDL-703 for clearer error message
   @Test def test_ockImplicit4() { runner.runOneTest("ockImplicit4") }
+  // Waiting on DFDL-823 for clearer error message
+  // @Test def test_ockImplicit7() { runner.runOneTest("ockImplicit7") }
 }

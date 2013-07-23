@@ -96,6 +96,13 @@ trait ParticleMixin { self: ElementBase =>
     res
   }
 
+  override lazy val isKnownRequiredElement = isKnownRequiredElement_.value
+  private val isKnownRequiredElement_ = LV('isKnownRequiredElement) {
+    if (isScalar) true
+    else if (isFixedOccurrences) true
+    else false
+  }
+
   lazy val hasStopValue = hasStopValue_.value
   private val hasStopValue_ = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
@@ -717,7 +724,61 @@ trait LocalElementMixin
     }
   }
 
-  lazy val isLastRequiredElementOfSequence: Boolean = Assert.notYetImplemented()
+  lazy val lengthKnownToBeGreaterThanZero = lengthKnownToBeGreaterThanZero_.value
+  private val lengthKnownToBeGreaterThanZero_ = LV('lengthKnownToBeGreaterThanZero) {
+    val pt = {
+      if (isPrimitiveType) typeDef.asInstanceOf[PrimitiveType]
+      else {
+        val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+        st.primitiveType
+      }
+    }
+    val res = lengthKind match {
+      case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
+      case LengthKind.Prefixed => false
+      case LengthKind.Pattern => lengthPattern.r.findFirstIn("") match {
+          case None => true
+          case Some(s) => false
+      }
+      case LengthKind.Delimited => (pt == PrimType.String)
+      case LengthKind.Implicit => false
+      case LengthKind.EndOfParent => false
+    }
+    res
+  }
+
+  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+    if ((minOccurs > 0) || isScalar || isFixedOccurrences) {
+      if (emptyValueDelimiterPolicy == EmptyValueDelimiterPolicy.None) true
+      else if (emptyIsAnObservableConcept) true
+      else {
+        val pt = {
+          if (isPrimitiveType) typeDef.asInstanceOf[PrimitiveType]
+          else {
+            val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
+            st.primitiveType
+          }
+        }
+        ((pt == PrimType.String) || (pt == PrimType.HexBinary) && lengthKnownToBeGreaterThanZero)
+      }
+    } else false
+  }
+
+  lazy val isLastDeclaredRequiredElementOfSequence = isLastDeclaredRequiredElementOfSequence_.value
+  private val isLastDeclaredRequiredElementOfSequence_ = LV('isLastDeclaredRequiredElementOfSequence) {
+    if (hasKnownRequiredSyntax) {
+      val es = nearestEnclosingSequence
+      es match {
+        case None => true
+        case Some(s) =>
+          if (s.groupMembers.filter(_.hasKnownRequiredSyntax).last eq this) true
+          else false
+      }
+      // Since we can't determine at compile time, return true so that we can continue processing.
+      // Runtime checks will make final determination.
+    } else true
+  }
 
   lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
   private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {

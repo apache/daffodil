@@ -1010,10 +1010,10 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (Never______, Implicit__, UNB, ___) => SDE("separatorSuppressionPolicy='never' with occursCountKind='implicit' required bounded maxOccurs.")
       case (Never______, Implicit__, max, ___) => separatedContentExactlyN(max)
       case (Never______, ock /****/ , ___, __2) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
-      case (Trailing___, Implicit__, UNB, ___) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (Trailing___, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (Trailing___, Implicit__, UNB, min) => separatedContentUnbounded
       case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
-      case (TrailingStr, Implicit__, UNB, ___) if (!isLastRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
+      case (TrailingStr, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (TrailingStr, Implicit__, UNB, ___) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
       case (Always_____, Implicit__, UNB, ___) => separatedContentUnbounded

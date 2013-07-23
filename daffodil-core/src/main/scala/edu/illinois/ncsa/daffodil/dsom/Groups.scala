@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import java.io.ByteArrayInputStream
 import java.io.InputStream
 import scala.collection.JavaConversions._
@@ -372,6 +373,9 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   }
 
   def hasStaticallyRequiredInstances: Boolean
+  def isKnownRequiredElement = false
+  def isKnownToBePrecededByAllByteLengthItems: Boolean = false
+  def hasKnownRequiredSyntax = false
 
 }
 
@@ -553,6 +557,32 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     case _ => None
   }
 
+  override lazy val isKnownToBePrecededByAllByteLengthItems: Boolean = {
+    val es = nearestEnclosingSequence
+    es match {
+      case None => true
+      case Some(s) => {
+        if (s.groupMembers.head eq this) s.isKnownToBePrecededByAllByteLengthItems
+        else {
+          //pass for now
+          val index = s.groupMembers.indexOf(this)
+          s.groupMembers.slice(0, index).forall { _.isKnownToBePrecededByAllByteLengthItems}
+        }
+      }
+    }
+  }
+
+  lazy val isKnownToBeAligned = isKnownToBeAligned_.value
+  private val isKnownToBeAligned_ = LV('isKnownToBeAligned) {
+    if (alignmentValueInBits == 1) {
+      alignmentUnits match {
+        case AlignmentUnits.Bits => true
+        case AlignmentUnits.Bytes => isKnownToBePrecededByAllByteLengthItems
+      }
+    } else if (alignmentValueInBits > 1) {
+      isKnownToBePrecededByAllByteLengthItems
+    } else false
+  }
 }
 
 /**
@@ -641,6 +671,13 @@ class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       // or if all arms of the choice have statically required instances.
       groupMembers.forall { _.hasStaticallyRequiredInstances }
   }
+
+  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+    if (hasInitiator || hasTerminator) true
+    else if (isKnownToBeAligned) true
+    else groupMembers.forall(_.hasKnownRequiredSyntax)
+  }
 }
 
 class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
@@ -727,6 +764,13 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     hasInitiator || hasTerminator ||
       // or if any child of the sequence has statically required instances.
       groupMembers.exists { _.hasStaticallyRequiredInstances }
+  }
+
+  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+    if (hasInitiator || hasTerminator) true
+    else if (isKnownToBeAligned) true
+    else groupMembers.exists(_.hasKnownRequiredSyntax)
   }
 
   /**
