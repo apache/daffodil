@@ -85,6 +85,12 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
     <xs:element name="decimalTextFail" type="xs:decimal"
       dfdl:lengthKind="implicit" />
+    <xs:element name="doubleText" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+    <xs:element name="doubleText2" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 18 }" />
+    <xs:element name="doubleText3" type="xs:double"
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
 
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
@@ -1794,6 +1800,58 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="double_text" root="doubleText2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
+
+    <tdml:document><![CDATA[123.45678901234567]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText2>123.45678901234567</doubleText2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="double_text2" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
+
+    <tdml:document><![CDATA[.555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText>0.555</doubleText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="double_text3" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
+
+    <tdml:document><![CDATA[-1.5]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText>-1.5</doubleText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="double_text4" root="doubleText3"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Schema types-double - DFDL-5-009R">
+
+    <tdml:document><![CDATA[123.45678901234567899]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleText3>123.45678901234568</doubleText3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  <tdml:parserTestCase name="characterDuringValidDouble" root="doubleText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid double - DFDL-5-009R">
+
+    <tdml:document><![CDATA[9a99]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Double (for xs:double)</tdml:error>
+      <tdml:error>Unable to parse '9a99'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
   <!--
     Test name: byte_binary_01
     Schema: SimpleTypes-binary

@@ -289,6 +289,7 @@
     <xs:element name="uByteT" type="xs:unsignedByte" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="floatT" type="xs:float" dfdl:lengthUnits="bytes" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
     <xs:element name="doubleT" type="xs:double" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="2"/>
+    <xs:element name="doubleTBits" type="xs:double" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
 
   </tdml:defineSchema>
   
@@ -1288,6 +1289,54 @@
 
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: implicitAlignmentDoubleT2
+        Schema: implicitAlignmentSchema
+          Root: doubleTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'double' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDoubleT2" root="doubleTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">42.3</tdml:documentPart> <!-- doubleTBits -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doubleTBits>42.3</doubleTBits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDoubleT_Fail
+        Schema: implicitAlignmentSchema
+          Root: doubleTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'double' is 8 bits and will fail with improper alignment.
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDoubleT_Fail" root="doubleTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (text) - DFDL-12-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- doubleTBits -->
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Double (for xs:double)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>(using up all characters).</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
   <!--
      Test Name: explicitAlignmentNoSkips01
         Schema: alignmentSchema

@@ -420,4 +420,10 @@ class TestSimpleTypes {
   @Test def test_decimal_text3() { runner.runOneTest("decimal_text3") }
   @Test def test_decimal_text_fail() { runner.runOneTest("decimal_text_fail") }
   @Test def test_characterDuringValidDecimal() { runner.runOneTest("characterDuringValidDecimal") }
+
+  @Test def test_double_text() { runner.runOneTest("double_text") }
+  @Test def test_double_text2() { runner.runOneTest("double_text2") }
+  @Test def test_double_text3() { runner.runOneTest("double_text3") }
+  @Test def test_double_text4() { runner.runOneTest("double_text4") }
+  @Test def test_characterDuringValidDouble() { runner.runOneTest("characterDuringValidDouble") }
 }
