@@ -151,6 +151,35 @@ class TestDFDLExpressions {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_uint_constructor_01() { runner2.runOneTest("uint_constructor_01") }
+  @Test def test_uint_constructor_02() { runner2.runOneTest("uint_constructor_02") }
+  @Test def test_uint_constructor_03() { runner2.runOneTest("uint_constructor_03") }
+  
+  @Test def test_nonNeg_constructor_01() { runner2.runOneTest("nonNeg_constructor_01") }
+  @Test def test_nonNeg_constructor_02() { runner2.runOneTest("nonNeg_constructor_02") }
+  @Test def test_nonNeg_constructor_03() { runner2.runOneTest("nonNeg_constructor_03") }
+  @Test def test_nonNeg_constructor_04() { runner2.runOneTest("nonNeg_constructor_04") }
+  
+  @Test def test_byte_constructor_01() { runner2.runOneTest("byte_constructor_01") }
+  @Test def test_byte_constructor_02() { runner2.runOneTest("byte_constructor_02") }
+  @Test def test_byte_constructor_03() { runner2.runOneTest("byte_constructor_03") }
+  @Test def test_byte_constructor_04() { runner2.runOneTest("byte_constructor_04") }
+  
+  @Test def test_hexBinary_constructor_01() { runner2.runOneTest("hexBinary_constructor_01") }
+  @Test def test_hexBinary_constructor_02() { runner2.runOneTest("hexBinary_constructor_02") }
+  @Test def test_hexBinary_constructor_03() { runner2.runOneTest("hexBinary_constructor_03") }
+  @Test def test_hexBinary_constructor_04() { runner2.runOneTest("hexBinary_constructor_04") }
+  
+  @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
+  @Test def test_time_constructor_02() { runner2.runOneTest("time_constructor_02") }
+  @Test def test_time_constructor_03() { runner2.runOneTest("time_constructor_03") }
+  @Test def test_time_constructor_04() { runner2.runOneTest("time_constructor_04") }
+  
+  @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
+  @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
+  @Test def test_date_constructor_03() { runner2.runOneTest("date_constructor_03") }
+  @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
+  
   @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
 // DFDL-622

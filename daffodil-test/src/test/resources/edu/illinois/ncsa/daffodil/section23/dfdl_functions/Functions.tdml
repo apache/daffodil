@@ -1696,6 +1696,42 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="time01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="time" type="xs:time" dfdl:inputValueCalc="{ xs:time(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="date01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="date" type="xs:date" dfdl:inputValueCalc="{ xs:date(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="hexBinary01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="hexBinary" type="xs:hexBinary" dfdl:inputValueCalc="{ xs:hexBinary(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="byte01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="byte" type="xs:byte" dfdl:inputValueCalc="{ xs:byte(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="int01" type="xs:int" dfdl:inputValueCalc="{ xs:int(45.2) }"/>
     <xs:element name="int02" type="xs:int" dfdl:inputValueCalc="{ xs:int(60) }"/>
     <xs:element name="int03">
@@ -1804,6 +1840,34 @@
           <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="doublified" type="xs:double" dfdl:inputValueCalc="{ xs:double(../ex:string + ../ex:string2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="nonNeg01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="nonNeg" type="xs:integer" dfdl:inputValueCalc="{ xs:nonNegativeInteger(../ex:string + ../ex:string2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="nonNeg02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="nonNeg" type="xs:integer" dfdl:inputValueCalc="{ xs:nonNegativeInteger(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="uint01">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="uintified" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedInt(../ex:string) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3072,6 +3136,515 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Invalid dateTime value "about four-thirty or so" (Non-numeric year component)</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_01
+       Schema: constructorSchema
+         Root: time01
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               convert a string to a time
+  -->
+
+  <tdml:parserTestCase name="time_constructor_01" root="time01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12:49:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time01>
+          <string>12:49:00</string>
+          <time>12:49:00</time>
+        </time01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_02
+       Schema: constructorSchema
+         Root: time01
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               convert a string to a time. In this case the time is invalid and an error should occur
+  -->
+
+  <tdml:parserTestCase name="time_constructor_02" root="time01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03:61:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid time "03:61:00" (minute is out of range)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_03
+       Schema: constructorSchema
+         Root: time01
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               convert a string to a time. In this case the time is invalid and an error should occur
+  -->
+
+  <tdml:parserTestCase name="time_constructor_03" root="time01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03:61:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid time "03:61:00" (minute is out of range)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_04
+       Schema: constructorSchema
+         Root: time01
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               construct a time from a string. In this case the string is not valid and an error will occur.
+  -->
+
+  <tdml:parserTestCase name="time_constructor_04" root="time01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">five o'clock</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid time "five o'clock" (hour must be two digits)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_01
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string. In this case the string is not valid and an error will occur.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_01" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-4</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid date "1991-03-4" (Day must be two digits)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_02
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_02" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>
+          <string>1991-03-04</string>
+          <date>1991-03-04</date>
+        </date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_03
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_03" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-045</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid date "1991-03-045" (Day must be two digits)</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_04
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_04" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">2013-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>
+          <string>2013-03-04</string>
+          <date>2013-03-04</date>
+        </date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_01
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_01" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDEF123456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hexBinary01>
+          <string>ABCDEF123456</string>
+          <hexBinary>ABCDEF123456</hexBinary>
+        </hexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_02
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. In this case the length of the hexBinary is not even and 
+      an error will occur.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_02" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDEF12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>A hexBinary value must contain an even number of characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_03
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. 
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_03" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abcdef123456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hexBinary01>
+          <string>abcdef123456</string>
+          <hexBinary>ABCDEF123456</hexBinary>
+        </hexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_04
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. In this case some characters are invalid and the test
+      should result in an error.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_04" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abcdefj12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid hexadecimal digit</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_01
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. 
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_01" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">15</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>15</string>
+          <byte>15</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_02
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. 
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_02" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00110001 00110101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>15</string>
+          <byte>15</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_03
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. The range for a byte is -128 - 127 so this test should err out.
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_03" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 32 38</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value 128 cannot be converted to integer subtype xs:byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_04
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. The range for a byte is -128 - 127.
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_04" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 32 37</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>127</string>
+          <byte>127</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_01
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_01" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50,30</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value -20 cannot be converted to integer subtype xs:nonNegativeInteger</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_02
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_02" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50,60</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg01>
+          <string>-50</string>
+          <string2>60</string2>
+          <nonNeg>10</nonNeg>
+        </nonNeg01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_03
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_03" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50,700</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg01>
+          <string>-50</string>
+          <string2>700</string2>
+          <nonNeg>650</nonNeg>
+        </nonNeg01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_04
+       Schema: constructorSchema
+         Root: nonNeg02
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_04" root="nonNeg02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abc</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert string "abc" to an integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_01
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_01" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedInt</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_02
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+      so this test should cause an error.
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_02" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4294967296</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value 4294967296 cannot be converted to integer subtype xs:unsignedInt</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_03
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+      so this test should cause an error.
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_03" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4294967295</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uint01>
+          <string>4294967295</string>
+          <uintified>4294967295</uintified>
+        </uint01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
