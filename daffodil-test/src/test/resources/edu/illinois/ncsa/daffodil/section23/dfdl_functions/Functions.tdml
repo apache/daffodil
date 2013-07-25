@@ -1871,6 +1871,16 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="ubyte01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <!-- Note that I keep this type as unsigned long on purpose - it shows that the constructor is responsible for the conversion to unsignedByte, not the type specification -->
+          <xs:element name="ubyte" type="xs:unsignedLong" dfdl:inputValueCalc="{ xs:unsignedByte(../ex:string) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -3628,7 +3638,6 @@
          Root: uint01
       Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
       construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
-      so this test should cause an error.
   -->
 
   <tdml:parserTestCase name="uint_constructor_03" root="uint01" model="constructorSchema"
@@ -3643,6 +3652,117 @@
           <string>4294967295</string>
           <uintified>4294967295</uintified>
         </uint01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_04
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_04" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">34 32 39 34 39 36 37 32 39 35</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uint01>
+          <string>4294967295</string>
+          <uintified>4294967295</uintified>
+        </uint01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_01
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_01" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-1</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Value -1 cannot be converted to integer subtype xs:unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_02
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_02" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">255</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ubyte01>
+          <string>255</string>
+          <ubyte>255</ubyte>
+        </ubyte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_03
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_03" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">256</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Value 256 cannot be converted to integer subtype xs:unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_04
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_04" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 30 30 </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ubyte01>
+          <string>100</string>
+          <ubyte>100</ubyte>
+        </ubyte01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

@@ -151,9 +151,15 @@ class TestDFDLExpressions {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+  @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
+  @Test def test_ubyte_constructor_02() { runner2.runOneTest("ubyte_constructor_02") }
+  @Test def test_ubyte_constructor_03() { runner2.runOneTest("ubyte_constructor_03") }
+  @Test def test_ubyte_constructor_04() { runner2.runOneTest("ubyte_constructor_04") }
+  
   @Test def test_uint_constructor_01() { runner2.runOneTest("uint_constructor_01") }
   @Test def test_uint_constructor_02() { runner2.runOneTest("uint_constructor_02") }
   @Test def test_uint_constructor_03() { runner2.runOneTest("uint_constructor_03") }
+  @Test def test_uint_constructor_04() { runner2.runOneTest("uint_constructor_04") }
   
   @Test def test_nonNeg_constructor_01() { runner2.runOneTest("nonNeg_constructor_01") }
   @Test def test_nonNeg_constructor_02() { runner2.runOneTest("nonNeg_constructor_02") }
