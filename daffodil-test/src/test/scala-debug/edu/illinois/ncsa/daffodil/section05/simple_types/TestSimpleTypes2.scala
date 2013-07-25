@@ -89,4 +89,5 @@ class TestSimpleTypes2 {
   
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
+  @Test def test_decimal_binary_fail_02() { runner.runOneTest("decimal_binary_fail_02") }
 }

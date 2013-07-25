@@ -173,6 +173,17 @@
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
     <xs:element name="dec_03" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="-5"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
+    <xs:element name="dec_04" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="200"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="dec_05" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="-200"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="dec_06" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="201"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="dec_07" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="-201"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="dec_08" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="0"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="12" />
+    <xs:element name="dec_implicit" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="0" />
     <xs:element name="hb_01" type="xs:hexBinary" 
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
   </tdml:defineSchema>
@@ -1089,7 +1100,7 @@
 
   <tdml:parserTestCase name="decimal_binary"
     root="dec_01" model="SimpleTypes-binary"
-    description="Section 5 Schema types-unsignedInt - DFDL-5-018R">
+    description="Section 5 Schema types-decimal - DFDL-5-010R">
     <tdml:document>
       <tdml:documentPart type="byte">0000000000000001</tdml:documentPart>
     </tdml:document>
@@ -1690,7 +1701,7 @@
   </tdml:parserTestCase>
 
    <tdml:parserTestCase name="decimal_binary_01" root="dec_01"
-      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+      model="SimpleTypes-binary" description="Section 5 Schema types-decimal - DFDL-5-010R">
     <tdml:document>
       <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
     </tdml:document>
@@ -1702,7 +1713,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="decimal_binary_02" root="dec_02"
-      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+      model="SimpleTypes-binary" description="Section 5 Schema types-decimal - DFDL-5-010R">
     <tdml:document>
       <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
     </tdml:document>
@@ -1714,7 +1725,7 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="decimal_binary_03" root="dec_03"
-      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+      model="SimpleTypes-binary" description="Section 5 Schema types-decimal - DFDL-5-010R">
     <tdml:document>
       <tdml:documentPart type="byte">00000000075BCD15</tdml:documentPart>
     </tdml:document>
@@ -1724,7 +1735,84 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
- 
+
+  <tdml:parserTestCase name="decimal_binary_04" root="dec_04"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_04>0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001</dec_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_05" root="dec_05"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_05>100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</dec_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+   <tdml:parserTestCase name="decimal_binary_06" root="dec_08"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 01 05 6E 0F 36 A6 44 3D E2 DF 79</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dec_08>1234567890123456789012345</dec_08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_fail_01" root="dec_06"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint 201 is larger than limit 200</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_fail_02" root="dec_07"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint -201 is less than limit -200</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="decimal_binary_fail_03" root="dec_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1010101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Insufficient bits</tdml:error>
+      <tdml:error>xs:decimal</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+   <tdml:parserTestCase name="decimal_binary_fail_04" root="dec_implicit"
+      model="SimpleTypes-binary" description="Section 5 Simple types-decimal - DFDL-5-010R">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Size of binary data 'decimal' cannot be determined implicitly.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     Test name: double_binary_03
     Schema: SimpleTypes-binary

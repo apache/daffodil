@@ -421,6 +421,17 @@ class TestSimpleTypes {
   @Test def test_decimal_text_fail() { runner.runOneTest("decimal_text_fail") }
   @Test def test_characterDuringValidDecimal() { runner.runOneTest("characterDuringValidDecimal") }
 
+  @Test def test_decimal_binary() { runner.runOneTest("decimal_binary") }
+  @Test def test_decimal_binary_01() { runner.runOneTest("decimal_binary_01") }
+  @Test def test_decimal_binary_02() { runner.runOneTest("decimal_binary_02") }
+  @Test def test_decimal_binary_03() { runner.runOneTest("decimal_binary_03") }
+  @Test def test_decimal_binary_04() { runner.runOneTest("decimal_binary_04") }
+  @Test def test_decimal_binary_05() { runner.runOneTest("decimal_binary_05") }
+  @Test def test_decimal_binary_06() { runner.runOneTest("decimal_binary_06") }
+  @Test def test_decimal_binary_fail_01() { runner.runOneTest("decimal_binary_fail_01") }
+  @Test def test_decimal_binary_fail_03() { runner.runOneTest("decimal_binary_fail_03") }
+  @Test def test_decimal_binary_fail_04() { runner.runOneTest("decimal_binary_fail_04") }
+
   @Test def test_double_text() { runner.runOneTest("double_text") }
   @Test def test_double_text2() { runner.runOneTest("double_text2") }
   @Test def test_double_text3() { runner.runOneTest("double_text3") }
