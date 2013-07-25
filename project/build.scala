@@ -63,11 +63,6 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(tdml)
 
-  lazy val perf    = Project(id = "daffodil-perf", base = file("daffodil-perf"), settings = s ++ nopub)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(tdml)
-
   lazy val testIBM1    = Project(id = "daffodil-test-ibm1", base = file("daffodil-test-ibm1"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
