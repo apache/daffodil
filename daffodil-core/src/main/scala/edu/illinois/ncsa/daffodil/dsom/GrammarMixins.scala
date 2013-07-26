@@ -638,8 +638,10 @@ trait ElementBaseGrammarMixin
 
       case PrimType.Decimal => {
         Assert.invariant(binaryIntRep == bin)
-        if (math.abs(binaryDecimalVirtualPoint) > DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
-          SDE("Property binaryDecimalVirtualPoint %s is larger than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
+        if (binaryDecimalVirtualPoint > DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
+          SDE("Property binaryDecimalVirtualPoint %s is greater than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.maxBinaryDecimalVirtualPoint)
+        if (binaryDecimalVirtualPoint < DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
+          SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
         prims.DecimalKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
       }
       //        (primType, staticBinaryFloatRep) match {

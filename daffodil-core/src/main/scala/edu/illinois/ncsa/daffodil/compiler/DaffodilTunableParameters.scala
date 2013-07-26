@@ -24,6 +24,7 @@ object DaffodilTunableParameters {
   def occursCountMax: Long = 1024 // Can be as large as Int.MaxValue 
   def maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
   def maxBinaryDecimalVirtualPoint: Int = 200 // Can be as large as Int.MaxValue
+  def minBinaryDecimalVirtualPoint: Int = -200 // Can be as small as Int.MinValue
 
   // TODO: want to lift limit of Int.MaxValue, since these are supposed to be Long integers.
 

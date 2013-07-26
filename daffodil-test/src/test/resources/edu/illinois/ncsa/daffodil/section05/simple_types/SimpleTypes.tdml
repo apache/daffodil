@@ -1778,7 +1778,7 @@
       <tdml:documentPart type="byte">00 00 00 01</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint 201 is larger than limit 200</tdml:error>
+      <tdml:error>Schema Definition Error: Property binaryDecimalVirtualPoint 201 is greater than limit 200</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
