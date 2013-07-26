@@ -252,6 +252,9 @@
     
     <xs:element name="integer" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="integer2" type="xs:integer" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
+
+    <xs:element name="decimal" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="1" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    <xs:element name="decimal2" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="1" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
       
  <!-- TEXTUAL DATA -->
       
@@ -2089,6 +2092,53 @@
       <tdml:error>Unable to parse</tdml:error>
       <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDecimal
+        Schema: implicitAlignmentSchema
+          Root: decimal
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'decimal' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDecimal" root="decimal"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">09 01</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="byte">02 DF DC 1C 35</tdml:documentPart> <!-- decimal -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal>1234567890.1</decimal>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDecimal2
+        Schema: implicitAlignmentSchema
+          Root: decimal2
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'decimal' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDecimal2" root="decimal2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - decimal  - DFDL-12-017R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">1001010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="bits">00000000 10001001</tdml:documentPart> <!-- decimal2 -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimal2>13.7</decimal2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 </tdml:testSuite>
