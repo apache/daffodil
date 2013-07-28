@@ -133,5 +133,5 @@ class TresysTests2 {
 
   val bg = testDir + "BG.tdml"
   lazy val runnerBG = new DFDLTestSuite(Misc.getRequiredResource(bg))
-  @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs decimal type
+  @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452)
 }
