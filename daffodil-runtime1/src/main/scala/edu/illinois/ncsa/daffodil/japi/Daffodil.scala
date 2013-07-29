@@ -244,7 +244,7 @@ abstract class LogWriter {
   def log(level: LogLevel, logID: String, msg: String, args: java.util.List[Any]): Unit = {
     val message =
       if (args.size > 0) {
-        msg.format(args)
+        msg.format(args:_*)
       } else {
         msg
       }
