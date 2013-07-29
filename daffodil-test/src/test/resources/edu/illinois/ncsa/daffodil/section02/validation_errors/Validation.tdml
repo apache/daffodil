@@ -1359,14 +1359,24 @@
     <xs:element name="root4">
       <xs:complexType>
         <xs:choice>
-          <xs:element name="nonNeg" dfdl:initiator="nonNeg:" dfdl:lengthKind="delimited">
-            <xs:simpleType>
-              <xs:restriction base="xs:nonNegativeInteger">
-                <xs:minInclusive value="0"/>
-              </xs:restriction>
-            </xs:simpleType>
-          </xs:element>
-          <xs:element name="neg" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:sequence dfdl:separator=",">
+            <xs:element name="definite" type="xs:string" dfdl:inputValueCalc="{ 'definite' }">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert><![CDATA[{ fn:true() }]]></dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="nonNeg" dfdl:lengthKind="delimited">
+              <xs:simpleType>
+                <xs:restriction base="xs:nonNegativeInteger">
+                  <xs:minInclusive value="30"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+            <xs:element name="nonNeg2" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited"/>
+          </xs:sequence>
+          <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited"/>
         </xs:choice>
       </xs:complexType>
     </xs:element>
@@ -1484,7 +1494,7 @@
     root="root4" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
     validation="on">
 
-    <tdml:document>nonNeg:-20</tdml:document>
+    <tdml:document>20,-20</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>not in range for the type</tdml:error>
