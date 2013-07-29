@@ -1407,9 +1407,9 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
               log(LogLevel.Debug, "Assert Pattern success for testPattern %s", testPattern)
               start
             }
-            case _ => {
-              log(LogLevel.Debug, "Assert Pattern fail for testPattern %s", testPattern)
-              val diag = new AssertionFailed(decl, start, stmt.message)
+            case f: DelimParseFailure => {
+              log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
+              val diag = new AssertionFailed(decl, start, stmt.message, Some(f.msg))
               start.failed(diag)
             }
           }
@@ -1462,9 +1462,14 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
           // Only want to set the discriminator if it is true
           // we do not want to modify it unless it's true
-          if (result.isSuccess) { return start.withDiscriminator(true) }
-          val diag = new AssertionFailed(decl, start, stmt.message)
-          start.failed(diag)
+          val finalState = result match {
+            case s: DelimParseSuccess => start.withDiscriminator(true)
+            case f: DelimParseFailure => {
+              val diag = new AssertionFailed(decl, start, stmt.message, Some(f.msg))
+              start.failed(diag)
+            }
+          }
+          finalState
         }
       }
   }

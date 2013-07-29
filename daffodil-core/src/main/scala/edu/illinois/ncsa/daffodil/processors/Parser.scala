@@ -69,6 +69,8 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
   override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
 
+  def componentText: String = ""
+
   override def toString = {
     lazy val argsAsString = args.map { _.toString }.mkString(", ")
     //
@@ -82,6 +84,7 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
       else kind
     }
     val res = "Parse Error: " + msg +
+      componentText +
       "\nSchema context: %s %s".format(sc, sc.locationDescription) +
       pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
@@ -90,8 +93,33 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
   override def getMessage = toString
 }
 
-class AssertionFailed(sc: SchemaComponent, state: PState, msg: String)
-  extends ParseError(sc, Some(state), "Assertion failed. %s", msg)
+class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: Option[String] = None)
+  extends ParseError(sc, Some(state), "Assertion failed. %s", msg) {
+  override def componentText: String = {
+    val currentElem = state.infoset
+
+    val parsedValue = currentElem.jdomElt match {
+      case Some(jdomElem) => {
+        "\nParsed value was: " + {
+          if (jdomElem.getChildren().size() > 0) {
+            // Complex
+            val name = jdomElem.getName()
+            "<" + name + ">...</" + name + ">"
+          } else {
+            // Simple
+            currentElem.toBriefXML.toString
+          }
+        }
+      }
+      case None => ""
+    }
+    val finalString = details match {
+      case Some(d) => "\nDetails: " + d + parsedValue
+      case None => parsedValue
+    }
+    finalString
+  }
+}
 
 class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq[Diagnostic])
   extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
