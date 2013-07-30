@@ -71,9 +71,7 @@ trait PrimitiveFactoryBase {
   def StartChildren(ct: ComplexTypeBase, guard: Boolean = true): Terminal
   def StartSequence(sq: edu.illinois.ncsa.daffodil.dsom.Sequence, guard: Boolean = true): Terminal
   def Nada(sc: Term): Terminal
-  def GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true): Terminal
-  def ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true): Terminal
-  def ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true): Terminal
+  def OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true): Terminal
   def EndChildren(ct: ComplexTypeBase, guard: Boolean = true): Terminal
   def EndSequence(sq: edu.illinois.ncsa.daffodil.dsom.Sequence, guard: Boolean = true): Terminal
   def StartArray(e: ElementBase, guard: Boolean = true): Terminal

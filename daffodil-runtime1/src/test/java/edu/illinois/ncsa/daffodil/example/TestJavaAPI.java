@@ -453,8 +453,8 @@ public class TestJavaAPI {
 		boolean err = res.isError();
 		if (!err) {
 			org.jdom.Document doc = res.result();
-			org.jdom.Document doc2 = res.result();
-			org.jdom.Document doc3 = res.result();
+			// org.jdom.Document doc2 = res.result();
+			// org.jdom.Document doc3 = res.result();
 			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
 			xo.setFormat(Format.getRawFormat());
 			xo.output(doc, System.out);

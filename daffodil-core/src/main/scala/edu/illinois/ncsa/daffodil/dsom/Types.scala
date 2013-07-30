@@ -964,7 +964,7 @@ trait SimpleTypeDerivation {
   }
 }
 
-abstract class SimpleTypeDefBase(xmlArg: Node, val parent: SchemaComponent)
+abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   extends AnnotatedSchemaComponent(xmlArg, parent)
   with SimpleTypeBase
   with DFDLStatementMixin
@@ -1331,7 +1331,7 @@ class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, 
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
-  override lazy val enclosingComponent = (derivedType, element) match {
+  override lazy val referringComponent = (derivedType, element) match {
     case (Some(dt), None) => derivedType
     case (None, Some(elem)) => element
     case _ => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
@@ -1341,7 +1341,7 @@ class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, 
 
 }
 
-abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
+abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   extends SchemaComponent(xmlArg, parent)
   with TypeBase
   with ComplexTypeBaseGrammarMixin {
@@ -1349,8 +1349,6 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   requiredEvaluations(modelGroup)
 
   def element: ElementBase
-
-  override lazy val enclosingComponent = Some(element)
 
   lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
@@ -1377,7 +1375,7 @@ abstract class ComplexTypeBase(xmlArg: Node, val parent: SchemaComponent)
   }
 
   lazy val isScannable: Boolean = {
-    val parentElem: ElementBase = enclosingComponent.get
+    val parentElem: ElementBase = enclosingComponent.get.asInstanceOf[ElementBase]
     val unScannableChildren = modelGroup.group.groupMembers.filterNot { child =>
       (child.knownEncodingCharset == parentElem.knownEncodingCharset) && child.isScannable
     }
@@ -1404,6 +1402,8 @@ class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocumen
 class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
+
+  lazy val referringComponent = Some(element)
 
 }
 

@@ -61,7 +61,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def alignmentValueInBits: Int
   def isScannable: Boolean
 
-  lazy val parent = parentArg
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
   // highly recommended. Lots of time wasted because a val constructor parameter can be 
@@ -70,10 +69,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val someEnclosingComponent = enclosingComponent.getOrElse(Assert.invariantFailed("All terms except a root element have an enclosing component."))
 
-  //  lazy val enclosingComponent: Option[SchemaComponent] = {
-  //    val res = Some(parent) // for global objects, the enclosing will be the thing referencing them.
-  //    res
-  //  }
+  lazy val referredToComponent = this // override in ElementRef and GroupRef
 
   lazy val isRepresented = true // overridden by elements, which might have inputValueCalc turning this off
 
@@ -374,7 +370,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   def hasRequiredSiblings(splitter: ListUtils.SubListFinder[Term]) = {
     val res = nearestEnclosingSequence.map { es =>
       {
-        val allSiblings = es.groupMembers
+        val allSiblings = es.groupMembers.map { _.referredToComponent }
         val sibs = splitter(allSiblings, this)
         val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
         hasAtLeastOne != None
@@ -561,15 +557,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   lazy val groupRef = parent match {
     case ggd: GlobalGroupDef => Some(ggd.groupRef)
     case _ => None
-  }
-
-  override lazy val enclosingComponent = {
-    val res =
-      groupRef match {
-        case Some(ref) => groupRef
-        case None => Some(parent)
-      }
-    res
   }
 
 }
@@ -769,6 +756,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val group = groupDef.modelGroup
 
+  override lazy val referredToComponent = group
+
   lazy val groupDef = groupDef_.value
   private val groupDef_ = LV('groupDef) {
     this.schemaSet.getGlobalGroupDef(namespace, localName) match {
@@ -805,7 +794,7 @@ abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, v
 
   requiredEvaluations(modelGroup)
 
-  override lazy val enclosingComponent = {
+  lazy val referringComponent = {
     val res = Some(groupRef)
     res
   }

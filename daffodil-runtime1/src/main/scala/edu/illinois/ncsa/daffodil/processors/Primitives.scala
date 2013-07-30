@@ -1079,95 +1079,22 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
   }
 }
 
-case class GroupPosGreaterThan(groupPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
+class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
+
+  val sepParser = sep.parser
 
   def parser: DaffodilParser = new PrimParser(this, term) {
-    override def toString = "GroupPosGreaterThan(" + groupPos + ")"
+
+    override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
 
     def parse(start: PState): PState = {
-      val res = if (start.groupPos > groupPos) {
-        start.withDiscriminator(true)
-      } else {
-        PE(start, "Group position not greater than (%s)", groupPos)
-      }
-      res
+      if (start.arrayPos > 1) sepParser.parse1(start, term)
+      else if (start.groupPos > 1) sepParser.parse1(start, term)
+      else start
     }
   }
 
-  def unparser: Unparser = new Unparser(term) {
-    override def toString = "GroupPosGreaterThan(" + groupPos + ")"
-
-    def unparse(start: UState): UState = {
-      val res = if (start.groupPos > groupPos) {
-        start.withDiscriminator(true)
-      } else {
-        UE(start, "Group position not greater than (%s)", groupPos)
-      }
-      res
-    }
-  }
-}
-
-case class ChildPosGreaterThan(childPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
-
-  def parser: DaffodilParser = new PrimParser(this, term) {
-    override def toString = "ChildPosGreaterThan(" + childPos + ")"
-
-    def parse(start: PState): PState = {
-      val res = if (start.childPos > childPos) {
-        start.withDiscriminator(true)
-      } else {
-        PE(start, "Child position not greater than (%s)", childPos)
-      }
-      res
-    }
-  }
-
-  def unparser: Unparser = new Unparser(term) {
-    override def toString = "ChildPosGreaterThan(" + childPos + ")"
-
-    def unparse(start: UState): UState = {
-      val res = if (start.childPos > childPos) {
-        start.withDiscriminator(true)
-      } else {
-        UE(start, "Child position not greater than (%s)", childPos)
-      }
-      res
-    }
-  }
-}
-
-case class ArrayPosGreaterThan(arrayPos: Long, term: Term, guard: Boolean = true) extends Terminal(term, guard) {
-
-  def parser: DaffodilParser = new PrimParser(this, term) {
-    override def toString = "ArrayPosGreaterThan(" + arrayPos + ")"
-
-    def parse(start: PState): PState = {
-      val res = try {
-        if (start.arrayPos > arrayPos) {
-          start.withDiscriminator(true)
-        } else {
-          PE(start, "Array position not greater than (%s)", arrayPos)
-        }
-      } catch { case e: Throwable => PE(start, "No array position") }
-      res
-    }
-  }
-
-  def unparser: Unparser = new Unparser(term) {
-    override def toString = "ArrayPosGreaterThan(" + arrayPos + ")"
-
-    def unparse(start: UState): UState = {
-      val res = try {
-        if (start.arrayPos > arrayPos) {
-          start.withDiscriminator(true)
-        } else {
-          UE(start, "Array position not greater than (%s)", arrayPos)
-        }
-      } catch { case e: Throwable => UE(start, "No array position") }
-      res
-    }
-  }
+  def unparser = DummyUnparser(term)
 }
 
 case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {

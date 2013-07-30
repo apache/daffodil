@@ -66,7 +66,7 @@ import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
  *
  * Every schema component has a schema document, and a schema, and a namespace.
  */
-abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
+abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   extends SchemaComponentBase(xmlArg, parent)
   with ImplementsThrowsSDE
   with GetAttributesMixin
@@ -110,8 +110,7 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
     }
   }
 
-  override def enclosingComponent: Option[SchemaComponent] =
-    if (parent != null) Some(parent) else None
+  override def enclosingComponent = super.enclosingComponent.asInstanceOf[Option[SchemaComponent]]
 
   /**
    * path is used in diagnostic messages and code debug
@@ -181,12 +180,12 @@ abstract class SchemaComponent(xmlArg: Node, parent: SchemaComponent)
 }
 
 /**
- * Local components have a lexical parent that contains them
+ * Local components
  */
 trait LocalComponentMixin { self: SchemaComponent =>
-  def parent: SchemaComponent
-
+  // nothing currently - all components have a parent.
 }
+
 /**
  * Common Mixin for things that have a name attribute.
  */
@@ -218,7 +217,22 @@ trait NamedMixin
  * element. Global things are always qualified
  */
 trait GlobalComponentMixin
-  extends NamedMixin { self: SchemaComponentBase =>
+  extends NamedMixin { self: SchemaComponent =>
+
+  /**
+   * polymorphic way to get back to what is referring to this global
+   */
+  def referringComponent: Option[SchemaComponent]
+
+  /**
+   * Global components have a different way to find their enclosing component,
+   * which is to go back to their referring component (which will be None only for
+   * the root element.
+   */
+  override def enclosingComponent = {
+    Assert.invariant(context.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
+    referringComponent
+  }
 
 }
 

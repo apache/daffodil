@@ -764,6 +764,8 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   lazy val elementRef = None
 
+  override lazy val referredToComponent = referencedElement
+
   // Need to go get the Element we are referencing
   private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   private val referencedElement_ = LV('referencedElement) {
@@ -1030,7 +1032,7 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
 
   override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
 
-  override lazy val enclosingComponent: Option[SchemaComponent] = elementRef
+  override lazy val referringComponent: Option[SchemaComponent] = elementRef
 
   // GlobalElementDecls need to have access to elementRef's local properties.
 

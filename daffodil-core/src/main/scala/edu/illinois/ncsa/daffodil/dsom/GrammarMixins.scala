@@ -859,7 +859,7 @@ trait ElementReferenceGrammarMixin { self: ElementRef =>
 trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val termContentBody = {
-    val res = Prod("termContentBody", self, separatedScalarDefaultable | recurrance)
+    val res = Prod("termContentBody", self, if (isScalar) scalarDefaultable else recurrance)
     res
   }
 
@@ -867,11 +867,13 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val notStopValue = Prod("notStopValue", this, hasStopValue, prims.NotStopValue(this))
 
-  lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForPosition(empty))
-  lazy val separatedScalarDefaultable = Prod("separatedScalarDefaultable", this, isScalar, separatedForPosition(scalarDefaultable))
-  lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForPosition(scalarDefaultable))
-  lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForPosition(scalarNonDefault))
-  lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForPosition(scalarNonDefault))
+  lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForArrayPosition(empty))
+  // TODO: delete unused production
+  // lazy val separatedScalarDefaultable = Prod("separatedScalarDefaultable", this, isScalar, separatedForArrayPosition(scalarDefaultable))
+  lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForArrayPosition(scalarDefaultable))
+  // TODO: delete unused production
+  // lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForArrayPosition(scalarNonDefault))
+  lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForArrayPosition(scalarNonDefault))
 
   lazy val nonSeparatedScalarDefaultable = Prod("nonSeparatedScalarDefaultable", this, isScalar, scalarDefaultable)
 
@@ -920,10 +922,17 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
   // symmetric with parsing in these situations.
   def separatedContentExactlyN(count: Long) = {
-    prims.RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
-      prims.RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
-      prims.StopValue(this) ~
-      prims.RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb reps remaining separators
+    if (minOccurs == maxOccurs) {
+      // fixed length case. All are defaultable. Still might have a stop value tho.
+      prims.RepExactlyN(self, count, separatedRecurringDefaultable) ~
+        prims.StopValue(this)
+    } else {
+      // variable length case. So some defaultable, some not.
+      prims.RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+        prims.RepAtMostTotalN(self, count, separatedRecurringNonDefault) ~
+        prims.StopValue(this) ~
+        prims.RepExactlyTotalN(self, maxOccurs + stopValueSize, separatedEmpty) // absorb remaining separators after stop value.
+    }
   }
 
   lazy val separatedContentExactlyNComputed = {
@@ -1051,11 +1060,32 @@ trait TermGrammarMixin { self: Term =>
   def termContentBody: Prod
 
   // I am not sure we need to distinguish these two. 
-  lazy val asTermInSequence = termContentBody
+  lazy val asTermInSequence = separatedForSequencePosition(termContentBody)
   lazy val asTermInChoice = termContentBody
 
-  def separatedForPosition(body: => Gram) = {
-    if (!isRepresented) body // no separators for things that have no representation in the data stream
+  /**
+   * separator combinators - detect cases where no separator applies.
+   * Note that repeating elements are excluded because they have to
+   * managed their own separatedForArrayPosition inside the repetition.
+   */
+  def separatedForArrayPosition(body: => Gram) = {
+    val (isElementWithNoRep, isRepeatingElement) = body.context match {
+      case e: ElementBase => (!e.isRepresented, !e.isScalar)
+      case other => (false, false)
+    }
+    Assert.usage(isRepeatingElement)
+    Assert.invariant(!isElementWithNoRep) //inputValueCalc not allowed on arrays in DFDL v1.0
+    val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
+    res
+  }
+
+  def separatedForSequencePosition(body: => Gram) = {
+    val (isElementWithNoRep, isRepeatingElement) = body.context match {
+      case e: ElementBase => (!e.isRepresented, !e.isScalar)
+      case other => (false, false)
+    }
+    if (isElementWithNoRep) body // no separators for things that have no representation in the data stream
+    else if (isRepeatingElement) body
     else {
       val res = prefixSep ~ infixSepRule ~ body ~ postfixSep
       res
@@ -1126,12 +1156,7 @@ trait TermGrammarMixin { self: Term =>
       if (isStaticallyFirst) prims.Nada(this) // we're first, no infix sep.
       else if (hasPriorRequiredSiblings) infixSep // always in this case
       else if (positionInNearestEnclosingSequence > 1 || !isScalar) {
-        // runtime check for group pos such that we need a separator.
-        // Note that GroupPosGreaterThan(N,..) sets discriminator, so if it is true, and infixSep is not found, it won't
-        // backtrack and try nothing. Only if GroupPos is not greater than N will it backtrack.
-        // TODO: adding ChildPosGreaterThan and ArrayPosGreaterThan fixes bug with xs:choice and array tests--check for other cases
-        (prims.ArrayPosGreaterThan(1, self) ~ infixSep) |
-          ((prims.GroupPosGreaterThan(1, self) ~ infixSep) | prims.Nada(this))
+        prims.OptionalInfixSep(this, infixSep)
       } else Assert.invariantFailed("infixSepRule didn't understand what to lay down as grammar for this situation: " + this)
     })
 
@@ -1159,9 +1184,7 @@ trait ModelGroupGrammarMixin
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val modelGroupSyntax = Prod("modelGroupSyntax", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
-
-  lazy val termContentBody = Prod("termContentBody", this, separatedForPosition(modelGroupSyntax))
+  lazy val termContentBody = Prod("termContentBody", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 
