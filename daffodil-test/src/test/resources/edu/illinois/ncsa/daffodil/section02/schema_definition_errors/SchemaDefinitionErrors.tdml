@@ -94,4 +94,39 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+
+  <tdml:defineSchema name="warning">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" encoding="utf-8" representation="text"/>
+    <xs:element name="elem" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+<!--
+    Test Name: schema_warning
+       Schema: warning
+         Root: elem
+      Purpose: This test demonstrates tdml:warnings
+-->
+
+  <tdml:parserTestCase name="schema_warning" root="elem"
+    model="warning"
+    description="">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>test</elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <!-- This test currently passes but it does not check for the warning. -->
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>The xs:appinfo source attribute value 'http://www.ogf.org/dfdl/dfdl-1.0/' should be 'http://www.ogf.org/dfdl/'.</tdml:warning>
+    </tdml:warnings>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
