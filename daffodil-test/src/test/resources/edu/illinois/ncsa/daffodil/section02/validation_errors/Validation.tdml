@@ -1381,6 +1381,28 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="root4_better">
+      <xs:complexType>
+      	<xs:sequence dfdl:separator=",">
+      		<xs:element name="choice" minOccurs="1" maxOccurs="3">
+      			<xs:complexType>
+      				<xs:choice>
+			           <xs:element name="nonNegA" dfdl:lengthKind="delimited" dfdl:initiator="A" >
+			             <xs:simpleType>
+			               <xs:restriction base="xs:integer">
+			                 <xs:minInclusive value="30"/>
+			               </xs:restriction>
+			             </xs:simpleType>
+			           </xs:element>
+			           <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" />
+			           <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited" />
+			        </xs:choice>
+      			</xs:complexType>
+      		</xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="root5">
       <xs:complexType>
         <xs:choice>
@@ -1503,6 +1525,37 @@
     <tdml:validationErrors>
       <tdml:error>Value '-20' is not facet-valid with respect to minInclusive '0'</tdml:error>
 		</tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_01
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that validation errors cannot be suppressed by points of uncertainty
+--> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_01_better"
+    root="root4_better" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="on">
+
+    <tdml:document>A20,-20,5</tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<root4_better>
+    			<choice>
+    				<nonNegA>20</nonNegA>
+    			</choice>
+    			<choice>
+    				<int>-20</int>
+    			</choice>
+    			<choice>
+    				<nonNeg>5</nonNeg>
+    			</choice>
+    		</root4_better>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:validationErrors>
+    	<tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+    </tdml:validationErrors>
 
   </tdml:parserTestCase>
   

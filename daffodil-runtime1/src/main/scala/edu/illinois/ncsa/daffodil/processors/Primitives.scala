@@ -231,10 +231,19 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
           // Execute checkConstraints
 
           val resultState = DFDLCheckConstraintsFunction.validate(start) match {
-            case Right(boolVal) => start // Success, do not mutate state.
-            case Left(failureMessage) => start.withValidationError("%s failed dfdl:checkConstraints due to %s",
-              e.toString, failureMessage)
+            case Right(boolVal) => {
+              log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toBriefXML)
+              start // Success, do not mutate state.
+            }
+            case Left(failureMessage) => {
+              log(LogLevel.Debug,
+                "Validation failed for %s due to %s. The element value was %s.",
+                e.toString, failureMessage, currentElement.toBriefXML)
+              start.withValidationError("%s failed dfdl:checkConstraints due to %s",
+                e.toString, failureMessage)
+            }
           }
+
           resultState
         } else start
 
@@ -473,6 +482,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
 
         }
         if (isInvalidRange(num)) {
+          log(LogLevel.Debug, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+            GramDescription, GramName, str, num)
           return PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
             GramDescription, GramName, str, num)
         }
@@ -480,6 +491,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
         // Verify that what was parsed was what was passed exactly in byte count.  
         // Use pos to verify all characters consumed & check for errors!
         if (pos.getIndex != str.length) {
+          log(LogLevel.Debug, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
+            GramDescription, GramName, str)
           return PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
             GramDescription, GramName, str)
         }
@@ -500,6 +513,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase, guard: Boolean)
         // Verify no digits lost (the number was correctly transcribed)
         if (isInt && (compare(asNumber.asInstanceOf[Number], num) != 0)) {
           // Transcription error
+          log(LogLevel.Debug, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
+            GramDescription, GramName, str, num, asNumber)
           return PE(start, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
             GramDescription, GramName, str, num, asNumber)
         }
