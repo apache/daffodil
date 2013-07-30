@@ -46,6 +46,18 @@
     </xs:element>
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="IncorrectAppinfoSource">
+    <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
+      schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
+    <dfdl:format ref="gpf:GeneralPurposeFormat" />
+    <xs:element name="basic" type="xs:string"
+      dfdl:lengthKind="delimited" >
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/dfdl-1.0/" />
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
   <!--
     Test name: multifile_choice_embed
     Schema: embedded_base_01
@@ -2282,4 +2294,24 @@ jonesington,david,frederick,1986-02-19
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+    Test name: incorrectAppinfoSource
+    Schema: IncorrectAppinfoSource
+    Root: basic
+    Purpose: This test demonstrates that a warning is given when the appinfo source is not http://www.ogf.org/dfdl/
+    Currently tdml:warnings are not implemented so this test needs a manual check for the warning. Once that has been implemented this can be changed to automated.
+  -->
+
+  <tdml:parserTestCase name="incorrectAppinfoSource"
+    root="basic" model="IncorrectAppinfoSource" description="xs:appinfo source URI http://www.ogf.org/dfdl/ - DFDL-6-002R">
+    <tdml:document><![CDATA[test]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <basic>test</basic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <!--tdml:warnings>
+    <tdml:warning>The xs:appinfo source attribute value 'http://www.ogf.org/dfdl/dfdl-1.0/' should be 'http://www.ogf.org/dfdl/'.</tdml:warning>
+    </tdml:warnings-->
+  </tdml:parserTestCase>
 </testSuite>

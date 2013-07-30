@@ -207,4 +207,5 @@ class TestNamespaces {
   @Test def test_toplevel_annotation_invalid_01() { runner.runOneTest("toplevel_annotation_invalid_01") }
   @Test def test_toplevel_annotation_invalid_02() { runner.runOneTest("toplevel_annotation_invalid_02") }
 
+  @Test def test_incorrectAppinfoSource() { runner.runOneTest("incorrectAppinfoSource") }
 }
