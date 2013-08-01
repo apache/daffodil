@@ -543,5 +543,59 @@ public class TestJavaAPI {
                 }
                 assertTrue(res.location().isAtEnd());
         }
+	
+  @Test
+	public void testJavaAPI12() throws IOException {
+		LogWriterForJAPITest2 lw2 = new LogWriterForJAPITest2();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+		Daffodil.setLogWriter(lw2);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugging(true);
+		Daffodil.setDebugger(debugger);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc, 2 << 3);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+		System.err.println("bitPos = " + res.location().bitPos());
+		System.err.println("bytePos = " + res.location().bytePos());
+
+		for (String e : lw2.errors)
+			System.err.println(e);
+		for (String e : lw2.warnings)
+			System.err.println(e);
+		assertEquals(0, lw2.errors.size());
+		assertEquals(0, lw2.warnings.size());
+		assertTrue(lw2.infos.size() > 0);
+		assertTrue(lw2.others.size() > 0);
+		assertTrue(debugger.lines.size() > 0);
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+
+		// reset the global logging and debugger state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugging(false);
+		Daffodil.setDebugger(null);
+	}
 
 }
