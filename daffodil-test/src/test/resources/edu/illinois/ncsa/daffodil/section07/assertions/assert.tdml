@@ -162,6 +162,26 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="seq_02" dfdl:terminator="">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert><![CDATA[     { xs:int(.) eq 42 }     ]]></dfdl:assert>
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:complexType>
+        <xs:sequence dfdl:separator="" dfdl:terminator="">
+          <xs:element name="e1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator=":" />
+          <xs:element name="e2" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator=";" />
+          <xs:element name="e3" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator="," />
+          <xs:element name="e4" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1"
+            dfdl:terminator="." />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="description" type="xs:string" />
     <xs:element name="quantity" type="xs:int" />
 
@@ -260,7 +280,53 @@
       <tdml:error>Assertion</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
+  <!--
+    Test name: assertFailShowsValue
+    Schema: s1
+    Purpose: This document does not contain the value asserted in the schema
+    and should fail. The failure message should show the given value.
+  -->
+  <tdml:parserTestCase name="assertFailShowsValue" root="e2"
+    model="s1"
+    description="Section 7 - negative test for assert expression - DFDL-7-043R">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Parsed value was:</tdml:error>
+      <tdml:error>43</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: assertFailShowsValue2
+    Schema: s1
+    Purpose: This document will fail the assertion. The failure message should show the failing element.
+  -->
+  <tdml:parserTestCase name="assertFailShowsValue2" root="seq_02"
+    model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
+    <tdml:document><![CDATA[1:2;3,4.]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Parsed value was:</tdml:error>
+      <tdml:error><![CDATA[<seq_02>...</seq_02>]]></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: assertFailShowsDetails
+    Schema: s1
+    Purpose: This document will fail the assertion. The failure message should show details about the failure.
+  -->
+  <tdml:parserTestCase name="assertFailShowsDetails" root="seq_01"
+    model="s1" description="Section 7 - negative test for assert expression - DFDL-7-043R">
+    <tdml:document><![CDATA[1:2;3;4.]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed.</tdml:error>
+      <tdml:error>Details: string matching regex `(?s)\d:\d;\d,\d.' expected</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     Test name: assertWithWhitespace
     Schema: s1
