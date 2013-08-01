@@ -252,4 +252,18 @@ object Misc {
     s.map { remap(_) }.mkString
   }
 
+  /**
+   * Convenient I/O tools
+   */
+  def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
+    try { f(param) } finally { param.close() }
+
+  /**
+   * convenience method
+   */
+  def writeToFile(fileName: String)(body: java.io.Writer => Unit): Unit = {
+    val writer = new java.io.FileWriter(fileName)
+    using(writer) { body(_) }
+  }
+
 }

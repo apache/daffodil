@@ -1101,6 +1101,7 @@ object XMLUtils {
 
         Elem(newPrefix, label, newAttributes, newScope, newChildren: _*)
       }
+      case c: scala.xml.Comment => new scala.xml.Comment("")
       case other => other
     }
   }
@@ -1129,6 +1130,24 @@ object XMLUtils {
         e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom.Content], ns))
       }
       case other => other
+    }
+  }
+
+  def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node) = {
+    if (trimmedExpected != actualNoAttrs) {
+      val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
+      if (diffs.length > 0) {
+        //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
+        throw new Exception("""
+Comparison failed.
+Expected 
+          %s
+Actual 
+          %s
+Differences were (path, expected, actual):
+ %s""".format(
+          trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+      }
     }
   }
 

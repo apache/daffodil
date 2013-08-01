@@ -58,9 +58,9 @@ object TestUtils {
    * NOTE: Has Side Effects: strips off attributes
    */
   def assertEqualsXMLElements(expected: Node, actual: Node) {
-    val exp = XMLUtils.removeAttributes(expected)
-    val act = XMLUtils.removeAttributes(actual)
-    assertEquals(exp, act)
+    val exp = Utility.trim(XMLUtils.removeAttributes(expected))
+    val act = Utility.trim(XMLUtils.removeAttributes(actual))
+    XMLUtils.compareAndReport(exp, act)
   }
 
   /**

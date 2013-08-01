@@ -507,21 +507,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // infoset.contents already has attributes removed.
     val trimmedExpected = Utility.trim(expected)
 
-    if (trimmedExpected != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
-      if (diffs.length > 0) {
-        //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
-        throw new Exception("""
-Comparison failed.
-Expected 
-          %s
-Actual 
-          %s
-Differences were (path, expected, actual):
- %s""".format(
-          trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
-      }
-    }
+    XMLUtils.compareAndReport(trimmedExpected, actualNoAttrs)
   }
 
   def runParseExpectErrors(pf: DFDL.ProcessorFactory,
