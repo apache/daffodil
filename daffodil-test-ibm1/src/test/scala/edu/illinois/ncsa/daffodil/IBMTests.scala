@@ -45,6 +45,15 @@ class IBMTestsThatPass {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   
+  @Test def test_syntax_entities_6_04() { runner1.runOneTest("syntax_entities_6_04") }
+
+  @Test def test_alignment_bytes_12_01() { runner1.runOneTest("alignment_bytes_12_01") }
+  @Test def test_alignment_bytes_12_02() { runner1.runOneTest("alignment_bytes_12_02") }
+  @Test def test_alignment_bytes_12_03() { runner1.runOneTest("alignment_bytes_12_03") }
+  @Test def test_alignment_bytes_12_06() { runner1.runOneTest("alignment_bytes_12_06") }
+  
+  @Test def test_scoping_define_format_8_05() { runner1.runOneTest("scoping_define_format_8_05") }    
+  
   @Test def test_length_delimited_12_01() { runner1.runOneTest("length_delimited_12_01") }
   @Test def test_length_delimited_12_04() { runner1.runOneTest("length_delimited_12_04") }
   
@@ -52,7 +61,7 @@ class IBMTestsThatPass {
   @Test def test_simple_type_properties_text_calendar_13_02() { runner2.runOneTest("simple_type_properties_text_calendar_13_02") }
   @Test def test_simple_type_properties_text_calendar_13_03() { runner2.runOneTest("simple_type_properties_text_calendar_13_03") }
   @Test def test_simple_type_properties_text_calendar_13_04() { runner2.runOneTest("simple_type_properties_text_calendar_13_04") }
-
+  
   @Test def test_introduction_1_01() { runner1.runOneTest("introduction_1_01") }
 
   @Test def test_property_syntax_7_04() { runner1.runOneTest("property_syntax_7_04") }
