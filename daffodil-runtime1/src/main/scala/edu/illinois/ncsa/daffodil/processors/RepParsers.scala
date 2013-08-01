@@ -74,7 +74,7 @@ abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends U
 
     override def toString = "Rep" + baseName + "(" + rParser.toString + ")"
 
-    def toBriefXML(depthLimit: Int = -1): String = {
+    override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
         "<Rep" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
           "</Rep" + baseName + ">"
@@ -302,7 +302,7 @@ case class OccursCountExpression(e: ElementBase)
 
     override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
 
-    def toBriefXML(depthLimit: Int = -1) = {
+    override def toBriefXML(depthLimit: Int = -1) = {
       "<OccursCount>" + e.occursCount.prettyExpr + "</OccursCount>"
     }
   }

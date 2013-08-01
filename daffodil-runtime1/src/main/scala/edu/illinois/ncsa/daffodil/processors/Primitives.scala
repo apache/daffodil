@@ -1440,7 +1440,7 @@ case class InputValueCalc(e: ElementBase)
 abstract class ExpressionEvaluationParser(context: ExpressionEvaluatorBase, e: AnnotatedSchemaComponent)
   extends Parser(e) with WithParseErrorThrowing {
 
-  def toBriefXML(depthLimit: Int = -1) = context.toBriefXML(depthLimit)
+  override def toBriefXML(depthLimit: Int = -1) = context.toBriefXML(depthLimit)
 
   def eval(start: PState) = {
     val currentElement = start.parentElement

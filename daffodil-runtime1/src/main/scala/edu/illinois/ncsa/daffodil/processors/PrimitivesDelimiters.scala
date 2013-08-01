@@ -88,8 +88,9 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
     result
   }
 
-  //e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
+
+  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
   def parser: DaffodilParser = new PrimParser(this, e) {
 
@@ -98,10 +99,6 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
     }
 
     override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
-
-    // This has to stay here, moving it outside of PrimParser causes it
-    // to not be defined. Why?
-    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
     val eName = e.toString()
 

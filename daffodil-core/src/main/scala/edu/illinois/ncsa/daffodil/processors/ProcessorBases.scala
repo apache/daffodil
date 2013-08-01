@@ -12,7 +12,7 @@ abstract class PrimParser(gram: Gram, contextArg: SchemaComponent)
 
   def primitive = gram
 
-  def toBriefXML(depthLimit: Int = -1): String = {
+  override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + gram.name + "/>"
   }
 

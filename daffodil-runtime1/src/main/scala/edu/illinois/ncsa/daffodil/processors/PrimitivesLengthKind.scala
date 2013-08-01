@@ -370,10 +370,10 @@ case class StringPatternMatched(e: ElementBase)
   with WithParseErrorThrowing with TextReader with Padded {
 
   val charset = e.knownEncodingCharset
+  val pattern = e.lengthPattern
 
   def parser: DaffodilParser = new PrimParser(this, e) {
     override def toString = "StringPatternMatched"
-    val pattern = e.lengthPattern
 
     // The pattern will always be defined
     lazy val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)

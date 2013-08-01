@@ -148,7 +148,7 @@ class AltParseFailed(sc: SchemaComponent, state: PState,
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: SchemaComponent) extends Logging {
+abstract class Parser(val context: SchemaComponent) extends Logging with ToBriefXMLImpl {
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.failed(new ParseError(context, Some(pstate), s, args: _*))
@@ -169,14 +169,6 @@ abstract class Parser(val context: SchemaComponent) extends Logging {
   // TODO: other methods for things like asking for the ending position of something
   // which would enable fixed-length formats to skip over data and not parse it at all.
 
-  /**
-   * BriefXML is XML-style output, but intended for specific purposes. It is NOT
-   * an XML serialization of the data structure. It's an XML-style string, suitable to
-   * manipulate, by people, in XML tooling. E.g., can stick into an XML editor to
-   * then get it all indented nicely, use a structure editor to expand/collapse subregions,
-   * but it is NOT intended to capture all of the state of the object.
-   */
-  def toBriefXML(depthLimit: Int = -1): String
 }
 
 /**
@@ -321,25 +313,33 @@ object WithParseErrorThrowing {
 // do NOT get through.
 class EmptyGramParser(context: Term = null) extends Parser(context) {
   def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
-  def toBriefXML(depthLimit: Int = -1) = "<empty/>"
+  override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
   override def toString = toBriefXML()
 }
 
 class ErrorParser(context: Term = null) extends Parser(context) {
   def parse(pstate: PState): PState = Assert.abort("Error Parser")
-  def toBriefXML(depthLimit: Int = -1) = "<error/>"
+  override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Parser"
 }
 
+/**
+ * BriefXML is XML-style output, but intended for specific purposes. It is NOT
+ * an XML serialization of the data structure. It's an XML-style string, suitable to
+ * manipulate, by people, in XML tooling. E.g., can stick into an XML editor to
+ * then get it all indented nicely, use a structure editor to expand/collapse subregions,
+ * but it is NOT intended to capture all of the state of the object.
+ */
 trait ToBriefXMLImpl {
 
-  def nom: String
-  def childParsers: Seq[Parser]
+  val nom: String = Misc.getNameFromClass(this)
+
+  val childParsers: Seq[Parser] = Nil
 
   // TODO: make this do indenting and newlines (maybe optionally?)
-  def toBriefXML(depthLimit: Int = -1) = {
+  def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
-    else if (depthLimit == 1) "<seq>...</seq>"
+    else if (depthLimit == 1 && childParsers.length == 0) "<" + nom + "/>"
     else {
       val lessDepth = depthLimit - 1
       "<" + nom + ">" + childParsers.map { _.toBriefXML(lessDepth) }.mkString + "</" + nom + ">"
@@ -354,9 +354,9 @@ class SeqCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
   with ToBriefXMLImpl {
   Assert.invariant(!children.exists { _.isEmpty })
 
-  val nom = "seq"
+  override val nom = "seq"
 
-  val childParsers = children.map { _.parser }
+  override val childParsers = children.map { _.parser }
 
   def parse(pstate: PState): PState = {
     var pResult = pstate
@@ -380,9 +380,9 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
   with ToBriefXMLImpl {
   Assert.invariant(!children.exists { _.isEmpty })
 
-  val nom = "alt"
+  override val nom = "alt"
 
-  val childParsers = children.map { _.parser }
+  override val childParsers = children.map { _.parser }
 
   def parse(pInitial: PState): PState = {
     val pStart = pInitial.withNewPointOfUncertainty
@@ -440,7 +440,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
 case class DummyParser(sc: SchemaComponent) extends Parser(null) {
   def parse(pstate: PState): PState = sc.SDE("Parser for " + sc + " is not yet implemented.")
 
-  def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
+  override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc + "]"
 }
 
