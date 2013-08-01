@@ -68,6 +68,11 @@ class TestUserSubmittedTestsNew {
     Debugger.setDebugging(false)
     Debugger.setDebugger(null)
   }
+  
+  @Test def test_prefix_separator_as_variable() {
+//    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    runner.runOneTest("test_prefix_separator_as_variable")
+  }
 
 }
 

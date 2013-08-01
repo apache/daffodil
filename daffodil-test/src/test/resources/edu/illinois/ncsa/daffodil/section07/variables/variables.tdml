@@ -4,7 +4,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:ex="http://example.com">
-
+  
   <tdml:defineSchema name="v">
     <dfdl:defineVariable name="v_no_default" type="xsd:int" />
     <dfdl:defineVariable name="v_with_default" type="xsd:int"
