@@ -167,6 +167,8 @@
     <xs:element name="uB_01" type="xs:unsignedByte" />
     <xs:element name="uL_01" type="xs:unsignedLong" />
     <xs:element name="d_01" type="xs:double" />
+    <xs:element name="d_02" type="xs:double"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
     <xs:element name="dec_01" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="0"
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
     <xs:element name="dec_02" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="5"
@@ -1866,6 +1868,42 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: double_binary_06
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bytes for the explicit length and should be parsed accordingly
+  -->
+
+  <tdml:parserTestCase name="double_binary_06" root="d_02"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">4375EE2A320FF454</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <d_02>9.8765432109876544E16</d_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: double_binary_07
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a negative number
+  -->
+
+  <tdml:parserTestCase name="double_binary_07" root="d_02"
+      model="SimpleTypes-binary" description="Section 5 Schema types-double - DFDL-5-009R">
+    <tdml:document>
+      <tdml:documentPart type="byte">C014000000000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <d_02>-5.0</d_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
     Test name: double_07
     Schema: SimpleTypes-Embedded.dfdl.xsd

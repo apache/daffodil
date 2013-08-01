@@ -246,6 +246,7 @@
     <xs:element name="uByte" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
     <xs:element name="float" type="xs:float" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="double" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+    <xs:element name="double2" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
     
     <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="nonNeg2" type="xs:nonNegativeInteger" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:alignment="implicit" dfdl:leadingSkip="1" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
@@ -1264,6 +1265,29 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <double>5.325762300373444E10</double>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentDouble2
+        Schema: implicitAlignmentSchema
+          Root: double2
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'double' is 64 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentDouble2" root="double2"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - double (binary) - DFDL-12-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01010101 01010101 01010101 01010101 01010101 01010101 01010101 01010101</tdml:documentPart> <!-- leadingSkip and padding for alignment -->
+      <tdml:documentPart type="bits">01000000 00111001 00000000 00000000 00000000 00000000 00000000 00000000</tdml:documentPart> <!-- double2 -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <double2>25.0</double2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

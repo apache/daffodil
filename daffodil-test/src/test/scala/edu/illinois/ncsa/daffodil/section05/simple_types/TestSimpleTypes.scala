@@ -345,6 +345,8 @@ class TestSimpleTypes {
   @Test def test_double_binary_03() { runner.runOneTest("double_binary_03") }
   @Test def test_double_binary_04() { runner.runOneTest("double_binary_04") }
   @Test def test_double_binary_05() { runner.runOneTest("double_binary_05") }
+  @Test def test_double_binary_06() { runner.runOneTest("double_binary_06") }
+  @Test def test_double_binary_07() { runner.runOneTest("double_binary_07") }
 
   @Test def test_byte_binary_01() { runner.runOneTest("byte_binary_01") }
   @Test def test_byte_binary_02() { runner.runOneTest("byte_binary_02") }
