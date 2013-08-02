@@ -395,6 +395,7 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
           pResult = parser.parse1(pStart, context)
         } catch {
           case u: UnsuppressableException => throw u
+          case rsde: RuntimeSchemaDefinitionError => throw rsde
           case e: Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
         if (pResult.status == Success) {

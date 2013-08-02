@@ -64,6 +64,7 @@ object Infoset {
     // attributes have parent pointers. So this creates one and points it back at the jdomE
     // holding it.
     jdomE.setAttribute("context", e.schemaComponentID, XMLUtils.INT_NS_OBJECT)
+    jdomE.setAttribute("defaulted", "false", XMLUtils.INT_NS_OBJECT)
     if (isHidden)
       jdomE.setAttribute("hidden", "true", XMLUtils.INT_NS_OBJECT)
     val res = new InfosetElement(jdomE)
@@ -101,6 +102,16 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
   }
 
   def addElement(e: InfosetElement) = elt.addContent(e.elt)
+  
+  def setDefaulted() = {
+    elt.setAttribute("defaulted","true", XMLUtils.INT_NS_OBJECT)
+  }
+  
+  def isDefaulted: Boolean = {
+    // dafint:defaulted='true'
+    val res = elt.getAttribute("defaulted", XMLUtils.INT_NS_OBJECT).getBooleanValue()
+    res
+  }
 
   /**
    * Our JDOM-based infoset is not a functional-programming thing, we side-effect it, so
@@ -137,6 +148,16 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
       }
     }
     context
+  }
+
+  def schemaComponentUUID(pstate: PState): String = {
+    val currentElement = elt
+    val attr = currentElement.getAttributeValue("context", XMLUtils.INT_NS_OBJECT)
+    val result = attr match {
+      case null => Assert.invariantFailed("No schema component context attribute on Infoset element.")
+      case uuid => uuid
+    }
+    result
   }
 
   def parent = {
@@ -211,6 +232,7 @@ class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
 }
 
 sealed abstract class InfosetItem {
+  override def toString(): String = jdomElt.getOrElse("InfosetItem(None)").toString
 
   def jdomElt: Option[org.jdom.Element]
 

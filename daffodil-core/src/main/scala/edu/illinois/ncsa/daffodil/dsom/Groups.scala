@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.ListUtils
+import java.util.UUID
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -60,6 +61,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def alignmentValueInBits: Int
   def isScannable: Boolean
+
+  val tID = UUID.randomUUID()
 
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
@@ -236,59 +239,48 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  // TODO Review Comment
-  // This below should not reproduce the logic of enclosingComponent unless it needs
-  // something different from that. 
-  lazy val nearestEnclosingSequence: Option[Sequence] = nearestEnclosingSequence_.value
-  private val nearestEnclosingSequence_ = LV('nearestEnclosingSequence) {
-    val res = parent match {
-      case s: Sequence => Some(s)
-      case t: Term => t.nearestEnclosingSequence
-      case d: SchemaDocument => {
-        // we're a global object. Our parent is a schema document
-        // so follow backpointers to whatever is referencing us.
-        this match {
-          case ge: GlobalElementDecl => ge.elementRef match {
-            case None => {
-              // we are root. So there is no enclosing sequence at all
-              None
-            }
-            case Some(er) => er.nearestEnclosingSequence
-          }
-        }
-      }
-      case ct: ComplexTypeBase => None // Stop when we get to an element // ct.element.nearestEnclosingSequence
-      case gd: GlobalGroupDef => gd.groupRef.nearestEnclosingSequence
-      case _ => Assert.invariantFailed("nearestEnclosingSequence called on " + this + "with parent " + parent)
-    }
-    res
+  lazy val nearestEnclosingSequence: Option[Sequence] = enclosingTerm match {
+    case None => None
+    case Some(s: Sequence) => Some(s)
+    case Some(_) => enclosingTerm.get.nearestEnclosingSequence
   }
 
-  lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = inChoiceBeforeNearestEnclosingSequence_.value
-  private val inChoiceBeforeNearestEnclosingSequence_ = LV('inChoiceBeforeNearestEnclosingSequence) {
-    val res = parent match {
-      case s: Sequence => false
-      case c: Choice => true
-      case t: Term => t.inChoiceBeforeNearestEnclosingSequence
-      case d: SchemaDocument => {
-        // we're a global object. Our parent is a schema document
-        // so follow backpointers to whatever is referencing us.
-        this match {
-          case ge: GlobalElementDecl => ge.elementRef match {
-            case None => {
-              // we are root. So there is no coice at all
-              false
-            }
-            case Some(er) => er.inChoiceBeforeNearestEnclosingSequence
-          }
-        }
-      }
-      case ct: ComplexTypeBase => false // Stop when we get to an element // ct.element.nearestEnclosingSequence
-      case gd: GlobalGroupDef => gd.groupRef.inChoiceBeforeNearestEnclosingSequence
-      case _ => Assert.invariantFailed("inChoiceBeforeNearestEnclosingSequence called on " + this + "with parent " + parent)
-    }
-    res
+  lazy val nearestEnclosingChoiceBeforeSequence: Option[Choice] = enclosingTerm match {
+    case None => None
+    case Some(s: Sequence) => None
+    case Some(c: Choice) => Some(c)
+    case Some(_) => enclosingTerm.get.nearestEnclosingChoiceBeforeSequence
   }
+
+  lazy val nearestEnclosingUnorderedSequence: Option[Sequence] = enclosingTerm match {
+    case None => None
+    case Some(s: Sequence) if !s.isOrdered => Some(s)
+    case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
+  }
+
+  lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
+    case None => false
+    case Some(s: Sequence) => false
+    case Some(c: Choice) => true
+    case Some(_) => enclosingTerm.get.inChoiceBeforeNearestEnclosingSequence
+  }
+
+  /**
+   * We want to determine if we're in an unordered sequence
+   * at any point along our parents.
+   */
+  lazy val inUnorderedSequence: Boolean =
+    nearestEnclosingSequence match {
+      case None => {
+        false
+      }
+      case Some(s) => {
+        if (s.isOrdered) {
+          val result = s.inUnorderedSequence
+          result
+        } else true
+      }
+    }
 
   lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
@@ -460,6 +452,8 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   with OverlapCheckMixin {
 
   requiredEvaluations(groupMembers)
+
+  val mgID = UUID.randomUUID()
 
   lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
   lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
@@ -656,6 +650,28 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SequenceGrammarMixin
   with SeparatorSuppressionPolicyMixin {
 
+  requiredEvaluations(checkIfValidUnorderedSequence)
+
+  // TODO: Remove when we've verified that the tests use built-in-format
+  // This was just a temporary fix so that we could get around tests failing.
+  // due to them not including SequenceKind.
+  override lazy val (sequenceKind, sequenceKind_location) = {
+    findPropertyOption("sequenceKind") match {
+      case f: Found => {
+        val value = f.value match {
+          case "ordered" => SequenceKind.Ordered
+          case "unordered" => SequenceKind.Unordered
+          case _ => this.SDE("Unrecognized sequenceKind of %s.", f.value)
+        }
+        (value, f.location)
+      }
+      case NotFound(a, b) => {
+        this.SDW("Property sequenceKind was not found. Defaulting ot 'ordered'.")
+        (SequenceKind.Ordered, null)
+      }
+    }
+  }
+
   lazy val myPeers = sequencePeers
 
   def annotationFactory(node: Node): DFDLAnnotation = {
@@ -713,6 +729,106 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
+  /**
+   * Provides unordered sequence checks.  Will SDE if invalid.
+   */
+  def checkIfValidUnorderedSequence(): Unit = {
+    if (!isOrdered) {
+      checkMembersAreAllElementOrElementRef
+      checkMembersHaveValidOccursCountKind
+      checkMembersHaveUniqueNamesInNamespaces
+    }
+  }
+
+  private def checkMembersHaveValidOccursCountKind: Unit = {
+    val validChildren: Seq[LocalElementBase] =
+      groupMembers.filter { m => m.isInstanceOf[LocalElementDecl] || m.isInstanceOf[ElementRef]
+      }.map(_.asInstanceOf[LocalElementBase])
+
+    val invalidChildren = validChildren.filter(e => {
+      if (e.minOccurs == 0 | !e.isScalar) {
+        e.occursCountKind match {
+          case OccursCountKind.Parsed => false
+          case _ => true
+        }
+      } else false
+    })
+    val hasInvalidChildren = invalidChildren.length > 0
+    if (hasInvalidChildren)
+      this.SDE("Members of an unordered sequence (%s) that are optional or array elements must have dfdl:occursCountKind='parsed'." +
+        "\nThe offending members: %s.", this.nameAndPath._2, invalidChildren.mkString(","))
+  }
+  private def checkMembersAreAllElementOrElementRef: Unit = {
+    val invalidChildren = groupMembers.filterNot(child =>
+      child.isInstanceOf[LocalElementDecl] || child.isInstanceOf[ElementRef])
+    val hasInvalidChildren = invalidChildren.length > 0
+    if (hasInvalidChildren)
+      this.SDE("Members of an unordered sequence (%s) must be Element or ElementRef." +
+        "\nThe offending members: %s.", this.nameAndPath._2, invalidChildren.mkString(","))
+  }
+  private def checkMembersHaveUniqueNamesInNamespaces: Unit = {
+    val childrenGroupedByNamespace =
+      groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace.toJDOM)
+
+    childrenGroupedByNamespace.foreach {
+      case (ns, children) => {
+        // At this point we're looking at the individual namespace buckets
+        val childrenGroupedByName = children.groupBy(child => child.name)
+        childrenGroupedByName.foreach {
+          case (name, children) =>
+            // Now we're looking at the individual name buckets within the 
+            // individual namespace bucket.
+            if (children.length > 1)
+              this.SDE("Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
+                "\nNamespace: %s\tName: %s.",
+                this.nameAndPath._2, ns, name)
+        }
+      }
+    }
+  }
+
+  lazy val isOrdered: Boolean = this.sequenceKind match {
+    case SequenceKind.Ordered => true
+    case SequenceKind.Unordered => false
+  }
+
+  lazy val unorderedSeq: Option[UnorderedSequence] = if (!isOrdered) {
+
+    val children = apparentXMLChildren.map(c => {
+      c match {
+        case elem: Elem => {
+          elem % Attribute(None, "minOccurs", Text("1"), Null)
+          elem % Attribute(None, "maxOccurs", Text("1"), Null)
+        }
+        case x => x
+      }
+    })
+
+    val newContent: Node =
+      <element name="choiceElement" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+        <complexType>
+          <choice dfdl:choiceLengthKind="implicit">{ children }</choice>
+        </complexType>
+      </element>
+
+    // Constructs a sequence of choice using newContent
+    val newXML = {
+      xmlArg match {
+        case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, newContent: _*)
+        case other => other
+      }
+    }
+
+    Some(new UnorderedSequence(newXML, children, parent, position))
+
+  } else None
+
+}
+
+class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)
+  extends Sequence(xmlArg, parent, position) {
+  // A shell, the actual XML representation is passed in
+  // from Sequence
 }
 
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)

@@ -43,8 +43,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  */
 class SchemaComponentRegistry {
 
-  private val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
-
+  val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
+  
   def getComponentByID(uid: String): Option[ElementBase] = {
     val ctxMap = contextMap
     // TODO: why this try/catch??

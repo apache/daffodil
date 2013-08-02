@@ -809,11 +809,17 @@ trait ElementBaseGrammarMixin
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
-  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, prims.ElementBegin(this))
+  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
+    if (this.isParentUnorderedSequence) prims.ChoiceElementBegin(this)
+    else prims.ElementBegin(this)
+  })
 
   lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
-    if (isRepresented) prims.ElementEnd(this)
-    else prims.ElementEndNoRep(this)
+    if (this.isParentUnorderedSequence) prims.ChoiceElementEnd(this)
+    else {
+      if (isRepresented) prims.ElementEnd(this)
+      else prims.ElementEndNoRep(this)
+    }
   })
 
   //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
@@ -1202,7 +1208,18 @@ trait ChoiceGrammarMixin { self: Choice =>
 
 trait SequenceGrammarMixin { self: Sequence =>
 
-  lazy val groupContent = Prod("sequenceContent", this, prims.StartSequence(this) ~ terms.foldRight(mt)(folder) ~ prims.EndSequence(this))
+  lazy val groupContent = {
+    self.sequenceKind match {
+      case SequenceKind.Ordered => orderedSequenceContent
+      case SequenceKind.Unordered => unorderedSequenceContent
+    }
+  }
+
+  lazy val orderedSequenceContent = Prod("sequenceContent", this, prims.StartSequence(this) ~ terms.foldRight(mt)(folder) ~ prims.EndSequence(this))
+  lazy val unorderedSequenceContent = {
+    val uoseq = self.unorderedSeq.get
+    Prod("unorderedSequenceContent", this, prims.StartSequence(this) ~ prims.UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder)) ~ prims.EndSequence(this))
+  }
 
   def folder(p: Gram, q: Gram): Gram = p ~ q
 

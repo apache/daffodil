@@ -32,12 +32,16 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.R
 
 object EscapeSchemeKind extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -48,18 +52,74 @@ object EscapeSchemeKind extends Enum {
 
 object EscapeScheme extends Logging {
 
-  class EscapeSchemeObj {
-    var escapeSchemeKind: EscapeSchemeKind.Type = EscapeSchemeKind.None
-    var escapeCharacter = ""
-    var escapeEscapeCharacter = ""
-    var escapeBlockStart = ""
-    var escapeBlockEnd = ""
+  class EscapeSchemeObj(
+    val escapeSchemeKind: EscapeSchemeKind.Type,
+    val escapeCharacter: Option[CompiledExpression],
+    val escapeEscapeCharacter: Option[CompiledExpression],
+    val escapeBlockStart: String,
+    val escapeBlockEnd: String) {
+
+    private def evaluateEscapeEscapeCharacter(state: PState, context: ThrowsSDE): (VariableMap, String) = {
+      val result = escapeEscapeCharacter match {
+        case None => (state.variableMap, "")
+        case Some(escEsc) => {
+          val R(res, newVMap) = escEsc.evaluate(state.parentElement, state.variableMap, state)
+          val l = new SingleCharacterLiteralES(res.toString, context)
+          val resultEscEsc = l.cooked
+          (newVMap, resultEscEsc)
+        }
+      }
+      result
+    }
+
+    private def evaluateEscapeCharacter(state: PState, context: ThrowsSDE): (VariableMap, String) = {
+      val result = escapeCharacter match {
+        case None => (state.variableMap, "")
+        case Some(esc) => {
+          val R(res, newVMap) = esc.evaluate(state.parentElement, state.variableMap, state)
+          val l = new SingleCharacterLiteralES(res.toString, context)
+          val resultEsc = l.cooked
+          (newVMap, resultEsc)
+        }
+      }
+      result
+    }
+
+    def evaluate(state: PState, context: ThrowsSDE): (Option[PState], EvaluatedEscapeSchemeObj) = {
+      val vmap = state.variableMap
+      val result = escapeSchemeKind match {
+        case EscapeSchemeKind.None => (None, new EvaluatedEscapeSchemeObj(EscapeSchemeKind.None, "", "", "", ""))
+        case EscapeSchemeKind.Block => {
+          val (finalVMap, resultEscEsc) = evaluateEscapeEscapeCharacter(state, context)
+          val finalState = state.withVariables(finalVMap)
+          (Some(finalState), new EvaluatedEscapeSchemeObj(EscapeSchemeKind.Block, "", resultEscEsc, escapeBlockStart, escapeBlockEnd))
+        }
+        case EscapeSchemeKind.Character => {
+          val (postEscEscVMap, resultEscEsc) = evaluateEscapeEscapeCharacter(state, context)
+          val newState = state.withVariables(postEscEscVMap)
+          val (finalVMap, resultEsc) = evaluateEscapeCharacter(newState, context)
+          val finalState = newState.withVariables(finalVMap)
+          (Some(finalState), new EvaluatedEscapeSchemeObj(EscapeSchemeKind.Character, resultEsc, resultEscEsc, "", ""))
+        }
+      }
+      result
+    }
+
   }
 
-  def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context: ThrowsSDE): EscapeSchemeObj = {
+  class EvaluatedEscapeSchemeObj(
+    val escapeSchemeKind: EscapeSchemeKind.Type,
+    val escapeCharacter: String,
+    val escapeEscapeCharacter: String,
+    val escapeBlockStart: String,
+    val escapeBlockEnd: String) {
+  }
+
+  def getEscapeScheme(pEs: Option[DFDLEscapeScheme], context: SchemaComponent): EscapeSchemeObj = {
+    val expressionCompiler = new ExpressionCompiler(context)
     var escapeSchemeKind: EscapeSchemeKind.Type = EscapeSchemeKind.None
-    var escapeCharacter = ""
-    var escapeEscapeCharacter = ""
+    var escapeCharacter: Option[CompiledExpression] = None
+    var escapeEscapeCharacter: Option[CompiledExpression] = None
     var escapeBlockStart = ""
     var escapeBlockEnd = ""
 
@@ -69,11 +129,10 @@ object EscapeScheme extends Logging {
         obj.escapeKind match {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
+
             escapeEscapeCharacter = {
-              val optKEEC = obj.knownEscapeEscapeCharacter
-              val eec = optKEEC.getOrElse("")
-              val l = new SingleCharacterLiteralES(eec, context)
-              l.cooked
+              val optEEC = obj.optionEscapeEscapeCharacter
+              optEEC
             }
             escapeBlockStart = {
               val l = new StringValueAsLiteral(obj.escapeBlockStart, context)
@@ -87,12 +146,12 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
             escapeEscapeCharacter = {
-              val l = new SingleCharacterLiteralES(obj.escapeEscapeCharacterRaw.value, context)
-              l.cooked
+              val optEEC = obj.optionEscapeEscapeCharacter
+              optEEC
             }
             escapeCharacter = {
-              val l = new SingleCharacterLiteralES(obj.escapeCharacterRaw.value, context)
-              l.cooked
+              val optEC = obj.optionEscapeCharacter
+              optEC
             }
           }
           case _ => context.schemaDefinitionError("Unrecognized Escape Scheme!")
@@ -106,12 +165,11 @@ object EscapeScheme extends Logging {
     log(LogLevel.Debug, "\tEscapeBlockStart: " + escapeBlockStart)
     log(LogLevel.Debug, "\tEscapeBlockEnd: " + escapeBlockEnd)
 
-    val result = new EscapeSchemeObj
-    result.escapeSchemeKind = escapeSchemeKind
-    result.escapeCharacter = escapeCharacter
-    result.escapeEscapeCharacter = escapeEscapeCharacter
-    result.escapeBlockStart = escapeBlockStart
-    result.escapeBlockEnd = escapeBlockEnd
+    val result = new EscapeSchemeObj(escapeSchemeKind,
+      escapeCharacter,
+      escapeEscapeCharacter,
+      escapeBlockStart,
+      escapeBlockEnd)
     result
   }
 }

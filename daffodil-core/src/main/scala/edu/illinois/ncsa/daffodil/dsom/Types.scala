@@ -33,20 +33,25 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import java.math.BigInteger
+
 import scala.collection.mutable.Queue
+import scala.math.BigDecimal.javaBigDecimal2bigDecimal
 import scala.util.matching.Regex
-import scala.xml._
-import com.ibm.icu.text.DateFormat
+import scala.xml.Node
+
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
-import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.Enum
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /////////////////////////////////////////////////////////////////
 // Type System

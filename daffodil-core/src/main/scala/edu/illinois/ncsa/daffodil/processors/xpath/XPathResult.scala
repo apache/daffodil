@@ -78,11 +78,15 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  */
 import org.jdom.Element
 import scala.math.BigDecimal
+import org.w3c.dom.NodeList
 
 sealed abstract class XPathResult
 
 /** The result is a DOM node */
 case class NodeResult(node: Element) extends XPathResult
+
+/** The result is a DOM node list */
+case class NodeSetResult(nodes: NodeList) extends XPathResult
 
 /** The result is a string */
 case class StringResult(string: String) extends XPathResult

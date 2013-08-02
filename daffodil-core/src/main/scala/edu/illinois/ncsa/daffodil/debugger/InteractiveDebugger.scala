@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
 import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors.xpath.NodeSetResult
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -887,6 +888,28 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
                   val pp = new scala.xml.PrettyPrinter(wrap, 2)
                   val xml = pp.format(xmlClean)
                   debugPrintln(xml)
+                }
+              }
+              case NodeSetResult(ns) => {
+                val numNodes = ns.getLength()
+                for (i <- 0 to numNodes) {
+                  val item = ns.item(i).asInstanceOf[org.jdom.Element]
+
+                  val xmlNode = XMLUtils.element2Elem(item)
+                  val xmlNoHidden =
+                    if (DebuggerConfig.removeHidden) {
+                      XMLUtils.removeHiddenElements(xmlNode)
+                    } else {
+                      xmlNode
+                    }
+                  if (xmlNoHidden.length > 0) {
+                    val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
+                    val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
+                    val pp = new scala.xml.PrettyPrinter(wrap, 2)
+                    val xml = pp.format(xmlClean)
+                    debugPrintln(xml)
+                  }
+
                 }
               }
             }

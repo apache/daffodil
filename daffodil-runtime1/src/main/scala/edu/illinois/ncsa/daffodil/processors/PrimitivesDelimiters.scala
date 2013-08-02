@@ -85,7 +85,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
         // set of static delimiters.
         val result = parseMethod(reader)
 
-        log(LogLevel.Debug, "%s - %s - DelimParseResultult: %s", this.toString(), eName, result)
+        log(LogLevel.Debug, "%s - %s - DelimParseResult: %s", this.toString(), eName, result)
 
         result match {
           case _: DelimParseFailure => {
@@ -316,7 +316,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
 
         val result = parseMethod(pInputDelimiterParser, pIsLocalDelimParser, reader)
 
-        log(LogLevel.Debug, "%s - %s - DelimParseResultult: %s", this.toString(), eName, result)
+        log(LogLevel.Debug, "%s - %s - DelimParseResult: %s", this.toString(), eName, result)
 
         result match {
           case _: DelimParseFailure => {

@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.example;
+package edu.illinois.ncsa.daffodil.util
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,65 +32,26 @@ package edu.illinois.ncsa.daffodil.example;
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.japi.*;
+import scala.util.parsing.combinator.RegexParsers
 
-import java.util.ArrayList;
+trait DebugRegexParsers extends RegexParsers with Logging {
+  /**
+   * Used to trace parsing
+   */
+  implicit def toLogged(name: String) = new {
+    def !!![T](p: Parser[T]) = log(p)(name)
+  }
 
-public class LogWriterForJAPITest2 extends LogWriter {
-	ArrayList<String> errors = new ArrayList<String>();
-	ArrayList<String> warnings = new ArrayList<String>();
-	ArrayList<String> infos = new ArrayList<String>();
-	ArrayList<String> others = new ArrayList<String>();
-
-	public void write(LogLevel level, String logID, String msg) {
-		switch(level) {
-			case Error:
-				errors.add(msg);
-				break;
-			case Warning:
-				warnings.add(msg);
-				break;
-			case Info:
-				infos.add(msg);
-				break;
-			default:
-				others.add(msg);
-		}
-	}
-	
-
-	public String prefix(LogLevel level, String logID) {
-		String prefix;
-		switch(level) {
-			case Error:
-				prefix = "[error] ";
-				break;
-			case Warning:
-				prefix = "[warning] ";
-				break;
-			case Info:
-				prefix = "[info] ";
-				break;
-			case Compile:
-				prefix = "[compile] ";
-				break;
-			case Debug:
-				prefix = "[debug] ";
-				break;
-			case DelimDebug:
-				prefix = "[delimdebug] ";
-				break;
-			case OOLAGDebug:
-				prefix = "[oolagdebug] ";
-				break;
-			default:
-				prefix = "[unknown] ";
-		}
-		return "[JAPI LOG] " + prefix;
-	}
-
-	public String suffix(LogLevel level, String ogID) {
-		return " [END]";
-	}
+  /**
+   * A helper method that turns a `Parser` into one that will
+   *  print debugging information to stdout before and after
+   *  being applied.
+   */
+  override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser { in =>
+    log(LogLevel.DelimDebug, "trying %s at %s", name, in)
+    val r = p(in)
+    log(LogLevel.DelimDebug, "end %s --> %s", name, r)
+    r
+  }
 
 }

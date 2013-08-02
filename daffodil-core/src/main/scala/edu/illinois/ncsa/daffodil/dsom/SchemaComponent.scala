@@ -112,6 +112,14 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   override def enclosingComponent = super.enclosingComponent.asInstanceOf[Option[SchemaComponent]]
 
+  lazy val enclosingTerm: Option[Term] = {
+    enclosingComponent match {
+      case None => None
+      case Some(t: Term) => Some(t)
+      case _ => enclosingComponent.get.enclosingTerm
+    }
+  }
+
   /**
    * path is used in diagnostic messages and code debug
    * messages; hence, it is very important that it be
@@ -994,6 +1002,49 @@ class SchemaSet(primFactory: PrimitiveFactoryBase,
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val vmap = VariableMap.create(dvs)
     vmap
+  }
+
+  private lazy val elements = schemaComponentRegistry.contextMap
+
+  def getIDByName(name: String, ns: org.jdom.Namespace) = {
+    val matches = elements.filter {
+      case (uuid, eb) => {
+        eb.targetNamespace.toJDOM == ns &&
+          eb.name == name
+      }
+    }
+    matches.headOption
+  }
+
+  def getSCIDAugmentedInfoset(origInfoset: Node) = {
+    val infoset = XMLUtils.elem2Element(origInfoset)
+
+    val rootMatch = getIDByName(infoset.getName(), infoset.getNamespace())
+
+    rootMatch match {
+      case None => // Nothing to do here
+      case Some((uuid, _)) => {
+        infoset.setAttribute("context", uuid.toString(), XMLUtils.INT_NS_OBJECT)
+      }
+    }
+
+    val it = infoset.getDescendants(new org.jdom.filter.ElementFilter).asInstanceOf[java.util.Iterator[org.jdom.Element]]
+
+    for (e <- it) {
+      val name = e.getName()
+      val ns = e.getNamespace()
+
+      val theMatch = getIDByName(name, ns)
+      theMatch match {
+        case None => // Nothing to do here
+        case Some((uuid, _)) => {
+          e.setAttribute("context", uuid.toString(), XMLUtils.INT_NS_OBJECT)
+        }
+      }
+
+    }
+
+    infoset
   }
 
 }

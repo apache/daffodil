@@ -46,28 +46,6 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.Array.canBuildFrom
 
-trait DebugRegexParsers extends RegexParsers with Logging {
-  /**
-   * Used to trace parsing
-   */
-  implicit def toLogged(name: String) = new {
-    def !!![T](p: Parser[T]) = log(p)(name)
-  }
-
-  /**
-   * A helper method that turns a `Parser` into one that will
-   *  print debugging information to stdout before and after
-   *  being applied.
-   */
-  override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser { in =>
-    log(LogLevel.DelimDebug, "trying %s at %s", name, in)
-    val r = p(in)
-    log(LogLevel.DelimDebug, "end %s --> %s", name, r)
-    r
-  }
-
-}
-
 object TextJustificationType extends Enum {
   sealed abstract trait Type extends EnumValueType
   case object None extends Type

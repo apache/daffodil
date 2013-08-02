@@ -63,6 +63,40 @@ import edu.illinois.ncsa.daffodil.api._
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 
+/**
+ * *
+ * ChoiceElementBegin allows us to get away without adding the additional
+ * choice element required of the unordered sequence transformation.
+ *
+ * This prevents us from having to worry about navigating around additional
+ * choice elements in the infoset.  We effectively don't add them if they
+ * were constructed as a result of an unordered sequence.
+ */
+case class ChoiceElementBegin(e: ElementBase) extends Terminal(e, true) {
+
+  val isHidden = e.isHidden
+
+  def parser: DaffodilParser = new PrimParser(this, e) {
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<ChoiceElementBegin name='" + e.name + "'/>"
+    }
+
+    /**
+     * ElementBegin just adds the element we are constructing to the infoset and changes
+     * the state to be referring to this new element as what we're parsing data into.
+     */
+    def parse(start: PState): PState = {
+      val currentElement = Infoset.newElement(e, isHidden)
+
+      log(LogLevel.Debug, "currentElement = %s", currentElement)
+      start
+    }
+  }
+
+  def unparser = new DummyUnparser(e)
+}
+
 case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
 
   val isHidden = e.isHidden
@@ -207,11 +241,49 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
   def prettyStringModifier: String
 
   def move(pstate: PState): PState // implement for different kinds of "moving over to next thing"
+  def kindString = "ElementEnd"
+
+  def validate(pstate: PState): PState = {
+    val currentElement = pstate.parentElement
+    val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
+      case Right(boolVal) => {
+        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toBriefXML)
+        pstate // Success, do not mutate state.
+      }
+      case Left(failureMessage) => {
+        log(LogLevel.Debug,
+          "Validation failed for %s due to %s. The element value was %s.",
+          e.toString, failureMessage, currentElement.toBriefXML)
+        pstate.withValidationError("%s failed dfdl:checkConstraints due to %s",
+          e.toString, failureMessage)
+      }
+    }
+
+    resultState
+  }
+
+  def localParse(start: PState): PState = {
+    val currentElement = start.parentElement
+
+    val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
+    val postValidate =
+      if (shouldValidate && e.isSimpleType) {
+        // Execute checkConstraints
+        val resultState = validate(start)
+        resultState
+      } else start
+
+    // Assert.invariant(currentElement.getName() != "_document_" )
+    val priorElement = currentElement.parent
+    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    val postState = move(postValidate.withParent(priorElement))
+    postState
+  }
 
   def parser: DaffodilParser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {
-      "<ElementEnd name='" + e.name + "'/>"
+      "<" + kindString + " name='" + e.name + "'/>"
     }
 
     override def toString = toPrettyString
@@ -219,37 +291,7 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
     /**
      * ElementEnd just moves back to the parent element of the current one.
      */
-    def parse(start: PState): PState = {
-      val currentElement = start.parentElement
-
-      val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
-      val postValidate =
-        if (shouldValidate && e.isSimpleType) {
-          // Execute checkConstraints
-
-          val resultState = DFDLCheckConstraintsFunction.validate(start) match {
-            case Right(boolVal) => {
-              log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toBriefXML)
-              start // Success, do not mutate state.
-            }
-            case Left(failureMessage) => {
-              log(LogLevel.Debug,
-                "Validation failed for %s due to %s. The element value was %s.",
-                e.toString, failureMessage, currentElement.toBriefXML)
-              start.withValidationError("%s failed dfdl:checkConstraints due to %s",
-                e.toString, failureMessage)
-            }
-          }
-
-          resultState
-        } else start
-
-      // Assert.invariant(currentElement.getName() != "_document_" )
-      val priorElement = currentElement.parent
-      log(LogLevel.Debug, "priorElement = %s", priorElement)
-      val postState = move(postValidate.withParent(priorElement))
-      postState
-    }
+    def parse(start: PState): PState = localParse(start)
   }
 
   def unparser: Unparser = new Unparser(e) {
@@ -270,6 +312,40 @@ abstract class ElementEndBase(e: ElementBase) extends Terminal(e, true) {
       }
       postState
     }
+  }
+}
+
+/**
+ * *
+ * ChoiceElementEnd allows us to get away without adding the additional
+ * choice element required of the unordered sequence transformation.
+ *
+ * This prevents us from having to worry about navigating around additional
+ * choice elements in the infoset.  We effectively don't add them if they
+ * were constructed as a result of an unordered sequence.
+ */
+case class ChoiceElementEnd(e: ElementBase) extends ElementEndBase(e) {
+  def move(pstate: PState) = pstate
+  def prettyStringModifier = ""
+  override def kindString = "ChoiceElementEnd"
+
+  // We don't want to modify the state here except
+  // for validation.
+  override def localParse(start: PState): PState = {
+    val currentElement = start.parentElement
+
+    val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
+    val postValidate =
+      if (shouldValidate && e.isSimpleType) {
+        // Execute checkConstraints
+        val resultState = validate(start)
+        resultState
+      } else start
+
+    val priorElement = currentElement.parent
+    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    val postState = move(postValidate)
+    postState
   }
 }
 
@@ -844,21 +920,29 @@ case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, g
             case led: LocalElementDecl => {
               val expectedMinOccurs = led.minOccurs
               val expectedMaxOccurs = led.maxOccurs
-              actualOccurs match {
+              val isUnbounded = expectedMaxOccurs == -1
+              val postValidationState = actualOccurs match {
                 case Some(o) => {
                   val occurrence = o - 1
                   val result =
-                    if (occurrence < expectedMinOccurs || occurrence > expectedMaxOccurs)
+                    if (isUnbounded && occurrence < expectedMinOccurs)
+                      start.withValidationError("%s occurred '%s' times when it was expected to be a " +
+                        "minimum of '%s' and a maximum of 'UNBOUNDED' times.", e,
+                        occurrence, expectedMinOccurs)
+                    else if (!isUnbounded && (occurrence < expectedMinOccurs || occurrence > expectedMaxOccurs))
                       start.withValidationError("%s occurred '%s' times when it was expected to be a " +
                         "minimum of '%s' and a maximum of '%s' times.", e,
                         occurrence, expectedMinOccurs, expectedMaxOccurs)
-                    else postState2
+                    else
+                      postState2
+
                   result
                 }
                 case None => start.withValidationError("No occurrence found for %s when it was expected to be a " +
                   "minimum of '%s' times and a maximum of '%s' times.", e,
-                  expectedMinOccurs, expectedMaxOccurs)
+                  expectedMinOccurs, if (isUnbounded) "UNBOUNDED" else expectedMaxOccurs)
               }
+              postValidationState
             }
             case _ => postState2
           }

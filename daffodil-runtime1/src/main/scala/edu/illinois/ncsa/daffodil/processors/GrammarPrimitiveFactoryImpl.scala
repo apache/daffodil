@@ -9,8 +9,10 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def prod(nameArg: String, sc: Term, guard: Boolean, gram: => Gram): Gram =
     if (guard) gram else EmptyGram
 
+  def ChoiceElementBegin(e: ElementBase): Terminal = new ChoiceElementBegin(e)
   def ElementBegin(e: ElementBase): Terminal = new ElementBegin(e)
   //def ComplexElementBeginPattern(e: ElementBase) : Terminal = ComplexElementBeginPattern(e)
+  def ChoiceElementEnd(e: ElementBase): Terminal = new ChoiceElementEnd(e)
   def ElementEnd(e: ElementBase): Terminal = new ElementEnd(e)
 
   def ElementEndNoRep(e: ElementBase): Terminal = new ElementEndNoRep(e)
@@ -118,6 +120,8 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram): Terminal = new SpecifiedLengthExplicitCharacters(e, eGram)
 
   def StmtEval(context: ElementBase, eGram: Gram): Gram = edu.illinois.ncsa.daffodil.processors.StmtEval(context, eGram) // must call object. Does an optimization.
+
+  def UnorderedSequence(context: Term, eGram: Gram): Gram = edu.illinois.ncsa.daffodil.processors.UnorderedSequence(context, eGram)
 
   def RepExactlyN(context: LocalElementBase, n: Long, r: => Gram): Gram = edu.illinois.ncsa.daffodil.processors.RepExactlyN(context, n, r)
   def RepAtMostTotalN(context: LocalElementBase, n: Long, r: => Gram): Gram = edu.illinois.ncsa.daffodil.processors.RepAtMostTotalN(context, n, r)

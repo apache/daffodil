@@ -43,6 +43,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.util.SchemaUtils
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -52,26 +53,31 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
+  val dafint = XMLUtils.DAFFODIL_INTERNAL_NAMESPACE
 
   var context: SchemaComponent = null
-
-  // dummy schema just so we can get a handle on a legit element declaration
-  val testSchema = <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                     <element name="root" type="xs:string"/>
-                   </schema>
 
   /**
    * Test the XPath evaluator, but provide namespace information on the XML
    */
   @Test def testCompiledAbsolutePathEvaluation2_withNamespace() {
 
-    val root = Infoset(
-      <tns:root xmlns:tns={ example }>19</tns:root>)
-    val sset = new SchemaSet(PrimitiveFactory, <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                                                 <element name="root" type="xs:string"/>
-                                               </schema>)
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format xmlns={ example } xmlns:tns={ example } ref="tns:daffodilTest1"/>,
+      <xs:element name="root" type="xs:string"/>)
+
+    val origInfoset = <tns:root xmlns={ example } xmlns:tns={ example } xmlns:dafint={ dafint }>19</tns:root>
+
+    val c = new Compiler()
+
+    val (sset, pf) = c.compileInternal(testSchema)
+    val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
+
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
+    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val root = new InfosetElement(doc.getRootElement())
+
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, null)
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
@@ -89,33 +95,41 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     //
     // However, path evaluation seems to miss this, and the test fails because it doesn't find a node in the right namespace so the
     // expression returns null (no nodes in the nodeset that is the result of the XPath query)
-    val testSchema = <xs:schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
-                       <xs:element name="data">
-                         <xs:complexType>
-                           <xs:sequence>
-                             <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
-                             <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../tns:e1 }"/>
-                           </xs:sequence>
-                         </xs:complexType>
-                       </xs:element>
-                     </xs:schema>
-
     val tns = example
+
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format xmlns={ example } xmlns:tns={ example } ref="tns:daffodilTest1"/>,
+      <xs:element name="data">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+            <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ ../e1 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
 
     // Note that we specify the namespace of the unqualified elements here, and it matches
     // the target namespace.
-    val root = Infoset(<data xmlns={ example }><e1>42</e1><e2/></data>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val origInfoset = <data xmlns={ example } xmlns:dafint={ dafint }><e1>42</e1><e2/></data>
+
+    val c = new Compiler()
+
+    val (sset, pf) = c.compileInternal(testSchema)
+    val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
+
     //
     // Note that we specify the namespace here as well.
-    val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
+    val edecl = sset.getGlobalElementDecl(tns, "data").get.forRoot()
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
-    val Seq(e1, e2) = seq.groupMembers
+    val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
     val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d,null)
+
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, null)
+    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val root = new InfosetElement(doc.getRootElement())
     val rootns = root.namespace
     val child2 = root.getChild("e2", rootns)
     val c2state = initialState.withParent(child2)
@@ -134,18 +148,27 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
    */
   @Test def testCompiledEvaluationError_DoesntExist() {
 
-    val root = Infoset(
-      <tns:root xmlns:tns={ example }>19</tns:root>)
-    val sset = new SchemaSet(PrimitiveFactory, <schema xmlns={ xsd } targetNamespace={ example } xmlns:tns={ example } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
-                                                 <element name="root" type="xs:string"/>
-                                               </schema>)
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format xmlns={ example } xmlns:tns={ example } ref="tns:daffodilTest1"/>,
+      <xs:element name="root" type="xs:string"/>)
+
+    val origInfoset = <tns:root xmlns={ example } xmlns:tns={ example } xmlns:dafint={ dafint }>19</tns:root>
+
+    val c = new Compiler()
+
+    val (sset, pf) = c.compileInternal(testSchema)
+    val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
+
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0,null)
+    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val root = new InfosetElement(doc.getRootElement())
+
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, null)
     context = edecl
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0,null)
+    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0, null)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
         val R(res, _) = compiled.evaluate(root, new VariableMap(), dummyState)

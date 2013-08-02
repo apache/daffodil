@@ -140,6 +140,10 @@ object OOLAG extends Logging {
    */
   private[oolag] val OOLAGRoot: OOLAGHost = null
 
+  private sealed abstract class Args
+  private case object OneArg extends Args
+  private case object ZeroArgs extends Args
+
   /**
    * An OOLAGHost, or OOLAG for short, is a collection of OOLAGValues
    * or LVs for short.
@@ -177,8 +181,33 @@ object OOLAG extends Logging {
    * already. This insures that the value exists for 'foo', or any errors/warnings
    * to be determined by its calculation have been recorded.
    */
-  abstract class OOLAGHost(val oolagContext: OOLAGHost)
+  abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
     extends HasIsError with Logging with WithDiagnostics {
+
+    private var oolagContextViaSet: Option[OOLAGHost] = None
+
+    def setOOLAGContext(oolagContextArg: OOLAGHost) {
+      Assert.usage(nArgs == ZeroArgs, "Cannot set oolag context if it was provided as a constructor arg.")
+      Assert.usage(oolagContextArg != null)
+      Assert.usage(oolagContextViaSet == None, "Cannot set oolag context more than once.")
+      oolagContextViaSet = Some(oolagContextArg)
+    }
+
+    def this(oolagContextArg: OOLAGHost) = this(oolagContextArg, OneArg)
+    def this() = this(null, ZeroArgs)
+
+    /**
+     * Either we were called with a constructor arg that provides the oolagContext,
+     * or we were constructed with no args, and in that case someone must call
+     * setOOLAGContext before we access the oolagContext.
+     */
+    lazy val oolagContext = nArgs match {
+      case ZeroArgs => {
+        Assert.usage(oolagContextViaSet != None, "Must call setOOLAGContext before accessing when OOLAGHost is constructed with no args.")
+        oolagContextViaSet.get
+      }
+      case OneArg => oolagContextArg
+    }
 
     /**
      * My parent, unless I am the root and have no parent. In that

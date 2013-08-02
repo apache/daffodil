@@ -415,8 +415,9 @@ abstract class StringDelimited(e: ElementBase)
   val charset = e.knownEncodingCharset
   val elemBase = e
 
-  //val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-
+  var escEscChar = ""
+  var escChar = ""
+    
   // These static delims are used whether we're static or dynamic
   // because even a dynamic can have some static from enclosing scopes.
   //  val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
@@ -430,15 +431,12 @@ abstract class StringDelimited(e: ElementBase)
   val (staticDelimsParser, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
   val combinedStaticDelimsParser = dp.combineLongest(staticDelimsParser)
 
-  //  def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-  //    reader: Reader[Char]): DelimParseResult
-
   def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
     reader: Reader[Char]): DelimParseResult = {
     // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
     if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
       val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
-        esObj.escapeBlockStart, esObj.escapeBlockEnd, esObj.escapeEscapeCharacter, justificationTrim, padChar, true)
+        esObj.escapeBlockStart, esObj.escapeBlockEnd, escEscChar, justificationTrim, padChar, true)
       val removeEscapeBlocksRegex = dp.removeEscapesBlocksRegex(escapeEscapeRegex, escapeBlockEndRegex)
       val parseInputParser = dp.generateInputParser2(dp.emptyParser, delimsParser, Array.empty[String], delimsRegex,
         hasDelim, justificationTrim, padChar, true)
@@ -447,17 +445,17 @@ abstract class StringDelimited(e: ElementBase)
     } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
       val delimsRegexCombined = dp.combineDelimitersRegex(Array.empty[String], delimsRegex)
       val escapeCharacterParser = dp.generateInputEscapeCharacterParser2(delimsParser, delimsRegexCombined,
-        hasDelim, esObj.escapeCharacter, esObj.escapeEscapeCharacter, justificationTrim, padChar, true)
-      val esRegex = dp.convertDFDLLiteralToRegex(esObj.escapeCharacter)
-      val esEsRegex = dp.convertDFDLLiteralToRegex(esObj.escapeEscapeCharacter)
+        hasDelim, escChar, escEscChar, justificationTrim, padChar, true)
+      val esRegex = dp.convertDFDLLiteralToRegex(escChar)
+      val esEsRegex = dp.convertDFDLLiteralToRegex(escEscChar)
       val removeEscapeCharacterRegex = dp.generateRemoveEscapeCharactersSameRegex(esRegex)
       val removeUnescapedEscapesRegex = dp.removeUnescapedEscapesRegex(esEsRegex, esRegex)
       val removeEscapeEscapesThatEscapeRegex = dp.removeEscapeEscapesThatEscapeRegex(esEsRegex, esRegex)
       val removeEscapeRegex = dp.removeEscapeRegex(esRegex)
       dp.parseInputEscapeCharacter(escapeCharacterParser, dp.emptyParser, delimsParser, reader,
         justificationTrim, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
-        removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, esObj.escapeCharacter,
-        esObj.escapeEscapeCharacter)
+        removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escChar,
+        escEscChar)
     } else {
       //d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
       val parseInputParser = dp.generateInputParser2(dp.emptyParser, delimsParser, Array.empty[String], delimsRegex,
@@ -511,13 +509,19 @@ abstract class StringDelimited(e: ElementBase)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
-      val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(start)
+      val (postEscapeSchemeEval, evaluatedEsObj) = esObj.evaluate(start, e)
+      escChar = evaluatedEsObj.escapeCharacter
+      escEscChar = evaluatedEsObj.escapeEscapeCharacter
+
+      val postEscapeSchemeEvalState = postEscapeSchemeEval.getOrElse(start)
+
+      val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(postEscapeSchemeEvalState)
 
       // We must feed variable context out of one evaluation and into the next.
       // So that the resulting variable map has the updated status of all evaluated variables.
       val postEvalState = vars match {
-        case Some(v) => start.withVariables(v)
-        case None => start
+        case Some(v) => postEscapeSchemeEvalState.withVariables(v)
+        case None => postEscapeSchemeEvalState
       }
 
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)

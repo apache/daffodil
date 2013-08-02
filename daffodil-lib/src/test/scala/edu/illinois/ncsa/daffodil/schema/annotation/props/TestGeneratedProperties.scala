@@ -63,7 +63,7 @@ class TestGeneratedProperties {
     with Format_AnnotationMixin
     with SeparatorSuppressionPolicyMixin {
 
-    override val oolagContext = this
+    override lazy val oolagContext = this
     override val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty

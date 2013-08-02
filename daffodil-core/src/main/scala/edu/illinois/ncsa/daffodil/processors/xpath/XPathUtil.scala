@@ -107,6 +107,7 @@ import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.math.BigDecimal
 import edu.illinois.ncsa.daffodil.dsom.PrimitiveType
+import org.w3c.dom.NodeList
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -1045,6 +1046,7 @@ object XPathUtil extends Logging {
               BigDecimal(numStr)
               new NumberResult(numStr)
             }
+            case (x: NodeList, NODESET) => new NodeSetResult(x)
             case (x: Element, NODE) => new NodeResult(x)
             case (x: Element, STRING) => new StringResult(x.getContent(0).toString())
             case (x: Text, STRING) => new StringResult(x.getValue())

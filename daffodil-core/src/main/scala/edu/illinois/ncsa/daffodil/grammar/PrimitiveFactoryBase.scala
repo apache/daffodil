@@ -1,18 +1,17 @@
 package edu.illinois.ncsa.daffodil.grammar
 
-import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.ComplexTypeBase
 import edu.illinois.ncsa.daffodil.dsom.DFDLAssert
 import edu.illinois.ncsa.daffodil.dsom.DFDLAssertionBase
+import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
+import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.LocalElementMixin
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
-import edu.illinois.ncsa.daffodil.dsom.ComplexTypeBase
-import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
-import com.ibm.icu.text.SimpleDateFormat
+import edu.illinois.ncsa.daffodil.dsom.LocalElementMixin
+import edu.illinois.ncsa.daffodil.dsom.Term
 
 /**
  * There are two kinds of primtives in the grammar. There are terminals
@@ -34,8 +33,10 @@ trait PrimitiveFactoryBase {
    * Interface to grammar terminals
    */
 
+  def ChoiceElementBegin(e: ElementBase): Terminal
   def ElementBegin(e: ElementBase): Terminal
   //def ComplexElementBeginPattern(e: ElementBase) : Terminal
+  def ChoiceElementEnd(e: ElementBase): Terminal
   def ElementEnd(e: ElementBase): Terminal
   def ElementEndNoRep(e: ElementBase): Terminal
   //def ComplexElementEndPattern(e: ElementBase): Terminal
@@ -147,6 +148,7 @@ trait PrimitiveFactoryBase {
    */
 
   def StmtEval(context: ElementBase, eGram: Gram): Gram
+  def UnorderedSequence(context: Term, eGram: Gram): Gram
 
   def RepExactlyN(context: LocalElementBase, n: Long, r: => Gram): Gram
   def RepAtMostTotalN(context: LocalElementBase, n: Long, r: => Gram): Gram

@@ -147,7 +147,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def name: String
 
-  lazy val schemaComponentID = Infoset.addComponent(this)
+  // Forced evaluation
+  val schemaComponentID = Infoset.addComponent(this)
 
   def inputValueCalcOption: PropertyLookupResult
   def isNillable: Boolean
@@ -175,6 +176,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         else elementComplexType.isScannable
       }
       case Representation.Binary => false
+    }
+  }
+  
+  lazy val isParentUnorderedSequence: Boolean = {
+    parent match {
+      case s: Sequence if !s.isOrdered => true
+      case _ => false
     }
   }
 
