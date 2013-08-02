@@ -251,7 +251,44 @@
 			</xs:complexType>
 		</xs:element>
 
+    <xs:element name="e_concat">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="concat" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../ex:one,../ex:two) }"/>
+          <xs:element name="concat2" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../ex:concat,'2') }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 	</tdml:defineSchema>
+  
+<!--
+    Test Name: concat_01
+       Schema: Functions.dfdl.xsd
+         Root: e_concat
+      Purpose: This test demonstrates the use of the concat function to concatenate two or more anyAtomicType objects
+               into a string.
+-->
+
+	<tdml:parserTestCase name="concat_01" root="e_concat"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:concat - DFDL-23-099R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">45,two</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_concat>
+					<one>45</one>
+					<two>two</two>
+          <concat>45two</concat>
+          <concat2>45two2</concat2>
+				</e_concat>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
 
 <!--
     Test Name: testBit_0
