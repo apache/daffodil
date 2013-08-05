@@ -91,7 +91,5 @@ class TestValidationErr {
   @Test def test_choice_ignoreValidationErr_02() { runner.runOneTest("choice_ignoreValidationErr_02") }
   @Test def test_choice_ignoreValidationErr_03() { runner.runOneTest("choice_ignoreValidationErr_03") }
   
-  //DFDL-812
-//  @Test def test_choice_errorNotSuppressed_01() { runner.runOneTest("choice_errorNotSuppressed_01") }
-//  @Test def test_choice_errorNotSuppressed_02() { runner.runOneTest("choice_errorNotSuppressed_02") }
+  @Test def test_choice_errorNotSuppressed_01() { runner.runOneTest("choice_errorNotSuppressed_01") }
 }

@@ -1358,31 +1358,6 @@
     
     <xs:element name="root4">
       <xs:complexType>
-        <xs:choice>
-          <xs:sequence dfdl:separator=",">
-            <xs:element name="definite" type="xs:string" dfdl:inputValueCalc="{ 'definite' }">
-              <xs:annotation>
-                <xs:appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:assert><![CDATA[{ fn:true() }]]></dfdl:assert>
-                </xs:appinfo>
-              </xs:annotation>
-            </xs:element>
-            <xs:element name="nonNeg" dfdl:lengthKind="delimited">
-              <xs:simpleType>
-                <xs:restriction base="xs:nonNegativeInteger">
-                  <xs:minInclusive value="30"/>
-                </xs:restriction>
-              </xs:simpleType>
-            </xs:element>
-            <xs:element name="nonNeg2" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited"/>
-          </xs:sequence>
-          <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited"/>
-        </xs:choice>
-      </xs:complexType>
-    </xs:element>
-    
-    <xs:element name="root4_better">
-      <xs:complexType>
       	<xs:sequence dfdl:separator=",">
       		<xs:element name="choice" minOccurs="1" maxOccurs="3">
       			<xs:complexType>
@@ -1507,7 +1482,7 @@
 		</tdml:validationErrors>
   </tdml:parserTestCase>
   
-<!--
+  <!--
     Test name: choice_errorNotSuppressed_01
        Schema: choiceValidation 
       Purpose: This test demonstrates that validation errors cannot be suppressed by points of uncertainty
@@ -1516,31 +1491,10 @@
     root="root4" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
     validation="on">
 
-    <tdml:document>20,-20</tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>not in range for the type</tdml:error>
-    </tdml:errors>
- 
-    <tdml:validationErrors>
-      <tdml:error>Value '-20' is not facet-valid with respect to minInclusive '0'</tdml:error>
-		</tdml:validationErrors>
-
-  </tdml:parserTestCase>
-  
-  <!--
-    Test name: choice_errorNotSuppressed_01
-       Schema: choiceValidation 
-      Purpose: This test demonstrates that validation errors cannot be suppressed by points of uncertainty
---> 
-  <tdml:parserTestCase name="choice_errorNotSuppressed_01_better"
-    root="root4_better" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
-    validation="on">
-
     <tdml:document>A20,-20,5</tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<root4_better>
+    		<root4>
     			<choice>
     				<nonNegA>20</nonNegA>
     			</choice>
@@ -1550,7 +1504,7 @@
     			<choice>
     				<nonNeg>5</nonNeg>
     			</choice>
-    		</root4_better>
+    		</root4>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:validationErrors>
@@ -1559,26 +1513,4 @@
 
   </tdml:parserTestCase>
   
-<!--
-    Test name: choice_errorNotSuppressed_02
-       Schema: choiceValidation 
-      Purpose: This test demonstrates that validation errors cannot be suppressed by points of uncertainty
---> 
-  <tdml:parserTestCase name="choice_errorNotSuppressed_02"
-    root="root5" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
-    validation="on">
-
-    <tdml:document>int:1234.554</tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Integer</tdml:error>
-      <tdml:error>Unable to parse '1234.554</tdml:error>
-    </tdml:errors>
- 
-    <tdml:validationErrors>
-      <tdml:error>totalDigits</tdml:error>
-		</tdml:validationErrors>
-
-  </tdml:parserTestCase>
-
 </tdml:testSuite>
