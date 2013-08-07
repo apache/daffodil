@@ -54,12 +54,6 @@ class TresysTests3 {
   // Runs, but it is too slow to use in regression tests
   @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
-  val af = testDir + "AF.tdml"
-  lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))
-  @Test def test_AF000() { runnerAF.runOneTest("AF000") }
-  @Test def test_AF001() { runnerAF.runOneTest("AF001") }
-  @Test def test_AF002() { runnerAF.runOneTest("AF002") }
-
   val ag = testDir + "AG.tdml"
   lazy val runnerAG = new DFDLTestSuite(Misc.getRequiredResource(ag))
   @Test def test_AG000() { runnerAG.runOneTest("AG000") } // OK

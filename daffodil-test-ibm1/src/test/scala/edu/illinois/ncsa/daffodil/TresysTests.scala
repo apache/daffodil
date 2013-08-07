@@ -146,4 +146,10 @@ class TresysTests {
 
   val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
   @Test def test_nested_group_refs() { runnerNG.runOneTest("nestedGroupRefs") }
+
+  val af = testDir + "AF.tdml"
+  lazy val runnerAF = new DFDLTestSuite(Misc.getRequiredResource(af))
+  @Test def test_AF000() { runnerAF.runOneTest("AF000") }
+  @Test def test_AF001() { runnerAF.runOneTest("AF001") }
+  @Test def test_AF002() { runnerAF.runOneTest("AF002") }
 }
