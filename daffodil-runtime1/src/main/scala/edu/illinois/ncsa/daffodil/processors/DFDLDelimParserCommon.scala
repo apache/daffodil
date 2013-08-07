@@ -932,21 +932,21 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     val pBeforeIgnoreTrailingPadding: Parser[String] = {
       if (hasEscEsc) {
         val rBeforeIgnoreTrailingPadding = """(?s)(.*?)(?=(?:(?<!(?<!""" + escapeEscapeCharacterRegex + """)""" +
-          escapeCharacterRegex + """)""" + delimsRegex + """)|\z)"""
+          escapeCharacterRegex + """)(""" + delimsRegex + """))|\z)"""
         "generateEscapeCharacterDiffNoPadParser.BeforeIgnoreTrailingPadding".!!!(rBeforeIgnoreTrailingPadding.r)
       } else {
-        val rBeforeIgnoreTrailingPaddingNoEscEsc = """(?s)(.*?)(?=(?:(?<!""" + escapeCharacterRegex + """)""" +
-          delimsRegex + """)|\z)"""
+        val rBeforeIgnoreTrailingPaddingNoEscEsc = """(?s)(.*?)(?=(?:(?<!""" + escapeCharacterRegex + """)(""" +
+          delimsRegex + """))|\z)"""
         "generateEscapeCharacterDiffNoPadParser.BeforeIgnoreTrailingPaddingNoEscEsc".!!!(rBeforeIgnoreTrailingPaddingNoEscEsc.r)
       }
     }
 
     val pBeforeNoPadding: Parser[String] = {
       if (hasEscEsc) {
-        val rBeforeNoPadding = """(?s)(.*?)(?=((?<!(?<!""" + escapeEscapeCharacterRegex + """)""" + escapeCharacterRegex + """)""" + delimsRegex + """)|(\z))"""
+        val rBeforeNoPadding = """(?s)(.*?)(?=((?<!(?<!""" + escapeEscapeCharacterRegex + """)""" + escapeCharacterRegex + """)(""" + delimsRegex + """))|(\z))"""
         "generateEscapeCharacterDiffNoPadParser.BeforeNoPadding".!!!(rBeforeNoPadding.r)
       } else {
-        val rBeforeNoPaddingNoEscEsc = """(?s)(.*?)(?=((?<!""" + escapeCharacterRegex + """)""" + delimsRegex + """)|(\z))"""
+        val rBeforeNoPaddingNoEscEsc = """(?s)(.*?)(?=((?<!""" + escapeCharacterRegex + """)(""" + delimsRegex + """))|(\z))"""
         "generateEscapeCharacterDiffNoPadParser.BeforeNoPaddingNoEscEsc".!!!(rBeforeNoPaddingNoEscEsc.r)
       }
     }

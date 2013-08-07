@@ -39,6 +39,8 @@ import scala.xml._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TresysTests2 {
   val testDir = "/test-suite/tresys-contributed/"

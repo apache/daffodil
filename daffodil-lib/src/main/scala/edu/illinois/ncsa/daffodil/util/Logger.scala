@@ -115,6 +115,8 @@ object Debug extends GlobBase(LogLevel.Debug)
 
 object OOLAGDebug extends GlobBase(LogLevel.OOLAGDebug)
 
+object DelimDebug extends GlobBase(LogLevel.DelimDebug)
+
 trait Identity {
   def logID: String
 }

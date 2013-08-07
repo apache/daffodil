@@ -41,6 +41,9 @@ import edu.illinois.ncsa.daffodil.processors.DelimParser
 import edu.illinois.ncsa.daffodil.dsom.Fakes
 import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.processors.DFDLDelimParserStatic
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TestParsingBehaviors {
 
@@ -436,6 +439,126 @@ class TestParsingBehaviors {
         assertEquals("abc/", s.field)
         assertEquals(":", s.delimiter)
         assertEquals(5 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+  }
+
+  @Test def testParsingEscapeSchemeCharacter_AW_Test_DelimsAreStrings = {
+
+    val r1 = new DFDLUTStringReader("item0,item#01,#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val r2 = new DFDLUTStringReader("item#01,#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val r3 = new DFDLUTStringReader("#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val d = new DelimParser(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
+    val separators = Set[String]()
+    val terminators = Set[String](",")
+    val escapeCharacter = "#"
+    val escapeEscapeCharacter = "\\"
+
+    val res1 = d.parseInputEscapeCharacter(separators, terminators, r1, escapeCharacter,
+      escapeEscapeCharacter, TextJustificationType.None, "")
+
+    res1 match {
+      case s: DelimParseSuccess => {
+        assertEquals("item0", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(5 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+
+    val res2 = d.parseInputEscapeCharacter(separators, terminators, r2, escapeCharacter,
+      escapeEscapeCharacter, TextJustificationType.None, "")
+
+    res2 match {
+      case s: DelimParseSuccess => {
+        assertEquals("item01", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(7 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+
+    val res3 = d.parseInputEscapeCharacter(separators, terminators, r3, escapeCharacter,
+      escapeEscapeCharacter, TextJustificationType.None, "")
+
+    res3 match {
+      case s: DelimParseSuccess => {
+        assertEquals(",i,t,e,m,2", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(15 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+  }
+
+  @Test def testParsingEscapeSchemeCharacter_AW_Test_Delims_Are_Parsers = {
+
+    val r1 = new DFDLUTStringReader("item0,item#01,#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val r2 = new DFDLUTStringReader("item#01,#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val r3 = new DFDLUTStringReader("#,i#,t#,e#,m#,2,#A#,#Citem3,") // Input 1
+    val d = new DFDLDelimParserStatic(Fakes.fakeElem.knownEncodingStringBitLengthFunction)
+    val separators = Set[String]()
+    val terminators = Set[String](",", "%NL;")
+    val escapeCharacter = "#"
+    val escapeEscapeCharacter = "\\"
+
+    val (arrayDelimsParser, delimsRegex) = d.generateDelimiter(terminators)
+    val delimsParser = d.combineLongest(arrayDelimsParser)
+    val hasDelim = true
+    val padChar = ""
+      
+    val delimsRegexCombined = d.combineDelimitersRegex(Array.empty[String], delimsRegex)
+    val escapeCharacterParser = d.generateInputEscapeCharacterParser2(delimsParser, delimsRegexCombined,
+      hasDelim, escapeCharacter, escapeEscapeCharacter, TextJustificationType.None, padChar, true)
+    val esRegex = d.convertDFDLLiteralToRegex(escapeCharacter)
+    val esEsRegex = d.convertDFDLLiteralToRegex(escapeEscapeCharacter)
+    val removeEscapeCharacterRegex = d.generateRemoveEscapeCharactersSameRegex(esRegex)
+    val removeUnescapedEscapesRegex = d.removeUnescapedEscapesRegex(esEsRegex, esRegex)
+    val removeEscapeEscapesThatEscapeRegex = d.removeEscapeEscapesThatEscapeRegex(esEsRegex, esRegex)
+    val removeEscapeRegex = d.removeEscapeRegex(esRegex)
+    val res1 = d.parseInputEscapeCharacter(escapeCharacterParser, d.emptyParser, delimsParser, r1,
+      TextJustificationType.None, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
+      removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escapeCharacter,
+      escapeEscapeCharacter)
+
+//    val res1 = d.parseInputEscapeCharacter(separators, terminators, r1, escapeCharacter,
+//      escapeEscapeCharacter, TextJustificationType.None, "")
+
+    res1 match {
+      case s: DelimParseSuccess => {
+        assertEquals("item0", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(5 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+
+    val res2 = d.parseInputEscapeCharacter(escapeCharacterParser, d.emptyParser, delimsParser, r2,
+      TextJustificationType.None, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
+      removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escapeCharacter,
+      escapeEscapeCharacter)
+
+    res2 match {
+      case s: DelimParseSuccess => {
+        assertEquals("item01", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(7 * 8, s.numBits)
+      }
+      case _ => fail()
+    }
+
+    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+    val res3 = d.parseInputEscapeCharacter(escapeCharacterParser, d.emptyParser, delimsParser, r3,
+      TextJustificationType.None, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
+      removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escapeCharacter,
+      escapeEscapeCharacter)
+
+    res3 match {
+      case s: DelimParseSuccess => {
+        assertEquals(",i,t,e,m,2", s.field)
+        assertEquals(",", s.delimiter)
+        assertEquals(15 * 8, s.numBits)
       }
       case _ => fail()
     }
