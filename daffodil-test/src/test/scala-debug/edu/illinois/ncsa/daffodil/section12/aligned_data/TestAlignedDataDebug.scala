@@ -54,7 +54,4 @@ class TestAlignedDataDebug {
   @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
   @Test def test_alignmentOptionalElem04() = { runner1.runOneTest("alignmentOptionalElem04") }
 
-  @Test def test_leftAndRightFramingNested02() = { runner1.runOneTest("leftAndRightFramingNested02") }
-  @Test def test_leftAndRightFramingNested04() = { runner1.runOneTest("leftAndRightFramingNested04") }
-
 }

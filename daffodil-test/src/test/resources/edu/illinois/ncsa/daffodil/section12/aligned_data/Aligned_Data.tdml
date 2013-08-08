@@ -1837,14 +1837,30 @@
 
     <tdml:document>
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- e18 - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <!--                           1234               -->
       <tdml:documentPart type="text">skip</tdml:documentPart> <!-- a - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <!--                           5678               -->
       <tdml:documentPart type="text">gnrts:a</tdml:documentPart> <!-- a1 and trailingSkip of 8 bits -->
+      <!--                           |     |            -->
+      <!--                           9     15           -->
       <tdml:documentPart type="text">a:strng</tdml:documentPart> <!-- a2 - leadingSkip of 4 bits and 4 more bits to fulfill alignment -->
+      <!--                           |     |            -->
+      <!--                          16     22           -->
       <tdml:documentPart type="text">XX</tdml:documentPart> <!-- 2 byte trailingSkip for a -->
+      <!--                            |                 -->
+      <!--                            24                -->
       <tdml:documentPart type="text">,</tdml:documentPart> <!-- sequence separator -->
-      <tdml:documentPart type="text">LLPP</tdml:documentPart> <!-- b - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <!--                           |                  -->
+      <!--                          25                  -->
+      <tdml:documentPart type="text">LLP</tdml:documentPart> <!-- b - 2 byte leadingSkip and 1 byte padding to fulfill alignment (elem starts on byte 29) -->
+      <!--                           | |                -->
+      <!--                          26 28               -->
       <tdml:documentPart type="text">gnrtsTTTTTTTT</tdml:documentPart> <!-- b1 - 'gnrts', trailingSkip of 8 bytes -->
-      <tdml:documentPart type="text">LPstrng</tdml:documentPart> <!-- b2 - leadingSkip of 1 byte and 1 byte to fulfill alignment, 'strng' -->
+      <!--                           |           |      -->
+      <!--                          29           41     -->
+      <tdml:documentPart type="text">Lstrng</tdml:documentPart> <!-- b2 - leadingSkip of 1 byte and 2 bytes to fulfill alignment, 'strng' starts on 43-->
+      <!--                           |                  -->
+      <!--                          42                  -->
       <tdml:documentPart type="text">TT</tdml:documentPart> <!-- 2 byte trailingSkip for b -->
       <tdml:documentPart type="text">TT</tdml:documentPart> <!-- 2 byte trailingSkip for e18 -->
     </tdml:document>
@@ -1902,13 +1918,13 @@
     model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
 
     <tdml:document>
-      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte padding to fulfill alignment -->
+      <!--                           1234                 -->
       <tdml:documentPart type="text">^</tdml:documentPart> <!-- initiator -->
-
-      <!-- If I remove the 's' in 'skip' on the line that follows this comment, the test passes. It appears that the sequence initiator is included in the region
-       where alignment is applied for element 'a'. Parsing seems to go like this: initiator (^), 2 byte leading skip (sk), and one byte to fill alignment (i). It then parses
-       'pgnrt' as our a1 element, looks for the terminator (:), finds 's', and fails. -->
-      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <!--                           5                    -->
+      <tdml:documentPart type="text">ski</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 1 byte padding to fulfill alignment (4 byte aligned) -->
+      <!--                           678                 -->
+      <!--                             ^                 -->
       <tdml:documentPart type="text">gnrts:a,a:strng</tdml:documentPart>
       <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
       <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
