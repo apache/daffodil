@@ -91,6 +91,12 @@
       dfdl:lengthKind="explicit" dfdl:length="{ 18 }" />
     <xs:element name="doubleText3" type="xs:double"
       dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+    <xs:element name="floatText" type="xs:float"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+    <xs:element name="floatText2" type="xs:float"
+      dfdl:lengthKind="explicit" dfdl:length="{ 21 }" />
+    <xs:element name="floatTextFail" type="xs:float"
+      dfdl:lengthKind="implicit" />
 
     <xs:element name="nonNegIntBin" type="xs:nonNegativeInteger"
       dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="{ 16 }" />
@@ -102,7 +108,7 @@
       dfdl:representation="binary" dfdl:lengthKind="implicit"/>
     <xs:element name="nonNegIntBin5" type="xs:nonNegativeInteger" 
       dfdl:representation="binary" dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ -30 }"/>
-  
+
   <xs:element name="dateText" type="xs:date" dfdl:calendarPattern="EEEE, MMM d, ''yy" dfdl:calendarPatternKind="explicit"
 	  dfdl:lengthKind="explicit" dfdl:length="{ 23 }" />
 	<xs:element name="timeText" type="xs:time" dfdl:calendarPattern="h:mm a" dfdl:calendarPatternKind="explicit"
@@ -1978,6 +1984,60 @@
       <tdml:error>Unable to parse '9a99'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text" root="floatText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[.555]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatText>0.555</floatText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text2" root="floatText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[-2.7]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatText>-2.7</floatText>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text3" root="floatText2"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[123456789012345678901]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatText2>1.2345679E20</floatText2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="float_text_fail" root="floatTextFail"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Section 5 Simple type-float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[1.5]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Type float cannot have lengthKind='implicit' when representation='text'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="characterDuringValidFloat" root="floatText"
+    model="SimpleTypes-Embedded.dfdl.xsd" description="Test parsing when encountering a non numeric character during a valid float - DFDL-5-008R">
+
+    <tdml:document><![CDATA[9a99]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Convert to Float (for xs:float)</tdml:error>
+      <tdml:error>Unable to parse '9a99'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
   <!--
     Test name: byte_binary_01
     Schema: SimpleTypes-binary

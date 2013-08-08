@@ -440,4 +440,10 @@ class TestSimpleTypes {
   @Test def test_double_text3() { runner.runOneTest("double_text3") }
   @Test def test_double_text4() { runner.runOneTest("double_text4") }
   @Test def test_characterDuringValidDouble() { runner.runOneTest("characterDuringValidDouble") }
+
+  @Test def test_float_text() { runner.runOneTest("float_text") }
+  @Test def test_float_text2() { runner.runOneTest("float_text2") }
+  @Test def test_float_text3() { runner.runOneTest("float_text3") }
+  @Test def test_float_text_fail() { runner.runOneTest("float_text_fail") }
+  @Test def test_characterDuringValidFloat() { runner.runOneTest("characterDuringValidFloat") }
 }
