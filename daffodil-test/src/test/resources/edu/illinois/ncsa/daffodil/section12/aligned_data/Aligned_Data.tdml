@@ -215,6 +215,89 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e17" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e14" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+          <xs:element name="e13" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e18" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="1" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a1" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+                <xs:element name="a2" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="b" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="b1" type="xs:string" dfdl:terminator="" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="1" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+                <xs:element name="b2" type="xs:string" dfdl:initiator="" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="2" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="1"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e19" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="e14" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+          <xs:element name="e13" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e20" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="^">
+          <xs:element name="a" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="a1" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+                <xs:element name="a2" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e21" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="a1" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+                <xs:element name="a2" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -245,6 +328,7 @@
     <xs:element name="byte" type="xs:byte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
     <xs:element name="uByte" type="xs:unsignedByte" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2"/>
     <xs:element name="float" type="xs:float" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
+
     <xs:element name="double" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bytes"/>
     <xs:element name="double2" type="xs:double" dfdl:lengthKind="implicit" dfdl:alignment="implicit" dfdl:leadingSkip="2" dfdl:lengthUnits="bytes" dfdl:alignmentUnits="bits"/>
     
@@ -1710,6 +1794,163 @@
           <e14>gnrts</e14>
           <e13>strng</e13>
         </e16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingNested01
+        Schema: alignmentSchema
+          Root: e17
+       Purpose: This test demonstrates Right and Left Framing on a complex element 
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingNested01" root="e17"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrts:aa:strng</tdml:documentPart>
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e17>
+          <e14>gnrts</e14>
+          <e13>strng</e13>
+        </e17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingNested02
+        Schema: alignmentSchema
+          Root: e18
+       Purpose: This test demonstrates Right and Left Framing on a nested complex element 
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingNested02" root="e18"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- e18 - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- a - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrts:a</tdml:documentPart> <!-- a1 and trailingSkip of 8 bits -->
+      <tdml:documentPart type="text">a:strng</tdml:documentPart> <!-- a2 - leadingSkip of 4 bits and 4 more bits to fulfill alignment -->
+      <tdml:documentPart type="text">XX</tdml:documentPart> <!-- 2 byte trailingSkip for a -->
+      <tdml:documentPart type="text">,</tdml:documentPart> <!-- sequence separator -->
+      <tdml:documentPart type="text">LLPP</tdml:documentPart> <!-- b - 2 byte leadingSkip and 2 byte padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrtsTTTTTTTT</tdml:documentPart> <!-- b1 - 'gnrts', trailingSkip of 8 bytes -->
+      <tdml:documentPart type="text">LPstrng</tdml:documentPart> <!-- b2 - leadingSkip of 1 byte and 1 byte to fulfill alignment, 'strng' -->
+      <tdml:documentPart type="text">TT</tdml:documentPart> <!-- 2 byte trailingSkip for b -->
+      <tdml:documentPart type="text">TT</tdml:documentPart> <!-- 2 byte trailingSkip for e18 -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e18>
+          <a>
+            <a1>gnrts</a1>
+            <a2>strng</a2>
+          </a>
+          <b>
+            <b1>gnrts</b1>
+            <b2>strng</b2>
+          </b>
+        </e18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingNested03
+        Schema: alignmentSchema
+          Root: e19
+       Purpose: This test demonstrates Right and Left Framing on a complex element 
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingNested03" root="e19"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrts:a,a:strng</tdml:documentPart>
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e19>
+          <e14>gnrts</e14>
+          <e13>strng</e13>
+        </e19>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingNested04
+        Schema: alignmentSchema
+          Root: e20
+       Purpose: This test demonstrates Right and Left Framing on a complex element 
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingNested04" root="e20"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">^</tdml:documentPart> <!-- initiator -->
+
+      <!-- If I remove the 's' in 'skip' on the line that follows this comment, the test passes. It appears that the sequence initiator is included in the region
+       where alignment is applied for element 'a'. Parsing seems to go like this: initiator (^), 2 byte leading skip (sk), and one byte to fill alignment (i). It then parses
+       'pgnrt' as our a1 element, looks for the terminator (:), finds 's', and fails. -->
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrts:a,a:strng</tdml:documentPart>
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e20>
+          <a>
+            <a1>gnrts</a1>
+            <a2>strng</a2>
+          </a>
+        </e20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingNested05
+        Schema: alignmentSchema
+          Root: e21
+       Purpose: This test demonstrates Right and Left Framing on a complex element 
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingNested05" root="e21"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">skip</tdml:documentPart> <!-- 2 byte (2 char) leadingSkip and 2 byte (2 char) padding to fulfill alignment -->
+      <tdml:documentPart type="text">gnrts:a,a:strng</tdml:documentPart>
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+      <tdml:documentPart type="text">eh</tdml:documentPart> <!-- 2 byte (2 char) trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e21>
+          <a>
+            <a1>gnrts</a1>
+            <a2>strng</a2>
+          </a>
+        </e21>
       </tdml:dfdlInfoset>
     </tdml:infoset>
       
