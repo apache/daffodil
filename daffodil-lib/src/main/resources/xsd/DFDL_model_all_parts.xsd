@@ -280,7 +280,7 @@ content of this file.
       <xsd:enumeration value="roundHalfEven" />
       <xsd:enumeration value="roundHalfDown" />
       <xsd:enumeration value="roundHalfUp" />
-      <xsd:enumeration value="none" />
+      <xsd:enumeration value="roundUnnecessary" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -792,7 +792,7 @@ content of this file.
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textStandardDecimalSeparator"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
-  <xsd:attribute name="textStandardExponentCharacter"
+  <xsd:attribute name="textStandardExponentRep"
     type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
   <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -809,7 +809,7 @@ content of this file.
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
-    <xsd:attribute name="textStandardExponentCharacter"
+    <xsd:attribute name="textStandardExponentRep"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="textNumberCheckPolicy" type="dfdl:TextNumberCheckPolicyEnum" />
     <xsd:attribute name="textStandardInfinityRep" type="dfdl:DFDLStringLiteral" />
@@ -1032,7 +1032,7 @@ content of this file.
       <xsd:enumeration value="textNumberPattern" />
       <xsd:enumeration value="textStandardGroupingSeparator" />
       <xsd:enumeration value="textStandardDecimalSeparator" />
-      <xsd:enumeration value="textStandardExponentCharacter" />
+      <xsd:enumeration value="textStandardExponentRep" />
       <xsd:enumeration value="textStandardInfinityRep" />
       <xsd:enumeration value="textStandardNaNRep" />
       <xsd:enumeration value="textStandardZeroRep" />
@@ -1309,7 +1309,7 @@ content of this file.
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textStandardDecimalSeparator"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
-    <xsd:attribute form="qualified" name="textStandardExponentCharacter"
+    <xsd:attribute form="qualified" name="textStandardExponentRep"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="textNumberCheckPolicy"
       type="dfdl:TextNumberCheckPolicyEnum" />

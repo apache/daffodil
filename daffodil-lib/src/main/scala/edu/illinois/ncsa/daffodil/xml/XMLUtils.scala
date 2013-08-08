@@ -67,6 +67,10 @@ import scala.collection.JavaConversions._
  */
 object XMLUtils {
 
+  val PositiveInfinity = "INF"
+  val NegativeInfinity = "-INF"
+  val NaN = "NaN"
+
   /**
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
    */

@@ -117,7 +117,7 @@ textNumberRep="standard" textStandardBase="10"
 textNumberRounding="pattern" textNumberRoundingMode="roundUp"
 textNumberRoundingIncrement="0.0"
 textStandardDecimalSeparator="." textStandardGroupingSeparator=","
-textStandardExponentCharacter="E" textStandardZeroRep=""
+textStandardExponentRep="E" textStandardZeroRep=""
 textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
 textNumberPattern="#0" textZonedSignStyle="asciiStandard"
 

@@ -34,7 +34,7 @@ xmlns:tns="http://example.com">
 					textNumberPadCharacter="%SP;" textNumberRep="standard"
 					textNumberRounding="pattern" textNumberRoundingMode="roundUp" textPadKind="none"
 					textStandardBase="10" textStandardDecimalSeparator="."
-					textStandardExponentCharacter="E" textStandardGroupingSeparator=","
+					textStandardExponentRep="E" textStandardGroupingSeparator=","
 					textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textStandardZeroRep=""
 					textStringJustification="left" textStringPadCharacter="%SP;" textTrimKind="none"
 					textZonedSignStyle="asciiStandard" trailingSkip="0"

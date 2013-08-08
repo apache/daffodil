@@ -19,7 +19,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				textNumberJustification="right" textNumberRep="standard" lengthKind="explicit"
 				lengthUnits="characters" length="3" textNumberPattern="###"
 				textStandardGroupingSeparator="," textStandardDecimalSeparator="."
-				textStandardExponentCharacter="E" textNumberCheckPolicy="lax"
+				textStandardExponentRep="E" textNumberCheckPolicy="lax"
 				textStandardInfinityRep="~" textStandardNaNRep="z"
 				textNumberRoundingMode="roundHalfDown" textStandardZeroRep=""
 				textZonedSignStyle="asciiStandard" textNumberRounding="pattern"

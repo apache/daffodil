@@ -248,7 +248,7 @@
       <xsd:enumeration value="roundHalfEven" />
       <xsd:enumeration value="roundHalfDown" />
       <xsd:enumeration value="roundHalfUp" />
-      <xsd:enumeration value="none" />
+      <xsd:enumeration value="roundUnnecessary" />
     </xsd:restriction>
   </xsd:simpleType>
 

@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <имен:schema xmlns:имен="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:b·="http://example.com" targetNamespace="http://example.com">
+
+  <имен:include schemaLocation="xsd/built-in-formats.xsd"/>
       
   <имен:annotation>
     <имен:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
+      <dfdl:format ref="b·:daffodilTest1" separator="" alignment="1" alignmentUnits="bytes" lengthUnits="bytes"
         trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" textNumberRep="standard" encoding="ASCII"/>
     </имен:appinfo>

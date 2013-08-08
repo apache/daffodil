@@ -341,7 +341,7 @@
     </tdml:parserTestCase> -->
 
   <tdml:defineSchema name="initiatedContentSchema">
-    <dfdl:format initiator="" terminator="" leadingSkip="0"
+    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" leadingSkip="0"
     alignment="1" alignmentUnits="bytes" trailingSkip="0"
     separator="" encoding="utf-8" occursCountKind="parsed"
       separatorSuppressionPolicy="anyEmpty" textNumberRep="standard" ignoreCase="no"

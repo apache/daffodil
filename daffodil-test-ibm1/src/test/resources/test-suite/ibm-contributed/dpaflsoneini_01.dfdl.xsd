@@ -18,7 +18,7 @@
 				emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="none"   textNumberRep="standard"
 				textStandardBase="10" textNumberPattern="##0" textNumberJustification="right"
 				textNumberPadCharacter="0" textStandardGroupingSeparator=","
-				textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+				textStandardDecimalSeparator="." textStandardExponentRep="e"
 				textNumberCheckPolicy="strict" textStandardInfinityRep="~"
 				textStandardNaNRep="z" textNumberRounding="pattern"
 				textStandardZeroRep="0" textOutputMinLength="1" lengthUnits="characters"

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="text-number-properties"
+  description="Text Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="textprops">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict" 
+	  textNumberPattern="#,##0.###;-#,##0.###" />
+
+    <xs:element name="dynamic" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="decimalSep" type="xsd:string" />
+		  <xs:element name="groupingSep" type="xsd:string" />
+          <xs:element name="num" type="xsd:double"
+			dfdl:textStandardDecimalSeparator="{ ../ex:decimalSep }"
+			dfdl:textStandardGroupingSeparator="{ ../ex:groupingSep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+	<xs:element name="dynamicExp" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="decimalSep" type="xsd:string" />
+		  <xs:element name="exponentRep" type="xsd:string" />
+          <xs:element name="num" type="xsd:double"
+			dfdl:textNumberPattern="###0.###E00;-###0.###E00"
+			dfdl:textStandardDecimalSeparator="{ ../ex:decimalSep }"
+			dfdl:textStandardExponentRep="{ ../ex:exponentRep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+	
+	<xs:element name="infnan" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+		  <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="NOTANUMBER" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+	
+	<xs:element name="zero" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="double" type="xsd:double" minOccurs="1" maxOccurs="unbounded" dfdl:textStandardZeroRep="ZERO NIL ZILCH 5 0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+	<xs:element name="patternNeg1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="double" type="xsd:double" dfdl:textNumberPattern="#,##0_ERROR_###" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="dynamic" root="dynamic"
+    model="textprops"
+    description="Parse a double with dynamic text number properties">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|^|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dynamic xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <decimalSep>_</decimalSep>
+          <groupingSep>^</groupingSep>
+		  <num>1234567.89</num>
+        </dynamic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="dynamicNeg1" root="dynamic"
+    model="textprops"
+    description="Dynamically reads an invalid decimal separator">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[%NL;|^|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dynamicNeg2" root="dynamic"
+    model="textprops"
+    description="Dynamically reads an invalid grouping separator">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|%WSP+;|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardGroupingSeparator cannot contain WSP+</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+
+  
+  <tdml:parserTestCase name="dynamicExp" root="dynamicExp"
+    model="textprops"
+    description="Parse a double with dynamic text number properties">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|@|1234567_89@2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dynamicExp xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <decimalSep>_</decimalSep>
+          <exponentRep>@</exponentRep>
+		  <num>1.23456789E8</num>
+        </dynamicExp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dynamicExpNeg" root="dynamicExp"
+    model="textprops"
+    description="Dynamically reads an invalid exponent representation">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|%ES;|1234567_89@2]]]></tdml:documentPart>
+    </tdml:document>
+
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="infnan" root="infnan"
+    model="textprops"
+    description="Read infinity and not a number">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[INFINITY|-INFINITY|NOTANUMBER]]]></tdml:documentPart>
+    </tdml:document>
+    
+	<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infnan xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <posinf>INF</posinf>
+          <neginf>-INF</neginf>
+		  <nan>NaN</nan>
+        </infnan>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zero" root="zero"
+    model="textprops"
+    description="Test zero repreentations">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NIL|ZILCH|ZERO|5|0]]]></tdml:documentPart>
+    </tdml:document>
+    
+	<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <zero xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+        </zero>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pattern_neg1" root="patternNeg1"
+    model="textprops"
+    description="Bad number pattern">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Doesn't matter]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Invalid textNumberPattern: Unquoted special character</tdml:error>
+	</tdml:errors>
+
+  </tdml:parserTestCase>
+ 
+</tdml:testSuite>

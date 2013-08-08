@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://d03.com" xmlns:d03="http://d03.com" xmlns:e03="http://e03.com">
- 
+  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ignoreCase="no" terminator="D" leadingSkip="0" representation="text"

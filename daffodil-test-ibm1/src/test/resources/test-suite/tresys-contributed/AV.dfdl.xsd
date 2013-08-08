@@ -4,9 +4,11 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
+<include schemaLocation="xsd/built-in-formats.xsd"/>
+
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format alignment="implicit" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0" 
+      <dfdl:format ref="tns:daffodilTest1" alignment="implicit" alignmentUnits="bytes" leadingSkip="0" trailingSkip="0" 
         lengthKind="delimited" separator="" representation="text"
         encoding="US-ASCII" ignoreCase='no' initiator="" lengthUnits="bytes"
         terminator="" initiatedContent="no" textNumberRep="standard"

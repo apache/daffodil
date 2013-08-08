@@ -28,7 +28,7 @@
 					textNumberJustification="right" textTrimKind="padChar" textPadKind="padChar"
 					textNumberPadCharacter="0" textStandardBase="10"
 					textNumberCheckPolicy="strict" textStandardGroupingSeparator=","
-					textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+					textStandardDecimalSeparator="." textStandardExponentRep="e"
 					textStandardInfinityRep="~" textStandardZeroRep=""
 					textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown"
 					textNumberRounding="pattern" decimalSigned="yes" />
@@ -78,7 +78,7 @@
 				dfdl:occursCountKind="implicit"
 					dfdl:textNumberPattern="##0.#E0"
 					dfdl:textStandardInfinityRep="~" dfdl:textStandardZeroRep="myZero"
-					dfdl:textStandardNaNRep="NaN"  dfdl:textStandardExponentCharacter="x" />
+					dfdl:textStandardNaNRep="NaN"  dfdl:textStandardExponentRep="x" />
 
 			</xs:sequence>
 		</xs:complexType>

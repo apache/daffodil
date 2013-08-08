@@ -424,10 +424,10 @@ class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
 class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE) {
   def cooked = {
     val list = rawArg.split("\\s")
-    val cookedList: ListBuffer[String] = ListBuffer.empty
+    val cookedList: ListBuffer[Char] = ListBuffer.empty
     list.foreach(x => {
       val l = new SingleCharacterLiteral(x, context)
-      cookedList += l.cooked
+      cookedList += l.cooked(0)
     })
     cookedList.toList
   }

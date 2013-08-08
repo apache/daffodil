@@ -267,7 +267,7 @@
     <tdml:document><![CDATA[1.23]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unbounded Integer (for xs:integer)</tdml:error>
+      <tdml:error>Convert to Unlimited Size Integer (for xs:integer)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1380,7 +1380,7 @@
     <tdml:document><![CDATA[1.5]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Non Negative Integer</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1622,7 +1622,7 @@
 
     <tdml:document><![CDATA[9a9]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Convert to Unbounded Decimal (for xs:decimal)</tdml:error>
+      <tdml:error>Parse Error: Convert to Unlimited Size Decimal (for xs:decimal)</tdml:error>
       <tdml:error>Unable to parse '9a9'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -5627,7 +5627,7 @@
 ]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Convert to Non Negative Integer</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer</tdml:error>
       <tdml:error>Out of Range</tdml:error>
       <tdml:error>converted to -2</tdml:error>
       <tdml:error>not in range for the type</tdml:error>

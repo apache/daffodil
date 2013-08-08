@@ -15,7 +15,7 @@
 				textStringJustification="left" lengthUnits="bytes" alignmentUnits="bytes"
 				fillByte="%#r66;" alignment="1" occursCountKind="implicit" initiatedContent="no"
 				sequenceKind="ordered" textStandardGroupingSeparator=","
-				textStandardDecimalSeparator="." textStandardExponentCharacter="e"
+				textStandardDecimalSeparator="." textStandardExponentRep="e"
 				textNumberCheckPolicy="lax" textStandardInfinityRep="~"
 				textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown" textNumberRounding="pattern"
 				textStandardZeroRep="" textZonedSignStyle="asciiStandard" escapeSchemeRef=""/>

@@ -147,47 +147,18 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   with DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
 
-  // TODO: Will need to 'evaluate' and perform entity replacement on textStandardDecimalSeparator in Parser where it is used.
   def textStandardDecimalSeparator = {
     val c = expressionCompiler.compile(ConvertToType.String, textStandardDecimalSeparatorRaw)
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardDecimalSeparator cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardDecimalSeparator cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardDecimalSeparator cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardDecimalSeparator cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardDecimalSeparator cannot contain ES")
-    }
     c
   }
 
-  //def textStandardGroupingSeparator = expressionCompiler.compile('String, EntityReplacer.replaceAll(textStandardGroupingSeparatorRaw))
-  // TODO: Will need to 'evaluate' and perform entity replacement on textStandardGroupingSeparator in Parser where it is used.
   def textStandardGroupingSeparator = {
     val c = expressionCompiler.compile(ConvertToType.String, textStandardGroupingSeparatorRaw)
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardGroupingSeparator cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardGroupingSeparator cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardGroupingSeparator cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardGroupingSeparator cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardGroupingSeparator cannot contain ES")
-    }
     c
   }
 
-  // TODO: update when textStandardExponentCharacter is phased out.
-  // Note: name changed to suffix of "...Rep" via Errata
   def textStandardExponentRep = {
     val c = expressionCompiler.compile(ConvertToType.String, textStandardExponentRepRaw)
-    if (c.isConstant) {
-      val s = c.constantAsString
-      this.schemaDefinitionUnless(!s.contains("%NL;"), "textStandardExponentRep cannot contain NL")
-      this.schemaDefinitionUnless(!s.contains("%WSP;"), "textStandardExponentRep cannot contain WSP")
-      this.schemaDefinitionUnless(!s.contains("%WSP*;"), "textStandardExponentRep cannot contain WSP*")
-      this.schemaDefinitionUnless(!s.contains("%WSP+;"), "textStandardExponentRep cannot contain WSP+")
-      this.schemaDefinitionUnless(!s.contains("%ES;"), "textStandardExponentRep cannot contain ES")
-    }
     c
   }
 

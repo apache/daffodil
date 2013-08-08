@@ -8,15 +8,18 @@
 	Data Format Description Language (DFDL) v1.0 Specification, Copyright © Global Grid Forum (2004-2006).  All Rights Reserved.
 Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	 -->
+
+	<xs:include schemaLocation="xsd/built-in-formats.xsd"/>
 	 
 	<!--
 		"another example" of short form in section 7.1.4.3 dfdl spec v.39
 	-->
 
+
 	<xs:annotation>
 		<!-- Defaulted property values minimum needed for a text boolean-->
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian"
+			<dfdl:format ref="daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian"
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 				lengthUnits="bytes" initiatedContent="no"
 				sequenceKind="ordered" ignoreCase="no" textPadKind="none"

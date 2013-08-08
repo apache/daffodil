@@ -134,4 +134,8 @@ object Assert extends Assert {
   def notYetImplemented(testThatWillThrowIfTrue: => Boolean): Unit = {
     if (testThatWillThrowIfTrue) notYetImplemented()
   }
+
+  def notYetImplemented(testThatWillThrowIfTrue: => Boolean, msg: => String): Unit = {
+    if (testThatWillThrowIfTrue) notYetImplemented(msg)
+  }
 }

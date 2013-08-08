@@ -20,7 +20,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				alignmentUnits="bytes" fillByte="%#r66;"  alignment="1" occursCountKind="implicit"
 				binaryNumberRep="packed" binaryPackedSignCodes="C D F C" binaryNumberCheckPolicy="strict"
 				textNumberPattern="###" textStandardGroupingSeparator=","
-				textStandardDecimalSeparator="." textStandardExponentCharacter="E"
+				textStandardDecimalSeparator="." textStandardExponentRep="E"
 				textNumberCheckPolicy="lax" textStandardInfinityRep="~"
 				textStandardNaNRep="z" textNumberRoundingMode="roundHalfDown"
 				textStandardZeroRep="" textZonedSignStyle="asciiStandard"  escapeSchemeRef=""/>

@@ -1032,7 +1032,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unsigned Int (for xs:unsignedInt)</tdml:error>
+      <tdml:error>Convert to Unsigned Integer (for xs:unsignedInt)</tdml:error>
       <tdml:error>Unable to parse '㐀' (using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -2387,7 +2387,7 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Non Negative Integer (for xs:nonNegativeInteger)</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger)</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
       <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>
@@ -2458,7 +2458,7 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unbounded Integer (for xs:integer)</tdml:error>
+      <tdml:error>Convert to Unlimited Size Integer (for xs:integer)</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
       <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>
@@ -2529,7 +2529,7 @@
 
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unbounded Decimal (for xs:decimal)</tdml:error>
+      <tdml:error>Convert to Unlimited Size Decimal (for xs:decimal)</tdml:error>
       <tdml:error>Unable to parse</tdml:error>
       <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>

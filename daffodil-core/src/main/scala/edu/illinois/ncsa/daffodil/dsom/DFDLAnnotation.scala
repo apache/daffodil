@@ -145,8 +145,7 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 
   def textStandardDecimalSeparatorRaw = findProperty("textStandardDecimalSeparator")
   def textStandardGroupingSeparatorRaw = findProperty("textStandardGroupingSeparator")
-  // TODO: update when textStandardExponentCharacter is phased out.
-  def textStandardExponentRepRaw = findProperty("textStandardExponentRep") // Note: name changed to suffix of "...Rep" via Errata
+  def textStandardExponentRepRaw = findProperty("textStandardExponentRep")
   def binaryFloatRepRaw = findProperty("binaryFloatRep")
   def textBooleanTrueRepRaw = findProperty("textBooleanTrueRep")
   def textBooleanFalseRepRaw = findProperty("textBooleanFalseRep")
