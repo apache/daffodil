@@ -52,6 +52,14 @@ class TestAlignedData {
 
   @Test def test_encodingAlignmentUtf32be() = { runner1.runOneTest("encodingAlignmentUtf32be") }
   
+  @Test def test_leftAndRightFramingChoice01() = { runner1.runOneTest("leftAndRightFramingChoice01") }
+  @Test def test_leftAndRightFramingChoice02() = { runner1.runOneTest("leftAndRightFramingChoice02") }
+  @Test def test_leftAndRightFramingChoice03() = { runner1.runOneTest("leftAndRightFramingChoice03") }
+  @Test def test_leftAndRightFramingChoice04() = { runner1.runOneTest("leftAndRightFramingChoice04") }
+  @Test def test_leftAndRightFramingChoice05() = { runner1.runOneTest("leftAndRightFramingChoice05") }
+  @Test def test_leftAndRightFramingChoice06() = { runner1.runOneTest("leftAndRightFramingChoice06") }
+  @Test def test_leftAndRightFramingChoice07() = { runner1.runOneTest("leftAndRightFramingChoice07") }
+  
   @Test def test_leftAndRightFramingNested01() = { runner1.runOneTest("leftAndRightFramingNested01") }
   @Test def test_leftAndRightFramingNested02() = { runner1.runOneTest("leftAndRightFramingNested02") }
   @Test def test_leftAndRightFramingNested03() = { runner1.runOneTest("leftAndRightFramingNested03") }

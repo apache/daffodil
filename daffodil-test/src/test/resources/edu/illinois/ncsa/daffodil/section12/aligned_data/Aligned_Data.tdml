@@ -298,6 +298,61 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e22" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="a1" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+          <xs:element name="a2" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e23" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e23a" minOccurs="2">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+                <xs:element name="a2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:terminator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e24" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e24a" minOccurs="2">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="a1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:initiator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+                <xs:element name="a2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:length="5" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:terminator=":" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e24b" minOccurs="2">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="b1" type="xs:nonNegativeInteger" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4"/>
+                <xs:element name="b2" type="xs:int" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:encoding="utf-8" 
+                  dfdl:lengthUnits="bytes" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="4" dfdl:trailingSkip="2"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -2422,4 +2477,306 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice01
+        Schema: alignmentSchema
+          Root: e22
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice01" root="e22"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e22 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">11 11 22 22</tdml:documentPart> <!-- a1 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a1 "strng:" -->
+      <tdml:documentPart type="byte">11 11</tdml:documentPart> <!-- a1 trailingSkip -->
+      <tdml:documentPart type="byte">11 11</tdml:documentPart> <!-- e22 trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e22>
+          <a1>strng</a1>
+        </e22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: leftAndRightFramingChoice02
+        Schema: alignmentSchema
+          Root: e22
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice02" root="e22"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e22 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">11 11 22 22</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">3A 73 74 72 6E 67</tdml:documentPart> <!-- a2 ":strng" -->
+      <tdml:documentPart type="byte">11 11</tdml:documentPart> <!-- e22 trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e22>
+          <a2>strng</a2>
+        </e22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice03
+        Schema: alignmentSchema
+          Root: e23
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice03" root="e23"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e23 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">11 11 22 22</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a2 "strng" -->
+      <tdml:documentPart type="byte">11 11 22 22 19 20 21 22 23 24</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <!--                           15       18                24     -->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a2 "strng:" -->
+      <tdml:documentPart type="byte">11 11 22 24 35 36 37 38 39 40</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <!--                           31 32    34                40     -->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a2 "strng:" -->
+      <tdml:documentPart type="byte">11 11</tdml:documentPart> <!-- e23 trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e23>
+          <e23a>
+            <a2>strng</a2>
+          </e23a>
+          <e23a>
+            <a2>strng</a2>
+          </e23a>
+          <e23a>
+            <a2>strng</a2>
+          </e23a>
+        </e23>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice04
+        Schema: alignmentSchema
+          Root: e23
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice04" root="e23"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart> <!-- e23 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">11 11 22 22</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a2 "strng:" -->
+      <tdml:documentPart type="byte">11 11 22 22 19 20</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <!--                           15       18    20                              -->
+      <tdml:documentPart type="byte">3A 73 74 72 6E 67</tdml:documentPart> <!-- a1 ":strng" -->
+      <tdml:documentPart type="byte">11 11 22 24 35 36</tdml:documentPart> <!-- a2 leadingSkip and padding to fulfill alignment-->
+      <!--                           27             32                             -->
+      <tdml:documentPart type="byte">73 74 72 6E 67 3A</tdml:documentPart> <!-- a2 "strng:" -->
+      <tdml:documentPart type="byte">11 11</tdml:documentPart> <!-- e23 trailingSkip -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e23>
+          <e23a>
+            <a2>strng</a2>
+          </e23a>
+          <e23a>
+            <a1>strng</a1>
+          </e23a>
+          <e23a>
+            <a2>strng</a2>
+          </e23a>
+        </e23>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice05
+        Schema: alignmentSchema
+          Root: e24
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice05" root="e24"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- a2 leadingSkip (4B) - no padding needed -->
+      <tdml:documentPart type="byte">74 65 72 6D 69 6E 61 74 65 64 3A</tdml:documentPart>  <!-- a2 "terminated:" -->
+      <tdml:documentPart type="byte">11 11 11 11 22</tdml:documentPart>                    <!-- a1 leadingSkip (4B) and padding to fulfill alignment of 4B-->
+      <!--                                    23 24                 -->
+      <tdml:documentPart type="byte">3A 69 6E 69 74 73</tdml:documentPart>                 <!-- a1 ":inits" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- a1 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">11 11 11 11 00 00 00 00</tdml:documentPart>           <!-- b1 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    36          40                 -->
+      <tdml:documentPart type="byte">33 32</tdml:documentPart>                             <!-- b1 "32" -->
+      <tdml:documentPart type="byte">11 11 11 11 00 00</tdml:documentPart>                 <!-- b2 leadingSkip (4B) and padding to fulfill alignment of 4B -->
+      <!--                                    46    48                 -->
+      <tdml:documentPart type="byte">2D 33 30</tdml:documentPart>                          <!-- b2 "-30" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- b2 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- e24 trailingSkip (2B) -->
+
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e24>
+          <e24a>
+            <a2>terminated</a2>
+          </e24a>
+          <e24a>
+            <a1>inits</a1>
+          </e24a>
+          <e24b>
+            <b1>32</b1>
+          </e24b>
+          <e24b>
+            <b2>-30</b2>
+          </e24b>
+        </e24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice06
+        Schema: alignmentSchema
+          Root: e24
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice06" root="e24"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
+      <tdml:documentPart type="byte">11 11 11 11</tdml:documentPart>                       <!-- a1 leadingSkip (4B) - no padding needed -->
+      <!--                                    08                 -->
+      <tdml:documentPart type="byte">3A 69 6E 69 74 73</tdml:documentPart>                 <!-- a1 ":inits" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- a1 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">BA 19 00 00 11 11 11 11</tdml:documentPart>           <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    20          24                 -->
+      <tdml:documentPart type="byte">74 65 72 6D 69 6E 61 74 65 64 3A</tdml:documentPart>  <!-- a2 "terminated:" -->
+      <tdml:documentPart type="byte">BA 19 00 00 11</tdml:documentPart>                    <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    39 40                 -->
+      <tdml:documentPart type="byte">74 65 72 6D 69 6E 61 74 65 64 3A</tdml:documentPart>  <!-- a2 "terminated:" -->
+      <tdml:documentPart type="byte">BA 19 00 00 11</tdml:documentPart>                    <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    55 56                 -->
+      <tdml:documentPart type="byte">74 65 72 6D 69 6E 61 74 65 64 3A</tdml:documentPart>  <!-- a2 "terminated:" -->
+      <tdml:documentPart type="byte">11 11 11 11 00</tdml:documentPart>                    <!-- b1 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    71 72                 -->
+      <tdml:documentPart type="byte">33 32</tdml:documentPart>                             <!-- b1 "32" -->
+      <tdml:documentPart type="byte">11 11 11 11 00 00</tdml:documentPart>                 <!-- b2 leadingSkip (4B) and padding to fulfill alignment of 4B -->
+      <!--                                    78    80                 -->
+      <tdml:documentPart type="byte">2D 33 30</tdml:documentPart>                          <!-- b2 "-30" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- b2 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- e24 trailingSkip (2B) -->
+
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e24>
+          <e24a>
+            <a1>inits</a1>
+          </e24a>
+          <e24a>
+            <a2>terminated</a2>
+          </e24a>
+          <e24a>
+            <a2>terminated</a2>
+          </e24a>
+          <e24a>
+            <a2>terminated</a2>
+          </e24a>
+          <e24b>
+            <b1>32</b1>
+          </e24b>
+          <e24b>
+            <b2>-30</b2>
+          </e24b>
+        </e24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingChoice07
+        Schema: alignmentSchema
+          Root: e24
+       Purpose: This test demonstrates Right and Left Framing on a complex element (choice)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingChoice07" root="e24"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-016R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">BA 19 00 00</tdml:documentPart>                       <!-- e24 leadingSkip (2B) and padding to fulfill alignment -->
+      <tdml:documentPart type="byte">11 11 11 11</tdml:documentPart>                       <!-- a1 leadingSkip (4B) - no padding needed -->
+      <!--                                    08                 -->
+      <tdml:documentPart type="byte">3A 69 6E 69 74 73</tdml:documentPart>                 <!-- a1 ":inits" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- a1 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">BA 19 00 00 11 11 11 11</tdml:documentPart>           <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    20          24                 -->
+      <tdml:documentPart type="byte">77 61 6C 74 65 72 3A</tdml:documentPart>              <!-- a2 "walter:" -->
+      <tdml:documentPart type="byte">BA 19 00 00 11 11 11 11 11</tdml:documentPart>        <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    35             40       -->
+      <tdml:documentPart type="byte">6A 65 73 73 65 3A</tdml:documentPart>                 <!-- a2 "jesse:" -->
+      <tdml:documentPart type="byte">BA 19 00 00 51 52 53 54 55 11</tdml:documentPart>     <!-- a2 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    50                56                 -->
+      <tdml:documentPart type="byte">67 75 73 74 61 76 6F 3A</tdml:documentPart>           <!-- a2 "gustavo:" -->
+      <tdml:documentPart type="byte">11 11 11 11 69 70 71 00</tdml:documentPart>           <!-- b1 leadingSkip (4B) and padding to fulfill alignment of 8B -->
+      <!--                                    68          72                 -->
+      <tdml:documentPart type="byte">33 32</tdml:documentPart>                             <!-- b1 "32" -->
+      <tdml:documentPart type="byte">11 11 11 11 00 00</tdml:documentPart>                 <!-- b2 leadingSkip (4B) and padding to fulfill alignment of 4B -->
+      <!--                                    78    80                 -->
+      <tdml:documentPart type="byte">2D 33 30</tdml:documentPart>                          <!-- b2 "-30" -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- b2 trailingSkip (2B) -->
+      <tdml:documentPart type="byte">73 73</tdml:documentPart>                             <!-- e24 trailingSkip (2B) -->
+
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e24>
+          <e24a>
+            <a1>inits</a1>
+          </e24a>
+          <e24a>
+            <a2>walter</a2>
+          </e24a>
+          <e24a>
+            <a2>jesse</a2>
+          </e24a>
+          <e24a>
+            <a2>gustavo</a2>
+          </e24a>
+          <e24b>
+            <b1>32</b1>
+          </e24b>
+          <e24b>
+            <b2>-30</b2>
+          </e24b>
+        </e24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
