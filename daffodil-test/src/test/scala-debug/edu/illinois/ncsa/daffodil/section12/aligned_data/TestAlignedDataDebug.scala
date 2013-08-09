@@ -54,4 +54,7 @@ class TestAlignedDataDebug {
   @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
   @Test def test_alignmentOptionalElem04() = { runner1.runOneTest("alignmentOptionalElem04") }
 
+//  DFDL-838
+  @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
+
 }

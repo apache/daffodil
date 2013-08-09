@@ -353,6 +353,15 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e25">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="repeat" type="xs:string" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
+            minOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -2777,6 +2786,24 @@
         </e24>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingArray01
+        Schema: alignmentSchema
+          Root: e25
+       Purpose: This test demonstrates Right and Left Framing on a complex element (array)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingArray01" root="e25"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">aaaaaaaaaaaaa,aaaaaaaaaaaa,aaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaa,aaaaaaaaaaaaaaaa</tdml:documentPart> 
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

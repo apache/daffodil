@@ -52,6 +52,9 @@ class TestAlignedData {
 
   @Test def test_encodingAlignmentUtf32be() = { runner1.runOneTest("encodingAlignmentUtf32be") }
   
+//  DFDL-838
+//  @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
+  
   @Test def test_leftAndRightFramingChoice01() = { runner1.runOneTest("leftAndRightFramingChoice01") }
   @Test def test_leftAndRightFramingChoice02() = { runner1.runOneTest("leftAndRightFramingChoice02") }
   @Test def test_leftAndRightFramingChoice03() = { runner1.runOneTest("leftAndRightFramingChoice03") }
