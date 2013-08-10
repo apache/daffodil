@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.section13.textnumberprops
+package edu.illinois.ncsa.daffodil.section13.text_number_props
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -45,20 +45,16 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestTextNumberProperties {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/textnumberprops/"
-  val aa = testDir + "textnumberprops.tdml"
-  lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
+  val aa = testDir + "TextNumberProps.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_dynamic() { runnerAA.runOneTest("dynamic") }
-  @Test def test_dynamic_neg1() { runnerAA.runOneTest("dynamicNeg1") }
-  @Test def test_dynamic_neg2() { runnerAA.runOneTest("dynamicNeg2") }
+  @Test def test_dynamicExp() { runner.runOneTest("dynamicExp") }
+  @Test def test_dynamicExp_neg() { runner.runOneTest("dynamicExpNeg") }
   
-  @Test def test_dynamicExp() { runnerAA.runOneTest("dynamicExp") }
-  @Test def test_dynamicExp_neg() { runnerAA.runOneTest("dynamicExpNeg") }
+  @Test def test_infnan() { runner.runOneTest("infnan") }
   
-  @Test def test_infnan() { runnerAA.runOneTest("infnan") }
+  @Test def test_zero() { runner.runOneTest("zero") } 
   
-  @Test def test_zero() { runnerAA.runOneTest("zero") } 
-  
-  @Test def test_pattern_neg1() { runnerAA.runOneTest("pattern_neg1") }
+  @Test def test_pattern_neg1() { runner.runOneTest("pattern_neg1") }
 }

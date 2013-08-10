@@ -1,0 +1,1015 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="text-number-properties"
+  description="Text Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="textNumberPattern">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
+    <xs:element name="tnp02" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern=";0000" />
+    <xs:element name="tnp03" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0000;" />
+
+    <xs:element name="tnp04">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="e" type="xs:float" minOccurs="3" dfdl:textNumberRep="standard" dfdl:textNumberPattern="+##0.00;(0##0.00)" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="tnp05" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="000.0#E0" />
+    <xs:element name="tnp06" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'##0.00" dfdl:textStandardDecimalSeparator="."/>
+    <xs:element name="tnp07" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="$##0.00"  dfdl:textStandardDecimalSeparator="."/>
+    <xs:element name="tnp08" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="## o''clock" />
+    <xs:element name="tnp09" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0000;$###### 'is negative!'" dfdl:textStandardDecimalSeparator="."/>
+    
+    <xs:element name="tnp10" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    0000    " />
+    <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
+    <xs:element name="tnp12" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="##" />
+    <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
+    
+    <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
+    <xs:element name="tnp15" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="^" />
+    <xs:element name="tnp16" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="" />
+    
+    <xs:element name="tnp17">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="decsep" type="xs:string"/>
+          <xs:element name="e" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0.00" dfdl:textStandardDecimalSeparator="{ ../ex:decsep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="tnp18" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="%WSP;" />
+    <xs:element name="tnp19" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="%SP;" />
+    <xs:element name="tnp20" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0." dfdl:textStandardDecimalSeparator="^" />
+    
+    <xs:element name="tnp21" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00" dfdl:textStandardGroupingSeparator="," 
+      dfdl:textStandardDecimalSeparator="." />
+    <xs:element name="tnp22" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00" dfdl:textStandardGroupingSeparator=":" 
+      dfdl:textStandardDecimalSeparator="." />
+    <xs:element name="tnp23" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00" dfdl:textStandardGroupingSeparator="." 
+      dfdl:textStandardDecimalSeparator="." />
+    <xs:element name="tnp24" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00" dfdl:textStandardGroupingSeparator="" 
+      dfdl:textStandardDecimalSeparator="." />
+    
+    <xs:element name="tnp25">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="grpsep" type="xs:string"/>
+          <xs:element name="e" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" dfdl:textStandardGroupingSeparator="{ ../ex:grpsep }"
+            dfdl:textStandardDecimalSeparator="." />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="tnp26" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#+#" dfdl:textStandardGroupingSeparator="," 
+      dfdl:textStandardDecimalSeparator="." dfdl:textStandardExponentCharacter="^"/>
+
+  </tdml:defineSchema>
+  
+<!--
+     Test Name: textNumberPattern_baseConflict
+        Schema: textNumberPattern
+          Root: tnp01
+       Purpose: This test demonstrates that when dfdl:textNumberRep is 'standard', the textNumberPattern
+                property only applies when dfdl:textStandardBase is 10. Because the base is 16, the 
+                property will be ignored and the number will be represented as the minimum number of characters to represent the digits 
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_baseConflict" root="tnp01" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-048R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">42</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp01>42</tnp01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_positiveMandatory
+        Schema: textNumberPattern
+          Root: tnp02
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates
+                that the first part is mandatory (applies to positive numbers).       
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_positiveMandatory" root="tnp02" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">42</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeOptional
+        Schema: textNumberPattern
+          Root: tnp03
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates
+                that the second part is optional (applies to negative numbers). When the negative portion is not included,
+                the positive portion is prefixed with a minus sign. 
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeOptional" root="tnp03" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-6000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp03>-6000</tnp03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored01
+        Schema: textNumberPattern
+          Root: tnp04
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored01" root="tnp04" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">+400.00,-4030.00,+30.00,-0330.00,+6.00,-06.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored02
+        Schema: textNumberPattern
+          Root: tnp04
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored02" root="tnp04" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">+400.00,-400.00,+30.00,-30.00,+6.00,-6.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp04>
+          <e>400</e>
+          <e>-400</e>
+          <e>30</e>
+          <e>-30</e>
+          <e>6</e>
+          <e>-6</e>
+        </tnp04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored03
+        Schema: textNumberPattern
+          Root: tnp09
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored03" root="tnp09" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$123456 is negative!</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored04
+        Schema: textNumberPattern
+          Root: tnp09
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored04" root="tnp09" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$0234 is negative!</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp09>-234</tnp09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_exponent01
+        Schema: textNumberPattern
+          Root: tnp05
+       Purpose: This test demonstrates the second example of textNumberPattern provided in the spec.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_exponent01" root="tnp05" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-067.1R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">006.54E9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp05>6.5400003E9</tnp05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_specialChar01
+        Schema: textNumberPattern
+          Root: tnp06
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar01" root="tnp06" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$49.99</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp06>49.99</tnp06>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_specialChar02
+        Schema: textNumberPattern
+          Root: tnp07
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the character ($) is not quoted and the parser should throw an error.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar02" root="tnp07" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$49.99</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_specialChar03
+        Schema: textNumberPattern
+          Root: tnp08
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In order to insert a literal single quote, you must use two consecutive single quotes.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar03" root="tnp08" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-069R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12 o'clock</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp08>12</tnp08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax01
+        Schema: textNumberPattern
+          Root: tnp10
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp10" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">52</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp10>52</tnp10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax02
+        Schema: textNumberPattern
+          Root: tnp10
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax02" root="tnp10" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    0052</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp10>52</tnp10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax03
+        Schema: textNumberPattern
+          Root: tnp10
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax03" root="tnp10" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp10>52</tnp10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax04
+        Schema: textNumberPattern
+          Root: tnp12
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax04" root="tnp12" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp10>52</tnp10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_strict01
+        Schema: textNumberPattern
+          Root: tnp11
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                whitespace and zeros are NOT ignored.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict01" root="tnp11" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp11>52</tnp11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_strict02
+        Schema: textNumberPattern
+          Root: tnp11
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                whitespace and zeros are NOT ignored.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict02" root="tnp11" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">52</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_strict03
+        Schema: textNumberPattern
+          Root: tnp13
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                whitespace and zeros are NOT ignored.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict03" root="tnp13" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">052</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_strict04
+        Schema: textNumberPattern
+          Root: tnp13
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                whitespace and zeros are NOT ignored.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict04" root="tnp13" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    52    </tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator01
+        Schema: textNumberPattern
+          Root: tnp14
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.) 
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator01" root="tnp14" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definiton Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator02
+        Schema: textNumberPattern
+          Root: tnp15
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.).
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator02" root="tnp15" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5^00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp15>5.0</tnp15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator03
+        Schema: textNumberPattern
+          Root: tnp16
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that the empty string is not an allowable value
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator03" root="tnp16" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$500</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardDecimalSeparator must not be empty</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator04
+        Schema: textNumberPattern
+          Root: tnp17
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that the value can be calculated by expression.
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator04" root="tnp17" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">.|5.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp17>
+          <decsep>.</decsep>
+          <e>5.0</e>
+        </tnp17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator05
+        Schema: textNumberPattern
+          Root: tnp17
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that the value can be calculated by expression.
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator05" root="tnp17" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">:|5:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp17>
+          <decsep>:</decsep>
+          <e>5.0</e>
+        </tnp17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator06
+        Schema: textNumberPattern
+          Root: tnp17
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that the value can be calculated by expression.
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator06" root="tnp17" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">:|5.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator07
+        Schema: textNumberPattern
+          Root: tnp18
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that DFDL character classes are not acceptable.
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator07" root="tnp18" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardDecimalSeparator cannot contain WSP</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator08
+        Schema: textNumberPattern
+          Root: tnp19
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
+                separator symbol (.), and that DFDL character entities are acceptable.
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator08" root="tnp19" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5 00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp19>5.0</tnp19>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardDecimalSeparator09
+        Schema: textNumberPattern
+          Root: tnp20
+       Purpose: This test demonstrates that textStandardDecimalSeparator will be ignored when the type isn't
+                decimal, float, or double
+-->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator09" root="tnp20" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp20>5</tnp20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardGroupingSeparator01
+        Schema: textNumberPattern
+          Root: tnp21
+       Purpose: This test demonstrates the textStandardGroupingSeparator property
+-->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator01" root="tnp21" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5,000,000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp21>5000000.0</tnp21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardGroupingSeparator02
+        Schema: textNumberPattern
+          Root: tnp22
+       Purpose: This test demonstrates the textStandardGroupingSeparator property
+-->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator02" root="tnp22" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5:000:000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp22>5000000.0</tnp22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardGroupingSeparator03
+        Schema: textNumberPattern
+          Root: tnp23
+       Purpose: This test shows what happens when the textStandardGroupingSeparator is the same character 
+                as the textStandardDecimalSeparator
+-->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator03" root="tnp23" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5.000.000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp23>5000000</tnp23>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardGroupingSeparator04
+        Schema: textNumberPattern
+          Root: tnp24
+       Purpose: This test demonstrates that the empty string is not acceptable for textStandardGroupingSeparator 
+-->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator04" root="tnp24" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5000000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardGroupingSeparator must not be empty</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardGroupingSeparator05
+        Schema: textNumberPattern
+          Root: tnp25
+       Purpose: This test demonstrates that textStandardGroupingSeparator can be determined by an expression
+-->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator05" root="tnp25" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">,|5,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp25>
+          <grpsep>,</grpsep>
+          <e>5000</e>
+        </tnp25>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textStandardExponentCharacter01
+        Schema: textNumberPattern
+          Root: tnp26
+       Purpose: This test demonstrates the use of textStandardExponentCharacter
+-->
+
+  <tdml:parserTestCase name="textStandardExponentCharacter01" root="tnp26" model="textNumberPattern"
+    description="Section 13.6 - textStandardExponentCharacter - DFDL-13-055R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">2^3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp26>8</tnp26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="textprops">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict" 
+	  textNumberPattern="#,##0.###;-#,##0.###" />
+
+    <xs:element name="dynamic" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="decimalSep" type="xsd:string" />
+		  <xs:element name="groupingSep" type="xsd:string" />
+          <xs:element name="num" type="xsd:double"
+			dfdl:textStandardDecimalSeparator="{ ../ex:decimalSep }"
+			dfdl:textStandardGroupingSeparator="{ ../ex:groupingSep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+	<xs:element name="dynamicExp" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="decimalSep" type="xsd:string" />
+		  <xs:element name="exponentRep" type="xsd:string" />
+          <xs:element name="num" type="xsd:double"
+			dfdl:textNumberPattern="###0.###E00;-###0.###E00"
+			dfdl:textStandardDecimalSeparator="{ ../ex:decimalSep }"
+			dfdl:textStandardExponentRep="{ ../ex:exponentRep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+	
+	<xs:element name="infnan" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+		  <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="NOTANUMBER" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+	
+	<xs:element name="zero" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="double" type="xsd:double" minOccurs="1" maxOccurs="unbounded" dfdl:textStandardZeroRep="ZERO NIL ZILCH 5 0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+	<xs:element name="patternNeg1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="double" type="xsd:double" dfdl:textNumberPattern="#,##0_ERROR_###" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="dynamic" root="dynamic"
+    model="textprops"
+    description="Parse a double with dynamic text number properties">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|^|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dynamic xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <decimalSep>_</decimalSep>
+          <groupingSep>^</groupingSep>
+		  <num>1234567.89</num>
+        </dynamic>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="dynamicNeg1" root="dynamic"
+    model="textprops"
+    description="Dynamically reads an invalid decimal separator">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[%NL;|^|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dynamicNeg2" root="dynamic"
+    model="textprops"
+    description="Dynamically reads an invalid grouping separator">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|%WSP+;|1^234^567_89]]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardGroupingSeparator cannot contain WSP+</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+
+  
+  <tdml:parserTestCase name="dynamicExp" root="dynamicExp"
+    model="textprops"
+    description="Parse a double with dynamic text number properties">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|@|1234567_89@2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dynamicExp xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <decimalSep>_</decimalSep>
+          <exponentRep>@</exponentRep>
+		  <num>1.23456789E8</num>
+        </dynamicExp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="dynamicExpNeg" root="dynamicExp"
+    model="textprops"
+    description="Dynamically reads an invalid exponent representation">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|%ES;|1234567_89@2]]]></tdml:documentPart>
+    </tdml:document>
+
+	<tdml:errors>
+		<tdml:error>Runtime Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
+	</tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="infnan" root="infnan"
+    model="textprops"
+    description="Read infinity and not a number">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[INFINITY|-INFINITY|NOTANUMBER]]]></tdml:documentPart>
+    </tdml:document>
+    
+	<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infnan xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <posinf>INF</posinf>
+          <neginf>-INF</neginf>
+		  <nan>NaN</nan>
+        </infnan>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="zero" root="zero"
+    model="textprops"
+    description="Test zero repreentations">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NIL|ZILCH|ZERO|5|0]]]></tdml:documentPart>
+    </tdml:document>
+    
+	<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <zero xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+          <double>0.0</double>
+        </zero>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="pattern_neg1" root="patternNeg1"
+    model="textprops"
+    description="Bad number pattern">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Doesn't matter]]></tdml:documentPart>
+    </tdml:document>
+	
+	<tdml:errors>
+		<tdml:error>Invalid textNumberPattern: Unquoted special character</tdml:error>
+	</tdml:errors>
+
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
