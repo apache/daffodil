@@ -362,6 +362,30 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e26">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="repeat" type="xs:string" dfdl:terminator="|" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
+            minOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e27">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="outer" minOccurs="3" dfdl:alignment="2" dfdl:leadingSkip="1" dfdl:alignmentUnits="bytes" dfdl:lengthKind="delimited">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|">
+                <xs:element name="inner" type="xs:string" dfdl:initiator="(" dfdl:terminator=")" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
+                  minOccurs="2" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -2876,6 +2900,136 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingArray02
+        Schema: alignmentSchema
+          Root: e26
+       Purpose: This test demonstrates Right and Left Framing on a complex element (array)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingArray02" root="e26"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">aabb</tdml:documentPart>               <!-- leadingSkip (2B) and padding to fulfill alignment -->
+      <!--                              4                 -->
+      <tdml:documentPart type="text">the first string|</tdml:documentPart>   <!-- repeat -->
+      <!--                                          21                -->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+      <!--                              25                -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- separator -->
+      <!--                           26                -->
+      <tdml:documentPart type="text">aa</tdml:documentPart>            <!-- leadingSkip (2B) and padding to fulfill alignment -->
+      <!--                           28                -->
+      <tdml:documentPart type="text">the second string|</tdml:documentPart>  <!-- repeat -->
+      <!--                                            46                -->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+      <!--                             50                 -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- separator -->
+      <!--                           51                -->
+      <tdml:documentPart type="text">aabbb</tdml:documentPart>                <!-- leadingSkip (2B) and padding to fulfill alignment -->
+      <!--                           53  56                   -->
+      <tdml:documentPart type="text">three|</tdml:documentPart>              <!-- repeat -->
+      <!--                                62                -->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+      <!--                              66                           -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- separator -->
+      <!--                           67                -->
+      <tdml:documentPart type="text">aabbb</tdml:documentPart>             <!-- leadingSkip (2B) and padding to fulfill alignment -->
+      <!--                           69  72               -->
+      <tdml:documentPart type="text">4|</tdml:documentPart>                  <!-- repeat -->
+      <!--                            74                -->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+      <!--                              78                -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- separator -->
+      <!--                           79                -->
+      <tdml:documentPart type="text">aabbb</tdml:documentPart>                 <!-- leadingSkip (2B) and padding -->
+      <!--                           81  84               -->
+      <tdml:documentPart type="text">the fifth one is the biggest one|</tdml:documentPart>              <!-- repeat -->
+      <!--                                                           117-->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+      <!--                              121                 -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- separator -->
+      <!--                           122               -->
+      <tdml:documentPart type="text">aa</tdml:documentPart>                <!-- leadingSkip (2B) - no padding needed -->
+      <!--                          124                -->
+      <tdml:documentPart type="text">6 4 fun|</tdml:documentPart>                  <!-- repeat -->
+      <tdml:documentPart type="text">cccc</tdml:documentPart>               <!-- trailingSkip (4B) -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e26>
+          <repeat>the first string</repeat>
+          <repeat>the second string</repeat>
+          <repeat>three</repeat>
+          <repeat>4</repeat>
+          <repeat>the fifth one is the biggest one</repeat>
+          <repeat>6 4 fun</repeat>
+        </e26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: leftAndRightFramingArray03
+        Schema: alignmentSchema
+          Root: e27
+       Purpose: This test demonstrates Right and Left Framing on a complex element (array)
+  -->
+
+  <tdml:parserTestCase name="leftAndRightFramingArray03" root="e27"
+    model="alignmentSchema" description="Section 9 Framing - Aligned Data - DFDL-09-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-=</tdml:documentPart>                 <!-- outer[1] leadingSkip and alignment padding --> 
+      <!--                            2                 -->
+      <tdml:documentPart type="text">--(one)----</tdml:documentPart>        <!-- inner[1] leadingSkip, data, and trailingSkip --> 
+      <!--                                     13       -->
+      <tdml:documentPart type="text">|</tdml:documentPart>                  <!-- inner sep --> 
+      <!--                           14                 -->
+      <tdml:documentPart type="text">--(two)----</tdml:documentPart>        <!-- inner[2] leadingSkip, data, and trailingSkip --> 
+      <!--                                     25       -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- outer sep --> 
+      <!--                           26                 -->
+      <tdml:documentPart type="text">-=</tdml:documentPart>                 <!-- outer[2] leadingSkip and alignment padding --> 
+      <!--                            28                -->
+      <tdml:documentPart type="text">--==(potato)----</tdml:documentPart>   <!-- inner[1] leadingSkip, data, and trailingSkip --> 
+      <!--                                          44  -->
+      <tdml:documentPart type="text">|</tdml:documentPart>                  <!-- inner sep --> 
+      <!--                           45                 -->
+      <tdml:documentPart type="text">--=(potato)----</tdml:documentPart>    <!-- inner[2] leadingSkip, data, and trailingSkip --> 
+      <!--                                         60   -->
+      <tdml:documentPart type="text">,</tdml:documentPart>                  <!-- outer sep --> 
+      <!--                           61                 -->
+      <tdml:documentPart type="text">-</tdml:documentPart>                  <!-- outer[3] leadingSkip and alignment padding --> 
+      <!--                           62                 -->
+      <tdml:documentPart type="text">--(one)----</tdml:documentPart>        <!-- inner[1] leadingSkip, data, and trailingSkip --> 
+      <!--                                     73       -->
+      <tdml:documentPart type="text">|</tdml:documentPart>                  <!-- inner sep --> 
+      <!--                           74                 -->
+      <tdml:documentPart type="text">--(two)----</tdml:documentPart>        <!-- inner[2] leadingSkip, data, and trailingSkip --> 
+      <!--                                     84       -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e27>
+          <outer>
+            <inner>one</inner>
+            <inner>two</inner>
+          </outer>
+          <outer>
+            <inner>potato</inner>
+            <inner>potato</inner>
+          </outer>
+          <outer>
+            <inner>one</inner>
+            <inner>two</inner>
+          </outer>
+        </e27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
