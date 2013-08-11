@@ -1373,6 +1373,54 @@
   </tdml:parserTestCase>
   
   <!--
+     Test Name: implicitAlignmentFloatT2
+        Schema: implicitAlignmentSchema
+          Root: floatT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'float' is encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentFloatT2" root="floatT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">10</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">42.3</tdml:documentPart> <!-- floatT -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floatT>42.3</floatT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: implicitAlignmentFloatT_Fail
+        Schema: implicitAlignmentSchema
+          Root: floatT
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'float' is encoding-specific (generally 8 bits) and will fail with improper alignment.
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentFloatT_Fail" root="floatT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (text) - DFDL-12-015R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- floatT -->
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Float (for xs:float)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+      <tdml:error>(using up all characters).</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
      Test Name: implicitAlignmentFloat
         Schema: implicitAlignmentSchema
           Root: float
