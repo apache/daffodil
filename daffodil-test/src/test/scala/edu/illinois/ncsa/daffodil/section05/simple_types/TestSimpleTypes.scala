@@ -446,4 +446,12 @@ class TestSimpleTypes {
   @Test def test_float_text3() { runner.runOneTest("float_text3") }
   @Test def test_float_text_fail() { runner.runOneTest("float_text_fail") }
   @Test def test_characterDuringValidFloat() { runner.runOneTest("characterDuringValidFloat") }
+  @Test def test_float_binary_01() { runner.runOneTest("float_binary_01") }
+  @Test def test_float_binary_02() { runner.runOneTest("float_binary_02") }
+  @Test def test_float_binary_03() { runner.runOneTest("float_binary_03") }
+  @Test def test_float_binary_04() { runner.runOneTest("float_binary_04") }
+  @Test def test_float_binary_05() { runner.runOneTest("float_binary_05") }
+  @Test def test_float_binary_fail_01() { runner.runOneTest("float_binary_fail_01") }
+  @Test def test_float_binary_fail_02() { runner.runOneTest("float_binary_fail_02") }
+  @Test def test_float_binary_fail_03() { runner.runOneTest("float_binary_fail_03") }
 }

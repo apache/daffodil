@@ -194,6 +194,11 @@
     <xs:element name="dec_implicit" type="xs:decimal" dfdl:binaryDecimalVirtualPoint="0" />
     <xs:element name="hb_01" type="xs:hexBinary" 
     dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="float_01" type="xs:float" />
+    <xs:element name="float_02" type="xs:float"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4" />
+    <xs:element name="float_03" type="xs:float"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="8" />
   </tdml:defineSchema>
   
   <tdml:parserTestCase name="TestUnsignedInt" root="Day"
@@ -1824,7 +1829,7 @@
   <!--
     Test name: double_binary_03
     Schema: SimpleTypes-binary
-    Purpose: This document has the appropriate number of bytes for an implicitly-sized double (4) and should be parsed accordingly
+    Purpose: This document has the appropriate number of bytes for an implicitly-sized double (8) and should be parsed accordingly
   -->
   
   <tdml:parserTestCase name="double_binary_03" root="d_01"
@@ -2035,6 +2040,146 @@
     <tdml:errors>
       <tdml:error>Parse Error: Convert to Float (for xs:float)</tdml:error>
       <tdml:error>Unable to parse '9a99'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_01
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bits for an implicitly-sized float (32) and should be parsed accordingly
+  -->
+
+  <tdml:parserTestCase name="float_binary_01" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="bits">01000000 10100000 00000000 00000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float_01>5.0</float_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bytes for an implicitly-sized float (4) and should be parsed accordingly
+  -->
+
+  <tdml:parserTestCase name="float_binary_02" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="byte">40A00000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float_01>5.0</float_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bits for an implicitly-sized float (32) but does not actually have a numerical value. 
+  -->
+
+  <tdml:parserTestCase name="float_binary_03" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="bits">11111111111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float_01>NaN</float_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_04
+    Schema: SimpleTypes-binary
+    Purpose: This document has the appropriate number of bytes for the explicit length and should be parsed accordingly
+  -->
+
+  <tdml:parserTestCase name="float_binary_04" root="float_02"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="byte">60D629D4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float_02>1.2345679E20</float_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_05
+    Schema: SimpleTypes-binary
+    Purpose: This document contains a negative number
+  -->
+
+  <tdml:parserTestCase name="float_binary_05" root="float_02"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="byte">C0A00000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float_02>-5.0</float_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_fail_01
+    Schema: SimpleTypes-binary
+    Purpose: This document does not have the appropriate number of bits for an implicitly-sized float (32) and should fail parsing 
+  -->
+
+  <tdml:parserTestCase name="float_binary_fail_01" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="bits"><![CDATA[1010101]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Insufficient bits</tdml:error>
+      <tdml:error>xs:float</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_fail_02
+    Schema: SimpleTypes-binary
+    Purpose: This document has more than the appropriate number of bits for an implicitly-sized float (32) and should fail parsing 
+  -->
+
+  <tdml:parserTestCase name="float_binary_fail_02" root="float_01"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="bits">10011111111111111000000001111111111111111111111111</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Left over data</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: float_binary_fail_03
+    Schema: SimpleTypes-binary
+    Purpose: This document has an invalid explicit length and should fail
+  -->
+
+  <tdml:parserTestCase name="float_binary_fail_03" root="float_03"
+      model="SimpleTypes-binary" description="Section 5 Simple types-float - DFDL-5-008R">
+    <tdml:document>
+      <tdml:documentPart type="byte">4375EE2A00000000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>binary xs:float must be 32 bits. Length in bits was 64</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
