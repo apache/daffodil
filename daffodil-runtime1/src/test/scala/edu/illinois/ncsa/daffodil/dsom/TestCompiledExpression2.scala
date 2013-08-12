@@ -70,14 +70,14 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(testSchema)
+    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, null)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
@@ -114,7 +114,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(testSchema)
+    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     //
@@ -127,7 +127,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
 
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, null)
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, Fakes.fakeDP)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
     val rootns = root.namespace
@@ -156,19 +156,19 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(testSchema)
+    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, null)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
     context = edecl
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0, null)
+    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0, Fakes.fakeDP)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
         val R(res, _) = compiled.evaluate(root, new VariableMap(), dummyState)

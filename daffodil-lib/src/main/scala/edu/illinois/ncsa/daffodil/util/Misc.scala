@@ -266,4 +266,15 @@ object Misc {
     using(writer) { body(_) }
   }
 
+  /**
+   * Detects the encoding of the File for us.
+   */
+  def determineEncoding(theFile: File): String = {
+    val encH = scala.xml.include.sax.EncodingHeuristics
+    val is = new java.io.FileInputStream(theFile)
+    val bis = new java.io.BufferedInputStream(is)
+    val enc = encH.readEncodingFromStream(bis)
+    enc
+  }
+
 }

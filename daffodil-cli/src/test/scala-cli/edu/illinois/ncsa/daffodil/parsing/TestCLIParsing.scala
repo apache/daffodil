@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.CLI.parsing
+package edu.illinois.ncsa.daffodil.parsing
 
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -55,6 +55,20 @@ class TestCLIparsing {
   val output8 = Util.getExpectedString("output8.txt")
   val output9 = Util.getExpectedString("output9.txt")
   val output10 = Util.getExpectedString("output10.txt")
+  val output11 = Util.getExpectedString("output11.txt")
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_stdOut_extVars() {
+
+    //var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
+    var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -D\"{http://example.com}var1=99\" -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
+
+    val shell = Util.start(cmd)
+
+    shell.expect(output11)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
 
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
@@ -319,17 +333,17 @@ class TestCLIparsing {
     shell.expectClose()
   }
   /**
-   * Validation Error: src-resolve.4.2: Error resolving component 'a08:aElem'. 
-   * It was detected that 'a08:aElem' is in namespace 'http://a08.com', but 
-   * components from this namespace are not referenceable from schema document 
+   * Validation Error: src-resolve.4.2: Error resolving component 'a08:aElem'.
+   * It was detected that 'a08:aElem' is in namespace 'http://a08.com', but
+   * components from this namespace are not referenceable from schema document
    * 'file:/home/developer/GIT/daffodil/daffodil-test/src/test/resources/edu/
-   * illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd'. 
-   * If this is the incorrect namespace, perhaps the prefix of 'a08:aElem' 
-   * needs to be changed. If this is the correct namespace, then an appropriate 
+   * illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd'.
+   * If this is the incorrect namespace, perhaps the prefix of 'a08:aElem'
+   * needs to be changed. If this is the correct namespace, then an appropriate
    * 'import' tag should be added to 'file:/home/developer/GIT/daffodil/
    * daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/
    * namespaces/multi_base_08.dfdl.xsd'.
-   * 
+   *
    */
   @Test def test_1267_CLI_Parsing_MultifileSchema_basicTest_validationOn() {
     val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd -V on\n"
@@ -381,7 +395,7 @@ class TestCLIparsing {
     shell.send("exit\n")
     shell.expectClose()
   }
-  
+
   @Test def test_1971_CLI_Parsing_traceMode01() {
     val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
     val shell = Util.start(cmd)
@@ -391,7 +405,7 @@ class TestCLIparsing {
     shell.expectClose()
     assert(shell.getExitValue() == 0)
   }
-  
+
   @Test def test_1972_CLI_Parsing_traceMode02() {
     val cmd = "echo random,data,should,work| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
     val shell = Util.start(cmd)
@@ -401,7 +415,7 @@ class TestCLIparsing {
     shell.expectClose()
     assert(shell.getExitValue() == 0)
   }
-  
+
   @Test def test_1973_CLI_Parsing_traceMode03() {
     val cmd = "echo 0,1,2,3,,,,| ./daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
     val shell = Util.start(cmd)

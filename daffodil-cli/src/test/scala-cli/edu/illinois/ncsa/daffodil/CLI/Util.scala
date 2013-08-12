@@ -40,14 +40,17 @@ import expectj.Spawn
 
 object Util {
 
-  val testDir = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
+  //val testDir = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
+  val testDir = "/edu/illinois/ncsa/daffodil/CLI/"
   val outputDir = testDir + "output/"
 
   val ex = new ExpectJ(30);
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
   def getExpectedString(filename: String): String = {
-    val source = scala.io.Source.fromFile(outputDir + filename)
+    val rsrc = Misc.getRequiredResource(outputDir + filename)
+    //val source = scala.io.Source.fromFile(outputDir + filename)
+    val source = scala.io.Source.fromFile(rsrc)
     var lines = source.mkString.trim()
     source.close()
     if (isWindows) {

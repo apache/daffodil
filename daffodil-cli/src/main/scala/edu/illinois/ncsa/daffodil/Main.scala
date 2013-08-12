@@ -55,6 +55,9 @@ import edu.illinois.ncsa.daffodil.exceptions.NotYetImplementedException
 import java.io.File
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.api.ValidationMode
+import scala.xml.Node
+import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -180,7 +183,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val parse = new scallop.Subcommand("parse") {
     banner("""|Usage: daffodil parse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
               |                       -P <parser>)
-              |                      [-D<variable>=<value>...] [-o <output>]
+              |                      [-D[{namespace}]<variable>=<value>...] [-o <output>]
               |                      [-V <validationMode>] [infile]
               |
               |Parse a file, using either a DFDL schema or a saved parser
@@ -196,7 +199,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An option namespace may be provided.")
+    val configFilePath = opt[String](short = 'c', argName = "config", descr = "path to file containing configuration items.")
     val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
@@ -219,7 +223,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val unparse = new scallop.Subcommand("unparse") {
     banner("""|Usage: daffodil unparse (-s <schema>... [-r <root> [-n <namespace>]] [-p <path>] |
               |                         -P <parser>)
-              |                        [-D<variable>=<value>...] [-o <output>]
+              |                        [-D[{namespace}]<variable>=<value>...] [-o <output>]
               |                        [-V <validationMode>] [infile]
               |
               |Unparse an infoset file, using either a DFDL schema or a saved paser
@@ -235,7 +239,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
+    val configFilePath = opt[String](short = 'c', argName = "config", descr = "path to file containing configuration items.")
     val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
@@ -250,6 +255,16 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some(_ :: _), None, None, Some(_)) => Left("--root must be defined if --namespace is defined")
       case (None, Some(_), Some(_), _) => Left("--root cannot be defined with --parser")
       case (None, Some(_), _, Some(_)) => Left("--namespace cannot be defined with --parser")
+      case _ => Right(Unit)
+    }
+
+    validateOpt(configFilePath) {
+      case Some(path) => {
+        val fin = new File(path)
+        if (!fin.exists) Left("--config file does not exist.")
+        else if (!fin.canRead) Left("--config file could not be read.")
+        else Right(Unit)
+      }
       case _ => Right(Unit)
     }
   }
@@ -273,6 +288,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val validationMode = opt[String](short = 'V', argName = "validationMode", descr = "the validation mode. 'on', 'limited' or 'off'")
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
+    val configFilePath = opt[String](short = 'c', argName = "config", descr = "path to file containing configuration items.")
 
     validateOpt(schemas, root, namespace, outfile) {
       case (Some(Nil), _, _, _) => Left("No schemas specified using the --schema option")
@@ -327,14 +343,44 @@ object Main extends Logging {
     } else None
   }
 
+  def loadExternalVariablesFile(pathName: String) = {
+    val fin = new File(pathName)
+    val node = ExternalVariablesLoader.getVariablesFileAsBindings(fin)
+    node
+  }
+
+  def overrideBindings(bindings: Seq[Binding], bindingsToOverride: Seq[Binding]) = {
+    val inBoth = bindings.intersect(bindingsToOverride).distinct
+    val bindingsMinusBoth = bindings.diff(inBoth)
+    val bindingsToOverrideMinusBoth = bindingsToOverride.diff(inBoth)
+    val bindingsWithCorrectValues = bindings.filter(b => inBoth.exists(p => b.hashCode == p.hashCode))
+
+    val bindingsMinusUpdates = bindingsMinusBoth.union(bindingsToOverrideMinusBoth)
+    val bindingsWithUpdates = bindingsMinusUpdates.union(bindingsWithCorrectValues)
+
+    bindingsWithUpdates
+  }
+
+  def retrieveExternalVariables(vars: Map[String, String], varsFilePath: Option[String]): Seq[Binding] = {
+    val individualVars = ExternalVariablesLoader.createBindings(vars)
+    val fileVars = varsFilePath match {
+      case None => Seq.empty
+      case Some(filePath) => loadExternalVariablesFile(filePath)
+    }
+
+    val bindings = overrideBindings(individualVars, fileVars)
+    bindings
+  }
+
   def createProcessorFromSchemas(schemaFiles: List[File], root: Option[String],
     namespace: Option[String], path: Option[String], vars: Map[String, String],
+    extVarsFile: Seq[Binding],
     mode: ValidationMode.Type) = {
     val compiler = Compiler()
 
     val ns = namespace.getOrElse(null)
 
-    vars foreach { case (key, value) => compiler.setExternalDFDLVariable(key, ns, value) }
+    //vars foreach { case (key, value) => compiler.setExternalDFDLVariable(key, ns, value) }
 
     root match {
       case Some(r) => {
@@ -350,7 +396,7 @@ object Main extends Logging {
     // of compilation, where it asks for the parser)
     //
     val pf = Timer.getResult("compiling", {
-      val processorFactory = compiler.compile(schemaFiles: _*)
+      val processorFactory = compiler.compile(extVarsFile, schemaFiles: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
         processor.setValidationMode(mode)
@@ -413,13 +459,14 @@ object Main extends Logging {
 
           } else ValidationMode.Off
 
+        val extVarsBindings = retrieveExternalVariables(parseOpts.vars, parseOpts.configFilePath.get)
+
         val processor = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validationMode)
           } else {
             val files: List[File] = parseOpts.schemas().map(s => new File(s))
-
-            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars, validationMode)
+            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars, extVarsBindings, validationMode)
           }
         }
 
@@ -485,6 +532,7 @@ object Main extends Logging {
               if (hasLeftOverData) 1 else 0
             }
           }
+          case Some(processor) => 1
           case None => 1
         }
         rc
@@ -508,12 +556,14 @@ object Main extends Logging {
 
           } else ValidationMode.Off
 
+        val extVarsFileNode = retrieveExternalVariables(unparseOpts.vars, unparseOpts.configFilePath.get)
+
         val processor = {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validationMode)
           } else {
             val files: List[File] = unparseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars, validationMode)
+            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars, extVarsFileNode, validationMode)
           }
         }
 
@@ -562,7 +612,9 @@ object Main extends Logging {
 
         } else ValidationMode.Off
 
-        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars, validationMode)
+        val extVarsFileNode = retrieveExternalVariables(saveOpts.vars, saveOpts.configFilePath.get)
+
+        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars, extVarsFileNode, validationMode)
 
         val output = saveOpts.outfile.get match {
           case Some("-") | None => System.out

@@ -52,6 +52,13 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.api.DFDL.{ Input, Output, DataProcessor, ParseResult, UnparseResult }
+import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
+import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.externalvars.Binding
+import java.io.File
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -1224,6 +1231,24 @@ object Fakes {
   lazy val fakeSequence = fakeCT.modelGroup.asInstanceOf[Sequence]
   lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
   lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
+
+  class FakeDataProcessor extends DataProcessor {
+    def setValidationMode(mode: ValidationMode.Type): Unit = {}
+    def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
+    def save(output: Output): Unit = {}
+    def setExternalVariables(extVars: Map[String, String]): Unit = {}
+    def setExternalVariables(extVars: Seq[Binding]): Unit = {}
+    def setExternalVariables(extVars: File): Unit = {}
+    def getVariables(): VariableMap = EmptyVariableMap
+    def unparse(output: Output, node: scala.xml.Node): UnparseResult = null
+    def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
+
+    def getDiagnostics: Seq[Diagnostic] = Seq.empty
+    //final lazy val canProceed: Boolean = !isError
+    def isError: Boolean = false
+  }
+
+  lazy val fakeDP = new FakeDataProcessor
 
 }
 

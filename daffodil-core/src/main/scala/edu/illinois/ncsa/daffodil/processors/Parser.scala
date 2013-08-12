@@ -61,6 +61,7 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL.DataProcessor
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -705,7 +706,7 @@ object PState {
 
     val dataProcessor = dataProc
     val doc = Infoset.newDocument()
-    val variables = rootElemDecl.schemaDocument.schemaSet.variableMap
+    val variables = dataProc.getVariables
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val status = Success
     val groupIndexStack = Nil

@@ -52,6 +52,8 @@ import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -128,6 +130,15 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
     Assert.notYetImplemented()
   }
 
+  def setExternalDFDLVariables(source: Any): Unit = {
+    // Chicken before egg?  Don't we need the VariableMap
+    // in order to set the external variables?
+    //
+    // But the VariableMap isn't constructed until after
+    // the creation of the SchemaSet.
+    Assert.notYetImplemented
+  }
+
   /**
    * Controls whether we check everything in the schema, or just the element
    * we care about (and everything reachable from it.)
@@ -144,8 +155,8 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
   /*
    * for unit testing of front end
    */
-  def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    val (sset, pf) = compileInternal(xml)
+  def frontEnd(xml: Node, extVarsSrc: Seq[Binding] = Seq.empty): (SchemaSet, GlobalElementDecl) = {
+    val (sset, pf) = compileInternal(extVarsSrc, xml)
     val ge = pf.rootElem
     (sset, ge)
   }
@@ -161,14 +172,14 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
    * This method exposes both the schema set and processor factory as results because
    * our tests often want to do things on the schema set.
    */
-  def compileInternal(schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
+  def compileInternal(externalVariablesSource: Seq[Binding] = Seq.empty, schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
     ExecutionMode.usingCompilerMode {
       Assert.usage(schemaFiles.length >= 1)
 
       val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
       if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
 
-      val sset = new SchemaSet(PrimitiveFactory, schemaFiles, rootSpec, checkAllTopLevel)
+      val sset = new SchemaSet(externalVariablesSource, PrimitiveFactory, schemaFiles, rootSpec, checkAllTopLevel)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
@@ -195,19 +206,19 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
   /**
    * Just hides the schema set, and returns the processor factory only.
    */
-  def compile(files: File*): DFDL.ProcessorFactory = compileInternal(files)._2
+  def compile(extVarsSrc: Seq[Binding], files: File*): DFDL.ProcessorFactory = compileInternal(extVarsSrc, files)._2
   //def compile(fNames: String*): DFDL.ProcessorFactory = compileInternal(fNames)._2
 
   /**
    * For convenient unit testing allow a literal XML node.
    */
-  def compile(xml: Node) = {
-    compileInternal(xml)._2
+  def compile(extVarsSrc: Seq[Binding] = Seq.empty, xml: Node) = {
+    compileInternal(extVarsSrc, xml)._2
   }
 
-  def compileInternal(xml: Node): (SchemaSet, ProcessorFactory) = {
+  def compileInternal(extVarsSrc: Seq[Binding], xml: Node): (SchemaSet, ProcessorFactory) = {
     val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
-    compileInternal(List(tempSchemaFile))
+    compileInternal(extVarsSrc, List(tempSchemaFile))
   }
 
 }

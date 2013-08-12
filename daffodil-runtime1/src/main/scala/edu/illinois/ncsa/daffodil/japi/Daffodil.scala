@@ -44,9 +44,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-
 import scala.collection.JavaConversions.seqAsJavaList
-
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
@@ -63,6 +61,10 @@ import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
 import edu.illinois.ncsa.daffodil.util.{ LoggingDefaults => SLoggingDefaults }
 import edu.illinois.ncsa.daffodil.util.{ NullLogWriter => SNullLogWriter }
 import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
+import edu.illinois.ncsa.daffodil.processors.{ VariableMap => SVariableMap }
+import scala.xml.Node
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 /**
  * API Suitable for Java programmers to use.
@@ -105,8 +107,22 @@ class Compiler {
   private val sCompiler = SCompiler()
 
   @throws(classOf[java.io.IOException])
+  def compile(extVars: Map[String, String], schemaFiles: Array[File]): ProcessorFactory = {
+    val extVarsNode = ExternalVariablesLoader.getVariablesAsBindings(extVars)
+    val (_, pf) = sCompiler.compileInternal(extVarsNode, schemaFiles.toSeq)
+    new ProcessorFactory(pf)
+  }
+
+  @throws(classOf[java.io.IOException])
+  def compile(extVars: File, schemaFiles: Array[File]): ProcessorFactory = {
+    val extVarsNode = ExternalVariablesLoader.getVariablesFileAsBindings(extVars)
+    val (_, pf) = sCompiler.compileInternal(extVarsNode, schemaFiles.toSeq)
+    new ProcessorFactory(pf)
+  }
+
+  @throws(classOf[java.io.IOException])
   def compile(schemaFiles: Array[File]): ProcessorFactory = {
-    val (_, pf) = sCompiler.compileInternal(schemaFiles.toSeq)
+    val (_, pf) = sCompiler.compileInternal(Seq.empty, schemaFiles.toSeq)
     new ProcessorFactory(pf)
   }
 
@@ -190,7 +206,12 @@ class DataProcessor(dp: SDataProcessor)
 
   def setValidationMode(mode: ValidationMode): Unit = dp.setValidationMode(SValidationMode.fromJava(mode))
   def getValidationMode(): ValidationMode = SValidationMode.forJava(dp.getValidationMode)
-  
+
+  def setExternalVariables(extVars: File): Unit = dp.setExternalVariables(extVars)
+  def setExternalVariables(extVars: Seq[Binding]) = dp.setExternalVariables(extVars)
+  def setExternalVariables(extVars: Map[String, String]) = dp.setExternalVariables(extVars)
+  def getVariables(): SVariableMap = dp.getVariables
+
   def save(output: WritableByteChannel): Unit = dp.save(output)
 
   /**
@@ -244,7 +265,7 @@ abstract class LogWriter {
   def log(level: LogLevel, logID: String, msg: String, args: java.util.List[Any]): Unit = {
     val message =
       if (args.size > 0) {
-        msg.format(args:_*)
+        msg.format(args: _*)
       } else {
         msg
       }

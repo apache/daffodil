@@ -73,6 +73,8 @@ import edu.illinois.ncsa.daffodil.Tak
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -337,6 +339,10 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
+  val externalVars: Seq[Binding] = toOpt(ptc \ "externalVariableBindings") match {
+    case None => Seq.empty
+    case Some(node) => ExternalVariablesLoader.getVariablesNodeAsBindings(node)
+  }
   val document = toOpt(ptc \ "document").map { node => new Document(node, this) }
   val infoset = toOpt(ptc \ "infoset").map { node => new Infoset(node, this) }
   val errors = toOpt(ptc \ "errors").map { node => new ExpectedErrors(node, this) }
@@ -397,8 +403,8 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     val pf = sch match {
-      case node: Node => compiler.compile(node)
-      case theFile: File => compiler.compile(theFile)
+      case node: Node => compiler.compile(externalVars, node)
+      case theFile: File => compiler.compile(externalVars, theFile)
       case _ => Assert.invariantFailed("can only be Node or File") //Assert.invariantFailed("can only be Node or String")
     }
     val data = document.map { _.data }

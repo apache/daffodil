@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:sub="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData">
+
+	<element name="externalVariableBindings" type="tns:externalVarType" minOccurs="1" maxOccurs="1"/>
+	<complexType name="externalVarType">
+		<sequence>
+			<element ref="tns:bind" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<element name="bind" type="tns:bindType" />
+
+	<simpleType name="bindNameType">
+		<restriction base="xs:string" />
+	</simpleType>
+	<complexType name="bindType">
+		<simpleContent>
+			<extension base="tns:bindNameType">
+				<attribute name="name" use="required">
+					<simpleType>
+						<restriction base="xs:string" />
+					</simpleType>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
+</xsd:schema>

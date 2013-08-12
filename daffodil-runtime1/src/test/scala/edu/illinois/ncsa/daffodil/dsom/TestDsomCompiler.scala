@@ -6,7 +6,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ YesNo, TextNumberRep, SeparatorPosition, Representation, OccursCountKind, NilKind, LengthKind, ChoiceLengthKind, ByteOrder, BinaryNumberRep, AlignmentUnits }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
-import edu.illinois.ncsa.daffodil.util.{Misc, Logging}
+import edu.illinois.ncsa.daffodil.util.{ Misc, Logging }
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 import edu.illinois.ncsa.daffodil.api.Diagnostic
@@ -80,7 +80,7 @@ class TestDsomCompiler extends Logging {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
-    val (_, pf) = Compiler().compileInternal(sch)
+    val (_, pf) = Compiler().compileInternal(Seq.empty, sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
@@ -94,7 +94,7 @@ class TestDsomCompiler extends Logging {
                         <sequence/>
                       </complexType>
                     </schema>
-    val (_, pf) = Compiler().compileInternal(sch)
+    val (_, pf) = Compiler().compileInternal(Seq.empty, sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     println(msg)

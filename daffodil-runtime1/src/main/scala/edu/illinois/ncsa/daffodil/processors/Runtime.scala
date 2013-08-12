@@ -24,6 +24,10 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import org.xml.sax.SAXException
 import edu.illinois.ncsa.daffodil.util.ValidationException
 import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import scala.xml.Node
+import java.io.File
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -45,9 +49,23 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   with DFDL.DataProcessor {
 
   private var validationMode: ValidationMode.Type = ValidationMode.Off
+  private var variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
   def getValidationMode() = validationMode
+
+  def setExternalVariables(extVars: Map[String, String]): Unit = {
+    val bindings = ExternalVariablesLoader.getVariablesAsBindings(extVars)
+    ExternalVariablesLoader.loadVariablesByBinding(bindings, this, variables)
+    variables = ExternalVariablesLoader.loadVariablesByMap(extVars, this, variables)
+  }
+  def setExternalVariables(extVars: File): Unit = {
+    variables = ExternalVariablesLoader.loadVariablesByFile(extVars, this, variables)
+  }
+  def setExternalVariables(extVars: Seq[Binding]): Unit = {
+    variables = ExternalVariablesLoader.loadVariablesByBinding(extVars, this, variables)
+  }
+  def getVariables = variables
 
   def minMajorJVersion = 1
   def minMinorJVersion = 7

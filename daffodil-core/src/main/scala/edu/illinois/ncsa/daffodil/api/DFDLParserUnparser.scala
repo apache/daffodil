@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -118,9 +120,9 @@ object DFDL {
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compile(schema: Node): ProcessorFactory
+    def compile(extVarsSrc: Seq[Binding], schema: Node): ProcessorFactory
 
-    def compile(schemaFiles: File*): ProcessorFactory
+    def compile(extVarsSrc: Seq[Binding], schemaFiles: File*): ProcessorFactory
 
     def reload(fileName: String): ProcessorFactory
   }
@@ -155,6 +157,10 @@ object DFDL {
     def setValidationMode(mode: ValidationMode.Type): Unit
     def getValidationMode(): ValidationMode.Type
     def save(output: Output): Unit
+    def setExternalVariables(extVars: Map[String,String]): Unit
+    def setExternalVariables(extVars: File): Unit
+    def setExternalVariables(extVars: Seq[Binding]): Unit
+    def getVariables(): VariableMap
 
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.

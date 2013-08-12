@@ -80,6 +80,10 @@ import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Found
+import edu.illinois.ncsa.daffodil.externalvars.Binding
+import util.control.Breaks._
+import scala.collection.mutable.Queue
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 sealed abstract class VariableState
 
@@ -189,6 +193,10 @@ object EmptyVariableMap extends VariableMap()
 class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map.empty)
   extends WithParseErrorThrowing {
 
+  override def toString(): String = {
+    "VariableMap(" + variables.mkString(" | ") + ")"
+  }
+
   var currentPState: Option[PState] = None
 
   lazy val context = Assert.invariantFailed("unused.")
@@ -197,6 +205,17 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
     val newMap = variables + ((newVar.defv.extName, (newVar :: firstTier) :: enclosingScopes))
     new VariableMap(newMap)
   }
+
+  /**
+   * Convenient method of updating the entry of the Variable and returning a new VMap.
+   */
+  private def mkVMap(expandedName: String, updatedFirstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
+    val updatableMap = scala.collection.mutable.Map(variables.toSeq: _*)
+    updatableMap(expandedName) = updatedFirstTier :: enclosingScopes
+    new VariableMap(updatableMap.toMap)
+  }
+
+  def getVariables() = variables
 
   /**
    * Returns the value of a variable, constructing also a modified variable map which
@@ -282,6 +301,58 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
     }
   }
 
+  /**
+   * Assigns a variable, returning a new VariableMap which shows the state of the variable.
+   */
+  def setExtVariable(expandedName: String, newValue: Any, referringContext: ThrowsSDE): VariableMap = {
+    variables.get(expandedName) match {
+
+      case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)
+
+      // There should always be a list with at least one tier in it (the global tier).
+      case x @ Some(firstTier :: enclosingScopes) => {
+        firstTier match {
+
+          case Variable(VariableDefined, Some(v), ctxt) :: rest if ctxt.external => {
+            val newVar = Variable(VariableDefined, Some(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+            val newFirstTier = newVar :: rest
+            mkVMap(expandedName, newFirstTier, enclosingScopes)
+          }
+          case Variable(VariableDefined, Some(v), ctxt) :: rest => {
+            referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.extName, VariableDefined, v)
+            this // Unaltered VMap
+          }
+
+          case Variable(VariableUndefined, None, ctxt) :: rest if ctxt.external => {
+            val newVar = Variable(VariableDefined, Some(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+            val newFirstTier = newVar :: rest
+            mkVMap(expandedName, newFirstTier, enclosingScopes)
+          }
+
+          case Variable(VariableUndefined, None, ctxt) :: rest => {
+            referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s.", ctxt.extName, VariableUndefined)
+            this // Unaltered VMap
+          }
+
+          case Variable(VariableSet, Some(v), ctxt) :: rest => {
+            // Shouldn't this be an impossible case? External variables should be defined before parsing.
+            // Parsing is the only point at which Set can be called?
+            referringContext.SDEButContinue("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v)
+            this // Unaltered VMap
+          }
+
+          case Variable(VariableRead, Some(v), ctxt) :: rest => {
+            referringContext.SDEButContinue("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v)
+            this // Unaltered VMap
+          }
+
+          case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)
+        }
+      }
+      case x => Assert.invariantFailed("variables data structure not as expected. Should not be " + x)
+    }
+  }
+
 }
 
 object VariableMap {
@@ -290,5 +361,11 @@ object VariableMap {
     val hmap = pairs.toMap
     val vmap = new VariableMap(hmap)
     vmap
+  }
+
+  def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
+    var newVMap = currentVMap
+    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.extName, b.varValue, referringContext))
+    newVMap
   }
 }

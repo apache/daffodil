@@ -1,204 +1,225 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:sub="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
+	xmlns:sub="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
+	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
+	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
 
-  <xsd:import namespace="http://www.w3.org/2001/XMLSchema"/>
-  <xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-    schemaLocation="DFDL_model_all_parts.xsd" />
+	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+		schemaLocation="DFDL_model_all_parts.xsd" />
 
-  <!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
+	<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 
-  <!-- IBM uses this namespace http://www.ibm.com/xmlns/dfdl/testData -->
+	<!-- IBM uses this namespace http://www.ibm.com/xmlns/dfdl/testData -->
 
-  <element name="testSuite">
-    <complexType>
-      <sequence>
-        <choice maxOccurs="unbounded" minOccurs="0">
-          <element ref="tns:parserTestCase" />
-          <!-- This is an extension to the IBM TDML language. We allow schemas
-            to be directly embedded inside the TDML file. A TDML file that 
-            contains all
-            the schemas it needs is a "self contained" TDML file. -->
-          <element ref="tns:defineSchema" minOccurs="0" />
+	<element name="testSuite">
+		<complexType>
+			<sequence>
+				<choice maxOccurs="unbounded" minOccurs="0">
+					<element ref="tns:parserTestCase" />
+					<!-- This is an extension to the IBM TDML language. We allow schemas 
+						to be directly embedded inside the TDML file. A TDML file that contains all 
+						the schemas it needs is a "self contained" TDML file. -->
+					<element ref="tns:defineSchema" minOccurs="0" />
 
-          <element ref="tns:serializerTestCase" />
-        </choice>
-      </sequence>
-      <attribute name="suiteName" type="xs:token" use="optional" />
-      <attribute name="ID" type="xs:token" use="optional" />
-      <attribute name="description" type="xs:string" use="optional" />
-    </complexType>
-    <unique name="unique-parserTestCase-name">
-      <selector xpath="parserTestCase" />
-      <field xpath="@name" />
-    </unique>
-    <unique name="unique-serializerTestCase-name">
-      <selector xpath="serializerTestCase" />
-      <field xpath="@name" />
-    </unique>
-    <unique name="unique-embeddedSchema-name">
-      <selector xpath="defineSchema" />
-      <field xpath="@name" />
-    </unique>
-  </element>
+					<element ref="tns:serializerTestCase" />
+				</choice>
+			</sequence>
+			<attribute name="suiteName" type="xs:token" use="optional" />
+			<attribute name="ID" type="xs:token" use="optional" />
+			<attribute name="description" type="xs:string" use="optional" />
+		</complexType>
+		<unique name="unique-parserTestCase-name">
+			<selector xpath="parserTestCase" />
+			<field xpath="@name" />
+		</unique>
+		<unique name="unique-serializerTestCase-name">
+			<selector xpath="serializerTestCase" />
+			<field xpath="@name" />
+		</unique>
+		<unique name="unique-embeddedSchema-name">
+			<selector xpath="defineSchema" />
+			<field xpath="@name" />
+		</unique>
+	</element>
 
-  <!-- We want to allow an xsd:schema to be named and directly embedded in 
-    the TDML
-    thereby allowing a fully-self-contained single file test case as an exchange
-    medium for tests.
-  -->
+	<!-- We want to allow an xsd:schema to be named and directly embedded in 
+		the TDML thereby allowing a fully-self-contained single file test case as 
+		an exchange medium for tests. -->
 
-  <element name="defineSchema" type="tns:defineSchemaType" />
-  <complexType name="defineSchemaType">
-    <choice maxOccurs='unbounded'>
-      <element ref='dfdl:format' />
-      <element ref='dfdl:defineVariable' />
-      <element ref='dfdl:defineEscapeScheme' />
-      <element ref='dfdl:defineFormat' />
-      <element ref='xs:element' />
-      <element ref='xs:complexType' />
-      <element ref='xs:group' />
-      <element ref='xs:simpleType' /> 
-      <element ref='xs:include' />
-      <element ref='xs:import' />
-      <!-- <any namespace="##other" processContents="lax"/> -->
-    </choice>
-    <attribute name="name" type="xs:NCName" use="required" />
-  </complexType>
+	<element name="defineSchema" type="tns:defineSchemaType" />
+	<complexType name="defineSchemaType">
+		<choice maxOccurs='unbounded'>
+			<element ref='dfdl:format' />
+			<element ref='dfdl:defineVariable' />
+			<element ref='dfdl:defineEscapeScheme' />
+			<element ref='dfdl:defineFormat' />
+			<element ref='xs:element' />
+			<element ref='xs:complexType' />
+			<element ref='xs:group' />
+			<element ref='xs:simpleType' />
+			<element ref='xs:include' />
+			<element ref='xs:import' />
+			<!-- <any namespace="##other" processContents="lax"/> -->
+		</choice>
+		<attribute name="name" type="xs:NCName" use="required" />
+	</complexType>
 
 
-  <element name="parserTestCase" type="tns:parserTestCaseType" />
-  <complexType name="parserTestCaseType">
-    <sequence>
-      <element ref="tns:document" />
-      <choice>
-        <element ref="tns:infoset" />
-        <element ref="tns:errors" />
-      </choice>
-      <element ref="tns:warnings" minOccurs='0' />
-      <element ref="tns:validationErrors" minOccurs="0" />
-    </sequence>
-    <attributeGroup ref="tns:testCaseAttribs" />
-  </complexType>
+	<element name="parserTestCase" type="tns:parserTestCaseType" />
+	<complexType name="parserTestCaseType">
+		<sequence>
+			<element ref="tns:externalVariableBindings" minOccurs="0"
+				maxOccurs="1" />
+			<element ref="tns:document" />
+			<choice>
+				<element ref="tns:infoset" />
+				<element ref="tns:errors" />
+			</choice>
+			<element ref="tns:warnings" minOccurs='0' />
+			<element ref="tns:validationErrors" minOccurs="0" />
+		</sequence>
+		<attributeGroup ref="tns:testCaseAttribs" />
+	</complexType>
 
-  <attributeGroup name="testCaseAttribs">
-    <attribute name="name" type="xs:NCName" use="required" />
-    <attribute name="ID" type="xs:token" use="optional" />
-    <attribute name="root" type="xs:NCName" use="required" />
-    <attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
-    <attribute name="description" type="xs:string" use="optional" />
-    <attribute name="unsupported" type="xs:boolean" use="optional"
-      default="false" />
-    <attribute name="validation" type="tns:onOff" use="optional"
-      default="off" />
-  </attributeGroup>
+	<attributeGroup name="testCaseAttribs">
+		<attribute name="name" type="xs:NCName" use="required" />
+		<attribute name="ID" type="xs:token" use="optional" />
+		<attribute name="root" type="xs:NCName" use="required" />
+		<attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
+		<attribute name="description" type="xs:string" use="optional" />
+		<attribute name="unsupported" type="xs:boolean" use="optional"
+			default="false" />
+		<attribute name="validation" type="tns:onOff" use="optional"
+			default="off" />
+	</attributeGroup>
 
-  <simpleType name="onOff">
-    <restriction base="xs:token">
-      <enumeration value="on" />
-      <enumeration value="limited"/>
-      <enumeration value="off" />
-    </restriction>
-  </simpleType>
+	<simpleType name="onOff">
+		<restriction base="xs:token">
+			<enumeration value="on" />
+			<enumeration value="limited" />
+			<enumeration value="off" />
+		</restriction>
+	</simpleType>
 
-  <element name="document" type="tns:documentType" />
-  <element name="infoset" type="tns:infosetType" />
-  <element name="errors" type="tns:errorsType" />
-  <element name="warnings" type="tns:warningsType" />
-  <element name="validationErrors" type="tns:validationErrorsType"/>
+	<element name="externalVariableBindings" type="tns:externalVarType" />
+	<element name="document" type="tns:documentType" />
+	<element name="infoset" type="tns:infosetType" />
+	<element name="errors" type="tns:errorsType" />
+	<element name="warnings" type="tns:warningsType" />
+	<element name="validationErrors" type="tns:validationErrorsType" />
 
-  <complexType name="documentType" mixed="true">
-    <sequence>
-      <element ref="tns:documentPart" minOccurs="0" maxOccurs="unbounded" />
-    </sequence>
-  </complexType>
+	<complexType name="externalVarType">
+		<sequence>
+			<element ref="tns:bind" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
 
-  <element name="documentPart" type="tns:documentPartType" />
-  <complexType name="documentPartType">
-    <simpleContent>
-      <extension base="xs:string">
-        <attribute name="type" type="tns:documentPartTypeEnum"
-          use="required" />
-          <attribute name="replaceDFDLEntities" type="xs:boolean" />
-      </extension>
-    </simpleContent>
-  </complexType>
+	<element name="bind" type="tns:bindType" />
 
-  <simpleType name="documentPartTypeEnum">
-    <restriction base="xs:string">
-      <enumeration value="byte" />
-      <enumeration value="text" />
-      <enumeration value="bits" />
-      <enumeration value="file" />
-    </restriction>
-  </simpleType>
+	<simpleType name="bindNameType">
+		<restriction base="xs:string" />
+	</simpleType>
+	<complexType name="bindType">
+		<simpleContent>
+			<extension base="tns:bindNameType">
+				<attribute name="name" use="required">
+					<simpleType>
+						<restriction base="xs:string" />
+					</simpleType>
+				</attribute>
+			</extension>
+		</simpleContent>
+	</complexType>
 
-  <complexType name="infosetType">
-    <sequence>
-      <element ref="tns:dfdlInfoset" />
-    </sequence>
-  </complexType>
+	<complexType name="documentType" mixed="true">
+		<sequence>
+			<element ref="tns:documentPart" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
 
-  <element name="dfdlInfoset" type="tns:dfdlInfosetType" />
+	<element name="documentPart" type="tns:documentPartType" />
+	<complexType name="documentPartType">
+		<simpleContent>
+			<extension base="xs:string">
+				<attribute name="type" type="tns:documentPartTypeEnum"
+					use="required" />
+				<attribute name="replaceDFDLEntities" type="xs:boolean" />
+			</extension>
+		</simpleContent>
+	</complexType>
 
-  <complexType name="dfdlInfosetType" mixed="true">
-    <sequence>
-      <any namespace="##any" processContents="lax" minOccurs="0"
-        maxOccurs="unbounded" />
-    </sequence>
-  </complexType>
+	<simpleType name="documentPartTypeEnum">
+		<restriction base="xs:string">
+			<enumeration value="byte" />
+			<enumeration value="text" />
+			<enumeration value="bits" />
+			<enumeration value="file" />
+		</restriction>
+	</simpleType>
 
-  <complexType name="errorsType">
-    <sequence>
-      <element ref="tns:error" maxOccurs="unbounded" minOccurs="1" />
-    </sequence>
-    <attributeGroup ref="tns:errorWarnAttribs" />
-  </complexType>
+	<complexType name="infosetType">
+		<sequence>
+			<element ref="tns:dfdlInfoset" />
+		</sequence>
+	</complexType>
 
-  <complexType name="warningsType">
-    <sequence>
-      <element ref="tns:warning" maxOccurs="unbounded"
-        minOccurs="0" />
-      <!-- use <warnings/> to indicate no warnings should occur. -->
-    </sequence>
-    <attributeGroup ref="tns:errorWarnAttribs" />
-  </complexType>
-  
-  <complexType name="validationErrorsType">
-    <sequence>
-      <element ref="tns:error" maxOccurs="unbounded"
-        minOccurs="0" />
-      <!-- use <validationErrors/> to indicate no validation should occur. -->
-    </sequence>
-    <attributeGroup ref="tns:errorWarnAttribs" />
-  </complexType>
+	<element name="dfdlInfoset" type="tns:dfdlInfosetType" />
 
-  <element name="error" type="xs:string" />
-  <element name="warning" type="xs:string" />
+	<complexType name="dfdlInfosetType" mixed="true">
+		<sequence>
+			<any namespace="##any" processContents="lax" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
 
-  <xs:attributeGroup name="errorWarnAttribs">
-    <xs:attribute name="match" use="optional" default="all">
-      <xs:simpleType>
-        <xs:restriction base="xs:string">
-          <xs:enumeration value="all" />
-          <xs:enumeration value="any" />
-        </xs:restriction>
-      </xs:simpleType>
-    </xs:attribute>
-  </xs:attributeGroup>
+	<complexType name="errorsType">
+		<sequence>
+			<element ref="tns:error" maxOccurs="unbounded" minOccurs="1" />
+		</sequence>
+		<attributeGroup ref="tns:errorWarnAttribs" />
+	</complexType>
 
-  <!-- IBM chose to call unparsing 'serializing' in TDML -->
-  <element name="serializerTestCase" type="tns:serializerTestCaseType" />
-  <complexType name="serializerTestCaseType">
-    <sequence>
-      <element ref="tns:infoset" />
-      <element ref="tns:document" minOccurs="0" /> <!-- must have either document, or errors, or both -->
-      <element ref="tns:errors" minOccurs="0" />
-      <element ref="tns:warnings" minOccurs='0' />
-    </sequence>
-  </complexType>
+	<complexType name="warningsType">
+		<sequence>
+			<element ref="tns:warning" maxOccurs="unbounded" minOccurs="0" />
+			<!-- use <warnings/> to indicate no warnings should occur. -->
+		</sequence>
+		<attributeGroup ref="tns:errorWarnAttribs" />
+	</complexType>
+
+	<complexType name="validationErrorsType">
+		<sequence>
+			<element ref="tns:error" maxOccurs="unbounded" minOccurs="0" />
+			<!-- use <validationErrors/> to indicate no validation should occur. -->
+		</sequence>
+		<attributeGroup ref="tns:errorWarnAttribs" />
+	</complexType>
+
+	<element name="error" type="xs:string" />
+	<element name="warning" type="xs:string" />
+
+	<xs:attributeGroup name="errorWarnAttribs">
+		<xs:attribute name="match" use="optional" default="all">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="all" />
+					<xs:enumeration value="any" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:attributeGroup>
+
+	<!-- IBM chose to call unparsing 'serializing' in TDML -->
+	<element name="serializerTestCase" type="tns:serializerTestCaseType" />
+	<complexType name="serializerTestCaseType">
+		<sequence>
+			<element ref="tns:infoset" />
+			<element ref="tns:document" minOccurs="0" /> <!-- must have either document, or errors, or both -->
+			<element ref="tns:errors" minOccurs="0" />
+			<element ref="tns:warnings" minOccurs='0' />
+		</sequence>
+	</complexType>
 
 </xsd:schema>

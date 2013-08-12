@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+	<bind name="ex:v_no_default">1</bind>
+	<bind name="ex:v_with_default">2</bind>
+</daf:externalVariableBindings>

@@ -597,5 +597,134 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(false);
 		Daffodil.setDebugger(null);
 	}
+  
+  @Test
+	public void testJavaAPI13() throws IOException {
+	  // Demonstrates here that we can set external variables
+	  // after compilation but before parsing via Compiler.
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugging(true);
+		Daffodil.setDebugger(debugger);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(extVarFile, schemaFiles);
+		
+		
+		DataProcessor dp = pf.onPath("/");
+				
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc, 2 << 3);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+			String docString = xo.outputString(doc);
+			boolean containsVar1 = docString.contains("var1Value");
+			boolean containsVar1Value = docString.contains("externallySet");
+			assertTrue(containsVar1);
+			assertTrue(containsVar1Value);
+		}
+//		java.util.List<Diagnostic> diags = res.getDiagnostics();
+//		for (Diagnostic d : diags) {
+//			System.err.println(d.getMessage());
+//		}
+//		assertTrue(res.location().isAtEnd());
+//		System.err.println("bitPos = " + res.location().bitPos());
+//		System.err.println("bytePos = " + res.location().bytePos());
+//
+//		for (String e : lw.errors)
+//			System.err.println(e);
+//		for (String e : lw.warnings)
+//			System.err.println(e);
+//		assertEquals(0, lw.errors.size());
+//		assertEquals(0, lw.warnings.size());
+//		assertTrue(lw.infos.size() > 0);
+//		assertTrue(lw.others.size() > 0);
+//		assertTrue(debugger.lines.size() > 0);
+//		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+
+		// reset the global logging and debugger state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugging(false);
+		Daffodil.setDebugger(null);
+	}
+  
+  @Test
+	public void testJavaAPI14() throws IOException {
+	  // Demonstrates here that we can set external variables
+	  // after compilation but before parsing via DataProcessor.
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugging(true);
+		Daffodil.setDebugger(debugger);
+
+		Compiler c = Daffodil.compiler();
+		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		dp.setExternalVariables(extVarFile);
+				
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc, 2 << 3);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+			String docString = xo.outputString(doc);
+			boolean containsVar1 = docString.contains("var1Value");
+			boolean containsVar1Value = docString.contains("externallySet");
+			assertTrue(containsVar1);
+			assertTrue(containsVar1Value);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+		System.err.println("bitPos = " + res.location().bitPos());
+		System.err.println("bytePos = " + res.location().bytePos());
+
+		for (String e : lw.errors)
+			System.err.println(e);
+		for (String e : lw.warnings)
+			System.err.println(e);
+		assertEquals(0, lw.errors.size());
+		assertEquals(0, lw.warnings.size());
+		assertTrue(lw.infos.size() > 0);
+		assertTrue(lw.others.size() > 0);
+		assertTrue(debugger.lines.size() > 0);
+		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+
+		// reset the global logging and debugger state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugging(false);
+		Daffodil.setDebugger(null);
+	}
 
 }

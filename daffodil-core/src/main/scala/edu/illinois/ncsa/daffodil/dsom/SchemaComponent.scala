@@ -60,6 +60,8 @@ import IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.externalvars.Binding
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -670,7 +672,9 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
  * doesn't correspond to any user-specified schema object. And unlike other
  * schema components obviously it does not live within a schema document.
  */
-class SchemaSet(primFactory: PrimitiveFactoryBase,
+class SchemaSet(
+  externalVariablesSource: Seq[Binding],
+  primFactory: PrimitiveFactoryBase,
   schemaFilesArg: Seq[File],
   rootSpec: Option[RootSpec] = None,
   checkAllTopLevelArg: Boolean = false,
@@ -710,8 +714,10 @@ class SchemaSet(primFactory: PrimitiveFactoryBase,
   /**
    * This constructor for unit testing only
    */
-  def this(primFact: PrimitiveFactoryBase, sch: Node, rootNamespace: String = null, root: String = null) =
-    this(primFact,
+  def this(primFact: PrimitiveFactoryBase, sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty) =
+    this(
+      extVars,
+      primFact,
       {
         val file = XMLUtils.convertNodeToTempFile(sch)
         val files = List(file)
@@ -1001,7 +1007,11 @@ class SchemaSet(primFactory: PrimitiveFactoryBase,
   lazy val variableMap = {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val vmap = VariableMap.create(dvs)
-    vmap
+
+    val finalVMap =
+      ExternalVariablesLoader.loadVariablesByBinding(externalVariablesSource, this, vmap)
+
+    finalVMap
   }
 
   private lazy val elements = schemaComponentRegistry.contextMap

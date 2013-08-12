@@ -35,7 +35,7 @@ class TextCompileExpressionExecution {
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val d = Misc.stringToReadableByteChannel("42")
     val compiler = Compiler()
-    val pf = compiler.compile(testSchema)
+    val pf = compiler.compile(Seq.empty, testSchema)
     val dp = pf.onPath("/")
     val resState = dp.parse(d)
     val resNode = resState.result
