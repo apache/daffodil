@@ -1444,6 +1444,30 @@
   </tdml:parserTestCase>
   
   <!--
+     Test Name: implicitAlignmentFloat2
+        Schema: implicitAlignmentSchema
+          Root: float
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'float' is 32 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentFloat2" root="float"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - float (binary) - DFDL-12-015R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01010101 01010101</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">10101010 10101010</tdml:documentPart> <!-- padding for alignment -->
+      <tdml:documentPart type="bits">01000010 00101000 11001100 11001101</tdml:documentPart> <!-- float -->
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <float>42.2</float>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
      Test Name: implicitAlignmentDouble
         Schema: implicitAlignmentSchema
           Root: double

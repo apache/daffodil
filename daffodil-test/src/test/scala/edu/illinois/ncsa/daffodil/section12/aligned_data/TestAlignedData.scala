@@ -138,6 +138,7 @@ class TestAlignedData {
   @Test def test_implicitAlignmentFloatT2() = { runner1.runOneTest("implicitAlignmentFloatT2") }
   @Test def test_implicitAlignmentFloatT_Fail() = { runner1.runOneTest("implicitAlignmentFloatT_Fail") }
   @Test def test_implicitAlignmentFloat() = { runner1.runOneTest("implicitAlignmentFloat") }
+  @Test def test_implicitAlignmentFloat2() = { runner1.runOneTest("implicitAlignmentFloat2") }
   @Test def test_implicitAlignmentDouble() = { runner1.runOneTest("implicitAlignmentDouble") }
   @Test def test_implicitAlignmentDouble2() = { runner1.runOneTest("implicitAlignmentDouble2") }
   @Test def test_implicitAlignmentDoubleT() = { runner1.runOneTest("implicitAlignmentDoubleT") }
