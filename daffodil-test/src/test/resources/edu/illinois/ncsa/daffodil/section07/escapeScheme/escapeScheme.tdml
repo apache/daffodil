@@ -116,6 +116,19 @@
 
   </defineSchema>
 
+  <defineSchema name="nonUnique">
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
+    <dfdl:defineEscapeScheme name="escapeScheme">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name="escapeScheme">
+      <dfdl:escapeScheme escapeCharacter='*'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <xs:element name="elem" type="xs:int" dfdl:escapeSchemeRef="tns:escapeScheme" />
+  </defineSchema>
+
   <parserTestCase name="escapeSchemeSimple" model="es1"
     description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
     <document><![CDATA[ab#,cd,/*ef,gh*/]]></document>
@@ -228,4 +241,18 @@
     </infoset>
   </parserTestCase>
 
+  <!--
+       Test Name: escapeSchemeNonUnique
+          Schema: nonUnique
+            Root: elem
+         Purpose: This is a negative test to demonstrate that defineEscapeScheme must have a unique name within the namespace
+  -->
+
+  <parserTestCase name="escapeSchemeNonUnique" model="nonUnique"
+    description="Section 7 defineEscapeScheme - unique namespace - DFDL-7-085R" root="elem">
+    <document><![CDATA[123]]></document>
+    <errors>
+      <error>Schema Definition Error</error>
+    </errors>
+  </parserTestCase>
 </testSuite>
