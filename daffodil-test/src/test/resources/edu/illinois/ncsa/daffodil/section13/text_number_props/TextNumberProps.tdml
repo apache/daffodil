@@ -69,6 +69,11 @@
     
     <xs:element name="tnp26" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#+#" dfdl:textStandardGroupingSeparator="," 
       dfdl:textStandardDecimalSeparator="." dfdl:textStandardExponentCharacter="^"/>
+    
+    <xs:element name="tnp27" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="$'#'#0.00"  dfdl:textStandardDecimalSeparator="."/>
+
+    <xs:element name="tnp28" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="'optional:'0000" />
+    <xs:element name="tnp29" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="'$'0000" />
 
   </tdml:defineSchema>
   
@@ -281,8 +286,8 @@
      Test Name: textNumberPattern_specialChar02
         Schema: textNumberPattern
           Root: tnp07
-       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
-                be quoted in the textNumberPattern. In this case the character ($) is not quoted and the parser should throw an error.
+       Purpose: This test demonstrates that many characters in a pattern are taken literally, and are matched during parsing. You only
+                need to quote a character to use it literally if that character is one of the special characters with another meaning.
 -->
 
   <tdml:parserTestCase name="textNumberPattern_specialChar02" root="tnp07" model="textNumberPattern"
@@ -291,9 +296,11 @@
     <tdml:document>
       <tdml:documentPart type="text">$49.99</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp07>49.99</tnp07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
   
@@ -320,22 +327,44 @@
   </tdml:parserTestCase>
   
 <!--
-     Test Name: textNumberCheckPolicy_lax01
+     Test Name: textNumberPattern_specialChar04
         Schema: textNumberPattern
-          Root: tnp10
-       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
-                leading and trailing whitespace is ignored, along with leading zeros.
+          Root: tnp07
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the first # is quoted and should be matched literally in the data.
 -->
 
-  <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp10" model="textNumberPattern"
-    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+  <tdml:parserTestCase name="textNumberPattern_specialChar04" root="tnp27" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
 
     <tdml:document>
-      <tdml:documentPart type="text">52</tdml:documentPart>
+      <tdml:documentPart type="text">$#49.99</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp10>52</tnp10>
+        <tnp27>49.99</tnp27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax01
+        Schema: textNumberPattern
+          Root: tnp28
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                quoted characters may be omitted.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp28" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp28>1234</tnp28>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -352,7 +381,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    0052</tdml:documentPart>
+      <tdml:documentPart type="text">           0052    </tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -374,7 +403,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+      <tdml:documentPart type="text">        000052    </tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -404,6 +433,27 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax05
+        Schema: textNumberPattern
+          Root: tnp29
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                quoted characters may be omitted.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax05" root="tnp29" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp29>1234</tnp29>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
