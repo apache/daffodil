@@ -162,7 +162,7 @@
       <tdml:error>Overlap</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="shortFormSchemaFail" root="c3"
     model="PropertyScoping_04.dfdl.xsd"
     description="DFDL-7-023R : Property Binding Syntax: Short Form">
