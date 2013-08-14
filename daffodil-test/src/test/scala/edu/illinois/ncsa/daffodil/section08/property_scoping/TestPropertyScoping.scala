@@ -51,6 +51,9 @@ class TestPropertyScoping {
   @Test def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
   @Test def test_property_scoping_06() { runner.runOneTest("property_scoping_06") }
   @Test def test_group_ref() { runner.runOneTest("group_ref") }
+  @Test def test_multipleDefinition() { runner.runOneTest("multipleDefinition") }
+  @Test def test_multipleDefinition2() { runner.runOneTest("multipleDefinition2") }
+  @Test def test_multipleDefinition3() { runner.runOneTest("multipleDefinition3") }
 
   // Moved back to debug, because validation is no longer detecting the error it is
   // expecting

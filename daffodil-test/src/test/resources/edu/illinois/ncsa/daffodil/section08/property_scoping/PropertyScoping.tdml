@@ -223,5 +223,99 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="multipleDef">
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" lengthUnits="characters" length="4"/>
+    </dfdl:defineFormat>
 
+    <dfdl:format ref="def" />
+
+    <xs:element name="root" dfdl:length="{ 16 }">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" minOccurs="1" dfdl:length="{ 7 }" />
+          <xs:element name="e2" type="xs:string" minOccurs="1" />
+          <xs:element name="e3" type="xs:string" minOccurs="1" dfdl:length="{ 5 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="multipleDefinition" root="root"
+   model="multipleDef" description="Section 8 - property defined locally and on defineFormat - DFDL-8-011R">
+    <tdml:document>testingthisworks</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <e1>testing</e1>
+          <e2>this</e2>
+          <e3>works</e3>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="multipleDef2">
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" lengthUnits="characters" length="4"/>
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="def" lengthKind="delimited" separator=";"/>
+
+    <xs:element name="root" >
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" minOccurs="1" />
+          <xs:element name="e2" type="xs:string" minOccurs="1" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="multipleDefinition2" root="root"
+   model="multipleDef2" description="Section 8 - property defined locally and on defineFormat - DFDL-8-011R">
+    <tdml:document>one;two</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <e1>one</e1>
+          <e2>two</e2>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="multipleDef3">
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" separator=","/>
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="def" separator=":"/>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="e1" type="xs:string" />
+          <xs:element name="e2" type="xs:string" />
+          <xs:element name="e3" type="xs:string" />
+          <xs:element name="e4" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="multipleDefinition3" root="root"
+   model="multipleDef3" description="Section 8 - property defined locally and on defineFormat - DFDL-8-011R">
+    <tdml:document>one;:two;t,hree;fo:ur</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <e1>one</e1>
+          <e2>:two</e2>
+          <e3>t,hree</e3>
+          <e4>fo:ur</e4>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 </tdml:testSuite>
