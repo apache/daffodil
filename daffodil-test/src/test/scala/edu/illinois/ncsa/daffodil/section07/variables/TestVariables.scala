@@ -71,6 +71,7 @@ class TestVariables {
   @Test def test_setVarExpression() { runner.runOneTest("setVarExpression") }
   @Test def test_setVarExpression2() { runner.runOneTest("setVarExpression2") }
   @Test def test_setVarBadScope() { runner.runOneTest("setVarBadScope") }
+  @Test def test_varAsSeparator2() { runner.runOneTest("varAsSeparator2") }
 //  @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
   
   val tdml_01 = testDir + "variables_01.tdml"

@@ -685,4 +685,40 @@
     </xs:element>
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="separatorAsVar">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <dfdl:defineVariable name="v3_with_default" type="xs:string"
+      defaultValue="ASDF" />
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="{$ex:v3_with_default}"
+            dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="prefix"
+            dfdl:terminator="--">
+          <xs:element name="a" dfdl:lengthKind="delimited"
+            minOccurs="1" maxOccurs="unbounded" type="xsd:string"
+            dfdl:occursCountKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="varAsSeparator2" root="e7"
+    model="separatorAsVar"
+    description="variable referenced as a separator">
+    <tdml:document><![CDATA[ASDF23ASDF45ASDF110--]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e7>
+          <a>23</a>
+          <a>45</a>
+          <a>110</a>
+        </e7>
+
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
