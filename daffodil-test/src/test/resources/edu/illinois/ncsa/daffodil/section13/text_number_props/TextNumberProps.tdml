@@ -61,8 +61,7 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="tnp26" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#+#" dfdl:textStandardGroupingSeparator="," 
-      dfdl:textStandardDecimalSeparator="." dfdl:textStandardExponentCharacter="^"/>
+    <xs:element name="tnp26" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#.##" dfdl:textStandardDecimalSeparator=". , *"/>
     
     <xs:element name="tnp27" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="$'#'#0.00"  dfdl:textStandardDecimalSeparator="."/>
 
@@ -512,7 +511,7 @@
         Schema: textNumberPattern
           Root: tnp29
        Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
-                quoted characters may be omitted.
+                leading and trailing whitespace is ignored, along with leading zeros.
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_lax05" root="tnp29" model="textNumberPattern"
@@ -1150,6 +1149,50 @@
 
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: textStandardDecimalSeparator10
+        Schema: textNumberPattern
+          Root: tnp26
+       Purpose: This test demonstrates that textStandardDecimalSeparator can be a whitespace-separated list of
+                single characters that appear (individually) in the data as the decimal separator
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator10" root="tnp26" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5*55</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp26>5.55</tnp26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator11
+        Schema: textNumberPattern
+          Root: tnp26
+       Purpose: This test demonstrates that textStandardDecimalSeparator can be a whitespace-separated list of
+                single characters that appear (individually) in the data as the decimal separator
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator11" root="tnp26" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5,55</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp26>5.55</tnp26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
 <!--
      Test Name: textStandardGroupingSeparator01
         Schema: textNumberPattern
@@ -1253,26 +1296,6 @@
           <grpsep>,</grpsep>
           <e>5000</e>
         </tnp25>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-<!--
-     Test Name: textStandardExponentCharacter01
-        Schema: textNumberPattern
-          Root: tnp26
-       Purpose: This test demonstrates the use of textStandardExponentCharacter
--->
-
-  <tdml:parserTestCase name="textStandardExponentCharacter01" root="tnp26" model="textNumberPattern"
-    description="Section 13.6 - textStandardExponentCharacter - DFDL-13-055R">
-
-    <tdml:document>
-      <tdml:documentPart type="text">2^3</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp26>8</tnp26>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
