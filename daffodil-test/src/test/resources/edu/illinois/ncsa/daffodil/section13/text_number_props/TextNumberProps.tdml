@@ -72,15 +72,16 @@
       dfdl:textNumberPattern="#,##0.0#;(#)" dfdl:textStandardDecimalSeparator="."/>
     
     <xs:element name="tnp10" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    0000    " />
-    <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
     <xs:element name="tnp12" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="##" />
-    <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
     <xs:element name="tnp31" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    ####    " />
     <xs:element name="tnp32" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="####    " />
     <xs:element name="tnp33" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="####" />
     <xs:element name="tnp34" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="#" />
     <xs:element name="tnp35" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="0" />
     <xs:element name="tnp36" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    ####" />
+    
+    <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
+    <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
 
   </tdml:defineSchema>
   
@@ -796,7 +797,8 @@
         Schema: textNumberPattern
           Root: tnp11
        Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
-                whitespace and zeros are NOT ignored.
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed. Whitespace will NOT be ignored.
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict01" root="tnp11" model="textNumberPattern"
@@ -818,18 +820,21 @@
         Schema: textNumberPattern
           Root: tnp11
        Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
-                whitespace and zeros are NOT ignored.
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed.
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict02" root="tnp11" model="textNumberPattern"
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">52</tdml:documentPart>
+      <tdml:documentPart type="text">    52    </tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp11>52</tnp11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
   
@@ -838,7 +843,8 @@
         Schema: textNumberPattern
           Root: tnp13
        Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
-                whitespace and zeros are NOT ignored.
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed.
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict03" root="tnp13" model="textNumberPattern"
@@ -847,9 +853,11 @@
     <tdml:document>
       <tdml:documentPart type="text">052</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp13>52</tnp13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
   
@@ -858,7 +866,8 @@
         Schema: textNumberPattern
           Root: tnp13
        Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
-                whitespace and zeros are NOT ignored.
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed. Whitespace is NOT ignored.
 -->
 
   <tdml:parserTestCase name="textNumberCheckPolicy_strict04" root="tnp13" model="textNumberPattern"
@@ -870,6 +879,75 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
     </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_strict05
+        Schema: textNumberPattern
+          Root: tnp13
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed. Whitespace is NOT ignored.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict05" root="tnp13" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">000000000005</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp13>5</tnp13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_strict06
+        Schema: textNumberPattern
+          Root: tnp13
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed. Whitespace is NOT ignored.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict06" root="tnp13" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp13>5</tnp13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_strict07
+        Schema: textNumberPattern
+          Root: tnp13
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "strict", 
+                the data must follow the pattern, with the exception that digits 0-9, decimal separator and
+                exponent separator are always recognized and parsed. Whitespace is NOT ignored.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_strict07" root="tnp13" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">555</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp13>555</tnp13>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
   
