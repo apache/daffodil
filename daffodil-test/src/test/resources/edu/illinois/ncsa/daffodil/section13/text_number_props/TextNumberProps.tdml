@@ -24,14 +24,13 @@
     <xs:element name="tnp06" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'##0.00" dfdl:textStandardDecimalSeparator="."/>
     <xs:element name="tnp07" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="$##0.00"  dfdl:textStandardDecimalSeparator="."/>
     <xs:element name="tnp08" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="## o''clock" />
-    <xs:element name="tnp09" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0000;$###### 'is negative!'" dfdl:textStandardDecimalSeparator="."/>
+    <xs:element name="tnp09" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="0000;$###### 'is negative!'" dfdl:textStandardDecimalSeparator="."/>
     
     <xs:element name="tnp10" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    0000    " />
     <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
     <xs:element name="tnp12" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="##" />
     <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
     
-    <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
     <xs:element name="tnp15" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="^" />
     <xs:element name="tnp16" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="" />
     
@@ -74,7 +73,28 @@
 
     <xs:element name="tnp28" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="'optional:'0000" />
     <xs:element name="tnp29" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="'$'0000" />
+    <xs:element name="tnp30" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" 
+      dfdl:textNumberPattern="#,##0.0#;(#)" dfdl:textStandardDecimalSeparator="."/>
 
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="textNumberPattern2">
+    <dfdl:format initiator=""
+      terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
+      floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none" textStandardZeroRep="0"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorSuppressionPolicy="never" separatorPosition="infix"
+      textTrimKind="none" textNumberRounding="explicit"
+      textNumberRoundingIncrement="0.0" textNumberRoundingMode="roundUp"
+      textStandardInfinityRep="inf" textStandardNaNRep="NaN" 
+      textStandardExponentRep="^" textNumberCheckPolicy="lax" />
+    
+    <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
+  
   </tdml:defineSchema>
   
 <!--
@@ -156,7 +176,7 @@
     description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
-      <tdml:documentPart type="text">+400.00,-4030.00,+30.00,-0330.00,+6.00,-06.00</tdml:documentPart>
+      <tdml:documentPart type="text">(4030.00),+30.00,(0330.00),+6.00,(06.00)</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
@@ -177,7 +197,7 @@
     description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
-      <tdml:documentPart type="text">+400.00,-400.00,+30.00,-30.00,+6.00,-6.00</tdml:documentPart>
+      <tdml:documentPart type="text">(400.00),+30.00,(30.00),+6.00,(6.00)</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -234,6 +254,51 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tnp09>-234</tnp09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored05
+        Schema: textNumberPattern
+          Root: tnp30
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored05" root="tnp30" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">(5)</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberPattern_negativeIgnored06
+        Schema: textNumberPattern
+          Root: tnp30
+       Purpose: The textNumberPattern comes in two parts separated by a semi-colon. This test demonstrates that
+                if an explicit negative subpattern is provided, it only specifies the negative prefix and suffix.
+                The number of digits, minimal digits, and other characteristics are ignored in the negative subpattern.
+                This textNumberPattern (#,##0.0#;(#)) comes straight from the spec and should behave as #,##0.0#;(#,##0.0#)                
+-->
+
+  <tdml:parserTestCase name="textNumberPattern_negativeIgnored06" root="tnp30" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">(3,450.00)</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp30>-3450.0</tnp30>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -540,20 +605,21 @@
   
 <!--
      Test Name: textStandardDecimalSeparator01
-        Schema: textNumberPattern
+        Schema: textNumberPattern2
           Root: tnp14
        Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains a decimal
                 separator symbol (.) 
 -->
 
-  <tdml:parserTestCase name="textStandardDecimalSeparator01" root="tnp14" model="textNumberPattern"
+  <tdml:parserTestCase name="textStandardDecimalSeparator01" root="tnp14" model="textNumberPattern2"
     description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R">
 
     <tdml:document>
       <tdml:documentPart type="text">$5.00</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definiton Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardDecimalSeparator is not defined</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
