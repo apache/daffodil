@@ -71,8 +71,21 @@ class TestTextNumberProps {
 
   @Test def test_textNumberCheckPolicy_lax02() { runner.runOneTest("textNumberCheckPolicy_lax02") }
   @Test def test_textNumberCheckPolicy_lax03() { runner.runOneTest("textNumberCheckPolicy_lax03") }
-// leading/trailing whitespace and leading zeros should be ignored.
+
+// DFDL-845
 //  @Test def test_textNumberCheckPolicy_lax04() { runner.runOneTest("textNumberCheckPolicy_lax04") }
+  @Test def test_textNumberCheckPolicy_lax06() { runner.runOneTest("textNumberCheckPolicy_lax06") }
+  @Test def test_textNumberCheckPolicy_lax07() { runner.runOneTest("textNumberCheckPolicy_lax07") }
+  @Test def test_textNumberCheckPolicy_lax08() { runner.runOneTest("textNumberCheckPolicy_lax08") }
+  @Test def test_textNumberCheckPolicy_lax09() { runner.runOneTest("textNumberCheckPolicy_lax09") }
+//  @Test def test_textNumberCheckPolicy_lax10() { runner.runOneTest("textNumberCheckPolicy_lax10") }
+//  @Test def test_textNumberCheckPolicy_lax11() { runner.runOneTest("textNumberCheckPolicy_lax11") }
+//  @Test def test_textNumberCheckPolicy_lax12() { runner.runOneTest("textNumberCheckPolicy_lax12") }
+//  @Test def test_textNumberCheckPolicy_lax13() { runner.runOneTest("textNumberCheckPolicy_lax13") }
+//  @Test def test_textNumberCheckPolicy_lax14() { runner.runOneTest("textNumberCheckPolicy_lax14") }
+//  @Test def test_textNumberCheckPolicy_lax15() { runner.runOneTest("textNumberCheckPolicy_lax15") }
+//  @Test def test_textNumberCheckPolicy_lax16() { runner.runOneTest("textNumberCheckPolicy_lax16") }
+  @Test def test_textNumberCheckPolicy_lax17() { runner.runOneTest("textNumberCheckPolicy_lax17") }
 
   @Test def test_textNumberCheckPolicy_strict01() { runner.runOneTest("textNumberCheckPolicy_strict01") }
   @Test def test_textNumberCheckPolicy_strict02() { runner.runOneTest("textNumberCheckPolicy_strict02") }

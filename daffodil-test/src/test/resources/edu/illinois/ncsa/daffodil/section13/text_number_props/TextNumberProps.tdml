@@ -26,11 +26,6 @@
     <xs:element name="tnp08" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="## o''clock" />
     <xs:element name="tnp09" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="0000;$###### 'is negative!'" dfdl:textStandardDecimalSeparator="."/>
     
-    <xs:element name="tnp10" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    0000    " />
-    <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
-    <xs:element name="tnp12" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="##" />
-    <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
-    
     <xs:element name="tnp15" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="^" />
     <xs:element name="tnp16" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" dfdl:textStandardDecimalSeparator="" />
     
@@ -75,6 +70,17 @@
     <xs:element name="tnp29" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="'$'0000" />
     <xs:element name="tnp30" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" 
       dfdl:textNumberPattern="#,##0.0#;(#)" dfdl:textStandardDecimalSeparator="."/>
+    
+    <xs:element name="tnp10" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    0000    " />
+    <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
+    <xs:element name="tnp12" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="##" />
+    <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
+    <xs:element name="tnp31" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    ####    " />
+    <xs:element name="tnp32" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="####    " />
+    <xs:element name="tnp33" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="####" />
+    <xs:element name="tnp34" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="#" />
+    <xs:element name="tnp35" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="0" />
+    <xs:element name="tnp36" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="lax" dfdl:textNumberPattern="    ####" />
 
   </tdml:defineSchema>
   
@@ -519,6 +525,270 @@
         <tnp29>1234</tnp29>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax06
+        Schema: textNumberPattern
+          Root: tnp31
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax06" root="tnp31" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    00003352    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp31>3352</tnp31>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax07
+        Schema: textNumberPattern
+          Root: tnp32
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax07" root="tnp32" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">00003352    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp32>3352</tnp32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax08
+        Schema: textNumberPattern
+          Root: tnp33
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax08" root="tnp33" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">00003352</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp33>3352</tnp33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax09
+        Schema: textNumberPattern
+          Root: tnp34
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax09" root="tnp34" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp34>3</tnp34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax10
+        Schema: textNumberPattern
+          Root: tnp34
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax10" root="tnp34" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">  03  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp34>3</tnp34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax11
+        Schema: textNumberPattern
+          Root: tnp34
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax11" root="tnp34" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">  3  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp34>3</tnp34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax12
+        Schema: textNumberPattern
+          Root: tnp35
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax12" root="tnp35" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">  3  </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp34>3</tnp34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax13
+        Schema: textNumberPattern
+          Root: tnp33
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax13" root="tnp33" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">   3352     </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp33>3352</tnp33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax14
+        Schema: textNumberPattern
+          Root: tnp33
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax14" root="tnp33" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">   03352     </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp33>3352</tnp33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax15
+        Schema: textNumberPattern
+          Root: tnp32
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax15" root="tnp32" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    3352    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp32>3352</tnp32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax16
+        Schema: textNumberPattern
+          Root: tnp36
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax16" root="tnp36" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">    3352    </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp36>3352</tnp36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberCheckPolicy_lax17
+        Schema: textNumberPattern
+          Root: tnp36
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                leading and trailing whitespace is ignored, along with leading zeros.
+  -->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax17" root="tnp36" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">          3352</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp36>3352</tnp36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
   </tdml:parserTestCase>
   
 <!--
