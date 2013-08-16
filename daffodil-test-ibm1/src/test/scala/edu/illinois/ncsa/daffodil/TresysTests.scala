@@ -152,4 +152,9 @@ class TresysTests {
   @Test def test_AF000() { runnerAF.runOneTest("AF000") }
   @Test def test_AF001() { runnerAF.runOneTest("AF001") }
   @Test def test_AF002() { runnerAF.runOneTest("AF002") }
+
+  val aw = testDir + "AW.tdml"
+  lazy val runnerAW = new DFDLTestSuite(Misc.getRequiredResource(aw))
+  @Test def test_AW000() { runnerAW.runOneTest("AW000") } // escape schemes
+  @Test def test_AW001() { runnerAW.runOneTest("AW001") }
 }
