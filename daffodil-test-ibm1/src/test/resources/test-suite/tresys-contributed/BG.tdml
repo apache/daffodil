@@ -5,7 +5,7 @@
 
   <parserTestCase name="BG000" root="list" model="BG.dfdl.xsd"
     description="Text number properties">
-    <document><![CDATA[  9#876#543#210!012345678***   12#345!6E+12*** 123456789123456789*** INFINITO***    NNN***   ZERO*** NA *** nil
+    <document><![CDATA[    543#210!01***   12#345!6E+12*** 123456789123456789*** INFINITO***    NNN***   ZERO*** NA *** nil
   aabbccddeeff*** 0f0f0f*** 123456789
   10.1 *** 20.3***   -912E-13
 ]]></document>

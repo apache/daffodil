@@ -15,6 +15,14 @@
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
         representation="text"
+        textStandardZeroRep="0"
+        textNumberRounding="explicit"
+        textNumberRoundingMode="roundUp"
+        textNumberRoundingIncrement="1"
+        textStandardInfinityRep="INFINITO"
+        textStandardNaNRep="NaN"
+        textStandardExponentRep="^"
+        textNumberCheckPolicy="strict"
         occursCountKind='parsed'/>
     </appinfo>
   </annotation>
@@ -41,11 +49,13 @@
         <element name="y" type="xsd:decimal" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberRep="standard"
           dfdl:textNumberJustification="right"
+          dfdl:textNumberPattern="####"
           dfdl:textNumberPadCharacter="%WSP;" dfdl:textStandardBase="16" />
       </sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
         <element name="z" type="xsd:float" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberJustification="right"
+          dfdl:textNumberPattern="####"
           dfdl:textNumberPadCharacter="%WSP;" />
       </sequence>
     </sequence>
