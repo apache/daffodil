@@ -93,6 +93,23 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="tnp40" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#0.#" dfdl:textStandardDecimalSeparator="%#r2E;" />
+    
+    <xs:element name="tnp41">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="e" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" dfdl:textStandardGroupingSeparator="{ ../ex:grpsep }"
+            dfdl:textStandardDecimalSeparator="." />
+          <xs:element name="grpsep" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="tnp42" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" dfdl:textStandardGroupingSeparator="%NL;" />
+    <xs:element name="tnp43" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" dfdl:textStandardGroupingSeparator="%CR;" />
+
+    <xs:element name="tnp44" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###,###" dfdl:textStandardGroupingSeparator="%#r5B;" />
 
   </tdml:defineSchema>
   
@@ -115,6 +132,8 @@
     <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
     <xs:element name="tnp01" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@###E0" />
     <xs:element name="tnp02" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@@" />
+    
+    <xs:element name="tnp03" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###" />
   
   </tdml:defineSchema>
   
@@ -1276,7 +1295,7 @@
         Schema: textNumberPattern2
           Root: tnp02
        Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains the
-                E symbol
+                @ symbol
   -->
 
   <tdml:parserTestCase name="textStandardDecimalSeparator15" root="tnp02" model="textNumberPattern2"
@@ -1288,6 +1307,26 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Property textStandardDecimalSeparator is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator17
+        Schema: textNumberPattern
+          Root: tnp40
+       Purpose: This test demonstrates that textStandardDecimalSeparator cannot be a raw byte entity
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator17" root="tnp40" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R6">
+
+    <tdml:document>
+      <tdml:documentPart type="text">50.0</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardDecimalSeparator cannot contain</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1417,6 +1456,150 @@
         </tnp25>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator06
+        Schema: textNumberPattern2
+          Root: tnp03
+       Purpose: This test demonstrates that if textNumberPattern contains a grouping separator, it is a SDE
+                if the grouping separator is not defined.
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator06" root="tnp03" model="textNumberPattern2"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardGroupingSeparator is not defined</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator07
+        Schema: textNumberPattern
+          Root: tnp41
+       Purpose: This test demonstrates that the grouping separator can be set by an expression, but the expression cannot
+                reference elements that have not been processed.
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator07" root="tnp41" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5,000|,</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>no node for path</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator08
+        Schema: textNumberPattern
+          Root: tnp25
+       Purpose: This test demonstrates that textStandardGroupingSeparator can be determined by an expression
+                The data has a text representation in bytes
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator08" root="tnp25" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">2C 7C 31 2C 32 33 34</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp25>
+          <grpsep>,</grpsep>
+          <e>1234</e>
+        </tnp25>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator09
+        Schema: textNumberPattern
+          Root: tnp25
+       Purpose: This test demonstrates that textStandardGroupingSeparator can be determined by an expression,
+                but the grouping separator must be a single character.
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator09" root="tnp25" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R4">
+
+    <tdml:document>
+      <tdml:documentPart type="text">decimal|1decimal234</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Length of string must be exactly 1 character</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator10
+        Schema: textNumberPattern
+          Root: tnp42
+       Purpose: This test demonstrates that textStandardGroupingSeparator cannot be a DFDL character class
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator10" root="tnp42" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R7">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[3
+123]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardGroupingSeparator cannot contain NL</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator11
+        Schema: textNumberPattern
+          Root: tnp43
+       Purpose: This test demonstrates that textStandardGroupingSeparator can be a DFDL character entity
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator11" root="tnp43" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R5">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">32 0D 323232</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp43>2222.0</tnp43>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardGroupingSeparator12
+        Schema: textNumberPattern
+          Root: tnp44
+       Purpose: This test demonstrates that textStandardGroupingSeparator cannot be a raw byte entity
+  -->
+
+  <tdml:parserTestCase name="textStandardGroupingSeparator12" root="tnp44" model="textNumberPattern"
+    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-054R6">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5[324[124</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardGroupingSeparator cannot contain</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">

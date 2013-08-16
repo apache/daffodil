@@ -121,6 +121,16 @@ class TestTextNumberProps {
   @Test def test_textStandardGroupingSeparator02() { runner.runOneTest("textStandardGroupingSeparator02") }
   @Test def test_textStandardGroupingSeparator04() { runner.runOneTest("textStandardGroupingSeparator04") }
   @Test def test_textStandardGroupingSeparator05() { runner.runOneTest("textStandardGroupingSeparator05") }
+  @Test def test_textStandardGroupingSeparator06() { runner.runOneTest("textStandardGroupingSeparator06") }
+//  @Test def test_textStandardGroupingSeparator07() { runner.runOneTest("textStandardGroupingSeparator07") }
+  @Test def test_textStandardGroupingSeparator08() { runner.runOneTest("textStandardGroupingSeparator08") }
+  @Test def test_textStandardGroupingSeparator09() { runner.runOneTest("textStandardGroupingSeparator09") }
+  @Test def test_textStandardGroupingSeparator10() { runner.runOneTest("textStandardGroupingSeparator10") }
+  @Test def test_textStandardGroupingSeparator11() { runner.runOneTest("textStandardGroupingSeparator11") }
+
+// DFDL-851
+//  @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
+//  @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
   
   @Test def test_dynamic() { runner.runOneTest("dynamic") }
   @Test def test_dynamic_neg1() { runner.runOneTest("dynamicNeg1") }
