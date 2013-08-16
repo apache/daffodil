@@ -75,7 +75,6 @@ class IBMTestsThatThrow {
   @Test def test_length_delimited_12_05() { runner1.runOneTest("length_delimited_12_05") } // DFDL-629 binaryNumberRep="bcd"
 
   @Test def test_simple_type_properties_text_number_13_01() { runner2.runOneTest("simple_type_properties_text_number_13_01") } // DFDL-452 text number advanced props
-  @Test def test_simple_type_properties_text_number_13_02() { runner2.runOneTest("simple_type_properties_text_number_13_02") } // DFDL-452 textStandardInfinityRep, textStandardZeroRep, textNumberPattern
   @Test def test_simple_type_properties_text_number_13_03() { runner2.runOneTest("simple_type_properties_text_number_13_03") } // DFDL-452 textStandardBase (base 16)
   @Test def test_simple_type_properties_binary_number_13_01() { runner2.runOneTest("simple_type_properties_binary_number_13_01") } // DFDL-629 binaryNumberRep="bcd"
   
