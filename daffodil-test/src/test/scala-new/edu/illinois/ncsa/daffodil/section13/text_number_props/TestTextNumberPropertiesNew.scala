@@ -57,4 +57,8 @@ class TestTextNumberProperties {
   @Test def test_zero() { runner.runOneTest("zero") } 
   
   @Test def test_pattern_neg1() { runner.runOneTest("pattern_neg1") }
+
+// DFDL-346
+  @Test def test_textStandardDecimalSeparator16() { runner.runOneTest("textStandardDecimalSeparator16") }
+  @Test def test_textStandardGroupingSeparator07() { runner.runOneTest("textStandardGroupingSeparator07") }
 }

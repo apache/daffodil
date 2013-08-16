@@ -1347,6 +1347,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>no node for path { ../ex:decsep }</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

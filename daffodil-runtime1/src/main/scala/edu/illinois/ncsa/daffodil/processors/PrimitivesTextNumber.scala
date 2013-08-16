@@ -69,7 +69,7 @@ case class ConvertTextNumberParser[S](h: ConvertTextNumberParserUnparserHelperBa
 {
   val helper = h
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): PState = withParseErrorThrowing(start) {
     val node = start.parentElement
     var str = node.dataValue
 
