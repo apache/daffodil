@@ -102,6 +102,13 @@ class TestTextNumberProps {
   @Test def test_textStandardDecimalSeparator07() { runner.runOneTest("textStandardDecimalSeparator07") }
   @Test def test_textStandardDecimalSeparator08() { runner.runOneTest("textStandardDecimalSeparator08") }
   @Test def test_textStandardDecimalSeparator09() { runner.runOneTest("textStandardDecimalSeparator09") }
+  @Test def test_textStandardDecimalSeparator12() { runner.runOneTest("textStandardDecimalSeparator12") }
+  @Test def test_textStandardDecimalSeparator13() { runner.runOneTest("textStandardDecimalSeparator13") }
+  @Test def test_textStandardDecimalSeparator14() { runner.runOneTest("textStandardDecimalSeparator14") }
+  @Test def test_textStandardDecimalSeparator15() { runner.runOneTest("textStandardDecimalSeparator15") }
+
+// DFDL-346
+//  @Test def test_textStandardDecimalSeparator16() { runner.runOneTest("textStandardDecimalSeparator16") }
 
 // DFDL-847
 //  @Test def test_textStandardDecimalSeparator10() { runner.runOneTest("textStandardDecimalSeparator10") }

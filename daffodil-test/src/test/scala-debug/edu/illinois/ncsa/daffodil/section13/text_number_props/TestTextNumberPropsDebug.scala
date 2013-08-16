@@ -72,4 +72,7 @@ class TestTextNumberPropsDebug {
   @Test def test_textStandardDecimalSeparator10() { runner.runOneTest("textStandardDecimalSeparator10") }
   @Test def test_textStandardDecimalSeparator11() { runner.runOneTest("textStandardDecimalSeparator11") }
 
+// DFDL-346
+  @Test def test_textStandardDecimalSeparator16() { runner.runOneTest("textStandardDecimalSeparator16") }
+
 }

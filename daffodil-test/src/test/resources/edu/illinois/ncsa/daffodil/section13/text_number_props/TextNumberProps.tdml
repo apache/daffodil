@@ -81,6 +81,18 @@
     
     <xs:element name="tnp11" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="    0000    " />
     <xs:element name="tnp13" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPattern="##" />
+    
+    <xs:element name="tnp37" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.#" dfdl:textStandardDecimalSeparator="|" />
+    <xs:element name="tnp38" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.#" dfdl:textStandardDecimalSeparator="|" />
+    
+    <xs:element name="tnp39">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="e" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0.00" dfdl:textStandardDecimalSeparator="{ ../ex:decsep }" />
+          <xs:element name="decsep" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -96,10 +108,13 @@
       separatorSuppressionPolicy="never" separatorPosition="infix"
       textTrimKind="none" textNumberRounding="explicit"
       textNumberRoundingIncrement="0.0" textNumberRoundingMode="roundUp"
-      textStandardInfinityRep="inf" textStandardNaNRep="NaN" 
+      textStandardInfinityRep="inf" textStandardNaNRep="NaN"
+      escapeSchemeRef=''
       textStandardExponentRep="^" textNumberCheckPolicy="lax" />
     
     <xs:element name="tnp14" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'#0.00" />
+    <xs:element name="tnp01" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@###E0" />
+    <xs:element name="tnp02" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="@@@" />
   
   </tdml:defineSchema>
   
@@ -1190,6 +1205,110 @@
         <tnp26>5.55</tnp26>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator12
+        Schema: textNumberPattern
+          Root: tnp37
+       Purpose: This test demonstrates that textStandardDecimalSeparator applies when the type is double
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator12" root="tnp37" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$50|4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp37>50.4</tnp37>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator13
+        Schema: textNumberPattern
+          Root: tnp38
+       Purpose: This test demonstrates that textStandardDecimalSeparator applies when the type is decimal
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator13" root="tnp38" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R1">
+
+    <tdml:document>
+      <tdml:documentPart type="text">$50|4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp38>50.4</tnp38>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator14
+        Schema: textNumberPattern2
+          Root: tnp01
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains the
+                E symbol
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator14" root="tnp01" model="textNumberPattern2"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12345E8</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardDecimalSeparator is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator15
+        Schema: textNumberPattern2
+          Root: tnp02
+       Purpose: This test demonstrates that textStandardDecimalSeparator must be set when textNumberPattern contains the
+                E symbol
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator15" root="tnp02" model="textNumberPattern2"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R2">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardDecimalSeparator is not defined</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textStandardDecimalSeparator16
+        Schema: textNumberPattern
+          Root: tnp39
+       Purpose: This test demonstrates that textStandardDecimalSeparator can be computed by an expression,
+                but the expression may not contain references to elements that have not yet been processed.
+  -->
+
+  <tdml:parserTestCase name="textStandardDecimalSeparator16" root="tnp39" model="textNumberPattern"
+    description="Section 13.6 - textStandardDecimalSeparator - DFDL-13-053R4">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5:00|:</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
   
