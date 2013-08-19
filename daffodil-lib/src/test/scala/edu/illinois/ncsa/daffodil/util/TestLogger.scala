@@ -71,6 +71,9 @@ class MyClass extends Logging {
     // to compute. 
     log(Debug(bombMsg, bombArg)) // bomb is not evaluated at all.
     log(Error(msg, argString)) // Will show up in log.
+
+    setLoggingLevel(LogLevel.Info)
+    setLogWriter(ConsoleWriter)
   }
 }
 

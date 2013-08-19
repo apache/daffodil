@@ -548,7 +548,6 @@ class TestParsingBehaviors {
       case _ => fail()
     }
 
-    LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val res3 = d.parseInputEscapeCharacter(escapeCharacterParser, d.emptyParser, delimsParser, r3,
       TextJustificationType.None, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
       removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escapeCharacter,
