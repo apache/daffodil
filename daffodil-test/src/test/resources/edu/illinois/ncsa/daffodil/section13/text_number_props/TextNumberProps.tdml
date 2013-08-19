@@ -115,8 +115,12 @@
      -->
      <xs:element name="tnp45" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict"
        dfdl:textNumberPattern="#,##,###,####" dfdl:textStandardGroupingSeparator="," />
+     <xs:element name="tnp45b" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict"
+       dfdl:textNumberPattern="###,###,####" dfdl:textStandardGroupingSeparator="," />
+     <xs:element name="tnp45c" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict"
+       dfdl:textNumberPattern="##,#,###,####" dfdl:textStandardGroupingSeparator="," />
      <xs:element name="tnp46" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict"
-       dfdl:textNumberPattern="#,###,###,###" dfdl:textStandardGroupingSeparator="," />
+       dfdl:textNumberPattern="#,###,##,#" dfdl:textStandardGroupingSeparator="," />
      
      <xs:element name="tnp47" type="xs:float" dfdl:textNumberPattern="PP000"/>
      <xs:element name="tnp48" type="xs:float" dfdl:textNumberPattern="000PP"/>
@@ -1680,7 +1684,7 @@
     description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
-      <tdml:documentPart type="text">1,12,123,1234</tdml:documentPart>
+      <tdml:documentPart type="text">112,123,1234</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1689,48 +1693,26 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!--
-     Test Name: textStandardGroupingSeparator14b
-        Schema: textNumberPattern
-          Root: tnp46
-       Purpose: This test demonstrates that if a pattern contains multiple grouping separators, the interval between 
-                the last one and the end of the integer defines the primary grouping size, and the interval between 
-                the last two defines the secondary grouping size. All others are ignored, 
-                so "#,##,###,####" == "###,###,####" == "##,#,###,####".
-  -->
-
-  <tdml:parserTestCase name="textStandardGroupingSeparator14b" root="tnp46" model="textNumberPattern"
-    description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
-
-    <tdml:document>
-      <tdml:documentPart type="text">1,121,231,234</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp45>1121231234</tnp45>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
   
   <!--
      Test Name: textStandardGroupingSeparator15
         Schema: textNumberPattern
-          Root: tnp45
+          Root: tnp45b
        Purpose: This test demonstrates that if a pattern contains multiple grouping separators, the interval between 
                 the last one and the end of the integer defines the primary grouping size, and the interval between 
                 the last two defines the secondary grouping size. All others are ignored, 
                 so "#,##,###,####" == "###,###,####" == "##,#,###,####".
   -->
 
-  <tdml:parserTestCase name="textStandardGroupingSeparator15" root="tnp45" model="textNumberPattern"
+  <tdml:parserTestCase name="textStandardGroupingSeparator15" root="tnp45b" model="textNumberPattern"
     description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
-      <tdml:documentPart type="text">12,1,123,1234</tdml:documentPart>
+      <tdml:documentPart type="text">121,123,1234</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp45>1211231234</tnp45>
+        <tnp45b>1211231234</tnp45b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1738,22 +1720,22 @@
   <!--
      Test Name: textStandardGroupingSeparator16
         Schema: textNumberPattern
-          Root: tnp45
+          Root: tnp45c
        Purpose: This test demonstrates that if a pattern contains multiple grouping separators, the interval between 
                 the last one and the end of the integer defines the primary grouping size, and the interval between 
                 the last two defines the secondary grouping size. All others are ignored, 
                 so "#,##,###,####" == "###,###,####" == "##,#,###,####".
   -->
 
-  <tdml:parserTestCase name="textStandardGroupingSeparator16" root="tnp45" model="textNumberPattern"
+  <tdml:parserTestCase name="textStandardGroupingSeparator16" root="tnp45c" model="textNumberPattern"
     description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
-      <tdml:documentPart type="text">1,1,1234,1234</tdml:documentPart>
+      <tdml:documentPart type="text">121,123,1234</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp45>1211231234</tnp45>
+        <tnp45c>1211231234</tnp45c>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1772,11 +1754,11 @@
     description="Section 13.6 - textStandardGroupingSeparator - DFDL-13-074R">
 
     <tdml:document>
-      <tdml:documentPart type="text">123,1,123,123</tdml:documentPart>
+      <tdml:documentPart type="text">12,12,12,1</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <tnp45>1121231234</tnp45>
+        <tnp46>1212121</tnp46>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
