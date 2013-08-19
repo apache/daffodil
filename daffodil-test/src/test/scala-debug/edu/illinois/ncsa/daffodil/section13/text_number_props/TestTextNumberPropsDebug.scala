@@ -75,4 +75,10 @@ class TestTextNumberPropsDebug {
 // DFDL-851
   @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
   @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
+
+  @Test def test_textStandardGroupingSeparator14() { runner.runOneTest("textStandardGroupingSeparator14") }
+  @Test def test_textStandardGroupingSeparator15() { runner.runOneTest("textStandardGroupingSeparator15") }
+  @Test def test_textStandardGroupingSeparator16() { runner.runOneTest("textStandardGroupingSeparator16") }
+  @Test def test_textStandardGroupingSeparator17() { runner.runOneTest("textStandardGroupingSeparator17") }
+  
 }
