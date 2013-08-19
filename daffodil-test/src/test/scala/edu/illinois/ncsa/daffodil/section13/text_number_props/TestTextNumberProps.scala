@@ -134,6 +134,39 @@ class TestTextNumberProps {
 // DFDL-851
 //  @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
 //  @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
+
+// DFDL-853
+//  @Test def test_textNumberPattern_pSymbol01() { runner.runOneTest("textNumberPattern_pSymbol01") }
+//  @Test def test_textNumberPattern_pSymbol02() { runner.runOneTest("textNumberPattern_pSymbol02") }
+
+  @Test def test_textNumberPattern_scientificNotation01() { runner.runOneTest("textNumberPattern_scientificNotation01") }
+//  @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
+  @Test def test_textNumberPattern_scientificNotation03() { runner.runOneTest("textNumberPattern_scientificNotation03") }
+  @Test def test_textNumberPattern_scientificNotation04() { runner.runOneTest("textNumberPattern_scientificNotation04") }
+  @Test def test_textNumberPattern_scientificNotation05() { runner.runOneTest("textNumberPattern_scientificNotation05") }
+  @Test def test_textNumberPattern_scientificNotation06() { runner.runOneTest("textNumberPattern_scientificNotation06") }
+  @Test def test_textNumberPattern_scientificNotation07() { runner.runOneTest("textNumberPattern_scientificNotation07") }
+  
+  @Test def test_textNumberPattern_padding01() { runner.runOneTest("textNumberPattern_padding01") }
+  @Test def test_textNumberPattern_padding02() { runner.runOneTest("textNumberPattern_padding02") }
+  @Test def test_textNumberPattern_padding03() { runner.runOneTest("textNumberPattern_padding03") }
+  @Test def test_textNumberPattern_padding04() { runner.runOneTest("textNumberPattern_padding04") }
+  @Test def test_textNumberPattern_padding05() { runner.runOneTest("textNumberPattern_padding05") }
+  @Test def test_textNumberPattern_padding06() { runner.runOneTest("textNumberPattern_padding06") }
+  @Test def test_textNumberPattern_padding07() { runner.runOneTest("textNumberPattern_padding07") }
+  @Test def test_textNumberPattern_padding08() { runner.runOneTest("textNumberPattern_padding08") }
+  @Test def test_textNumberPattern_padding09() { runner.runOneTest("textNumberPattern_padding09") }
+  @Test def test_textNumberPattern_padding10() { runner.runOneTest("textNumberPattern_padding10") }
+  @Test def test_textNumberPattern_padding11() { runner.runOneTest("textNumberPattern_padding11") }
+  @Test def test_textNumberPattern_padding12() { runner.runOneTest("textNumberPattern_padding12") }
+  @Test def test_textNumberPattern_padding13() { runner.runOneTest("textNumberPattern_padding13") }
+  
+  @Test def test_textNumberPattern_paddingCombo01() { runner.runOneTest("textNumberPattern_paddingCombo01") }
+  @Test def test_textNumberPattern_paddingCombo02() { runner.runOneTest("textNumberPattern_paddingCombo02") }
+  @Test def test_textNumberPattern_paddingCombo03() { runner.runOneTest("textNumberPattern_paddingCombo03") }
+  @Test def test_textNumberPattern_paddingCombo04() { runner.runOneTest("textNumberPattern_paddingCombo04") }
+  @Test def test_textNumberPattern_paddingCombo05() { runner.runOneTest("textNumberPattern_paddingCombo05") }
+  @Test def test_textNumberPattern_paddingCombo06() { runner.runOneTest("textNumberPattern_paddingCombo06") }
   
   @Test def test_dynamic() { runner.runOneTest("dynamic") }
   @Test def test_dynamic_neg1() { runner.runOneTest("dynamicNeg1") }

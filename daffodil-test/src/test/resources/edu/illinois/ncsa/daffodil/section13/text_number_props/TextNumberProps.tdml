@@ -117,6 +117,38 @@
        dfdl:textNumberPattern="#,##,###,####" dfdl:textStandardGroupingSeparator="," />
      <xs:element name="tnp46" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberCheckPolicy="strict"
        dfdl:textNumberPattern="#,###,###,###" dfdl:textStandardGroupingSeparator="," />
+     
+     <xs:element name="tnp47" type="xs:float" dfdl:textNumberPattern="PP000"/>
+     <xs:element name="tnp48" type="xs:float" dfdl:textNumberPattern="000PP"/>
+     
+     <xs:element name="tnp49" type="xs:float" dfdl:textNumberPattern="0.###E0" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp50" type="xs:float" dfdl:textNumberPattern="0.###E00" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp51" type="xs:float" dfdl:textNumberPattern="0.###E+0" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp52" type="xs:float" dfdl:textNumberPattern="00.###E0" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp53" type="xs:float" dfdl:textNumberPattern="##,###.##E0" dfdl:textNumberCheckPolicy="strict"/>
+     
+     <xs:element name="tnp54" type="xs:int" dfdl:textNumberPattern="*x#,###" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp55" type="xs:int" dfdl:textNumberPattern="*x#*n,###" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp56" type="xs:int" dfdl:textNumberPattern="* #0 o''clock" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp57" type="xs:int" dfdl:textNumberPattern="data:* #,###;(data:* #,###)" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp58" type="xs:int" dfdl:textNumberPattern="#*> right" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp59" type="xs:int" dfdl:textNumberPattern="# Items*$" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp60" type="xs:int" dfdl:textNumberPattern="#*[Items*]" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp61" type="xs:int" dfdl:textNumberPattern="**#" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp62" type="xs:int" dfdl:textNumberPattern="*##" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp63" type="xs:int" dfdl:textNumberPattern="#*" dfdl:textNumberCheckPolicy="strict"/>
+     
+     <xs:element name="tnp64" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="*+#" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="right"/>
+     <xs:element name="tnp65" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="**#" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="left"/>
+     <xs:element name="tnp66" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="tnp67" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="**#" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="right"/>
+     
+     <xs:element name="tnp68" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="###;-###" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="-" dfdl:textNumberJustification="right"/>
 
   </tdml:defineSchema>
   
@@ -1749,6 +1781,582 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: textNumberPattern_pSymbol01
+        Schema: textNumberPattern
+          Root: tnp47
+       Purpose: This test demonstrates the P symbol, which is used to derive the location of an assumed
+                decimal point. This particular test shows the first example from the spec.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_pSymbol01" root="tnp47" model="textNumberPattern"
+    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp47>0.00123</tnp47>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_pSymbol02
+        Schema: textNumberPattern
+          Root: tnp48
+       Purpose: This test demonstrates the P symbol, which is used to derive the location of an assumed
+                decimal point. This particular test shows the second example from the spec.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_pSymbol02" root="tnp48" model="textNumberPattern"
+    description="Section 13.6 - P symbol and vpinteger - DFDL-13-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp48>12300</tnp48>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation01
+        Schema: textNumberPattern
+          Root: tnp49
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation
+                This particular test demonstrates the example outlined in the spec    
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation01" root="tnp49" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.234E3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp49>1234.0</tnp49>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation02
+        Schema: textNumberPattern
+          Root: tnp50
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation.
+                The number of digits after the E gives the minimum exponent digit count.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation02" root="tnp50" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.234E3</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation03
+        Schema: textNumberPattern
+          Root: tnp51
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation.
+                To prefix positive exponents with a plus sign, specify "+" between the exponent
+                and the digits: "0.###E+0" will produce formats "1E+1", "1E+0", 1E-1", etc.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation03" root="tnp51" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.234E+1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp51>12.34</tnp51>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation04
+        Schema: textNumberPattern
+          Root: tnp51
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation.
+                To prefix positive exponents with a plus sign, specify "+" between the exponent
+                and the digits: "0.###E+0" will produce formats "1E+1", "1E+0", 1E-1", etc.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation04" root="tnp51" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.234E+0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp51>1.234</tnp51>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation05
+        Schema: textNumberPattern
+          Root: tnp51
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation.
+                To prefix positive exponents with a plus sign, specify "+" between the exponent
+                and the digits: "0.###E+0" will produce formats "1E+1", "1E+0", 1E-1", etc.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation05" root="tnp51" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.234E-1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp51>0.1234</tnp51>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation06
+        Schema: textNumberPattern
+          Root: tnp52
+       Purpose: This test demonstrates using textStandardPattern to represent scientific notation.
+                The minimum number of integer digits is achieved by adjusting the exponent.
+                This test demonstrates the parsing version of the example in the spec: 
+                0.00123 formatted with "00.###e0" yields "12.3E-4"
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation06" root="tnp52" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12.3E-4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp52>0.00123</tnp52>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_scientificNotation07
+        Schema: textNumberPattern
+          Root: tnp53
+       Purpose: This test demonstrates that exponential patterns cannot contain grouping separators.     
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_scientificNotation07" root="tnp53" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Scientific Notation - DFDL-13-091R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12,123.33E-4</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid textNumberPattern</tdml:error>
+      <tdml:error>Grouping separator in exponential in pattern "##,###.##E0"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding01
+        Schema: textNumberPattern
+          Root: tnp54
+       Purpose: This test demonstrates the use of the pad escape character and pad character to pad data.     
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding01" root="tnp54" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp54>5000</tnp54>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: textNumberPattern_padding02
+        Schema: textNumberPattern
+          Root: tnp54
+       Purpose: This test demonstrates the use of the pad escape character and pad character to pad data.     
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding02" root="tnp54" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">xxxxxxxxxxxxxnxxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding03
+        Schema: textNumberPattern
+          Root: tnp54
+       Purpose: This test demonstrates the use of the pad escape character and pad character to pad data.     
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding03" root="tnp54" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">xxxxxxxxxxxxx4xxxxxxxxxxxxxxxxxxxxxxxx5,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding04
+        Schema: textNumberPattern
+          Root: tnp55
+       Purpose: This test demonstrates the use of the pad escape character and pad character to pad data.     
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding04" root="tnp55" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">xxxxxxxxxxxxxxxxx5nnnn,000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid textNumberPattern</tdml:error>
+      <tdml:error>Multiple pad specifiers in pattern</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding05
+        Schema: textNumberPattern
+          Root: tnp56
+       Purpose: This test demonstrates the use of padding.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding05" root="tnp56" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-092R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">                 12 o'clock</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp56>12</tnp56>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding06
+        Schema: textNumberPattern
+          Root: tnp57
+       Purpose: This test demonstrates that padding can be placed after the prefix of a pattern.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding06" root="tnp57" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">data:                           4,999</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp57>4999</tnp57>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding07
+        Schema: textNumberPattern
+          Root: tnp57
+       Purpose: This test demonstrates that padding can be placed after the prefix of a pattern.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding07" root="tnp57" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">(data:                           4,999)</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp57>-4999</tnp57>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding08
+        Schema: textNumberPattern
+          Root: tnp58
+       Purpose: This test demonstrates that padding can be placed before the suffix of a pattern.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding08" root="tnp58" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> right</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp58>4</tnp58>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding09
+        Schema: textNumberPattern
+          Root: tnp59
+       Purpose: This test demonstrates that padding can be placed after the suffix of a pattern.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding09" root="tnp59" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">8 Items$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp59>8</tnp59>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding10
+        Schema: textNumberPattern
+          Root: tnp60
+       Purpose: This test demonstrates that padding can be placed after the suffix or before the suffix but not both.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding10" root="tnp60" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-096R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">8[[Items]]</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid textNumberPattern</tdml:error>
+      <tdml:error>Multiple pad specifiers in pattern</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding11
+        Schema: textNumberPattern
+          Root: tnp61
+       Purpose: This test demonstrates that the pad character can be any character, even a special pattern character
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding11" root="tnp61" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">******9</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp61>9</tnp61>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding12
+        Schema: textNumberPattern
+          Root: tnp62
+       Purpose: This test demonstrates that the pad character can be any character, even a special pattern character
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding12" root="tnp62" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">######2</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp62>2</tnp62>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_padding13
+        Schema: textNumberPattern
+          Root: tnp63
+       Purpose: This test demonstrates that if there is no character after the pad escape, the pattern is illegal.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_padding13" root="tnp63" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">3</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid textNumberPattern</tdml:error>
+      <tdml:error>Invalid pad specifier in pattern "#*"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo01
+        Schema: textNumberPattern
+          Root: tnp64
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo01" root="tnp64" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">********++++5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp64>5</tnp64>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo02
+        Schema: textNumberPattern
+          Root: tnp65
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo02" root="tnp65" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****5*****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp65>5</tnp65>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo03
+        Schema: textNumberPattern
+          Root: tnp66
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo03" root="tnp66" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp66>4</tnp66>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo04
+        Schema: textNumberPattern
+          Root: tnp67
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo04" root="tnp67" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">***********************************************************************************************************************************************************************************3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp67>3</tnp67>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo05
+        Schema: textNumberPattern
+          Root: tnp68
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo05" root="tnp68" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-500</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp68>500</tnp68>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_paddingCombo06
+        Schema: textNumberPattern
+          Root: tnp68
+       Purpose: This test demonstrates that this padding (within textNumberPattern)
+                is in addition to any other DFDL text number padding
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_paddingCombo06" root="tnp68" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">----500</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp68>500</tnp68>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">
     <dfdl:format ref="ex:daffodilTest1" initiator=""

@@ -80,5 +80,11 @@ class TestTextNumberPropsDebug {
   @Test def test_textStandardGroupingSeparator15() { runner.runOneTest("textStandardGroupingSeparator15") }
   @Test def test_textStandardGroupingSeparator16() { runner.runOneTest("textStandardGroupingSeparator16") }
   @Test def test_textStandardGroupingSeparator17() { runner.runOneTest("textStandardGroupingSeparator17") }
+
+// DFDL-853
+  @Test def test_textNumberPattern_pSymbol01() { runner.runOneTest("textNumberPattern_pSymbol01") }
+  @Test def test_textNumberPattern_pSymbol02() { runner.runOneTest("textNumberPattern_pSymbol02") }
+
+  @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
   
 }
