@@ -64,6 +64,26 @@ class TestTextNumberProps {
   @Test def test_textNumberPattern_specialChar02() { runner.runOneTest("textNumberPattern_specialChar02") }
   @Test def test_textNumberPattern_specialChar03() { runner.runOneTest("textNumberPattern_specialChar03") }
   @Test def test_textNumberPattern_specialChar04() { runner.runOneTest("textNumberPattern_specialChar04") }
+
+  @Test def test_dynamicExp() { runner.runOneTest("dynamicExp") }
+  @Test def test_dynamicExp2() { runner.runOneTest("dynamicExp2") }
+  @Test def test_dynamicExp_neg() { runner.runOneTest("dynamicExpNeg") }
+  @Test def test_dynamicExpInvalid() { runner.runOneTest("dynamicExpInvalid") }
+  @Test def test_expCaseInsensitive() { runner.runOneTest("expCaseInsensitive") }
+  @Test def test_expRawByte() { runner.runOneTest("expRawByte") }
+  @Test def test_expCharClasses() { runner.runOneTest("expCharClasses") }
+  @Test def test_expCharEntities() { runner.runOneTest("expCharEntities") }
+  @Test def test_noStandardExpRep() { runner.runOneTest("noStandardExpRep") }
+  @Test def test_expEmptyString() { runner.runOneTest("expEmptyString") }
+  @Test def test_expEmptyString2() { runner.runOneTest("expEmptyString2") }
+
+  @Test def test_infnanDouble() { runner.runOneTest("infnanDouble") }
+  @Test def test_nanFloat() { runner.runOneTest("nanFloat") }
+  @Test def test_infnan2() { runner.runOneTest("infnan2") }
+  @Test def test_nanInvalidType() { runner.runOneTest("nanInvalidType") }
+  @Test def test_infInvalidType() { runner.runOneTest("infInvalidType") }
+  @Test def test_infInvalid() { runner.runOneTest("infInvalid") }
+  @Test def test_nanInvalid() { runner.runOneTest("nanInvalid") }
   
 // DFDL-845
 //  @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }

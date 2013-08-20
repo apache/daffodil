@@ -88,4 +88,8 @@ class TestTextNumberPropsDebug {
   @Test def test_nonNegIntPadding01() { runner.runOneTest("nonNegIntPadding01") }
   @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
   
+//DFDL-191
+  @Test def test_infFloat() { runner.runOneTest("infFloat") }
+  @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
+  @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
 }

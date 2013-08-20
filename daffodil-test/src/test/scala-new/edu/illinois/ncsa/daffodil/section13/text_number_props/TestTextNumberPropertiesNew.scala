@@ -49,11 +49,6 @@ class TestTextNumberProperties {
   val aa = testDir + "TextNumberProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_dynamicExp() { runner.runOneTest("dynamicExp") }
-  @Test def test_dynamicExp_neg() { runner.runOneTest("dynamicExpNeg") }
-  
-  @Test def test_infnan() { runner.runOneTest("infnan") }
-  
   @Test def test_zero() { runner.runOneTest("zero") } 
   
   @Test def test_pattern_neg1() { runner.runOneTest("pattern_neg1") }

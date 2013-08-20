@@ -2563,8 +2563,8 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    
-	<xs:element name="dynamicExp" dfdl:lengthKind="implicit">
+
+    <xs:element name="dynamicExp" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:terminator="]">
           <xs:element name="decimalSep" type="xsd:string" />
@@ -2576,18 +2576,93 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-	
-	<xs:element name="infnan" dfdl:lengthKind="implicit">
+
+    <xs:element name="dynamicExpInvalid" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="decimalSep" type="xsd:string" />
+          <xs:element name="num" type="xsd:double"
+			dfdl:textNumberPattern="###0.###E00;-###0.###E00"
+			dfdl:textStandardDecimalSeparator="{ ../ex:decimalSep }"
+			dfdl:textStandardExponentRep="{ ../ex:exponentRep }" />
+          <xs:element name="exponentRep" type="xsd:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="expCaseInsensitive" dfdl:lengthKind="delimited" dfdl:terminator="]" dfdl:ignoreCase="yes"
+    dfdl:textStandardExponentRep="abc" type="xsd:double" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
+    <xs:element name="expCaseSensitive" dfdl:lengthKind="delimited" dfdl:terminator="]" dfdl:ignoreCase="no"
+    dfdl:textStandardExponentRep="abc" type="xsd:double" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
+    <xs:element name="expRawByte" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%#r" />
+
+    <xs:element name="expCharClasses" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%NL;" />
+
+    <xs:element name="expCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%LF;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
+    <xs:element name="expEmptyString" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="" dfdl:textNumberPattern="##.##E+0"/>
+
+    <xs:element name="infnanDouble" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:terminator="]">
           <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
           <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
-		  <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="NOTANUMBER" />
+          <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="NOTANUMBER" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-	
-	<xs:element name="zero" dfdl:lengthKind="implicit">
+
+    <xs:element name="infFloat" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="posinf" type="xsd:float" dfdl:textStandardInfinityRep="infinity" />
+          <xs:element name="neginf" type="xsd:float" dfdl:textStandardInfinityRep="infinity" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nanFloat" dfdl:lengthKind="delimited" type="xsd:float" dfdl:textStandardNaNRep="notanumber"
+    dfdl:terminator="]" />
+
+    <xs:element name="infnanCaseInsensitive" dfdl:lengthKind="implicit" dfdl:ignoreCase="yes">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="INFINITY" />
+          <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="NOTANUMBER" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="infnan2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:terminator="]">
+          <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="9" />
+          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="test 3" />
+          <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="i" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="infInvalid" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardInfinityRep="%#r" />
+
+    <xs:element name="nanInvalid" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardNaNRep="%#r" />
+
+    <xs:element name="infInvalidType" dfdl:lengthKind="delimited" type="xsd:long" dfdl:textStandardInfinityRep="INFINITY"
+    dfdl:terminator="]" />
+
+    <xs:element name="nanInvalidType" dfdl:lengthKind="delimited" type="xsd:long" dfdl:textStandardNaNRep="NOTANUMBER"
+    dfdl:terminator="]" />
+
+    <xs:element name="zero" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:terminator="]">
           <xs:element name="double" type="xsd:double" minOccurs="1" maxOccurs="unbounded" dfdl:textStandardZeroRep="ZERO NIL ZILCH 5 0" />
@@ -2602,6 +2677,21 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="textpropsInvalid">
+    <dfdl:format initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
+      textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"
+      textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
+      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
+      textNumberPattern="#,##0.###;-#,##0.###" />
+
+    <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"/>
 
   </tdml:defineSchema>
 
@@ -2672,6 +2762,26 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="dynamicExp2" root="dynamicExp"
+    model="textprops"
+    description="Parse a double with dynamic text number properties">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|exp|1234567_89exp2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dynamicExp xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <decimalSep>_</decimalSep>
+          <exponentRep>exp</exponentRep>
+          <num>1.23456789E8</num>
+        </dynamicExp>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="dynamicExpNeg" root="dynamicExp"
     model="textprops"
     description="Dynamically reads an invalid exponent representation">
@@ -2684,25 +2794,296 @@
 		<tdml:error>Runtime Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
-  
-  <tdml:parserTestCase name="infnan" root="infnan"
+
+  <tdml:parserTestCase name="dynamicExpInvalid" root="dynamicExpInvalid"
     model="textprops"
-    description="Read infinity and not a number">
+    description="Try to dynamically read an exponent representation with an invalid schema">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[_|1234567_89@2|@]]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Expression evaluation failed. Details: javax.xml.xpath.XPathExpressionException: no node for path { ../ex:exponentRep }</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expCaseInsensitive" root="expCaseInsensitive"
+    model="textprops"
+    description="Parse a double with a case insensitive exp">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.89AbC2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expCaseInsensitive>1.23456789E8</expCaseInsensitive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expCaseSensitive" root="expCaseSensitive"
+    model="textprops"
+    description="Parse a double with a case sensitive exp">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.89AbC2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Double (for xs:double): Unable to parse '1234567.89AbC2'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expRawByte" root="expRawByte"
+    model="textprops"
+    description="textStandardExponentRep with raw byte is not allowed.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expCharClasses" root="expCharClasses"
+    model="textprops"
+    description="textStandardExponentRep with DFDL character classes is not allowed.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardExponentRep cannot contain NL</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expCharEntities" root="expCharEntities"
+    model="textprops"
+    description="Parse a double with textStandardExponentRep containing a DFDL character entity">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.89
+2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expCharEntities>1.23456789E8</expCharEntities>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="noStandardExpRep" root="noStandardExpRep"
+    model="textpropsInvalid"
+    description="textStandardExponentRep must always be defined">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardExponentRep is not defined.</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expEmptyString" root="expEmptyString"
+    model="textprops"
+    description="Parse a double with textStandardExponentRep as empty string">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[12.34+2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expEmptyString>1234.0</expEmptyString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="expEmptyString2" root="expEmptyString"
+    model="textprops"
+    description="Parse a double with textStandardExponentRep as empty string">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[12.34-2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expEmptyString>0.1234</expEmptyString>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infnanDouble" root="infnanDouble"
+    model="textprops"
+    description="Read infinity and not a number for a double">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[INFINITY|-INFINITY|NOTANUMBER]]]></tdml:documentPart>
     </tdml:document>
-    
-	<tdml:infoset>
+
+    <tdml:infoset>
       <tdml:dfdlInfoset>
-        <infnan xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        <infnanDouble xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
           <posinf>INF</posinf>
           <neginf>-INF</neginf>
-		  <nan>NaN</nan>
-        </infnan>
+          <nan>NaN</nan>
+        </infnanDouble>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infFloat" root="infFloat"
+    model="textprops"
+    description="Read infinity for a float">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[infinity|-infinity]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infFloat xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <posinf>INF</posinf>
+          <neginf>-INF</neginf>
+        </infFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nanFloat" root="nanFloat"
+    model="textprops"
+    description="Read nan for a float">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[notanumber]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nanFloat>NaN</nanFloat>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infnan2" root="infnan2"
+    model="textprops"
+    description="Read infinity and not a number for a double">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[9|-test 3|i]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infnan2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <posinf>INF</posinf>
+          <neginf>-INF</neginf>
+          <nan>NaN</nan>
+        </infnan2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infnanCaseInsensitive" root="infnanCaseInsensitive"
+    model="textprops"
+    description="Read infinity and not a number, ignoring case">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Infinity|-iNfInItY|NOTaNumber]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infnanCaseInsensitive xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+          <posinf>inf</posinf>
+          <neginf>-INF</neginf>
+          <nan>NaN</nan>
+        </infnanCaseInsensitive>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infInvalid" root="infInvalid"
+    model="textprops"
+    description="Attempt to read an invalid inf.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[10]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nanInvalid" root="nanInvalid"
+    model="textprops"
+    description="Attempt to read an invalid nan.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[10]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid DFDL Entity (%#r) found</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nanInvalidType" root="nanInvalidType"
+    model="textprops"
+    description="Attempt to read nan for an invalid type.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NOTANUMBER]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse 'NOTANUMBER'</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infInvalidType" root="infInvalidType"
+    model="textprops"
+    description="Attempt to read inf for an invalid type.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[INFINITY]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse 'INFINITY'</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
 
