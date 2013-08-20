@@ -150,9 +150,19 @@
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="tnp67" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="**#" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="right"/>
-     
      <xs:element name="tnp68" type="xs:int" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="###;-###" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="-" dfdl:textNumberJustification="right"/>
+     
+     <xs:element name="decimalPad" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="decimalNoPad" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="decimalPad2" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+       dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="decimalPad3" type="xs:decimal" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="intPad" type="xs:int" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
 
   </tdml:defineSchema>
   
@@ -2339,6 +2349,110 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: decimalPadding01
+        Schema: textNumberPattern
+          Root: decimalPad
+       Purpose: This test demonstrates that padding should work with xs:decimal
+  -->
+
+  <tdml:parserTestCase name="decimalPadding01" root="decimalPad" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalPad>4</decimalPad>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: decimalPadding02
+        Schema: textNumberPattern
+          Root: decimalNoPad
+       Purpose: This test demonstrates that padding should work with xs:decimal
+  -->
+
+  <tdml:parserTestCase name="decimalPadding02" root="decimalNoPad" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">begin: 4 :end</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalNoPad>4</decimalNoPad>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: decimalPadding03
+        Schema: textNumberPattern
+          Root: intPad
+       Purpose: This test demonstrates that padding should work with xs:decimal. In this case, the same 
+                pattern and padding used for decimal is being used on int.
+  -->
+
+  <tdml:parserTestCase name="decimalPadding03" root="intPad" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <intPad>4</intPad>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: decimalPadding04
+        Schema: textNumberPattern
+          Root: decimalPad2
+       Purpose: This test demonstrates that padding should work with xs:decimal. In this case, padding is used 
+                but no text number pattern
+  -->
+
+  <tdml:parserTestCase name="decimalPadding04" root="decimalPad2" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****4****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalPad2>4</decimalPad2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: decimalPadding05
+        Schema: textNumberPattern
+          Root: decimalPad3
+       Purpose: This test demonstrates that padding should work with xs:decimal. In this case, padding is used 
+                within the text number pattern but not elsewhere
+  -->
+
+  <tdml:parserTestCase name="decimalPadding05" root="decimalPad3" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <decimalPad3>4</decimalPad3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   
   <tdml:defineSchema name="textprops">
     <dfdl:format ref="ex:daffodilTest1" initiator=""

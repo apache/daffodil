@@ -167,6 +167,13 @@ class TestTextNumberProps {
   @Test def test_textNumberPattern_paddingCombo04() { runner.runOneTest("textNumberPattern_paddingCombo04") }
   @Test def test_textNumberPattern_paddingCombo05() { runner.runOneTest("textNumberPattern_paddingCombo05") }
   @Test def test_textNumberPattern_paddingCombo06() { runner.runOneTest("textNumberPattern_paddingCombo06") }
+
+// DFDL-859
+//  @Test def test_decimalPadding01() { runner.runOneTest("decimalPadding01") }
+//  @Test def test_decimalPadding04() { runner.runOneTest("decimalPadding04") }
+  @Test def test_decimalPadding02() { runner.runOneTest("decimalPadding02") }
+  @Test def test_decimalPadding03() { runner.runOneTest("decimalPadding03") }
+  @Test def test_decimalPadding05() { runner.runOneTest("decimalPadding05") }
   
   @Test def test_dynamic() { runner.runOneTest("dynamic") }
   @Test def test_dynamic_neg1() { runner.runOneTest("dynamicNeg1") }

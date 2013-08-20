@@ -81,5 +81,9 @@ class TestTextNumberPropsDebug {
   @Test def test_textNumberPattern_pSymbol02() { runner.runOneTest("textNumberPattern_pSymbol02") }
 
   @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
+
+// DFDL-859
+  @Test def test_decimalPadding01() { runner.runOneTest("decimalPadding01") }
+  @Test def test_decimalPadding04() { runner.runOneTest("decimalPadding04") }
   
 }
