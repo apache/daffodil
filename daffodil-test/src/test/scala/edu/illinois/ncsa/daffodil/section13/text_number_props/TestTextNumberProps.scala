@@ -174,6 +174,12 @@ class TestTextNumberProps {
   @Test def test_decimalPadding02() { runner.runOneTest("decimalPadding02") }
   @Test def test_decimalPadding03() { runner.runOneTest("decimalPadding03") }
   @Test def test_decimalPadding05() { runner.runOneTest("decimalPadding05") }
+
+// DFDL-859
+//  @Test def test_nonNegIntPadding01() { runner.runOneTest("nonNegIntPadding01") }
+//  @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
+  @Test def test_nonNegIntPadding02() { runner.runOneTest("nonNegIntPadding02") }
+  @Test def test_nonNegIntPadding04() { runner.runOneTest("nonNegIntPadding04") }
   
   @Test def test_dynamic() { runner.runOneTest("dynamic") }
   @Test def test_dynamic_neg1() { runner.runOneTest("dynamicNeg1") }

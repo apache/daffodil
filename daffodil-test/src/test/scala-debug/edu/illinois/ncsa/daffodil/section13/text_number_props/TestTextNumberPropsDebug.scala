@@ -85,5 +85,7 @@ class TestTextNumberPropsDebug {
 // DFDL-859
   @Test def test_decimalPadding01() { runner.runOneTest("decimalPadding01") }
   @Test def test_decimalPadding04() { runner.runOneTest("decimalPadding04") }
+  @Test def test_nonNegIntPadding01() { runner.runOneTest("nonNegIntPadding01") }
+  @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
   
 }

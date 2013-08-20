@@ -163,6 +163,15 @@
        dfdl:textNumberCheckPolicy="strict"/>
      <xs:element name="intPad" type="xs:int" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
        dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     
+     <xs:element name="nonNegIntPad" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="nonNegIntNoPad" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="nonNegIntPad2" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
+       dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
+     <xs:element name="nonNegIntPad3" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
+       dfdl:textNumberCheckPolicy="strict"/>
 
   </tdml:defineSchema>
   
@@ -2453,6 +2462,87 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: nonNegIntPadding01
+        Schema: textNumberPattern
+          Root: nonNegIntPad
+       Purpose: This test demonstrates that padding should work with xs:nonNegativeInteger
+  -->
+
+  <tdml:parserTestCase name="nonNegIntPadding01" root="nonNegIntPad" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntPad>4</nonNegIntPad>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: nonNegIntPadding02
+        Schema: textNumberPattern
+          Root: nonNegIntNoPad
+       Purpose: This test demonstrates that padding should work with xs:nonNegativeInteger
+  -->
+
+  <tdml:parserTestCase name="nonNegIntPadding02" root="nonNegIntNoPad" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">begin: 4 :end</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntNoPad>4</nonNegIntNoPad>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: nonNegIntPadding03
+        Schema: textNumberPattern
+          Root: nonNegIntPad2
+       Purpose: This test demonstrates that padding should work with xs:nonNegativeInteger. In this case, padding is used 
+                but no text number pattern
+  -->
+
+  <tdml:parserTestCase name="nonNegIntPadding03" root="nonNegIntPad2" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****4****</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntPad2>4</nonNegIntPad2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: nonNegIntPadding04
+        Schema: textNumberPattern
+          Root: nonNegIntPad3
+       Purpose: This test demonstrates that padding should work with xs:nonNegativeInteger. In this case, padding is used 
+                within the text number pattern but not elsewhere
+  -->
+
+  <tdml:parserTestCase name="nonNegIntPadding04" root="nonNegIntPad3" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">****begin: 4 :end</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNegIntPad3>4</nonNegIntPad3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
