@@ -7,13 +7,14 @@
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format lengthKind="delimited" separator=""
-        alignment="1" alignmentUnits="bytes" textTrimKind="none"
+        alignment="1" alignmentUnits="bytes" textTrimKind="padChar"
         trailingSkip="0" leadingSkip='0' 
         encoding="US-ASCII" ignoreCase='no' initiator=""
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"
         documentFinalTerminatorCanBeMissing='yes'
         byteOrder="bigEndian" binaryNumberRep='binary'
+        lengthUnits="characters"
         representation="text"
         textStandardZeroRep="0"
         textNumberRounding="explicit"
@@ -23,6 +24,7 @@
         textStandardNaNRep="NaN"
         textStandardExponentRep="^"
         textNumberCheckPolicy="strict"
+        escapeSchemeRef=''
         occursCountKind='parsed'/>
     </appinfo>
   </annotation>
@@ -34,10 +36,10 @@
   <complexType name="example1">
     <sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
-        <element name="x" type="xsd:decimal" maxOccurs="unbounded"
+        <element name="x" type="xsd:double" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberRep="standard"
           dfdl:textNumberJustification="right"
-          dfdl:textNumberPadCharacter="%WSP;" dfdl:textStandardBase="10"
+          dfdl:textNumberPadCharacter="%SP;" dfdl:textStandardBase="10"
           dfdl:textNumberPattern="###,###.##;-###,###.##"
           dfdl:textStandardDecimalSeparator="!"
           dfdl:textStandardGroupingSeparator="#"
@@ -46,17 +48,17 @@
           dfdl:ignoreCase="yes" />
       </sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
-        <element name="y" type="xsd:decimal" maxOccurs="unbounded"
+        <element name="y" type="xsd:double" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberRep="standard"
           dfdl:textNumberJustification="right"
           dfdl:textNumberPattern="####"
-          dfdl:textNumberPadCharacter="%WSP;" dfdl:textStandardBase="16" />
+          dfdl:textNumberPadCharacter="%SP;" dfdl:textStandardBase="16" />
       </sequence>
       <sequence dfdl:separator="***" dfdl:terminator="%NL;">
         <element name="z" type="xsd:float" maxOccurs="unbounded"
           dfdl:lengthKind="delimited" dfdl:textNumberJustification="right"
           dfdl:textNumberPattern="####"
-          dfdl:textNumberPadCharacter="%WSP;" />
+          dfdl:textNumberPadCharacter="%SP;" />
       </sequence>
     </sequence>
   </complexType>
