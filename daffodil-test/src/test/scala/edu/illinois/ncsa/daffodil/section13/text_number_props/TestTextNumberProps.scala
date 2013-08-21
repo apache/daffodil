@@ -73,7 +73,9 @@ class TestTextNumberProps {
   @Test def test_expRawByte() { runner.runOneTest("expRawByte") }
   @Test def test_expCharClasses() { runner.runOneTest("expCharClasses") }
   @Test def test_expCharEntities() { runner.runOneTest("expCharEntities") }
+  @Test def test_expCharEntities2() { runner.runOneTest("expCharEntities2") }
   @Test def test_noStandardExpRep() { runner.runOneTest("noStandardExpRep") }
+  @Test def test_noStandardExpRep2() { runner.runOneTest("noStandardExpRep2") }
   @Test def test_expEmptyString() { runner.runOneTest("expEmptyString") }
   @Test def test_expEmptyString2() { runner.runOneTest("expEmptyString2") }
 

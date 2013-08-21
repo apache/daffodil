@@ -2605,6 +2605,9 @@
     <xs:element name="expCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
     dfdl:textStandardExponentRep="%LF;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
 
+    <xs:element name="expCharEntities2" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardExponentRep="%HT;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
     <xs:element name="expEmptyString" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
     dfdl:textStandardExponentRep="" dfdl:textNumberPattern="##.##E+0"/>
 
@@ -2692,6 +2695,21 @@
       textNumberPattern="#,##0.###;-#,##0.###" />
 
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"/>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="textpropsInvalid2">
+    <dfdl:format initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
+      textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
+      terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
+      separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"
+      textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"
+      encoding="ASCII" representation="text" occursCountKind="parsed"
+      utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
+      textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
+      textNumberPattern="#,##0.###;-#,##0.###" />
+
+    <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:float"/>
 
   </tdml:defineSchema>
 
@@ -2883,8 +2901,38 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="expCharEntities2" root="expCharEntities2"
+    model="textprops"
+    description="Parse a double with textStandardExponentRep containing a DFDL character entity">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.89	2]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expCharEntities2>1.23456789E8</expCharEntities2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="noStandardExpRep" root="noStandardExpRep"
     model="textpropsInvalid"
+    description="textStandardExponentRep must always be defined">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property textStandardExponentRep is not defined.</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="noStandardExpRep2" root="noStandardExpRep"
+    model="textpropsInvalid2"
     description="textStandardExponentRep must always be defined">
 
     <tdml:document>
