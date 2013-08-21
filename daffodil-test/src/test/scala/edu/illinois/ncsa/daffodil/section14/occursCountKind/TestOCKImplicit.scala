@@ -50,9 +50,32 @@ class TestOCKImplicit {
   lazy val runner = new DFDLTestSuite(res)
 
   @Test def test_ockImplicit1() { runner.runOneTest("ockImplicit1") }
+
   // Waiting on DFDL-703 for clearer error message
   // @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }
-  @Test def test_ockImplicit3() { runner.runOneTest("ockImplicit3") }
-  // Waiting on DFDL-703 for clearer error message
   // @Test def test_ockImplicit4() { runner.runOneTest("ockImplicit4") }
+
+  @Test def test_ockImplicit3() { runner.runOneTest("ockImplicit3") }
+  
+  @Test def test_ockImplicit5() { runner.runOneTest("ockImplicit5") }
+  @Test def test_ockImplicit6() { runner.runOneTest("ockImplicit6") }
+  @Test def test_ockImplicit7() { runner.runOneTest("ockImplicit7") }
+  @Test def test_ockImplicit8() { runner.runOneTest("ockImplicit8") }
+  @Test def test_ockImplicit9() { runner.runOneTest("ockImplicit9") }
+  @Test def test_ockImplicit10() { runner.runOneTest("ockImplicit10") }
+  @Test def test_ockImplicit11() { runner.runOneTest("ockImplicit11") }
+  @Test def test_ockImplicit12() { runner.runOneTest("ockImplicit12") }
+  @Test def test_ockImplicit13() { runner.runOneTest("ockImplicit13") }
+  @Test def test_ockImplicit14() { runner.runOneTest("ockImplicit14") }
+  @Test def test_ockImplicit15() { runner.runOneTest("ockImplicit15") }
+  
+  @Test def test_ockImplicit16() { runner.runOneTest("ockImplicit16") }
+  @Test def test_ockImplicit17() { runner.runOneTest("ockImplicit17") }
+  @Test def test_ockImplicit18() { runner.runOneTest("ockImplicit18") }
+  @Test def test_ockImplicit19() { runner.runOneTest("ockImplicit19") }
+  
+  @Test def test_ockImplicit20() { runner.runOneTest("ockImplicit20") }
+  @Test def test_ockImplicit21() { runner.runOneTest("ockImplicit21") }
+  @Test def test_ockImplicit22() { runner.runOneTest("ockImplicit22") }
+  @Test def test_ockImplicit23() { runner.runOneTest("ockImplicit23") }
 }

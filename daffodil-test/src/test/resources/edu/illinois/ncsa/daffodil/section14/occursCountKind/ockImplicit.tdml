@@ -400,14 +400,116 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="r14">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" type="xs:string" minOccurs='2' dfdl:lengthKind="explicit" dfdl:length="1"
+            maxOccurs='unbounded' dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r15">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="one" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:alignmentUnits="bits" dfdl:alignment="1">
+                <xs:element name="b" type="xs:int" dfdl:representation="text" minOccurs="1" maxOccurs="1" 
+                  dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" dfdl:occursCountKind="implicit"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:lengthUnits="bytes" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r16">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="one" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:alignmentUnits="bytes" dfdl:alignment="2">
+                <xs:element name="b" type="xs:int" dfdl:representation="text" minOccurs="1" maxOccurs="1" 
+                  dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" dfdl:occursCountKind="implicit"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:lengthUnits="bytes" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r17">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="one" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:alignmentUnits="bytes" dfdl:alignment="1">
+                <xs:element name="b" type="xs:int" dfdl:representation="text" minOccurs="1" maxOccurs="1" 
+                  dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" dfdl:occursCountKind="implicit"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r18">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
+          <xs:element name="one" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:alignmentUnits="bytes" dfdl:alignment="2">
+                <xs:element name="b" type="xs:int" dfdl:representation="text" minOccurs="1" maxOccurs="1" 
+                  dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1" dfdl:occursCountKind="implicit"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:lengthUnits="bytes" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r19">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="a" type="xs:string" dfdl:initiator="(" dfdl:terminator=")" minOccurs='2' dfdl:emptyValueDelimiterPolicy="none" dfdl:lengthKind="delimited"
+            maxOccurs='unbounded' dfdl:occursCountKind="implicit"/>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern"
+            dfdl:lengthPattern="ab" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r20">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="a" type="xs:string" dfdl:lengthKind="delimited" maxOccurs='unbounded' dfdl:occursCountKind="implicit"/>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern" dfdl:lengthPattern="ab" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r21">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="a" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="5" minOccurs="1" maxOccurs='unbounded' dfdl:occursCountKind="implicit"/>
+          <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern" dfdl:lengthPattern="ab" dfdl:occursCountKind="implicit"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
   <!--
     Test name: ockImplicit1
-    Schema: s1
-    Purpose: This test shows minOccurs is respected for occursCountKind implicit, 
-    even when maxOccurs is unbounded."
+       Schema: s1
+         Root: r1
+      Purpose: This test shows minOccurs is respected for occursCountKind implicit, 
+               even when maxOccurs is unbounded."
   -->
 
   <tdml:parserTestCase name="ockImplicit1" root="r1"
@@ -433,6 +535,14 @@
       <tdml:error>placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit3
+       Schema: s1
+         Root: r2
+      Purpose: This test shows that maxOccurs "unbounded" is allowed when occursCountKind is implicit for the last element
+               in the sequence.
+  -->
   
   <tdml:parserTestCase name="ockImplicit3" root="r2"
     model="s1" description="Section 14.2.2">
@@ -465,6 +575,7 @@
     is only allowed on the last required element of a sequence.  In this case there are
     two unbounded, required elements
   -->
+
   <tdml:parserTestCase name="ockImplicit5" root="r3"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(12),(23),24,25]]></tdml:document>
@@ -502,6 +613,7 @@
     a required unbounded element followed by a sequence that has an initiator/terminator
     which means it has required syntax.
   -->
+
   <tdml:parserTestCase name="ockImplicit7" root="r5"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),[48]]]></tdml:document>
@@ -519,6 +631,7 @@
     a required unbounded element followed by a sequence that doesn't have an initiator/terminator
     or contains a required element which means it doesn't have required syntax.
   -->
+
   <tdml:parserTestCase name="ockImplicit8" root="r6"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
@@ -538,9 +651,10 @@
     Schema: s1
     Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
     is only allowed on the last required element of a sequence.  In this case there is
-    a required unbounded element followed by a sequence that has contains a required
+    a required unbounded element followed by a sequence that contains a required
     element.
   -->
+
   <tdml:parserTestCase name="ockImplicit9" root="r7"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
@@ -558,6 +672,7 @@
     a required unbounded element followed by a choice that doesn't have an initiator/terminator
     and not every option contains a required element which means it doesn't have required syntax.
   -->
+
   <tdml:parserTestCase name="ockImplicit10" root="r8"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
@@ -580,6 +695,7 @@
     a required unbounded element followed by a choice that contains a required
     element in every option.
   -->
+
   <tdml:parserTestCase name="ockImplicit11" root="r9"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),48]]></tdml:document>
@@ -598,6 +714,7 @@
     element in every option.  However, the option selected does contain a required
     element which should case an SDE at runtime.
   -->
+
   <tdml:parserTestCase name="ockImplicit12" root="r10"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
@@ -616,6 +733,7 @@
     in every option. In this case one of the required choice options is a string that
     has a length known to be greater than 0, making it required.
   -->
+
   <tdml:parserTestCase name="ockImplicit13" root="r11"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
@@ -633,6 +751,7 @@
     a required unbounded element followed by an element with lengthKind="pattern" with
     a pattern that will match an empty string.  This should generate an SDE at runtime.
   -->
+
   <tdml:parserTestCase name="ockImplicit14" root="r12"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
@@ -653,6 +772,186 @@
   <tdml:parserTestCase name="ockImplicit15" root="r13"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit16
+       Schema: s1
+         Root: r14
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (string with minOccurs > 0 and explicit length > 0)
+  -->
+
+  <tdml:parserTestCase name="ockImplicit16" root="r14" model="s1" description="Section 14.2.2">
+    <tdml:document>a,b,c,d,e,f,g</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r14>
+          <a>a</a>
+          <a>b</a>
+          <a>c</a>
+          <a>d</a>
+          <a>e</a>
+          <a>f</a>
+          <a>g</a>
+        </r14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit17
+       Schema: s1
+         Root: r15
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (alignment = 1 bit)
+  -->
+
+  <tdml:parserTestCase name="ockImplicit17" root="r15" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">32,ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit18
+       Schema: s1
+         Root: r16
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (alignment = 1 byte)
+  -->
+
+  <tdml:parserTestCase name="ockImplicit18" root="r16" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">32,ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit19
+       Schema: s1
+         Root: r17
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (alignment = 1 byte) but it is the last element and should
+               parse successfully
+  -->
+
+  <tdml:parserTestCase name="ockImplicit19" root="r17" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">3,2,3,2,3,4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r17>
+          <one>
+            <b>3</b>
+          </one>
+          <one>
+            <b>2</b>
+          </one>
+          <one>
+            <b>3</b>
+          </one>
+          <one>
+            <b>2</b>
+          </one>
+          <one>
+            <b>3</b>
+          </one>
+          <one>
+            <b>4</b>
+          </one>
+        </r17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit20
+       Schema: s1
+         Root: r18
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (alignment = 2 bytes & isKnownToBePrecededByAllByteLengthItems)
+  -->
+
+  <tdml:parserTestCase name="ockImplicit20" root="r18" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">32,ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit21
+       Schema: s1
+         Root: r19
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (emptyValueDelimiterPolicy="none") followed by another.
+  -->
+
+  <tdml:parserTestCase name="ockImplicit21" root="r19" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">(32),(533),ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit22
+       Schema: s1
+         Root: r20
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (minOccurs > 0 and emptyIsAnObservableConcept) followed by another.
+  -->
+
+  <tdml:parserTestCase name="ockImplicit22" root="r20" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="text">(32),(533),ab</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ockImplicit23
+       Schema: s1
+         Root: r21
+      Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
+               is only allowed on the last required element of a sequence.  In this case there is
+               a required unbounded element (minOccurs > 0, hexBinary, lengthKnownToBeGreaterThanZero) followed by another.
+  -->
+
+  <tdml:parserTestCase name="ockImplicit23" root="r21" model="s1" description="Section 14.2.2">
+    <tdml:document>
+      <tdml:documentPart type="byte">AB3E34</tdml:documentPart>
+    </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence</tdml:error>
