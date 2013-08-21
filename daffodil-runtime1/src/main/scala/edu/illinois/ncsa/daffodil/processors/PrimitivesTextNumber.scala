@@ -51,91 +51,70 @@ import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 
 
-trait ConvertTextNumberParserUnparserCommon[S]
-{
-  def helper: ConvertTextNumberParserUnparserHelperBase[S]
 
+case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], gram: Gram, e: SchemaComponent) extends PrimParser(gram, e)
+{
   override def toString = "to(xs:" + helper.GramName + ")"
-
-  def compare(num1: Number, num2: Number) = {
-    val bd1 = new java.math.BigDecimal(num1.toString)
-    val bd2 = new java.math.BigDecimal(num2.toString)
-    bd1.compareTo(bd2)
-  }
-}
-
-case class ConvertTextNumberParser[S](h: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], gram: Gram, e: SchemaComponent) extends PrimParser(gram, e)
-  with ConvertTextNumberParserUnparserCommon[S]
-{
-  val helper = h
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val node = start.parentElement
     var str = node.dataValue
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
-    val resultState = try {
-      // Strip leading + (sign) since the DecimalFormat can't handle it
-      if (str.length > 0 && str.charAt(0) == '+') {
-        // TODO: There needs to be a way to restore '+' in the unparse, but that will be in the format field
-        str = str.substring(1)
-      }
-      if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.GramDescription, helper.GramName)
+    if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.GramDescription, helper.GramName)
 
-
-    val (state, number) = helper.zeroRepList.find { _ == str } match {
-      case Some(s) => (start, helper.getNum(0))
+    val (resultState, numAsString) = helper.zeroRepList.find { _ == str } match {
+      case Some(s) => (start, helper.getStringFormat(helper.getNum(0)))
       case None => {
-          val (newstate, df) = nff.getNumFormat(start)
-          val pos = new ParsePosition(0)
-          val num = try {
-            df.parse(str, pos)
-          } catch {
-            case u: UnsuppressableException => throw u
-            case e: Exception =>
-              return PE(newstate, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
-                helper.GramDescription, helper.GramName, str, e)
-            // TODO: need to throw a processing error if fails because of
-            //       excess precision due to disabled rounding
-          }
-
-          if (helper.isInvalidRange(num)) {
-            return PE(newstate, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-              helper.GramDescription, helper.GramName, str, num)
-          }
-
-          // Verify that what was parsed was what was passed exactly in byte count.
-          // Use pos to verify all characters consumed & check for errors!
-          if (pos.getIndex != str.length) {
-            return PE(newstate, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
-              helper.GramDescription, helper.GramName, str)
-          }
-
-          // convert to proper type
-          val asNumber = helper.getNum(num)
-
-          // Verify no digits lost (the number was correctly transcribed)
-          if (helper.isInt && (compare(asNumber.asInstanceOf[Number], num) != 0)) {
-            // Transcription error
-            return PE(newstate, "Convert to %s (for xs:%s): Invalid data: '%s' parsed into %s, which converted into %s.",
-              helper.GramDescription, helper.GramName, str, num, asNumber)
-          }
-
-          (newstate, asNumber)
+        val (newstate, df) = nff.getNumFormat(start)
+        val pos = new ParsePosition(0)
+        val num = try {
+          df.parse(str, pos)
+        } catch {
+          case u: UnsuppressableException => throw u
+          case e: Exception =>
+            return PE(newstate, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+              helper.GramDescription, helper.GramName, str, e)
         }
+            
+        // Verify that what was parsed was what was passed exactly in byte count.
+        // Use pos to verify all characters consumed & check for errors!
+        if (num == null || pos.getIndex != str.length) {
+          return PE(newstate, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
+            helper.GramDescription, helper.GramName, str)
+        }
+    
+        val asString = num match {
+          // if num is infRep, -infRep, or nanRep, then parse() returns
+          // Double.{POSINF, NEGINF, NAN}. otherwise, it returns some kind
+          // of boxed number that can hold the full contents of the number,
+          // which is one of Long, BigInteger, BigDecimal
+          case d: java.lang.Double if (d.isInfinite && d > 0) => XMLUtils.PositiveInfinity
+          case d: java.lang.Double if (d.isInfinite && d < 0) => XMLUtils.NegativeInfinity
+          case d: java.lang.Double if (d.isNaN) => XMLUtils.NaN
+          case _ => {
+            if (helper.isInvalidRange(num)) {
+              return PE(newstate, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+                helper.GramDescription, helper.GramName, str, num)
+            }
+
+            // convert to proper type
+            val asNumber = helper.getNum(num)
+
+            // The following change was made because of the issues with the float
+            // adding a position of precision to the Number object.  At some point we
+            // will want to revert this back to the actual type but this is a quick fix
+            // for the issues we were having with the 0.003 vs 0.0030 error in test_DelimProp_05
+            //
+            //asNumber.toString
+            helper.getStringFormat(asNumber)
+          }
+        }
+        (newstate, asString)
       }
+    }
 
-      // The following change was made because of the issues with the float
-      // adding a position of precision to the Number object.  At some point we
-      // will want to revert this back to the actual type but this is a quick fix
-      // for the issues we were having with the 0.003 vs 0.0030 error in test_DelimProp_05
-      //
-      //node.setText(asNumber.toString)
-      val result = helper.getStringFormat(number)
-      node.setDataValue(result)
-
-      state
-    } // catch { case e: Exception => start1.failed("Failed to convert %s to an xs:%s" + GramName) }
+    node.setDataValue(numAsString)
 
     resultState
   }
@@ -148,10 +127,9 @@ case class ConvertTextNumberParser[S](h: ConvertTextNumberParserUnparserHelperBa
  * 
  */
 /*
-case class ConvertTextNumberUnparser[S](h: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], e: AnnotatedSchemaComponent) extends Unparser(e)
-  with ConvertTextNumberParserUnparserCommon[S]
+case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], e: AnnotatedSchemaComponent) extends Unparser(e)
 {
-  val helper = h
+  override def toString = "to(xs:" + helper.GramName + ")"
 
   // Converts data to number format, returns unparse exception if data cannot be converted to given format.
   def unparse(start: UState): UState = {
@@ -210,7 +188,6 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
   def isInt: Boolean
   def isInvalidRange(n: java.lang.Number): Boolean
   def getStringFormat(n: S): String
-  def getInfNaNString(n: S): Option[String] = None
   def allowInfNaN: Boolean = false
 
   val zeroRepList = zeroRep.filter { _ != "" }
@@ -240,17 +217,19 @@ abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[Str
     // e.g., like this: Assert.invariant(n.isInstanceOf[{ def longValue : Long}])
     // But that's eliminated by erasure, so we'll just do without.
     //
-    if (n == null) false // we tolerate null here. Something else figures out the error.
-    else {
-      val l = n.longValue
-      isInvalidRange(l)
+    val l = n.longValue
+
+    // check for overflow/underflow.
+    val orig = new java.math.BigDecimal(n.toString)
+    val newl = new java.math.BigDecimal(l)
+    if (orig.compareTo(newl) != 0) {
+      true
+    } else {
+      l < min || l > max
     }
   }
   def min: Long
   def max: Long
-  private def isInvalidRange(l: Long) = {
-    l < min || l > max
-  }
 }
 
 abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: List[String])
@@ -258,11 +237,6 @@ abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: Li
 {
   override def isInt = false
   override def getStringFormat(n: S): String = {
-
-    val infNanStrOpt = getInfNaNString(n)
-    if (infNanStrOpt.isDefined) {
-      return infNanStrOpt.get
-    }
 
     //val trailingZeroes = """0*(?!<[1-9])$"""
     val trailingZeroes = """(?<=[1-9])(0*)$""".r
@@ -300,13 +274,10 @@ case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[St
   override val GramName = "nonNegativeInteger"
   override val GramDescription = "Unlimited Size Non Negative Integer"
   override def isInvalidRange(n: java.lang.Number): Boolean = {
-    if (n == null) false // we tolerate null here. Something else figures out the error.
-    else {
-      val value = BigDecimal(n.toString)
-      val isNegative = value.signum == -1
-      if (isNegative) return true
-      false
-    }
+    val value = BigDecimal(n.toString)
+    val isNegative = value.signum == -1
+    if (isNegative) return true
+    false
   }
   def min = -1 // ignored
   def max = -1 // ignored
@@ -363,7 +334,6 @@ case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
       case n: BigInteger => {
         n.compareTo(BigInteger.ZERO) < 0 || n.compareTo(BigInteger.ONE.shiftLeft(64)) >= 0
       }
-      case null => false // tolerate null. Deal with that error elsewhere.
       case _ => {
         val n = jn.longValue()
         n < 0 // note: the other side of the check is inherently ok since a Long must be smaller than an unsignedLong.
@@ -411,8 +381,6 @@ case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String])
   override val GramName = "decimal"
   override val GramDescription = "Unlimited Size Decimal"
   override def isInvalidRange(n: java.lang.Number): Boolean = false
-  def min = -1 // ignored
-  def max = -1 // ignored
 
   override def getStringFormat(n: BigDecimal): String = {
     n.underlying.toPlainString
@@ -426,16 +394,9 @@ case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
   override val GramName = "double"
   override val GramDescription = "Double"
   override def allowInfNaN = true
-  def isInvalidRange(n: java.lang.Number): Boolean = false
-
-  override def getInfNaNString(n: Double): Option[String] = {
-    val infNanStr = n match {
-      case Double.PositiveInfinity => Some(XMLUtils.PositiveInfinity)
-      case Double.NegativeInfinity=> Some(XMLUtils.NegativeInfinity)
-      case Double.NaN => Some(XMLUtils.NaN)
-      case _ => None
-    }
-    infNanStr
+  def isInvalidRange(n: java.lang.Number): Boolean = {
+    val d = n.doubleValue()
+    (d.isNaN || d < Double.MinValue || d > Double.MaxValue)
   }
 }
 
@@ -447,20 +408,8 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
   override val GramDescription = "Float"
   override def allowInfNaN = true
   def isInvalidRange(n: java.lang.Number): Boolean = {
-    if (n == null) return false // tolerate null here. We catch that error elsewhere.
-    val d = n.doubleValue()
-    if (d.isNaN) false
-    else (d < Float.MinValue) || d > Float.MaxValue
-  }
-
-  override def getInfNaNString(n: Float): Option[String] = {
-    val infNanStr = n match {
-      case Float.PositiveInfinity => Some(XMLUtils.PositiveInfinity)
-      case Float.NegativeInfinity => Some(XMLUtils.NegativeInfinity)
-      case Float.NaN => Some(XMLUtils.NaN)
-      case _ => None
-    }
-    infNanStr
+    val f = n.floatValue()
+    (f.isNaN || f < Float.MinValue || f > Float.MaxValue)
   }
 }
 

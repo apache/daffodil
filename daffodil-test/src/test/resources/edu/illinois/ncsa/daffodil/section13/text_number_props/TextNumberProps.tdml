@@ -178,7 +178,7 @@
      <xs:element name="tnp69" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00" />
      <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      <xs:element name="tnp71" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'E'#;-#" />
-     <xs:element name="tnp72" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
+     <xs:element name="tnp72" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      
      <xs:element name="tnp73" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="the num: #;-#" dfdl:inputValueCalc="{ 500 }" />
      
@@ -239,6 +239,7 @@
      <xs:element name="tnp90" type="xs:int" dfdl:textNumberPattern="-###"/>
      
      <xs:element name="tnp91" type="xs:int" dfdl:textStandardZeroRep="" dfdl:textNumberPattern="#####"/>
+    
 
   </tdml:defineSchema>
   
@@ -388,7 +389,7 @@
     description="Section 13.6 - Number properties with Text Representation - DFDL-13-073R">
 
     <tdml:document>
-      <tdml:documentPart type="text">(4,000.00)|3,000.00|(3,000.00)|+6,000.00|(6,000.00)</tdml:documentPart>
+      <tdml:documentPart type="text">(4,000.00)|3,000.00|(3,000.00)|6,000.00|(6,000.00)</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

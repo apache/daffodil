@@ -38,7 +38,7 @@
     <xs:element name="l_2" type="xs:long" dfdl:lengthKind="explicit"
       dfdl:length="{ 10 }" />
     <xs:element name="l_3" type="xs:long" dfdl:lengthKind="explicit"
-      dfdl:length="{ 20 }" />
+      dfdl:length="{ 20 }" dfdl:textNumberPattern="+0;-0" />
     <xs:element name="l_4" type="xs:long" dfdl:lengthKind="explicit"
       dfdl:length="{ 4 }" />
     <xs:element name="s_1" type="xs:short" dfdl:lengthKind="explicit"
@@ -387,7 +387,7 @@
 
     <tdml:document><![CDATA[-9223372036854775809]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Invalid data</tdml:error>
+      <tdml:error>Out of Range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -396,7 +396,7 @@
 
     <tdml:document><![CDATA[+9223372036854775808]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Invalid data</tdml:error>
+      <tdml:error>Out of Range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

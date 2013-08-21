@@ -84,14 +84,8 @@ class TestTextNumberPropsDebug {
   @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
   
 //DFDL-191
-  @Test def test_infFloat() { runner.runOneTest("infFloat") }
   @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
   @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
-
-// DFDL-863
-  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
-  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
-  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
 
 // DFDL-865
   @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
@@ -105,5 +99,4 @@ class TestTextNumberPropsDebug {
 
 // DFDL-869
   @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
-
 }

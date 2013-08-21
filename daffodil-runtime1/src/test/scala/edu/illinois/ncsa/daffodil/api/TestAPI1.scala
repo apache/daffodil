@@ -268,7 +268,7 @@ class TestDFDLParser {
   @Test def testNumber3() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
-      <xs:element name="perfect" type="xs:byte" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+      <xs:element name="perfect" type="xs:byte" dfdl:textNumberPattern="+0" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
     val actual = TestUtils.testString(sch, "+3").result
     TestUtils.assertEqualsXMLElements(<perfect>3</perfect>, actual)
   }
