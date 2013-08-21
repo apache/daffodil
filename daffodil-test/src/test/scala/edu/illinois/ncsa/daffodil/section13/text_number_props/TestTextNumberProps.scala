@@ -52,11 +52,11 @@ class TestTextNumberProps {
 
 // DFDL-846
 //  @Test def test_textNumberPattern_negativeIgnored01() { runner.runOneTest("textNumberPattern_negativeIgnored01") }
-//  @Test def test_textNumberPattern_negativeIgnored02() { runner.runOneTest("textNumberPattern_negativeIgnored02") }
-//  @Test def test_textNumberPattern_negativeIgnored03() { runner.runOneTest("textNumberPattern_negativeIgnored03") }
-//  @Test def test_textNumberPattern_negativeIgnored05() { runner.runOneTest("textNumberPattern_negativeIgnored05") }
 
+  @Test def test_textNumberPattern_negativeIgnored02() { runner.runOneTest("textNumberPattern_negativeIgnored02") }
+  @Test def test_textNumberPattern_negativeIgnored03() { runner.runOneTest("textNumberPattern_negativeIgnored03") }
   @Test def test_textNumberPattern_negativeIgnored04() { runner.runOneTest("textNumberPattern_negativeIgnored04") }
+  @Test def test_textNumberPattern_negativeIgnored05() { runner.runOneTest("textNumberPattern_negativeIgnored05") }
   @Test def test_textNumberPattern_negativeIgnored06() { runner.runOneTest("textNumberPattern_negativeIgnored06") }
 
   @Test def test_textNumberPattern_exponent01() { runner.runOneTest("textNumberPattern_exponent01") }
