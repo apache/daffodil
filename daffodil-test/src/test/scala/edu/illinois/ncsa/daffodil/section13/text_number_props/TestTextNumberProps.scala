@@ -50,9 +50,7 @@ class TestTextNumberProps {
   @Test def test_textNumberPattern_positiveMandatory() { runner.runOneTest("textNumberPattern_positiveMandatory") }
   @Test def test_textNumberPattern_negativeOptional() { runner.runOneTest("textNumberPattern_negativeOptional") }
 
-// DFDL-846
-//  @Test def test_textNumberPattern_negativeIgnored01() { runner.runOneTest("textNumberPattern_negativeIgnored01") }
-
+  @Test def test_textNumberPattern_negativeIgnored01() { runner.runOneTest("textNumberPattern_negativeIgnored01") }
   @Test def test_textNumberPattern_negativeIgnored02() { runner.runOneTest("textNumberPattern_negativeIgnored02") }
   @Test def test_textNumberPattern_negativeIgnored03() { runner.runOneTest("textNumberPattern_negativeIgnored03") }
   @Test def test_textNumberPattern_negativeIgnored04() { runner.runOneTest("textNumberPattern_negativeIgnored04") }

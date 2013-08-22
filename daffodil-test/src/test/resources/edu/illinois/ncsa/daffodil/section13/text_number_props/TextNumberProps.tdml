@@ -15,7 +15,8 @@
     <xs:element name="tnp04">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
-          <xs:element name="e" type="xs:float" minOccurs="3" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,##0.00;(#,#,0.00)" />
+          <xs:element name="e" type="xs:float" minOccurs="3" dfdl:textNumberCheckPolicy="strict"
+            dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,##0.00;(#,#,0.00)" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -289,6 +290,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse '(4,3,0.00)</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
