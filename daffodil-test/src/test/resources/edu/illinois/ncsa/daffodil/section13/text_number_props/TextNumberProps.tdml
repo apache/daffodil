@@ -179,7 +179,42 @@
      <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      <xs:element name="tnp71" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'E'#;-#" />
      <xs:element name="tnp72" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
-    
+     
+     <xs:element name="tnp73" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="the num: #;-#" dfdl:inputValueCalc="{ 500 }" />
+     
+     <xs:element name="tnp74">
+       <xs:complexType>
+         <xs:choice>
+           <xs:element name="one" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###,###" dfdl:textNumberCheckPolicy="strict" />
+           <xs:element name="two" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,#,#,#,#,#,#" dfdl:textNumberCheckPolicy="strict" />
+         </xs:choice>
+       </xs:complexType>
+     </xs:element> 
+     
+     <xs:element name="tnp75">
+       <xs:complexType>
+         <xs:choice>
+           <xs:element name="one" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###,###" dfdl:textStandardGroupingSeparator=","/>
+           <xs:element name="two" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,###,###" dfdl:textStandardGroupingSeparator="|" />
+         </xs:choice>
+       </xs:complexType>
+     </xs:element> 
+     
+     <xs:element name="tnp76" dfdl:textNumberPattern="####.####" dfdl:textNumberCheckPolicy="strict">
+       <xs:simpleType>
+         <xs:restriction base="xs:decimal">
+           <xs:totalDigits value="6" />
+         </xs:restriction>
+       </xs:simpleType>
+     </xs:element>
+     
+     <xs:element name="tnp77" dfdl:textNumberPattern="#.########" dfdl:textNumberCheckPolicy="strict">
+       <xs:simpleType>
+         <xs:restriction base="xs:decimal">
+           <xs:fractionDigits value="3" />
+         </xs:restriction>
+       </xs:simpleType>
+     </xs:element>
 
   </tdml:defineSchema>
   
@@ -2677,6 +2712,130 @@
         <nonNegIntPad3>4</nonNegIntPad3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_inputValueCalc
+        Schema: textNumberPattern
+          Root: tnp73
+       Purpose: This test verifies that inputValueCalc does not have to follow the textNumberPattern
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_inputValueCalc" root="tnp73" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp73>500</tnp73>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: patternDeterminesChoice01
+        Schema: textNumberPattern
+          Root: tnp74
+       Purpose: This test demonstrates that textNumberPatterns can be used to resolved points of uncertainty
+  -->
+
+  <tdml:parserTestCase name="patternDeterminesChoice01" root="tnp74" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3,4,5,6,7</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp74>
+          <two>1234567</two>
+        </tnp74>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: patternDeterminesChoice02
+        Schema: textNumberPattern
+          Root: tnp74
+       Purpose: This test demonstrates that textNumberPatterns can be used to resolved points of uncertainty
+  -->
+
+  <tdml:parserTestCase name="patternDeterminesChoice02" root="tnp74" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1,234,567</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp74>
+          <one>1234567</one>
+        </tnp74>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: patternDeterminesChoice03
+        Schema: textNumberPattern
+          Root: tnp75
+       Purpose: This test demonstrates that textNumberPatterns can be used to resolved points of uncertainty
+  -->
+
+  <tdml:parserTestCase name="patternDeterminesChoice03" root="tnp75" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - textNumberPattern - DFDL-13-048R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1|123|123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp75>
+          <two>1123123</two>
+        </tnp75>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_facets01
+        Schema: textNumberPattern
+          Root: tnp76
+       Purpose: This test demonstrates that if the pattern uses digits/fractions then these must match any XML schema facets.
+                In this case totalDigits is set to 6, but the number of total digits in the pattern is 8.          
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_facets01" root="tnp76" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234.1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_facets02
+        Schema: textNumberPattern
+          Root: tnp77
+       Purpose: This test demonstrates that if the pattern uses digits/fractions then these must match any XML schema facets.
+                In this case fractionDigits is set to 3, but the number of fraction digits in the pattern is 8.          
+   -->
+
+  <tdml:parserTestCase name="textNumberPattern_facets02" root="tnp77" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1.12345678</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">

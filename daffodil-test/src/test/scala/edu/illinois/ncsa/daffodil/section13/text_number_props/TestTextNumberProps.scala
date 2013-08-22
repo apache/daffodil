@@ -68,6 +68,16 @@ class TestTextNumberProps {
 //  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
 //  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
 //  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
+  
+  @Test def test_textNumberPattern_inputValueCalc() { runner.runOneTest("textNumberPattern_inputValueCalc") }
+  
+  @Test def test_patternDeterminesChoice01() { runner.runOneTest("patternDeterminesChoice01") }
+  @Test def test_patternDeterminesChoice02() { runner.runOneTest("patternDeterminesChoice02") }
+  @Test def test_patternDeterminesChoice03() { runner.runOneTest("patternDeterminesChoice03") }
+  
+// DFDL-865
+//  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
+//  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
 
   @Test def test_dynamicExp() { runner.runOneTest("dynamicExp") }
   @Test def test_dynamicExp2() { runner.runOneTest("dynamicExp2") }

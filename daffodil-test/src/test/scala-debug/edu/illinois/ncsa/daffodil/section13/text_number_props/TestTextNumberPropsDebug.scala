@@ -92,4 +92,7 @@ class TestTextNumberPropsDebug {
   @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
   @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
 
+// DFDL-865
+  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
+  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
 }
