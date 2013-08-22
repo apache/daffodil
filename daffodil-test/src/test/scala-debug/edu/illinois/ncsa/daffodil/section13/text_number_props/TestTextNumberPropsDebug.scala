@@ -89,4 +89,10 @@ class TestTextNumberPropsDebug {
   @Test def test_infFloat() { runner.runOneTest("infFloat") }
   @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
   @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
+
+// DFDL-863
+  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
+  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
+  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
+
 }

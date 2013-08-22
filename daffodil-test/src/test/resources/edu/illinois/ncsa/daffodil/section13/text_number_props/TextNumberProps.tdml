@@ -20,14 +20,6 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="tnp04b">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="e" type="xs:float" minOccurs="3" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00;(##0.00)" />
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-    
     <xs:element name="tnp05" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="000.0#E0" />
     <xs:element name="tnp06" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'$'##0.00" dfdl:textStandardDecimalSeparator="."/>
     <xs:element name="tnp07" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="$##0.00"  dfdl:textStandardDecimalSeparator="."/>
@@ -181,6 +173,12 @@
        dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center"/>
      <xs:element name="nonNegIntPad3" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
        dfdl:textNumberCheckPolicy="strict"/>
+     
+     <xs:element name="tnp69" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00" />
+     <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
+     <xs:element name="tnp71" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'E'#;-#" />
+     <xs:element name="tnp72" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
+    
 
   </tdml:defineSchema>
   
@@ -542,6 +540,113 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_specialChar05
+        Schema: textNumberPattern
+          Root: tnp69
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the + is quoted and should be matched literally in the data.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar05" root="tnp69" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">+3000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp69>3000.0</tnp69>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_specialChar06
+        Schema: textNumberPattern
+          Root: tnp70
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the + is quoted and should be matched literally in the data.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar06" root="tnp70" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">+5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp70>5</tnp70>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_specialChar07
+        Schema: textNumberPattern
+          Root: tnp71
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the 'E' is quoted and should be matched literally in the data.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar07" root="tnp71" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">E5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp71>5</tnp71>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_specialChar08
+        Schema: textNumberPattern
+          Root: tnp72
+       Purpose: This test demonstrates that in order to insert a special character as a literal, the character must
+                be quoted in the textNumberPattern. In this case the + is quoted and should be matched literally in the data.
+                This particular test uses an explicit length for the element            
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_specialChar08" root="tnp72" model="textNumberPattern"
+    description="Section 13.6 - Number properties with Text Representation - Special Chars Literals - DFDL-13-068R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">+5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp72>5</tnp72>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+     Test Name: textNumberCheckPolicy_lax01
+        Schema: textNumberPattern
+          Root: tnp28
+       Purpose: This test demonstrates that when textNumberCheckPolicy is "lax", 
+                quoted characters may be omitted.
+-->
+
+  <tdml:parserTestCase name="textNumberCheckPolicy_lax01" root="tnp28" model="textNumberPattern"
+    description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1234</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp28>1234</tnp28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
   
 <!--
      Test Name: textNumberCheckPolicy_lax01
