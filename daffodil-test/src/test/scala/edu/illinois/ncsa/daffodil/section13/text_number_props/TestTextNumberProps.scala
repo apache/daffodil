@@ -78,6 +78,31 @@ class TestTextNumberProps {
 // DFDL-865
 //  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
 //  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
+  
+  @Test def test_standardZeroRep01() { runner.runOneTest("standardZeroRep01") }
+  @Test def test_standardZeroRep02() { runner.runOneTest("standardZeroRep02") }
+  @Test def test_standardZeroRep05() { runner.runOneTest("standardZeroRep05") }
+  @Test def test_standardZeroRep06() { runner.runOneTest("standardZeroRep06") }
+  @Test def test_standardZeroRep08() { runner.runOneTest("standardZeroRep08") }
+  @Test def test_standardZeroRep10() { runner.runOneTest("standardZeroRep10") }
+
+// DFDL-861
+//  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
+
+// DFDL-851
+//  @Test def test_standardZeroRep07() { runner.runOneTest("standardZeroRep07") }
+
+// DFDL-868
+// @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
+
+// DFDL-869
+//  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
+  
+  @Test def test_lengthDeterminedFirst01() { runner.runOneTest("lengthDeterminedFirst01") }
+  @Test def test_lengthDeterminedFirst02() { runner.runOneTest("lengthDeterminedFirst02") }
+  
+  @Test def test_textNumberPattern_unsignedType01() { runner.runOneTest("textNumberPattern_unsignedType01") }
+  @Test def test_textNumberPattern_unsignedType02() { runner.runOneTest("textNumberPattern_unsignedType02") }
 
   @Test def test_dynamicExp() { runner.runOneTest("dynamicExp") }
   @Test def test_dynamicExp2() { runner.runOneTest("dynamicExp2") }

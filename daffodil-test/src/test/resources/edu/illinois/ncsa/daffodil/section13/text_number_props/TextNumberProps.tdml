@@ -215,6 +215,26 @@
          </xs:restriction>
        </xs:simpleType>
      </xs:element>
+     
+     <xs:element name="tnp78" type="xs:int" dfdl:textStandardZeroRep="zero nil NAUGHT" dfdl:textNumberPattern="#####"/>
+     <xs:element name="tnp79" type="xs:int" dfdl:ignoreCase="yes" dfdl:textStandardZeroRep="zero nil NAUGHT" dfdl:textNumberPattern="#####"/>
+     <xs:element name="tnp80" type="xs:int" dfdl:textStandardZeroRep="zero nil NAUGHT" dfdl:textNumberPattern="**#####"/>
+     <xs:element name="tnp81" type="xs:int" dfdl:textStandardZeroRep="%SP; %DEL;" dfdl:textNumberPattern="#####"/>
+     <xs:element name="tnp82" type="xs:int" dfdl:textStandardZeroRep="%#r3E;" dfdl:textNumberPattern="#####"/>
+     <xs:element name="tnp83" type="xs:int" dfdl:textStandardZeroRep="%NL;" dfdl:textNumberPattern="#####"/>
+     <xs:element name="tnp84" type="xs:int" dfdl:textStandardZeroRep="%WSP;" dfdl:textNumberPattern="#####"/>
+
+     <xs:element name="tnp85" dfdl:textNumberPattern="**#####">
+      <xs:simpleType dfdl:textStandardZeroRep="zero nil NAUGHT">
+        <xs:restriction base="xs:int"/>
+      </xs:simpleType>
+     </xs:element>
+     
+     <xs:element name="tnp86" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3" dfdl:textNumberPattern="######number" dfdl:textNumberCheckPolicy="strict"/>
+     <xs:element name="tnp87" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:textNumberPattern="**#####" dfdl:textNumberCheckPolicy="strict"/>
+     
+     <xs:element name="tnp88" type="xs:unsignedInt" dfdl:textNumberPattern="###;(###)"/>
+     <xs:element name="tnp89" type="xs:unsignedShort" dfdl:textNumberPattern="-###;^###^"/>
 
   </tdml:defineSchema>
   
@@ -2836,6 +2856,290 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep01
+        Schema: textNumberPattern
+          Root: tnp78
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a whitespace-separated list of strings.
+   -->
+
+  <tdml:parserTestCase name="standardZeroRep01" root="tnp78" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">zero</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp78>0</tnp78>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep02
+        Schema: textNumberPattern
+          Root: tnp78
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a whitespace-separated list of strings.
+   -->
+
+  <tdml:parserTestCase name="standardZeroRep02" root="tnp78" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">NAUGHT</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp78>0</tnp78>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep03
+        Schema: textNumberPattern
+          Root: tnp79
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a whitespace-separated list of strings.
+                In this case ignoreCase is set to "yes", so any case should work.  
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep03" root="tnp79" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ZERO</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp79>0</tnp79>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep04
+        Schema: textNumberPattern
+          Root: tnp80
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a whitespace-separated list of strings.
+                Padding should be stripped away before the zero is identified  
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep04" root="tnp80" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">*****nil</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp80>0</tnp80>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep05
+        Schema: textNumberPattern
+          Root: tnp81
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a DFDL character entity
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep05" root="tnp81" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"> </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp81>0</tnp81>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep06
+        Schema: textNumberPattern
+          Root: tnp81
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a DFDL character entity
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep06" root="tnp81" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">7F</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp81>0</tnp81>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep07
+        Schema: textNumberPattern
+          Root: tnp82
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it cannot be a raw byte entity
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep07" root="tnp82" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep08
+        Schema: textNumberPattern
+          Root: tnp83
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it cannot be a character class entity (NL ES)
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep08" root="tnp83" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[
+]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep09
+        Schema: textNumberPattern
+          Root: tnp84
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be a variation of the
+                WSP character class
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep09" root="tnp84" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp84>0</tnp84>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: standardZeroRep10
+        Schema: textNumberPattern
+          Root: tnp85
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be defined on a simpleType
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep10" root="tnp85" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">nil</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp85>0</tnp85>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: lengthDeterminedFirst01
+        Schema: textNumberPattern
+          Root: tnp86
+       Purpose: This test demonstrates that the length of the representation of the number is determined first.
+  -->
+
+  <tdml:parserTestCase name="lengthDeterminedFirst01" root="tnp86" model="textNumberPattern"
+    description="Section 13.6 - textNumberPattern - DFDL-13-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">123456number</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse '123'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: lengthDeterminedFirst02
+        Schema: textNumberPattern
+          Root: tnp87
+       Purpose: This test demonstrates that the length of the representation of the number is determined first.
+  -->
+
+  <tdml:parserTestCase name="lengthDeterminedFirst02" root="tnp87" model="textNumberPattern"
+    description="Section 13.6 - textNumberPattern - DFDL-13-063R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">*******12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer (for xs:int)</tdml:error>
+      <tdml:error>Unable to parse '*****'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_unsignedType01
+        Schema: textNumberPattern
+          Root: tnp88
+       Purpose: This test demonstrates that unsigned numbers with dfdl:textNumberRep 'standard' and 
+                dfdl:textStandardBase 10 are mapped using the dfdl:textNumberPattern. 
+                On parsing it is a processing error if the data are negative.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_unsignedType01" root="tnp88" model="textNumberPattern"
+    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">(123)</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unsigned Integer (for xs:unsignedInt)</tdml:error>
+      <tdml:error>Out of Range: '(123)' converted to -123, is not in range for the type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: textNumberPattern_unsignedType02
+        Schema: textNumberPattern
+          Root: tnp89
+       Purpose: This test demonstrates that unsigned numbers with dfdl:textNumberRep 'standard' and 
+                dfdl:textStandardBase 10 are mapped using the dfdl:textNumberPattern. 
+                On parsing it is a processing error if the data are negative.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_unsignedType02" root="tnp89" model="textNumberPattern"
+    description="Section 13.6 - textNumberPattern - unsigned numbers - DFDL-13-116R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp89>123</tnp89>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="textprops">

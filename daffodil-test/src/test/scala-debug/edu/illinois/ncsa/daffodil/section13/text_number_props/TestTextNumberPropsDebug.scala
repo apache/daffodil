@@ -69,6 +69,7 @@ class TestTextNumberPropsDebug {
 // DFDL-851
   @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
   @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
+  @Test def test_standardZeroRep07() { runner.runOneTest("standardZeroRep07") }
 
 // DFDL-853
   @Test def test_textNumberPattern_pSymbol01() { runner.runOneTest("textNumberPattern_pSymbol01") }
@@ -95,4 +96,14 @@ class TestTextNumberPropsDebug {
 // DFDL-865
   @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
   @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
+
+// DFDL-861
+  @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
+
+// DFDL-868
+  @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
+
+// DFDL-869
+  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
+
 }
