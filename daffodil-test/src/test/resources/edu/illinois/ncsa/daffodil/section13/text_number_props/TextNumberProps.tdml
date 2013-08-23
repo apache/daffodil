@@ -235,6 +235,10 @@
      
      <xs:element name="tnp88" type="xs:unsignedInt" dfdl:textNumberPattern="###;(###)"/>
      <xs:element name="tnp89" type="xs:unsignedShort" dfdl:textNumberPattern="-###;^###^"/>
+     
+     <xs:element name="tnp90" type="xs:int" dfdl:textNumberPattern="-###"/>
+     
+     <xs:element name="tnp91" type="xs:int" dfdl:textStandardZeroRep="" dfdl:textNumberPattern="#####"/>
 
   </tdml:defineSchema>
   
@@ -3059,6 +3063,25 @@
   </tdml:parserTestCase>
   
   <!--
+     Test Name: standardZeroRep11
+        Schema: textNumberPattern
+          Root: tnp91
+       Purpose: This test demonstrates the textStandardZeroRep property, and that it can be the empty string
+  -->
+
+  <tdml:parserTestCase name="standardZeroRep11" root="tnp91" model="textNumberPattern"
+    description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">zero</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Integer</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
      Test Name: lengthDeterminedFirst01
         Schema: textNumberPattern
           Root: tnp86
@@ -3138,6 +3161,27 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tnp89>123</tnp89>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: textNumberPattern_noNegative
+        Schema: textNumberPattern
+          Root: tnp90
+       Purpose: This test demonstrates that if no explicit negative pattern is provided, the positive pattern is
+                prefixed with the negative sign.
+  -->
+
+  <tdml:parserTestCase name="textNumberPattern_noNegative" root="tnp90" model="textNumberPattern"
+    description="Section 13.6 - textNumberPattern - DFDL-13-072R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">--123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp90>-123</tnp90>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
