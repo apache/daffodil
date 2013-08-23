@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 
-class TestExternalVariablesNew {
+class TestExternalVariables {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
   val tdml = testDir + "external_variables.tdml"
@@ -48,5 +48,24 @@ class TestExternalVariablesNew {
   // It's important to note here that external variables
   // via the TDMLRunner are currently passed in during
   // compilation.
+  @Test def test_override_define_vars_01() {
+    runner.runOneTest("override_define_vars_01")
+  }
+
+  @Test def test_override_define_vars_02() {
+    runner.runOneTest("override_define_vars_02")
+  }
+
+  @Test def test_override_define_vars_03() {
+    runner.runOneTest("override_define_vars_03")
+  }
+
+  @Test def test_override_define_vars_04() {
+    runner.runOneTest("override_define_vars_04")
+  }
+
+  @Test def test_override_define_vars_05() {
+    runner.runOneTest("override_define_vars_05")
+  }
 
 }

@@ -46,7 +46,7 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
 
-class TestExternalVariablesLoaderNew extends Logging {
+class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE
@@ -83,6 +83,57 @@ class TestExternalVariablesLoaderNew extends Logging {
       case None => false
     }
     found
+  }
+
+  @Test def test_override_success() = {
+    val extVarFile1 = Misc.getRequiredResource("/test/external_vars_1.xml")
+
+    val topLevelAnnotations = {
+      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:defineVariable name="v_no_default" type="xs:int" external="true"/>
+      <dfdl:defineVariable name="v_with_default" type="xs:int" external="true" defaultValue="42"/>
+    }
+
+    val v_no_default = "{http://example.com}v_no_default"
+    val v_with_default = "{http://example.com}v_with_default"
+
+    val (sd, sset) = generateSD(topLevelAnnotations)
+    val initialVMap = sset.variableMap
+
+    val initVars = initialVMap.getVariables
+    val (_, lst_v_no_default) = initVars.filterKeys(k => k == v_no_default).head
+    val (_, lst_v_with_default) = initVars.filterKeys(k => k == v_with_default).head
+
+    val var_v_no_default = lst_v_no_default.head.head
+    val var_v_with_default = lst_v_with_default.head.head
+
+    // Verify that v_no_default isn't defined
+    assertFalse(var_v_no_default.value.isDefined)
+
+    // Verify that v_with_default is defined and is 42.
+    assertTrue(var_v_with_default.value.isDefined)
+    assertEquals("42", var_v_with_default.value.get.toString())
+
+    val vmap = ExternalVariablesLoader.loadVariablesByURI(extVarFile1, sd, initialVMap)
+
+    // Verify that the external variables override the previous values
+    // in the VariableMap
+    val (value1, _) = vmap.readVariable(v_no_default, Fakes.fakeElem)
+    assertEquals(1, value1)
+    val (value2, _) = vmap.readVariable(v_with_default, Fakes.fakeElem)
+    assertEquals(2, value2)
+  }
+
+  @Test def test_ext_var_not_match_defined_var() = {
+    val extVarFile1 = Misc.getRequiredResource("/test/external_vars_1.xml")
+
+    val e = intercept[Exception] {
+      // fakeSD does not contain any defineVariables
+      // Because we are trying to load external variables and none are defined we should SDE.
+      val vmap = ExternalVariablesLoader.loadVariablesByURI(extVarFile1, Fakes.fakeSD)
+    }
+    val err = e.getMessage()
+    assertTrue(err.contains("unknown variable {http://example.com}v_no_default"))
   }
 
 }

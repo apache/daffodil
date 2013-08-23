@@ -40,6 +40,20 @@
 		</complexType>
 	</element>
 
-
+	<element name="row2" dfdl:lengthKind="delimited" dfdl:encoding="utf-8">
+		<complexType>
+			<sequence dfdl:separator="," dfdl:encoding="utf-8">
+				<element name="cell" type="xsd:int" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" dfdl:encoding="utf-8"
+					dfdl:inputValueCalc="{ $tns:var1 }" />
+				<element name="cell" type="xsd:int" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" dfdl:encoding="utf-8"
+					dfdl:inputValueCalc="{ $tns:var2 }" />
+				<element name="cell" type="xsd:int" dfdl:textNumberRep="standard"
+					dfdl:lengthKind="delimited" dfdl:encoding="utf-8"
+					dfdl:inputValueCalc="{ $tns:var3 }" />
+			</sequence>
+		</complexType>
+	</element>
 
 </schema>

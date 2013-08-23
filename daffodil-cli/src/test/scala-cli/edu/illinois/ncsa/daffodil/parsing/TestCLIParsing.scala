@@ -56,6 +56,7 @@ class TestCLIparsing {
   val output9 = Util.getExpectedString("output9.txt")
   val output10 = Util.getExpectedString("output10.txt")
   val output11 = Util.getExpectedString("output11.txt")
+  val output12 = Util.getExpectedString("output12.txt")
 
   @Test def test_XXX_CLI_Parsing_SimpleParse_stdOut_extVars() {
 
@@ -65,6 +66,18 @@ class TestCLIparsing {
     val shell = Util.start(cmd)
 
     shell.expect(output11)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+
+  @Test def test_XXX_CLI_Parsing_SimpleParse_stdOut_extVars2() {
+
+    var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
+
+    val shell = Util.start(cmd)
+
+    shell.expect(output12)
 
     shell.send("exit\n")
     shell.expectClose()
