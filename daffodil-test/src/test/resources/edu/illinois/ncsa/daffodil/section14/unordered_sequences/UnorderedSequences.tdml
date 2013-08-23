@@ -190,7 +190,48 @@
 				</USG_01>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+  </tdml:parserTestCase>
+
+	<tdml:defineSchema name="simple_nil">
+		<dfdl:format ref="ex:daffodilTest1" lengthUnits="characters"
+			lengthKind="implicit" nilValueDelimiterPolicy="none"/>
+		<xs:element name="USG_01">
+			<xs:complexType>
+				<xs:sequence dfdl:sequenceKind="unordered"
+					dfdl:separator=",">
+
+					<xs:element name="e1" type="xs:int" dfdl:lengthKind="delimited" nillable="true" 
+						dfdl:nilKind="literalValue" dfdl:nilValue="%ES;" dfdl:initiator="a">
+					</xs:element>
+
+					<xs:element name="e2" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:initiator="b">
+					</xs:element>
+
+					<xs:element name="e3" type="xs:int" dfdl:lengthKind="delimited"
+						dfdl:initiator="c">
+					</xs:element>
+
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="test_simple_nil"
+		model="simple_nil" description="Section 14 Sequence group with left over data - DFDL-14-001R"
+		root="USG_01">
+		<tdml:document><![CDATA[b2,,c3]]></tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<USG_01>
+					<e1 xsi:nil="true"></e1>
+					<e2>2</e2>
+					<e3>3</e3>
+				</USG_01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
+
 
 	<tdml:defineSchema name="simple_invalid_path_to_branch">
 		<dfdl:format ref="ex:daffodilTest1" lengthUnits="characters"
