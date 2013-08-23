@@ -96,8 +96,8 @@ class TestTextNumberProps {
 // DFDL-868
 // @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
 
-// DFDL-869
-//  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
+  @Test def test_standardZeroRep04() { runner.runOneTest("standardZeroRep04") }
+  @Test def test_standardZeroRep04b() { runner.runOneTest("standardZeroRep04b") }
   
   @Test def test_lengthDeterminedFirst01() { runner.runOneTest("lengthDeterminedFirst01") }
   @Test def test_lengthDeterminedFirst02() { runner.runOneTest("lengthDeterminedFirst02") }
