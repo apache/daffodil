@@ -62,12 +62,10 @@ class TestTextNumberProps {
   @Test def test_textNumberPattern_specialChar02() { runner.runOneTest("textNumberPattern_specialChar02") }
   @Test def test_textNumberPattern_specialChar03() { runner.runOneTest("textNumberPattern_specialChar03") }
   @Test def test_textNumberPattern_specialChar04() { runner.runOneTest("textNumberPattern_specialChar04") }
+  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
+  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
   @Test def test_textNumberPattern_specialChar07() { runner.runOneTest("textNumberPattern_specialChar07") }
-
-// DFDL-863
-//  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
-//  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
-//  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
+  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
   
   @Test def test_textNumberPattern_inputValueCalc() { runner.runOneTest("textNumberPattern_inputValueCalc") }
   

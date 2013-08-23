@@ -56,8 +56,4 @@ class TestTextNumberProperties {
 //DFDL-860
   @Test def test_infFloat() { runner.runOneTest("infFloat") }
 
-// DFDL-863
-  @Test def test_textNumberPattern_specialChar05() { runner.runOneTest("textNumberPattern_specialChar05") }
-  @Test def test_textNumberPattern_specialChar06() { runner.runOneTest("textNumberPattern_specialChar06") }
-  @Test def test_textNumberPattern_specialChar08() { runner.runOneTest("textNumberPattern_specialChar08") }
 }
