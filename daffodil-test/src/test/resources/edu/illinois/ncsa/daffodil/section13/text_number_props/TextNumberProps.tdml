@@ -3376,6 +3376,13 @@
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:float"/>
 
   </tdml:defineSchema>
+  
+  <!--
+     Test Name: dynamic
+        Schema: textprops
+          Root: dynamic
+       Purpose: This test demonstrates that you can compute properties with an expression
+  -->
 
   <tdml:parserTestCase name="dynamic" root="dynamic"
     model="textprops"
@@ -3397,6 +3404,14 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: dynamicNeg1
+        Schema: textprops
+          Root: dynamic
+       Purpose: This test demonstrates that you can compute properties with an expression.
+                In this case the computed value is invalid.
+  -->
+  
   <tdml:parserTestCase name="dynamicNeg1" root="dynamic"
     model="textprops"
     description="Dynamically reads an invalid decimal separator">
@@ -3409,6 +3424,14 @@
 		<tdml:error>Runtime Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: dynamicNeg2
+        Schema: textprops
+          Root: dynamic
+       Purpose: This test demonstrates that you can compute properties with an expression
+                In this case the computed value is not valid.
+  -->
 
   <tdml:parserTestCase name="dynamicNeg2" root="dynamic"
     model="textprops"
@@ -3423,6 +3446,12 @@
 	</tdml:errors>
   </tdml:parserTestCase>
 
+  <!--
+     Test Name: dynamicExp
+        Schema: textprops
+          Root: dynamicExp
+       Purpose: This test demonstrates that you can compute properties with an expression
+  -->
   
   <tdml:parserTestCase name="dynamicExp" root="dynamicExp"
     model="textprops"
@@ -3443,6 +3472,13 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: dynamicExp2
+        Schema: textprops
+          Root: dynamicExp
+       Purpose: This test demonstrates that you can compute properties with an expression
+  -->
 
   <tdml:parserTestCase name="dynamicExp2" root="dynamicExp"
     model="textprops"
@@ -3463,6 +3499,14 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: dynamicExpNeg
+        Schema: textprops
+          Root: dynamicExp
+       Purpose: This test demonstrates that you can compute properties with an expression
+                In this case the computed property is invalid.
+  -->
 
   <tdml:parserTestCase name="dynamicExpNeg" root="dynamicExp"
     model="textprops"
@@ -3476,7 +3520,7 @@
 		<tdml:error>Runtime Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
-
+  
   <tdml:parserTestCase name="dynamicExpInvalid" root="dynamicExpInvalid"
     model="textprops"
     description="Try to dynamically read an exponent representation with an invalid schema">
@@ -3798,6 +3842,13 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: zero
+        Schema: textprops
+          Root: zero
+       Purpose: This test demonstrates the textStandardZeroRep property
+  -->
 
   <tdml:parserTestCase name="zero" root="zero"
     model="textprops"
@@ -3821,6 +3872,13 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: pattern_neg1
+        Schema: textprops
+          Root: patternNeg1
+       Purpose: This test demonstrates the error condition that there are non-numeric characters between pattern data 
+  -->
 
   <tdml:parserTestCase name="pattern_neg1" root="patternNeg1"
     model="textprops"

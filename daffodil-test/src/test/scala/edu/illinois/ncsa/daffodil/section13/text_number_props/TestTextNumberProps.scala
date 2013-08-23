@@ -118,6 +118,9 @@ class TestTextNumberProps {
   @Test def test_noStandardExpRep2() { runner.runOneTest("noStandardExpRep2") }
   @Test def test_expEmptyString() { runner.runOneTest("expEmptyString") }
   @Test def test_expEmptyString2() { runner.runOneTest("expEmptyString2") }
+  
+  @Test def test_zero() { runner.runOneTest("zero") } 
+  @Test def test_pattern_neg1() { runner.runOneTest("pattern_neg1") }
 
   @Test def test_infnanDouble() { runner.runOneTest("infnanDouble") }
   @Test def test_nanFloat() { runner.runOneTest("nanFloat") }
@@ -244,7 +247,7 @@ class TestTextNumberProps {
   @Test def test_nonNegIntPadding04() { runner.runOneTest("nonNegIntPadding04") }
   
   @Test def test_dynamic() { runner.runOneTest("dynamic") }
-  @Test def test_dynamic_neg1() { runner.runOneTest("dynamicNeg1") }
-  @Test def test_dynamic_neg2() { runner.runOneTest("dynamicNeg2") }
+  @Test def test_dynamicNeg1() { runner.runOneTest("dynamicNeg1") }
+  @Test def test_dynamicNeg2() { runner.runOneTest("dynamicNeg2") }
 
 }
