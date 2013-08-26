@@ -58,7 +58,7 @@ class TestCLIparsing {
   val output11 = Util.getExpectedString("output11.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_stdOut_extVars() {
+  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
 
     //var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
     var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -D\"{http://example.com}var1=99\" -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
@@ -71,7 +71,7 @@ class TestCLIparsing {
     shell.expectClose()
   }
 
-  @Test def test_XXX_CLI_Parsing_SimpleParse_stdOut_extVars2() {
+  @Test def test_2360_CLI_Parsing_SimpleParse_stdOut_extVars2() {
 
     var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
 
