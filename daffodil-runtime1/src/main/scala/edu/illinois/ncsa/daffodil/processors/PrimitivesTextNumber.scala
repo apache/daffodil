@@ -63,8 +63,12 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
     if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.GramDescription, helper.GramName)
 
-    val (resultState, numAsString) = helper.zeroRepList.find { _ == str } match {
-      case Some(s) => (start, helper.getStringFormat(helper.getNum(0)))
+    // because of the way the zero rep regular expressions are generated, they
+    // will match either all or none of 'str', never part of it. Thus,
+    // findFirstIn() either matches and it's a zero rep, or it doesn't and it's
+    // not a zero
+    val (resultState, numAsString) = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
+      case Some(_) => (start, helper.getStringFormat(helper.getNum(0)))
       case None => {
         val (newstate, df) = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
@@ -190,7 +194,14 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
   def getStringFormat(n: S): String
   def allowInfNaN: Boolean = false
 
-  val zeroRepList = zeroRep.filter { _ != "" }
+  val zeroRepList = zeroRep.filter { _ != "" }.map { zr =>
+    val d = new Delimiter()
+    d(zr)
+    // add '^' and '$' to require the regular expression to match the entire
+    // string as a zero rep instead of just part of it
+    val regex = ("^" + d.delimRegExParseDelim + "$").r
+    regex
+  }
 }
 
 abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[String])

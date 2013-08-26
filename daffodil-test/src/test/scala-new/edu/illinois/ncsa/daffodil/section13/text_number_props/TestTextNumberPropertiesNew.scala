@@ -52,4 +52,6 @@ class TestTextNumberProperties {
 //DFDL-860
   @Test def test_infFloat() { runner.runOneTest("infFloat") }
 
+// DFDL-868
+  @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
 }
