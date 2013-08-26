@@ -124,6 +124,7 @@ class TestTextNumberProps {
 
   @Test def test_infnanDouble() { runner.runOneTest("infnanDouble") }
   @Test def test_nanFloat() { runner.runOneTest("nanFloat") }
+  @Test def test_infFloat() { runner.runOneTest("infFloat") }
   @Test def test_infnan2() { runner.runOneTest("infnan2") }
   @Test def test_nanInvalidType() { runner.runOneTest("nanInvalidType") }
   @Test def test_infInvalidType() { runner.runOneTest("infInvalidType") }
