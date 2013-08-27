@@ -5,16 +5,16 @@
 
   <parserTestCase name="AY000" root="list" model="AY.dfdl.xsd"
     description="escape character and escape block, variable length">
-    <document><![CDATA[INITIATORitem0TERMINATORSEPARATORINITIATORitem1TERMINATORSEPARATORINITIATORitem2TERMINATORSEPARATORINITIATORitem3TERMINATORSEPARATORINITIATORitem4TERMINATORSEPARATORINITIATORitem5TERMINATOR]]></document>
+    <document><![CDATA[INITIATOR1it#TERMINATOR1em#ST0TERMINATOR1SEPARATORINITIATOR1item1#SEPARATORTERMINATOR1SEPARATORINITIATOR2START,item2ENDTERMINATOR2SEPARATORINITIATOR2STARTitem3TERMINATOR2SEPARATORINITIATOR2iENDtSTARTem4TERMINATOR2SEPARATORINITIATOR2STARTitTERMINATOR2em5ENDTERMINATOR2]]></document>
     <infoset>
       <dfdlInfoset>
         <list xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-          <character type="xsd:string">item0</character>
-          <block type="xsd:string">item1</block>
-          <block type="xsd:string">item2</block>
-          <block type="xsd:string">item3</block>
-          <block type="xsd:string">item4</block>
-          <block type="xsd:string">item5</block>
+          <character type="xsd:string">itTERMINATOR1emST0</character>
+          <character type="xsd:string">item1SEPARATOR</character>
+          <block type="xsd:string">,item2</block>
+          <block type="xsd:string">STARTitem3</block>
+          <block type="xsd:string">iENDtSTARTem4</block>
+          <block type="xsd:string">itTERMINATOR2em5</block>
         </list>
       </dfdlInfoset>
     </infoset>
