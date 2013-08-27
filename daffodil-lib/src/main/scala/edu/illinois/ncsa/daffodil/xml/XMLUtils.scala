@@ -159,6 +159,7 @@ object XMLUtils {
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   //  val DFDL_XMLSCHEMASUBSET_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
+  val CONFIG_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-config-1.0/")
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
@@ -608,6 +609,25 @@ object XMLUtils {
       (null, localName) // indicates prefix was unmapped.
     else
       (NS(nsURI), localName)
+  }
+
+  val NSFormat = """\{([^\{\}]*)\}(.+)""".r
+
+  /**
+   * Specialized getQName function for handling
+   * manually specified variables via the CLI.
+   *
+   * Variables will be of the format:
+   *
+   * 1. {nsURI}varName=value
+   * 2. {}varName=value
+   * 3. varName=value
+   */
+  def getQName(name: String): (Option[NS], String) = {
+    name match {
+      case NSFormat(nsURI, varName) => (Some(NS(nsURI)), varName)
+      case _ => (None, name)
+    }
   }
 
   /**

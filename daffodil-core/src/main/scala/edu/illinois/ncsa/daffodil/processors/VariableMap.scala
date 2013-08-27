@@ -170,6 +170,7 @@ object VariableFactory {
     var_
 
   }
+
 }
 
 object EmptyVariableMap extends VariableMap()
@@ -190,7 +191,7 @@ object EmptyVariableMap extends VariableMap()
  * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
  * Our "pure functional" desire lives in tension with this.
  */
-class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map.empty)
+class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
   extends WithParseErrorThrowing {
 
   override def toString(): String = {
@@ -214,8 +215,6 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
     updatableMap(expandedName) = updatedFirstTier :: enclosingScopes
     new VariableMap(updatableMap.toMap)
   }
-
-  def getVariables() = variables
 
   /**
    * Returns the value of a variable, constructing also a modified variable map which
@@ -356,6 +355,7 @@ class VariableMap(private val variables: Map[String, List[List[Variable]]] = Map
 }
 
 object VariableMap {
+
   def create(dvs: Seq[DFDLDefineVariable]): VariableMap = {
     val pairs = dvs.map { dv => (dv.extName, List(List(dv.newVariableInstance))) }
     val hmap = pairs.toMap

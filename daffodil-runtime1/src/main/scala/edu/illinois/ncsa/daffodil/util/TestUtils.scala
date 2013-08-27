@@ -98,7 +98,7 @@ object TestUtils {
 
   def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
     val compiler = Compiler()
-    val pf = compiler.compile(Seq.empty, testSchema)
+    val pf = compiler.compile(testSchema)
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -124,7 +124,7 @@ object TestUtils {
 
   def testUnparsingBinary(testSchema: scala.xml.Elem, infoset: Node, unparseTo: Array[Byte]) {
     val compiler = Compiler()
-    val pf = compiler.compile(Seq.empty, testSchema)
+    val pf = compiler.compile( testSchema)
     val u = pf.onPath("/")
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
@@ -145,7 +145,7 @@ object TestUtils {
 
   def runSchemaOnData(testSchema: Node, data: ReadableByteChannel) = {
     val compiler = Compiler()
-    val pf = compiler.compile(Seq.empty, testSchema)
+    val pf = compiler.compile(testSchema)
     val isError = pf.isError
     val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
 

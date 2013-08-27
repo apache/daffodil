@@ -32,36 +32,29 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.xml._
-import scala.xml.parsing._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import java.io.ByteArrayInputStream
-import java.io.InputStream
+import java.io.File
+
 import scala.collection.JavaConversions._
-import edu.illinois.ncsa.daffodil.grammar._
-import com.ibm.icu.charset.CharsetICU
+import scala.xml._
+
+import IIUtils._
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.compiler.RootSpec
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.util.Compile
-import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
-import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
-import edu.illinois.ncsa.daffodil.compiler.RootSpec
-import edu.illinois.ncsa.daffodil.util._
-import java.io.File
-import java.net.URI
-import java.net.URL
-import edu.illinois.ncsa.daffodil.dsom.IIUtils._
-import IIUtils._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.schema.annotation.props._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.xml._
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -673,7 +666,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
  * schema components obviously it does not live within a schema document.
  */
 class SchemaSet(
-  externalVariablesSource: Seq[Binding],
+  externalVariables: Seq[Binding],
   primFactory: PrimitiveFactoryBase,
   schemaFilesArg: Seq[File],
   rootSpec: Option[RootSpec] = None,
@@ -993,7 +986,16 @@ class SchemaSet(
   }
   def getDefineVariable(namespace: NS, name: String) = {
     val res = getSchema(namespace).flatMap { _.getDefineVariable(name) }
-    res
+    val finalResult = res match {
+      case None => {
+        val optRes = this.predefinedVars.find(dfv => {
+          dfv.namespace == namespace && dfv.name == name
+        })
+        optRes
+      }
+      case Some(value) => res
+    }
+    finalResult
   }
   def getDefineEscapeScheme(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
@@ -1004,12 +1006,87 @@ class SchemaSet(
       PrimType.allPrimitiveTypes.find { _.name == localName }
   }
 
+  /**
+   * Creates a DFDLDefineVariable object for the predefined variable.
+   *
+   * @param theName The variable name.
+   * @param theType The type of the variable. ex. xs:string
+   * @param nsURI The namespace URI of the variable.
+   *
+   * @return A Seq[DFDLDefineVariable]
+   */
+  private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String) = {
+    val dfv = new DFDLDefineVariable(
+      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, Fakes.fakeSD) {
+      override lazy val expandedNCNameToQName = "{" + nsURI + "}" + theName
+      override lazy val namespace = NS(nsURI)
+      override lazy val targetNamespace = NS(nsURI)
+    }
+    dfv
+  }
+
+  // We'll declare these here at the SchemaSet level since they're global.
+  lazy val predefinedVars = {
+    val extType = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, "string")
+    val nsURI = XMLUtils.DFDL_NAMESPACE.toStringOrNullIfNoNS
+
+    val encDFV = generateDefineVariable("encoding", "xs:string", "UTF-8", nsURI)
+    val boDFV = generateDefineVariable("byteOrder", "xs:string", "bigEndian", nsURI)
+    val binDFV = generateDefineVariable("binaryFloatRep", "xs:string", "ieee", nsURI)
+    val outDFV = generateDefineVariable("outputNewLine", "xs:string", "%LF;", nsURI)
+
+    Seq(encDFV, boDFV, binDFV, outDFV)
+  }
+
+  /**
+   * Determines if any of the externally defined variables
+   * were specified expecting Daffodil to figure out the
+   * namespace.  If so, Daffodil attempts to guess the
+   * namespace and will SDE if there is any ambiguity.
+   *
+   * @param allDefinedVariables The list of all DFDLDefineVariables in the SchemaSet.
+   *
+   * @return A list of external variables updated with any found namespaces.
+   */
+  private def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
+    var finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
+
+    val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)
+
+    val extVarsWithNS = externalVariables.filter(b => b.hasNamespaceSpecified)
+
+    extVarsWithNS.foreach(b => finalExternalVariables.enqueue(b))
+
+    extVarsWithoutNS.foreach(v => {
+      val matchingDVs = allDefinedVariables.filter(dv => dv.name == v.varName)
+
+      matchingDVs.length match {
+        case 0 => this.SDE("Could not find the externaly defined variable %s.", v.varName)
+        case x: Int if x > 1 =>
+          this.SDE("The externally defined variable %s is ambiguous.  " +
+            "A namespace is required to resolve the ambiguity.\nFound:\t%s",
+            v.varName, matchingDVs.mkString(", "))
+        case _ => // This is OK, we have exactly 1 match
+      }
+
+      val newNS = matchingDVs.head.namespace
+      val newBinding = Binding(v.varName, Some(newNS), v.varValue)
+      finalExternalVariables.enqueue(newBinding)
+    })
+    finalExternalVariables
+  }
+
   lazy val variableMap = {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
-    val vmap = VariableMap.create(dvs)
+    val alldvs = dvs.union(predefinedVars)
+    val vmap = VariableMap.create(alldvs)
+
+    // At this point we want to try to figure out which, if any, external
+    // variables did not have a namespace specified.
+    val finalExternalVariables = resolveExternalVariableNamespaces(alldvs)
 
     val finalVMap =
-      ExternalVariablesLoader.loadVariablesByBinding(externalVariablesSource, this, vmap)
+      ExternalVariablesLoader.loadVariables(finalExternalVariables, this, vmap)
 
     finalVMap
   }

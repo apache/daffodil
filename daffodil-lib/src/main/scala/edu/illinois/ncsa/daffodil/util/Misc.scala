@@ -268,6 +268,9 @@ object Misc {
 
   /**
    * Detects the encoding of the File for us.
+   * 
+   * This was needed for the ConstructingParser
+   * in order to read in xml from a file.
    */
   def determineEncoding(theFile: File): String = {
     val encH = scala.xml.include.sax.EncodingHeuristics

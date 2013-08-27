@@ -70,7 +70,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
@@ -114,7 +114,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     //
@@ -156,7 +156,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()

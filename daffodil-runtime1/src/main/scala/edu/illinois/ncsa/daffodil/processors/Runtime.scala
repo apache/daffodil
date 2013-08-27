@@ -55,15 +55,15 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   def getValidationMode() = validationMode
 
   def setExternalVariables(extVars: Map[String, String]): Unit = {
-    val bindings = ExternalVariablesLoader.getVariablesAsBindings(extVars)
-    ExternalVariablesLoader.loadVariablesByBinding(bindings, this, variables)
-    variables = ExternalVariablesLoader.loadVariablesByMap(extVars, this, variables)
+    val bindings = ExternalVariablesLoader.getVariables(extVars)
+    ExternalVariablesLoader.loadVariables(bindings, this, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
   }
   def setExternalVariables(extVars: File): Unit = {
-    variables = ExternalVariablesLoader.loadVariablesByFile(extVars, this, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
   }
   def setExternalVariables(extVars: Seq[Binding]): Unit = {
-    variables = ExternalVariablesLoader.loadVariablesByBinding(extVars, this, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
   }
   def getVariables = variables
 

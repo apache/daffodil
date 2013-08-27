@@ -612,11 +612,12 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
-		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
+		java.io.File extVarsFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(extVarFile, schemaFiles);
+		c.setExternalDFDLVariables(extVarsFile);
+		ProcessorFactory pf = c.compile(schemaFiles);
 		
 		
 		DataProcessor dp = pf.onPath("/");

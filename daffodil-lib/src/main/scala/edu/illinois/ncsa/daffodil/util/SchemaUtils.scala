@@ -84,10 +84,46 @@ object SchemaUtils {
     val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
     val scopeToInherit = nodeWithScope.scope
     val schemaNode = {
-      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI }>
+      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI } >
          {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ targetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
+               <xs:annotation>
+                 <xs:appinfo source={ dfdlAppinfoSource }>
+                   { test1 }
+                   { topLevelAnnotations }
+                 </xs:appinfo>
+               </xs:annotation>
+               <!-- No imports needed: XML Catalog gets them 
+                       <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
+                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_model_all_parts.xsd"/> 
+                        -->
+               { contentElements }
+             </xs:schema> % fileAttrib
+           })
+         }
+       </surroundingElement>) \\ "schema"
+    }.head.asInstanceOf[Elem]
+    val realSchema = schemaNode
+    //
+    // Note: no longer needs to write out and re-load to get namespaces 
+    // right due to the surroundingElement trick above
+    //
+    schemaNode
+  }
+  
+  /**
+   * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
+   */
+  def dfdlTestSchemaWithTarget(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], theTargetNS: String) = {
+    val fileAttrib = Null
+    val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
+    val scopeToInherit = nodeWithScope.scope
+    val schemaNode = {
+      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI } >
+         {
+           nodeWithScope.copy(child = {
+             <xs:schema targetNamespace={ theTargetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
                <xs:annotation>
                  <xs:appinfo source={ dfdlAppinfoSource }>
                    { test1 }

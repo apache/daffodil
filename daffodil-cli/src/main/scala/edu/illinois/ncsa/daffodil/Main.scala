@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.api.ValidationMode
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -367,12 +368,24 @@ object Main extends Logging {
     } else None
   }
 
-  def loadExternalVariablesFile(pathName: String) = {
-    val fin = new File(pathName)
-    val node = ExternalVariablesLoader.getVariablesFileAsBindings(fin)
+  /**
+   * Loads and validates the configuration file.
+   * 
+   * @param pathName The path to the file.
+   * @return The Node representation of the file.
+   */
+  def loadConfigurationFile(pathName: String) = {
+    val node = ConfigurationLoader.getConfiguration(pathName)
     node
   }
 
+  /**
+   * Overrides bindings specified via the configuration file with those
+   * specified via the -D command.
+   * 
+   * @param bindings A sequence of Bindings (external variables)
+   * @param bindingsToOverride The sequence of Bindings that could be overridden.
+   */
   def overrideBindings(bindings: Seq[Binding], bindingsToOverride: Seq[Binding]) = {
     val inBoth = bindings.intersect(bindingsToOverride).distinct
     val bindingsMinusBoth = bindings.diff(inBoth)
@@ -385,26 +398,41 @@ object Main extends Logging {
     bindingsWithUpdates
   }
 
-  def retrieveExternalVariables(vars: Map[String, String], varsFilePath: Option[String]): Seq[Binding] = {
-    val individualVars = ExternalVariablesLoader.createBindings(vars)
-    val fileVars = varsFilePath match {
+  /**
+   * Retrieves all external variables specified via the command line interface.
+   * 
+   * @param vars The individual variables input via the command line using the -D command.
+   * @param configFileNode The Node representing the configuration file if there is one.
+   */
+  def retrieveExternalVariables(vars: Map[String, String], configFileNode: Option[Node]): Seq[Binding] = {
+    val configFileVars: Seq[Binding] = configFileNode match {
       case None => Seq.empty
-      case Some(filePath) => loadExternalVariablesFile(filePath)
+      case Some(configNode) => {
+        // We have a configuration file node, we now need to grab
+        // the externalVariableBindings node.
+        val extVarBindingNodeOpt = (configNode \ "externalVariableBindings").headOption
+        extVarBindingNodeOpt match {
+          case None => Seq.empty
+          case Some(extVarBindingsNode) => ExternalVariablesLoader.getVariables(extVarBindingsNode)
+        }
+      }
     }
 
-    val bindings = overrideBindings(individualVars, fileVars)
+    val individualVars = ExternalVariablesLoader.getVariables(vars)
+
+    val bindings = overrideBindings(individualVars, configFileVars)
     bindings
   }
 
   def createProcessorFromSchemas(schemaFiles: List[File], root: Option[String],
-    namespace: Option[String], path: Option[String], vars: Map[String, String],
-    extVarsFile: Seq[Binding],
+    namespace: Option[String], path: Option[String],
+    extVars: Seq[Binding],
     mode: ValidationMode.Type) = {
     val compiler = Compiler()
 
     val ns = namespace.getOrElse(null)
 
-    //vars foreach { case (key, value) => compiler.setExternalDFDLVariable(key, ns, value) }
+    compiler.setExternalDFDLVariables(extVars)
 
     root match {
       case Some(r) => {
@@ -420,7 +448,7 @@ object Main extends Logging {
     // of compilation, where it asks for the parser)
     //
     val pf = Timer.getResult("compiling", {
-      val processorFactory = compiler.compile(extVarsFile, schemaFiles: _*)
+      val processorFactory = compiler.compile(schemaFiles: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
         processor.setValidationMode(mode)
@@ -483,14 +511,18 @@ object Main extends Logging {
 
           } else ValidationMode.Off
 
-        val extVarsBindings = retrieveExternalVariables(parseOpts.vars, parseOpts.configFilePath.get)
+        val cfgFileNode = parseOpts.configFilePath.get match {
+          case None => None
+          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
+        }
+        val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
 
         val processor = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validationMode)
           } else {
             val files: List[File] = parseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, parseOpts.vars, extVarsBindings, validationMode)
+            createProcessorFromSchemas(files, parseOpts.root.get, parseOpts.namespace.get, parseOpts.path.get, extVarsBindings, validationMode)
           }
         }
 
@@ -580,14 +612,18 @@ object Main extends Logging {
 
           } else ValidationMode.Off
 
-        val extVarsFileNode = retrieveExternalVariables(unparseOpts.vars, unparseOpts.configFilePath.get)
+        val cfgFileNode = unparseOpts.configFilePath.get match {
+          case None => None
+          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
+        }
+        val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode)
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validationMode)
           } else {
             val files: List[File] = unparseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, unparseOpts.vars, extVarsFileNode, validationMode)
+            createProcessorFromSchemas(files, unparseOpts.root.get, unparseOpts.namespace.get, unparseOpts.path.get, extVarsBindings, validationMode)
           }
         }
 
@@ -636,9 +672,13 @@ object Main extends Logging {
 
         } else ValidationMode.Off
 
-        val extVarsFileNode = retrieveExternalVariables(saveOpts.vars, saveOpts.configFilePath.get)
+        val cfgFileNode = saveOpts.configFilePath.get match {
+          case None => None
+          case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
+        }
+        val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode)
 
-        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, saveOpts.vars, extVarsFileNode, validationMode)
+        val processor = createProcessorFromSchemas(files, saveOpts.root.get, saveOpts.namespace.get, saveOpts.path.get, extVarsBindings, validationMode)
 
         val output = saveOpts.outfile.get match {
           case Some("-") | None => System.out

@@ -36,7 +36,6 @@ import scala.collection.immutable.ListMap
 import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Utility
-
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
@@ -49,6 +48,7 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Base class for any DFDL annotation
@@ -651,6 +651,10 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
+  
+  // So that we can display the namespace information associated with
+  // the variable when toString is called.
+  override def prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"
 
 }
 

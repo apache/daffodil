@@ -75,6 +75,7 @@ import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -215,6 +216,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
   val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
+  val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
 
   private val embeddedSchemaGroups = embeddedSchemas.groupBy { _.name }
 
@@ -326,6 +328,16 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
 
   def findSchemaFileName(modelName: String) = findTDMLResource(modelName)
 
+  def findEmbeddedConfig(configName: String): Option[DefinedConfig] = {
+    val ecfg = embeddedConfigs.find { defCfg => defCfg.name == configName }
+    ecfg match {
+      case Some(defConfig) => Some(defConfig)
+      case None => None
+    }
+  }
+
+  def findConfigFileName(configName: String) = findTDMLResource(configName)
+
 }
 
 abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
@@ -339,10 +351,6 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
-  val externalVars: Seq[Binding] = toOpt(ptc \ "externalVariableBindings") match {
-    case None => Seq.empty
-    case Some(node) => ExternalVariablesLoader.getVariablesNodeAsBindings(node)
-  }
   val document = toOpt(ptc \ "document").map { node => new Document(node, this) }
   val infoset = toOpt(ptc \ "infoset").map { node => new Infoset(node, this) }
   val errors = toOpt(ptc \ "errors").map { node => new ExpectedErrors(node, this) }
@@ -354,6 +362,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   val id = name + (if (ptcID != "") "(" + ptcID + ")" else "")
   val root = (ptc \ "@root").text
   val model = (ptc \ "@model").text
+  val config = (ptc \ "@config").text
   val description = (ptc \ "@description").text
   val unsupported = (ptc \ "@unsupported").text match {
     case "true" => true
@@ -379,6 +388,14 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type): Unit
 
+  private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
+    val bindings: Seq[Binding] = cfg.externalVariableBindings match {
+      case None => Seq.empty
+      case Some(bindingsNode) => ExternalVariablesLoader.getVariables(bindingsNode)
+    }
+    bindings
+  }
+
   def run(schema: Option[Node] = None): (Long, Long) = {
     suppliedSchema = schema
     val sch = schema match {
@@ -399,13 +416,37 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
         schemaNodeOrFileName
       }
     }
+    val cfg: Option[DefinedConfig] = config match {
+      case "" => None
+      case configName => {
+        val cfgNode = parent.findEmbeddedConfig(configName)
+        val cfgFileName = parent.findConfigFileName(configName)
+        val optDefinedConfig = (cfgNode, cfgFileName) match {
+          case (None, None) => None
+          case (Some(_), Some(_)) => throw new Exception("Config '" + config + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
+          case (Some(definedConfig), None) => Some(definedConfig)
+          case (None, Some(fn)) => {
+            // Read file, convert to definedConfig
+            val node = ConfigurationLoader.getConfiguration(fn)
+            val definedConfig = DefinedConfig(node, parent)
+            Some(definedConfig)
+          }
+        }
+        optDefinedConfig
+      }
+    }
+    val externalVarBindings: Seq[Binding] = cfg match {
+      case None => Seq.empty
+      case Some(definedConfig) => retrieveBindings(definedConfig)
+    }
     val compiler = Compiler()
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
+    compiler.setExternalDFDLVariables(externalVarBindings)
     val pf = sch match {
-      case node: Node => compiler.compile(externalVars, node)
-      case theFile: File => compiler.compile(externalVars, theFile)
-      case _ => Assert.invariantFailed("can only be Node or File") //Assert.invariantFailed("can only be Node or String")
+      case node: Node => compiler.compile(node)
+      case theFile: File => compiler.compile(theFile)
+      case _ => Assert.invariantFailed("can only be Node or File")
     }
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
@@ -767,6 +808,18 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case None => ""
   }
   val xsdSchema = SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
+}
+
+case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
+  val name = (xml \ "@name").text.toString
+  val externalVariableBindings = (xml \ "externalVariableBindings").headOption
+
+  // Add additional compiler tunable variables here
+
+  val fileName = parent.ts.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
+    case Some(seqNodes) => seqNodes.toString
+    case None => ""
+  }
 }
 
 sealed abstract class DocumentContentType

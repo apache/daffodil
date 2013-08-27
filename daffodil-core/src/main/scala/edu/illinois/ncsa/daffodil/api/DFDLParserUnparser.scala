@@ -120,9 +120,9 @@ object DFDL {
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compile(extVarsSrc: Seq[Binding], schema: Node): ProcessorFactory
+    def compile(schema: Node): ProcessorFactory
 
-    def compile(extVarsSrc: Seq[Binding], schemaFiles: File*): ProcessorFactory
+    def compile(schemaFiles: File*): ProcessorFactory
 
     def reload(fileName: String): ProcessorFactory
   }

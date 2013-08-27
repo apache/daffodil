@@ -5,17 +5,26 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 
-class Binding(node: Node) {
-  val name = (node \ "@name").head.text
+class Binding(val varName: String, namespace: Option[NS], val varValue: String) {
 
-  val (nameNS, varName) = XMLUtils.getQName(name, node)
-
-  val varValue = node.text
-
-  lazy val extName = XMLUtils.expandedQName(nameNS, varName)
-
+  private lazy val theNsString = namespace match {
+    case Some(ns) => "{" + ns + "}"
+    case None => ""
+  }
   override def toString() = {
-    "<binding name='{" + nameNS + "}" + varName + "'>" + varValue + "</binding>"
+    "<binding name='" + theNsString + varName + "'>" + varValue + "</binding>"
+  }
+
+  // A specified Namespace is one that is Some(NS(URI)) or Some(NoNamespace)
+  // None simply means that Daffodil will need to try to figure it out.
+  lazy val hasNamespaceSpecified: Boolean = namespace.isDefined
+
+  // namespace == None => varName
+  // namespace == Some(ns) => {ns}varName
+  //  Where ns can be an actual URI or NoNamespace.
+  lazy val extName = namespace match {
+    case None => varName
+    case Some(ns) => XMLUtils.expandedQName(ns, varName)
   }
 
   override def hashCode = extName.hashCode()
@@ -27,33 +36,33 @@ class Binding(node: Node) {
   }
 }
 
+/**
+ * This object is for cases when external variable bindings
+ * are passed in via the Command Line Interface.
+ */
 object Binding {
-  val NSFormatNotEmpty = """\{([^\{\}]+)\}(.+)""".r
-  val NSFormatEmpty = """\{\}(.+)""".r
 
-  /**
-   * Specialized getQName function for handling
-   * manually specified variables via the CLI.
-   *
-   * Variables will be of the format:
-   *
-   * 1. {nsURI}varName=value
-   * 2. {}varName=value
-   * 3. varName=value
-   */
-  private def getQName(name: String) = {
-    name match {
-      case NSFormatNotEmpty(nsURI, varName) => (NS(nsURI), varName)
-      case NSFormatEmpty(varName) => (NoNamespace, varName)
-      case _ => (NoNamespace, name)
-    }
-  }
   def apply(name: String, value: String): Binding = {
-    val (ns, variableName) = getQName(name)
-    new Binding(<bind name={ variableName }>{ value }</bind>) {
-      override val nameNS = ns
-      override val varName = variableName
-      override lazy val extName = XMLUtils.expandedQName(ns, variableName)
-    }
+    val (ns, variableName) = XMLUtils.getQName(name)
+    new Binding(variableName, ns, value)
   }
+
+  def apply(node: Node): Binding = {
+    val name = (node \ "@name").head.text
+    val (nameNS, varNameNoPrefix) = XMLUtils.getQName(name, node)
+
+    // TODO: Remove once we fix the above getQName method to return Option[NS]
+    val theNameNS = nameNS match {
+      case null => None
+      case _ => Some(nameNS)
+    }
+
+    val value = node.text
+    new Binding(varNameNoPrefix, theNameNS, value)
+  }
+
+  def apply(name: String, namespace: Option[NS], value: String): Binding = {
+    new Binding(name, namespace, value)
+  }
+
 }

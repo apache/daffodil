@@ -80,7 +80,7 @@ class TestDsomCompiler extends Logging {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
-    val (_, pf) = Compiler().compileInternal(Seq.empty, sch)
+    val (_, pf) = Compiler().compileInternal(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
@@ -94,7 +94,7 @@ class TestDsomCompiler extends Logging {
                         <sequence/>
                       </complexType>
                     </schema>
-    val (_, pf) = Compiler().compileInternal(Seq.empty, sch)
+    val (_, pf) = Compiler().compileInternal(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     println(msg)

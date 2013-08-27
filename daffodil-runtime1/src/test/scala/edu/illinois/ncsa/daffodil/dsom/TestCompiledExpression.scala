@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.compiler.Compiler
@@ -94,7 +93,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
@@ -132,7 +131,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
 
     val root = null // won't be used.
 
@@ -177,7 +176,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -203,7 +202,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -229,7 +228,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -256,7 +255,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -295,7 +294,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -332,7 +331,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
@@ -369,7 +368,7 @@ class TestCompiledExpression {
 
     val c = new Compiler()
 
-    val (sset, pf) = c.compileInternal(Seq.empty, testSchema)
+    val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
@@ -415,7 +414,7 @@ class TestCompiledExpression {
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val d = Misc.stringToReadableByteChannel("42")
     val compiler = Compiler()
-    val pf = compiler.compile(Seq.empty, testSchema)
+    val pf = compiler.compile( testSchema)
     val dp = pf.onPath("/")
     val resState = dp.parse(d)
     val resNode = resState.result

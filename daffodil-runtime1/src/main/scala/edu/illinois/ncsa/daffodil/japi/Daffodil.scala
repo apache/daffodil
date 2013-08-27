@@ -107,22 +107,8 @@ class Compiler {
   private val sCompiler = SCompiler()
 
   @throws(classOf[java.io.IOException])
-  def compile(extVars: Map[String, String], schemaFiles: Array[File]): ProcessorFactory = {
-    val extVarsNode = ExternalVariablesLoader.getVariablesAsBindings(extVars)
-    val (_, pf) = sCompiler.compileInternal(extVarsNode, schemaFiles.toSeq)
-    new ProcessorFactory(pf)
-  }
-
-  @throws(classOf[java.io.IOException])
-  def compile(extVars: File, schemaFiles: Array[File]): ProcessorFactory = {
-    val extVarsNode = ExternalVariablesLoader.getVariablesFileAsBindings(extVars)
-    val (_, pf) = sCompiler.compileInternal(extVarsNode, schemaFiles.toSeq)
-    new ProcessorFactory(pf)
-  }
-
-  @throws(classOf[java.io.IOException])
   def compile(schemaFiles: Array[File]): ProcessorFactory = {
-    val (_, pf) = sCompiler.compileInternal(Seq.empty, schemaFiles.toSeq)
+    val (_, pf) = sCompiler.compileInternal(schemaFiles.toSeq)
     new ProcessorFactory(pf)
   }
 
@@ -135,6 +121,15 @@ class Compiler {
 
   def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
     sCompiler.setExternalDFDLVariable(name, namespace, value)
+  }
+
+  def setExternalDFDLVariables(extVarsMap: Map[String, String]): Unit = {
+    val extVars = ExternalVariablesLoader.getVariables(extVarsMap)
+    sCompiler.setExternalDFDLVariables(extVars)
+  }
+
+  def setExternalDFDLVariables(extVarsFile: File): Unit = {
+    sCompiler.setExternalDFDLVariables(extVarsFile)
   }
 
 }

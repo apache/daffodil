@@ -49,4 +49,18 @@ class TestExternalVariablesNew {
   // via the TDMLRunner are currently passed in during
   // compilation.
 
+  // Tests that we can specify a file in the parser
+  // test case.
+  @Test def test_read_config_from_file() {
+    runner.runOneTest("read_config_from_file")
+  }
+
+  @Test def test_access_default_predefined_vars() {
+    runner.runOneTest("access_default_predefined_vars")
+  }
+  
+  @Test def test_set_a_predefined_var() {
+    runner.runOneTest("set_predefined_var")
+  }
+
 }
