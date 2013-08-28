@@ -77,12 +77,6 @@ class TestTextNumberPropsDebug {
 
   @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
 
-// DFDL-859
-  @Test def test_decimalPadding01() { runner.runOneTest("decimalPadding01") }
-  @Test def test_decimalPadding04() { runner.runOneTest("decimalPadding04") }
-  @Test def test_nonNegIntPadding01() { runner.runOneTest("nonNegIntPadding01") }
-  @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
-  
 //DFDL-191
   @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
   @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }

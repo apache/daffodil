@@ -1419,7 +1419,8 @@ trait Padded { self: Terminal =>
 
         case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
           PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
-          PrimType.ULong | PrimType.Double | PrimType.Float => {
+          PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+          PrimType.NonNegativeInteger  => {
           padChar = eBase.textNumberPadCharacter
           eBase.textNumberJustification match {
             case TextNumberJustification.Left => TextJustificationType.Left
@@ -1451,7 +1452,7 @@ trait Padded { self: Terminal =>
             case TextBooleanJustification.Center => TextJustificationType.Center
           }
         }
-        case _ => TextJustificationType.None
+        case PrimType.HexBinary => TextJustificationType.None
       }
       theJust
     }
