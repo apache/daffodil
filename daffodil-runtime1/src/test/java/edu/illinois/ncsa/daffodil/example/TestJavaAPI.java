@@ -111,6 +111,7 @@ public class TestJavaAPI {
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.getCommand().equals("trace"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
