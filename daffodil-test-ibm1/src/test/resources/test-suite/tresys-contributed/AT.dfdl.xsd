@@ -4,9 +4,11 @@
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
 
+<include schemaLocation="xsd/built-in-formats.xsd"/>
+
 <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format lengthKind="delimited" separator="" representation="text"
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" separator="" representation="text"
         leadingSkip='0' encoding="US-ASCII" ignoreCase='no' initiator="" lengthUnits="bytes"
         terminator="" initiatedContent="no" textNumberRep="standard"
         separatorSuppressionPolicy="trailingEmpty" separatorPosition="infix"
@@ -28,17 +30,17 @@
       <sequence>
         <element name="occurs" type="xsd:int"
           dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter="%WSP;" dfdl:terminator="%WSP;" />
+          dfdl:textStringPadCharacter=" " dfdl:terminator=";" />
         <element name="date" type="xsd:dateTime"
           dfdl:lengthKind="pattern" dfdl:lengthPattern="[^ ]+\s+[^ ]+"
           dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM/dd/yy'   'HH:mm:ss" />
         <element name="unknownnum1" type="xsd:int"
-          dfdl:terminator="%WSP;" dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter="%WSP;" />
+          dfdl:terminator=";" dfdl:textStringJustification="right"
+          dfdl:textStringPadCharacter=" " />
         <element name="unknownnum2" type="xsd:int"
-          dfdl:lengthKind="delimited" dfdl:terminator="%WSP;"
+          dfdl:lengthKind="delimited" dfdl:terminator=";"
           dfdl:textStringJustification="right"
-          dfdl:textStringPadCharacter="%WSP;" />
+          dfdl:textStringPadCharacter=" " />
         <sequence dfdl:hiddenGroupRef="tns:prpIntroGroup" />
 
         <element name="frame" type="tns:frame" maxOccurs="unbounded" 
@@ -97,9 +99,12 @@
                   <!-- this have BEFORE timing, so for the first local_name 
                     $tns:counter = 1 -->
                     <!-- NOTE: THIS REQUIRES dfdl:newVariableInstance BECAUSE VARIABLES ARE SINGLE ASSIGNMENT IN DFDL -->
-                  <dfdl:setVariable ref="tns:counter">{
+                    <!-- Updating test to use newVariableInstance but the feature is not yet implemented 
+                         so this will need to be reviewed -Beth 8/29/13 -->
+                  <dfdl:newVariableInstance ref="tns:counter" defaultValue="{ $tns:counter + 1 }" />
+                    <!--dfdl:setVariable ref="tns:counter">{
                     $tns:counter + 1
-                    }</dfdl:setVariable>
+                    }</dfdl:setVariable-->
                 </appinfo>
               </annotation>
             </element>
