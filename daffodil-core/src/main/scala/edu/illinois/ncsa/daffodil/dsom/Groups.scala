@@ -259,6 +259,13 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
+  lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[Sequence] = enclosingTerm match {
+    case None => None
+    case Some(s: Sequence) if !s.isOrdered => Some(s)
+    case Some(s: Sequence) => None
+    case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
+  }
+
   lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
     case None => false
     case Some(s: Sequence) => false
@@ -270,6 +277,42 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case None => None
     case Some(eb: ElementBase) => Some(eb)
     case Some(_) => enclosingTerm.get.nearestEnclosingElement
+  }
+
+  lazy val thisTermNoRefs: Term = thisTermNoRefs_.value
+  private val thisTermNoRefs_ = LV('thisTermNoRefs) {
+    val es = nearestEnclosingSequence
+
+    val thisTerm = this match {
+      case eRef: ElementRef => eRef.referencedElement
+      case gd: GlobalGroupDef => gd.thisTermNoRefs
+      case gb: GroupBase if gb.enclosingTerm.isDefined => {
+        // We're a group.  We need to determine what we're enclosed by.
+        gb.enclosingTerm.get match {
+          case encGRef: GroupRef => {
+            // We're enclosed by a GroupRef.  We need to retrieve
+            // what encloses that GroupRef 
+
+            val res = encGRef.enclosingTerm match {
+              case None => encGRef.group
+              case Some(encTerm) => encTerm.thisTermNoRefs
+            }
+            //encGRef.thisTerm
+            res
+          }
+          case encGB: GroupBase if es.isDefined && encGB == es.get => {
+            // We're an immediate child of the nearestEnclosingSequence
+            // therefore we just return our self as the Term
+            this
+          }
+          case e: LocalElementBase => e // Immediate enclosed by LocalElementBase, return it.
+          case _ => gb.group
+        }
+      }
+      case gb: GroupBase => gb.group
+      case x => x
+    }
+    thisTerm
   }
 
   /**
@@ -504,6 +547,12 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
+  lazy val groupMembersNoRefs = groupMembers.map {
+    case eRef: ElementRef => eRef.referencedElement
+    case gb: GroupBase => gb.group
+    case x => x
+  }
+
   /**
    * Factory for Terms
    *
@@ -589,6 +638,95 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       isKnownToBePrecededByAllByteLengthItems
     } else false
   }
+
+  lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
+  private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
+    val es = nearestEnclosingSequence
+    // how do we determine what child node we are? We search. 
+    // TODO: better structure for O(1) answer to this.
+    es match {
+      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
+      case Some(s) =>
+        {
+          val members = s.groupMembersNoRefs
+
+          if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality. 
+          else false
+        }
+    }
+  }
+
+  lazy val allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
+    allSelfContainedTermsTerminatedByRequiredElement_.value
+  private val allSelfContainedTermsTerminatedByRequiredElement_ =
+    LV('allSelfContainedTermsTerminatedByRequiredElement) {
+      val listOfTerms = groupMembersNoRefs.map(m => {
+        m match {
+          case e: LocalElementBase if e.isOptional => (Seq(e) ++ e.couldBeNext) // A LocalElement or ElementRef
+          case e: LocalElementBase => Seq(e)
+          case mg: ModelGroup => Seq(mg)
+        }
+      }).flatten
+      listOfTerms
+    }
+
+  lazy val couldBeNext: Seq[Term] = couldBeNext_.value
+  private val couldBeNext_ = LV('couldBeNext) {
+    // We're a ModelGroup, we want a list of all
+    // Terms that follow this ModelGroup.
+    //
+    val es = this.nearestEnclosingSequence
+    val eus = this.nearestEnclosingUnorderedSequenceBeforeSequence
+    val ec = this.nearestEnclosingChoiceBeforeSequence
+
+    val enclosingUnorderedGroup = {
+      (ec, eus) match {
+        case (None, None) => None
+        case (Some(choice), _) => Some(choice)
+        case (None, Some(uoSeq)) => Some(uoSeq)
+      }
+    }
+
+    val listOfNextTerm =
+      (enclosingUnorderedGroup, es) match {
+        case (None, None) => Seq.empty
+        case (Some(unorderedGroup), _) => {
+          // We're in a choice or unordered sequence
+
+          // List must be all of our peers since
+          // we could be followed by any of them plus
+          // whatever follows the unordered group.
+          val peersCouldBeNext = unorderedGroup.groupMembersNoRefs
+          peersCouldBeNext
+        }
+        case (None, Some(oSeq)) => {
+          // We're in an ordered sequence
+
+          val termsUntilFirstRequiredTerm =
+            isDeclaredLastInSequence match {
+              case true => oSeq.couldBeNext
+              case false => {
+
+                val members = oSeq.group.groupMembersNoRefs
+
+                val nextMember = members.dropWhile(m => m != thisTermNoRefs).filterNot(m => m == thisTermNoRefs).headOption
+
+                val nextMembers =
+                  nextMember match {
+                    case Some(e: LocalElementBase) if e.isOptional => Seq(e) ++ e.couldBeNext
+                    case Some(e: LocalElementBase) => Seq(e)
+                    case Some(gb: GroupBase) => Seq(gb.group)
+                    case None => Assert.impossibleCase
+                  }
+                nextMembers
+              }
+            }
+          termsUntilFirstRequiredTerm
+        }
+      }
+    listOfNextTerm
+  }
+
 }
 
 /**

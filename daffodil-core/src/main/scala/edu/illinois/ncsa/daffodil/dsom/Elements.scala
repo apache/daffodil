@@ -58,6 +58,8 @@ trait ParticleMixin { self: ElementBase =>
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
 
+  lazy val isOptional = minOccurs == 0
+
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
     min match {
@@ -183,7 +185,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         case PrimType.String => Representation.Text
         case _ => representation
       }
-    } else  {
+    } else {
       representation
     }
     rep
@@ -198,7 +200,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       case Representation.Binary => false
     }
   }
-  
+
   lazy val isParentUnorderedSequence: Boolean = {
     parent match {
       case s: Sequence if !s.isOrdered => true
@@ -730,10 +732,12 @@ trait LocalElementMixin
     // how do we determine what child node we are? We search. 
     // TODO: better structure for O(1) answer to this.
     es match {
-      case None => true
-      case Some(s) =>
-        if (s.groupMembers.last eq this) true // we want object identity comparison here, not equality. 
+      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
+      case Some(s) => {
+        val members = s.groupMembersNoRefs
+        if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality. 
         else false
+      }
     }
   }
 
@@ -750,8 +754,8 @@ trait LocalElementMixin
       case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
       case LengthKind.Prefixed => false
       case LengthKind.Pattern => lengthPattern.r.findFirstIn("") match {
-          case None => true
-          case Some(s) => false
+        case None => true
+        case Some(s) => false
       }
       case LengthKind.Delimited => (pt == PrimType.String)
       case LengthKind.Implicit => false
@@ -813,7 +817,93 @@ trait LocalElementMixin
 
 abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ElementBase(xmlArg, parent, position)
-  with LocalElementMixin
+  with LocalElementMixin {
+
+  requiredEvaluations(checkForAlignmentAmbiguity)
+
+  private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
+  private def lcm(a: Int, b: Int): Int = math.abs(a * b) / gcd(a, b)
+  private def isXAMultipleOfY(x: Int, y: Int): Boolean = (x % y) == 0
+
+  def isAlignmentCompatible(current: Int, next: Int): Boolean = {
+    isXAMultipleOfY(current, next)
+  }
+
+  /**
+   * To avoid ambiguity when parsing, optional elements and variable-occurrence arrays
+   * where the minimum number of occurrences is zero cannot have alignment properties
+   * different from the items that follow them. It is a schema definition error otherwise.
+   *
+   * Part of the required evaluations for LocalElementBase.
+   */
+  def checkForAlignmentAmbiguity: Unit = {
+    if (isOptional) {
+      this.couldBeNext.filterNot(m => m == thisTermNoRefs).foreach { that =>
+        val isSame = this.alignmentValueInBits == that.alignmentValueInBits
+        if (!isSame) {
+          this.SDE("%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
+            this, this.alignmentValueInBits, that, that.alignmentValueInBits)
+        }
+      }
+    }
+  }
+
+  lazy val couldBeNext: Seq[Term] = couldBeNext_.value
+  private val couldBeNext_ = LV('couldBeNext) {
+    val es = this.nearestEnclosingSequence
+    val eus = this.nearestEnclosingUnorderedSequenceBeforeSequence
+    val ec = this.nearestEnclosingChoiceBeforeSequence
+
+    val enclosingUnorderedGroup = {
+      (ec, eus) match {
+        case (None, None) => None
+        case (Some(choice), _) => Some(choice)
+        case (None, Some(uoSeq)) => Some(uoSeq)
+      }
+    }
+    val listOfNextTerm = (enclosingUnorderedGroup, es) match {
+      case (None, None) => Seq.empty
+      case (Some(unorderedGroup), _) => {
+        // We're in a choice or unordered sequence
+        //
+        // List must be all of our peers since (as well as our self)
+        // we could be followed by any of them plus
+        // whatever follows the unordered group.
+        val peersCouldBeNext = unorderedGroup.groupMembersNoRefs
+
+        val termsUntilFirstRequiredTerm = peersCouldBeNext ++ unorderedGroup.couldBeNext
+        termsUntilFirstRequiredTerm
+      }
+      case (None, Some(oSeq)) => {
+        // We're in an ordered sequence
+
+        val termsUntilFirstRequiredTerm =
+          isDeclaredLastInSequence match {
+            case true => oSeq.couldBeNext
+            case false => {
+
+              val members = oSeq.groupMembersNoRefs
+
+              val nextMember =
+                members.dropWhile(m => m != thisTermNoRefs).filterNot(m => m == thisTermNoRefs).headOption
+
+              val nextMembers =
+                nextMember match {
+                  case Some(e: LocalElementBase) if e.isOptional => Seq(e) ++ e.couldBeNext
+                  case Some(e: LocalElementBase) => Seq(e)
+                  case Some(gb: GroupBase) => Seq(gb.group)
+                  case None => Assert.impossibleCase
+                }
+              nextMembers
+            }
+          }
+        termsUntilFirstRequiredTerm
+      }
+    }
+    listOfNextTerm
+  }
+
+}
 
 /**
  * Note ElementRef isn't a first class citizen with the other schema components.
