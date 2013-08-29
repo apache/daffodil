@@ -54,6 +54,14 @@ class TestDFDLExpressionsNew {
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
   @Test def test_variableRefError { runner3.runOneTest("variableRefError") }
+  
+  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aa = testDir2 + "Functions.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+// DFDL-764
+  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
+  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
 
 }
 

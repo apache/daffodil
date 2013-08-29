@@ -133,7 +133,7 @@
     <xs:element name="occursCount1b">
 			<xs:annotation>
 				<xs:appinfo source="http://www.ogf.org/dfdl/">
-					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 1 }"
+					<dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1b/* ) eq 1 }"
 						message="Assertion 
             failed for dfdl:occursCount( /ex:occursCount/* ) eq 1" />
 				</xs:appinfo>
@@ -530,11 +530,9 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
 				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-				<occursCount1>
+				<occursCount1b>
 					<i1>1</i1>
-					<i1>2</i1>
-					<i1>3</i1>
-				</occursCount1>
+				</occursCount1b>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

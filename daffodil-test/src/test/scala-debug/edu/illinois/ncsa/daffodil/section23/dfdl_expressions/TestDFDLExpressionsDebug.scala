@@ -75,8 +75,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
 
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
-  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
-  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
 
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }

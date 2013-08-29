@@ -373,14 +373,14 @@ object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithD
 object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
-    //val context = getContext(pstate)
     val x = args.get(0)
     val occursCount = args.get(0) match {
+      case e: Element => 1
       case ns: NodeSeq => ns.length
       case se: net.sf.saxon.value.SequenceExtent => {
         se.getLength()
       }
-      case _ => pstate.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
+      case _ => pstate.SDE("dfdl:occursCount did not receive any nodes, check your path.")
     }
     java.lang.Long.valueOf(occursCount)
   }
