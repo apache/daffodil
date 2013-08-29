@@ -1,1 +1,1 @@
-Bytes processed: 14
+Total: 4, Pass: 2, Fail: 0, Not Found: 2

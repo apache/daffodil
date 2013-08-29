@@ -76,7 +76,7 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with L
   }
 }
 
-object CLILogWriter extends LogWriter {
+trait CLILogPrefix extends LogWriter {
   override def prefix(logID: String, glob: Glob): String = {
     "[" + glob.lvl.toString.toLowerCase + "] "
   }
@@ -84,10 +84,25 @@ object CLILogWriter extends LogWriter {
   override def suffix(logID: String, glob: Glob): String = {
     ""
   }
+}
+
+object CLILogWriter extends CLILogPrefix {
 
   def write(msg: String) {
     Console.err.println(msg)
     Console.flush
+  }
+}
+
+object TDMLLogWriter extends CLILogPrefix {
+  var logs: scala.collection.mutable.Queue[String] = scala.collection.mutable.Queue.empty
+
+  def write(msg: String) {
+    logs += msg
+  }
+
+  def reset() {
+    logs = scala.collection.mutable.Queue.empty 
   }
 }
 
@@ -312,6 +327,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val regex = opt[Boolean](descr = "treat <names> as regular expressions.")
     val tdmlfile = trailArg[String](required = true, descr = "test data markup language (TDML) file.")
     val names = trailArg[List[String]](required = false, descr = "name of test case(s) in tdml file. If not given, all tests in tdmlfile are run.")
+    val info = tally(descr = "increment test result information output level, one level for each -i")
   }
 
   validateOpt(trace, debug) {
@@ -332,6 +348,14 @@ object Main extends Logging {
     "display info infoset",
     "display info diff",
     "trace")
+
+  /* indents a multi-line string */
+  def indent(str: String, pad: Int): String = {
+    val lines = str.split("\n")
+    val prefix = " " * pad
+    val indented = lines.map(prefix + _)
+    indented.mkString("\n")  
+  }
 
   def createProcessorFromParser(parseFile: String, path: Option[String], mode: ValidationMode.Type) = {
     val compiler = Compiler()
@@ -655,15 +679,20 @@ object Main extends Logging {
         }.distinct.sortBy(_._1)
 
         if (testOpts.list()) {
-          if (conf.verbose() > 0) {
+          if (testOpts.info() > 0) {
             // determine the max lengths of the various pieces of atest
             val headers = List("Name", "Model", "Root", "Description")
             val maxCols = tests.foldLeft(headers.map(_.length)) {
               (maxVals, testPair) =>
                 {
                   testPair match {
-                    case (name, None) => maxVals
-                    case (name, Some(test)) => List(maxVals(0).max(name.length),
+                    case (name, None) => List(
+                      maxVals(0).max(name.length),
+                      maxVals(1),
+                      maxVals(2),
+                      maxVals(3))
+                    case (name, Some(test)) => List(
+                      maxVals(0).max(name.length),
                       maxVals(1).max(test.model.length),
                       maxVals(2).max(test.root.length),
                       maxVals(3).max(test.description.length))
@@ -675,50 +704,60 @@ object Main extends Logging {
             tests.foreach { testPair =>
               testPair match {
                 case (name, Some(test)) => println(formatStr.format(name, test.model, test.root, test.description))
-                case (name, None) => println("%s [Missing]".format(name))
+                case (name, None) => println(formatStr.format(name, "[Not Found]", "", ""))
               }
             }
           } else {
             tests.foreach { testPair =>
               testPair match {
                 case (name, Some(test)) => println(name)
-                case (name, None) => println("%s [Missing]".format(name))
+                case (name, None) => println("%s  [Not Found]".format(name))
               }
             }
           }
         } else {
+          LoggingDefaults.setLogWriter(TDMLLogWriter)
+          var pass = 0
+          var fail = 0
+          var notfound = 0
           tests.foreach { testPair =>
             testPair match {
               case (name, Some(test)) => {
-                var success = true
                 try {
                   test.run()
+                  println("[Pass] %s".format(name))
+                  pass += 1
                 } catch {
-                  case _: Throwable =>
-                    success = false
-                    if (System.console != null)
-                      print("[\033[31mFail\033[0m]")
-                    else
-                      print("Fail")
+                  case e: Throwable =>
+                    println("[Fail] %s".format(name))
+                    fail += 1
+                    if (testOpts.info() > 0) {
+                      println("  Failure Information:")
+                      println(indent(e.getMessage, 4))
+                      if (testOpts.info() > 1) {
+                        println("  Logs:")
+                        if (TDMLLogWriter.logs.size > 0) {
+                          TDMLLogWriter.logs.foreach { l => println(indent(l, 4)) }
+                        } else {
+                          println("    None")
+                        }
+                        
+                        println("  Backtrace:")
+                        e.getStackTrace.foreach { st => println(indent(st.toString, 4)) }
+                      }
+                    }
                 }
-                if (success) {
-                  if (System.console != null)
-                    print("[\033[32mPass\033[0m]")
-                  else
-                    print("Pass")
-                }
-                println(" %s".format(name))
+                TDMLLogWriter.reset
               }
 
               case (name, None) => {
-                if (System.console != null)
-                  print("[\033[33mMissing\033[0m]")
-                else
-                  print("Missing")
-                println(" %s".format(name))
+                println("[Not Found] %s".format(name))
+                notfound += 1
               }
             }
           }
+          println("")
+          println("Total: %d, Pass: %d, Fail: %d, Not Found: %s".format(pass + fail + notfound, pass, fail, notfound))
         }
         0
       }

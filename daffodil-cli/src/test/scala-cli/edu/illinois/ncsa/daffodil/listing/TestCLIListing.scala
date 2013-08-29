@@ -91,7 +91,7 @@ class TestCLIlisting {
     val cmd = "./daffodil-cli/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell = Util.start(cmd)
     shell.expect("assertPatternAndExp")
-    val cmd2 = "./daffodil-cli/target/start -v test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
+    val cmd2 = "./daffodil-cli/target/start test -l -i --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell2 = Util.start(cmd2)
     shell2.expect("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R")
     shell2.send("exit\n")

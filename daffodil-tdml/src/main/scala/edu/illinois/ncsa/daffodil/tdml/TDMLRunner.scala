@@ -414,8 +414,8 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
-    println("Bytes processed: " + bytesProcessed)
-    println("Characters processed: " + charsProcessed)
+    log(LogLevel.Debug, "Bytes processed: " + bytesProcessed)
+    log(LogLevel.Debug, "Characters processed: " + charsProcessed)
     (bytesProcessed, charsProcessed)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
