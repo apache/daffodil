@@ -49,8 +49,6 @@ class TestTextNumberProperties {
   val aa = testDir + "TextNumberProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-// DFDL-868
-  @Test def test_standardZeroRep09() { runner.runOneTest("standardZeroRep09") }
 
 // DFDL-859
   @Test def test_decimalPadding01() { runner.runOneTest("decimalPadding01") }
