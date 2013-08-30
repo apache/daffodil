@@ -396,7 +396,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <tnp04>
-          <e>-4000.0</e>
+          <e>4000.0</e>
           <e>3000.0</e>
           <e>-3000.0</e>
           <e>6000.0</e>
