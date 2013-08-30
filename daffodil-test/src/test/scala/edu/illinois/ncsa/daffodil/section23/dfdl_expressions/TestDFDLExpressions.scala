@@ -101,6 +101,8 @@ class TestDFDLExpressions {
 //  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
 //  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
 //  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+  @Test def test_whitespace_expression() { runner.runOneTest("whitespace_expression") }
+  @Test def test_whitespace_expression2() { runner.runOneTest("whitespace_expression2") }
 
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }

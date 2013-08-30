@@ -477,6 +477,24 @@ c' } "  />
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="ws_expr" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" maxOccurs="unbounded"
+            dfdl:lengthKind="delimited" dfdl:terminator="]%#xA;=" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ws_expr2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:int" maxOccurs="unbounded"
+            dfdl:lengthKind="delimited" dfdl:terminator="]&#xA;=" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="lke2_rel" root="lke_01"
@@ -2098,5 +2116,52 @@ c' } "  />
     </tdml:infoset>
     
     </tdml:parserTestCase>
+
+  <!--
+     Test Name: whitespace_expression
+        Schema: expressions-Embedded.dfdl.xsd
+          Root: ws_expr
+       Purpose: This test demonstrates that whitespace can be preserved with daffodil entities.
+-->
+
+  <tdml:parserTestCase name="whitespace_expression" root="ws_expr"
+    model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>3]
+=4]
+=5]
+=</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ws_expr>
+          <ex:e1>3</ex:e1>
+          <ex:e1>4</ex:e1>
+          <ex:e1>5</ex:e1>
+        </ex:ws_expr>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: whitespace_expression2
+        Schema: expressions-Embedded.dfdl.xsd
+          Root: ws_expr2
+       Purpose: This test demonstrates that whitespace will not be preserved without daffodil entities.
+-->
+
+  <tdml:parserTestCase name="whitespace_expression2" root="ws_expr2"
+    model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>3]4=5]</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:ws_expr2>
+          <ex:e1>3</ex:e1>
+          <ex:e1>4</ex:e1>
+          <ex:e1>5</ex:e1>
+        </ex:ws_expr2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
