@@ -129,6 +129,10 @@ class TestTextNumberProps {
   @Test def test_infInvalidType() { runner.runOneTest("infInvalidType") }
   @Test def test_infInvalid() { runner.runOneTest("infInvalid") }
   @Test def test_nanInvalid() { runner.runOneTest("nanInvalid") }
+  @Test def test_nanCharClasses() { runner.runOneTest("nanCharClasses") }
+  @Test def test_nanCharEntities() { runner.runOneTest("nanCharEntities") }
+  @Test def test_infCharClasses() { runner.runOneTest("infCharClasses") }
+  @Test def test_infCharEntities() { runner.runOneTest("infCharEntities") }
   
 // DFDL-845
 //  @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }

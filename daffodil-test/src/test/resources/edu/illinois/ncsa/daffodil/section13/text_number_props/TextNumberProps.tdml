@@ -3329,6 +3329,18 @@
     <xs:element name="nanInvalidType" dfdl:lengthKind="delimited" type="xsd:long" dfdl:textStandardNaNRep="NOTANUMBER"
     dfdl:terminator="]" />
 
+    <xs:element name="nanCharClasses" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardNaNRep="%NL;" />
+
+    <xs:element name="nanCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardNaNRep="nota%LF;number" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
+    <xs:element name="infCharClasses" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardInfinityRep="%NL;" />
+
+    <xs:element name="infCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
+    dfdl:textStandardInfinityRep="infin%LF;ity" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+
     <xs:element name="zero" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:terminator="]">
@@ -3843,6 +3855,68 @@
 
   </tdml:parserTestCase>
   
+  <tdml:parserTestCase name="nanCharClasses" root="nanCharClasses"
+    model="textprops"
+    description="textStandardNaNRep with DFDL character classes is not allowed.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardNaNRep cannot contain NL</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="nanCharEntities" root="nanCharEntities"
+    model="textprops"
+    description="Parse a double with textStandardNaNRep containing a DFDL character entity">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[nota
+number]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nanCharEntities>NaN</nanCharEntities>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infCharClasses" root="infCharClasses"
+    model="textprops"
+    description="textStandardInfinityRep with DFDL character classes is not allowed.">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[1234567.892]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStandardInfinityRep cannot contain NL</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="infCharEntities" root="infCharEntities"
+    model="textprops"
+    description="Parse a double with textStandardInfinityRep containing a DFDL character entity">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[infin
+ity]]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <infCharEntities>INF</infCharEntities>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
      Test Name: zero
         Schema: textprops
