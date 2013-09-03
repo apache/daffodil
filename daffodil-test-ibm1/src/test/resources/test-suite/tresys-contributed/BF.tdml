@@ -13,11 +13,10 @@ X:x0
 X:x1
 X:x2
 X:x3
-X:beyond
 ]]></document>
     <infoset>
       <dfdlInfoset>
-        <root xmlns="http://www.example.org/example1">
+        <root>
           <seq>
             <x>x0</x>
             <x>x1</x>
