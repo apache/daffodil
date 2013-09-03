@@ -1668,11 +1668,12 @@
     <tdml:document>
       <tdml:documentPart type="text">5.000.000.00</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <tnp23>5000000</tnp23>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Non-distinct property</tdml:error>
+      <tdml:error>textStandardDecimalSeparator</tdml:error>
+      <tdml:error>textStandardGroupingSeparator</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
   

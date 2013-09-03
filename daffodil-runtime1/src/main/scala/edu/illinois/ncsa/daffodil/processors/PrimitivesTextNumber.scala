@@ -194,7 +194,8 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
   def getStringFormat(n: S): String
   def allowInfNaN: Boolean = false
 
-  val zeroRepList = zeroRep.filter { _ != "" }.map { zr =>
+  val zeroRepListRaw = zeroRep.filter { _ != "" }
+  val zeroRepList = zeroRepListRaw.map { zr =>
     val d = new Delimiter()
     d(zr)
     // add '^' and '$' to require the regular expression to match the entire
@@ -429,6 +430,33 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
 
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S])
 {
+  protected def checkUnique(decimalSepList: Option[List[Char]],
+                            groupingSep: Option[Char],
+                            exponentRep: Option[String],
+                            infRep: Option[String],
+                            nanRep: Option[String],
+                            zeroRep: List[String],
+                            context: ThrowsSDE) = {
+
+    import scala.collection.mutable.{ HashMap, MultiMap, Set }
+
+    val mm = new HashMap[String, Set[String]] with MultiMap[String, String]
+    decimalSepList.foreach { dsl =>
+      dsl.foreach { ds => mm.addBinding(ds.toString, "textStandardDecimalSeparator") }
+    }
+    groupingSep.foreach { gs => mm.addBinding(gs.toString, "textStandardGroupingSeparator") }
+    exponentRep.foreach { er => mm.addBinding(er, "textStandardExponentRep") }
+    infRep.foreach { ir => mm.addBinding(ir, "textStandardInfinityRep") }
+    nanRep.foreach { nr => mm.addBinding(nr, "textStandardNaNRep") }
+    zeroRep.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
+
+    val dupes = mm.filter { case (k, s) => s.size > 1 }
+    val dupeStrings = dupes.map { case (k, s) =>
+      "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
+    }
+    context.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
+  }
+
   protected def generateNumFormat(decimalSepList: Option[List[Char]],
                                   groupingSep: Option[Char],
                                   exponentRep: String,
@@ -438,7 +466,17 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
                                   pattern: String,
                                   rounding: TextNumberRounding,
                                   roundingMode: Option[TextNumberRoundingMode],
-                                  roundingIncrement: Option[Double]) = {
+                                  roundingIncrement: Option[Double],
+                                  context: ThrowsSDE) = {
+
+    checkUnique(decimalSepList,
+                groupingSep,
+                Some(exponentRep),
+                infRep,
+                nanRep,
+                parserHelper.zeroRepListRaw,
+                context)
+
     val dfs = new DecimalFormatSymbols()
 
     if (decimalSepList.isDefined) {
@@ -590,7 +628,8 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
                                     pattern,
                                     rounding,
                                     roundingMode,
-                                    roundingInc)
+                                    roundingInc,
+                                    context)
 
   def getNumFormat(state: PState) = {
     (state, numFormat)
@@ -612,12 +651,14 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
                                     roundingIncrement: Option[Double])
   extends NumberFormatFactoryBase[S](parserHelper)
 {
+  type CachedDynamic[A] = Either[CompiledExpression, A]
+
   // Returns an Either, with Right being the value of the constant, and the
   // Left being the a non-constant compiled expression. The conv variable is
   // used to convert the constant value to a more usable form, and perform and
   // SDE checks. This should be called during initialization/compile time. Not
   // during runtime.
-  def cacheConstantExpression[A](e: CompiledExpression)(conv: (Any) => A): Either[CompiledExpression, A] = {
+  def cacheConstantExpression[A](e: CompiledExpression)(conv: (Any) => A): CachedDynamic[A] = {
     if (e.isConstant) {
       val v: Any = e.constant
       Right(conv(v))
@@ -626,9 +667,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
   }
 
-  // This is the same as cacheConstantExpression, except it works on an
-  // optional value
-  def cacheOptionalConstantExpression[A](oe: Option[CompiledExpression])(conv: (Any) => A): Option[Either[CompiledExpression, A]] = {
+  def cacheConstantExpression[A](oe: Option[CompiledExpression])(conv: (Any) => A): Option[CachedDynamic[A]] = {
     oe.map { e => cacheConstantExpression[A](e)(conv) }
   }
 
@@ -636,7 +675,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A](s: PState, e: Either[CompiledExpression, A])(conv: (PState, Any) => A): (PState, A) = {
+  def evalWithConversion[A](s: PState, e: CachedDynamic[A])(conv: (PState, Any) => A): (PState, A) = {
     e match {
       case Right(r) => (s, r)
       case Left(l) => {
@@ -647,9 +686,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
   }
 
-  // This is the same as evalWithConversion, except it works on an Optional
-  // value.
-  def evalOptionWithConversion[A](s: PState, oe: Option[Either[CompiledExpression, A]])(conv: (PState, Any) => A): (PState, Option[A]) = {
+  def evalWithConversion[A](s: PState, oe: Option[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, Option[A]) = {
     oe match {
       case Some(e) => {
         val (s1, a) = evalWithConversion[A](s, e)(conv)
@@ -659,39 +696,63 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
   }
 
+  // With an property that can potentially be compiled, this returns an Option,
+  // which is either Some(s) if the value of the property is static, or None
+  // otherwise
+  def getStatic[A](e: CachedDynamic[A]): Option[A] = {
+    e match {
+      case Left(l) => None
+      case Right(r) => Some(r)
+    }
+  }
 
-  val decimalSepListOptEither: Option[Either[CompiledExpression, List[Char]]] =
-    cacheOptionalConstantExpression[List[Char]](decimalSepExp) {
+  def getStatic[A](oe: Option[CachedDynamic[A]]): Option[A] = {
+    oe match {
+      case Some(e) => getStatic(e)
+      case None => None
+    }
+  }
+
+  val decimalSepListCached: Option[CachedDynamic[List[Char]]] =
+    cacheConstantExpression(decimalSepExp) {
       (a: Any) => getDecimalSepList(a.asInstanceOf[String], staticContext)
     }
 
-  val groupingSepOptEither: Option[Either[CompiledExpression, Char]] =
-    cacheOptionalConstantExpression[Char](groupingSepExp) {
+  val groupingSepCached: Option[CachedDynamic[Char]] =
+    cacheConstantExpression(groupingSepExp) {
       (a: Any) => getGroupingSep(a.asInstanceOf[String], staticContext)
     }
 
-  val exponentRepEither: Either[CompiledExpression, String] =
-    cacheConstantExpression[String](exponentRepExp) {
+  val exponentRepCached: CachedDynamic[String] =
+    cacheConstantExpression(exponentRepExp) {
       (a: Any) => getExponentRep(a.asInstanceOf[String], staticContext)
     }
+
+  checkUnique(getStatic(decimalSepListCached),
+              getStatic(groupingSepCached),
+              getStatic(exponentRepCached),
+              infRep,
+              nanRep,
+              parserHelper.zeroRepListRaw,
+              staticContext)
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
 
   def getNumFormat(state: PState): (PState, NumberFormat) = {
 
-    val (decimalSepState, decimalSepList) = evalOptionWithConversion[List[Char]](state, decimalSepListOptEither) {
+    val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
       (s: PState, c: Any) => {
         getDecimalSepList(c.asInstanceOf[String], s)
       }
     }
 
-    val (groupingSepState, groupingSep) = evalOptionWithConversion[Char](decimalSepState, groupingSepOptEither) {
+    val (groupingSepState, groupingSep) = evalWithConversion(decimalSepState, groupingSepCached) {
       (s: PState, c: Any) => {
         getGroupingSep(c.asInstanceOf[String], s)
       }
     }
 
-    val (exponentRepState, exponentRep) = evalWithConversion[String](groupingSepState, exponentRepEither) {
+    val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
       (s: PState, c: Any) => {
         getExponentRep(c.asInstanceOf[String], s)
       }
@@ -706,7 +767,8 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
                                       pattern,
                                       rounding,
                                       roundingMode,
-                                      roundingInc)
+                                      roundingInc,
+                                      state)
     (exponentRepState, numFormat)
   }
 }

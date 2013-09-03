@@ -55,4 +55,7 @@ class TestTextNumberProperties {
   @Test def test_decimalPadding04() { runner.runOneTest("decimalPadding04") }
   @Test def test_nonNegIntPadding01() { runner.runOneTest("nonNegIntPadding01") }
   @Test def test_nonNegIntPadding03() { runner.runOneTest("nonNegIntPadding03") }
+
+// DFDL-843
+  @Test def test_textStandardGroupingSeparator03() { runner.runOneTest("textStandardGroupingSeparator03") }
 }
