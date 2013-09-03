@@ -566,7 +566,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
         else {
           //pass for now
           val index = s.groupMembers.indexOf(this)
-          s.groupMembers.slice(0, index).forall { _.isKnownToBePrecededByAllByteLengthItems}
+          s.groupMembers.slice(0, index).forall { _.isKnownToBePrecededByAllByteLengthItems }
         }
       }
     }
@@ -841,8 +841,9 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     val children = apparentXMLChildren.map(c => {
       c match {
         case elem: Elem => {
-          elem % Attribute(None, "minOccurs", Text("1"), Null)
-          elem % Attribute(None, "maxOccurs", Text("1"), Null)
+          val elemMin = elem % Attribute(None, "minOccurs", Text("1"), Null)
+          val elemMax = elemMin % Attribute(None, "maxOccurs", Text("1"), Null)
+          elemMax
         }
         case x => x
       }
