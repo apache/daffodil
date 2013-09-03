@@ -1,5 +1,16 @@
 import sbt._
 
+import java.io.OutputStream
+import java.io.FileOutputStream
+import java.io.FileInputStream
+import java.io.BufferedOutputStream
+import org.apache.commons.io.IOUtils
+import org.apache.commons.compress.archivers.ArchiveOutputStream
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
+
+
 object DaffodilBuild extends Build {
 
   var s = Defaults.defaultSettings
@@ -19,13 +30,13 @@ object DaffodilBuild extends Build {
 
   lazy val tarTask = TaskKey[Unit]("pack-tar", "Generate a distributable tar file", KeyRanks.APlusTask)
   lazy val tarTaskSettings = tarTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
-    packFiles(t / "pack", n, v, packFileList, cp.files, "tar -jcf", "tar.bz2")
+    packFiles(t / "pack", n, v, packFileList, cp.files, "tar.bz2", createTarBZ2Archiver)
   }
   s ++= tarTaskSettings
 
   lazy val zipTask = TaskKey[Unit]("pack-zip", "Generate a distributable zip file", KeyRanks.APlusTask)
   lazy val zipTaskSettings = zipTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
-    packFiles(t / "pack", n, v, packFileList, cp.files, "zip -r", "zip")
+    packFiles(t / "pack", n, v, packFileList, cp.files, "zip", createZipArchiver)
   }
   s ++= zipTaskSettings
 
@@ -82,7 +93,7 @@ object DaffodilBuild extends Build {
     bw.close()
   }
 
-  def packFiles(outDir: File, name: String, version: String, inFiles: Seq[(String,String)], cpFiles: Seq[File], packCmd: String, packExt: String) {
+  def packFiles(outDir: File, name: String, version: String, inFiles: Seq[(String,String)], cpFiles: Seq[File], packExt: String, createArchiver: (OutputStream) => ArchiveOutputStream) {
     outDir.mkdirs()
     val outBase = "%s-%s".format(name, version)
     IO.withTemporaryDirectory(dir => {
@@ -112,15 +123,47 @@ object DaffodilBuild extends Build {
           sys.error("Failed to remove old file: %s".format(outFile))
         }
       }
-      val r = java.lang.Runtime.getRuntime()
-      val p = r.exec("%s %s %s".format(packCmd, outFile.getAbsoluteFile(), daffodilDir.getName), null, new File(daffodilDir, ".."))
-      p.waitFor()
-      val ret = p.exitValue()
-      if (ret != 0) {
-        sys.error("Failed to pack file: %s".format(outFile))
+
+      val fOut = new FileOutputStream(outFile)
+      val bOut = new BufferedOutputStream(fOut)
+      val aOut = createArchiver(bOut)
+
+      val base = daffodilDir.getParentFile.toURI.toString
+
+      try {
+        addFileToArchive(aOut, daffodilDir, base)
+      } catch {
+        case e: Exception => sys.error("Failed to pack file: %s".format(outFile))
+      } finally {
+        aOut.close
+        bOut.close
+        fOut.close
       }
 
     })
+  }
+
+  def createTarBZ2Archiver(os: OutputStream): ArchiveOutputStream = {
+    val bz2 = new BZip2CompressorOutputStream(os)
+    val tar = new TarArchiveOutputStream(bz2)
+    tar
+  }
+
+  def createZipArchiver(os: OutputStream): ArchiveOutputStream = {
+    val zip = new ZipArchiveOutputStream(os)
+    zip
+  }
+
+  def addFileToArchive(aOut: ArchiveOutputStream, f: File, base: String) {
+    if (f.isFile) {
+      val ae = aOut.createArchiveEntry(f, f.toURI.toString.replace(base, ""))
+      aOut.putArchiveEntry(ae)
+      IOUtils.copy(new FileInputStream(f), aOut)
+      aOut.closeArchiveEntry()
+    } else if (f.isDirectory) {
+      val children = f.listFiles
+      children.foreach { child => addFileToArchive(aOut, child, base) }
+    }
   }
 
   def exec(cmd: String): Seq[String] = {
