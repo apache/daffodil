@@ -53,46 +53,5 @@ class TestUserSubmittedTestsNew {
   val aa = testDir + "UserSubmittedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_dfdl_782() = {
-    val tr = new CustomTraceRunner
-    tr.init
-    val crunner = new CustomInteractiveDebuggerRunner(tr)
-    val db = new InteractiveDebugger(crunner)
-    Debugger.setDebugging(true)
-    Debugger.setDebugger(db)
-
-    runner.runOneTest("test_DFDL_782")
-
-    // Comment out these two lines to see issue
-    // documented in DFDL-790
-    Debugger.setDebugging(false)
-    Debugger.setDebugger(null)
-  }
-
-}
-
-class CustomInteractiveDebuggerRunner(dr: DebuggerRunner)
-  extends InteractiveDebuggerRunner {
-  def init(id: InteractiveDebugger): Unit = dr.init
-  def getCommand(): String = dr.getCommand
-  def lineOutput(line: String): Unit = dr.lineOutput(line)
-  def fini(): Unit = dr.fini
-}
-
-class CustomTraceRunner extends TraceRunner {
-  private var _lines = List.empty[String]
-
-  def getAllTheLines(): String = {
-    val sb = new StringBuilder
-    _lines.foreach(line => {
-      if (line.length > 0) sb.append(line)
-    })
-    val allTheLines = sb.toString
-    allTheLines
-  }
-
-  override def init: Unit = { _lines = List.empty[String] }
-  override def lineOutput(line: String) = _lines ++ (line + "\n")
-
 }
 
