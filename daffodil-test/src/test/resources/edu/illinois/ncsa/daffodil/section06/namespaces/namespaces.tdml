@@ -268,7 +268,7 @@
     root="elem" model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[1234]]></tdml:document>
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Cyclical</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

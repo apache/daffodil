@@ -49,6 +49,5 @@ class TestVariablesDebug {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
-  @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
 
 }
