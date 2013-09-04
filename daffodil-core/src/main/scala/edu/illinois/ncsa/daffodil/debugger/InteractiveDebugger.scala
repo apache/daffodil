@@ -1104,7 +1104,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
           val infoset = state.infoset
           val rep = infoset match {
-            case ie: InfosetElement => ie.schemaComponent(state).representation
+            case ie: InfosetElement => ie.schemaComponent(state).impliedRepresentation
             case id: InfosetDocument => Representation.Text
           }
 

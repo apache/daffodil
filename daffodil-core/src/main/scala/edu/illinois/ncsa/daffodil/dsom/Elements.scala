@@ -176,8 +176,21 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 
+  override lazy val impliedRepresentation = {
+    val rep = if (isSimpleType) {
+      primType match {
+        case PrimType.HexBinary => Representation.Binary
+        case PrimType.String => Representation.Text
+        case _ => representation
+      }
+    } else  {
+      representation
+    }
+    rep
+  }
+
   lazy val isScannable: Boolean = {
-    representation match {
+    impliedRepresentation match {
       case Representation.Text => {
         if (isSimpleType) true
         else elementComplexType.isScannable
@@ -208,12 +221,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     theRepresentation match {
       case Representation.Text =>
         thePrimType match {
-          case PrimType.HexBinary => schemaDefinitionError("Implicit Alignment is not allowed for HexBinary with representation='text'. Use representation='binary' instead.")
+          case PrimType.HexBinary => Assert.impossible("type xs:hexBinary with representation='text'")
           case _ => knownEncodingAlignmentInBits
         }
       case Representation.Binary =>
         thePrimType match {
-          case PrimType.String => schemaDefinitionError("Implicit Alignment is not allowed for String with representation='binary'. Use representation='text' instead.")
+          case PrimType.String => Assert.impossible("type xs:string with representation='binary'")
           case PrimType.Double | PrimType.Long | PrimType.ULong => 64
           case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
           case PrimType.Short | PrimType.UShort => 16
@@ -229,7 +242,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, representation)
+  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
 
   lazy val alignmentValueInBits: Int = {
     alignment match {
@@ -245,7 +258,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           case AlignmentUnits.Bytes => 8 * align
         }
         if (this.isSimpleType) {
-          representation match {
+          impliedRepresentation match {
             case Representation.Text => {
               if ((alignInBits % implicitAlignmentInBits) != 0)
                 SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",

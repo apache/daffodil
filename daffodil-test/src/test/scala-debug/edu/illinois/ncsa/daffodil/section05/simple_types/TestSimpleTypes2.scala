@@ -50,8 +50,6 @@ class TestSimpleTypes2 {
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
-  
   @Test def test_warning_exercise() {
     val exc = intercept[Exception] {
       runner.runOneTest("warning_exercise")

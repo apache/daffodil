@@ -325,10 +325,14 @@ trait CalendarTextMixin extends PropertyMixin
   }
 }
 
+trait ImpliedRepresentationMixin extends RepresentationMixin {
+  def impliedRepresentation: Representation
+}
+
 trait NillableMixin extends PropertyMixin
   with NilKindMixin
   with NilValueDelimiterPolicyMixin
-  with RepresentationMixin {
+  with ImpliedRepresentationMixin  {
 
   // Information regarding Representation was needed here to characterize
   // appropriate behavior of nilValue
@@ -359,7 +363,7 @@ trait NillableMixin extends PropertyMixin
         //        l.cooked
       }
       case NilKind.LiteralValue => {
-        this.representation match {
+        this.impliedRepresentation match {
           case Representation.Binary => {
             this.schemaDefinitionUnless(!raw.contains("%NL;"), "nilValue can only contain ES!")
             this.schemaDefinitionUnless(!raw.contains("%WSP;"), "nilValue can only contain ES!")

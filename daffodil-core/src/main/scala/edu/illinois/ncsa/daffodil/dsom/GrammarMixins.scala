@@ -337,28 +337,28 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  //  lazy val binaryByte = Prod("binaryByte", this, representation == Representation.Binary,
+  //  lazy val binaryByte = Prod("binaryByte", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryShort = Prod("binaryShort", this, representation == Representation.Binary,
+  //  lazy val binaryShort = Prod("binaryShort", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryLong = Prod("binaryLong", this, representation == Representation.Binary,
+  //  lazy val binaryLong = Prod("binaryLong", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryInteger = Prod("binaryInteger", this, representation == Representation.Binary,
+  //  lazy val binaryInteger = Prod("binaryInteger", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedInt = Prod("binaryInt", this, representation == Representation.Binary,
+  //  lazy val binaryUnsignedInt = Prod("binaryInt", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedByte = Prod("binaryByte", this, representation == Representation.Binary,
+  //  lazy val binaryUnsignedByte = Prod("binaryByte", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedShort = Prod("binaryShort", this, representation == Representation.Binary,
+  //  lazy val binaryUnsignedShort = Prod("binaryShort", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedLong = Prod("binaryLong", this, representation == Representation.Binary,
+  //  lazy val binaryUnsignedLong = Prod("binaryLong", this, impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
 
   //  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
@@ -381,37 +381,37 @@ trait ElementBaseGrammarMixin
   //    binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
 
   // TODO: Handle the zonedTextXXX possibilities
-  lazy val textInt = Prod("textInt", this, representation == Representation.Text,
+  lazy val textInt = Prod("textInt", this, impliedRepresentation == Representation.Text,
     standardTextInt | zonedTextInt)
 
-  lazy val textByte = Prod("textByte", this, representation == Representation.Text,
+  lazy val textByte = Prod("textByte", this, impliedRepresentation == Representation.Text,
     standardTextByte | zonedTextInt)
 
-  lazy val textShort = Prod("textShort", this, representation == Representation.Text,
+  lazy val textShort = Prod("textShort", this, impliedRepresentation == Representation.Text,
     standardTextShort | zonedTextInt)
 
-  lazy val textLong = Prod("textLong", this, representation == Representation.Text,
+  lazy val textLong = Prod("textLong", this, impliedRepresentation == Representation.Text,
     standardTextLong | zonedTextInt)
 
-  lazy val textInteger = Prod("textInteger", this, representation == Representation.Text,
+  lazy val textInteger = Prod("textInteger", this, impliedRepresentation == Representation.Text,
     standardTextInteger | zonedTextInt)
 
-  lazy val textDecimal = Prod("textDecimal", this, representation == Representation.Text,
+  lazy val textDecimal = Prod("textDecimal", this, impliedRepresentation == Representation.Text,
     standardTextDecimal | zonedTextInt)
 
-  lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, representation == Representation.Text,
+  lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, impliedRepresentation == Representation.Text,
     standardTextNonNegativeInteger | zonedTextInt)
 
-  lazy val textUnsignedInt = Prod("textUnsignedInt", this, representation == Representation.Text,
+  lazy val textUnsignedInt = Prod("textUnsignedInt", this, impliedRepresentation == Representation.Text,
     standardTextUnsignedInt | zonedTextInt)
 
-  lazy val textUnsignedByte = Prod("textUnsignedByte", this, representation == Representation.Text,
+  lazy val textUnsignedByte = Prod("textUnsignedByte", this, impliedRepresentation == Representation.Text,
     standardTextUnsignedByte | zonedTextInt)
 
-  lazy val textUnsignedShort = Prod("textUnsignedShort", this, representation == Representation.Text,
+  lazy val textUnsignedShort = Prod("textUnsignedShort", this, impliedRepresentation == Representation.Text,
     standardTextUnsignedShort | zonedTextInt)
 
-  lazy val textUnsignedLong = Prod("textUnsignedLong", this, representation == Representation.Text,
+  lazy val textUnsignedLong = Prod("textUnsignedLong", this, impliedRepresentation == Representation.Text,
     standardTextUnsignedLong | zonedTextInt)
 
   //
@@ -443,10 +443,10 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextInt = Prod("zonedTextInt", this,
     textNumberRep == TextNumberRep.Zoned, prims.ZonedTextIntPrim(this))
 
-  //  lazy val binaryDouble = Prod("binaryDouble", this, representation == Representation.Binary,
+  //  lazy val binaryDouble = Prod("binaryDouble", this, impliedRepresentation == Representation.Binary,
   //    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
 
-  lazy val textDouble = Prod("textDouble", this, representation == Representation.Text,
+  lazy val textDouble = Prod("textDouble", this, impliedRepresentation == Representation.Text,
     standardTextDouble | zonedTextDouble)
 
   //  lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
@@ -478,10 +478,10 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextDouble = Prod("zonedTextDouble", this,
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
-  //  lazy val binaryFloat = Prod("binaryFloat", this, representation == Representation.Binary,
+  //  lazy val binaryFloat = Prod("binaryFloat", this, impliedRepresentation == Representation.Binary,
   //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
 
-  lazy val textFloat = Prod("textFloat", this, representation == Representation.Text,
+  lazy val textFloat = Prod("textFloat", this, impliedRepresentation == Representation.Text,
     standardTextFloat | zonedTextFloat)
 
   //  lazy val ieeeBinaryRepFloat = Prod("ieeeBinaryRepFloat", this,
@@ -513,11 +513,11 @@ trait ElementBaseGrammarMixin
   lazy val zonedTextFloat = Prod("zonedTextFloat", this,
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
-  lazy val textDate = Prod("textDate", this, representation == Representation.Text,
+  lazy val textDate = Prod("textDate", this, impliedRepresentation == Representation.Text,
     stringValue ~ prims.ConvertTextDatePrim(this))
-  lazy val textTime = Prod("textTime", this, representation == Representation.Text,
+  lazy val textTime = Prod("textTime", this, impliedRepresentation == Representation.Text,
     stringValue ~ prims.ConvertTextTimePrim(this))
-  lazy val textDateTime = Prod("textDateTime", this, representation == Representation.Text,
+  lazy val textDateTime = Prod("textDateTime", this, impliedRepresentation == Representation.Text,
     stringValue ~ prims.ConvertTextDateTimePrim(this))
 
   // shorthand
@@ -533,7 +533,7 @@ trait ElementBaseGrammarMixin
   //      primType.name match {
   //        case "string" => stringValue
   //        case _ => {
-  //          val res = representation match {
+  //          val res = impliedRepresentation match {
   //            case Representation.Binary => binaryValue
   //            case Representation.Text => textValue
   //          }
@@ -550,7 +550,7 @@ trait ElementBaseGrammarMixin
         case PrimType.String => stringValue
         case PrimType.HexBinary => hexBinaryValue
         case _ => {
-          val res = representation match {
+          val res = impliedRepresentation match {
             case Representation.Binary => binaryValue
             case Representation.Text => textValue
           }
@@ -674,7 +674,7 @@ trait ElementBaseGrammarMixin
     val pt = primType
     Assert.invariant(pt != PrimType.String)
     Assert.invariant(pt != PrimType.HexBinary)
-    Assert.invariant(representation == Representation.Text)
+    Assert.invariant(impliedRepresentation == Representation.Text)
     schemaDefinitionWhen(lengthKind == LengthKind.Implicit,
       "Type %s cannot have lengthKind='implicit' when representation='text'",
       pt.name)
@@ -739,7 +739,7 @@ trait ElementBaseGrammarMixin
     Prod("nilLit", this,
       isNillable && nilKind == NilKind.LiteralValue,
       nilElementInitiator ~ {
-        // if (representation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
+        // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
           case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => prims.LiteralNilDelimitedEndOfDataDynamic(this)
@@ -753,7 +753,7 @@ trait ElementBaseGrammarMixin
             }
           }
           case LengthKind.Implicit => {
-            schemaDefinitionUnless(representation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
+            schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
             val lengthInBytes = implicitBinaryLengthInBits / 8
             prims.LiteralNilKnownLengthInBytes(this, lengthInBytes)
           }

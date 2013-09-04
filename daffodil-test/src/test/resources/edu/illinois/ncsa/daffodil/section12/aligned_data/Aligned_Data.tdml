@@ -636,23 +636,24 @@
      Test Name: implicitAlignmentString1
         Schema: implicitAlignmentSchema
           Root: string
-       Purpose: This test demonstrates that the implicit alignment for an xs:string (binary)
-                is not allowed
+       Purpose: This test demonstrates that even is representation is defined
+                as binary for type xs:string, implicit alignment still works, and the
+                representation is assumed to be text
    -->
 
   <tdml:parserTestCase name="implicitAlignmentString1" root="string"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R">
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - String - DFDL-12-014R - DFDL-13-006R">
 
     <tdml:document>
       <tdml:documentPart type="bits">0110 0111</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
       <tdml:documentPart type="bits">01101111 01100001 01110100 01110011</tdml:documentPart> <!-- string -->
     </tdml:document>
 
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Implicit Alignment is not allowed for String with representation='binary'</tdml:error>
-      <tdml:error>Use representation='text' instead.</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <string>oats</string>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 
   </tdml:parserTestCase>
 

@@ -5,7 +5,7 @@
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="neededRepProp">
-    <dfdl:format lengthKind="delimited" leadingSkip="0" alignment='implicit' alignmentUnits='bytes' trailingSkip='0'/>
+    <dfdl:format lengthKind="delimited" leadingSkip="0" alignment='implicit' alignmentUnits='bytes' trailingSkip='0' encoding="utf-8"/>
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
