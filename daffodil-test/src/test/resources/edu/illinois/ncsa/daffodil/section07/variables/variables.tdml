@@ -666,7 +666,9 @@
     model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
     <tdml:document>6</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Variable map (runtime): variable {http://example.com}v_no_default has no value</tdml:error>
+      <tdml:error>It was not set, and has no default value.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
