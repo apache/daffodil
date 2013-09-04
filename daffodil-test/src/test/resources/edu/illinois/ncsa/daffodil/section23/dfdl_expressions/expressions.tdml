@@ -829,6 +829,48 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <tdml:defineSchema name="elementFormWithWhitespace">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="US-ASCII" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text">
+
+      <dfdl:property name="separator"> { fn:concat("1", "2") } </dfdl:property>
+
+    </dfdl:format>
+
+    <xs:element name="e1" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e2" type="xs:int" maxOccurs="unbounded"
+            dfdl:lengthKind="delimited"  />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: element_long_form_whitespace
+        Schema: elementFormWithWhitespace
+          Root: e1
+       Purpose: This test demonstrates that whitespace in an element form before or after braces is legal.
+-->
+
+  <tdml:parserTestCase name="element_long_form_whitespace" root="e1"
+    model="elementFormWithWhitespace" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>3512446</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:e2>35</ex:e2>
+          <ex:e2>446</ex:e2>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="unknown-prefix">
     <dfdl:format ref="ex:daffodilTest1" />

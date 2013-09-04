@@ -94,4 +94,5 @@ class TestDFDLExpressionsDebug {
   @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
   @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
   
+  @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }
