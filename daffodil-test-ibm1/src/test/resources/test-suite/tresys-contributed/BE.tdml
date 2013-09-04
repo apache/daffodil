@@ -45,8 +45,6 @@ Z:z3
 Y:y3
 X:x3
 Z:z4
-
-
 ]]></document>
     <infoset>
       <dfdlInfoset>
@@ -63,6 +61,7 @@ Z:z4
           <z>z1</z>
           <z>z2</z>
           <z>z3</z>
+          <z>z4</z>
         </seq>
       </dfdlInfoset>
     </infoset>
