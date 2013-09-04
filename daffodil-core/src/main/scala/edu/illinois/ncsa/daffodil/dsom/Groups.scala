@@ -849,8 +849,31 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
     })
 
+    // Create a list of the min/maxOccur pairs for each child
+    val elementChildrenMinMaxOccurs = apparentXMLChildren.map(c =>
+      c match {
+        case elem: Elem => {
+          val min = Integer.parseInt(elem.attributes.get("minOccurs").get.text)
+          val max = Integer.parseInt(elem.attributes.get("maxOccurs").get.text)
+          Some(min, max)
+        }
+        case x => None
+      }).filter(_.isDefined).map(_.get)
+
+    // Compute minimal number of elements required
+    val newMinOccurs = {
+      val minRequired = elementChildrenMinMaxOccurs.map { case (minVal, _) => minVal }.foldLeft(0)(_ + _)
+      minRequired.toString
+    }
+
+    // Compute maximal number of elements required
+    val newMaxOccurs = {
+      val maxRequired = elementChildrenMinMaxOccurs.map { case (_, maxVal) => maxVal }.foldLeft(0)(_ + _)
+      maxRequired.toString
+    }
+
     val newContent: Node =
-      <element name="choiceElement" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
+      <element name="choiceElement" minOccurs={ newMinOccurs } maxOccurs={ newMaxOccurs } dfdl:occursCountKind="parsed" dfdl:lengthKind="implicit">
         <complexType>
           <choice dfdl:choiceLengthKind="implicit">{ children }</choice>
         </complexType>

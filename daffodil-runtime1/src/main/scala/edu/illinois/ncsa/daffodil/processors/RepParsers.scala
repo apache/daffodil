@@ -218,8 +218,8 @@ class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r)
       while (pResult.status == Success) {
 
         if ((e.occursCountKind == OccursCountKind.Implicit) &&
-            (e.maxOccurs == -1)) {
-          if (pResult.arrayPos-1 <= e.minOccurs) {
+          (e.maxOccurs == -1)) {
+          if (pResult.arrayPos - 1 <= e.minOccurs) {
             // Is required element
             // Somehow need to return that this element is required
           }

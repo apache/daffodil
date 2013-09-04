@@ -17,6 +17,8 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.dsom.LocalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
+import scala.xml.Elem
+import edu.illinois.ncsa.daffodil.xml.NS
 
 object UnorderedSequence {
   def apply(context: Term, eGram: Gram) = {
@@ -104,6 +106,41 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       }
     }
 
+    /**
+     * We want to check that we met he expected occurrence values
+     * but we don't want to SDE, instead we issue a PE (ProcessingError).
+     */
+    def checkOccurrence(elt: org.jdom.Element): Unit = {
+      val childrenList = elt.getContent().toList.asInstanceOf[List[org.jdom.Element]]
+
+      val scs =
+        context.groupMembers.filter(t => t.isInstanceOf[LocalElementBase]).map(_.asInstanceOf[LocalElementBase])
+
+      scs.foreach(eb => {
+        val minOccurs = eb.minOccurs
+        val maxOccurs = eb.maxOccurs
+        val ns = eb.targetNamespace.toJDOM
+        val name = eb.name
+
+        val children = childrenList.filter(c => {
+          val childName = c.getName()
+          val childNS = c.getNamespace()
+          name == childName && ns == childNS
+        })
+
+        val numChildren = children.length
+
+        if (numChildren < minOccurs) {
+          PE("UnorderedSequence.checkOccurrence - %s failed minOccurs check. Expected at least %s but found %s.",
+            eb, minOccurs, numChildren)
+        }
+        if (numChildren > maxOccurs) {
+          PE("UnorderedSequence.checkOccurrence - %s failed maxOccurs check. Expected at most %s but found %s.",
+            eb, maxOccurs, numChildren)
+        }
+      })
+    }
+
     def dropDefaulted(elt: org.jdom.Element, pstate: PState): Unit = {
       // Always occurs, does not depend on validation
 
@@ -147,12 +184,13 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       })
     }
 
-    def parse(start: PState): PState = {
+    def parse(start: PState): PState = withParseErrorThrowing(start) {
       val end = uoSeqParser.parse1(start, context)
       val currentElemAfter = end.parentElement.jdomElt.get
 
       checkScalarsOccurExactlyOnce(currentElemAfter, end)
       dropDefaulted(currentElemAfter, end)
+      checkOccurrence(currentElemAfter)
 
       // Sort so that the contents are in the expected order.
       sort(currentElemAfter, end)
