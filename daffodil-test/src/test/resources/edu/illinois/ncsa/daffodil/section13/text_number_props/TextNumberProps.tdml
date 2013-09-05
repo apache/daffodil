@@ -3267,7 +3267,7 @@
     dfdl:textStandardExponentRep="%NL;" />
 
     <xs:element name="expCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
-    dfdl:textStandardExponentRep="%LF;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+    dfdl:textStandardExponentRep="%SP;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
 
     <xs:element name="expCharEntities2" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
     dfdl:textStandardExponentRep="%HT;" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
@@ -3333,13 +3333,13 @@
     dfdl:textStandardNaNRep="%NL;" />
 
     <xs:element name="nanCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
-    dfdl:textStandardNaNRep="nota%LF;number" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+    dfdl:textStandardNaNRep="nota%SP;number" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
 
     <xs:element name="infCharClasses" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
     dfdl:textStandardInfinityRep="%NL;" />
 
     <xs:element name="infCharEntities" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"
-    dfdl:textStandardInfinityRep="infin%LF;ity" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
+    dfdl:textStandardInfinityRep="infin%SP;ity" dfdl:textNumberPattern="###0.###E00;-###0.###E00"/>
 
     <xs:element name="zero" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -3610,8 +3610,7 @@
     description="Parse a double with textStandardExponentRep containing a DFDL character entity">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[1234567.89
-2]]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1234567.89 2]]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
@@ -3875,8 +3874,7 @@
     description="Parse a double with textStandardNaNRep containing a DFDL character entity">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[nota
-number]]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[nota number]]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
@@ -3906,8 +3904,7 @@ number]]]></tdml:documentPart>
     description="Parse a double with textStandardInfinityRep containing a DFDL character entity">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[infin
-ity]]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[infin ity]]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>

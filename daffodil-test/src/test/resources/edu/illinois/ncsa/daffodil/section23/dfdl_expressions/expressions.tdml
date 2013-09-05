@@ -481,7 +481,7 @@ c' } "  />
       <xs:complexType>
         <xs:sequence>
           <xs:element name="e1" type="xs:int" maxOccurs="unbounded"
-            dfdl:lengthKind="delimited" dfdl:terminator="]%#xA;=" />
+            dfdl:lengthKind="delimited" dfdl:terminator="]%NL;=" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
