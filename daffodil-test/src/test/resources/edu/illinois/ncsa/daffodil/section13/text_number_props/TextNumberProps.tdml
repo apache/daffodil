@@ -242,6 +242,9 @@
      <xs:element name="tnp80" type="xs:int" dfdl:textStandardZeroRep="zero nil NAUGHT" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="right" dfdl:textTrimKind="padChar" dfdl:textNumberPattern="#####"/>
      <xs:element name="tnp92" type="xs:int" dfdl:textStandardZeroRep="zero nil NAUGHT" dfdl:textNumberPattern="**#####"/>
     
+    <xs:element name="tnp93" type="xs:double" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00"
+      dfdl:textStandardGroupingSeparator="." dfdl:textStandardExponentRep="." dfdl:textStandardInfinityRep="."
+      dfdl:textStandardDecimalSeparator="." dfdl:textStandardNaNRep="." dfdl:textStandardZeroRep="."  />
 
   </tdml:defineSchema>
   
@@ -3966,4 +3969,30 @@
 
   </tdml:parserTestCase>
 
+  <!--
+     Test Name: textStandardDistinctValues
+        Schema: textNumberPattern
+          Root: tnp93
+       Purpose: This test shows what happens when the textStandardGroupingSeparator, textStandardNaNRep, textStandardExponentRep,
+                textStandardInfinityRep, textStandardZeroRep, and textStandardDecimalSeparator are all the same character.
+  -->
+
+  <tdml:parserTestCase name="textStandardDistinctValues" root="tnp93" model="textNumberPattern"
+    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">5.000.000.00</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Non-distinct property</tdml:error>
+      <tdml:error>textStandardDecimalSeparator</tdml:error>
+      <tdml:error>textStandardGroupingSeparator</tdml:error>
+      <tdml:error>textStandardNaNRep</tdml:error>
+      <tdml:error>textStandardExponentRep</tdml:error>
+      <tdml:error>textStandardInfinityRep</tdml:error>
+      <tdml:error>textStandardZeroRep</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 </tdml:testSuite>
