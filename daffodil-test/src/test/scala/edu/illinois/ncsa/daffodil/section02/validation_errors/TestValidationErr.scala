@@ -92,4 +92,8 @@ class TestValidationErr {
   @Test def test_choice_ignoreValidationErr_03() { runner.runOneTest("choice_ignoreValidationErr_03") }
   
   @Test def test_choice_errorNotSuppressed_01() { runner.runOneTest("choice_errorNotSuppressed_01") }
+  
+  @Test def test_validation_inputValueCalc_01() { runner.runOneTest("validation_inputValueCalc_01") }
+  @Test def test_validation_inputValueCalc_02() { runner.runOneTest("validation_inputValueCalc_02") }
+  @Test def test_validation_inputValueCalc_03() { runner.runOneTest("validation_inputValueCalc_03") }
 }

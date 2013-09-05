@@ -349,6 +349,35 @@
 
 	</tdml:parserTestCase>
   
+  <tdml:defineSchema name="inputValueCalc">
+    <dfdl:format ref="ex:daffodilTest1" />
+  
+    <xs:element name="e1" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 5-3 }">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minExclusive value="5"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="e2" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 'string' }">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:minLength value="10"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="e3" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 'string' }">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="integer"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="TestFacets">
     <dfdl:format ref="ex:daffodilTest1" />
 
@@ -1510,6 +1539,91 @@
     <tdml:validationErrors>
     	<tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
     </tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: validation_inputValueCalc_01
+       Schema: inputValueCalc 
+      Purpose: This test demonstrates that validation works against the value provided by inputValueCalc
+  --> 
+
+  <tdml:parserTestCase name="validation_inputValueCalc_01"
+    root="e1" model="inputValueCalc" 
+    description="Section 17 - the value created using inputValueCalc is validated like any other element value - DFDL-17-007R2"
+    validation="on">
+
+    <tdml:document></tdml:document>
+    
+    <tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e1>2</e1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+    <tdml:validationErrors>
+
+			<tdml:error>Validation Error</tdml:error>
+			<tdml:error>Value '2' is not facet-valid with respect to minExclusive '5'</tdml:error>
+
+		</tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: validation_inputValueCalc_02
+       Schema: inputValueCalc 
+      Purpose: This test demonstrates that validation works against the value provided by inputValueCalc
+  --> 
+
+  <tdml:parserTestCase name="validation_inputValueCalc_02"
+    root="e2" model="inputValueCalc" 
+    description="Section 17 - the value created using inputValueCalc is validated like any other element value - DFDL-17-007R2"
+    validation="on">
+
+    <tdml:document></tdml:document>
+    
+    <tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e2>string</e2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+    <tdml:validationErrors>
+
+			<tdml:error>Validation Error</tdml:error>
+			<tdml:error>Value 'string' with length = '6' is not facet-valid with respect to minLength '10'</tdml:error>
+
+		</tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: validation_inputValueCalc_03
+       Schema: inputValueCalc 
+      Purpose: This test demonstrates that validation works against the value provided by inputValueCalc
+  --> 
+
+  <tdml:parserTestCase name="validation_inputValueCalc_03"
+    root="e3" model="inputValueCalc" 
+    description="Section 17 - the value created using inputValueCalc is validated like any other element value - DFDL-17-007R2"
+    validation="on">
+
+    <tdml:document></tdml:document>
+    
+    <tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e3>string</e3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+
+    <tdml:validationErrors>
+
+			<tdml:error>Validation Error</tdml:error>
+      <tdml:error>Value 'string' is not facet-valid with respect to enumeration '[integer]'.</tdml:error>
+      <tdml:error>It must be a value from the enumeration.</tdml:error>
+
+		</tdml:validationErrors>
 
   </tdml:parserTestCase>
   
