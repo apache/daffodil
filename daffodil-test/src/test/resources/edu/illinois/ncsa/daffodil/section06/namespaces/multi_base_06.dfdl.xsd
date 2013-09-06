@@ -47,7 +47,7 @@
   <xs:element name="baseSeq4">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element ref="base:cElem" maxOccurs="1" dfdl:terminator="{" dfdl:occursCountKind="parsed"/>
+        <xs:element ref="base:cElem" maxOccurs="1" dfdl:terminator="{{" dfdl:occursCountKind="parsed"/>
         <xs:element ref="b06:cElem" maxOccurs="1" dfdl:terminator="}" dfdl:occursCountKind="parsed"/>
       </xs:sequence>
     </xs:complexType>

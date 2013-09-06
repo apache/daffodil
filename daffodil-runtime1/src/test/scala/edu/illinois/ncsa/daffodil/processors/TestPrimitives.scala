@@ -165,7 +165,7 @@ class TestPrimitives {
       </dfdl:defineFormat>
       <dfdl:format ref="tns:daffodilTest1" representation="text" lengthUnits="bytes" encoding="US-ASCII" initiator="" separator="" terminator="" ignoreCase="no" initiatedContent="no"/>,
 
-      <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{">
+      <xs:element name="root" dfdl:lengthKind="implicit" dfdl:ref="config" dfdl:initiator="{{">
         <xs:complexType>
           <xs:sequence dfdl:ref="config" dfdl:separator="," dfdl:terminator="::">
             <xs:element name="e1" type="xs:string" dfdl:ref="baseString" dfdl:representation="text"/>

@@ -116,9 +116,18 @@ abstract class CompiledExpression(val prettyExpr: String) {
 case class R(res: Any, vmap: VariableMap)
 
 case class ConstantExpression[T](value: T) extends CompiledExpression(value.toString) {
+
+  lazy val replacedValue = {
+    val result = value match {
+      case s: String if s.startsWith("{{") => s.tail.asInstanceOf[T] // Replace '{{' with '{'
+      case x => x
+    }
+    result
+  }
+
   def isConstant = true
   def isKnownNonEmpty = value != ""
-  def constant: T = value
+  def constant: T = replacedValue //value
   def evaluate(pre: InfosetElement, variables: VariableMap, ignored: PState): R = R(constant, variables)
   def evaluatesToNodes(pre: InfosetElement, variables: VariableMap, ignored: PState) = (None, variables)
 }
@@ -504,6 +513,10 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }
+      if (expr.startsWith("{") && !expr.startsWith("{{")) {
+        val msg = "'%s' is an unterminated expression.  Add missing closing brac, or escape opening brace with another opening brace."
+        edecl.SDE(msg, expr)
+      }
       new ConstantExpression(expr)
     } else {
 

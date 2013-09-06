@@ -37,7 +37,7 @@
           <xs:element name="seq3">
             <xs:complexType>
               <xs:sequence dfdl:initiatedContent="no"
-                dfdl:initiator="{ {{ [" dfdl:terminator=") ] ]]"
+                dfdl:initiator="{{ {{ [" dfdl:terminator=") ] ]]"
                 dfdl:separatorPosition="infix" dfdl:separator=";">
                 <xs:element name="num3" type="xs:int"
                   maxOccurs="unbounded" />
@@ -266,7 +266,7 @@
 
     <xs:element name="e2" dfdl:initiator="[" dfdl:terminator="]">
       <xs:complexType>
-        <xs:sequence dfdl:separator="," dfdl:initiator="{"
+        <xs:sequence dfdl:separator="," dfdl:initiator="{{"
           dfdl:terminator="}">
           <xs:element name="s1" type="xs:string"
             dfdl:initiator="(" dfdl:terminator=")" dfdl:lengthKind="explicit"
@@ -279,7 +279,7 @@
     <xs:element name="e1" dfdl:initiator="[more["
       dfdl:terminator="]nomore]">
       <xs:complexType>
-        <xs:sequence dfdl:separator=",," dfdl:initiator="{{"
+        <xs:sequence dfdl:separator=",," dfdl:initiator="{{{"
           dfdl:terminator="}}">
           <xs:element name="s1" type="xs:string"
             dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit"
@@ -372,7 +372,7 @@
           <xs:element name="seq3">
             <xs:complexType>
               <xs:sequence dfdl:initiatedContent="no"
-                dfdl:initiator="{ {{ [" dfdl:terminator=") ] ]]"
+                dfdl:initiator="{{ {{ [" dfdl:terminator=") ] ]]"
                 dfdl:separatorPosition="infix" dfdl:separator=";">
                 <xs:element name="num3" type="xs:int"
                   maxOccurs="unbounded" />

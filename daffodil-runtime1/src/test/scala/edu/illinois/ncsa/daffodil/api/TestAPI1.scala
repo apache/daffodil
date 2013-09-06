@@ -340,7 +340,7 @@ class TestDFDLParser {
       <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
       <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
         <xs:complexType>
-          <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">
+          <xs:sequence dfdl:separator=",," dfdl:initiator="{{{" dfdl:terminator="}}">
             <xs:element name="s1" type="xs:int" dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit" dfdl:length="{ 1 + 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
           </xs:sequence>
         </xs:complexType>
