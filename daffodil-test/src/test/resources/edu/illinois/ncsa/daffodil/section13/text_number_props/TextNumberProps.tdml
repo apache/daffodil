@@ -175,6 +175,9 @@
      <xs:element name="nonNegIntPad3" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" dfdl:textTrimKind="none" dfdl:textNumberPattern="**begin: # :end" 
        dfdl:textNumberCheckPolicy="strict"/>
      
+     <xs:element name="hexBinaryPad1" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" dfdl:textNumberPadCharacter="*" dfdl:textNumberJustification="center" 
+       dfdl:textNumberCheckPolicy="strict" dfdl:representation="binary"/>
+     
      <xs:element name="tnp69" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'###0.00" />
      <xs:element name="tnp70" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'+'#;-#" />
      <xs:element name="tnp71" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="'E'#;-#" />
@@ -2671,6 +2674,26 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <decimalPad3>4</decimalPad3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: hexBinaryPadding01
+        Schema: textNumberPattern
+          Root: hexBinaryPad1
+       Purpose: This test demonstrates that padding should NOT work with xs:hexBinary
+  -->
+
+  <tdml:parserTestCase name="hexBinaryPadding01" root="hexBinaryPad1" model="textNumberPattern"
+    description="Section 13 - Text number pattern - Padding - DFDL-13-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">2A2A2A2A1234562A2A2A2A</tdml:documentPart> <!-- 2A is hex for * -->
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hexBinaryPad1>2A2A2A2A1234562A2A2A2A</hexBinaryPad1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
