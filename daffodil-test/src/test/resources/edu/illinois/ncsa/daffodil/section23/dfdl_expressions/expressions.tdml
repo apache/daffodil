@@ -1918,6 +1918,22 @@ c' } "  />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e_05" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="{{ {{ [">
+          <xs:element name="e1" type="xs:int" minOccurs="2" maxOccurs="6" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_06" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="{ {{ [">
+          <xs:element name="e1" type="xs:int" minOccurs="2" maxOccurs="6" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -2004,6 +2020,47 @@ c' } "  />
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <!--
+     Test Name: expressionRules05
+        Schema: expressionRules
+          Root: e_05
+       Purpose: This test demonstrates that {{ as the first characters are treated as the literal '{' and not a DFDL expression 
+  -->
+  
+  <tdml:parserTestCase name="expressionRules05" root="e_05"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>123{456{{789[123</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_05>
+          <e1>123</e1>
+          <e1>456</e1>
+          <e1>789</e1>
+          <e1>123</e1>
+        </e_05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: expressionRules06
+        Schema: expressionRules
+          Root: e_06
+       Purpose: This test demonstrates that you need to use {{ as the first characters in order for
+                it to be treated as the literal '{' and not a DFDL expression 
+  -->
+  
+  <tdml:parserTestCase name="expressionRules06" root="e_06"
+    model="expressionRules" description="Section 6 - DFDL Expressions - DFDL-06-078R">
+
+    <tdml:document>123{456{{789[123</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>'{ {{ [' is an unterminated expression</tdml:error>
+    </tdml:errors>
+    </tdml:parserTestCase>
 
 <!--
      Test Name: regexLookahead

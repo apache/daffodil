@@ -78,10 +78,10 @@ class TestDFDLExpressions {
 
   @Test def test_expressionRules01() { runner.runOneTest("expressionRules01") }
   @Test def test_expressionRules02() { runner.runOneTest("expressionRules02") }
-
-//  DFDL-667  
-//  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
-//  @Test def test_expressionRules04() { runner.runOneTest("expressionRules04") }
+  @Test def test_expressionRules03() { runner.runOneTest("expressionRules03") }
+  @Test def test_expressionRules04() { runner.runOneTest("expressionRules04") }
+  @Test def test_expressionRules05() { runner.runOneTest("expressionRules05") }
+  @Test def test_expressionRules06() { runner.runOneTest("expressionRules06") }
 
   @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
   @Test def test_lke1_rel() { runner.runOneTest("lke1_rel") }
