@@ -430,6 +430,7 @@
     </tdml:document>
 
     <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>myVar</tdml:error>
       <tdml:error>no value</tdml:error>
       <tdml:error>variable</tdml:error>

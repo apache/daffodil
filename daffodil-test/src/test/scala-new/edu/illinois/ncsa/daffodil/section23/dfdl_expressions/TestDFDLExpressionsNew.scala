@@ -45,16 +45,10 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLExpressionsNew {
 
-  // I'm not sure these belong in section23, but there is no section of the spec that 
-  // is about all these properties together, yet, since there is common mechanism here
-  // I really think their tests should not be scattered all over to the sections where each
-  // property is defined.
   val testDir3 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir3 + "runtime-properties.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
-  @Test def test_variableRefError { runner3.runOneTest("variableRefError") }
-  
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
