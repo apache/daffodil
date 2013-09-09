@@ -2,12 +2,19 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://a03.com" xmlns:a03="http://a03.com" xmlns:b03="http://b03.com" xmlns:f03="http://f03.com">
 
+<!-- 
+	 Tests that use this schema rely on having certain elements not defined.
+	 Because of this we can not use the standard technique of including
+	 built-in-formats.xsd and referencing daffodilTest1. Instead, all necessary
+	 properties must be explicitly defined
+-->
+
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
       leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" 
       textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
-      alignment="1" alignmentUnits="bytes" trailingSkip="0"/>
+      alignment="1" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered"/>
     </xs:appinfo>
   </xs:annotation>
   

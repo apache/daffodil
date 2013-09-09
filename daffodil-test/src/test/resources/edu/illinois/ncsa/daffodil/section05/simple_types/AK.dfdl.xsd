@@ -2,10 +2,14 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ex="http://example.com">
+  
+  <include schemaLocation="xsd/built-in-formats.xsd"/>
+
   <annotation>
     <appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" initiator="" terminator=""
+      <dfdl:format ref="ex:daffodilTest1" separator="" initiator="" terminator=""
         emptyValueDelimiterPolicy="none" lengthKind="implicit"
         textNumberRep="standard" binaryNumberRep="binary" byteOrder="bigEndian"
         representation="text" occursStopValue="-1" occursCountKind="expression"

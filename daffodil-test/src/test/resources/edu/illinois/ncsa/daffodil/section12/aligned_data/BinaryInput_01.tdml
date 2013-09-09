@@ -7,6 +7,7 @@
 
 	<tdml:defineSchema
 		name="DFDL-362-skip-alignments-leading-skip-bytes.dfdl.xsd">
+		<dfdl:format ref="tns:daffodilTest1"/>
 		<xs:element name="Outer" dfdl:leadingSkip="0"
 			dfdl:alignment="implicit" dfdl:alignmentUnits="bytes"
 			dfdl:lengthKind="implicit" dfdl:representation="binary"

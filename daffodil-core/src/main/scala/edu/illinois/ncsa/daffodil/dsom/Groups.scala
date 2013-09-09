@@ -689,26 +689,6 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   requiredEvaluations(checkIfValidUnorderedSequence)
 
-  // TODO: Remove when we've verified that the tests use built-in-format
-  // This was just a temporary fix so that we could get around tests failing.
-  // due to them not including SequenceKind.
-  override lazy val (sequenceKind, sequenceKind_location) = {
-    findPropertyOption("sequenceKind") match {
-      case f: Found => {
-        val value = f.value match {
-          case "ordered" => SequenceKind.Ordered
-          case "unordered" => SequenceKind.Unordered
-          case _ => this.SDE("Unrecognized sequenceKind of %s.", f.value)
-        }
-        (value, f.location)
-      }
-      case NotFound(a, b) => {
-        this.SDW("Property sequenceKind was not found. Defaulting ot 'ordered'.")
-        (SequenceKind.Ordered, null)
-      }
-    }
-  }
-
   lazy val myPeers = sequencePeers
 
   def annotationFactory(node: Node): DFDLAnnotation = {

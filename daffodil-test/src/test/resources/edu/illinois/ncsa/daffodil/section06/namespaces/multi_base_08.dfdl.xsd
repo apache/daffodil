@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:c08="http://c08.com" xmlns:a08="http://a08.com" xmlns:b08="http://b08.com">
-      
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="'" alignment="implicit" alignmentUnits="bits" trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+      <dfdl:format ref="base:daffodilTest1" separator="'" alignment="implicit" alignmentUnits="bits" trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
     </xs:appinfo>
   </xs:annotation>

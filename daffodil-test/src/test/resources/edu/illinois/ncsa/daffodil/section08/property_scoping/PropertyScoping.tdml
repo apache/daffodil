@@ -178,7 +178,7 @@
   <tdml:defineSchema name="defineFormat-Nested.dfdl.xsd">
 
     <dfdl:defineFormat name="format_a">
-      <dfdl:format lengthKind="explicit"
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit"
         lengthUnits="bytes" encoding="UTF-8" terminator=";" length="3"
         occursCountKind="parsed" ignoreCase="no" leadingSkip="0" alignment="1" alignmentUnits="bytes" trailingSkip="0"
         separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" initiatedContent="no"
