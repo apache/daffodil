@@ -57,7 +57,7 @@ class TestSimpleTypes {
   lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
   @Test def test_AL000() { runnerAL.runOneTest("AL000") }
 
-  //@Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
+  @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
 
   @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
   @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
