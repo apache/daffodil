@@ -38,6 +38,7 @@ import scala.xml.Node
 import scala.xml.Elem
 import scala.xml.Attribute
 import scala.xml.Null
+import scala.collection.immutable.ListMap
 import org.apache.xerces.util.XMLResourceIdentifierImpl
 import java.io.IOException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -136,9 +137,12 @@ import java.net.URLEncoder
  * factory isn't being called yet, and by the way it has pointers back
  * to data structures that will be filled in later, so it can't be called
  * yet. You wouldn't write an OO program this way usually.
+ *
+ * Note that we must use a map that maintains insertion order, of which
+ * ListMap is one of them.
  */
 object IIUtils {
-  type IIMap = Delay[Map[(NS, URI), IIBase]]
+  type IIMap = Delay[ListMap[(NS, URI), IIBase]]
 }
 
 /**
@@ -192,7 +196,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
     val fakeSchemaDocXML =
       <schema xmlns={ xsd }>{ fakeImportStatementsXML }</schema>
 
-    val initialEmptyIIMap: IIMap = Delay(Map.empty)
+    val initialEmptyIIMap: IIMap = Delay(ListMap.empty)
 
     val fakeSD = new XMLSchemaDocument(fakeSchemaDocXML, self, None, None, initialEmptyIIMap) {
       // this flag lets us import into this document
