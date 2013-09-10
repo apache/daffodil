@@ -100,7 +100,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
-    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
+    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd -r rabbitHole\n"
     var shell = Util.start(cmd)
 
     shell.expect(output9)
@@ -109,7 +109,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
-    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd -r rabbitHole\n"
     var shell = Util.start(cmd)
 
     shell.expect(output10)
@@ -411,7 +411,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1971_CLI_Parsing_traceMode01() {
-    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd -r rabbitHole\n"
     val shell = Util.start(cmd)
     shell.expect("parser: <ElementEnd name='rabbitHole'/>")
 
