@@ -91,7 +91,14 @@
     <xs:element name="e5b">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="b0m" type="xs:string" dfdl:terminator="."/>
+          <xs:element name="bOm" dfdl:terminator=".">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="12"/>
+                <xs:maxLength value="12"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
           <xs:element name="num" type="xs:int" dfdl:byteOrder="{ xs:string(../ex:bOm) }"/>
         </xs:sequence>
       </xs:complexType>

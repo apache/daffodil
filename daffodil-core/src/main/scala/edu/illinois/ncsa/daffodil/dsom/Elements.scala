@@ -297,13 +297,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
-  lazy val facetMaxLength = {
-    if (hasSpecifiedLength) maxLength.longValue() else -1L
-  }
-
-  // if it is of simple type, then facets like length, maxLength, minLength are
-  // attributes of the simple type def. You can't put them directly on an element.
-
   /**
    * Nil Lit = literal nil, as opposed to value nil that uses a reserved value
    */
@@ -500,6 +493,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
     elementSimpleType match {
       case prim: PrimitiveType => {
+        schemaDefinitionWhen((prim == PrimType.String || prim == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
+            "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
+            prim.name)
         //
         // We handle text numbers by getting a stringValue first, then
         // we convert to the number type. 

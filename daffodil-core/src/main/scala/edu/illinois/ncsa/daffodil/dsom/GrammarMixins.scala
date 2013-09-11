@@ -234,18 +234,19 @@ trait ElementBaseGrammarMixin
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     })
 
-  lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength,
+  lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength, {
+    val maxLengthLong = maxLength.longValueExact
     (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, facetMaxLength) // TODO: make sure it divides evenly.
+      case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, maxLengthLong) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, facetMaxLength)
+      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, maxLengthLong)
       case (LengthUnits.Characters, true) => {
         //
         // we deal with the fact that some encodings have characters taking up smaller than 
         // a full byte. E.g., encoding='US-ASCII-7-bit-packed' are 7-bits packed with no unused
         // bits
         //
-        val lengthInBits = facetMaxLength * knownEncodingWidthInBits
+        val lengthInBits = maxLengthLong * knownEncodingWidthInBits
         val lengthInBytes = lengthInBits / 8
         val hasWholeBytesOnly = (lengthInBits % 8) == 0
         if (hasWholeBytesOnly)
@@ -256,16 +257,17 @@ trait ElementBaseGrammarMixin
       //
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => prims.StringFixedLengthInVariableWidthCharacters(this, facetMaxLength)
+      case (LengthUnits.Characters, false) => prims.StringFixedLengthInVariableWidthCharacters(this, maxLengthLong)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
-    })
+    }})
 
-  lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength,
+  lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength, {
+    val maxLengthLong = maxLength.longValueExact
     lengthUnits match {
-      case LengthUnits.Bytes => prims.HexBinaryFixedLengthInBytes(this, facetMaxLength)
+      case LengthUnits.Bytes => prims.HexBinaryFixedLengthInBytes(this, maxLengthLong)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    })
+    }})
 
   lazy val variableLengthString = Prod("variableLengthString", this, !isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
