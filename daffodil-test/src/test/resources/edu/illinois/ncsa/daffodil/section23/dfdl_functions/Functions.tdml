@@ -1123,7 +1123,10 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>"string"</tdml:error>
+      <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1208,7 +1211,10 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>"string"</tdml:error>
+      <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1316,7 +1322,10 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>"string"</tdml:error>
+      <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1424,7 +1433,10 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "string" to a double</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>"string"</tdml:error>
+      <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2390,7 +2402,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedLong</tdml:error>
+      <tdml:error>-50</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>unsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2475,7 +2489,8 @@
     </tdml:document>
       <tdml:errors>
         <tdml:error>Parse Error</tdml:error>
-        <tdml:error>Integer value is out of range for subtype xs:unsignedLong</tdml:error>
+        <tdml:error>out of range</tdml:error>
+        <tdml:error>unsignedLong</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2495,7 +2510,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+      <tdml:error>-50</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2515,7 +2532,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Value 12345678987654321 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+      <tdml:error>12345678987654321</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>unsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2559,7 +2578,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value 65536 cannot be converted to integer subtype xs:unsignedShort</tdml:error>
+	  <tdml:error>out of range</tdml:error>
+	  <tdml:error>unsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2619,7 +2639,9 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Value 12345678987654321 cannot be converted to integer subtype xs:short</tdml:error>
+      <tdml:error>12345678987654321</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2664,7 +2686,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value -32769 cannot be converted to integer subtype xs:short</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2906,7 +2929,10 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "one"</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>double</tdml:error>
+      <tdml:error>"one"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3072,7 +3098,10 @@
     </tdml:document>
       <tdml:errors>
         <tdml:error>Parse Error</tdml:error>
-        <tdml:error>Cannot convert string "1.23E" to a double</tdml:error>
+        <tdml:error>convert</tdml:error>
+        <tdml:error>string</tdml:error>
+        <tdml:error>double</tdml:error>
+        <tdml:error>"1.23E"</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3533,7 +3562,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value 128 cannot be converted to integer subtype xs:byte</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3667,7 +3697,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value -50 cannot be converted to integer subtype xs:unsignedInt</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3688,7 +3719,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value 4294967296 cannot be converted to integer subtype xs:unsignedInt</tdml:error>
+	  <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3755,7 +3787,9 @@
       <tdml:documentPart type="text">-1</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Value -1 cannot be converted to integer subtype xs:unsignedByte</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3799,7 +3833,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value 256 cannot be converted to integer subtype xs:unsignedByte</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

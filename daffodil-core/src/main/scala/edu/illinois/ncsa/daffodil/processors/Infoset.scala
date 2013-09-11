@@ -58,7 +58,7 @@ object Infoset {
   def newElement(e: ElementBase, isHidden: Boolean) = {
     Assert.usage(e.name != "")
     val jdomE =
-      new org.jdom.Element(e.name, e.targetNamespacePrefix, e.targetNamespace.toStringOrNullIfNoNS)
+      new org.jdom2.Element(e.name, e.targetNamespacePrefix, e.targetNamespace.toStringOrNullIfNoNS)
     //
     // Note: you can't save the attribute and reuse it because in JDOM
     // attributes have parent pointers. So this creates one and points it back at the jdomE
@@ -72,23 +72,23 @@ object Infoset {
   }
 
   def newDocument() = {
-    val res = new InfosetDocument(new org.jdom.Document())
+    val res = new InfosetDocument(new org.jdom2.Document())
     res
   }
 
   def apply(rootNode: scala.xml.Node): InfosetElement = {
     val jElt = XMLUtils.elem2Element(rootNode)
-    val jDoc_ignored = new org.jdom.Document(jElt) // must have or jdom expressions won't work.
+    val jDoc_ignored = new org.jdom2.Document(jElt) // must have or jdom expressions won't work.
     val item = new InfosetElement(jElt)
     item
   }
 
   type ElementState = Int
-  type Namespace = org.jdom.Namespace
+  type Namespace = org.jdom2.Namespace
 
 }
 
-class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
+class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
 
   Assert.usage(elt != null)
 
@@ -98,7 +98,7 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
   def makeNil(): Unit = { elt.setAttribute(XMLUtils.nilAttribute()) }
 
   def setDataValue(s: String): Unit = {
-    elt.setContent(new org.jdom.Text(XMLUtils.remapXMLIllegalCharactersToPUA(s)))
+    elt.setContent(new org.jdom2.Text(XMLUtils.remapXMLIllegalCharactersToPUA(s)))
   }
 
   def addElement(e: InfosetElement) = elt.addContent(e.elt)
@@ -163,8 +163,8 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
   def parent = {
     val par = elt.getParent()
     val res = par match {
-      case e: org.jdom.Element => new InfosetElement(e)
-      case d: org.jdom.Document => new InfosetDocument(d)
+      case e: org.jdom2.Element => new InfosetElement(e)
+      case d: org.jdom2.Document => new InfosetDocument(d)
       case _ => null
     }
     res
@@ -176,7 +176,7 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
   def dataValue = elt.getText()
 
   def getChild(childName: String) = new InfosetElement(elt.getChild(childName))
-  def getChild(cName: String, ns: org.jdom.Namespace) = new InfosetElement(elt.getChild(cName, ns))
+  def getChild(cName: String, ns: org.jdom2.Namespace) = new InfosetElement(elt.getChild(cName, ns))
 
   def captureState(): Infoset.ElementState = {
     elt.getContentSize()
@@ -195,14 +195,14 @@ class InfosetElement(private val elt: org.jdom.Element) extends InfosetItem {
     compiledExprFactory: CompiledExpressionFactory,
     variables: VariableMap,
     targetType: QName = NODE) = {
-    val contextNode = elt.asInstanceOf[org.jdom.Parent]
+    val contextNode = elt.asInstanceOf[org.jdom2.Parent]
     val res = XPathUtil.evalExpression(expressionForErrorMsg, compiledExprFactory, variables, contextNode, targetType)
     res
   }
 
 }
 
-class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
+class InfosetDocument(val jDoc: org.jdom2.Document) extends InfosetItem {
 
   val jdomElt = {
     if (jDoc.hasRootElement()) Some(jDoc.getRootElement())
@@ -234,7 +234,7 @@ class InfosetDocument(val jDoc: org.jdom.Document) extends InfosetItem {
 sealed abstract class InfosetItem {
   override def toString(): String = jdomElt.getOrElse("InfosetItem(None)").toString
 
-  def jdomElt: Option[org.jdom.Element]
+  def jdomElt: Option[org.jdom2.Element]
 
   def addElement(e: InfosetElement): Unit
 

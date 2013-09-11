@@ -39,7 +39,7 @@ import scala.io.Codec.string2codec
 import scala.xml.Node
 import scala.xml.parsing.ConstructingParser
 
-import org.jdom.Element
+import org.jdom2.Element
 import org.xml.sax.SAXException
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert

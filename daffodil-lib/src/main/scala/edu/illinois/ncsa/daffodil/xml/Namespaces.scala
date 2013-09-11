@@ -76,7 +76,7 @@ class NS protected (s: String) { // protected constructor. Must use factory.
   lazy val uri = new URI(s)
   def isNoNamespace = false
   override def hashCode() = s.hashCode()
-  lazy val toJDOM = org.jdom.Namespace.getNamespace(s)
+  lazy val toJDOM = org.jdom2.Namespace.getNamespace(s)
 }
 
 /**
@@ -119,8 +119,8 @@ class NS protected (s: String) { // protected constructor. Must use factory.
 //import javax.xml.namespace.NamespaceContext
 //import scala.collection.mutable.Map
 //
-//import org.jdom.Element
-//import org.jdom.Namespace
+//import org.jdom2.Element
+//import org.jdom2.Namespace
 //
 //// import edu.illinois.ncsa.daffodil.exceptions.UnimplementedException
 //import edu.illinois.ncsa.daffodil.schema._

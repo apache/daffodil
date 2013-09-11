@@ -14,7 +14,7 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-import org.jdom.Namespace
+import org.jdom2.Namespace
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.compiler.ProcessorFactory
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
@@ -228,7 +228,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
     ExecutionMode.usingRuntimeMode {
       val jdomElem = XMLUtils.elem2Element(infoset)
-      val jdomDoc = new org.jdom.Document(jdomElem)
+      val jdomDoc = new org.jdom2.Document(jdomElem)
       val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
 
       val uRes = new UnparseResult(this) {

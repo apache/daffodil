@@ -97,7 +97,7 @@ class TestCompiledExpression {
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
@@ -122,7 +122,7 @@ class TestCompiledExpression {
       val R(result3, _) = compiled3.evaluate(root, new VariableMap(), dummyState)
       val r3string = result3.toString
       assertTrue(r3string.contains("<child3 [Namespace: http://example.com]/>"))
-      val r3value = result3.asInstanceOf[org.jdom.Element].getText()
+      val r3value = result3.asInstanceOf[org.jdom2.Element].getText()
       assertEquals("19", r3value)
     }
   }
@@ -156,7 +156,7 @@ class TestCompiledExpression {
 
     val origInfoset = <root xmlns={ example } xmlns:tns={ example } xmlns:dafint={ dafint }></root>
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root2 = new InfosetElement(doc.getRootElement())
 
     val compiled3 = ec.compile(ConvertToType.Element, Found("{ /root }", edecl)) // as a jdom Element
@@ -178,7 +178,7 @@ class TestCompiledExpression {
 
     val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     if (sset.isError) sset.getDiagnostics.foreach { d => System.err.println(d.toString) }
@@ -204,7 +204,7 @@ class TestCompiledExpression {
 
     val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     if (sset.isError) sset.getDiagnostics.foreach { d => System.err.println(d.toString) }
@@ -230,7 +230,7 @@ class TestCompiledExpression {
 
     val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
@@ -257,7 +257,7 @@ class TestCompiledExpression {
 
     val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
@@ -296,7 +296,7 @@ class TestCompiledExpression {
 
     val (sset, pf) = c.compileInternal(testSchema)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
@@ -341,7 +341,7 @@ class TestCompiledExpression {
     val Seq(e1, e2) = seq.groupMembers
     val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2", example.toJDOM)
 
@@ -379,7 +379,7 @@ class TestCompiledExpression {
 
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
     val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, Fakes.fakeDP)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2", example.toJDOM)
 

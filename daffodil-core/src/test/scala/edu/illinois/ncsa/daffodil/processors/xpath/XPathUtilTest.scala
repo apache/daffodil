@@ -32,9 +32,9 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * SOFTWARE.
  */
 
-import org.jdom.Document
-import org.jdom.Element
-import org.jdom.Text
+import org.jdom2.Document
+import org.jdom2.Element
+import org.jdom2.Text
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml._
@@ -129,7 +129,7 @@ class XPathUtilTest {
     root addContent (child1)
     val document = new Document(root)
 
-    val ns = List(org.jdom.Namespace.getNamespace("f", "urn:foobarNS"))
+    val ns = List(org.jdom2.Namespace.getNamespace("f", "urn:foobarNS"))
     val result = XPathUtil evalExpressionFromString ("/f:root/f:child1",
       new VariableMap(),
       root,

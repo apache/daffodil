@@ -74,7 +74,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
@@ -128,7 +128,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
 
     val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, Fakes.fakeDP)
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
     val rootns = root.namespace
     val child2 = root.getChild("e2", rootns)
@@ -160,7 +160,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val doc = new org.jdom.Document(infoset) // root must have a document node
+    val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
     val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)

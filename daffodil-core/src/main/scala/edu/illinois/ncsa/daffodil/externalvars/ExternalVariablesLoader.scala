@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc._
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import org.jdom.Element
+import org.jdom2.Element
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**

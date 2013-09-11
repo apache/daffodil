@@ -312,7 +312,7 @@ class GeneralUnparseFailure(msg: String) extends Throwable with DiagnosticImplMi
   override def getMessage() = msg
 }
 
-class DataLocUnparse(elem: org.jdom.Element, outStream: OutStream) extends DataLocation {
+class DataLocUnparse(elem: org.jdom2.Element, outStream: OutStream) extends DataLocation {
   override def toString() = "Location in infoset " + elem.getName() + " of Stream: " + outStream
   def isAtEnd: Boolean = Assert.notYetImplemented()
   def bitPos: Long = Assert.notYetImplemented()
@@ -331,9 +331,9 @@ class DataLocUnparse(elem: org.jdom.Element, outStream: OutStream) extends DataL
  */
 class UState(
   val outStream: OutStream,
-  val infoset: org.jdom.Document,
-  val root: org.jdom.Element,
-  val currentElement: org.jdom.Element,
+  val infoset: org.jdom2.Document,
+  val root: org.jdom2.Element,
+  val currentElement: org.jdom2.Element,
   val rootName: String,
   val variableMap: VariableMap,
   val target: NS,
@@ -361,7 +361,7 @@ class UState(
    */
   //  def withOutStream(outStream: OutStream, status: ProcessorResult = Success) =
   //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
-  def withCurrent(currentElement: org.jdom.Element, status: ProcessorResult = Success) =
+  def withCurrent(currentElement: org.jdom2.Element, status: ProcessorResult = Success) =
     new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
   //  def withVariables(variableMap: VariableMap, status: ProcessorResult = Success) =
   //    new UState(outStream, infoset, root, currentElement, rootName, variableMap, target, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
@@ -431,7 +431,7 @@ class UState(
       infoset.removeContent(i)
     }
     this
-    //    val pp = parent.getParent().asInstanceOf[org.jdom.Element] // Parent's Parent.
+    //    val pp = parent.getParent().asInstanceOf[org.jdom2.Element] // Parent's Parent.
     //    val pi :: ppi :: rest = childIndexStack
     //    pp.setContent(ppi.toInt, newElem)
     //    newElem
@@ -443,11 +443,11 @@ object UState {
   /**
    * Initialize the state block given our OutStream, a root element declaration, and an infoset.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom.Document): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom2.Document): UState = {
     val elem = infoset.getContent()
     // TODO: even needed?
     Assert.invariant(elem.size() == 1)
-    val root = elem(0).asInstanceOf[org.jdom.Element]
+    val root = elem(0).asInstanceOf[org.jdom2.Element]
     val rootName = root.getName()
 
     val variables = new VariableMap()
@@ -466,7 +466,7 @@ object UState {
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom.Document): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom2.Document): UState = {
     val out = Misc.stringToWritableByteChannel(data)
     createInitialState(rootElemDecl, out, document, data.length)
   }
@@ -474,7 +474,7 @@ object UState {
   /**
    * Construct our OutStream object and initialize the state block.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom.Document, sizeHint: Long = -1): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom2.Document, sizeHint: Long = -1): UState = {
     val outStream =
       if (sizeHint != -1) new OutStreamFromByteChannel(rootElemDecl, output, sizeHint)
       else new OutStreamFromByteChannel(rootElemDecl, output)

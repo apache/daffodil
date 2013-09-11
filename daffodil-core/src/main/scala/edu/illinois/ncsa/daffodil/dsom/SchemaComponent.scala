@@ -1138,7 +1138,7 @@ class SchemaSet(
 
   private lazy val elements = schemaComponentRegistry.contextMap
 
-  def getIDByName(name: String, ns: org.jdom.Namespace) = {
+  def getIDByName(name: String, ns: org.jdom2.Namespace) = {
     val matches = elements.filter {
       case (uuid, eb) => {
         eb.targetNamespace.toJDOM == ns &&
@@ -1160,7 +1160,7 @@ class SchemaSet(
       }
     }
 
-    val it = infoset.getDescendants(new org.jdom.filter.ElementFilter).asInstanceOf[java.util.Iterator[org.jdom.Element]]
+    val it = infoset.getDescendants(new org.jdom2.filter.ElementFilter).asInstanceOf[java.util.Iterator[org.jdom2.Element]]
 
     for (e <- it) {
       val name = e.getName()

@@ -214,7 +214,7 @@ class DataProcessor(dp: SDataProcessor)
   /**
    * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
    */
-  // def unparse(output: WritableByteChannel, doc: org.jdom.Document): JUnparseResult
+  // def unparse(output: WritableByteChannel, doc: org.jdom2.Document): JUnparseResult
 
   /**
    * Returns an object which contains the result, and/or diagnostic information.
@@ -246,7 +246,7 @@ class ParseResult(pr: SParseResult)
    * Throws IllegalStateException if you call this when isError is true
    * because in that case there is no result document.
    */
-  def result(): org.jdom.Document = {
+  def result(): org.jdom2.Document = {
     pr.resultAsJDOMDocument
   }
 

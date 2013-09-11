@@ -35,19 +35,19 @@ package edu.illinois.ncsa.daffodil.xml
 import java.io.FileInputStream
 import java.io.File
 import java.io.InputStream
-import org.jdom.input.SAXBuilder
+import org.jdom2.input.SAXBuilder
 import scala.collection.JavaConversions._
 import scala.xml._
 import java.io.{ OutputStream, PrintWriter, StringWriter }
 import java.lang.management._
 import java.util.regex.Pattern
-import org.jdom.Attribute
-import org.jdom.Element
-import org.jdom.Parent
-import org.jdom.Document
-import org.jdom.Namespace
-import org.jdom.output.XMLOutputter
-import org.jdom.output.Format
+import org.jdom2.Attribute
+import org.jdom2.Element
+import org.jdom2.Parent
+import org.jdom2.Document
+import org.jdom2.Namespace
+import org.jdom2.output.XMLOutputter
+import org.jdom2.output.Format
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
 import edu.illinois.ncsa.daffodil.exceptions._
@@ -163,7 +163,7 @@ object XMLUtils {
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
-  def nilAttribute() = new org.jdom.Attribute("nil", "true", XMLUtils.xsiNS)
+  def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
 
   def isNil(e: Element) = {
     val nilAttr = e.getAttribute("nil", xsiNS)
@@ -188,10 +188,10 @@ object XMLUtils {
   val DAFFODIL_INTERNAL_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int"
   val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE
   val EXT_PREFIX = "daf"
-  val EXT_NS_OBJECT = org.jdom.Namespace.getNamespace(EXT_PREFIX, EXT_NS)
+  val EXT_NS_OBJECT = org.jdom2.Namespace.getNamespace(EXT_PREFIX, EXT_NS)
   val INT_NS = DAFFODIL_INTERNAL_NAMESPACE
   val INT_PREFIX = "dafint"
-  val INT_NS_OBJECT = org.jdom.Namespace.getNamespace(INT_PREFIX, INT_NS)
+  val INT_NS_OBJECT = org.jdom2.Namespace.getNamespace(INT_PREFIX, INT_NS)
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -634,13 +634,13 @@ object XMLUtils {
    * super inefficient, but useful for unit tests
    */
   def element2Elem(jElem: Element): scala.xml.Node = {
-    return XML.loadString(new org.jdom.output.XMLOutputter().outputString(jElem))
+    return XML.loadString(new org.jdom2.output.XMLOutputter().outputString(jElem))
   }
 
   def element2ElemTDML(jElem: Element): scala.xml.Node = {
-    val format = org.jdom.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
+    val format = org.jdom2.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
     val w = new java.io.StringWriter
-    val out = new org.jdom.output.XMLOutputter(format)
+    val out = new org.jdom2.output.XMLOutputter(format)
     out.output(jElem, w)
     val res = XML.loadString(w.toString())
     return res
@@ -654,24 +654,24 @@ object XMLUtils {
    *
    * We need them as JDOM namespace bindings, so create a list of those.
    */
-  def namespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom.Namespace] = {
+  def namespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom2.Namespace] = {
     if (nsBinding == null) Nil
     else {
       val thisOne =
-        if (nsBinding.uri != null) List(org.jdom.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
+        if (nsBinding.uri != null) List(org.jdom2.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
         else Nil
       val others = namespaceBindings(nsBinding.parent)
       thisOne ++ others
     }
   }
 
-  def namespaceBindings(element: org.jdom.Element): Seq[org.jdom.Namespace] = {
+  def namespaceBindings(element: org.jdom2.Element): Seq[org.jdom2.Namespace] = {
     if (element == null) Nil
     else {
-      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom.Namespace]]
+      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom2.Namespace]]
       val thisOne = element.getNamespace()
       val parentContribution = element.getParent match {
-        case parentElem: org.jdom.Element => namespaceBindings(parentElem)
+        case parentElem: org.jdom2.Element => namespaceBindings(parentElem)
         case _ => Nil
       }
       val res = thisOne +: (ans ++ parentContribution)
@@ -737,11 +737,11 @@ object XMLUtils {
     for (child <- node.child) {
       child.toString match {
         case CDATAPattern(text) => {
-          jdomNode.addContent(new org.jdom.CDATA(text))
+          jdomNode.addContent(new org.jdom2.CDATA(text))
         }
         case _ => child.label match {
           case "#PCDATA" => jdomNode.addContent(child.toString)
-          case "#CDATA" => jdomNode.addContent(new org.jdom.CDATA(child.toString))
+          case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
           case "#REM" =>
           case _ => jdomNode.addContent(elem2ElementTDML(child))
         }
@@ -806,7 +806,7 @@ object XMLUtils {
     for (child <- node.child) {
       child.label match {
         case "#PCDATA" => jdomNode.addContent(child.toString)
-        case "#CDATA" => jdomNode.addContent(new org.jdom.CDATA(child.toString))
+        case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
         case "#REM" =>
         case _ => jdomNode.addContent(elem2Element(child))
       }
@@ -1142,7 +1142,7 @@ object XMLUtils {
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
    */
-  def removeAttributesJDOM(c: org.jdom.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): Unit = {
+  def removeAttributesJDOM(c: org.jdom2.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): Unit = {
     c match {
       case e: Element => {
         val attrs = e.getAttributes().map(x => x.asInstanceOf[Attribute])
@@ -1151,7 +1151,7 @@ object XMLUtils {
             case Some(_) => e.removeAttribute(attr)
             case None => // Don't remove
           })
-        e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom.Content], ns))
+        e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom2.Content], ns))
       }
       case other => other
     }

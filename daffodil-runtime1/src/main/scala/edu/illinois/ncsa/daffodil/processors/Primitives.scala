@@ -147,11 +147,11 @@ case class ElementBegin(e: ElementBase) extends Terminal(e, true) {
   //              //              start.outStream.setEncoder(encoder)
   //              start.outStream.write()
   //            }
-  //            start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom.Element]
+  //            start.currentElement.getContent().get(start.childPos.asInstanceOf[Int] - 1).asInstanceOf[org.jdom2.Element]
   //          } else {
   //            //            val encoder = e.knownEncodingEncoder
   //            //            start.outStream.setEncoder(encoder)
-  //            start.currentElement.getContent().get(0).asInstanceOf[org.jdom.Element]
+  //            start.currentElement.getContent().get(0).asInstanceOf[org.jdom2.Element]
   //          }
   //        } catch {
   //          case u: UnsuppressableException => throw u

@@ -653,7 +653,10 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>syntax</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>prefix</tdml:error>
+      <tdml:error>ez</tdml:error>
+      <tdml:error>declared</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

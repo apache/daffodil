@@ -72,8 +72,8 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
           "</UnorderedSequence>"
     }
 
-    def sort(elt: org.jdom.Element, pstate: PState): Unit = {
-      val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom.Element]]
+    def sort(elt: org.jdom2.Element, pstate: PState): Unit = {
+      val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom2.Element]]
 
       sortOrder.foreach {
         case (name, ns) => {
@@ -90,9 +90,9 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       }
     }
 
-    def checkScalarsOccurExactlyOnce(elt: org.jdom.Element, pstate: PState): Unit = {
+    def checkScalarsOccurExactlyOnce(elt: org.jdom2.Element, pstate: PState): Unit = {
       // Always occurs, does not depend on validation
-      val children = elt.getChildren().toList.asInstanceOf[List[org.jdom.Element]]
+      val children = elt.getChildren().toList.asInstanceOf[List[org.jdom2.Element]]
       scalarMembers.foreach {
         case (name, path, ns) => {
           val scalarChildren = children.filter(e => {
@@ -110,8 +110,8 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
      * We want to check that we met he expected occurrence values
      * but we don't want to SDE, instead we issue a PE (ProcessingError).
      */
-    def checkOccurrence(elt: org.jdom.Element): Unit = {
-      val childrenList = elt.getContent().toList.asInstanceOf[List[org.jdom.Element]]
+    def checkOccurrence(elt: org.jdom2.Element): Unit = {
+      val childrenList = elt.getContent().toList.asInstanceOf[List[org.jdom2.Element]]
 
       val scs =
         context.groupMembers.filter(t => t.isInstanceOf[LocalElementBase]).map(_.asInstanceOf[LocalElementBase])
@@ -141,7 +141,7 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       })
     }
 
-    def dropDefaulted(elt: org.jdom.Element, pstate: PState): Unit = {
+    def dropDefaulted(elt: org.jdom2.Element, pstate: PState): Unit = {
       // Always occurs, does not depend on validation
 
       // RequiredElement, index in its array <= minOccurs
@@ -150,7 +150,7 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
       // Drop anything after the minOccurs that was defaulted.
 
       // So we need the original minOccurs for each element.
-      val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom.Element]]
+      val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom2.Element]]
       val scs = childrenDetached.map(c => {
         val infoSetElem = new InfosetElement(c)
         val sc = infoSetElem.schemaComponent(pstate)

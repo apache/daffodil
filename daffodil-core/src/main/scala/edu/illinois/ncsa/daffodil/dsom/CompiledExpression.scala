@@ -306,7 +306,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
         val numNodes = ns.getLength()
         val q: Queue[InfosetElement] = Queue.empty
         for (i <- 0 to numNodes) {
-          val item = ns.item(i).asInstanceOf[org.jdom.Element]
+          val item = ns.item(i).asInstanceOf[org.jdom2.Element]
 
           val elem = new InfosetElement(item)
           q.enqueue(elem)
@@ -553,7 +553,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
           convertTo match {
             case ConvertToType.String => new ConstantExpression(s)
             // Evaluating to an Element when we're a constant makes no sense.
-            // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom.Element])
+            // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom2.Element])
             case ConvertToType.Element => Assert.usageError("Evaluating to an Element when we're a constant makes no sense.")
             case ConvertToType.Byte => new ConstantExpression(compileTimeConvertToByte(s))
             case ConvertToType.UByte => new ConstantExpression(compileTimeConvertToUByte(s))

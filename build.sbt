@@ -14,11 +14,14 @@ testOptions in ThisBuild += Tests.Argument(TestFrameworks.JUnit, "-v")
 
 transitiveClassifiers := Seq("sources", "javadoc")
 
+resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.illinois.edu/nexus/content/repositories/releases"
+
 libraryDependencies in ThisBuild := Seq(
   "junit" % "junit" % "4.11",
   "com.novocode" % "junit-interface" % "0.10-M4",
-  "org.jdom" % "jdom" % "1.1.3",
-  "net.sourceforge.saxon" % "saxon" % "9.1.0.8" classifier "" classifier "dom" classifier "jdom" classifier "s9api" classifier "xpath",
+  "org.jdom" % "jdom2" % "2.0.5",
+  "net.sf.saxon" % "Saxon-HE" % "9.5.1-1",
+  "net.sf.saxon" % "Saxon-HE-jdom2" % "9.5.1-1",
   "com.ibm.icu" % "icu4j" % "51.1",// classifier "" classifier "charset" classifier "localespi",
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",

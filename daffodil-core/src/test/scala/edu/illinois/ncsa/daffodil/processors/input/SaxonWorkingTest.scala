@@ -32,9 +32,10 @@ package edu.illinois.ncsa.daffodil.processors.input
  * SOFTWARE.
  */
 
-import net.sf.saxon.om.NamespaceConstant
+import net.sf.saxon.lib.NamespaceConstant
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.xpath.XPathEvaluator
+import net.sf.saxon.option.jdom2.JDOM2ObjectModel
 import org.xml.sax.InputSource
 import javax.xml.namespace.QName
 import javax.xml.namespace.NamespaceContext
@@ -48,7 +49,7 @@ import java.util.List
 import java.io.ByteArrayInputStream
 import java.util.ArrayList
 import java.math.BigInteger
-import org.jdom._
+import org.jdom2._
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.junit.Test
@@ -57,8 +58,9 @@ import edu.illinois.ncsa.daffodil.Implicits._
 class SaxonWorkingTest extends XPathVariableResolver with NamespaceContext {
 
   @Test def testTrivialExpression1() {
-    System.setProperty("javax.xml.xpath.XPathFactory:" + NamespaceConstant.OBJECT_MODEL_SAXON, "net.sf.saxon.xpath.XPathFactoryImpl");
-    val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_SAXON);
+    val xpf = new net.sf.saxon.xpath.XPathFactoryImpl
+    val config = xpf.getConfiguration
+    config.registerExternalObjectModel(new JDOM2ObjectModel)
     val xpe = xpf.newXPath();
     // System.err.println("Loaded XPath Provider " + xpe.getClass().getName());
 
@@ -81,8 +83,9 @@ class SaxonWorkingTest extends XPathVariableResolver with NamespaceContext {
   }
 
   @Test def testTrivialExpression2() {
-    System.setProperty("javax.xml.xpath.XPathFactory:" + NamespaceConstant.OBJECT_MODEL_JDOM, "net.sf.saxon.xpath.XPathFactoryImpl")
-    val xpf = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
+    val xpf = new net.sf.saxon.xpath.XPathFactoryImpl
+    val config = xpf.getConfiguration
+    config.registerExternalObjectModel(new JDOM2ObjectModel)
     val xpe = xpf.newXPath();
 
     val document = new Document() // A JDOM object

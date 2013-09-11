@@ -57,8 +57,8 @@ import java.io.FileInputStream
 import java.io.StringReader
 import java.net.URI
 import org.w3c.dom.ls.LSResourceResolver
-import org.jdom.Document
-import org.jdom.output.Format
+import org.jdom2.Document
+import org.jdom2.output.Format
 import scala.collection.JavaConversions._
 import org.xml.sax.helpers.DefaultHandler
 import org.xml.sax.Attributes

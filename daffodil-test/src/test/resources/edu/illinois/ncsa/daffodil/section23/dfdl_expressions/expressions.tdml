@@ -825,7 +825,10 @@ c' } "  />
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>e1</tdml:error>      
+      <tdml:error>operator</tdml:error>      
+      <tdml:error>defined</tdml:error>      
+      <tdml:error>decimal</tdml:error>      
+      <tdml:error>string</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
   

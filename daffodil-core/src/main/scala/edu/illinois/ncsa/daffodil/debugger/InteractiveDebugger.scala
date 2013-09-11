@@ -893,7 +893,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
               case NodeSetResult(ns) => {
                 val numNodes = ns.getLength()
                 for (i <- 0 to numNodes) {
-                  val item = ns.item(i).asInstanceOf[org.jdom.Element]
+                  val item = ns.item(i).asInstanceOf[org.jdom2.Element]
 
                   val xmlNode = XMLUtils.element2Elem(item)
                   val xmlNoHidden =

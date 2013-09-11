@@ -41,7 +41,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
 
-import org.jdom.output.Format;
+import org.jdom2.output.Format;
 import org.junit.Test;
 
 import edu.illinois.ncsa.daffodil.japi.Compiler;
@@ -89,8 +89,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
 		}
@@ -142,9 +142,9 @@ public class TestJavaAPI {
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		try {
-			org.jdom.Document doc = res.result();
+			org.jdom2.Document doc = res.result();
 			fail("did not throw");
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
 		} catch (Exception e) {
@@ -194,14 +194,14 @@ public class TestJavaAPI {
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 16 << 3);
 		boolean err = res.isError();
-		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
 		for (Diagnostic d : diags) {
 			System.err.println(d.getMessage());
 		}
 		if (!err) {
-			org.jdom.Document doc = res.result();
+			org.jdom2.Document doc = res.result();
 			xo.output(doc, System.out);
 		}
 		assertFalse(err);
@@ -223,11 +223,11 @@ public class TestJavaAPI {
 	 * java.io.FileInputStream fis = new java.io.FileInputStream(file);
 	 * java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 	 * .newChannel(fis); ParseResult res = dp.parse(rbc, 64 << 3); boolean err =
-	 * res.isError(); org.jdom.output.XMLOutputter xo = new
-	 * org.jdom.output.XMLOutputter(); xo.setFormat(Format.getPrettyFormat());
+	 * res.isError(); org.jdom2.output.XMLOutputter xo = new
+	 * org.jdom2.output.XMLOutputter(); xo.setFormat(Format.getPrettyFormat());
 	 * java.util.List<Diagnostic> diags = res.getDiagnostics(); for (Diagnostic
 	 * d : diags) { System.err.println(d.getMessage()); } if (!err) {
-	 * org.jdom.Document doc = res.result(); xo.output(doc, System.out); }
+	 * org.jdom2.Document doc = res.result(); xo.output(doc, System.out); }
 	 * assertFalse(err); assertFalse(res.location().isAtEnd()); assertEquals(4,
 	 * res.location().bytePos()); assertEquals(32, res.location().bitPos());
 	 * System.err.println("bitPos = " + res.location().bitPos());
@@ -249,14 +249,14 @@ public class TestJavaAPI {
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 64 << 3);
 		boolean err = res.isError();
-		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
 		for (Diagnostic d : diags) {
 			System.err.println(d.getMessage());
 		}
 		if (!err) {
-			org.jdom.Document doc = res.result();
+			org.jdom2.Document doc = res.result();
 			xo.output(doc, System.out);
 		}
 		assertFalse(err);
@@ -282,14 +282,14 @@ public class TestJavaAPI {
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 4 << 3);
 		boolean err = res.isError();
-		org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
 		for (Diagnostic d : diags) {
 			System.err.println(d.getMessage());
 		}
 		if (!err) {
-			org.jdom.Document doc = res.result();
+			org.jdom2.Document doc = res.result();
 			xo.output(doc, System.out);
 		}
 		assertFalse(err);
@@ -368,8 +368,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			// xo.setFormat(Format.getPrettyFormat());
 			xo.setFormat(Format.getRawFormat().setTextMode(
 					Format.TextMode.PRESERVE));
@@ -420,8 +420,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			// xo.setFormat(Format.getPrettyFormat());
 			xo.setFormat(Format.getRawFormat());
 			xo.output(doc, System.out);
@@ -467,10 +467,10 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			// org.jdom.Document doc2 = res.result();
-			// org.jdom.Document doc3 = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			// org.jdom2.Document doc2 = res.result();
+			// org.jdom2.Document doc3 = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getRawFormat());
 			xo.output(doc, System.out);
 		}
@@ -504,12 +504,12 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
-			org.jdom.Element rootNode = doc.getRootElement();
-			org.jdom.Element hidden = rootNode.getChild("hiddenElement",
+			org.jdom2.Element rootNode = doc.getRootElement();
+			org.jdom2.Element hidden = rootNode.getChild("hiddenElement",
 					rootNode.getNamespace());
 			assertTrue(null == hidden);
 		}
@@ -539,24 +539,24 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
-			org.jdom.Element rootNode = doc.getRootElement();
-			org.jdom.Element elementGroup = rootNode.getChild("elementGroup",
+			org.jdom2.Element rootNode = doc.getRootElement();
+			org.jdom2.Element elementGroup = rootNode.getChild("elementGroup",
 					rootNode.getNamespace());
 			assertTrue(null != elementGroup);
-			org.jdom.Element groupE2 = elementGroup.getChild("e2",
+			org.jdom2.Element groupE2 = elementGroup.getChild("e2",
 					rootNode.getNamespace());
 			assertTrue(null != groupE2);
-			org.jdom.Element groupE3 = elementGroup.getChild("e3",
+			org.jdom2.Element groupE3 = elementGroup.getChild("e3",
 					rootNode.getNamespace());
 			assertTrue(null != groupE3);
-			org.jdom.Element rootE2 = rootNode.getChild("e2",
+			org.jdom2.Element rootE2 = rootNode.getChild("e2",
 					rootNode.getNamespace());
 			assertTrue(null == rootE2);
-			org.jdom.Element rootE3 = rootNode.getChild("e3",
+			org.jdom2.Element rootE3 = rootNode.getChild("e3",
 					rootNode.getNamespace());
 			assertTrue(null == rootE3);
 		}
@@ -592,8 +592,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
 		}
@@ -654,8 +654,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
 			String docString = xo.outputString(doc);
@@ -719,8 +719,8 @@ public class TestJavaAPI {
 		ParseResult res = dp.parse(rbc, 2 << 3);
 		boolean err = res.isError();
 		if (!err) {
-			org.jdom.Document doc = res.result();
-			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 			xo.setFormat(Format.getPrettyFormat());
 			xo.output(doc, System.out);
 			String docString = xo.outputString(doc);

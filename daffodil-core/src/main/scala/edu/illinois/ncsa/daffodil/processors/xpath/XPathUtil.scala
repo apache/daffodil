@@ -71,15 +71,17 @@ package edu.illinois.ncsa.daffodil.processors.xpath
 import javax.xml.xpath._
 import javax.xml.xpath.XPathConstants._
 import javax.xml.namespace.QName
-import org.jdom.Element
-import org.jdom.Text
-import org.jdom.Parent
-import net.sf.saxon.om.NamespaceConstant
-import net.sf.saxon.jdom.NodeWrapper
-import net.sf.saxon.jdom.DocumentWrapper
+import org.jdom2.Element
+import org.jdom2.Text
+import org.jdom2.Parent
+import net.sf.saxon.lib.NamespaceConstant
 import net.sf.saxon.Configuration
 import net.sf.saxon.om.NodeInfo
 import net.sf.saxon.xpath.XPathEvaluator
+import net.sf.saxon.option.jdom2.JDOM2ObjectModel
+import net.sf.saxon.expr.ErrorExpression
+import net.sf.saxon.xpath.XPathExpressionImpl
+import net.sf.saxon.xpath.XPathFactoryImpl
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -377,9 +379,7 @@ object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
     val occursCount = args.get(0) match {
       case e: Element => 1
       case ns: NodeSeq => ns.length
-      case se: net.sf.saxon.value.SequenceExtent => {
-        se.getLength()
-      }
+      case al: java.util.ArrayList[_] => al.size()
       case _ => pstate.SDE("dfdl:occursCount did not receive any nodes, check your path.")
     }
     java.lang.Long.valueOf(occursCount)
@@ -845,8 +845,9 @@ object Functions {
  */
 object XPathUtil extends Logging {
 
-  System.setProperty("javax.xml.xpath.XPathFactory:" + NamespaceConstant.OBJECT_MODEL_JDOM, "net.sf.saxon.xpath.XPathFactoryImpl")
-  private val xpathFactory = XPathFactory.newInstance(NamespaceConstant.OBJECT_MODEL_JDOM)
+  private val xpathFactory = new XPathFactoryImpl
+  val config = xpathFactory.getConfiguration
+  config.registerExternalObjectModel(new JDOM2ObjectModel)
 
   /**
    * Compile an xpath. It insures functions called actually exist etc.
@@ -856,7 +857,7 @@ object XPathUtil extends Logging {
    * a CompiledExpressionFactory
    */
   def compileExpression(dfdlExpressionRaw: String,
-    namespaces: Seq[org.jdom.Namespace],
+    namespaces: Seq[org.jdom2.Namespace],
     context: SchemaComponent) =
     // withLoggingLevel(LogLevel.Info) 
     {
@@ -934,7 +935,21 @@ object XPathUtil extends Logging {
         })
 
       val xpathExpr = try {
-        xpath.compile(expression)
+        val cexpr = xpath.compile(expression)
+        val saxonExpr = cexpr.asInstanceOf[XPathExpressionImpl]
+        /* This checks to see if there is a problem with the expression that
+         * will cause it to always fail (for example, 2 + 'three' isn't
+         * valid). When saxon finds an expression like this, instead of
+         * throwing an exception, it instead creates an ErrorExpression,
+         * which always fails when executed. Instead of letting if fail at
+         * parse time, we just throw the XPathException that caused the
+         * problem, which is eventually thrown as an SDE
+         */
+        saxonExpr.getInternalExpression match {
+          case ee: ErrorExpression => throw ee.getException
+          case _ =>
+        }
+        cexpr
       } catch {
         case e: XPathExpressionException => {
           val exc = e // debugger never seems to show the case variable itself.
@@ -973,7 +988,7 @@ object XPathUtil extends Logging {
    * @param namespaces  - the namespaces in scope
    */
   private[xpath] def evalExpressionFromString(expression: String, variables: VariableMap,
-    contextNode: Parent, namespaces: Seq[org.jdom.Namespace], targetType: QName = NODE): XPathResult = {
+    contextNode: Parent, namespaces: Seq[org.jdom2.Namespace], targetType: QName = NODE): XPathResult = {
 
     val compiledExprExceptVariables = compileExpression(expression, namespaces, null) // null as schema component
     val res = evalExpression(expression, compiledExprExceptVariables, variables, contextNode, targetType)

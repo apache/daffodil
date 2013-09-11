@@ -76,7 +76,7 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * @version 1
  * @author Alejandro Rodriguez
  */
-import org.jdom.Element
+import org.jdom2.Element
 import scala.math.BigDecimal
 import org.w3c.dom.NodeList
 
