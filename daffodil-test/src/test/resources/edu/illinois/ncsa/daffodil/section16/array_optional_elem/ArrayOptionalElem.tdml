@@ -247,11 +247,56 @@
     <xs:element name="e2">
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
-          <xs:element name="a1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-          <xs:element name="a2">
+          <xs:element name="separatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
             <xs:complexType>
-              <xs:sequence dfdl:separator="{/ex:e2/ex:a1}">
-                <xs:element name="num" type="xs:int" maxOccurs="3" dfdl:lengthKind="delimited"/>
+              <xs:sequence dfdl:separator="{ fn:trace(xs:string(/ex:e2/ex:separatorArray[fn:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="separator" type="xs:string" dfdl:lengthKind="explicit" minOccurs="1" maxOccurs="1" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="{ /ex:e2b/ex:separator }">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2c">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="terminatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="1" maxOccurs="1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="num" type="xs:int" dfdl:terminator="{ /ex:e2c/ex:terminatorArray[dfdl:occursIndex()] }" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2d">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:initiator="{ fn:trace(xs:string(/ex:e2d/ex:initiatorArray[fn:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -325,24 +370,121 @@
   <tdml:parserTestCase name="arrayExpressions02" model="arrayExpressions" root="e2"
         description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
     <tdml:document>
-      <tdml:documentPart type="text">.|1.2.3|,|1,2,3|#|3#9#1</tdml:documentPart>
+      <tdml:documentPart type="text">;|-|#|1;2;3|1-2-3|3#9#1</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e2>
-          <a1>.</a1>
-          <num>1</num>
-          <num>2</num>
-          <num>3</num>
-          <a1>,</a1>
-          <num>1</num>
-          <num>2</num>
-          <num>3</num>
-          <a1>#</a1>
-          <num>3</num>
-          <num>9</num>
-          <num>1</num>
+          <separatorArray>;</separatorArray>
+          <separatorArray>-</separatorArray>
+          <separatorArray>#</separatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
         </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02b
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that you can use an expression that references a previous element to set a separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02b" model="arrayExpressions" root="e2b"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">.|1.2.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2b>
+          <separator>.</separator>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+        </e2b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02c
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02c" model="arrayExpressions" root="e2c"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">.|,|#|1.2,3#</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2c>
+          <terminatorArray>.</terminatorArray>
+          <terminatorArray>,</terminatorArray>
+          <terminatorArray>#</terminatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+        </e2c>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayExpressions02d
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:separator.
+  -->
+
+  <tdml:parserTestCase name="arrayExpressions02d" model="arrayExpressions" root="e2d"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2d>
+          <initiatorArray>;</initiatorArray>
+          <initiatorArray>-</initiatorArray>
+          <initiatorArray>#</initiatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
+        </e2d>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

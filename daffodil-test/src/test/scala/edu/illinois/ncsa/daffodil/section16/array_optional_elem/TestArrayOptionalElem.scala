@@ -50,7 +50,11 @@ class TestArrayOptionalElem {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
+// DFDL-886
 //  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
+  @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }
+  @Test def test_arrayExpressions02c() { runner.runOneTest("arrayExpressions02c") }
+  @Test def test_arrayExpressions02d() { runner.runOneTest("arrayExpressions02d") }
 //  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   @Test def test_arrayExpressions04() { runner.runOneTest("arrayExpressions04") }
   

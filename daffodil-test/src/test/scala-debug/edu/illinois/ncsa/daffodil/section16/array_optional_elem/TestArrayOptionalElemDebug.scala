@@ -49,6 +49,8 @@ class TestArrayOptionalElemDebug {
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
+// DFDL-886
   @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
+
   @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
 }
