@@ -125,9 +125,9 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 }
 
 trait AlignedMixin { self: Term =>
-  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, prims.LeadingSkipRegion(this))
-  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, prims.TrailingSkipRegion(this))
-  lazy val alignmentFill = Prod("alignmentFill", this, prims.AlignmentFill(this))
+  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, leadingSkip > 0, prims.LeadingSkipRegion(this))
+  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, trailingSkip > 0, prims.TrailingSkipRegion(this))
+  lazy val alignmentFill = Prod("alignmentFill", this, !(alignment == "1" && alignmentUnits == AlignmentUnits.Bits), prims.AlignmentFill(this))
 }
 
 /////////////////////////////////////////////////////////////////

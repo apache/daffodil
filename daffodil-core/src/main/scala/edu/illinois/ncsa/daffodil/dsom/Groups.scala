@@ -266,6 +266,12 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case Some(_) => enclosingTerm.get.inChoiceBeforeNearestEnclosingSequence
   }
 
+  lazy val nearestEnclosingElement: Option[ElementBase] = enclosingTerm match {
+    case None => None
+    case Some(eb: ElementBase) => Some(eb)
+    case Some(_) => enclosingTerm.get.nearestEnclosingElement
+  }
+
   /**
    * We want to determine if we're in an unordered sequence
    * at any point along our parents.

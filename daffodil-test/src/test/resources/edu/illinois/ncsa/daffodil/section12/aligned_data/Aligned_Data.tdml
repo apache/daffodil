@@ -387,6 +387,30 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e28" type="xs:string" dfdl:terminator=":" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8"
+      dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+
+    <xs:element name="e29" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8"
+      dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8"/>
+
+    <xs:element name="e30" dfdl:lengthKind="delimited" dfdl:terminator=")">
+      <xs:complexType>
+        <xs:sequence dfdl:terminator="]" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8">
+          <xs:element name="s1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8" dfdl:alignment="8" dfdl:terminator=":"/>
+          <xs:element name="s2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8" dfdl:alignment="8" dfdl:terminator=":"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e31" dfdl:lengthKind="delimited" dfdl:terminator=")">
+      <xs:complexType>
+        <xs:sequence dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="0" dfdl:trailingSkip="8">
+          <xs:element name="s1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8" dfdl:alignment="8" dfdl:terminator=":"/>
+          <xs:element name="s2" type="xs:string" dfdl:representation="text" dfdl:lengthKind="delimited" dfdl:encoding="utf-8" dfdl:alignment="8" dfdl:terminator=":"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
   
   <tdml:defineSchema name="implicitAlignmentSchema">
@@ -3031,6 +3055,94 @@
         </e27>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: trailingSkipDelimited01
+        Schema: alignmentSchema
+          Root: e28
+       Purpose: This test demonstrates tailingSkip with delimited with terminator works
+  -->
+
+  <tdml:parserTestCase name="trailingSkipDelimited01" root="e28"
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">test:a</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e28>test</e28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: trailingSkipDelimited02
+        Schema: alignmentSchema
+          Root: e29
+       Purpose: This test demonstrates trailingSkip with delimited without terminator fails
+  -->
+
+  <tdml:parserTestCase name="trailingSkipDelimited02" root="e29"
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">testarooa</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>terminator</tdml:error>
+      <tdml:error>trailingSkip</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>delimited</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: trailingSkipDelimited03
+        Schema: alignmentSchema
+          Root: e30
+       Purpose: This test demonstrates tailingSkip with delimited with terminator works with sequences
+  -->
+
+  <tdml:parserTestCase name="trailingSkipDelimited03" root="e30"
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">test1:test2:]a)</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e30>
+          <s1>test1</s1>
+          <s2>test2</s2>
+        </e30>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: trailingSkipDelimited04
+        Schema: alignmentSchema
+          Root: e31
+       Purpose: This test demonstrates tailingSkip with delimited without terminator fails with sequences
+  -->
+
+  <tdml:parserTestCase name="trailingSkipDelimited04" root="e31"
+    model="alignmentSchema" description="Section 12 - Aligned Data - DFDL-12-006R">
+    <tdml:document>
+      <tdml:documentPart type="text">test1:test2:a)</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>terminator</tdml:error>
+      <tdml:error>trailingSkip</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
+      <tdml:error>delimited</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

@@ -980,7 +980,7 @@ case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
 
 // As soon as you turn these on (by removing the false and putting the real guard), then schemas all need to have
 // these properties in them, which is inconvenient until we have multi-file schema support and format references.
-case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
+case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
     "Property leadingSkip %s is larger than limit %s", e.leadingSkip, DaffodilTunableParameters.maxSkipLength)
 
@@ -1002,7 +1002,7 @@ case class LeadingSkipRegion(e: Term) extends Terminal(e, e.leadingSkip > 0) {
   def unparser: Unparser = new DummyUnparser(e)
 }
 
-case class AlignmentFill(e: Term) extends Terminal(e, !(e.alignment == "1" && e.alignmentUnits == AlignmentUnits.Bits)) {
+case class AlignmentFill(e: Term) extends Terminal(e, true) {
 
   val alignment = e.alignmentValueInBits
 
@@ -1028,11 +1028,20 @@ case class AlignmentFill(e: Term) extends Terminal(e, !(e.alignment == "1" && e.
   def unparser: Unparser = new DummyUnparser(e)
 }
 
-case class TrailingSkipRegion(e: Term) extends Terminal(e, e.trailingSkip > 0) {
-  //e.SDE(e.trailingSkip < DaffodilTunableParameters.maxSkipLength, 
-  //      "Property trailingSkip %s is larger than limit %s", e.trailingSkip, Compiler.maxSkipLength)
+case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.trailingSkip < DaffodilTunableParameters.maxSkipLength,
     "Property trailingSkip %s is larger than limit %s", e.trailingSkip, DaffodilTunableParameters.maxSkipLength)
+
+  val lengthKindContext = e match {
+    case eb: ElementBase => eb
+    case _ => {
+      Assert.invariant(e.nearestEnclosingElement != None) //root element is an ElementBase, all others have a nearestEnclosingElement
+      e.nearestEnclosingElement.get
+    }
+  }
+  e.schemaDefinitionWhen(lengthKindContext.lengthKind == LengthKind.Delimited && e.terminator.isConstant && e.terminator.constantAsString == "",
+    "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
+
   val alignment = e.alignmentUnits match {
     case AlignmentUnits.Bits => 1
     case AlignmentUnits.Bytes => 8
