@@ -1189,4 +1189,29 @@ more ignored input
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="noDefault">
+    <xs:element name="emptySeq" type="ex:complexEmptySeq"/>
+    
+    <xs:complexType name="complexEmptySeq">
+      <xs:sequence/>
+    </xs:complexType>
+  </tdml:defineSchema>
+
+  <!--
+    Test name: noDefaultSeqKind
+       Schema: emptySDEschema
+      Purpose: This test demonstrates that DFDL allows complexTypes with empty content (not to be confused with NO content)
+  -->
+  
+  <tdml:parserTestCase name="noDefaultSeqKind" root="emptySeq"
+    model="noDefault" description="Section 14 - DFDL-14-007R.">
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Property sequenceKind is not defined.</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

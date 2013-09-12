@@ -102,4 +102,5 @@ class TestSequenceGroups {
   @Test def test_AD000() { runner_02.runOneTest("AD000") }
   @Test def test_AS000() { runner_02.runOneTest("AS000") }
 
+  @Test def test_noDefaultSeqKind() { runner_02.runOneTest("noDefaultSeqKind") }
 }
