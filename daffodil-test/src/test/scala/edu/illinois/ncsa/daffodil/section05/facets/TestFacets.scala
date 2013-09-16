@@ -225,4 +225,9 @@ class TestFacets {
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits09() { runner.runOneTest("totalDigits09") }
+  
+  @Test def test_patternRegexDFDL708_01() { runner.runOneTest("patternRegexDFDL708_01") }
+  @Test def test_patternRegexDFDL708_02() { runner.runOneTest("patternRegexDFDL708_02") }
+  @Test def test_patternRegexDFDL708_03() { runner.runOneTest("patternRegexDFDL708_03") }
+  @Test def test_patternRegexDFDL708_04() { runner.runOneTest("patternRegexDFDL708_04") }
 }

@@ -2824,7 +2824,7 @@
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
-
+    
     <xs:simpleType name="st1">
       <xs:restriction base="ex:st2">
         <xs:pattern value="[0-9]+" />
@@ -2892,7 +2892,98 @@
         <xs:pattern value="\d{1,2}" />
       </xs:restriction>
     </xs:simpleType>
+    
+    <xs:element name="dfdl708" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[.A-Za-z0-9!#$%&amp;'*+\-/=?\^_`{|}~]+" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+    
+    <xs:element name="dfdl708_orig" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[.A-Za-z0-9!#$%&amp;'*+-/=?^_`\{\|\}~]+" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
   </tdml:defineSchema>
+  
+  <!--
+    Test name: patternRegexDFDL708_01
+       Schema: pattern
+         Root: dfdl708
+      Purpose: This test demonstrates the regex presented in ticket DFDL-708
+  -->
+
+  <tdml:parserTestCase name="patternRegexDFDL708_01" root="dfdl708"
+    model="pattern">
+    <tdml:document><![CDATA[john:doe]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: patternRegexDFDL708_02
+       Schema: pattern
+         Root: dfdl708
+      Purpose: This test demonstrates the regex presented in ticket DFDL-708
+  -->
+
+  <tdml:parserTestCase name="patternRegexDFDL708_02" root="dfdl708"
+    model="pattern">
+    <tdml:document><![CDATA[john,doe]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: patternRegexDFDL708_03
+       Schema: pattern
+         Root: dfdl708_orig
+      Purpose: This test demonstrates the regex presented in ticket DFDL-708
+  -->
+
+  <tdml:parserTestCase name="patternRegexDFDL708_03" root="dfdl708_orig"
+    model="pattern">
+    <tdml:document><![CDATA[john]doe]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: patternRegexDFDL708_04
+       Schema: pattern
+         Root: dfdl708_orig
+      Purpose: This test demonstrates the regex presented in ticket DFDL-708
+  -->
+
+  <tdml:parserTestCase name="patternRegexDFDL708_04" root="dfdl708_orig"
+    model="pattern">
+    <tdml:document><![CDATA[john,doe]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dfdl708_orig>john,doe</dfdl708_orig>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <!--
     Test name: facetPattern01
