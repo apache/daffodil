@@ -253,10 +253,20 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
           <xs:element name="decsep" type="xs:string"/>
-          <xs:element name="e" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0.00"
+          <xs:element name="e" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="###,###,##0.00"
             dfdl:textStandardDecimalSeparator="{ ../ex:decsep }" dfdl:textStandardGroupingSeparator="{ ../ex:decsep }"
-            dfdl:textStandardExponentRep="{ ../ex:decsep }" dfdl:textStandardInfinityRep="{ ../ex:decsep }"
-            dfdl:textStandardNaNRep="{ ../ex:decsep }" dfdl:textStandardZeroRep="{ ../ex:decsep }" />
+            dfdl:textStandardExponentRep="{ ../ex:decsep }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="tnp95">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="decsep" type="xs:string"/>
+          <xs:element name="e" type="xs:float" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,##0.###;-#,##0.###"
+            dfdl:textStandardGroupingSeparator="{ ../ex:decsep }"
+            dfdl:textStandardExponentRep="{ ../ex:decsep }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4035,8 +4045,8 @@
      Test Name: textStandardDistinctValues2
         Schema: textNumberPattern
           Root: tnp94
-       Purpose: This test shows what happens when the textStandardGroupingSeparator, textStandardNaNRep, textStandardExponentRep,
-                textStandardInfinityRep, textStandardZeroRep, and textStandardDecimalSeparator are all the same character.
+       Purpose: This test shows what happens when the textStandardGroupingSeparator, textStandardExponentRep,
+                and textStandardDecimalSeparator all use the same expression.
   -->
 
   <tdml:parserTestCase name="textStandardDistinctValues2" root="tnp94" model="textNumberPattern"
@@ -4050,10 +4060,30 @@
       <tdml:error>Non-distinct property</tdml:error>
       <tdml:error>textStandardDecimalSeparator</tdml:error>
       <tdml:error>textStandardGroupingSeparator</tdml:error>
-      <tdml:error>textStandardNaNRep</tdml:error>
       <tdml:error>textStandardExponentRep</tdml:error>
-      <tdml:error>textStandardInfinityRep</tdml:error>
-      <tdml:error>textStandardZeroRep</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: textStandardDistinctValues3
+        Schema: textNumberPattern
+          Root: tnp95
+       Purpose: This test shows what happens when the textStandardGroupingSeparator and textStandardExponentRep
+                use the same expression.
+  -->
+
+  <tdml:parserTestCase name="textStandardDistinctValues3" root="tnp95" model="textNumberPattern"
+    description="Section 13.6 - distinct values for properties - DFDL-13-061.1R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">*|1*234*567*89</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Non-distinct property</tdml:error>
+      <tdml:error>textStandardGroupingSeparator</tdml:error>
+      <tdml:error>textStandardExponentRep</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

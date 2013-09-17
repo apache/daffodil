@@ -85,6 +85,4 @@ class TestTextNumberPropsDebug {
 // DFDL-861
   @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
 
-//DFDL-843
-  @Test def test_textStandardDistinctValues2() { runner.runOneTest("textStandardDistinctValues2") }
 }

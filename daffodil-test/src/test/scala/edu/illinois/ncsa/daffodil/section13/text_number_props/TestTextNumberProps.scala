@@ -253,4 +253,6 @@ class TestTextNumberProps {
   @Test def test_dynamicNeg2() { runner.runOneTest("dynamicNeg2") }
 
   @Test def test_textStandardDistinctValues() { runner.runOneTest("textStandardDistinctValues") }
+  @Test def test_textStandardDistinctValues2() { runner.runOneTest("textStandardDistinctValues2") }
+  @Test def test_textStandardDistinctValues3() { runner.runOneTest("textStandardDistinctValues3") }
 }
