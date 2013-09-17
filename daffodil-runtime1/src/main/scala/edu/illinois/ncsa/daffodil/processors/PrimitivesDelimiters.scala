@@ -11,11 +11,11 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import scala.util.parsing.input.{ Reader }
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 
-abstract class StaticDelimiter(kindString: String, delim: String, e: Term, guard: Boolean = true)
-  extends StaticText(delim, e, kindString, guard)
+abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: Term, guard: Boolean = true)
+  extends StaticText(delim, e, eb, kindString, guard)
 
-abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boolean = true)
-  extends Text(e, guard) //extends DelimParserBase(e, guard)
+abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
+  extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
@@ -138,7 +138,7 @@ abstract class StaticText(delim: String, e: Term, kindString: String, guard: Boo
   def unparserDelim: String
 }
 
-abstract class Text(e: Term, guard: Boolean) extends DelimParserBase(e, guard) {
+abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
   lazy val oes = {
     val oes = e.optionEscapeScheme
     oes.foreach { es =>
@@ -223,7 +223,7 @@ abstract class Text(e: Term, guard: Boolean) extends DelimParserBase(e, guard) {
 }
 
 abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
-  extends Text(e, guard)
+  extends Text(e, e, guard)
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
@@ -327,10 +327,10 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
               getMatchedDelimiterInfo(remoteDelimRegex, s.delimiter, staticDelimsCookedWithPosition ::: dynamicDelimsCookedWithPosition)
 
-            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path)
-            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path)
+            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
+            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
           }
           case s: DelimParseSuccess =>
             {
@@ -387,12 +387,12 @@ abstract class DynamicDelimiter(kindString: String, delimExpr: CompiledExpressio
   extends DynamicText(delimExpr, e, kindString, guard)
 
 //case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
-case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e) {
+case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e, e) {
   Assert.invariant(e.hasInitiator)
   lazy val unparserDelim = e.initiator.constantAsString.split("""\s""").head
 }
 //case class StaticTerminator(e : Term) extends StaticDelimiter(e.terminator.constantAsString, e)
-case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminator.constantAsString, e) {
+case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminator.constantAsString, e, e) {
   Assert.invariant(e.hasTerminator)
   lazy val unparserDelim = e.terminator.constantAsString.split("""\s""").head
 }
@@ -401,7 +401,7 @@ case class DynamicTerminator(e: Term) extends DynamicDelimiter("Term", e.termina
 
 // Note: for a static separator, we pass s, the sequence, because that is where
 // the charset encoding comes from. 
-case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, s) {
+case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, s, t) {
   Assert.invariant(s.hasSeparator)
   lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
@@ -431,7 +431,7 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
 }
 
 abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
-  extends StaticText(e.nilValue, e, label, e.isNillable)
+  extends StaticText(e.nilValue, e, e, label, e.isNillable)
   with Padded {
 
   protected def computeLength(start: PState): (Long, VariableMap)
@@ -535,7 +535,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
 }
 
 case class LiteralNilExplicitLengthInChars(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  extends StaticText(e.nilValue, e, e, "LiteralNilExplicit", e.isNillable)
   with Padded {
   // We are to assume that we can always read nChars
   // a failure to read nChars is a failure period.
@@ -640,7 +640,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 }
 
 case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
-  extends StaticText(e.nilValue, e, "LiteralNilExplicit", e.isNillable)
+  extends StaticText(e.nilValue, e, e, "LiteralNilExplicit", e.isNillable)
   with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
@@ -732,7 +732,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 }
 
 case class LiteralNilPattern(e: ElementBase)
-  extends StaticText(e.nilValue, e, "LiteralNilPattern", e.isNillable)
+  extends StaticText(e.nilValue, e, e, "LiteralNilPattern", e.isNillable)
   with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
