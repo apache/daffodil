@@ -1787,6 +1787,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>element.two is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.three's alignment (4)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1806,6 +1807,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1825,6 +1827,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>element.e is an optional element or a variable-occurrence array and its alignment (2) is not the same as element.one's alignment (1)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1844,6 +1847,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

@@ -48,12 +48,6 @@ class TestAlignedDataDebug {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
-  //DFDL-698
-  @Test def test_alignmentOptionalElem() = { runner1.runOneTest("alignmentOptionalElem") }
-  @Test def test_alignmentOptionalElem02() = { runner1.runOneTest("alignmentOptionalElem02") }
-  @Test def test_alignmentOptionalElem03() = { runner1.runOneTest("alignmentOptionalElem03") }
-  @Test def test_alignmentOptionalElem04() = { runner1.runOneTest("alignmentOptionalElem04") }
-
 //  DFDL-838
   @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
 
