@@ -16,6 +16,7 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: T
 
 abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
   extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
+  with DelimiterText
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
@@ -39,6 +40,9 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   // Here we expect that remoteDelims shall be defined as those delimiters who are not
   // also defined locally.  That is to say that local should win over remote.
   val remoteDelims = delimsCooked.toSet.diff(staticTextsCooked.toSet)
+
+  val allDelims = staticTextsCooked.toSet.union(remoteDelims.toSet)
+  val maxDelimLength = computeMaxDelimiterLength(allDelims)
 
   // here we define the parsers so that they are pre-compiled/generated
   val delimParser = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
@@ -89,8 +93,12 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
         result match {
           case _: DelimParseFailure => {
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!", this.toString(), eName)
-            return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
+            val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
+
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+              this.toString(), eName, allDelims.mkString(", "), foundInstead)
+            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+              this.toString(), eName, allDelims.mkString(", "), foundInstead)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
@@ -222,8 +230,40 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
 
 }
 
+trait DelimiterText {
+
+  val maxLengthForVariableLengthDelimiter = DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay
+
+  def computeMaxDelimiterLength(allDelims: Set[String]): Int = {
+    val variableLengthDelims = allDelims.filter(d => d.contains("%WSP*;") || d.contains("%WSP+;"))
+    val allDelimsMinusVariableLength = allDelims -- variableLengthDelims
+
+    val maxLengthDelim = {
+      val lengths = allDelimsMinusVariableLength.map(_.length)
+      val vLengths = variableLengthDelims.map(_.length)
+
+      (variableLengthDelims.size, lengths.size) match {
+        case (0, 0) => maxLengthForVariableLengthDelimiter
+        case (0, _) => lengths.max
+        case (_, 0) => maxLengthForVariableLengthDelimiter
+        case (_, _) if vLengths.max > lengths.max => maxLengthForVariableLengthDelimiter
+        case (_, _) if vLengths.max <= lengths.max => lengths.max
+        case _ => maxLengthForVariableLengthDelimiter
+      }
+    }
+    maxLengthDelim
+  }
+
+  def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
+    val dl = state.currentLocation.asInstanceOf[DataLoc]
+    val foundInstead = dl.utf8Dump(maxDelimiterLength)
+    foundInstead
+  }
+}
+
 abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
   extends Text(e, e, guard)
+  with DelimiterText
   with WithParseErrorThrowing with TextReader {
 
   val charset = e.knownEncodingCharset
@@ -241,6 +281,20 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   }
   lazy val staticDelimsCooked = staticDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
   lazy val (staticDelimsParsers, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
+
+  val constantLocalDelimsCooked: Option[List[String]] = delimExpr.isConstant match {
+    case false => None
+    case true => {
+      val cookedResult = new ListOfStringValueAsLiteral(delimExpr.constantAsString, e).cooked
+      Some(cookedResult)
+    }
+  }
+  val allStaticDelims = {
+    val localDelimsCooked = if (constantLocalDelimsCooked.isDefined) { constantLocalDelimsCooked.get } else { Seq.empty }
+    val allDelims = staticDelimsCooked.union(localDelimsCooked).toSet
+    allDelims
+  }
+  val maxDelimLengthStatic = computeMaxDelimiterLength(allStaticDelims)
 
   def parseMethod(pInputDelimiterParser: dp.Parser[String],
     pIsLocalDelimParser: dp.Parser[String],
@@ -287,12 +341,16 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
         val (dynamicDelimsParsers, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
 
-        val localDelimsRaw = {
-          val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
-          vars = newVMap
-          res
+        val localDelimsCookedWithPosition = {
+          if (constantLocalDelimsCooked.isDefined) { constantLocalDelimsCooked.get }
+          else {
+            val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
+            vars = newVMap
+            val cookedResult = new ListOfStringValueAsLiteral(res.toString(), e).cooked
+            cookedResult
+          }
         }
-        val localDelimsCookedWithPosition = new ListOfStringValueAsLiteral(localDelimsRaw.toString(), e).cooked
+
         val localDelimsCooked = localDelimsCookedWithPosition
         val (localDelimsParser, localDelimsRegex) = dp.generateDelimiter(localDelimsCooked.toSet)
 
@@ -320,8 +378,19 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
 
         result match {
           case _: DelimParseFailure => {
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!", this.toString(), eName)
-            return PE(start, "%s - %s: Delimiter not found!", this.toString(), eName)
+            val allDynamicDelims = {
+              val localDynamicDelims = if (constantLocalDelimsCooked.isDefined) { Seq.empty } else { localDelimsCooked }
+              localDynamicDelims.toSet.union(dynamicDelimsCooked.toSet)
+            }
+            val allDelims = allStaticDelims.union(allDynamicDelims)
+            val maxDelimLengthDynamic = computeMaxDelimiterLength(allDynamicDelims)
+            val maxDelimLength = Seq(maxDelimLengthDynamic, maxDelimLengthStatic).max
+            val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
+
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+              this.toString(), eName, allDelims.mkString(", "), foundInstead)
+            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+              this.toString(), eName, allDelims.mkString(", "), foundInstead)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
             val (remoteDelimValue, remoteElemName, remoteElemPath) =

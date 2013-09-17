@@ -31,4 +31,11 @@ object DaffodilTunableParameters {
   def generatedNamespacePrefixStem = "tns"
 
   def readerByteBufferSize: Long = 8192
+
+  /**
+   * When unexpected text is found where a delimiter is expected, this is the maximum
+   * number of bytes (characters) to display when the expected delimiter is a variable
+   * length delimiter.
+   */
+  def maxLengthForVariableLengthDelimiterDisplay: Int = 10 // will display this number of bytes
 }
