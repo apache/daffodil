@@ -1,17 +1,53 @@
 package edu.illinois.ncsa.daffodil.processors
+
+/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+ *
+ * Developed by: Tresys Technology, LLC
+ *               http://www.tresys.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal with
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimers.
+ * 
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimers in the
+ *     documentation and/or other materials provided with the distribution.
+ * 
+ *  3. Neither the names of Tresys Technology, nor the names of its contributors
+ *     may be used to endorse or promote products derived from this Software
+ *     without specific prior written permission.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+ * SOFTWARE.
+ */
+
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors._
+import scala.Array.canBuildFrom
+import scala.util.parsing.input.Reader
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.dsom.R
+import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import scala.util.parsing.input.{ Reader }
+import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -400,14 +436,126 @@ case class StringPatternMatched(e: ElementBase)
   }
 }
 
+trait HasEscapeScheme { self: StringDelimited =>
+
+  var escEscChar = ""
+  var escChar = ""
+
+  lazy val optEscBlkStart =
+    esObj.escapeBlockStart match {
+      case "" => None
+      case x => Some(x)
+    }
+
+  lazy val optEscBlkEnd =
+    esObj.escapeBlockEnd match {
+      case "" => None
+      case x => Some(x)
+    }
+
+  lazy val compiledOptEscChar: Option[String] = {
+    // Attempts to use the below (which is what I want to do)
+    // results in Null pointer exceptions.
+    //
+    //    val res = self.es match {
+    //      case None => None
+    //      case Some(esObj) => constEval(esObj.knownEscapeCharacter)
+    //    }
+    //    res
+    evalAsConstant(esObj.escapeCharacter)
+  }
+
+  lazy val compiledOptEscEscChar: Option[String] = {
+    // Attempts to use the below (which is what I want to do)
+    // results in Null pointer exceptions.
+    //
+    //    val res = es match {
+    //      case None => None
+    //      case Some(esObj) => constEval(esObj.knownEscapeEscapeCharacter)
+    //    }
+    //    res
+    evalAsConstant(esObj.escapeEscapeCharacter)
+  }
+
+  private def constEval(knownValue: Option[String]) = {
+    val optConstValue = knownValue match {
+      case None => None
+      case Some(constValue) => {
+        val l = new SingleCharacterLiteralES(constValue, context)
+        val result = l.cooked
+        Some(result)
+      }
+    }
+    optConstValue
+  }
+
+  private def evalAsConstant(knownValue: Option[CompiledExpression]) = {
+    knownValue match {
+      case None => None
+      case Some(ce) if ce.isConstant => {
+        val constValue = ce.constantAsString
+        val l = new SingleCharacterLiteralES(constValue, context)
+        val result = l.cooked
+        Some(result)
+      }
+      case Some(_) => None
+    }
+  }
+
+  protected def runtimeEvalEsc(optEsc: Option[CompiledExpression], state: PState): (Option[String], PState) = {
+    val (finalOptEsc, afterEscEval) =
+      optEsc match {
+        case None => (None, state)
+        case Some(esc) => {
+          val R(res, newVMap) = esc.evaluate(state.parentElement, state.variableMap, state)
+          val l = new SingleCharacterLiteralES(res.toString, context)
+          val resultEsc = l.cooked
+          val newState = state.withVariables(newVMap)
+          (Some(resultEsc), newState)
+        }
+      }
+    (finalOptEsc, afterEscEval)
+  }
+
+  /**
+   * The purpose of this method is to use the compile time value of the
+   * escape and escapeEscape characters if they exist.  If they are run time
+   * values, we shall compute it.
+   */
+  protected def evaluateEscapeScheme(escChar: Option[String],
+    escEscChar: Option[String],
+    state: PState): (Option[String], Option[String], PState) = {
+
+    val (finalOptEscChar, afterEscCharEval) =
+      escChar match {
+        case Some(_) => (escChar, state)
+        case None => runtimeEvalEsc(esObj.escapeCharacter, state)
+      }
+
+    val (finalOptEscEscChar, postEscapeSchemeEvalState) =
+      escEscChar match {
+        case Some(_) => (escEscChar, afterEscCharEval)
+        case None => runtimeEvalEsc(esObj.escapeEscapeCharacter, afterEscCharEval)
+      }
+    (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState)
+  }
+}
+
 abstract class StringDelimited(e: ElementBase)
   extends DelimParserBase(e, true)
   with TextReader
   with Padded
+  with HasEscapeScheme
   with WithParseErrorThrowing {
+
+  // TODO: DFDL-451 - Has been placed on the backburner until we can figure out the appropriate behavior
   //
+  //  requiredEvaluations(gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, optEscChar,
+  //    optEscEscChar, optEscBlkStart, optEscBlkEnd, staticDelimsCooked, elemBase))
+
   val es = e.optionEscapeScheme
   val esObj = EscapeScheme.getEscapeScheme(es, e)
+
   val tm = e.allTerminatingMarkup
   val cname = toString
 
@@ -415,9 +563,6 @@ abstract class StringDelimited(e: ElementBase)
   val charset = e.knownEncodingCharset
   val elemBase = e
 
-  var escEscChar = ""
-  var escChar = ""
-    
   // These static delims are used whether we're static or dynamic
   // because even a dynamic can have some static from enclosing scopes.
   //  val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
@@ -509,13 +654,18 @@ abstract class StringDelimited(e: ElementBase)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
-      val (postEscapeSchemeEval, evaluatedEsObj) = esObj.evaluate(start, e)
-      escChar = evaluatedEsObj.escapeCharacter
-      escEscChar = evaluatedEsObj.escapeEscapeCharacter
-
-      val postEscapeSchemeEvalState = postEscapeSchemeEval.getOrElse(start)
+      val (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState) =
+        evaluateEscapeScheme(compiledOptEscChar, compiledOptEscEscChar, start)
 
       val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(postEscapeSchemeEvalState)
+
+      // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
+      //
+      //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
+      //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
+
+      escChar = finalOptEscChar.getOrElse("")
+      escEscChar = finalOptEscEscChar.getOrElse("")
 
       // We must feed variable context out of one evaluation and into the next.
       // So that the resulting variable map has the updated status of all evaluated variables.

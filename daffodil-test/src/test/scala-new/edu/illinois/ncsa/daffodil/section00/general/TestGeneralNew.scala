@@ -46,40 +46,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+class TestGeneralNew {
 
-class TestGeneral {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_capitalization() { runner.runOneTest("capitalization") }
-
-  @Test def test_litNil1() { runner.runOneTest("litNil1") }
-  @Test def test_litNil1FullPath() { runner.runOneTest("litNil1FullPath") }
-  @Test def test_referentialIntegrity() { runner.runOneTest("referentialIntegrity") }
-
-  // Test commented out until DFDL-577 is resolved
-  // @Test def test_litNil2() { runner.runOneTest("litNil2") }
-
-  // Test causes exception as the file is not found
-  // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
-  
-  val bb = testDir + "largeInput.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(bb))
-
-  @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
-  
-  val testDir2 = "/test space/"
-
-  val a_b = testDir2 + "A BTinyData.tdml.dat"
-  lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
-
-  @Test def test_dir_and_file_with_spaces() { runnerA_B.runOneTest("AB006") }
-  
-  val testDir3 = "/test space/test 1/"
-  val cc = testDir3 + "namespaces.tdml"
-  lazy val runner_ns = new DFDLTestSuite(Misc.getRequiredResource(cc))
-  
-  @Test def test_no_namespace_02() { runner_ns.runOneTest("no_namespace_02") }
+  // TODO: DFDL-451 - After speaking with Mike B. about this we are putting this functionality on the backburner
+  // until we can figure out the appropriate behavior here.
+  //
+  //@Test def test_check_escape_separator_distinct_fail() { runner.runOneTest("check_escape_separator_distinct_fail") }
 
 }

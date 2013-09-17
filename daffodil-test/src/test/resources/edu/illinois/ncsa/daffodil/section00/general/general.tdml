@@ -169,5 +169,54 @@
       <tdml:error>No type definition found for 'bar'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="delim_distinct1">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <dfdl:defineEscapeScheme name="pound">
+      <dfdl:escapeScheme escapeCharacter='#'
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+    <dfdl:defineEscapeScheme name='cStyleComment'>
+      <dfdl:escapeScheme escapeBlockStart='/*'
+        escapeBlockEnd='*/' escapeKind="escapeBlock"
+        escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence dfdl:initiatedContent="no"
+          dfdl:separatorPosition="infix" dfdl:sequenceKind="ordered"
+          dfdl:separator="#">
+          <xs:element name="character" type="xs:string">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element escapeSchemeRef="ex:pound"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="block" type="xs:string"
+            dfdl:escapeSchemeRef="ex:cStyleComment" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="check_escape_separator_distinct_fail" root="root1"
+    model="delim_distinct1" description="Esc Char and separator same, should SDE">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ab#,cd,/*ef,gh*/]]></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>escape character</tdml:error>
+    	<tdml:error>cannot</tdml:error>
+    	<tdml:error>same</tdml:error>
+    	<tdml:error>terminating markup</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>

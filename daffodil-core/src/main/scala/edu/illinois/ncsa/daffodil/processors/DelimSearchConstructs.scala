@@ -98,6 +98,7 @@ object EscapeScheme extends Logging {
           val (postEscEscVMap, resultEscEsc) = evaluateEscapeEscapeCharacter(state, context)
           val newState = state.withVariables(postEscEscVMap)
           val (finalVMap, resultEsc) = evaluateEscapeCharacter(newState, context)
+          if (resultEsc == "") { state.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.") }
           val finalState = newState.withVariables(finalVMap)
           (Some(finalState), new EvaluatedEscapeSchemeObj(EscapeSchemeKind.Character, resultEsc, resultEscEsc, "", ""))
         }
@@ -130,6 +131,9 @@ object EscapeScheme extends Logging {
           case EscapeKind.EscapeBlock => {
             escapeSchemeKind = EscapeSchemeKind.Block
 
+            if (obj.escapeBlockStart == "") { context.SDE("escapeBlockStart cannot be the empty string when EscapeSchemeKind is Block.") }
+            if (obj.escapeBlockEnd == "") { context.SDE("escapeBlockEnd cannot be the empty string when EscapeSchemeKind is Block.") }
+
             escapeEscapeCharacter = {
               val optEEC = obj.optionEscapeEscapeCharacter
               optEEC
@@ -145,6 +149,9 @@ object EscapeScheme extends Logging {
           }
           case EscapeKind.EscapeCharacter => {
             escapeSchemeKind = EscapeSchemeKind.Character
+
+            if (!obj.optionEscapeCharacter.isDefined) { context.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.") }
+
             escapeEscapeCharacter = {
               val optEEC = obj.optionEscapeEscapeCharacter
               optEEC

@@ -62,6 +62,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.api._
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 /**
  * *
@@ -503,8 +504,6 @@ case class ElementEndNoRep(e: ElementBase) extends ElementEndBase(e) {
 //}
 //
 
-
-
 abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
@@ -516,6 +515,143 @@ abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
   val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
+
+  private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
+    string.startsWith(possiblePrefix)
+  }
+
+  private def checkPadCharDistinctness(
+    padChar: Option[String],
+    escChar: Option[String],
+    escEscChar: Option[String],
+    escBlockStart: Option[String],
+    escBlockEnd: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    padChar.foreach(pc => {
+      escChar.foreach(ec => {
+        if (pc == ec || isPrefixOf(pc, ec))
+          context.SDE("The pad character (%s) cannot be the same as (or a prefix of) the escape character.", pc)
+      })
+      escEscChar.foreach(eec => {
+        if (pc == eec || isPrefixOf(pc, eec))
+          context.SDE("The pad character (%s) cannot be the same as (or a prefix of) the escape escape character.", pc)
+      })
+      escBlockStart.foreach(ebs => {
+        if (pc == ebs || isPrefixOf(pc, ebs))
+          context.SDE("The pad character (%s) cannot be the same as (or a prefix of) the escape block start.", pc)
+      })
+      escBlockEnd.foreach(ebe => {
+        if (pc == ebe || isPrefixOf(pc, ebe))
+          context.SDE("The pad character (%s) cannot be the same as (or a prefix of) the escape block end.", pc)
+      })
+      terminatingMarkup.foreach(tm => {
+        if (tm == pc || isPrefixOf(pc, tm)) {
+          context.SDE("The pad character (%s) cannot be the same as (or a prefix of) a piece of the terminating markup (%s).", pc, tm)
+        }
+      })
+    })
+  }
+
+  private def checkEscCharDistinctness(
+    escChar: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    escChar.foreach(ec =>
+      terminatingMarkup.foreach(tm => {
+        if (tm == ec || isPrefixOf(ec, tm)) {
+          context.SDE("The escapeCharacter (%s) cannot be the same as (or a prefix of) a piece of the terminating markup (%s).", ec, tm)
+        }
+      }))
+  }
+
+  private def checkEscEscCharDistinctness(
+    escEscChar: Option[String],
+    escBlockStart: Option[String],
+    escBlockEnd: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    escEscChar.foreach(eec => {
+      // GeneralPurposeFormat seems to disagree with the below, commenting out for now.
+      //        escBlockStart match {
+      //          case Some(ebs) if eec == ebs || isPrefixOf(eec, ebs) =>
+      //            context.SDE("The escapeEscapeCharacter (%s) cannot be the same as (or a prefix of) the escape block start.",eec)
+      //          case _ => // Nothing to do
+      //        }
+      //        escBlockEnd match {
+      //          case Some(ebe) if eec == ebe || isPrefixOf(eec, ebe) =>
+      //            context.SDE("The escapeEscapeCharacter (%s) cannot be the same as (or a prefix of) the escape block end.",eec)
+      //          case _ => // Nothing to do
+      //        }
+      terminatingMarkup.foreach(tm => {
+        if (tm == eec || isPrefixOf(eec, tm)) {
+          context.SDE("The escapeEscapeCharacter (%s) cannot be the same as (or a prefix of) a piece of the terminating markup (%s).", eec, tm)
+        }
+      })
+    })
+  }
+
+  private def checkEscapeBlockDistinctness(
+    escBlockStart: Option[String],
+    escBlockEnd: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    escBlockStart.foreach(ebs => terminatingMarkup.foreach(tm => {
+      if (tm == ebs || isPrefixOf(ebs, tm)) {
+        context.SDE("The escapeBlockStart (%s) cannot be the same as (or a prefix of) a piece of the terminating markup.", ebs)
+      }
+    }))
+
+    escBlockEnd.foreach(ebe => terminatingMarkup.foreach(tm => {
+      if (tm == ebe || isPrefixOf(ebe, tm)) {
+        context.SDE("The escapeBlockEnd (%s) cannot be the same as (or a prefix of) a piece of the terminating markup.", ebe)
+      }
+    }))
+  }
+
+  private def checkDelimiterDistinctness_(
+    padChar: Option[String],
+    escChar: Option[String],
+    escEscChar: Option[String],
+    escBlockStart: Option[String],
+    escBlockEnd: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    checkPadCharDistinctness(padChar, escChar, escEscChar, escBlockStart, escBlockEnd, terminatingMarkup, context)
+    checkEscCharDistinctness(escChar, terminatingMarkup, context)
+    checkEscEscCharDistinctness(escEscChar, escBlockStart, escBlockEnd, terminatingMarkup, context)
+    checkEscapeBlockDistinctness(escBlockStart, escBlockEnd, terminatingMarkup, context)
+  }
+
+  def checkDelimiterDistinctness(
+    escapeSchemeKind: EscapeSchemeKind.Type,
+    optPadChar: Option[String],
+    optEscChar: Option[String], // Could be a DFDL expression
+    optEscEscChar: Option[String], // Could be a DFDL expression
+    optEscBlkStart: Option[String],
+    optEscBlkEnd: Option[String],
+    terminatingMarkup: Seq[String],
+    context: ThrowsSDE): Unit = {
+
+    // TODO: DFDL-451 - After conversing with Mike B. about this, we're putting this on the backburner.
+    // Leaving the code here, just commented out the entry point until we can decide what is the appropriate
+    // behavior here.
+    //
+    //    escapeSchemeKind match {
+    //      case EscapeSchemeKind.None =>
+    //        checkDelimiterDistinctness_(optPadChar, None, None, None, None, terminatingMarkup, context)
+    //      case EscapeSchemeKind.Character =>
+    //        checkDelimiterDistinctness_(optPadChar, optEscChar, optEscEscChar, None, None, terminatingMarkup, context)
+    //      case EscapeSchemeKind.Block =>
+    //        checkDelimiterDistinctness_(optPadChar, None, optEscEscChar,
+    //          optEscBlkStart, optEscBlkEnd, terminatingMarkup, context)
+    //    }
+  }
 }
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
@@ -1429,7 +1565,7 @@ trait Padded { self: Terminal =>
         case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
           PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
           PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
-          PrimType.NonNegativeInteger  => {
+          PrimType.NonNegativeInteger => {
           padChar = eBase.textNumberPadCharacter
           eBase.textNumberJustification match {
             case TextNumberJustification.Left => TextJustificationType.Left
@@ -1466,6 +1602,11 @@ trait Padded { self: Terminal =>
       theJust
     }
     case _ => TextJustificationType.None
+  }
+
+  val optPadChar = padChar match {
+    case "" => None
+    case x => Some(x)
   }
 
 }
