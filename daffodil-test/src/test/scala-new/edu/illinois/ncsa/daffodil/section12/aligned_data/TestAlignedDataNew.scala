@@ -48,10 +48,4 @@ class TestAlignedDataNew {
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
-// DFDL-838
-  @Test def test_trailingSkipDelimited01() = { runner1.runOneTest("trailingSkipDelimited01") }
-  @Test def test_trailingSkipDelimited02() = { runner1.runOneTest("trailingSkipDelimited02") }
-  @Test def test_trailingSkipDelimited03() = { runner1.runOneTest("trailingSkipDelimited03") }
-  @Test def test_trailingSkipDelimited04() = { runner1.runOneTest("trailingSkipDelimited04") }
-
 }

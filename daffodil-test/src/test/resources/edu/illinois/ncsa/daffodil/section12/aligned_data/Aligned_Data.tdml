@@ -2928,6 +2928,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3065,7 +3066,7 @@
      Test Name: trailingSkipDelimited01
         Schema: alignmentSchema
           Root: e28
-       Purpose: This test demonstrates tailingSkip with delimited with terminator works
+       Purpose: This test demonstrates trailingSkip with delimited with terminator works
   -->
 
   <tdml:parserTestCase name="trailingSkipDelimited01" root="e28"
@@ -3108,7 +3109,7 @@
      Test Name: trailingSkipDelimited03
         Schema: alignmentSchema
           Root: e30
-       Purpose: This test demonstrates tailingSkip with delimited with terminator works with sequences
+       Purpose: This test demonstrates trailingSkip with delimited with terminator works with sequences
   -->
 
   <tdml:parserTestCase name="trailingSkipDelimited03" root="e30"
@@ -3132,7 +3133,7 @@
      Test Name: trailingSkipDelimited04
         Schema: alignmentSchema
           Root: e31
-       Purpose: This test demonstrates tailingSkip with delimited without terminator fails with sequences
+       Purpose: This test demonstrates trailingSkip with delimited without terminator fails with sequences
   -->
 
   <tdml:parserTestCase name="trailingSkipDelimited04" root="e31"

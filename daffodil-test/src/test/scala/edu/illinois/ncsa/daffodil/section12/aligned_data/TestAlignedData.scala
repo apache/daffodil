@@ -52,8 +52,7 @@ class TestAlignedData {
 
   @Test def test_encodingAlignmentUtf32be() = { runner1.runOneTest("encodingAlignmentUtf32be") }
   
-//  DFDL-838
-//  @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
+  @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
   @Test def test_leftAndRightFramingArray02() = { runner1.runOneTest("leftAndRightFramingArray02") }
   @Test def test_leftAndRightFramingArray03() = { runner1.runOneTest("leftAndRightFramingArray03") }
   
@@ -84,6 +83,11 @@ class TestAlignedData {
   @Test def test_explicitAlignmentNoSkips03() = { runner1.runOneTest("explicitAlignmentNoSkips03") }
   @Test def test_explicitAlignmentNoSkips04() = { runner1.runOneTest("explicitAlignmentNoSkips04") }
   @Test def test_explicitAlignmentNoSkips05() = { runner1.runOneTest("explicitAlignmentNoSkips05") }
+  
+  @Test def test_trailingSkipDelimited01() = { runner1.runOneTest("trailingSkipDelimited01") }
+  @Test def test_trailingSkipDelimited02() = { runner1.runOneTest("trailingSkipDelimited02") }
+  @Test def test_trailingSkipDelimited03() = { runner1.runOneTest("trailingSkipDelimited03") }
+  @Test def test_trailingSkipDelimited04() = { runner1.runOneTest("trailingSkipDelimited04") }
 
   @Test def test_alignmentOptionalElem() = { runner1.runOneTest("alignmentOptionalElem") }
   @Test def test_alignmentOptionalElem02() = { runner1.runOneTest("alignmentOptionalElem02") }
