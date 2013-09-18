@@ -103,6 +103,22 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e5c">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bOm" dfdl:terminator=".">
+            <xs:simpleType>
+              <xs:restriction base="xs:string">
+                <xs:minLength value="9"/>
+                <xs:maxLength value="9"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+          <xs:element name="num" type="xs:int" dfdl:byteOrder="{ xs:string(../ex:bOm) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <dfdl:defineVariable name="myVar" type="xs:string"/>
     
@@ -366,6 +382,33 @@
           <bOm>littleEndian</bOm>
           <num>16777472</num>
         </e5b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: byteOrderExpr7c
+        Schema: s1
+          Root: e5c
+       Purpose: This test demonstrates the ability to use an expression to determine the data's byte order.
+  -->
+
+  <tdml:parserTestCase name="byteOrderExpr7c" root="e5c"
+    model="s1"
+    description="byte order based on string">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">62 69 67 45 6E 64 69 61 6E 2E</tdml:documentPart> <!-- littleEndian. -->
+      <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5c>
+          <bOm>bigEndian</bOm>
+          <num>65537</num>
+        </e5c>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

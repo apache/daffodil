@@ -53,6 +53,4 @@ class TestDFDLExpressionsNew {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-// DFDL-838
-  @Test def test_byteOrderExpr7b { runner3.runOneTest("byteOrderExpr7b") }
 }
