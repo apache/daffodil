@@ -53,9 +53,5 @@ class TestDFDLExpressionsNew {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-// DFDL-764
-  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
-  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
-
 }
 

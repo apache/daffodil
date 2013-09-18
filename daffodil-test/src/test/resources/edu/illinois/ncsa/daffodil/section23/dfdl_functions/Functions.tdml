@@ -536,7 +536,27 @@
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
-  
+
+<!--
+    Test Name: occursCount_1b_2
+       Schema: Functions.dfdl.xsd
+         Root: occursCount1b
+      Purpose: This test demonstrates the use of the occursCount function and
+               that the assertion will fail if the count is greater than 1.
+-->
+
+	<tdml:parserTestCase name="occursCount_1b_2" root="occursCount1b"
+		model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[#:1,#:2]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:errors>
+			<tdml:error>Assertion failed</tdml:error>
+			<tdml:error>dfdl:occursCount( /ex:occursCount/* ) eq 1</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
 <!--
     Test Name: occursCount_2
        Schema: Functions.dfdl.xsd

@@ -290,10 +290,11 @@ class TestDFDLExpressions {
 
   @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
   @Test def test_occursCount_1() { runner2.runOneTest("occursCount_1") }
-//  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
+  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
+  @Test def test_occursCount_1b_2() { runner2.runOneTest("occursCount_1b_2") }
   @Test def test_occursCount_2() { runner2.runOneTest("occursCount_2") }
   @Test def test_occursCount_3() { runner2.runOneTest("occursCount_3") }
-//  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
+  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
 
   //  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   //  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
