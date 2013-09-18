@@ -1530,22 +1530,23 @@
     Test Name: xPathFunc_round_hte_03
        Schema: XPathFunctions
          Root: round-hte
-      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.0000065 and we're rounding to the 6th digit.
-               Since our determining value is a 5, we round the 6th digit to the even value - 6 in this case. 
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.00865 and we're rounding to the 4th digit.
+               Since our determining value is a 5, we round the 4th digit to the even value - 6 in this case. 
+               Note: This input number was selected specifically because it converts between base 2 and base 10 without loss of information
 -->
 
 	<tdml:parserTestCase name="xPathFunc_round_hte_03" root="round-hte"
 		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
 		<tdml:document>
-			<tdml:documentPart type="text">3.0000065,6</tdml:documentPart>
+			<tdml:documentPart type="text">3.00865,4</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
       <tdml:dfdlInfoset>
         <round-hte>
-          <num>3.0000065</num>
-          <precision>6</precision>
-          <roundval>3.000006</roundval>
+          <num>3.00865</num>
+          <precision>4</precision>
+          <roundval>3.0086</roundval>
         </round-hte>
       </tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -1629,21 +1630,23 @@
     Test Name: xPathFunc_round_hte_07
        Schema: XPathFunctions
          Root: round-hte
-      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.0000075 and we're rounding to the 6th digit.
--->
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.125 and we're rounding to the 2nd digit.
+               Because the fractional part is exactly half, the result is the number whose lease significant digit is even.
+               Note: 3.125 was selected specifically because it converts between base 2 and base 10 without loss of information
+  -->
 
 	<tdml:parserTestCase name="xPathFunc_round_hte_07" root="round-hte"
 		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
 		<tdml:document>
-			<tdml:documentPart type="text">3.0000075,6</tdml:documentPart>
+			<tdml:documentPart type="text">3.125,2</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
       <tdml:dfdlInfoset>
         <round-hte>
-          <num>3.0000075</num>
-          <precision>6</precision>
-          <roundval>3.000008</roundval>
+          <num>3.125</num>
+          <precision>2</precision>
+          <roundval>3.12</roundval>
         </round-hte>
       </tdml:dfdlInfoset>
 		</tdml:infoset>
@@ -1653,21 +1656,23 @@
     Test Name: xPathFunc_round_hte_08
        Schema: XPathFunctions
          Root: round-hte
-      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.00000075 and we're rounding to the 7th digit.
+      Purpose: This test demonstrates the round-half-to-even function. Our data is 3.000035 and we're rounding to the 5th digit.
+               Because the fractional part is exactly half, the result is the number whose lease significant digit is even.
+               Note: This input number was selected specifically because it converts between base 2 and base 10 without loss of information
 -->
 
 	<tdml:parserTestCase name="xPathFunc_round_hte_08" root="round-hte"
 		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
 
 		<tdml:document>
-			<tdml:documentPart type="text">3.00000075,7</tdml:documentPart>
+			<tdml:documentPart type="text">3.000035,5</tdml:documentPart>
 		</tdml:document>
 		<tdml:infoset>
       <tdml:dfdlInfoset>
         <round-hte>
-          <num>3.00000075</num>
-          <precision>7</precision>
-          <roundval>3.0000008</roundval>
+          <num>3.000035</num>
+          <precision>5</precision>
+          <roundval>3.00004</roundval>
         </round-hte>
       </tdml:dfdlInfoset>
 		</tdml:infoset>
