@@ -79,6 +79,7 @@ class TestVariables {
 
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
+  @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
 
 /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
