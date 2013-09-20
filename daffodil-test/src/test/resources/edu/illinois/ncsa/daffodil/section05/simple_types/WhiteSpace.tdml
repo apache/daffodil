@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com">
+
+  <tdml:defineSchema name="Lax.dfdl.xsd">
+
+    <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
+        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
+        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax" />
+
+    <xs:element name="uS_02" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="whiteSpaceAfterLax"
+    root="uS_02" model="Lax.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[999 ]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uS_02>999</uS_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="whiteSpaceBeforeLax"
+    root="uS_02" model="Lax.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character before a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[ 999]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uS_02>999</uS_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="whiteSpaceDuringLax"
+    root="uS_02" model="Lax.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[9 99]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uS_02>999</uS_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!-- STRICT -->
+  <tdml:defineSchema name="strict.dfdl.xsd">
+
+    <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
+        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
+        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict" />
+
+    <xs:element name="uS_02" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="whiteSpaceAfterStrict"
+    root="uS_02" model="strict.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[999 ]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="whiteSpaceBeforeStrict"
+    root="uS_02" model="strict.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character before a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[ 999]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="whiteSpaceDuringStrict"
+    root="uS_02" model="strict.dfdl.xsd"
+    description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-019R">
+    <tdml:document><![CDATA[9 99]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Unable to parse</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="redefine.dfdl.xsd">
+    <dfdl:defineFormat name="daffodilTest1">
+      <dfdl:format lengthKind="implicit" representation="text"
+        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
+        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="strict"/>
+    </dfdl:defineFormat>
+    <dfdl:format ref="daffodilTest1" />
+
+    <xs:element name="uS_02" type="xs:unsignedShort"
+      dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+
+  </tdml:defineSchema>
+
+  <!-- This test should get an error for having daffodilTest1 redefined. The newly defined
+  format is ignored. -->
+  <tdml:parserTestCase name="redefinedFormat"
+    root="uS_02" model="redefine.dfdl.xsd"
+    description="">
+    <tdml:document><![CDATA[9 99]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Duplicate Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
