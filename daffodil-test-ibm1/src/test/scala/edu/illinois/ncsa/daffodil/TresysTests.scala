@@ -172,4 +172,8 @@ class TresysTests {
   @Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
   @Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
+  val az = testDir + "AZ.tdml"
+  lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))
+  @Test def test_AZ000() { runnerAZ.runOneTest("AZ000") } // escape schemes
+
 }
