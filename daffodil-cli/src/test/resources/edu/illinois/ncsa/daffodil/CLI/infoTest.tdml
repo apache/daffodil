@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="Info" description="CLI"
+  xmlns:ex="http://example.com" xmlns="http://example.com"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="e1" dfdl:lengthKind="explicit"
+      dfdl:length="2" type="xs:int" />
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="testPass" root="e1"
+    model="s1" description="This test should pass.">
+    <tdml:document>42</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testFail" root="e1"
+    model="s1" description="This test should fail.">
+    <tdml:document>4</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="testFail2" root="e1"
+    model="s1" description="This test should fail.">
+    <tdml:document>te</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>
