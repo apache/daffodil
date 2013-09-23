@@ -382,6 +382,13 @@ abstract class StringLiteralBase(rawArg: String) {
 class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg) {
   def cooked = EntityReplacer.replaceAll(raw, Some(context))
+
+  val whitespaceMatcher = """.*(\s+).*""".r
+  val hasWhitespace: Boolean = rawArg match {
+    case whitespaceMatcher(_) => true
+    case _ => false
+  }
+  context.schemaDefinitionWhen(hasWhitespace, "The string (%s) must not contain any whitespace. Use DFDL Entities instead.", rawArg)
 }
 
 class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE)

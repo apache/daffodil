@@ -3380,7 +3380,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:terminator="]">
           <xs:element name="posinf" type="xsd:double" dfdl:textStandardInfinityRep="9" />
-          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="test 3" />
+          <xs:element name="neginf" type="xsd:double" dfdl:textStandardInfinityRep="test3" />
           <xs:element name="nan" type="xsd:double" dfdl:textStandardNaNRep="i" />
         </xs:sequence>
       </xs:complexType>
@@ -3826,7 +3826,7 @@
     description="Read infinity and not a number for a double">
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[9|-test 3|i]]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[9|-test3|i]]]></tdml:documentPart>
     </tdml:document>
 
     <tdml:infoset>
