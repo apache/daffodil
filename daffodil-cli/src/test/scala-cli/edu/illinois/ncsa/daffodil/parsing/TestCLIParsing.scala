@@ -360,7 +360,7 @@ class TestCLIparsing {
    *
    */
   @Test def test_1267_CLI_Parsing_MultifileSchema_basicTest_validationOn() {
-    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd -V on\n"
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd --validate on\n"
     val shell = Util.start(cmd)
     shell.expectErr("Validation Error")
     shell.expect(output5)
@@ -368,6 +368,45 @@ class TestCLIparsing {
     shell.send("exit\n")
     shell.expectClose()
   }
+  
+  @Test def test_1267_1_CLI_Parsing_MultifileSchema_basicTest_validation() {
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse --validate -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expectErr("Validation Error")
+    shell.expect(output5)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+  
+  @Test def test_1267_2_CLI_Parsing_MultifileSchema_basicTest_validationLimited() {
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse --validate limited -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expect(output5)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+  
+  @Test def test_1267_3_CLI_Parsing_MultifileSchema_basicTest_validationOff() {
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse --validate off -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expect(output5)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+  
+  @Test def test_1267_4_CLI_Parsing_MultifileSchema_basicTest_validationFooBar() {
+    val cmd = "echo random,data,should,work| ./daffodil-cli/target/start parse --validate FooBar -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+    val shell = Util.start(cmd)
+    shell.expectErr("FooBar")
+    //shell.expect(output5)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
+  
   /*
   //On hold until I implement a way to set the classpath before executing
   @Test def test_1313_CLI_Parsing_assertionFailure() {
