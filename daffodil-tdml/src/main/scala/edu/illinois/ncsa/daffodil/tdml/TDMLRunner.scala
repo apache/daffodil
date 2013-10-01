@@ -33,49 +33,48 @@ package edu.illinois.ncsa.daffodil.tdml
  */
 
 import java.io.File
-import scala.Array.canBuildFrom
-import scala.xml.NodeSeq.seqToNodeSeq
-import scala.xml._
-import scala.util.matching.Regex
-import scala.util.matching.Regex.Match
-import edu.illinois.ncsa.daffodil.Implicits.using
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.api._
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
-import junit.framework.Assert.fail
-import edu.illinois.ncsa.daffodil.util.Misc._
 import java.io.FileInputStream
 import java.io.FileNotFoundException
-import org.xml.sax.InputSource
-import java.io.StringReader
-import javax.xml.transform.stream.StreamSource
-import java.net.URL
 import java.net.URI
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import java.nio.ByteBuffer
-import java.nio.charset.CharsetEncoder
-import com.ibm.icu.charset.CharsetICU
-import java.nio.CharBuffer
-import java.io.InputStream
-import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
-import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.processors.IteratorInputStream
-import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
-import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
-import edu.illinois.ncsa.daffodil.Tak._
-import java.net.URLDecoder
+
+import scala.io.Codec.string2codec
+import scala.xml.Node
+import scala.xml.NodeSeq
+import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.SAXParseException
+import scala.xml.Utility
 import scala.xml.parsing.ConstructingParser
+
+import org.xml.sax.InputSource
+
+import com.ibm.icu.charset.CharsetICU
+
 import edu.illinois.ncsa.daffodil.Tak
-import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.DataLocation
+import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
+import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
+import edu.illinois.ncsa.daffodil.processors.IterableReadableByteChannel
+import edu.illinois.ncsa.daffodil.util.Error
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Misc.bits2Bytes
+import edu.illinois.ncsa.daffodil.util.Misc.bytes2Bits
+import edu.illinois.ncsa.daffodil.util.Misc.hex2Bits
+import edu.illinois.ncsa.daffodil.util.SchemaUtils
+import edu.illinois.ncsa.daffodil.util.Timer
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -104,7 +103,7 @@ import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
  * rejects the TDML file itself.
  */
 
-class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true)
+class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true, val validateDFDLSchemas: Boolean = true)
   extends Logging {
 
   val errorHandler = new org.xml.sax.ErrorHandler {
@@ -416,6 +415,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
         schemaNodeOrFileName
       }
     }
+
     val cfg: Option[DefinedConfig] = config match {
       case "" => None
       case configName => {
@@ -439,7 +439,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
       case None => Seq.empty
       case Some(definedConfig) => retrieveBindings(definedConfig)
     }
-    val compiler = Compiler()
+    val compiler = Compiler(parent.validateDFDLSchemas)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)

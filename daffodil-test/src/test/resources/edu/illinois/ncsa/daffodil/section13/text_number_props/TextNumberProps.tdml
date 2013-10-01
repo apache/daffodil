@@ -15,7 +15,7 @@
     <xs:element name="tnp04">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
-          <xs:element name="e" type="xs:float" minOccurs="3" dfdl:textNumberCheckPolicy="strict"
+          <xs:element name="e" type="xs:float" minOccurs="3" maxOccurs="unbounded" dfdl:textNumberCheckPolicy="strict"
             dfdl:textNumberRep="standard" dfdl:textNumberPattern="#,##0.00;(#,#,0.00)" />
         </xs:sequence>
       </xs:complexType>

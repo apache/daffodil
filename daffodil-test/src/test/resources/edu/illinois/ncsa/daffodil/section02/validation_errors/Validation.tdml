@@ -447,14 +447,14 @@
       <xs:simpleType>
         <xs:restriction base="xs:int">
           <xs:minInclusive value="-2147483648" />
-          <xs:maxInclusive value="2147483649" />
+          <xs:maxInclusive value="2147483647" />
         </xs:restriction>
       </xs:simpleType>
     </xs:element>
     <xs:element name="e4_3_3" dfdl:lengthKind="delimited">
       <xs:simpleType>
         <xs:restriction base="xs:int">
-          <xs:minInclusive value="-2147483649" />
+          <xs:minInclusive value="-2147483648" />
           <xs:maxInclusive value="2147483647" />
         </xs:restriction>
       </xs:simpleType>
@@ -552,12 +552,12 @@
     
     <xs:simpleType name="stTotalDigits_1">
       <xs:restriction base="xs:integer">
-        <xs:maxLength value="1" />
+        <xs:totalDigits value="1" />
       </xs:restriction>
     </xs:simpleType>
     <xs:simpleType name="stFractionDigits_2">
       <xs:restriction base="xs:integer">
-        <xs:maxLength value="2" />
+        <xs:totalDigits value="2" />
       </xs:restriction>
     </xs:simpleType>
     

@@ -56,7 +56,7 @@ class TresysTests {
   @Test def test_length_delimited_12_03_controversial() { runnerDelimited.runOneTest("length_delimited_12_03_controversial") }
 
   val td = testDir + "multiple-diagnostics.tdml"
-  lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td))
+  lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
   runnerMD.setCheckAllTopLevel(true)
 
   // AX debugged. Uses escape schemes. 

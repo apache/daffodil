@@ -38,30 +38,38 @@ package edu.illinois.ncsa.daffodil.xml
  * See http://stackoverflow.com/questions/4446137/how-to-track-the-source-line-location-of-an-xml-element
  */
 
-import org.xml.sax.Locator
-import scala.xml.parsing.NoBindingFactoryAdapter
-import scala.xml._
 import java.io.File
-import java.io.FileDescriptor
+import java.net.URI
 import java.net.URL
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import javax.xml.parsers.SAXParserFactory
-import edu.illinois.ncsa.daffodil.util._
-
-import org.apache.xml.resolver.CatalogManager
+import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.xml.Attribute
+import scala.xml.Elem
+import scala.xml.InputSource
+import scala.xml.MetaData
+import scala.xml.NamespaceBinding
+import scala.xml.Node
+import scala.xml.Null
+import scala.xml.SAXParseException
+import scala.xml.SAXParser
+import scala.xml.Text
+import scala.xml.TopScope
+import scala.xml.parsing.NoBindingFactoryAdapter
+import org.apache.xerces.dom.DOMInputImpl
 import org.apache.xerces.xni.parser.XMLInputSource
 import org.apache.xml.resolver.Catalog
-
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import javax.xml.validation.SchemaFactory
-import javax.xml.XMLConstants
-import javax.xml.transform.stream.StreamSource
-import javax.xml.transform.dom.DOMSource
-import org.apache.xerces.dom.DOMInputImpl
+import org.apache.xml.resolver.CatalogManager
 import org.w3c.dom.ls.LSInput
-import javax.xml.validation.ValidatorHandler
-import scala.collection.JavaConverters._
-import java.net.URI
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.Misc
+import javax.xml.XMLConstants
+import javax.xml.parsers.SAXParserFactory
+import javax.xml.validation.SchemaFactory
+import java.io.InputStream
+import java.io.BufferedInputStream
+import org.w3c.dom.ls.LSResourceResolver
+import java.io.Reader
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -177,21 +185,33 @@ class DFDLCatalogResolver
     log(LogLevel.Debug, "resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId)
     val resolvedId = delegate.resolveURI(nsURI)
     log(LogLevel.Debug, "resolved to: %s", resolvedId)
-    Assert.invariant(resolvedId != null)
-    val input = new DOMInputImpl()
-    input.setBaseURI(baseURI)
-    val is = try {
-      val is = new URL(resolvedId).openStream()
-      input.setByteStream(is)
-      is
-    } catch {
-      case e: Exception => {
-        log(LogLevel.Debug, "resolveResource: Exception %s", e)
-        throw e
+
+    val result: LSInput = (resolvedId, systemId) match {
+      case (null, null) => Assert.invariantFailed("resolvedId and systemId were null.")
+      case (null, sysId) => {
+        val resourceAsStream: InputStream = this.getClass().getClassLoader().getResourceAsStream(sysId)
+        val input = Input(publicId, sysId, resourceAsStream)
+        input
+      }
+      case (resolved, _) => {
+        val input = new DOMInputImpl()
+        input.setBaseURI(baseURI)
+        val is = try {
+          val is = new URL(resolvedId).openStream()
+          input.setByteStream(is)
+          is
+        } catch {
+          case e: Exception => {
+            log(LogLevel.Debug, "resolveResource: Exception %s", e)
+            throw e
+          }
+        }
+        log(LogLevel.Debug, "resolveResource result inputStream = %s", is)
+        input
       }
     }
-    log(LogLevel.Debug, "resolveResource result inputStream = %s", is)
-    input
+
+    result
   }
 
   override def resolveEntity(publicId: String, systemId: String) = {
@@ -211,6 +231,48 @@ class DFDLCatalogResolver
     log(LogLevel.Debug, "resolveEntity4: name = %s, baseURI = %s, publicId = %s, systemId = %s", name, baseURI, publicId, systemId)
     Assert.invariantFailed("resolveEntity4 - should not be called")
   }
+}
+
+class ResourceResolver
+  extends LSResourceResolver {
+  def resolveResource(theType: String, namespaceURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
+    val resourceAsStream: InputStream = this.getClass().getClassLoader().getResourceAsStream(systemId)
+    val result = Input(publicId, systemId, resourceAsStream)
+    result
+  }
+}
+
+object Input {
+  def apply(publicId: String, systemId: String, input: InputStream) = new Input(publicId, systemId, new BufferedInputStream(input))
+}
+
+class Input(var pubId: String, var sysId: String, var inputStream: BufferedInputStream)
+  extends LSInput {
+
+  def getPublicId = pubId
+  def setPublicId(publicId: String) = pubId = publicId
+  def getBaseURI = null
+  def getByteStream = null
+  def getCertifiedText = false
+  def getCharacterStream = null
+  def getEncoding = null
+  def getStringData = {
+    this.synchronized {
+      val input: Array[Byte] = new Array[Byte](inputStream.available())
+      inputStream.read(input)
+      val contents = new String(input)
+      contents
+    }
+  }
+  def setBaseURI(baseURI: String) = {}
+  def setByteStream(byteStream: InputStream) = {}
+  def setCertifiedText(certifiedText: Boolean) = {}
+  def setCharacterStream(characterStream: Reader) = {}
+  def setEncoding(encoding: String) = {}
+  def setStringData(stringData: String) = {}
+  def getSystemId = sysId
+  def setSystemId(systemId: String) = sysId = systemId
+  def getInputStream: BufferedInputStream = inputStream
 }
 
 /**
@@ -366,6 +428,7 @@ trait SchemaAwareLoaderMixin {
     val f = SAXParserFactory.newInstance()
     f.setNamespaceAware(true)
     f.setFeature("http://xml.org/sax/features/namespace-prefixes", true)
+
     if (doValidation) {
       f.setFeature("http://xml.org/sax/features/validation", true)
       f.setFeature("http://apache.org/xml/features/validation/dynamic", true)
@@ -381,6 +444,38 @@ trait SchemaAwareLoaderMixin {
       "http://apache.org/xml/properties/internal/entity-resolver",
       resolver)
     parser
+  }
+
+  /**
+   * UPA errors are detected by xerces if the schema-full-checking feature is
+   * turned on, AND if you inform xerces that it is reading an XML Schema
+   * (i.e., xsd).
+   *
+   * We are using it differently than this. We are loading DFDL Schemas,
+   * which are being validated not as XML Schemas via xerces built-in
+   * mechanisms, but as XML documents having a schema that we provide, which
+   * enforces the subset of XML Schema that DFDL uses, etc.
+   *
+   * The problem is that checks like UPA aren't expressible in a
+   * schema-for-DFDL-schemas. They are coded algorithmically right into Xerces.
+   *
+   * In order to get the UPA checks on DFDL schemas we have to do this in two 
+   * passes in order for things to be compatible with the TDMLRunner because
+   * a TDML file is not a valid schema.
+   * 
+   * First pass: The DFDL schema (or TDML file) is read as an XML document.
+   * Second pass: We specially load up the DFDL schemas (in the case 
+   * of the TDMLRunner the DFDL Schema is extracted and loaded) treating them 
+   * as XML schemas, just to get these UPA diagnostics.  This is accomplished by 
+   * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
+   * newSchema call is what forces schema validation to take place.
+   */
+  protected val sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+  sf.setResourceResolver(resolver)
+  sf.setErrorHandler(errorHandler)
+
+  protected def validateSchemaFile(file: File) = {
+    sf.newSchema(file)
   }
 
 }
@@ -411,6 +506,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     doValidation = flag
   }
 
+  def validateDFDLSchema(file: File): Unit = validateSchemaFile(file)
+
   // everything interesting happens in the callbacks from the SAX parser
   // to the adapter.
   override def adapter = this
@@ -419,6 +516,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   // adapter that adds file attributes to the root XML Node.
   override def loadFile(f: File) = {
     adapter.fileName = f.getAbsolutePath()
+
     val res = super.loadFile(f)
     res
   }
@@ -464,5 +562,31 @@ object BasicStderrErrorHandler extends org.xml.sax.ErrorHandler {
   }
   def fatalError(exception: SAXParseException) = {
     System.err.println("Fatal: " + exception.getMessage())
+  }
+}
+
+abstract class DFDLSchemaValidationException(msg: String) extends Exception(msg)
+case class DFDLSchemaValidationWarning(msg: String) extends DFDLSchemaValidationException(msg)
+case class DFDLSchemaValidationError(msg: String) extends DFDLSchemaValidationException(msg)
+
+/**
+ * DFDLSchemaErrorHandler exists so that we can throw DFDLSchemaValidation specific
+ * diagnostics and filter out warnings vs. errors.  This is so that we know when to
+ * SDE vs. SDW.
+ */
+object DFDLSchemaErrorHandler extends org.xml.sax.ErrorHandler {
+
+  def warning(exception: SAXParseException) = {
+    val msg = "DFDL Schema Validation Warning due to %s".format(exception)
+    throw new DFDLSchemaValidationWarning(msg)
+  }
+
+  def error(exception: SAXParseException) = {
+    val msg = "DFDL Schema Validation Error due to %s".format(exception)
+    throw new DFDLSchemaValidationError(msg)
+  }
+  def fatalError(exception: SAXParseException) = {
+    val msg = "DFDL Schema Validation Fatal Error due to %s".format(exception)
+    throw new DFDLSchemaValidationError(msg)
   }
 }

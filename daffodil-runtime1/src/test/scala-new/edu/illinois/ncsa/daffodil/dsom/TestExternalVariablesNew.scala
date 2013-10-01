@@ -172,6 +172,7 @@ class TestExternalVariablesNew {
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
+    c.setValidateDFDLSchemas(false)
 
     val (sset, pf) = c.compileInternal(files)
 
@@ -219,6 +220,7 @@ class TestExternalVariablesNew {
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
+    c.setValidateDFDLSchemas(false)
 
     val (sset, pf) = c.compileInternal(files)
 
@@ -268,6 +270,7 @@ class TestExternalVariablesNew {
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
+    c.setValidateDFDLSchemas(false)
 
     val e = intercept[Exception] {
       val (sset, pf) = c.compileInternal(files)

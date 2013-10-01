@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 class TestFacets {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
 
   @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
   @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }

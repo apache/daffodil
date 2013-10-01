@@ -864,7 +864,10 @@
     <tdml:document><![CDATA[333]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>More than one definition for name: vagueEle</tdml:error>
+      <!-- <tdml:error>More than one definition for name: vagueEle</tdml:error>-->
+      <tdml:error>cannot contain two global components</tdml:error>
+      <tdml:error>same name</tdml:error>
+      <tdml:error>vagueElem</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

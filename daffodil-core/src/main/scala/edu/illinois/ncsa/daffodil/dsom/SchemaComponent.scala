@@ -34,27 +34,36 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import java.io.File
 
-import scala.collection.JavaConversions._
-import scala.xml._
+import scala.Option.option2Iterable
+import scala.collection.JavaConversions.asScalaIterator
+import scala.xml.Node
+import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.Text
 
-import IIUtils._
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.api._
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.dsom.IIUtils._
+import edu.illinois.ncsa.daffodil.dsom.IIUtils.IIMap
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.grammar._
+import edu.illinois.ncsa.daffodil.grammar.PrimitiveFactoryBase
 import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.SeparatorSuppressionPolicyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Format_AnnotationMixin
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.xml.DFDLSchemaErrorHandler
+import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationError
+import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationException
+import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationWarning
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -669,6 +678,7 @@ class SchemaSet(
   externalVariables: Seq[Binding],
   primFactory: PrimitiveFactoryBase,
   schemaFilesArg: Seq[File],
+  validateDFDLSchemas: Boolean,
   rootSpec: Option[RootSpec] = None,
   checkAllTopLevelArg: Boolean = false,
   parent: SchemaComponent = null)
@@ -683,7 +693,8 @@ class SchemaSet(
     if (checkAllTopLevel) {
       checkForDuplicateTopLevels()
       this.allTopLevels
-    })
+    },
+    validateSchemaFiles)
 
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.
@@ -698,7 +709,40 @@ class SchemaSet(
    */
   override lazy val fileName = schemaFilesArg(0).getPath()
 
+  /**
+   * We need to use the loader here to validate the DFDL Schema
+   */
+  private lazy val loader = new DaffodilXMLLoader(DFDLSchemaErrorHandler)
+
+  /**
+   * Validates the DFDL Schema files present in the schemaFilesArg.
+   * Compiles a list of all errors and warnings before issuing them.
+   *
+   * Issues SchemaDefinitionWarnings for DFDLSchemaValidationWarnings.
+   * Issues SchemaDefinitionErrors for DFDLSchemaValidationErrors.
+   */
+  private def validateSchemaFiles = {
+    // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
+    if (validateDFDLSchemas) {
+      val diags: scala.collection.mutable.Queue[(DFDLSchemaValidationException, String)] = scala.collection.mutable.Queue.empty
+
+      schemaFilesArg.foreach(f =>
+        try {
+          loader.validateDFDLSchema(f)
+        } catch {
+          case e: DFDLSchemaValidationException => diags.enqueue((e, f.getAbsolutePath()))
+        })
+
+      val warn = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationWarning] }.map { case (d, f) => d.getMessage() + " File: " + f }
+      val errs = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationError] }.map { case (d, f) => d.getMessage() + " File: " + f }
+
+      if (warn.length > 0) SDW("DFDL Schema Validation warned due to the following:\n%s", warn.mkString("\n"))
+      if (errs.length > 0) SDE("DFDL Schema Validation failed due to the following:\n%s", errs.mkString("\n"))
+    }
+  }
+
   lazy val schemaFiles = schemaFilesArg
+
   lazy val checkAllTopLevel = checkAllTopLevelArg
 
   override def warn(th: Diagnostic) = oolagWarn(th)
@@ -716,6 +760,7 @@ class SchemaSet(
         val files = List(file)
         files
       },
+      false,
       if (root == null) None else {
         if (rootNamespace == null) Some(RootSpec(None, root))
         else Some(RootSpec(Some(NS(rootNamespace)), root))

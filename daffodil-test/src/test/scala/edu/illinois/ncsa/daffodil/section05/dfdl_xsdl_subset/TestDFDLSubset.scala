@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.dfdl_xsdl_subset
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -48,7 +47,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 class TestDFDLSubset {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/dfdl_xsdl_subset/"
   val tdml = testDir + "DFDLSubset.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = true, validateDFDLSchemas = false)
 
   @Test def test_groupRefGroupRef() { { runner.runOneTest("groupRefGroupRef") } }
   @Test def test_refInitiator3() { { runner.runOneTest("refInitiator3") } }
@@ -56,6 +55,6 @@ class TestDFDLSubset {
   @Test def test_groupRefChoice() { runner.runOneTest("groupRefChoice") }
   @Test def test_badGroupRef() { { runner.runOneTest("badGroupRef") } }
   @Test def test_badSeq() { { runner.runOneTest("badSeq") } }
-  
+
   @Test def test_groupRefDFDL() { runner.runOneTest("groupRefDFDL") }
 }

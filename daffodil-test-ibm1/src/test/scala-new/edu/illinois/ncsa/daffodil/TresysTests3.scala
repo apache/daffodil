@@ -74,7 +74,7 @@ class TresysTests3 {
   // That's not how TDML works anyway. A1 is first. So by swizzling the indexes
   // the tests were asking for. Voila, they work.
   val am = testDir + "AM.tdml"
-  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am))
+  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false)
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }

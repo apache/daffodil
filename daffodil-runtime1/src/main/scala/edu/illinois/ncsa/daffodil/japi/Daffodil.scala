@@ -131,6 +131,8 @@ class Compiler {
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
     sCompiler.setExternalDFDLVariables(extVarsFile)
   }
+  
+  def setValidateDFDLSchemas(value: Boolean): Unit = sCompiler.setValidateDFDLSchemas(value)
 
 }
 

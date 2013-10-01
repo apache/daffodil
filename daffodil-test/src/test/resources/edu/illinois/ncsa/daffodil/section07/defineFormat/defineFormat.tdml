@@ -111,7 +111,7 @@
     <xs:element name="root" dfdl:lengthKind="implicit"> <!-- Why did I have to add lengthKind="implicit" here and not receive an error when it wasn't there?!!! -->
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="easy" type="xs:int" minOccurs="2" />
+          <xs:element name="easy" type="xs:int" minOccurs="2" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -147,7 +147,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="easy" type="xs:int" minOccurs="2" />
+          <xs:element name="easy" type="xs:int" minOccurs="2" maxOccurs="unbounded"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>

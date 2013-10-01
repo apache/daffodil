@@ -12,7 +12,7 @@
   <xs:element name="root">
     <xs:complexType>
       <xs:sequence dfdl:separator="">
-        <xs:element name="easy" type="xs:int" minOccurs="2" />
+        <xs:element name="easy" type="xs:int" minOccurs="2" maxOccurs="unbounded" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

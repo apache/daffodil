@@ -45,19 +45,19 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-  
+
   // I'm not sure these belong in section23, but there is no section of the spec that 
   // is about all these properties together, yet, since there is common mechanism here
   // I really think their tests should not be scattered all over to the sections where each
   // property is defined.
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
-  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
-  
+  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = false, validateDFDLSchemas = false)
+
   @Test def test_variableRefError { runner4.runOneTest("variableRefError") }
 
   @Test def test_byteOrderExpr1 { runner4.runOneTest("byteOrderExpr1") }
-//  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
+  //  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
   @Test def test_byteOrderExpr2 { runner4.runOneTest("byteOrderExpr2") }
   @Test def test_byteOrderExpr3 { runner4.runOneTest("byteOrderExpr3") }
   @Test def test_byteOrderExpr4 { runner4.runOneTest("byteOrderExpr4") }
@@ -67,10 +67,10 @@ class TestDFDLExpressions {
   @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
   @Test def test_byteOrderExpr7c { runner4.runOneTest("byteOrderExpr7c") }
   @Test def test_byteOrderExpr8 { runner4.runOneTest("byteOrderExpr8") }
-//  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
+  //  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
 
   val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
 
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
@@ -101,9 +101,9 @@ class TestDFDLExpressions {
   @Test def test_ocke_rel3() { runner.runOneTest("ocke_rel3") }
   @Test def test_ocke_rel4() { runner.runOneTest("ocke_rel4") }
   @Test def test_internal_space_preserved() { runner.runOneTest("internal_space_preserved") }
-//  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
-//  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
-//  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+  //  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
+  //  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
+  //  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
   @Test def test_whitespace_expression() { runner.runOneTest("whitespace_expression") }
   @Test def test_whitespace_expression2() { runner.runOneTest("whitespace_expression2") }
 
@@ -155,52 +155,52 @@ class TestDFDLExpressions {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
-  
+
   @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
   @Test def test_ubyte_constructor_02() { runner2.runOneTest("ubyte_constructor_02") }
   @Test def test_ubyte_constructor_03() { runner2.runOneTest("ubyte_constructor_03") }
   @Test def test_ubyte_constructor_04() { runner2.runOneTest("ubyte_constructor_04") }
-  
+
   @Test def test_uint_constructor_01() { runner2.runOneTest("uint_constructor_01") }
   @Test def test_uint_constructor_02() { runner2.runOneTest("uint_constructor_02") }
   @Test def test_uint_constructor_03() { runner2.runOneTest("uint_constructor_03") }
   @Test def test_uint_constructor_04() { runner2.runOneTest("uint_constructor_04") }
-  
+
   @Test def test_nonNeg_constructor_01() { runner2.runOneTest("nonNeg_constructor_01") }
   @Test def test_nonNeg_constructor_02() { runner2.runOneTest("nonNeg_constructor_02") }
   @Test def test_nonNeg_constructor_03() { runner2.runOneTest("nonNeg_constructor_03") }
   @Test def test_nonNeg_constructor_04() { runner2.runOneTest("nonNeg_constructor_04") }
-  
+
   @Test def test_byte_constructor_01() { runner2.runOneTest("byte_constructor_01") }
   @Test def test_byte_constructor_02() { runner2.runOneTest("byte_constructor_02") }
   @Test def test_byte_constructor_03() { runner2.runOneTest("byte_constructor_03") }
   @Test def test_byte_constructor_04() { runner2.runOneTest("byte_constructor_04") }
-  
+
   @Test def test_hexBinary_constructor_01() { runner2.runOneTest("hexBinary_constructor_01") }
   @Test def test_hexBinary_constructor_02() { runner2.runOneTest("hexBinary_constructor_02") }
   @Test def test_hexBinary_constructor_03() { runner2.runOneTest("hexBinary_constructor_03") }
   @Test def test_hexBinary_constructor_04() { runner2.runOneTest("hexBinary_constructor_04") }
-  
-// DFDL-827
-//  @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
+
+  // DFDL-827
+  //  @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_time_constructor_02() { runner2.runOneTest("time_constructor_02") }
   @Test def test_time_constructor_03() { runner2.runOneTest("time_constructor_03") }
   @Test def test_time_constructor_04() { runner2.runOneTest("time_constructor_04") }
-  
+
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
-// DFDL-827
-//  @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
+  // DFDL-827
+  //  @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
   @Test def test_date_constructor_03() { runner2.runOneTest("date_constructor_03") }
-// DFDL-827
-//  @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
-  
-// DFDL-827
-//  @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
+  // DFDL-827
+  //  @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
+
+  // DFDL-827
+  //  @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
-// DFDL-827
-//  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
+  // DFDL-827
+  //  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
   @Test def test_xsDateTime_constructor_04() { runner2.runOneTest("xsDateTime_constructor_04") }
   @Test def test_xsDateTime_constructor_05() { runner2.runOneTest("xsDateTime_constructor_05") }
 
@@ -211,62 +211,61 @@ class TestDFDLExpressions {
   @Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
   @Test def test_double_constructor_06() { runner2.runOneTest("double_constructor_06") }
   @Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
-  
+
   @Test def test_float_constructor_01() { runner2.runOneTest("float_constructor_01") }
   @Test def test_float_constructor_02() { runner2.runOneTest("float_constructor_02") }
   @Test def test_float_constructor_03() { runner2.runOneTest("float_constructor_03") }
   @Test def test_float_constructor_04() { runner2.runOneTest("float_constructor_04") }
-  
+
   @Test def test_decimal_constructor_01() { runner2.runOneTest("decimal_constructor_01") }
   @Test def test_decimal_constructor_02() { runner2.runOneTest("decimal_constructor_02") }
   @Test def test_decimal_constructor_03() { runner2.runOneTest("decimal_constructor_03") }
   @Test def test_decimal_constructor_04() { runner2.runOneTest("decimal_constructor_04") }
   @Test def test_decimal_constructor_05() { runner2.runOneTest("decimal_constructor_05") }
   @Test def test_decimal_constructor_06() { runner2.runOneTest("decimal_constructor_06") }
-  
+
   @Test def test_short_constructor_01() { runner2.runOneTest("short_constructor_01") }
   @Test def test_short_constructor_02() { runner2.runOneTest("short_constructor_02") }
   @Test def test_short_constructor_03() { runner2.runOneTest("short_constructor_03") }
   @Test def test_short_constructor_04() { runner2.runOneTest("short_constructor_04") }
   @Test def test_short_constructor_05() { runner2.runOneTest("short_constructor_05") }
   @Test def test_short_constructor_06() { runner2.runOneTest("short_constructor_06") }
-  
+
   @Test def test_ushort_constructor_01() { runner2.runOneTest("ushort_constructor_01") }
   @Test def test_ushort_constructor_02() { runner2.runOneTest("ushort_constructor_02") }
   @Test def test_ushort_constructor_03() { runner2.runOneTest("ushort_constructor_03") }
   @Test def test_ushort_constructor_04() { runner2.runOneTest("ushort_constructor_04") }
   @Test def test_ushort_constructor_05() { runner2.runOneTest("ushort_constructor_05") }
-  
+
   @Test def test_ulong_constructor_01() { runner2.runOneTest("ulong_constructor_01") }
   @Test def test_ulong_constructor_02() { runner2.runOneTest("ulong_constructor_02") }
   @Test def test_ulong_constructor_03() { runner2.runOneTest("ulong_constructor_03") }
   @Test def test_ulong_constructor_04() { runner2.runOneTest("ulong_constructor_04") }
   @Test def test_ulong_constructor_05() { runner2.runOneTest("ulong_constructor_05") }
-  
+
   @Test def test_long_constructor_01() { runner2.runOneTest("long_constructor_01") }
   @Test def test_long_constructor_02() { runner2.runOneTest("long_constructor_02") }
   @Test def test_long_constructor_03() { runner2.runOneTest("long_constructor_03") }
   @Test def test_long_constructor_04() { runner2.runOneTest("long_constructor_04") }
-  
+
   @Test def test_int_constructor_01() { runner2.runOneTest("int_constructor_01") }
   @Test def test_int_constructor_02() { runner2.runOneTest("int_constructor_02") }
   @Test def test_int_constructor_03() { runner2.runOneTest("int_constructor_03") }
   @Test def test_int_constructor_04() { runner2.runOneTest("int_constructor_04") }
 
-
-//  DFDL-727  
-//  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
-//  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
-//  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
+  //  DFDL-727  
+  //  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
+  //  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
+  //  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
   @Test def test_fnDateTime_constructor_04() { runner2.runOneTest("fnDateTime_constructor_04") }
-  
+
   @Test def test_integer_constructor_01() { runner2.runOneTest("integer_constructor_01") }
   @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }
   @Test def test_integer_constructor_03() { runner2.runOneTest("integer_constructor_03") }
   @Test def test_integer_constructor_04() { runner2.runOneTest("integer_constructor_04") }
-//  DFDL-818
-//  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
-//  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
+  //  DFDL-818
+  //  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
+  //  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
   @Test def test_integer_constructor_07() { runner2.runOneTest("integer_constructor_07") }
 
   @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
@@ -302,31 +301,31 @@ class TestDFDLExpressions {
 
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-  
+
   @Test def test_xPathFunc_abs_01() { runner2.runOneTest("xPathFunc_abs_01") }
   @Test def test_xPathFunc_abs_02() { runner2.runOneTest("xPathFunc_abs_02") }
   @Test def test_xPathFunc_abs_03() { runner2.runOneTest("xPathFunc_abs_03") }
   @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
-  
+
   @Test def test_xPathFunc_ceil_01() { runner2.runOneTest("xPathFunc_ceil_01") }
   @Test def test_xPathFunc_ceil_02() { runner2.runOneTest("xPathFunc_ceil_02") }
   @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
   @Test def test_xPathFunc_ceil_04() { runner2.runOneTest("xPathFunc_ceil_04") }
   @Test def test_xPathFunc_ceil_05() { runner2.runOneTest("xPathFunc_ceil_05") }
-  
+
   @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
   @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
   @Test def test_xPathFunc_floor_03() { runner2.runOneTest("xPathFunc_floor_03") }
   @Test def test_xPathFunc_floor_04() { runner2.runOneTest("xPathFunc_floor_04") }
   @Test def test_xPathFunc_floor_05() { runner2.runOneTest("xPathFunc_floor_05") }
-  
+
   @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
   @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
   @Test def test_xPathFunc_round_03() { runner2.runOneTest("xPathFunc_round_03") }
   @Test def test_xPathFunc_round_04() { runner2.runOneTest("xPathFunc_round_04") }
   @Test def test_xPathFunc_round_05() { runner2.runOneTest("xPathFunc_round_05") }
   @Test def test_xPathFunc_round_06() { runner2.runOneTest("xPathFunc_round_06") }
-  
+
   @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
   @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
   @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
@@ -335,14 +334,14 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
   @Test def test_xPathFunc_round_hte_07() { runner2.runOneTest("xPathFunc_round_hte_07") }
   @Test def test_xPathFunc_round_hte_08() { runner2.runOneTest("xPathFunc_round_hte_08") }
-  
+
   val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aab = testDir2b + "Functions-neg.tdml"
   lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
 
   @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
   @Test def test_fn_not_declared_2() { runner2b.runOneTest("fn_not_declared_2") }
-  
+
   val tdml3 = testDir + "expression_fail.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
 

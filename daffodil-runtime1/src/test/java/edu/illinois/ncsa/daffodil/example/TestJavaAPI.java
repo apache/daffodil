@@ -76,6 +76,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
@@ -110,7 +111,8 @@ public class TestJavaAPI {
 		assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines
+				.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
 
 		// reset the global logging and debugger state
@@ -128,6 +130,7 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Info);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
@@ -179,6 +182,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI3() throws IOException {
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		ProcessorFactory pf = c.compile(schemaFiles);
@@ -233,6 +237,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI4b() throws IOException {
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
@@ -265,6 +270,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI5() throws IOException {
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
@@ -309,6 +315,7 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[4];// String[]
 															// schemaFileNames =
 															// new String[2];
@@ -348,6 +355,7 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel", null);
@@ -363,7 +371,8 @@ public class TestJavaAPI {
 			org.jdom.Document doc = res.result();
 			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
 			// xo.setFormat(Format.getPrettyFormat());
-			xo.setFormat(Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE));
+			xo.setFormat(Format.getRawFormat().setTextMode(
+					Format.TextMode.PRESERVE));
 			xo.output(doc, System.out);
 		}
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
@@ -381,11 +390,13 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
-	
-  /**
-	 * This test is nearly identical to testJavaAPI7. The only difference is that
-	 * this test uses double newline as a terminator for the first element in the 
-	 * sequence rather than double newline as a separator for the sequence
+
+	/**
+	 * This test is nearly identical to testJavaAPI7. The only difference is
+	 * that this test uses double newline as a terminator for the first element
+	 * in the sequence rather than double newline as a separator for the
+	 * sequence
+	 * 
 	 * @throws IOException
 	 */
 	@Test
@@ -396,6 +407,7 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
@@ -429,9 +441,10 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
 	}
-	
+
 	/**
-	 * Verify that calling result() on the ParseResult mutiple times does not error.
+	 * Verify that calling result() on the ParseResult mutiple times does not
+	 * error.
 	 */
 	@Test
 	public void testJavaAPI9() throws IOException {
@@ -441,6 +454,7 @@ public class TestJavaAPI {
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
@@ -474,78 +488,86 @@ public class TestJavaAPI {
 	/**
 	 * Verify that hidden elements do not appear in the resulting infoset
 	 */
-        @Test
-        public void testJavaAPI10() throws IOException {
+	@Test
+	public void testJavaAPI10() throws IOException {
 
-                Compiler c = Daffodil.compiler();
-                java.io.File[] schemaFiles = new java.io.File[1];
-                schemaFiles[0] = getResource("/test/japi/mySchema4.dfdl.xsd");
-                ProcessorFactory pf = c.compile(schemaFiles);
-                DataProcessor dp = pf.onPath("/");
-                java.io.File file = getResource("/test/japi/myData4.dat");
-                java.io.FileInputStream fis = new java.io.FileInputStream(file);
-                java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-                                .newChannel(fis);
-                ParseResult res = dp.parse(rbc);
-                boolean err = res.isError();
-                if (!err) {
-                        org.jdom.Document doc = res.result();
-                        org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
-                        xo.setFormat(Format.getPrettyFormat());
-                        xo.output(doc, System.out);
-                        org.jdom.Element rootNode = doc.getRootElement();
-                        org.jdom.Element hidden = rootNode.getChild("hiddenElement", rootNode.getNamespace());
-                        assertTrue(null == hidden);
-                }
-                java.util.List<Diagnostic> diags = res.getDiagnostics();
-                for (Diagnostic d : diags) {
-                        System.err.println(d.getMessage());
-                }
-                assertTrue(res.location().isAtEnd());
-        }
+		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/mySchema4.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/myData4.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+			org.jdom.Element rootNode = doc.getRootElement();
+			org.jdom.Element hidden = rootNode.getChild("hiddenElement",
+					rootNode.getNamespace());
+			assertTrue(null == hidden);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+	}
 
 	/**
 	 * Verify that nested elements do not appear as duplicates
 	 */
-        @Test
-        public void testJavaAPI11() throws IOException {
+	@Test
+	public void testJavaAPI11() throws IOException {
 
-                Compiler c = Daffodil.compiler();
-                java.io.File[] schemaFiles = new java.io.File[1];
-                schemaFiles[0] = getResource("/test/japi/mySchema5.dfdl.xsd");
-                ProcessorFactory pf = c.compile(schemaFiles);
-                DataProcessor dp = pf.onPath("/");
-                java.io.File file = getResource("/test/japi/myData5.dat");
-                java.io.FileInputStream fis = new java.io.FileInputStream(file);
-                java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
-                                .newChannel(fis);
-                ParseResult res = dp.parse(rbc);
-                boolean err = res.isError();
-                if (!err) {
-                        org.jdom.Document doc = res.result();
-                        org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
-                        xo.setFormat(Format.getPrettyFormat());
-                        xo.output(doc, System.out);
-                        org.jdom.Element rootNode = doc.getRootElement();
-                        org.jdom.Element elementGroup = rootNode.getChild("elementGroup", rootNode.getNamespace());
-                        assertTrue(null != elementGroup);
-                        org.jdom.Element groupE2 = elementGroup.getChild("e2", rootNode.getNamespace());
-                        assertTrue(null != groupE2);
-                        org.jdom.Element groupE3 = elementGroup.getChild("e3", rootNode.getNamespace());
-                        assertTrue(null != groupE3);
-                        org.jdom.Element rootE2 = rootNode.getChild("e2", rootNode.getNamespace());
-                        assertTrue(null == rootE2);
-                        org.jdom.Element rootE3 = rootNode.getChild("e3", rootNode.getNamespace());
-                        assertTrue(null == rootE3);
-                }
-                java.util.List<Diagnostic> diags = res.getDiagnostics();
-                for (Diagnostic d : diags) {
-                        System.err.println(d.getMessage());
-                }
-                assertTrue(res.location().isAtEnd());
-        }
-	
-  @Test
+		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/mySchema5.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		java.io.File file = getResource("/test/japi/myData5.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = dp.parse(rbc);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom.Document doc = res.result();
+			org.jdom.output.XMLOutputter xo = new org.jdom.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+			org.jdom.Element rootNode = doc.getRootElement();
+			org.jdom.Element elementGroup = rootNode.getChild("elementGroup",
+					rootNode.getNamespace());
+			assertTrue(null != elementGroup);
+			org.jdom.Element groupE2 = elementGroup.getChild("e2",
+					rootNode.getNamespace());
+			assertTrue(null != groupE2);
+			org.jdom.Element groupE3 = elementGroup.getChild("e3",
+					rootNode.getNamespace());
+			assertTrue(null != groupE3);
+			org.jdom.Element rootE2 = rootNode.getChild("e2",
+					rootNode.getNamespace());
+			assertTrue(null == rootE2);
+			org.jdom.Element rootE3 = rootNode.getChild("e3",
+					rootNode.getNamespace());
+			assertTrue(null == rootE3);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+	}
+
+	@Test
 	public void testJavaAPI12() throws IOException {
 		LogWriterForJAPITest2 lw2 = new LogWriterForJAPITest2();
 		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
@@ -556,6 +578,8 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
@@ -590,7 +614,8 @@ public class TestJavaAPI {
 		assertTrue(lw2.infos.size() > 0);
 		assertTrue(lw2.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines
+				.contains("----------------------------------------------------------------- 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -598,11 +623,11 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(false);
 		Daffodil.setDebugger(null);
 	}
-  
-  @Test
+
+	@Test
 	public void testJavaAPI13() throws IOException {
-	  // Demonstrates here that we can set external variables
-	  // after compilation but before parsing via Compiler.
+		// Demonstrates here that we can set external variables
+		// after compilation but before parsing via Compiler.
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
 		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -612,16 +637,16 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File extVarsFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
 		c.setExternalDFDLVariables(extVarsFile);
 		ProcessorFactory pf = c.compile(schemaFiles);
-		
-		
+
 		DataProcessor dp = pf.onPath("/");
-				
+
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
@@ -639,24 +664,24 @@ public class TestJavaAPI {
 			assertTrue(containsVar1);
 			assertTrue(containsVar1Value);
 		}
-//		java.util.List<Diagnostic> diags = res.getDiagnostics();
-//		for (Diagnostic d : diags) {
-//			System.err.println(d.getMessage());
-//		}
-//		assertTrue(res.location().isAtEnd());
-//		System.err.println("bitPos = " + res.location().bitPos());
-//		System.err.println("bytePos = " + res.location().bytePos());
-//
-//		for (String e : lw.errors)
-//			System.err.println(e);
-//		for (String e : lw.warnings)
-//			System.err.println(e);
-//		assertEquals(0, lw.errors.size());
-//		assertEquals(0, lw.warnings.size());
-//		assertTrue(lw.infos.size() > 0);
-//		assertTrue(lw.others.size() > 0);
-//		assertTrue(debugger.lines.size() > 0);
-//		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		// java.util.List<Diagnostic> diags = res.getDiagnostics();
+		// for (Diagnostic d : diags) {
+		// System.err.println(d.getMessage());
+		// }
+		// assertTrue(res.location().isAtEnd());
+		// System.err.println("bitPos = " + res.location().bitPos());
+		// System.err.println("bytePos = " + res.location().bytePos());
+		//
+		// for (String e : lw.errors)
+		// System.err.println(e);
+		// for (String e : lw.warnings)
+		// System.err.println(e);
+		// assertEquals(0, lw.errors.size());
+		// assertEquals(0, lw.warnings.size());
+		// assertTrue(lw.infos.size() > 0);
+		// assertTrue(lw.others.size() > 0);
+		// assertTrue(debugger.lines.size() > 0);
+		// assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -664,11 +689,11 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(false);
 		Daffodil.setDebugger(null);
 	}
-  
-  @Test
+
+	@Test
 	public void testJavaAPI14() throws IOException {
-	  // Demonstrates here that we can set external variables
-	  // after compilation but before parsing via DataProcessor.
+		// Demonstrates here that we can set external variables
+		// after compilation but before parsing via DataProcessor.
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
 		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -678,6 +703,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(debugger);
 
 		Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
 		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
@@ -685,7 +711,7 @@ public class TestJavaAPI {
 		ProcessorFactory pf = c.compile(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		dp.setExternalVariables(extVarFile);
-				
+
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
@@ -720,7 +746,8 @@ public class TestJavaAPI {
 		assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
-		assertTrue(debugger.lines.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.lines
+				.contains("----------------------------------------------------------------- 1\n"));
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());

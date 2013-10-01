@@ -55,6 +55,8 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import javax.xml.validation.SchemaFactory
+import javax.xml.XMLConstants
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -125,7 +127,12 @@ trait HavingRootSpec extends Logging {
   }
 }
 
-class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
+class Compiler(var validateDFDLSchemas: Boolean = true)
+  extends DFDL.Compiler
+  with Logging
+  with HavingRootSpec {
+  
+  def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
   private val externalDFDLVariables: Queue[Binding] = Queue.empty
 
@@ -197,7 +204,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
       val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
       if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
 
-      val sset = new SchemaSet(externalDFDLVariables, PrimitiveFactory, schemaFiles, rootSpec, checkAllTopLevel)
+      val sset = new SchemaSet(externalDFDLVariables, PrimitiveFactory, schemaFiles, validateDFDLSchemas, rootSpec, checkAllTopLevel)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
@@ -246,6 +253,7 @@ class Compiler extends DFDL.Compiler with Logging with HavingRootSpec {
  */
 object Compiler {
 
+  def apply(validateDFDLSchemas: Boolean) = new Compiler(validateDFDLSchemas)
   def apply() = new Compiler()
 
 }
