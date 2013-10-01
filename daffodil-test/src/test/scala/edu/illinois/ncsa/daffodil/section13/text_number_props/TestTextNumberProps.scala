@@ -73,9 +73,8 @@ class TestTextNumberProps {
   @Test def test_patternDeterminesChoice02() { runner.runOneTest("patternDeterminesChoice02") }
   @Test def test_patternDeterminesChoice03() { runner.runOneTest("patternDeterminesChoice03") }
   
-// DFDL-865
-//  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
-//  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
+  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
+  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
   
   @Test def test_standardZeroRep01() { runner.runOneTest("standardZeroRep01") }
   @Test def test_standardZeroRep02() { runner.runOneTest("standardZeroRep02") }

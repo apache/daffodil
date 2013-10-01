@@ -2880,38 +2880,58 @@
      Test Name: textNumberPattern_facets01
         Schema: textNumberPattern
           Root: tnp76
-       Purpose: This test demonstrates that if the pattern uses digits/fractions then these must match any XML schema facets.
+       Purpose: This test demonstrates that if the pattern uses digits/fractions then these do not have to match any XML 
+                schema facets in order for the schema to validate and the data to parse. With validation on, validation errors do occur.
                 In this case totalDigits is set to 6, but the number of total digits in the pattern is 8.          
   -->
 
-  <tdml:parserTestCase name="textNumberPattern_facets01" root="tnp76" model="textNumberPattern"
+  <tdml:parserTestCase name="textNumberPattern_facets01" root="tnp76" validation="on" model="textNumberPattern"
     description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
 
     <tdml:document>
       <tdml:documentPart type="text">1234.1234</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp76>1234.1234</tnp76>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:validationErrors>
+
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>element.tnp76 failed dfdl:checkConstraints due to facet totalDigits (6)</tdml:error>
+
+    </tdml:validationErrors>
   </tdml:parserTestCase>
   
   <!--
      Test Name: textNumberPattern_facets02
         Schema: textNumberPattern
           Root: tnp77
-       Purpose: This test demonstrates that if the pattern uses digits/fractions then these must match any XML schema facets.
+       Purpose: This test demonstrates that if the pattern uses digits/fractions then these do not have to match any XML 
+                schema facets in order for the schema to validate and the data to parse. With validation on, validation errors do occur.
                 In this case fractionDigits is set to 3, but the number of fraction digits in the pattern is 8.          
    -->
 
-  <tdml:parserTestCase name="textNumberPattern_facets02" root="tnp77" model="textNumberPattern"
+  <tdml:parserTestCase name="textNumberPattern_facets02" root="tnp77" validation="on" model="textNumberPattern"
     description="Section 13.6 - Number properties with Text Representation - DFDL-13-065R">
 
     <tdml:document>
       <tdml:documentPart type="text">1.12345678</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tnp77>1.12345678</tnp77>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:validationErrors>
+
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>element.tnp77 failed dfdl:checkConstraints due to facet fractionDigits (3)</tdml:error>
+
+    </tdml:validationErrors>
   </tdml:parserTestCase>
   
   <!--

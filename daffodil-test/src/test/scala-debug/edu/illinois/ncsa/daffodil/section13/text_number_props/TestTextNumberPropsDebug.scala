@@ -78,10 +78,6 @@ class TestTextNumberPropsDebug {
   @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
   @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
 
-// DFDL-865
-  @Test def test_textNumberPattern_facets01() { runner.runOneTest("textNumberPattern_facets01") }
-  @Test def test_textNumberPattern_facets02() { runner.runOneTest("textNumberPattern_facets02") }
-
 // DFDL-861
   @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
 
