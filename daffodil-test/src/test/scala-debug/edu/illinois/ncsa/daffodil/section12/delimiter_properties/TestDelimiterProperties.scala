@@ -50,13 +50,4 @@ class TestDelimiterProperties_01 {
   val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix() = {
-    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Prefix")
-  }
-  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix() = {
-    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Infix")
-  }
-  @Test def test_BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix() = {
-    r.runOneTest("BadErrorMsgWhenRequiredFieldIsMissingAndSeparatorIsPrefixOfTerminator_Postfix")
-  }
 }

@@ -82,4 +82,14 @@ class TestDelimiterProperties {
   @Test def test_E1() = {
     runner_02.runOneTest("E1")
   }
+
+  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix() = {
+    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix")
+  }
+  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Infix() = {
+    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Infix")
+  }
+  @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix() = {
+    runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix")
+  }
 }
