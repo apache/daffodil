@@ -529,6 +529,46 @@ is multiple bytes in UTF-8 encoding that is used"
           dfdl:escapeSchemeRef="ex:table1" minOccurs="1" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
+    
+    <dfdl:defineEscapeScheme name="table2">
+      <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[%SP;start%SP;]" escapeBlockEnd="[%SP;end%SP;]"
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="element1" type="xs:string"
+            dfdl:escapeSchemeRef="ex:table2" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <dfdl:defineEscapeScheme name="char01">
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter=" " escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="element1" type="xs:string"
+            dfdl:escapeSchemeRef="ex:char01" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <dfdl:defineEscapeScheme name="char02">
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="%SP;" escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
+    
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="element1" type="xs:string"
+            dfdl:escapeSchemeRef="ex:char02" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
@@ -546,7 +586,73 @@ is multiple bytes in UTF-8 encoding that is used"
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The string ([ start ]) must not contain any whitespace</tdml:error>
+      <tdml:error>Use DFDL Entities instead</tdml:error>
+      <tdml:error>Schema context: element.element1</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_02
+    Schema: EscapesSchema
+    Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+             entities work.
+  -->
+  
+  <tdml:parserTestCase name="whitespace_02"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="EscapesSchema" root="e2">
+    <tdml:document>
+      <tdml:documentPart type="text">[ start ]hello[ end ]</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <element1>hello</element1>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_03
+       Schema: EscapesSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work.
+  -->
+  
+  <tdml:parserTestCase name="whitespace_03"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="EscapesSchema" root="e3">
+    <tdml:document>
+      <tdml:documentPart type="text"> h e l l o</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Use DFDL Entities instead</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_04
+       Schema: EscapesSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work.
+  -->
+  
+  <tdml:parserTestCase name="whitespace_04"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="EscapesSchema" root="e4">
+    <tdml:document>
+      <tdml:documentPart type="text"> h e l l o</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <element1>hello</element1>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="NLSchema">

@@ -47,6 +47,9 @@ class TestEntities_01 {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val aa_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
+  
+  //DFDL-471
+  @Test def test_whitespace_03() { runner_01.runOneTest("whitespace_03") }
 
   @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
@@ -58,8 +61,6 @@ class TestEntities_01 {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   // Needs dfdl:utf16Width='variable' implementation
   @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
-
-  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
 
   val tdml_03 = testDir_01 + "charClassEntities.tdml"
   lazy val runner_03 = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))

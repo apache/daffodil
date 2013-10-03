@@ -89,7 +89,11 @@ class TestEntities {
   @Test def test_byte_entities_6_08() { runner_01.runOneTest("byte_entities_6_08") }
 //  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
 
-  //  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
+  @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
+  @Test def test_whitespace_02() { runner_01.runOneTest("whitespace_02") }
+  //DFDL-471
+//  @Test def test_whitespace_03() { runner_01.runOneTest("whitespace_03") }
+  @Test def test_whitespace_04() { runner_01.runOneTest("whitespace_04") }
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
