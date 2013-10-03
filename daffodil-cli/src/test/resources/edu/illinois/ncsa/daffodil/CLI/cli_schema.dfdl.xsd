@@ -129,5 +129,13 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="validation_check" dfdl:lengthKind="delimited">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:pattern value="[0-8]+" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
     
 </xs:schema>
