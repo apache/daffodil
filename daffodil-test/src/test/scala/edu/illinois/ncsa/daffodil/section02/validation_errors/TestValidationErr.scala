@@ -92,6 +92,13 @@ class TestValidationErr {
   @Test def test_choice_ignoreValidationErr_03() { runner.runOneTest("choice_ignoreValidationErr_03") }
   
   @Test def test_choice_errorNotSuppressed_01() { runner.runOneTest("choice_errorNotSuppressed_01") }
+  @Test def test_choice_errorNotSuppressed_02() { runner.runOneTest("choice_errorNotSuppressed_02") }
+  @Test def test_choice_errorNotSuppressed_03() { runner.runOneTest("choice_errorNotSuppressed_03") }
+  @Test def test_choice_errorNotSuppressed_04() { runner.runOneTest("choice_errorNotSuppressed_04") }
+  @Test def test_choice_errorNotSuppressed_05() { runner.runOneTest("choice_errorNotSuppressed_05") }
+
+// DFDL-903
+//  @Test def test_choice_errorNotSuppressed_validationErrorCheck() { runner.runOneTest("choice_errorNotSuppressed_validationErrorCheck") }
   
   @Test def test_validation_inputValueCalc_01() { runner.runOneTest("validation_inputValueCalc_01") }
   @Test def test_validation_inputValueCalc_02() { runner.runOneTest("validation_inputValueCalc_02") }

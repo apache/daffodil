@@ -48,4 +48,7 @@ class TestValidationErrDebug {
   @Test def test_checkEnumeration_Fail_on() { runner.runOneTest("checkEnumeration_Fail_on") }
   @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
 
+// DFDL-903
+  @Test def test_choice_errorNotSuppressed_validationErrorCheck() { runner.runOneTest("choice_errorNotSuppressed_validationErrorCheck") }
+
 }

@@ -1387,23 +1387,91 @@
     
     <xs:element name="root4">
       <xs:complexType>
-      	<xs:sequence dfdl:separator=",">
-      		<xs:element name="choice" minOccurs="1" maxOccurs="3">
-      			<xs:complexType>
-      				<xs:choice>
-			           <xs:element name="nonNegA" dfdl:lengthKind="delimited" dfdl:initiator="A" >
-			             <xs:simpleType>
-			               <xs:restriction base="xs:integer">
-			                 <xs:minInclusive value="30"/>
-			               </xs:restriction>
-			             </xs:simpleType>
-			           </xs:element>
-			           <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" />
-			           <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited" />
-			        </xs:choice>
-      			</xs:complexType>
-      		</xs:element>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="choice" minOccurs="1" maxOccurs="3">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="nonNegA" dfdl:lengthKind="delimited" dfdl:initiator="A" >
+                  <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                      <xs:minInclusive value="30"/>
+                     </xs:restriction>
+                   </xs:simpleType>
+                 </xs:element>
+                 <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:lengthKind="delimited" />
+                 <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
         </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root4b">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="branch1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e1" dfdl:lengthKind="delimited">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                      <xs:minInclusive value="30"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="e2" dfdl:terminator="B" dfdl:lengthKind="delimited">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:nonNegativeInteger">
+                      <xs:minInclusive value="10"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="branch2" dfdl:initiator="C" dfdl:lengthKind="delimited">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="10"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="root4c">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="branch1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="e1" dfdl:lengthKind="delimited">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:integer">
+                      <xs:minInclusive value="30"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+                <xs:element name="e2" dfdl:terminator="B" dfdl:lengthKind="delimited">
+                  <xs:simpleType>
+                    <xs:restriction base="xs:nonNegativeInteger">
+                      <xs:minInclusive value="10"/>
+                    </xs:restriction>
+                  </xs:simpleType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="branch2" dfdl:lengthKind="delimited">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:minInclusive value="10"/>
+             </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:choice>
       </xs:complexType>
     </xs:element>
     
@@ -1522,23 +1590,173 @@
 
     <tdml:document>A20,-20,5</tdml:document>
     <tdml:infoset>
-    	<tdml:dfdlInfoset>
-    		<root4>
-    			<choice>
-    				<nonNegA>20</nonNegA>
-    			</choice>
-    			<choice>
-    				<int>-20</int>
-    			</choice>
-    			<choice>
-    				<nonNeg>5</nonNeg>
-    			</choice>
-    		</root4>
-    	</tdml:dfdlInfoset>
+      <tdml:dfdlInfoset>
+        <root4>
+          <choice>
+            <nonNegA>20</nonNegA>
+          </choice>
+          <choice>
+            <int>-20</int>
+          </choice>
+          <choice>
+            <nonNeg>5</nonNeg>
+          </choice>
+        </root4>
+      </tdml:dfdlInfoset>
     </tdml:infoset>
+
     <tdml:validationErrors>
-    	<tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+      <tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
     </tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_02
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that validation errors cannot be suppressed by points of uncertainty. In this case validation is set to limited.
+--> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_02"
+    root="root4" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="limited">
+
+    <tdml:document>A20,-20,5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root4>
+          <choice>
+            <nonNegA>20</nonNegA>
+          </choice>
+          <choice>
+            <int>-20</int>
+          </choice>
+          <choice>
+            <nonNeg>5</nonNeg>
+          </choice>
+        </root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:validationErrors>
+      <tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+    </tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_03
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when validation="limited", if a choice branch fails because of validation, a validation error only occurs if all other choice branches fail. In this case all branches fail so the validation error is shown.
+--> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_03"
+    root="root4b" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="limited">
+
+    <tdml:document>20</tdml:document>
+    <tdml:errors>
+
+      <!-- Final Error -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>All alternatives failed</tdml:error>
+      
+      <!-- Failure for branch1:e2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+
+      <!-- Failure for branch2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+    </tdml:errors>
+
+    <tdml:validationErrors>
+        
+      <!-- Validation error for branch1:e1  -->
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>element.nonNegA failed dfdl:checkConstraints due to facet minInclusive (30)</tdml:error>
+
+    </tdml:validationErrors>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_04
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when validation="limited", if a choice branch fails because of validation, a validation 
+               error only occurs if all other choice branches fail. In this case the second branch parses so no validation error is shown.
+--> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_04"
+    root="root4c" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="limited">
+
+    <tdml:document>20</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root4c>
+          <branch2>20</branch2>
+        </root4c>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_05
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that when validation="on", if a choice branch fails because of validation, a validation 
+               error won't occur even if all other choice branches fail.
+--> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_05"
+    root="root4b" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="on">
+
+    <tdml:document>20</tdml:document>
+    <tdml:errors>
+
+      <!-- Final Error -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>All alternatives failed</tdml:error>
+      
+      <!-- Failure for branch1:e2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+
+      <!-- Failure for branch2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+    </tdml:errors>
+  
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: choice_errorNotSuppressed_validationErrorCheck
+       Schema: choiceValidation 
+      Purpose: This test demonstrates that the TDML runner should complain when a test is expecting a validation error but none occurs.
+  --> 
+  <tdml:parserTestCase name="choice_errorNotSuppressed_validationErrorCheck"
+    root="root4b" model="choiceValidation" description="Section 02 - Validation errors cannot be suppressed by points of uncertainty - DFDL-2-027R"
+    validation="on">
+
+    <tdml:document>20</tdml:document>
+    <tdml:errors>
+
+      <!-- Final Error -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>All alternatives failed</tdml:error>
+      
+      <!-- Failure for branch1:e2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+
+      <!-- Failure for branch2  -->
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+    </tdml:errors>
+
+    <tdml:validationErrors>
+        
+		  <tdml:error>DUMMYERROR</tdml:error>
+
+		</tdml:validationErrors>
 
   </tdml:parserTestCase>
   
