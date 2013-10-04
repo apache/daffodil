@@ -34,7 +34,7 @@
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="a1" type="xs:string"
-                  dfdl:lengthKind="explicit" dfdl:length="{ 1 }" />
+                  dfdl:lengthKind="delimited" minOccurs="0"/>
                 <xs:element name="a1" type="xs:string"
                   dfdl:lengthKind="delimited" />
               </xs:sequence>
@@ -75,7 +75,9 @@
     </tdml:document>
 
     <tdml:errors>
-      <tdml:error />
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DFDL Schema Validation failed due to the following</tdml:error>
+      <tdml:error>Multiple elements with name 'a1', with different types, appear in the model group</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -93,15 +95,12 @@
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[123gj]]></tdml:documentPart>
     </tdml:document>
-
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <root>
-          <basic />
-          <extra />
-        </root>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DFDL Schema Validation failed due to the following</tdml:error>
+      <tdml:error>Multiple elements with name 'a1', with different types, appear in the model group</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
 

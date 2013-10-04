@@ -47,7 +47,7 @@ class TestProcessingErrors {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
   val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
-
+  
   runner.setCheckAllTopLevel(true) // check every top level construct. Not just the one under specific test.
   @Test def test_twoDFDLSchemaValidationErrors() { runner.runOneTest("twoDFDLSchemaValidationErrors") }
   @Test def test_twoDFDLSchemaValidationErrors2() { runner.runOneTest("twoDFDLSchemaValidationErrors2") }
@@ -55,5 +55,10 @@ class TestProcessingErrors {
 
   val ab = testDir + "ProcessingErrors.tdml"
   lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false, validateDFDLSchemas = false)
+  lazy val runner02Validate = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = true, validateDFDLSchemas = true)
+  
+  @Test def test_upaInvalidSchema() { runner02Validate.runOneTest("upaInvalidSchema") }
+  @Test def test_upaInvalidSchema2() { runner02Validate.runOneTest("upaInvalidSchema2") }
+
 
 }

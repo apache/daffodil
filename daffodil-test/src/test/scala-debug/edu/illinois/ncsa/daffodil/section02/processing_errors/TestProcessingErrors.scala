@@ -48,7 +48,4 @@ class TestProcessingErrors2 {
   val aa = testDir + "ProcessingErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_upaInvalidSchema() { runner.runOneTest("upaInvalidSchema") }
-  @Test def test_upaInvalidSchema2() { runner.runOneTest("upaInvalidSchema2") }
-
 }
