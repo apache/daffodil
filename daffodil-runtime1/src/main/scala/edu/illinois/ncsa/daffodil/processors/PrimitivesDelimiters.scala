@@ -129,9 +129,9 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
           case _: DelimParseFailure => {
             val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
 
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
               this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
               this.toString(), eName, allDelims.mkString(", "), foundInstead)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
@@ -421,9 +421,9 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             val maxDelimLength = Seq(maxDelimLengthDynamic, maxDelimLengthStatic).max
             val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
 
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
               this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found %s instead.",
+            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
               this.toString(), eName, allDelims.mkString(", "), foundInstead)
           }
           case s: DelimParseSuccess if (s.delimiterLoc == DelimiterLocation.Remote) => {
