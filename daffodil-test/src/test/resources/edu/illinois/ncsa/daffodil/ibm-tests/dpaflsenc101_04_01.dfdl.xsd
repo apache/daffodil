@@ -17,7 +17,7 @@
 		</xs:appinfo>
 	</xs:annotation>
 
-	<xs:element name="tag1"  type="xs:string" dfdl:encoding="UTF-32" dfdl:byteOrder="littleEndian"
+	<xs:element name="tag1"  type="xs:string" dfdl:encoding="UTF-32LE" dfdl:byteOrder="littleEndian"
 		dfdl:representation="text" dfdl:textStringJustification="left"
 		dfdl:lengthUnits="bytes" dfdl:length="8" dfdl:lengthKind="explicit"
 		dfdl:textTrimKind="none" dfdl:textPadKind="none"
