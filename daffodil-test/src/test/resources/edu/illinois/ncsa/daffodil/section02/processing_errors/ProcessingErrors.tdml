@@ -57,9 +57,51 @@
     </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="delimiterNotFound">
 
-  <!-- ===================================================================== 
-    Tests ======================================================================== -->
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" textBidi="no" floating="no" encoding="utf-8"
+      byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+      fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorSuppressionPolicy="never" separatorPosition="infix" />
+  
+    <xs:element name="seq01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
+          <xs:element name="e2" dfdl:lengthKind="delimited" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+  </tdml:defineSchema>
+  
+  <!--
+    Test name: delimiterNotFound01
+       Schema: delimiterNotFound
+         Root: seq01
+      Purpose: This test demonstrates that when a delimiter is expected but is not found, the diagnostic
+               message shows what data is found instead of the delimiter.
+  -->
+
+  <tdml:parserTestCase name="delimiterNotFound01" root="seq01"
+    model="delimiterNotFound" description="">
+
+    <tdml:document>
+      <tdml:documentPart type="text">strng11</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Delimiter not found!  Was looking for (,) but found "1" instead</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 
   <!--
     Test name: upaInvalidSchema

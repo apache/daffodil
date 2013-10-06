@@ -1297,6 +1297,7 @@
     <tdml:document>1,2</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Sep(',') - sequence: Delimiter not found</tdml:error>
+      <tdml:error>Was looking for (,) but found "1" instead.</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1665,7 +1666,8 @@
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!</tdml:error>
+      <tdml:error>Was looking for (C) but found "2" instead</tdml:error>
     </tdml:errors>
 
     <tdml:validationErrors>
@@ -1722,7 +1724,8 @@
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!</tdml:error>
+      <tdml:error>Was looking for (C) but found "2" instead</tdml:error>
     </tdml:errors>
   
   </tdml:parserTestCase>
@@ -1749,7 +1752,8 @@
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!  Was looking for (C)</tdml:error>
+      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!</tdml:error>
+      <tdml:error>Was looking for (C) but found "2" instead</tdml:error>
     </tdml:errors>
 
     <tdml:validationErrors>

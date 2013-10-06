@@ -60,5 +60,8 @@ class TestProcessingErrors {
   @Test def test_upaInvalidSchema() { runner02Validate.runOneTest("upaInvalidSchema") }
   @Test def test_upaInvalidSchema2() { runner02Validate.runOneTest("upaInvalidSchema2") }
 
+//  DFDL-756  
+//  @Test def test_delimiterNotFound01() { runner02.runOneTest("delimiterNotFound01") }
+
 
 }

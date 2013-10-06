@@ -46,6 +46,8 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 class TestProcessingErrors2 {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
   val aa = testDir + "ProcessingErrors.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_delimiterNotFound01() { runner02.runOneTest("delimiterNotFound01") }
 
 }
