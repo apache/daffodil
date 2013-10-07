@@ -453,31 +453,7 @@ trait HasEscapeScheme { self: StringDelimited =>
       case x => Some(x)
     }
 
-  lazy val compiledOptEscChar: Option[String] = {
-    // Attempts to use the below (which is what I want to do)
-    // results in Null pointer exceptions.
-    //
-    //    val res = self.es match {
-    //      case None => None
-    //      case Some(esObj) => constEval(esObj.knownEscapeCharacter)
-    //    }
-    //    res
-    evalAsConstant(esObj.escapeCharacter)
-  }
-
-  lazy val compiledOptEscEscChar: Option[String] = {
-    // Attempts to use the below (which is what I want to do)
-    // results in Null pointer exceptions.
-    //
-    //    val res = es match {
-    //      case None => None
-    //      case Some(esObj) => constEval(esObj.knownEscapeEscapeCharacter)
-    //    }
-    //    res
-    evalAsConstant(esObj.escapeEscapeCharacter)
-  }
-
-  private def constEval(knownValue: Option[String]) = {
+  protected def constEval(knownValue: Option[String]) = {
     val optConstValue = knownValue match {
       case None => None
       case Some(constValue) => {
@@ -489,7 +465,7 @@ trait HasEscapeScheme { self: StringDelimited =>
     optConstValue
   }
 
-  private def evalAsConstant(knownValue: Option[CompiledExpression]) = {
+  protected def evalAsConstant(knownValue: Option[CompiledExpression]) = {
     knownValue match {
       case None => None
       case Some(ce) if ce.isConstant => {
@@ -555,6 +531,9 @@ abstract class StringDelimited(e: ElementBase)
 
   val es = e.optionEscapeScheme
   val esObj = EscapeScheme.getEscapeScheme(es, e)
+
+  val compiledOptEscChar: Option[String] = evalAsConstant(esObj.escapeCharacter)
+  val compiledOptEscEscChar: Option[String] = evalAsConstant(esObj.escapeEscapeCharacter)
 
   val tm = e.allTerminatingMarkup
   val cname = toString
