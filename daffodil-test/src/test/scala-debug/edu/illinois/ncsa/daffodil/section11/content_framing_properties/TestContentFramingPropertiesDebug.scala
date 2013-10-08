@@ -43,12 +43,6 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestContentFramingPropertiesDebug {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml1 = testDir_01 + "dpaext1.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-
-  @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
-
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
