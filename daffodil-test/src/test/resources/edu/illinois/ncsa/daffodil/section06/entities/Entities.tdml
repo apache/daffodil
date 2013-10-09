@@ -569,9 +569,56 @@ is multiple bytes in UTF-8 encoding that is used"
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <dfdl:defineEscapeScheme name="char03">
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter=" " extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
+    
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="element1" type="xs:string"
+            dfdl:escapeSchemeRef="ex:char03" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <dfdl:defineEscapeScheme name="char04">
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter="%SP;" extraEscapedCharacters="?"/>
+    </dfdl:defineEscapeScheme>
+    
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="element1" type="xs:string"
+            dfdl:escapeSchemeRef="ex:char04" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
   
+  <tdml:defineSchema name="whitespaceSchema">
+
+    <dfdl:format ref="daffodilTest1" encoding="utf-8"
+      byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
+      textStringPadCharacter="0" textTrimKind="padChar" textPadKind="padChar"
+      documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
+      emptyValueDelimiterPolicy="none" initiator="" terminator=""
+      leadingSkip="0" trailingSkip="0" separator="" textBidi="no"
+      floating="no" truncateSpecifiedLengthString="no" decimalSigned="yes"
+      alignment="1" alignmentUnits="bytes" fillByte="1" occursCountKind="implicit"
+      escapeSchemeRef="" representation="text" lengthUnits="characters"
+      lengthKind="delimited"/>
+
+    <xs:element name="spacePad" type="xs:string" dfdl:textStringPadCharacter=" " dfdl:textStringJustification="center"/>
+    <xs:element name="spacePad2" type="xs:string" dfdl:textStringPadCharacter="%SP;" dfdl:textStringJustification="center"/>
+    
+    <xs:element name="spacePad3" type="xs:int" dfdl:textNumberPadCharacter=" " dfdl:textNumberJustification="center"/>
+    <xs:element name="spacePad4" type="xs:int" dfdl:textNumberPadCharacter="%SP;" dfdl:textNumberJustification="center"/>
+
+  </tdml:defineSchema>
+
   <!--
     Test name: whitespace_01
     Schema: EscapesSchema
@@ -651,6 +698,125 @@ is multiple bytes in UTF-8 encoding that is used"
         <e4>
           <element1>hello</element1>
         </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_05
+       Schema: EscapesSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work.
+  -->
+  
+  <tdml:parserTestCase name="whitespace_05"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="EscapesSchema" root="e5">
+    <tdml:document>
+      <tdml:documentPart type="text"> |h |e |l |l |o</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Use DFDL Entities instead</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_06
+       Schema: EscapesSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work.
+  -->
+  
+  <tdml:parserTestCase name="whitespace_06"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="EscapesSchema" root="e6">
+    <tdml:document>
+      <tdml:documentPart type="text"> |h |e |l |l |o</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e6>
+          <element1>|h|e|l|l|o</element1>
+        </e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_07
+       Schema: whitespaceSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work. In this case the property is dfdl:textStringPadCharacter
+  -->
+  
+  <tdml:parserTestCase name="whitespace_07"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="whitespaceSchema" root="spacePad">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      hello      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Use DFDL Entities instead</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_08
+       Schema: whitespaceSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work. In this case the property is dfdl:textStringPadCharacter
+  -->
+  
+  <tdml:parserTestCase name="whitespace_08"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="whitespaceSchema" root="spacePad2">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      hello      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <spacePad2>hello</spacePad2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_09
+       Schema: whitespaceSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work. In this case the property is dfdl:textNumberPadCharacter
+  -->
+  
+  <tdml:parserTestCase name="whitespace_09"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="whitespaceSchema" root="spacePad3">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      123      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Use DFDL Entities instead</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: whitespace_10
+       Schema: whitespaceSchema
+      Purpose: This test demonstrates that you cannot use literal whitespace within certain properties, but
+               entities work. In this case the property is dfdl:textNumberPadCharacter
+  -->
+  
+  <tdml:parserTestCase name="whitespace_10"
+    description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
+    model="whitespaceSchema" root="spacePad4">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[      123      ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <spacePad4>123</spacePad4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
