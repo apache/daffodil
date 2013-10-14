@@ -56,6 +56,12 @@ class TestEscapeScheme {
   @Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
   @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
   @Test def test_escapeSchemeUnused() { runner.runOneTest("escapeSchemeUnused") }
+  
+  @Test def test_escapeExpressions_01() { runner.runOneTest("escapeExpressions_01") }
+  @Test def test_escapeExpressions_01b() { runner.runOneTest("escapeExpressions_01b") }
+  @Test def test_escapeExpressions_02() { runner.runOneTest("escapeExpressions_02") }
+//  DFDL-907
+//  @Test def test_escapeExpressions_03() { runner.runOneTest("escapeExpressions_03") }
 
   val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
   lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg),

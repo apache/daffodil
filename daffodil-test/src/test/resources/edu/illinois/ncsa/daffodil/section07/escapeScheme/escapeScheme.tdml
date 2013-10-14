@@ -255,4 +255,145 @@
       <error>Schema Definition Error</error>
     </errors>
   </parserTestCase>
+  
+  <defineSchema name="escapeSchemeExpressions">
+    <dfdl:format ref="tns:daffodilTest1" separatorPosition="infix" lengthKind="delimited"/> 
+
+    <dfdl:defineEscapeScheme name="fromData">
+      <dfdl:escapeScheme escapeCharacter="{ /tns:e1/tns:escapeChar }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" />
+    </dfdl:defineEscapeScheme>
+    
+    <dfdl:defineEscapeScheme name="literal">
+      <dfdl:escapeScheme escapeCharacter="\"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" />
+    </dfdl:defineEscapeScheme>
+    
+    <dfdl:defineEscapeScheme name="fromDataEmptyEEC">
+      <dfdl:escapeScheme escapeCharacter="{ /tns:e1EmptyEEC/tns:escapeChar }"
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+    </dfdl:defineEscapeScheme>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="escapeChar" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string"/>
+          <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:fromData"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e1b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:literal"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e1EmptyEEC">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="escapeChar" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string"/>
+          <xs:element name="strng" type="xs:string" dfdl:lengthKind="delimited" minOccurs="1" maxOccurs="5" dfdl:escapeSchemeRef="tns:fromDataEmptyEEC"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+  </defineSchema>
+  
+  <!--
+       Test Name: escapeExpressions_01
+          Schema: escapeSchemeExpressions
+            Root: e1
+         Purpose: This test demonstrates that you can use an expression to define an escapeCharacter 
+  -->
+
+  <parserTestCase name="escapeExpressions_01" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e1">
+    <document>\,4\,000\,000,5\,000,6\,450,500</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1 xmlns:tns="http://example.com">
+          <tns:escapeChar>\</tns:escapeChar>
+          <tns:strng>4,000,000</tns:strng>
+          <tns:strng>5,000</tns:strng>
+          <tns:strng>6,450</tns:strng>
+          <tns:strng>500</tns:strng>
+        </tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeExpressions_01b
+          Schema: escapeSchemeExpressions
+            Root: e1b
+         Purpose: This test has the same escapeScheme as the one generated in escapeExpressions_01, but in this test
+                  the escapeCharacter is defined literally instead of taken from the data
+  -->
+
+  <parserTestCase name="escapeExpressions_01b" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e1b">
+    <document>4\,000\,000,5\,000,6\,450,500</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1b xmlns:tns="http://example.com">
+          <tns:strng>4,000,000</tns:strng>
+          <tns:strng>5,000</tns:strng>
+          <tns:strng>6,450</tns:strng>
+          <tns:strng>500</tns:strng>
+        </tns:e1b>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeExpressions_02
+          Schema: escapeSchemeExpressions
+            Root: e1
+         Purpose: This test demonstrates that you can use an expression to define an escapeCharacter 
+  -->
+
+  <parserTestCase name="escapeExpressions_02" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e1">
+    <document>\,4\,000,5000,6450,5000,400</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1 xmlns:tns="http://example.com">
+          <tns:escapeChar>\</tns:escapeChar>
+          <tns:strng>4,000</tns:strng>
+          <tns:strng>5000</tns:strng>
+          <tns:strng>6450</tns:strng>
+          <tns:strng>5000</tns:strng>
+          <tns:strng>400</tns:strng>
+        </tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
+  <!--
+       Test Name: escapeExpressions_03
+          Schema: escapeSchemeExpressions
+            Root: e1
+         Purpose: This test demonstrates that you can use an expression to define an escapeCharacter 
+                  In this case the escapeEscapeCharacter is not defined (empty string)     
+  -->
+
+  <parserTestCase name="escapeExpressions_03" model="escapeSchemeExpressions"
+    description="Section 13 - escapeCharacter - DFDL-13-029R" root="e1EmptyEEC">
+    <document>\,4\,000\,000,5\,000,6\,450,500</document>
+    <infoset>
+      <dfdlInfoset>
+        <tns:e1 xmlns:tns="http://example.com">
+          <tns:escapeChar>\</tns:escapeChar>
+          <tns:strng>4,000,000</tns:strng>
+          <tns:strng>5,000</tns:strng>
+          <tns:strng>6,450</tns:strng>
+          <tns:strng>500</tns:strng>
+        </tns:e1>
+      </dfdlInfoset>
+    </infoset>
+  </parserTestCase>
+  
 </testSuite>
