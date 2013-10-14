@@ -57,7 +57,7 @@ class TestValidationErr {
   @Test def test_checkMinLength_Fail_Combining_limited() { runner.runOneTest("checkMinLength_Fail_Combining_limited") }
   @Test def test_checkEnumeration_Pass_limited() { runner.runOneTest("checkEnumeration_Pass_limited") }
   @Test def test_checkEnumeration_Fail_limited() { runner.runOneTest("checkEnumeration_Fail_limited") }
-//  @Test def test_checkEnumeration_Fail_on() { runner.runOneTest("checkEnumeration_Fail_on") }
+  @Test def test_checkEnumeration_Fail_on() { runner.runOneTest("checkEnumeration_Fail_on") }
   @Test def test_checkMaxInclusive_Fail_DateTime_limited() { runner.runOneTest("checkMaxInclusive_Fail_DateTime_limited") }
 
   @Test def test_checkMinExclusive_Fail_off() { runner.runOneTest("checkMinExclusive_Fail_off") }
@@ -87,7 +87,7 @@ class TestValidationErr {
   @Test def test_assert_validation_off() { runner.runOneTest("assert_validation_off") }
 
   @Test def test_minOccurs_notValidationErr_limited() { runner.runOneTest("minOccurs_notValidationErr_limited") }
-//  @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
+  @Test def test_choice_ignoreValidationErr_01() { runner.runOneTest("choice_ignoreValidationErr_01") }
   @Test def test_choice_ignoreValidationErr_02() { runner.runOneTest("choice_ignoreValidationErr_02") }
   @Test def test_choice_ignoreValidationErr_03() { runner.runOneTest("choice_ignoreValidationErr_03") }
   

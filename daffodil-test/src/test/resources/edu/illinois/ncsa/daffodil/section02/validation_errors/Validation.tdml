@@ -1304,16 +1304,16 @@
   <tdml:defineSchema name="choiceValidation">
     <dfdl:format ref="ex:daffodilTest1" />
 
+    <xs:simpleType name="maxInc3">
+     <xs:restriction base="xs:int">
+       <xs:maxInclusive value="3" />
+     </xs:restriction>
+   </xs:simpleType>
+
     <xs:element name="root">
       <xs:complexType>
          <xs:choice>
-           <xs:element name="max3" dfdl:lengthKind="delimited">
-             <xs:simpleType>
-               <xs:restriction base="xs:int">
-                 <xs:maxInclusive value="3" />
-               </xs:restriction>
-             </xs:simpleType>
-           </xs:element>
+           <xs:element name="max3" type="ex:maxInc3" dfdl:lengthKind="delimited"/>
            <xs:element name="max5" dfdl:lengthKind="delimited">
              <xs:simpleType>
                <xs:restriction base="xs:int">
@@ -1513,8 +1513,9 @@
 		</tdml:infoset>
 		<tdml:validationErrors>
 
-      <tdml:error>max3</tdml:error>
-      <tdml:error>Value '8' is not facet-valid with respect to maxInclusive '3'</tdml:error>
+      <tdml:error>Validation Error</tdml:error>
+      <tdml:error>Value '8' is not facet-valid with respect to maxInclusive '3' for type 'maxInc3'.</tdml:error>
+      <tdml:error>Schema context: Some(element.max3)</tdml:error>
 
 		</tdml:validationErrors>
   </tdml:parserTestCase>
