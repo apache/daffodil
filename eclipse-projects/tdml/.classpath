@@ -3,39 +3,24 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="src" path="src/main/scala-debug"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
+	<classpathentry kind="lib" path="lib_managed/jars/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1.jar" sourcepath="lib_managed/srcs/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-dom.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
+	<classpathentry kind="lib" path="lib_managed/jars/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1.jar" sourcepath="lib_managed/srcs/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-s9api.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
+	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.5-sources.jar">
 		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-jdom.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sourceforge.saxon/saxon/saxon-9.1.0.8-xpath.jar" sourcepath="lib_managed/srcs/net.sourceforge.saxon/saxon">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sourceforge.saxon/saxon/saxon-9.1.0.8-javadoc.jar!/"/>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom/jdom-1.1.3.jar" sourcepath="lib_managed/srcs/org.jdom/jdom/jdom-1.1.3-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom/jdom-1.1.3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar" sourcepath="lib_managed/srcs/com.ibm.icu/icu4j/icu4j-51.1-sources.jar">
