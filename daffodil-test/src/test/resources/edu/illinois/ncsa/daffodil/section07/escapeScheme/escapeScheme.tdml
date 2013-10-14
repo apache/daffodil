@@ -415,13 +415,13 @@
     <document>\,4\,000\,000,5\,000,6\,450,500</document>
     <infoset>
       <dfdlInfoset>
-        <tns:e1 xmlns:tns="http://example.com">
+        <tns:e1EmptyEEC xmlns:tns="http://example.com">
           <tns:escapeChar>\</tns:escapeChar>
           <tns:strng>4,000,000</tns:strng>
           <tns:strng>5,000</tns:strng>
           <tns:strng>6,450</tns:strng>
           <tns:strng>500</tns:strng>
-        </tns:e1>
+        </tns:e1EmptyEEC>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

@@ -734,9 +734,9 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     val pEscapeEscape: Parser[String] = "generateEscapeCharacterDiffWithPadParser.pEscapeEscape".!!!(escapeEscapeCharacterRegex.r)
     val pEscapedEscape = "generateEscapeCharacterDiffWithPadParser.pEscapedEscape".!!!(pEscapeEscape ~! pEscape)
 
-    val pEscapeEscapeFollowedByEscapeFollowedByDelim = "generateEscapeCharacterDiffWithPadParser.pEscapeEscapeFollowedByEscapeFollowedByDelim".!!!((pEscapeEscape ~! pEscape) ~! pDelims) ^^ { case (eses ~ es ~ d) => d }
-    val pDelimNotPrecededByEscape = "generateEscapeCharacterDiffWithPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~! pDelims) ^^ { case (notEsc ~ d) => d }
-    val pEscEscFollowedByDelim = "generateEscapeCharacterDiffWithPadParser.pEscEscFollowedByDelim".!!!(pEscapeEscape ~! pDelims) ^^ { case (eses ~ d) => d }
+    val pEscapeEscapeFollowedByEscapeFollowedByDelim = "generateEscapeCharacterDiffWithPadParser.pEscapeEscapeFollowedByEscapeFollowedByDelim".!!!((pEscapeEscape ~ pEscape) ~ pDelims) ^^ { case (eses ~ es ~ d) => d }
+    val pDelimNotPrecededByEscape = "generateEscapeCharacterDiffWithPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~ pDelims) ^^ { case (notEsc ~ d) => d }
+    val pEscEscFollowedByDelim = "generateEscapeCharacterDiffWithPadParser.pEscEscFollowedByDelim".!!!(pEscapeEscape ~ pDelims) ^^ { case (eses ~ d) => d }
     //val pUnescapedDelims = ((pEscapeEscape ~! pEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | (pEscapeEscape ~> pDelims) | pDelims
     val pUnescapedDelims = "generateEscapeCharacterDiffWithPadParser.pUnescapedDelims".!!!(pEscapeEscapeFollowedByEscapeFollowedByDelim | pDelimNotPrecededByEscape | pEscEscFollowedByDelim | pDelims)
 
@@ -885,15 +885,15 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
 
     // TODO: Same as generateEscapeCharacterDiffWithPadParser, look at generating this separately and passing in
     //val pEscapeEscapeFollowedByEscapeFollowedByDelim = ((pEscapeEscape ~! pEscape) ~! pDelims) ^^ { case (eses ~ es ~ d) => d }
-    val pDelimNotPrecededByEscape = "generateEscapeCharacterDiffNoPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~! pDelims) ^^ { case (notEsc ~ d) => d }
+    val pDelimNotPrecededByEscape = "generateEscapeCharacterDiffNoPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~ pDelims) ^^ { case (notEsc ~ d) => d }
     //val pEscEscFollowedByDelim = (pEscapeEscape ~! pDelims) ^^ { case (eses ~ d) => d }
     //val pUnescapedDelims = pEscapeEscapeFollowedByEscapeFollowedByDelim | pDelimNotPrecededByEscape | pEscEscFollowedByDelim | pDelims
     val pUnescapedDelims = "generateEscapeCharacterDiffNoPadParser.pUnescapedDelims".!!! {
       if (hasEscEsc) {
         // Seems like this is a case where backtracking has to be allowed for pDelimNotPrecededByEscape
-        val pEscapeEscapeFollowedByEscapeFollowedByDelim = "generateEscapeCharacterDiffNoPadParser.pEscapeEscapeFollowedByEscapeFollowedByDelim".!!!((pEscapeEscape ~! pEscape) ~! pDelims) ^^ { case (eses ~ es ~ d) => d }
+        val pEscapeEscapeFollowedByEscapeFollowedByDelim = "generateEscapeCharacterDiffNoPadParser.pEscapeEscapeFollowedByEscapeFollowedByDelim".!!!((pEscapeEscape ~ pEscape) ~ pDelims) ^^ { case (eses ~ es ~ d) => d }
         val pDelimNotPrecededByEscape = "generateEscapeCharacterDiffNoPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~ pDelims) ^^ { case (notEsc ~ d) => d }
-        val pEscEscFollowedByDelim = "generateEscapeCharacterDiffNoPadParser.pEscEscFollowedByDelim".!!!(pEscapeEscape ~! pDelims) ^^ { case (eses ~ d) => d }
+        val pEscEscFollowedByDelim = "generateEscapeCharacterDiffNoPadParser.pEscEscFollowedByDelim".!!!(pEscapeEscape ~ pDelims) ^^ { case (eses ~ d) => d }
         pEscapeEscapeFollowedByEscapeFollowedByDelim | pDelimNotPrecededByEscape | pEscEscFollowedByDelim | pDelims
       } else {
         pDelimNotPrecededByEscape | pDelims
@@ -1002,7 +1002,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
       case (b ~ Some(e)) => (b + e)
     }
 
-    val pEscapedEscapeFollowedByDelim = "generateEscapeCharacterSameNoPadParser.pEscapedEscapeFollowedByDelim".!!!(pEscapedEscape ~! pDelims) ^^ { case (eses ~ d) => d }
+    val pEscapedEscapeFollowedByDelim = "generateEscapeCharacterSameNoPadParser.pEscapedEscapeFollowedByDelim".!!!(pEscapedEscape ~ pDelims) ^^ { case (eses ~ d) => d }
     val pDelimNotPrecededByEscape = "generateEscapeCharacterSameNoPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~ pDelims) ^^ { case (notEsc ~ d) => d } // Backtracking has to be allowed here
     //val pUnescapedDelims = ((pEscapedEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | pDelims
     val pUnescapedDelims = "generateEscapeCharacterSameNoPadParser.pUnescapedDelims".!!!(pEscapedEscapeFollowedByDelim | pDelimNotPrecededByEscape | pDelims)
@@ -1124,8 +1124,8 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
       case (b ~ Some(e)) => (b + e)
     }
 
-    val pEscapedEscapeFollowedByDelim = "generateEscapeCharacterSameWithPadParser.pEscapedEscapeFollwedByDelim".!!!(pEscapedEscape ~! pDelims) ^^ { case (eses ~ d) => d }
-    val pDelimNotPrecededByEscape = "generateEscapeCharacterSameWithPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~! pDelims) ^^ { case (notEsc ~ d) => d }
+    val pEscapedEscapeFollowedByDelim = "generateEscapeCharacterSameWithPadParser.pEscapedEscapeFollwedByDelim".!!!(pEscapedEscape ~ pDelims) ^^ { case (eses ~ d) => d }
+    val pDelimNotPrecededByEscape = "generateEscapeCharacterSameWithPadParser.pDelimNotPrecededByEscape".!!!(not(pEscape) ~ pDelims) ^^ { case (notEsc ~ d) => d }
     //val pUnescapedDelims = ((pEscapedEscape) ~> pDelims) | (not(pEscape) ~> pDelims) | pDelims
     val pUnescapedDelims = "generateEscapeCharacterSameWithPadParser.pUnescapedDelims".!!!(pEscapedEscapeFollowedByDelim | pDelimNotPrecededByEscape | pDelims)
 
