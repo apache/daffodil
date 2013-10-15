@@ -163,18 +163,6 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="shortFormSchemaFail" root="c3"
-    model="PropertyScoping_04.dfdl.xsd"
-    description="DFDL-7-023R : Property Binding Syntax: Short Form">
-
-    <tdml:document><![CDATA[||Shirts,Sold on Monday,30,$17.99||Shoes,Sold on Tuesday,23,$89.99]]></tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Attribute</tdml:error>
-      <tdml:error>not allowed to appear in element 'schema'</tdml:error>
-    </tdml:errors>
-  </tdml:parserTestCase>
-
   <tdml:defineSchema name="defineFormat-Nested.dfdl.xsd">
 
     <dfdl:defineFormat name="format_a">

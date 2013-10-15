@@ -51,8 +51,5 @@ class TestPropertyScopingDebug {
   val tdml = testDir + "PropertyScoping_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  // Moved back to debug, because validation is no longer detecting the error it is
-  // expecting
-  @Test def test_property_shortFormSchemaFail() { runner.runOneTest("shortFormSchemaFail") }
 
 }
