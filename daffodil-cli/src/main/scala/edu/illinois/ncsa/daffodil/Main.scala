@@ -126,7 +126,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         if (l.isEmpty) Right(Some(Nil))
         else Right(Some(l))
       } catch {
-        case _: Throwable => Left(Unit)
+        case _: Throwable => Left("too many arguments for flag option")
       }
     }
     val manifest = m
@@ -163,7 +163,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     // parse returns Left with error message, if there was an error while parsing
     // if no option was found, it returns Right(None)
     // and if option was found, it returns Right(...)
-    def parse(s: List[(String, List[String])]): Either[Unit, Option[Option[A]]] = {
+    def parse(s: List[(String, List[String])]): Either[String, Option[Option[A]]] = {
       s match {
         case Nil => Right(None) // --validate flag was not present
         case (_, Nil) :: Nil => Right(Some(None)) // --validate flag was present but 'mode' wasn't
@@ -176,7 +176,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
             }
           }
         }
-        case _ => Left(Unit) // Error because we expect there to be at most one --validate flag
+        case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one --validate flag
       }
     }
     val manifest = m
