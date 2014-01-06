@@ -467,10 +467,14 @@
   
     <xs:element name="uIntT" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
     <xs:element name="uIntT2" type="xs:unsignedInt" dfdl:ref="ex:textImp" dfdl:encoding="utf-16be" dfdl:leadingSkip="1"/>
+    <xs:element name="uIntTBits" type="xs:unsignedInt" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     <xs:element name="uShortT" type="xs:unsignedShort" dfdl:ref="ex:textImp" dfdl:leadingSkip="1"/>
     <xs:element name="uShortT2" type="xs:unsignedShort" dfdl:ref="ex:textImp" dfdl:encoding="utf-16be" dfdl:leadingSkip="1"/>
+    <xs:element name="uShortTBits" type="xs:unsignedShort" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="1"/>
     <xs:element name="uLongT" type="xs:unsignedLong" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
-    <xs:element name="longT" type="xs:long" dfdl:ref="ex:textImp" dfdl:leadingSkip="20"/>
+    <xs:element name="uLongTBits" type="xs:unsignedLong" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="5"/>
+    <xs:element name="longT" type="xs:long" dfdl:ref="ex:textImp" dfdl:leadingSkip="4"/>
+    <xs:element name="longTBits" type="xs:long" dfdl:ref="ex:textImpBitAlign" dfdl:leadingSkip="4"/>
     
     <xs:element name="dateT" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd MM yyyy" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
     <xs:element name="dateT2" type="xs:date" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="EEEE 'in' MMMM - yyyy" dfdl:ref="ex:textImp" dfdl:leadingSkip="5"/>
@@ -727,30 +731,7 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
-  
-  <!--
-     Test Name: implicitAlignmentUInt1b
-        Schema: implicitAlignmentSchema
-          Root: uIntb
-       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedInt' is 32 bits
-  -->
-
-  <tdml:parserTestCase name="implicitAlignmentUIntb" root="uIntb"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (binary) - DFDL-12-019R">
-
-    <tdml:document>
-      <tdml:documentPart type="bits">1 0000000 00000000 00000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
-      <tdml:documentPart type="bits">00000000 00000000 00000000 00001101</tdml:documentPart> <!-- uInt -->
-    </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uIntb>13</uIntb>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
-  </tdml:parserTestCase>
-  
+ 
   <!--
      Test Name: implicitAlignmentUShort
         Schema: implicitAlignmentSchema
@@ -769,29 +750,6 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <uShort>13</uShort>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
-  </tdml:parserTestCase>
-  
-  <!--
-     Test Name: implicitAlignmentUShortb
-        Schema: implicitAlignmentSchema
-          Root: uShortb
-       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedShort' is 16 bits
-  -->
-
-  <tdml:parserTestCase name="implicitAlignmentUShortb" root="uShortb"
-    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (binary) - DFDL-12-020R">
-
-    <tdml:document>
-      <tdml:documentPart type="bits">1 0000000 00000000</tdml:documentPart> <!-- leadingSkip and buffer to fulfill alignment -->
-      <tdml:documentPart type="bits">01101</tdml:documentPart> <!-- uShort -->
-    </tdml:document>
-    
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uShortb>13</uShortb>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -914,6 +872,53 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <long>50581605226623923</long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentLongT
+        Schema: implicitAlignmentSchema
+          Root: longT
+       Purpose: This test demonstrates that the implicit alignment for the text representation of type 'long' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentLongT" root="longT"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">00 b3 b3 b3</tdml:documentPart> <!-- leadingSkip (4 bytes) -->
+      <tdml:documentPart type="text">50581605226623923</tdml:documentPart> <!-- longT -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <longT>50581605226623923</longT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentLongTBits
+        Schema: implicitAlignmentSchema
+          Root: longTBits
+       Purpose: This test demonstrates that the implicit alignment for the text representation of type 'long' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentLongTBits" root="longTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - long (text) - DFDL-12-018R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip (4 bits) -->
+      <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">50581605226623923</tdml:documentPart> <!-- longTBits -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <longTBits>50581605226623923</longTBits>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -1088,6 +1093,31 @@
   </tdml:parserTestCase>
   
   <!--
+     Test Name: implicitAlignmentUIntTBits
+        Schema: implicitAlignmentSchema
+          Root: uIntTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedInt' is
+                encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUIntTBits" root="uIntTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedInt (text) - DFDL-12-019R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">1</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">42</tdml:documentPart> <!-- uIntTBits -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uIntTBits>42</uIntTBits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
      Test Name: implicitAlignmentUShortT2b
         Schema: implicitAlignmentSchema
           Root: uShortT2
@@ -1100,12 +1130,61 @@
 
     <tdml:document>
       <tdml:documentPart type="byte">00</tdml:documentPart> <!-- leadingSkip -->
-      <tdml:documentPart type="byte">00 32</tdml:documentPart> <!-- uIntT - byte-representation of the number 2 -->
+      <tdml:documentPart type="byte">00 32</tdml:documentPart> <!-- uShortT - byte-representation of the number 2 -->
     </tdml:document>
     
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <uShortT2>2</uShortT2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentUShortTBits
+        Schema: implicitAlignmentSchema
+          Root: uShortTBits
+       Purpose: This test demonstrates that the implicit alignment for the textual representation of type 'unsignedShort' is
+                encoding-specific (generally 8 bits)
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentUShortTBits" root="uShortTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedShort (text) - DFDL-12-020R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0</tdml:documentPart> <!-- leadingSkip -->
+      <tdml:documentPart type="bits">0101010</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">2</tdml:documentPart> <!-- uShortTBits -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uShortTBits>2</uShortTBits>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentULong
+        Schema: implicitAlignmentSchema
+          Root: uLong
+       Purpose: This test demonstrates that the implicit alignment for the binary representation of type 'unsignedLong' is 64 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentULong" root="uLong"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - uLong (binary) - DFDL-12-018R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">11010</tdml:documentPart> <!-- leadingSkip (5 bits) -->
+      <tdml:documentPart type="bits">101 10101010 11011101 01000101 11010010 11010010 11001000 00000010</tdml:documentPart> <!-- buffer to fulfill alignment -->
+      <tdml:documentPart type="byte">00 00 00 00 00 BC 61 4E</tdml:documentPart> <!-- uLong -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uLong>12345678</uLong>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -1155,6 +1234,30 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <uLongT>12345678</uLongT>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: implicitAlignmentULongTBits
+        Schema: implicitAlignmentSchema
+          Root: uLongTBits
+       Purpose: This test demonstrates that the implicit alignment for the text representation of type 'unsignedLong' is 8 bits
+  -->
+
+  <tdml:parserTestCase name="implicitAlignmentULongTBits" root="uLongTBits"
+    model="implicitAlignmentSchema" description="Section 12.1 Aligned Data - Implicit Alignment - unsignedLong (text) - DFDL-12-018R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- leadingSkip (4 bits) -->
+      <tdml:documentPart type="bits">0101</tdml:documentPart> <!-- padding to fulfill alignment -->
+      <tdml:documentPart type="text">12345678</tdml:documentPart> <!-- uLongTBits -->
+    </tdml:document>
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uLongTBits>12345678</uLongTBits>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
