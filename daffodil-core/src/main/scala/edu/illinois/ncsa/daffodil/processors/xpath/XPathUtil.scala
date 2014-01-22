@@ -445,10 +445,9 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   def executeCheck(pstate: PState): Either[String, Unit] = {
     val currentElement = pstate.parentElement
     val e = pstate.getContext()
+    if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
     val data = currentElement.dataValue
     val primType = e.primType
-
-    if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
 
     // We have an ElementBase, retrieve the constraints
     if (e.hasPattern) {
