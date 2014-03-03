@@ -58,7 +58,12 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
 
     val pos = new ParsePosition(0)
     val cal = dataFormatter.getCalendar.clone.asInstanceOf[Calendar]
-    dataFormatter.parse(str, cal, pos);
+    this.synchronized {
+      // As per ICU4J documentation, "Date formats are not synchronized. If
+      // multiple threads access a format concurrently, it must be synchronized
+      // externally."
+      dataFormatter.parse(str, cal, pos);
+    }
 
     // Verify that what was parsed was what was passed exactly in byte count
     // Use pos to verify all characters consumed & check for errors

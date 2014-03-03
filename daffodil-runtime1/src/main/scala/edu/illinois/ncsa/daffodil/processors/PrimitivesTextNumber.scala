@@ -73,7 +73,12 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
         val (newstate, df) = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
         val num = try {
-          df.parse(str, pos)
+          this.synchronized {
+            // as per ICU4J documentation, "DecimalFormat objects are not
+            // synchronized. Multiple threads should not access one formatter
+            // concurrently."
+            df.parse(str, pos)
+         }
         } catch {
           case u: UnsuppressableException => throw u
           case e: Exception =>
