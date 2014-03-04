@@ -1353,14 +1353,14 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
       body: Vector[String] => (String, String)): DelimParseResult = {
     //val pResult = this.parse(this.log(fieldParser)(logString), input)
     val pResult = getLoggingLevel match {
-      case LogLevel.Debug => this.parse(this.log(fieldParser)(logString), input)
-      case _ => this.parse(fieldParser, input)
+      case LogLevel.Debug => this.synchronized { this.parse(this.log(fieldParser)(logString), input) }
+      case _ =>  this.synchronized { this.parse(fieldParser, input) }
     }
 
     val result = pResult match {
       case Success((blockedContent, theDelim), next) => {
         val (theField, theParsedContent) = body(blockedContent)
-        val dResult = this.parse(seps, theDelim) // does our delimiter match the possible seps?
+        val dResult = this.synchronized { this.parse(seps, theDelim) } // does our delimiter match the possible seps?
         val dType =
           if (dResult.isEmpty) DelimiterType.Terminator
           else DelimiterType.Separator

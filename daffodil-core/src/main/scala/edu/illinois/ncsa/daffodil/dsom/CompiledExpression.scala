@@ -282,7 +282,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = vmap
 
-    val xpathRes = try {
+    val xpathRes = DFDLFunctions.synchronized { try {
       DFDLFunctions.currentPState = Some(pstate)
       variables.currentPState = Some(pstate)
       pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
@@ -295,7 +295,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
     } finally {
       DFDLFunctions.currentPState = None // put it back off
       variables.currentPState = None
-    }
+    }}
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val result: Option[List[InfosetElement]] = xpathRes match {
       case NodeResult(n) => {
@@ -323,7 +323,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate)
 
-    val xpathRes = try {
+    val xpathRes = DFDLFunctions.synchronized { try {
       DFDLFunctions.currentPState = Some(pstate)
       variables.currentPState = Some(pstate)
       pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
@@ -336,7 +336,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
     } finally {
       DFDLFunctions.currentPState = None // put it back off
       variables.currentPState = None
-    }
+    }}
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {
       case NotANumberResult(v) => {
@@ -450,7 +450,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
     // withLoggingLevel(LogLevel.Info) 
     {
       val dummyVars = EmptyVariableMap
-      val result =
+      val result = DFDLFunctions.synchronized {
         try {
           DFDLFunctions.currentPState = None // no state if we're trying for a constant value.
           val res = XPathUtil.evalExpression(
@@ -488,7 +488,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
           //          }
         } finally {
           DFDLFunctions.currentPState = None
-        }
+        }}
       result
     }
 

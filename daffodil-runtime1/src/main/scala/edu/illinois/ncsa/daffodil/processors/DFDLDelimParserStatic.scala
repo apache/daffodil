@@ -8,13 +8,13 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
 
   def parseInput(field: Parser[(Vector[String], String)], seps: Parser[String], terms: Parser[String],
     input: Reader[Char], justification: TextJustificationType.Type): DelimParseResult = {
-    val result = this.parseInputDefaultContent(field, seps, terms, input, justification)
+    val result = this.synchronized { this.parseInputDefaultContent(field, seps, terms, input, justification) }
     result
   }
 
   def parseInputDelimiter(inputDelimiterParser: Parser[String], isLocalDelimParser: Parser[String],
     input: Reader[Char]): DelimParseResult = {
-    val res = this.parse(this.log(inputDelimiterParser)("DelimParser.parseInputDelimiter.allDelims"), input)
+    val res = this.synchronized { this.parse(this.log(inputDelimiterParser)("DelimParser.parseInputDelimiter.allDelims"), input) }
 
     // TODO: This seems pretty inefficient. We're redoing a match in order to know 
     // whether it was local or remote?? 
@@ -22,7 +22,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
       case s @ Success(delimiterResult, next) => {
         // We have a result but was it a remote or local match?
 
-        val subResult = this.parseAll(this.log(isLocalDelimParser)("DelimParser.parseInputDelimiter.isLocal"), delimiterResult)
+        val subResult = this.synchronized { this.parseAll(this.log(isLocalDelimParser)("DelimParser.parseInputDelimiter.isLocal"), delimiterResult) }
         val delimiterLocation = if (subResult.isEmpty) DelimiterLocation.Remote else DelimiterLocation.Local
         //
         // TODO: ?? Is None the right thing to pass here?? If we pass none, then it is 
@@ -133,7 +133,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   def parseInputNCharacters(inputNCharsParser: Parser[String], input: Reader[Char],
     removePaddingParser: Option[Parser[String]], justification: TextJustificationType.Type): DelimParseResult = {
     // For debug can use this logging parser instead.
-    val res = this.parse(this.log(inputNCharsParser)("DelimParser.parseInputNCharacters"), input)
+    val res = this.synchronized { this.parse(this.log(inputNCharsParser)("DelimParser.parseInputNCharacters"), input) }
 
     res match {
       case s @ Success(field, next) => {
@@ -148,14 +148,14 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
     input: String): String = {
     val result = removePaddingParser match {
       case Some(p) => {
-        val res = this.parse(this.log(p)({
+        val res = this.synchronized { this.parse(this.log(p)({
           justification match {
             case TextJustificationType.Left => "DelimParser.removePadding.leftJustified"
             case TextJustificationType.Right => "DelimParser.removePadding.rightJustified"
             case TextJustificationType.Center => "DelimParser.removePadding.centerJustified"
             case TextJustificationType.None => Assert.invariantFailed("should not be none if we're trimming.")
           }
-        }), input)
+        }), input) }
         res.getOrElse(input)
       }
       case None => input
@@ -166,7 +166,7 @@ class DFDLDelimParserStatic(stringBitLengthFunction: String => Int)
   def parseInputPatterned(patternParser: Parser[String], input: Reader[Char]): DelimParseResult = {
 
     // FOR DEBUGGING might want this logging version
-    val res = this.parse(this.log(patternParser)("DelimParser.parseInputPatterned"), input)
+    val res = this.synchronized { this.parse(this.log(patternParser)("DelimParser.parseInputPatterned"), input) }
 
     res match {
       case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)

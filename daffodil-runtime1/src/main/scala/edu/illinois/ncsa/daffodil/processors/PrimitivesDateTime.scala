@@ -85,7 +85,7 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
     }
 
     // Convert to the infoset format
-    val result = infosetFormatter.format(cal)
+    val result = this.synchronized { infosetFormatter.format(cal) }
     node.setDataValue(result)
 
     start
