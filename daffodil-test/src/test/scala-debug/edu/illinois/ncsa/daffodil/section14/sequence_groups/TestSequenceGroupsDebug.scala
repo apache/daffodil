@@ -56,6 +56,6 @@ class TestSequenceGroupsDebug {
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
-
+  @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
 }
 

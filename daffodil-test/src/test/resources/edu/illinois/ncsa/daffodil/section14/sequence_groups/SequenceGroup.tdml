@@ -1214,4 +1214,22 @@ more ignored input
 
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="sequenceWithComplexType" root="e1"
+	model="sequenceWithComplexType.dfdl.xsd" description="">
+
+    <tdml:document>-test;test2/</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <e1>
+          <e2>
+            <String1>test</String1>
+          </e2>
+          <e2>
+            <String1>test2</String1>
+          </e2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

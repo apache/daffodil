@@ -1303,6 +1303,14 @@ c' } "  />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e7" type="ct1">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+            message="Assertion failed for dfdl:checkConstraints(.)" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
     <xs:simpleType name="st1">
       <xs:restriction base="ex:st2">
         <xs:pattern value="[0-9]+" />
@@ -1318,6 +1326,13 @@ c' } "  />
         <xs:pattern value="[0-9]*" />
       </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="ct1">
+      <xs:sequence>
+        <xs:element name="string1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" />
+	<xs:element name="string2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" />
+      </xs:sequence>
+    </xs:complexType>
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="dfdlCheckConstraints"
@@ -1351,6 +1366,15 @@ c' } "  />
         </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="checkConstraintsComplexTypeFails"
+    root="e7" model="checkConstraints" description="DFDL-23-135R">
+    <tdml:document>s1s2</tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:checkConstraints may only be called on simple types</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="repeatFlags">

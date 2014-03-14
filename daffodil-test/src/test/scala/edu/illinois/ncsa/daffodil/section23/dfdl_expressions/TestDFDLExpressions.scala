@@ -110,6 +110,7 @@ class TestDFDLExpressions {
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
 
   @Test def test_nonFunctionIsDetected() = { runner.runOneTest("nonFunctionIsDetected") }
   @Test def test_constantFunction1() { runner.runOneTest("constantFunction1") }

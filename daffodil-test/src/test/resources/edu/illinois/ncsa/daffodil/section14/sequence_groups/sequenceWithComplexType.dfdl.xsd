@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xsd="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:u="USMTF"
+           targetNamespace="USMTF">
+    
+    <xs:element name="e1" dfdl:terminator="/">
+        <xs:complexType>
+            <xs:sequence dfdl:initiator="-" dfdl:separator=";" dfdl:separatorPosition="prefix" dfdl:separatorPolicy="suppressedAtEndStrict">
+                <xs:element name="e2" type="u:ct1" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:complexType name="ct1">
+        <xs:choice>
+            <xs:element name="String1" type="xs:string" />
+            <xs:element name="String2" type="xs:string"/>
+        </xs:choice>
+    </xs:complexType>
+    
+    <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format initiator="" terminator="" leadingSkip="0"
+        trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
+        byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
+        fillByte="f" occursCountKind="implicit"
+        truncateSpecifiedLengthString="no" ignoreCase="no"
+        representation="text" lengthKind="delimited"
+        nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="both"
+        documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" sequenceKind="ordered"
+        separatorPolicy="suppressed" separatorPosition="infix" textTrimKind="none" />
+    </xs:appinfo>
+    </xs:annotation>
+</xs:schema>
