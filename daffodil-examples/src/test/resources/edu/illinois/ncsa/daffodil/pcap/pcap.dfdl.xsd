@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?> 
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!--
-Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
 
 Developed by: Tresys Technology, LLC
               http://www.tresys.com
@@ -33,25 +33,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
-  targetNamespace="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat">
-      
-  <xs:import namespace="http://www.ibm.com/dfdl/GeneralPurposeFormat"
-    schemaLocation="IBMdefined/GeneralPurposeFormat.xsd" />
-  
+
+<!--
+Version 1.0   pcap.dfdl.xsd
+
+This DFDL schema provides a DFDL model for PCAP v2.4 binary data, which
+contains network packet capture data.
+
+The message root is 'pcap'.
+-->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:pcap="urn:pcap:2.4"
+           targetNamespace="urn:pcap:2.4">
+
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineVariable name="byte_order" type="xs:string"/>
-          
-      <dfdl:format ref="gpf:GeneralPurposeFormat" 
-         alignment="8" alignmentUnits="bits" lengthUnits="bits" 
-         representation="binary" binaryNumberRep="binary" byteOrder="{ $ex:byte_order }" lengthKind="implicit"
-         separator="" initiator="" terminator=""  
-         occursCountKind="implicit" encoding="UTF-8" />
-         
+
+      <dfdl:defineFormat name="defaults">
+        <dfdl:format alignment="1" alignmentUnits="bytes" binaryBooleanFalseRep="0" binaryBooleanTrueRep="1" binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryCalendarRep="bcd" binaryDecimalVirtualPoint="0" binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary" binaryPackedSignCodes="C D F C" calendarCenturyStart="53" calendarCheckPolicy="lax" calendarDaysInFirstWeek="4" calendarFirstDayOfWeek="Monday" calendarLanguage="en-US" calendarObserveDST="yes" calendarPatternKind="implicit" calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarTimeZone="UTC" choiceLengthKind="implicit" decimalSigned="yes" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" encoding="UTF-8" escapeSchemeRef="" fillByte="0" floating="no" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits" nilKind="literalValue" nilValueDelimiterPolicy="none" nilValue="NIL" occursCountKind="implicit" outputNewLine="%CR;%LF;" prefixIncludesPrefixLength="no" representation="binary" separator="" separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no" textBooleanFalseRep="false" textBooleanJustification="left" textBooleanPadCharacter="%SP;" textBooleanTrueRep="true" textCalendarJustification="left" textCalendarPadCharacter="%SP;" textNumberCheckPolicy="lax" textNumberJustification="right" textNumberPadCharacter="0" textNumberPattern="#0" textNumberRep="standard" textNumberRoundingIncrement="0.0" textNumberRoundingMode="roundUp" textNumberRounding="pattern" textOutputMinLength="0" textPadKind="none" textStandardBase="10" textStandardDecimalSeparator="."  textStandardGroupingSeparator="," textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textStandardZeroRep="" textStringJustification="left" textStringPadCharacter="%SP;" textTrimKind="none" textZonedSignStyle="asciiStandard" trailingSkip="0" truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed" />
+      </dfdl:defineFormat>
+
+      <dfdl:format ref="pcap:defaults" byteOrder="{ $pcap:byte_order }" />
+
     </xs:appinfo>
   </xs:annotation>
-  
+
   <xs:simpleType name="uint16" dfdl:lengthKind="explicit" dfdl:length="16">
     <xs:restriction base="xs:unsignedInt"/>
   </xs:simpleType>
@@ -60,14 +70,13 @@ SOFTWARE.
     <xs:restriction base="xs:unsignedInt"/>
   </xs:simpleType>
 
-  <!-- for portability reasons, made this signed int use length units expressed in bytes -->
   <xs:simpleType name="int32" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
 
  <xs:element name="pcap">
   <xs:complexType>
-    <xs:sequence dfdl:sequenceKind="ordered"> 
+    <xs:sequence dfdl:sequenceKind="ordered">
 
 <!--
   typedef struct pcap_hdr_s {
@@ -91,25 +100,24 @@ SOFTWARE.
   <xs:element name="global_header" minOccurs="1" maxOccurs="1">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="magic_number" type="ex:uint32"
+        <xs:element name="magic_number" type="pcap:uint32"
           dfdl:byteOrder="bigEndian">
           <xs:annotation>
             <xs:appinfo source="http://www.ogf.org/dfdl/">
-              <!-- FIXME: insert some way to write hexadecimal number as a constant -->
-              <dfdl:setVariable ref="ex:byte_order"><![CDATA[{
-            if (xs:unsignedInt(.) eq 2712847316) then 'bigEndian'
-            else if (xs:unsignedInt(.) eq 3569595041) then 'littleEndian'
-            else 'Error: Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian).'
-            }]]></dfdl:setVariable>
+              <dfdl:setVariable ref="pcap:byte_order"><![CDATA[{
+                if (xs:unsignedInt(.) eq 2712847316) then 'bigEndian'
+                else if (xs:unsignedInt(.) eq 3569595041) then 'littleEndian'
+                else 'Error: Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian).'
+              }]]></dfdl:setVariable>
             </xs:appinfo>
           </xs:annotation>
         </xs:element>
-        <xs:element name="version_major" type="ex:uint16" />
-        <xs:element name="version_minor" type="ex:uint16" />
-        <xs:element name="thiszone" type="ex:int32" />
-        <xs:element name="sigfigs" type="ex:uint32" />
-        <xs:element name="snaplen" type="ex:uint32" />
-        <xs:element name="network" type="ex:uint32" />
+        <xs:element name="version_major" type="pcap:uint16" />
+        <xs:element name="version_minor" type="pcap:uint16" />
+        <xs:element name="thiszone" type="pcap:int32" />
+        <xs:element name="sigfigs" type="pcap:uint32" />
+        <xs:element name="snaplen" type="pcap:uint32" />
+        <xs:element name="network" type="pcap:uint32" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -134,21 +142,26 @@ SOFTWARE.
             <xs:element name="header">
               <xs:complexType>
                 <xs:sequence>
-                  <xs:element name="ts_sec" type="ex:uint32"/> <!-- ts_sec should be replaced by a dateTime field to seconds granularity. -->
-                  <xs:element name="ts_usec" type="ex:uint32"/>
-                  <xs:element name="incl_len" type="ex:uint32"/>
-                  <xs:element name="orig_len" type="ex:uint32"/>
+                  <!--
+                    ts_sec should be modeled with a dateTime type. This is
+                    currently unsupported by daffodil, so model it as an
+                    integer for now.
+                  -->
+                  <xs:element name="ts_sec" type="pcap:uint32"/>
+                  <xs:element name="ts_usec" type="pcap:uint32"/>
+                  <xs:element name="incl_len" type="pcap:uint32"/>
+                  <xs:element name="orig_len" type="pcap:uint32"/>
                 </xs:sequence>
               </xs:complexType>
             </xs:element>
             <xs:element name="data" type="xs:hexBinary" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit"
-               dfdl:length="{ ../ex:header/ex:incl_len }"/>
+               dfdl:length="{ ../pcap:header/pcap:incl_len }"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
-  
-    </xs:sequence> 
+
+    </xs:sequence>
   </xs:complexType>
  </xs:element>
- 
+
 </xs:schema>
