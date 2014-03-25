@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:sub="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ogf.org/dfdl/dfdl-config-1.0/"
-	xmlns:tns="http://www.ogf.org/dfdl/dfdl-config-1.0/">
+	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	xmlns:tns="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
 
 	<!-- Copyright (C) 2013, Tresys Technologies LLC. All Rights Reserved. -->
 

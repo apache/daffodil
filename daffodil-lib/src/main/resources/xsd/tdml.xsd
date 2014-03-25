@@ -4,13 +4,13 @@
 	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:cfg="http://www.ogf.org/dfdl/dfdl-config-1.0/">
+	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
 
 	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
 	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
 		schemaLocation="DFDL_model_all_parts.xsd" />
-	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-config-1.0/"
-	    schemaLocation="external-variables-format.xsd" />
+	<xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	    schemaLocation="dafext.xsd" />
 
 	<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 
@@ -78,7 +78,7 @@
 	<element name="defineConfig" type="tns:defineConfigType"/>
 	<complexType name="defineConfigType">
 		<sequence>
-			<element ref="cfg:externalVariableBindings" minOccurs="0" maxOccurs="1"/>
+			<element ref="daf:externalVariableBindings" minOccurs="0" maxOccurs="1"/>
 		</sequence>
 		<attribute name="name" type="xs:NCName" use="required" />
 	</complexType>

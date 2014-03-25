@@ -11,8 +11,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 object ExternalVariablesValidator {
 
   final val extVarXsd = {
-    //val uri = Misc.getRequiredResource("/xsd/external-variables-format.xsd")
-    val stream = this.getClass().getResourceAsStream("/xsd/external-variables-format.xsd")
+    //val uri = Misc.getRequiredResource("/xsd/dafext.xsd")
+    val stream = this.getClass().getResourceAsStream("/xsd/dafext.xsd")
     stream
   }
 
