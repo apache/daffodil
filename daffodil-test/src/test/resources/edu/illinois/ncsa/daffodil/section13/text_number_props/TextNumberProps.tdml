@@ -3,7 +3,7 @@
   description="Text Number Properties" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <tdml:defineSchema name="textNumberPattern">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
@@ -274,7 +274,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="textNumberPattern2">
-    <dfdl:format initiator=""
+    <dfdl:format ref="tns:daffodilNewProperties1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
       alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
@@ -3429,7 +3429,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="textpropsInvalid">
-    <dfdl:format initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
+    <dfdl:format ref="tns:daffodilNewProperties1" initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
       textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"
@@ -3444,7 +3444,7 @@
   </tdml:defineSchema>
 
   <tdml:defineSchema name="textpropsInvalid2">
-    <dfdl:format initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
+    <dfdl:format ref="tns:daffodilNewProperties1" initiator="" alignment="1" alignmentUnits="bytes" leadingSkip="0"
       textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN"
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty" textTrimKind="none"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" trailingSkip="0"

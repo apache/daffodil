@@ -34,7 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 
 /**
  * Split this out of AnnotatedMixin for separation of
@@ -54,13 +54,23 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    */
 
   lazy val isKnownEncoding = {
+    //
+    // Be sure we check this. encodingErrorPolicy='error' is harder
+    // to support because you have to get decode errors precisely
+    // in that case. Means you can't do things like just use
+    // a buffered reader since filling the buffer may encounter
+    // the error even though the parser won't actually consume
+    // that much of the data. 
+    //
+    schemaDefinitionUnless(encodingErrorPolicy == EncodingErrorPolicy.Replace, 
+        "Property encodingErrorPolicy='error' not supported.")
     val isKnown = encoding.isConstant
     if (isKnown) {
       val encName = encoding.constantAsString.toUpperCase()
       if (encName.startsWith("UTF-16")) {
         schemaDefinitionUnless(utf16Width == UTF16Width.Fixed, "Property utf16Width='variable' not supported.")
         //
-        // TODO: when runtime encoding is supproted, must also check for utf16Width
+        // TODO: when runtime encoding is supported, must also check for utf16Width
         // (and error if unsupported then, or just implement it!)
       }
     }
@@ -93,6 +103,13 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
   //    encoder
   //  }
 
+  /**
+   * When the encoding is known, this tells us the mandatory
+   * alignment required. This is always 1 or 8.
+   * <p>
+   * We only have one non-8-bit encoding right now, but there
+   * are some 5, 6, and 9 bit encodings out there.
+   */
   lazy val knownEncodingAlignmentInBits = {
     knownEncodingName match {
       case "US-ASCII-7-BIT-PACKED" => 1 // canonical form of encoding names is all upper case
@@ -121,6 +138,10 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
       case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
     }
     res
+  }
+  
+  lazy val mustBeAnEncodingWith8BitAlignment = {
+    !isKnownEncoding || knownEncodingAlignmentInBits == 8
   }
 
   lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth

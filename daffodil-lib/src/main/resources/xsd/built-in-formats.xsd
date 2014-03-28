@@ -1,13 +1,53 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-  <!-- intended for inclusion into other schemas
-    has no targetNamespace on purpose -->
-  <xs:annotation>
-    <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:defineFormat name="daffodilTest1">
-        <dfdl:format alignment="1" alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary" byteOrder="bigEndian" calendarPatternKind="implicit" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both" encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no" initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bytes" occursCountKind="parsed" representation="text" separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" sequenceKind="ordered" terminator="" textNumberCheckPolicy="lax" textNumberRep="standard" textStandardBase="10" textStringJustification="left" textTrimKind="none" trailingSkip="0" utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###" textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"/>
-      </dfdl:defineFormat>
-    </xs:appinfo>
-  </xs:annotation>
+	<!-- Intended for inclusion into other schemas. Has no targetNamespace on 
+		purpose -->
+	<xs:annotation>
+		<xs:appinfo source="http://www.ogf.org/dfdl/">
+
+			<!-- Don't add new properties here. Add them to daffodilNewProperties1 -->
+
+			<!-- Note: The definition of daffodilTest1 in scala code had diverged 
+				from what was in this file. The one embedded in scala code has been removed. 
+				It now reads this one to get the definition. -->
+
+			<dfdl:defineFormat name="daffodilTest1">
+				<dfdl:format ref="daffodilNewProperties1" alignment="1"
+					alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
+					byteOrder="bigEndian" calendarPatternKind="implicit"
+					documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+					encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
+					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit"
+					lengthUnits="bytes" occursCountKind="parsed" representation="text"
+					separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty"
+					sequenceKind="ordered" terminator="" textNumberCheckPolicy="lax"
+					textNumberRep="standard" textStandardBase="10"
+					textStringJustification="left" textTrimKind="none" trailingSkip="0"
+					utf16Width="fixed" textStandardDecimalSeparator="."
+					textStandardGroupingSeparator="," textStandardExponentRep="E"
+					textStandardZeroRep="0" textStandardInfinityRep="Inf"
+					textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
+					textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
+					textNumberRoundingIncrement="0" />
+			</dfdl:defineFormat>
+
+			<!-- As we add new properties, add them here. -->
+			<!-- Some tests (negative tests) expect errors depending on some of the 
+				properties in daffodilTest1 being missing. If those tests are made to include 
+				daffodilTest1 then they break because the properties are present. However, 
+				once a new property starts being required, the test breaks because it doesn't 
+				have the new property defined. Include this file and then ref daffodilNewProperties1 
+				gets you only the new properties without all the property settings of daffodilTest1. -->
+
+			<dfdl:defineFormat name="daffodilNewProperties1">
+				<dfdl:format encodingErrorPolicy="replace" sequenceKind="ordered"
+					calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
+					calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
+					calendarCheckPolicy='strict' calendarLanguage='en' />
+			</dfdl:defineFormat>
+
+		</xs:appinfo>
+	</xs:annotation>
 </xs:schema>

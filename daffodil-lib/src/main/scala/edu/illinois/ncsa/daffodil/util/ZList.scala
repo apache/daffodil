@@ -86,7 +86,15 @@ object ZZ {
 }
 
 object ZEnd extends ZList {
-  lazy val head = Assert.usageError("head of ZEnd")
-  lazy val tail = Assert.usageError("tail of ZEnd")
+  // making this separate error routine which returns ZList
+  // eliminates a warning (which is a scala compiler bug) that indicates
+  // dead code any time you stub a lazy val with something that throws 
+  // i.e., return type Nothing.
+  // This gets a warning: 
+  //     lazy val head = Assert.usageError("head on ZEnd")
+  //
+  def error() : ZList = Assert.usageError("cannot take head or tail of ZEnd")
+  lazy val head = { error }
+  lazy val tail : ZList = { error }
   override def toString = "ZEnd"
 }

@@ -34,7 +34,7 @@ content of this file.
   <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
     schemaLocation="dafint.xsd"/>
     
- <!-- ============================================================= -->
+  <!-- ============================================================= -->
   <!-- Base DFDL Data types -->
   <!-- ============================================================= -->
 
@@ -61,8 +61,7 @@ content of this file.
 
   <xsd:simpleType name="DFDLExpressionOrNothing">
     <xsd:annotation>
-      <xsd:documentation>An expression, or nothing at all.
-      </xsd:documentation>
+      <xsd:documentation>An expression, or nothing at all.</xsd:documentation>
     </xsd:annotation>
     <xsd:union memberTypes="dfdl:EmptyString dfdl:DFDLExpression" />
     <!--
@@ -144,8 +143,9 @@ content of this file.
   <!-- ========================================================= -->
 
   <xsd:simpleType name="EncodingEnum">
-    <xsd:restriction base="xsd:string">
+    <xsd:restriction base="xsd:token">
       <!-- IANA charsets or CCIDSs -->
+      <xsd:pattern value=".{1,60}" /> <!-- at least one character -->
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -500,6 +500,13 @@ content of this file.
       <xsd:enumeration value="variable" />
     </xsd:restriction>
   </xsd:simpleType>
+  
+  <xsd:simpleType name="EncodingErrorPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="error" />
+      <xsd:enumeration value="replace" />
+    </xsd:restriction>
+  </xsd:simpleType>
 
   <xsd:simpleType name="TestKindEnum">
     <xsd:restriction base="xsd:string">
@@ -612,7 +619,7 @@ content of this file.
   </xsd:simpleType>
 
   
-  <!-- ==================================================================== -->
+ <!-- ==================================================================== -->
   <!-- Basic Attributes and Attribute Groups representing DFDL properties -->
   <!-- ==================================================================== -->
 
@@ -629,6 +636,9 @@ content of this file.
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
+  
+  <!-- Added to DFDL -->
+  <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
 
   <xsd:attributeGroup name="CommonAG">
     <xsd:attribute name="byteOrder"
@@ -636,6 +646,7 @@ content of this file.
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
+    <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   </xsd:attributeGroup>
 
@@ -1058,6 +1069,7 @@ content of this file.
       <!-- List of properties with non-string types -->
       <xsd:enumeration value="byteOrder" />
       <xsd:enumeration value="encoding" />
+      <xsd:enumeration value="encodingErrorPolicy"/>
       <xsd:enumeration value="utf16Width" />
       <xsd:enumeration value="ignoreCase" />
 
@@ -1153,6 +1165,8 @@ content of this file.
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
+    <xsd:attribute form="qualified" name="encodingErrorPolicy"
+      type="dfdl:EncodingErrorPolicyEnum" />
     <xsd:attribute form="qualified" name="utf16Width"
       type="dfdl:UTF16WidthEnum" />
     <xsd:attribute form="qualified" name="ignoreCase"

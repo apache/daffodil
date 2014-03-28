@@ -962,6 +962,13 @@
     error should convey which schema components were checked for this property.
   -->
 
+  <!-- Test removed: (MikeB) this test design is fragile. Now that we've implemented
+    more properties, and initial values for them have been added to daffodilTest1
+    format, the lack of a definition for calendarTimeZone is no longer true.
+    Determining exactly which properties this test needs and which it does not
+    is too much effort, and is a maintainability problem.
+     -->
+     <!-- 
   <tdml:parserTestCase name="combinations_01" root="baseSeq"
     model="multi_base_06.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[these.hidden.objs.1234.()()()()().abc.done|03-24-1988]]></tdml:document>
@@ -969,7 +976,7 @@
       <tdml:error>Schema Definition Error: Property calendarTimeZone is not defined</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-
+	 -->
   <!--
     Test name: combinations_02
     Schema: multi_base_06.dfdl.xsd

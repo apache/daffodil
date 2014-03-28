@@ -71,27 +71,35 @@ object Assert extends Assert {
       abort(message)
   }
 
-  def usageError(message: => String = "Usage error.") = {
+  //
+  // Throughout this file, specifying return type Nothing
+  // gets rid of many spurious (scala compiler bug) dead code
+  // warnings. It doesn't hurt to have them, so they're in now
+  // which allows the scala compiler checking for dead-code pass
+  // to be enabled.
+  //
+  
+  def usageError(message: => String = "Usage error.") : Nothing = {
     abort(message)
   }
 
-  def notYetImplemented(info: String) = {
+  def notYetImplemented(info: String) : Nothing = {
     toss(new NotYetImplementedException(info + "\n" + shortBacktrace))
   }
 
-  def notYetImplemented() = {
+  def notYetImplemented() : Nothing = {
     toss(new NotYetImplementedException(shortBacktrace))
   }
 
-  def abort(message: => String = "") = {
+  def abort(message: => String = "") : Nothing = {
     toss(new Abort(message + "\n" + shortBacktrace))
   }
 
-  def abort(th: Throwable) = {
+  def abort(th: Throwable) : Nothing = {
     toss(new Abort(th))
   }
 
-  def impossible(message: String = "impossible! this code path is supposed to be unreachable.") = {
+  def impossible(message: String = "impossible! this code path is supposed to be unreachable.")  : Nothing = {
     abort(message)
   }
 

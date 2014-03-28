@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <daf:dfdlConfig name="cfg_cli_test"
-	xmlns:daf="http://www.ogf.org/dfdl/dfdl-config-1.0/">
+	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
 	<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 		<daf:bind name="ex:var1">-9</daf:bind>

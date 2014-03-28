@@ -73,7 +73,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
 
@@ -111,7 +111,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
 
@@ -180,7 +180,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -271,7 +271,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -362,7 +362,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -452,7 +452,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -547,7 +547,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -654,7 +654,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -764,7 +764,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -903,7 +903,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1053,7 +1053,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1201,7 +1201,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1324,7 +1324,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1408,7 +1408,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1499,7 +1499,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -1626,7 +1626,7 @@ class TestDsomCompilerNew extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val root = declf.forRoot()
     val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]

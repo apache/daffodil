@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com" xmlns:tns="http://example.com">
 
   <tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
 
@@ -13,7 +13,7 @@
       emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
 
     <dfdl:defineFormat name="rdefFormat">
-      <dfdl:format initiator="" terminator="" leadingSkip="0"
+      <dfdl:format ref="tns:daffodilNewProperties1" initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" separator="" textBidi="no" floating="no"
         encoding="ascii" byteOrder="bigEndian" ignoreCase="no"
         outputNewLine="%LF;" truncateSpecifiedLengthString="no"

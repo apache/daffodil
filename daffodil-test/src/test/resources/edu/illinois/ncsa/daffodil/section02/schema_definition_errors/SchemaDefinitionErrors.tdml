@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="ProcessingErrorTests"
   description="Section 2.3 - Processing Errors" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:tns="http://example.com">
 
   <!-- =====================================================================
     Schemas ======================================================================= -->
@@ -50,7 +50,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="missingLeadingSkip">
-    <dfdl:format lengthKind="delimited" alignment="1" alignmentUnits="bits" terminator="" separator="" initiator=""
+    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" alignment="1" alignmentUnits="bits" terminator="" separator="" initiator=""
       encoding="utf-8" representation="text"/>
 
     <xs:element name="elem">

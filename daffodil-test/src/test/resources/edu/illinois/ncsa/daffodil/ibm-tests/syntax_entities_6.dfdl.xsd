@@ -3,6 +3,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	>
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+	
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -18,7 +20,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="rdefFormat">
-				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
+				<dfdl:format ref="daffodilNewProperties1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
 					ignoreCase="no" outputNewLine="%LF;"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""

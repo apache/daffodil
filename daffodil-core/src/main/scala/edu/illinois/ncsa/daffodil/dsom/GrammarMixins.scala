@@ -80,6 +80,15 @@ trait InitiatedTerminatedMixin
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
     if (terminator.isConstant) prims.StaticTerminator(this)
     else prims.DynamicTerminator(this))
+    
+   /**
+   * True if this term has initiator, terminator, or separator that are either statically
+   * present, or there is an expression. (Such expressions are not allowed to evaluate to "" - you
+   * can't turn off a delimiter by providing "" at runtime. Minimum length is 1 for these at runtime.
+   * <p>
+   * Override in Sequence to also check for separator.
+   */
+  lazy val hasDelimiters = hasInitiator || hasTerminator
 }
 
 trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
@@ -127,7 +136,45 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 trait AlignedMixin { self: Term =>
   lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, leadingSkip > 0, prims.LeadingSkipRegion(this))
   lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, trailingSkip > 0, prims.TrailingSkipRegion(this))
-  lazy val alignmentFill = Prod("alignmentFill", this, !(alignment == "1" && alignmentUnits == AlignmentUnits.Bits), prims.AlignmentFill(this))
+  lazy val alignmentFill = Prod("alignmentFill", this, !isKnownPreAligned, prims.AlignmentFill(this))
+  
+  /**
+   * true if we can statically determine that the start of this
+   * will be properly aligned by where the prior thing left us positioned.
+   * Hence we are guaranteed to be properly aligned.
+   */
+  // TODO: make this actually do the position analysis - that however, requires computing
+  // known alignment information based on the starting known alignment and known length
+  // of prior things (recursively). I.e., it's a bit tricky.
+  lazy val isKnownPreAligned = isScannable || (alignment == "1" && alignmentUnits == AlignmentUnits.Bits)
+  
+// TODO: deal with case of a bit field that is not a multiple of bytes wide
+// but has a terminator which is text and so has mandatory alignment.
+//  /**
+//   * Region of up to 7 bits to get us to a byte boundary for text.
+//   */
+//  lazy val initiatorAlign = Prod("initiatorAlign", this, !isInitiatorPreAligned, prims.TextAlign(mandatoryAlignment))
+//  lazy val terminatorAlign = Prod("terminatorAlign", this, !isTerminatorPreAligned, prims.TextAlign(mandatoryAlignment))
+//  lazy val separatorAlign = Prod("separatorAlign", this, !isSeparatorPreAligned, prims.TextAlign(mandatoryAlignment))
+//  
+//  lazy val isInitiatorPreAligned = {
+//    if (!hasInitiator) true
+//    else {
+//      alignmentCompatible(precedingTermAlignment, mandatoryAlignment)
+//    }
+//  }
+  
+  lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
+  
+  /**
+   * no alignment properties that would explicitly create
+   * a need to align in a way that is not on a suitable boundary
+   * for a character.
+   */
+  lazy val hasTextAlignment = {
+      this.knownEncodingAlignmentInBits == this.alignmentValueInBits 
+  }
+         
 }
 
 /////////////////////////////////////////////////////////////////
@@ -1059,6 +1106,7 @@ trait TermGrammarMixin { self: Term =>
   lazy val newVarStarts = newVars.map { _.gram }
   lazy val newVarEnds = newVars.map { _.endGram }
 
+  // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
   lazy val dfdlScopeBegin = Prod("dfdlScopeBegin", this, newVarStarts.length > 0,
     newVarStarts.fold(EmptyGram) { _ ~ _ })
 
@@ -1237,13 +1285,13 @@ trait SequenceGrammarMixin { self: Sequence =>
 
   lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
 
-  lazy val hasSeparator = separator.isKnownNonEmpty
-
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
   def sepExpr(pos: => SeparatorPosition): Boolean = {
     if (hasSeparator) if (separatorPosition eq pos) true else false
     else false
   }
+  
+  lazy val hasSeparator = separator.isKnownNonEmpty
 }
 
 trait GroupRefGrammarMixin { self: GroupRef =>

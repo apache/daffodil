@@ -12,7 +12,7 @@ class TestMiddleEndAttributes2 {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = SchemaUtils.dfdlTestSchema(
 
-      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited"/>,
+      <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" encoding="US-ASCII"/>,
 
       <xs:element name="e1">
         <xs:complexType>
@@ -26,7 +26,7 @@ class TestMiddleEndAttributes2 {
 
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls

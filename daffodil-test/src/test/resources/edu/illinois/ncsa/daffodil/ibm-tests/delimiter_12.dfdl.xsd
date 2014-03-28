@@ -4,6 +4,7 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
 	elementFormDefault="qualified" attributeFormDefault="unqualified" >
 
+	<xs:include schemaLocation="xsd/built-in-formats.xsd" />
 
     <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -24,7 +25,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="config">
-   <dfdl:format  encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
+   <dfdl:format ref="daffodilNewProperties1" encoding="UTF-8" byteOrder="littleEndian" ignoreCase="yes"
 				textStringJustification="right"
 				textStringPadCharacter="x" textTrimKind="padChar"  textPadKind="padChar" documentFinalTerminatorCanBeMissing="yes"/>
 			</dfdl:defineFormat>

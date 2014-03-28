@@ -155,11 +155,9 @@ object XMLUtils {
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
   val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE.toString)
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
-  //  val DFDL_SUBSET_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema")
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
-  //  val DFDL_XMLSCHEMASUBSET_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
-  val CONFIG_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-config-1.0/")
+  val CONFIG_NAMESPACE = EXT_NS
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.

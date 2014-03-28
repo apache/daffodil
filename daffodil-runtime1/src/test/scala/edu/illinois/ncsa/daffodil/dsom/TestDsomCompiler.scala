@@ -42,7 +42,7 @@ class TestDsomCompiler extends Logging {
     val compiler = Compiler()
     val (sset, _) = compiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
 
@@ -144,7 +144,7 @@ class TestDsomCompiler extends Logging {
     val (sset, _) = Compiler().frontEnd(sc)
 
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declFactory) = schemaDoc.globalElementDecls
     val decl = declFactory.forRoot()
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
@@ -196,7 +196,7 @@ class TestDsomCompiler extends Logging {
 
     val (sset, _) = Compiler().frontEnd(w)
     val Seq(schema) = sset.schemas
-    val Seq(schemaDoc) = schema.schemaDocuments
+    val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls
     val Seq(ct) = schemaDoc.globalComplexTypeDefs
     assertEquals("example1", ct.name)
@@ -403,7 +403,7 @@ class TestDsomCompiler extends Logging {
       </xs:element>)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
     val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
@@ -428,7 +428,7 @@ class TestDsomCompiler extends Logging {
       </xs:element>)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
@@ -602,7 +602,7 @@ class TestDsomCompiler extends Logging {
       </xs:element>)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
@@ -622,7 +622,7 @@ class TestDsomCompiler extends Logging {
     // println(testSchema)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
@@ -711,7 +711,7 @@ class TestDsomCompiler extends Logging {
       </xs:element>)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
@@ -777,7 +777,7 @@ class TestDsomCompiler extends Logging {
       </xs:complexType>)
     val sset = new SchemaSet(PrimitiveFactory, testSchema)
     val Seq(sch) = sset.schemas
-    val Seq(sd) = sch.schemaDocuments
+    val Seq(sd, _) = sch.schemaDocuments
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()

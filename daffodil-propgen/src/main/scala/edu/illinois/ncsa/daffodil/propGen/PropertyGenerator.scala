@@ -54,13 +54,17 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
-  val exclusions = List("TextNumberBase", "AlignmentType", "FillByteType") // Do these by hand.
+  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType" , 
+      "SeparatorSuppressionPolicy") // Do these by hand.
+  val excludedAttributes = List("TextNumberBase", 
+      "SeparatorSuppressionPolicy") // Do these by hand.
 
-  def excludeType(name: String) = {
-    if (exclusions.contains(name)) {
-      true
-    } else
-      false
+  def excludeType(name : String) = {
+      excludedTypes.exists { _.toUpperCase.contains(name.toUpperCase()) }
+  }
+  
+  def excludeAttribute(name : String) = {
+      excludedAttributes.exists { _.toUpperCase.contains(name.toUpperCase()) }
   }
 
   def generate() = {
@@ -148,7 +152,7 @@ class PropertyGenerator(arg: Node) {
     val name = enumName.stripSuffix("Enum")
     // val name = enumName // leave suffix on. 
     if (excludeType(name)) return ""
-    if (exclusions.contains(name)) return ""
+    if (excludedTypes.contains(name)) return ""
     val enumNodes = (st \\ "enumeration")
     val symNodes = enumNodes \\ "@value"
     val syms = symNodes.map(_.text)
@@ -188,7 +192,12 @@ class PropertyGenerator(arg: Node) {
     //
     // for each attribute that is an Enum type, we want to use a Mixin of that type
     //
-    val (enumAttributeList, nonEnumAttributeList) = attribs.partition { attrNode =>
+    val nonExcludedAttribs = attribs.filter{ attrNode =>
+      val rawName = attr(attrNode, "name").get
+      !excludeAttribute(rawName)
+    }
+
+    val (enumAttributeList, nonEnumAttributeList) = nonExcludedAttribs.partition { attrNode =>
       {
         val qualifiedTypeName = attr(attrNode, "type").get
         val rawName = attr(attrNode, "name").get

@@ -5,6 +5,8 @@
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineVariable name="v_no_default" type="xsd:int" />
@@ -15,7 +17,7 @@
 
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format representation="text" lengthUnits="bytes"
+      <dfdl:format ref="tns:daffodilNewProperties1" representation="text" lengthUnits="bytes"
         encoding="US-ASCII" alignment='1' alignmentUnits='bytes'
         textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary'
         byteOrder='bigEndian' calendarPatternKind='implicit'

@@ -8,10 +8,16 @@
 	 built-in-formats.xsd and referencing daffodilTest1. Instead, all necessary
 	 properties must be explicitly defined
 -->
+<!-- 
+     Amend that: we can include built-in-formats and ref daffodilNewProperties1 which
+     only contains new properties introduced since these tests were created.
+ -->
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
+      <dfdl:format ref="a03:daffodilNewProperties1" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
       leadingSkip='0' initiator="" occursCountKind="parsed" initiatedContent="no" representation="text" 
       textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
       alignment="1" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered"/>

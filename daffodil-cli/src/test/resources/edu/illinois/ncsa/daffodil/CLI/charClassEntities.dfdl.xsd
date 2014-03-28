@@ -32,7 +32,7 @@
           <sequence dfdl:separator="," dfdl:encoding="utf-8">
             <element name="cell" type="xsd:int" maxOccurs="unbounded"
               dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
-              dfdl:encoding="utf-8" />
+              dfdl:encodingErrorPolicy="replace" encoding="utf-8" />
           </sequence>
         </complexType>
       </element>
@@ -47,7 +47,7 @@
           <sequence dfdl:separator="," dfdl:encoding="utf-8">
             <element name="cell" type="xsd:string" maxOccurs="unbounded"
               dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"
-              dfdl:encoding="utf-8" />
+              dfdl:encodingErrorPolicy="replace" encoding="utf-8" />
           </sequence>
         </complexType>
       </element>

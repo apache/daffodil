@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
+<externalVariableBindings 
+ xmlns="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
 	xmlns:ex="http://example.com">
 	<bind name="ex:var1">-9</bind>
 	<bind name="ex:var3">-8</bind>

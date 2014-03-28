@@ -47,5 +47,9 @@ class TestAlignedDataDebug {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-
+  
+  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
+  
+  // See DFDL-929
+  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
 }

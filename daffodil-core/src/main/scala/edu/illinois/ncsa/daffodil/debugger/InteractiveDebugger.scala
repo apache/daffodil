@@ -434,7 +434,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
       val newState = args.size match {
         case 0 => {
           throw new DebugException("no command specified")
-          DebugState.Pause
         }
         case _ => {
           val subcmd = args.head
@@ -443,7 +442,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
             case Some(c) => c(subcmdArgs, prestate, state, parser)
             case None => {
               throw new DebugException("undefined command: %s".format(subcmd))
-              DebugState.Pause
             }
           }
         }
@@ -535,7 +533,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         if (args.length < 2) {
           throw new DebugException("command requires a breakpoint id and a DFDL expression")
-          return DebugState.Pause
         }
         try {
           val id = args.head.toInt
@@ -603,7 +600,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (args.length != 1) {
             throw new DebugException("delete breakpoint command requires a single argument")
-            return DebugState.Pause
           }
           try {
             val id = args.head.toInt
@@ -853,7 +849,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
           if (expressionList.size == 0) {
             throw new DebugException("DFDL expression required")
-            return DebugState.Pause
           }
 
           try {

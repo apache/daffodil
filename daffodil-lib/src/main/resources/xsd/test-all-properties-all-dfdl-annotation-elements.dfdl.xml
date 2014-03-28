@@ -27,7 +27,7 @@
     <xsd:annotation>
       <xsd:appinfo>
         <dfdl:simpleType alignment="implicit"
-          alignmentUnits="bits" byteOrder="littleEndian" encoding=""
+          alignmentUnits="bits" byteOrder="littleEndian" encoding="ascii"
           escapeSchemeRef="ex:foo" fillByte="1" initiator=""
 
           leadingSkip="1" length="{}" lengthKind="implicit"
@@ -51,7 +51,7 @@
     <xsd:appinfo>
       <dfdl:defineFormat name="myFormat">
         <dfdl:format alignment="implicit" alignmentUnits="bits"
-          byteOrder="littleEndian" encoding="" escapeSchemeRef="myScheme"
+          byteOrder="littleEndian" encoding="ascii" escapeSchemeRef="myScheme"
           fillByte="-128" documentFinalTerminatorCanBeMissing="yes"
           initiator="" inputValueCalc="{ }" length="{ 5 }" lengthKind="implicit"
           lengthPattern="" lengthUnits="bits" nilKind="literalValue"
@@ -63,7 +63,7 @@
           textBooleanFalseRep="" textBooleanTrueRep=""
           textNumberJustification="right" textStringJustification="right"
           textTrimKind="none" trailingSkip="1" useNilForDefault="yes"
-          ref="myBaseFormat">
+          ref="myBaseFormat" encodingErrorPolicy='replace'>
           <dfdl:property name="terminator">##;;</dfdl:property>
         </dfdl:format>
       </dfdl:defineFormat>
@@ -74,8 +74,7 @@
 
   <xsd:simpleType name="mySimpleType" dfdl:alignment="implicit"
     dfdl:alignmentUnits="bits" dfdl:byteOrder="littleEndian"
-    dfdl:encoding="" dfdl:escapeSchemeRef="ex:myScheme" dfdl:fillByte="1"
-    dfdl:initiator="" dfdl:ignoreCase="yes" dfdl:leadingSkip="1"
+    dfdl:encoding="ascii" dfdl:ignoreCase="yes" dfdl:leadingSkip="1"
     dfdl:length="3" dfdl:lengthKind="implicit" dfdl:lengthPattern=""
     dfdl:lengthUnits="bits" dfdl:outputNewLine=""
     dfdl:prefixIncludesPrefixLength="yes" dfdl:prefixLengthType="QName"
@@ -128,7 +127,7 @@
               <xsd:appinfo>
                 <dfdl:element alignment="implicit"
                   alignmentUnits="bits" byteOrder="littleEndian"
-                  emptyValueDelimiterPolicy="both" encoding=""
+                  emptyValueDelimiterPolicy="both" encoding="ascii"
                   escapeSchemeRef="" fillByte="1" initiator=""
                   inputValueCalc="{ }" leadingSkip="1" length="{ 42 }"
                   lengthKind="implicit" lengthPattern="" lengthUnits="bits"
@@ -163,7 +162,7 @@
           <xsd:element name="f1" type="xsd:int" maxOccurs="unbounded"
             dfdl:alignment="implicit" dfdl:alignmentUnits="bits"
             dfdl:byteOrder="littleEndian"
-            dfdl:emptyValueDelimiterPolicy="both" dfdl:encoding=""
+            dfdl:emptyValueDelimiterPolicy="both" dfdl:encoding="ascii"
             dfdl:escapeSchemeRef="ex:myScheme" dfdl:fillByte="1"
 
             dfdl:initiator="" dfdl:inputValueCalc="{ 5 }"

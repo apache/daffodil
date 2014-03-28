@@ -4,12 +4,14 @@
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	>
+	<xs:include schemaLocation="xsd/built-in-formats.xsd" />
 
     <!--  all schema number types with simple formatting  -->
     
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   ref="numberStandardText" escapeSchemeRef="" emptyValueDelimiterPolicy="none"
+		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no" 
+		            textBidi="no" floating="no"   ref="numberStandardText" escapeSchemeRef="" emptyValueDelimiterPolicy="none"
 					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
 					encoding="utf-8" byteOrder="bigEndian" lengthUnits="characters" 
 					textOutputMinLength="1"
@@ -24,7 +26,8 @@
    <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="numberStandardText">
-				<dfdl:format textNumberRep="standard" representation="text"
+				<dfdl:format ref="daffodilNewProperties1" 
+				    textNumberRep="standard" representation="text"
 					textNumberJustification="right" textTrimKind="padChar" textPadKind="padChar"
 					textNumberPadCharacter="0" textStandardBase="10"
 					textNumberCheckPolicy="lax" textStandardGroupingSeparator=","

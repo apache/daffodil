@@ -60,11 +60,96 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
 
+  /**
+   * An integer which is the alignment of this term. This takes into account the
+   * representation, type, charset encoding and alignment-related properties.
+   */
   def alignmentValueInBits: Int
-  def isScannable: Boolean
+
+  /**
+   * True if it is sensible to scan this data e.g., with a regular expression.
+   * Requires that all children have same encoding as enclosing groups and
+   * elements, requires that there is no leading or trailing alignment regions,
+   * skips. We have to be able to determine that we are for sure going to
+   * always be properly aligned for text.
+   * <p>
+   * Caveat: we only care that the encoding is the same if the term
+   * actually could have text (couldHaveText is an LV) as part of its
+   * representation. For example, a sequence
+   * with no initiator, terminator, nor separators can have any encoding at all,
+   * without disqualifying an element containing it from being scannable. There
+   * has to be text that would be part of the scan.
+   * <p>
+   * If the root element isScannable, and encodingErrorPolicy is 'replace',
+   * then we can use a lower-overhead I/O layer - basically we can use a java.io.InputStreamReader
+   * directly.
+   * <p>
+   * We are going to depend on the fact that if the encoding is going to be this
+   * US-ASCII-7Bit-PACKED thingy (7-bits wide code units, so aligned at 1 bit) that
+   * this encoding must be specified statically in the schema.
+   * <p>
+   * If an encoding is determined at runtime, then we will
+   * insist on it being 8-bit aligned code units.
+   */
+  final lazy val isScannable: Boolean = {
+    !this.isRepresented || (
+      this.isLocallyTextOnly &&
+      {
+        val areAllScannableChildren =
+          termChildren.forall { t =>
+            this.hasCompatibleEncoding(t) &&
+              t.isScannable
+          }
+        areAllScannableChildren
+      })
+  }
+  
+  /**
+   * True if this term is known to have some text aspect. This can be the value, or it can be
+   * delimiters. 
+   * <p>
+   * False only if this term cannot ever have text in it. Example: a sequence with no delimiters.
+   * Example: a binary int with no delimiters. 
+   * <p>
+   * Note: this is not recursive - it does not roll-up from children terms.
+   * TODO: it does have to deal with the prefix length situation. The type of the prefix
+   * may be textual. 
+   * <p>
+   * Override in element base to take simple type or prefix length situations into account
+   */
+   lazy val couldHaveText = hasDelimiters
+  
+  /**
+   * Returns true if this term either cannot conflict because it has no textual 
+   * aspects, or if it couldHaveText then the encoding must be same.
+   */
+  def hasCompatibleEncoding(t2: Term) : Boolean = {
+    if (!this.couldHaveText) true
+    else if (!t2.couldHaveText) true
+    else this.knownEncodingCharset == t2.knownEncodingCharset
+  }
+
+  /**
+   * True if this element itself consists only of text. No binary stuff like alignment
+   * or skips.
+   * <p>
+   * Not recursive into contained children.
+   */
+  def isLocallyTextOnly: Boolean
+  
+  //TODO: if we add recursive types capability to DFDL this will have to change
+  // but so will many of these compiler passes up and down through the DSOM objects.
+  
+  /**
+   * The termChildren are the children that are Terms, i.e., derived from the Term 
+   * base class. This is to make it clear
+   * we're not talking about the XML structures inside the XML parent (which might
+   * include annotations, etc.
+   */
+  def termChildren : Seq[Term]
 
   val tID = UUID.randomUUID()
-
+  
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
   // highly recommended. Lots of time wasted because a val constructor parameter can be 
@@ -84,75 +169,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     val tm = List((this.terminator, tElemName, tElemPath)) ++ this.allParentTerminatingMarkup
     tm.filter { case (delimValue, elemName, elemPath) => delimValue.isKnownNonEmpty }
   }
-
-  // TODO Review Comment
-  // This below should not reproduce the logic of enclosingComponent unless it needs
-  // something different from that. 
-
-  //  lazy val allParentTerminatingMarkup: List[CompiledExpression] = {
-  //    // Retrieves the terminating markup for all parent
-  //    // objects
-  //    // println(this + " with parent " + parent)
-  //
-  //    // TODO: This is not entirely correct as it assumes that separator and terminator
-  //    // will always be defined.  It's entirely possible that one or neither is defined.
-  //    // The call to this non-existant property will result in an SDE.
-  //    // See created issue DFDL-571
-  //    val pTM = parent match {
-  //      case s: Sequence => List(s.separator, s.terminator) ++ s.allParentTerminatingMarkup
-  //      case c: Choice => List(c.terminator) ++ c.allParentTerminatingMarkup
-  //      case d: SchemaDocument =>
-  //        // we're a global object. Our parent is a schema document
-  //        // so follow backpointers to whatever is referencing us.
-  //        this match {
-  //          case gct: GlobalComplexTypeDef => gct.element.allTerminatingMarkup
-  //          case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
-  //          case ge: GlobalElementDecl => ge.elementRef match {
-  //            case None => {
-  //              // we are root. So there is no enclosing sequence at all
-  //              List.empty
-  //            }
-  //            case Some(er) => er.allTerminatingMarkup
-  //          }
-  //        }
-  //      case ct: LocalComplexTypeDef => ct.parent match {
-  //        case local: LocalElementDecl => local.allTerminatingMarkup
-  //        case global: GlobalElementDecl => {
-  //          global.elementRef match {
-  //            case None => List(global.terminator)
-  //            case Some(eRef) => eRef.allTerminatingMarkup
-  //          }
-  //        }
-  //        case _ => Assert.impossibleCase()
-  //      }
-  //      // global type, we have to follow back to the element referencing this type
-  //      case ct: GlobalComplexTypeDef => {
-  //        // Since we are a term directly inside a global complex type def,
-  //        // our nearest enclosing sequence is the one enclosing the element that
-  //        // has this type. 
-  //        //
-  //        // However, that element might be local, or might be global and be referenced
-  //        // from an element ref.
-  //        //
-  //        ct.element match {
-  //          case local: LocalElementDecl => local.allTerminatingMarkup
-  //          case global: GlobalElementDecl => {
-  //            global.elementRef match {
-  //              case None => List(global.terminator)
-  //              case Some(eRef) => eRef.allTerminatingMarkup
-  //            }
-  //          }
-  //          case _ => Assert.impossibleCase()
-  //        }
-  //      }
-  //      case gd: GlobalGroupDef => gd.groupRef.allTerminatingMarkup
-  //      // We should only be asking for the enclosingSequence when there is one.
-  //      case _ => Assert.invariantFailed("No parent terminating markup for : " + this)
-  //    }
-  //    val res = pTM.filter(x => x.isKnownNonEmpty)
-  //    // println(res)
-  //    res
-  //  }
 
   lazy val allParentTerminatingMarkup: List[(CompiledExpression, String, String)] = {
     // Retrieves the terminating markup for all parent
@@ -453,13 +469,11 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
   def group: ModelGroup
 
   lazy val immediateGroup: Option[ModelGroup] = {
-
     val res: Option[ModelGroup] = this.group match {
       case (s: Sequence) => Some(s)
       case (c: Choice) => Some(c)
       case _ => None
     }
-
     res
   }
 
@@ -483,16 +497,7 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
       }
     }
   }
-  lazy val isScannable: Boolean = {
-    val res = immediateGroup match {
-      case Some(mg: ModelGroup) => {
-        val unScannableChildren = mg.groupMembers.filterNot(m => m.isScannable)
-        unScannableChildren.length == 0
-      }
-      case None => true
-    }
-    res
-  }
+
 }
 
 /**
@@ -545,6 +550,15 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case (n, i) =>
         termFactory(n, this, i)
     }
+  }
+  
+  override
+  lazy val termChildren = groupMembers
+  
+  override
+  lazy val isLocallyTextOnly = {
+    this.hasNoSkipRegions &&
+    this.hasTextAlignment
   }
 
   lazy val groupMembersNoRefs = groupMembers.map {
@@ -832,9 +846,12 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
-
+  
   lazy val myPeers = sequencePeers
-
+  
+  override
+  lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
+  
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
@@ -1023,6 +1040,10 @@ class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComp
   // from Sequence
 }
 
+/**
+ * A GroupRef (group reference) is a term, but most everything is delgated to the 
+ * referred-to Global Group Definition object.
+ */
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with DFDLStatementMixin
@@ -1046,6 +1067,11 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val prettyBaseName = "group.ref." + localName
 
   lazy val myPeers = groupRefPeers
+  
+  override
+  lazy val termChildren: Seq[Term] = {
+		  group.termChildren
+  }
 
   lazy val qname = resolveQName(ref)
   lazy val (namespace, localName) = qname
@@ -1063,6 +1089,12 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
   lazy val group = groupDef.modelGroup
+  
+  override 
+  lazy val couldHaveText = group.couldHaveText
+  
+  override
+  lazy val isLocallyTextOnly = group.isLocallyTextOnly
 
   override lazy val referredToComponent = group
 

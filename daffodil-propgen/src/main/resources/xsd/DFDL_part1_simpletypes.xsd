@@ -54,6 +54,20 @@
     -->
   </xsd:simpleType>
 
+  <xsd:simpleType name="DFDLExpressionOrPatternOrNothing">
+    <xsd:annotation>
+      <xsd:documentation>An expression, a regex, or nothing at all.
+      </xsd:documentation>
+    </xsd:annotation>
+    <xsd:union
+      memberTypes="dfdl:EmptyString dfdl:DFDLExpression dfdl:DFDLRegularExpression" />
+    <!--
+      2012-01-04 mbeckerle - If you change the order of this union,
+      it stops enforcing the empty string aspect.
+      Reverse the order and then just empty whitespace will validate.
+    -->
+  </xsd:simpleType>
+
   <xsd:simpleType name="DFDLStringLiteral">
     <xsd:restriction base="xsd:string">
     </xsd:restriction>
@@ -112,8 +126,9 @@
   <!-- ========================================================= -->
 
   <xsd:simpleType name="EncodingEnum">
-    <xsd:restriction base="xsd:string">
+    <xsd:restriction base="xsd:token">
       <!-- IANA charsets or CCIDSs -->
+      <xsd:pattern value=".{1,60}" /> <!-- at least one character -->
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -307,13 +322,15 @@
 
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarTimeZoneType">
-    <xsd:restriction base="xsd:string" />
+    <xsd:restriction base="xsd:string" >
+      <xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?)" />
+    </xsd:restriction>
   </xsd:simpleType>
 
   <!-- A pattern is used instead of an enumeration for compactness -->
   <xsd:simpleType name="CalendarLanguageType">
     <xsd:restriction base="xsd:string">
-      <xsd:pattern value="([A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*)" />
+      <xsd:pattern value="([A-Za-z]{1,8}([-_][A-Za-z0-9]{1,8})*)" />
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -420,6 +437,15 @@
       <xsd:enumeration value="suppressedAtEndLax" />
     </xsd:restriction>
   </xsd:simpleType>
+  
+  <xsd:simpleType name="SeparatorSuppressionPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="never" />
+      <xsd:enumeration value="trailingEmpty" />
+      <xsd:enumeration value="trailingEmptyStrict" />
+      <xsd:enumeration value="anyEmpty" />
+    </xsd:restriction>
+  </xsd:simpleType>
 
   <xsd:simpleType name="ChoiceLengthKindEnum">
     <xsd:restriction base="xsd:string">
@@ -457,6 +483,13 @@
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="fixed" />
       <xsd:enumeration value="variable" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="EncodingErrorPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="error" />
+      <xsd:enumeration value="replace" />
     </xsd:restriction>
   </xsd:simpleType>
 

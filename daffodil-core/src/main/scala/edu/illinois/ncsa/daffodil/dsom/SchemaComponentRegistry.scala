@@ -48,18 +48,17 @@ class SchemaComponentRegistry {
   def getComponentByID(uid: String): Option[ElementBase] = {
     val ctxMap = contextMap
     // TODO: why this try/catch??
-    try {
+    val res = try {
       val uuid = UUID.fromString(uid)
-      return ctxMap.get(uuid)
+      ctxMap.get(uuid)
     } catch {
       case u: UnsuppressableException => throw u
       case e: Exception => {
         Assert.impossibleCase() // Let's see if this happens. 
         // TODO: if the above never happens, eliminate the try/catch
-        return None
       }
     }
-    None
+    res
   }
 
   def addComponent(sc: ElementBase): String = {

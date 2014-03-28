@@ -8,7 +8,7 @@
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="UTF-8" ignoreCase="no" byteOrder="bigEndian"
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"  encodingErrorPolicy="replace"  encoding="UTF-8" ignoreCase="no" byteOrder="bigEndian"
 				lengthKind="explicit" textPadKind="padChar" textTrimKind="padChar"
 				textNumberPadCharacter="0" textStandardBase="10"
 				textNumberJustification="right" textStringPadCharacter=" "

@@ -188,6 +188,19 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="e12withTerm">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bits" type="xs:unsignedByte" 
+            dfdl:terminator="TERM" dfdl:represenation="binary" dfdl:leadingSkip="0" dfdl:alignment="1" 
+            dfdl:alignmentUnits="bits" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" dfdl:length="4"/>
+          <xs:element name="string" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:encoding="utf-8" dfdl:leadingSkip="0"
+            dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits">
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="e13" type="xs:string" dfdl:initiator=":" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="utf-8" 
       dfdl:lengthUnits="bytes" dfdl:alignment="8" dfdl:alignmentUnits="bits" dfdl:leadingSkip="4"/>
     
@@ -1988,6 +2001,30 @@
     <tdml:document>
       <tdml:documentPart type="bits">101 00000</tdml:documentPart>
       <tdml:documentPart type="text">nope</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e12>
+          <bits>10</bits>
+          <string>nope</string>
+        </e12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+      
+  </tdml:parserTestCase>
+    <!--
+     Test Name: alignmentTerminatorBitSkip
+        Schema: alignmentSchema
+          Root: e12
+       Purpose: This test demonstrates that a terminator after a non-byte-sized data field
+       Is properly aligned for the characters of the terminator.
+  -->
+  <tdml:parserTestCase name="alignmentTerminatorBitSkip" root="e12withTerm"
+    model="alignmentSchema" description="Section 12.1 Aligned Data - Textual data - Mandatory Alignment - DFDL-12-025R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">101 00000</tdml:documentPart>
+      <tdml:documentPart type="text">TERMnope</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

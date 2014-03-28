@@ -147,7 +147,8 @@ class TestNamespaces {
 
   @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
-  @Test def test_combinations_01() { runner.runOneTest("combinations_01") }
+  // Note: test removed. Comments in the TDML file indicate why.
+  // @Test def test_combinations_01() { runner.runOneTest("combinations_01") }
   @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
   @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }

@@ -1384,6 +1384,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   lazy val Seq(modelGroup) = {
     val s = smg.value
+    // TODO: why check this? Schema validation will enforce this for us. (I think).
     schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
     s
   }
@@ -1406,6 +1407,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   lazy val isScannable: Boolean = {
     val parentElem: ElementBase = enclosingComponent.get.asInstanceOf[ElementBase]
+    modelGroup.group.isScannable
     val unScannableChildren = modelGroup.group.groupMembers.filterNot { child =>
       (child.knownEncodingCharset == parentElem.knownEncodingCharset) && child.isScannable
     }

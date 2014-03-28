@@ -10,7 +10,7 @@
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
 				 occursCountKind="implicit"
 				ignoreCase="no" representation="text" textStringPadCharacter=" "
 				textPadKind="none" textTrimKind="none" textStringJustification="left"

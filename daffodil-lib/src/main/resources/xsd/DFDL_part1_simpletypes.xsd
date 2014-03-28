@@ -44,8 +44,7 @@
 
   <xsd:simpleType name="DFDLExpressionOrNothing">
     <xsd:annotation>
-      <xsd:documentation>An expression, or nothing at all.
-      </xsd:documentation>
+      <xsd:documentation>An expression, or nothing at all.</xsd:documentation>
     </xsd:annotation>
     <xsd:union memberTypes="dfdl:EmptyString dfdl:DFDLExpression" />
     <!--
@@ -127,8 +126,9 @@
   <!-- ========================================================= -->
 
   <xsd:simpleType name="EncodingEnum">
-    <xsd:restriction base="xsd:string">
+    <xsd:restriction base="xsd:token">
       <!-- IANA charsets or CCIDSs -->
+      <xsd:pattern value=".{1,60}" /> <!-- at least one character -->
     </xsd:restriction>
   </xsd:simpleType>
 
@@ -483,6 +483,13 @@
     <xsd:restriction base="xsd:string">
       <xsd:enumeration value="fixed" />
       <xsd:enumeration value="variable" />
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="EncodingErrorPolicyEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="error" />
+      <xsd:enumeration value="replace" />
     </xsd:restriction>
   </xsd:simpleType>
 

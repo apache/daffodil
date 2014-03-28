@@ -15,7 +15,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	-->
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no"   encoding="ASCII" representation="text"
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no" encodingErrorPolicy="replace"   encodingErrorPolicy="replace" encoding="ASCII" representation="text"
 				byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f"
 				occursCountKind="implicit" initiatedContent="no" sequenceKind="ordered"
 				ignoreCase="no" textPadKind="none" textTrimKind="none"
@@ -40,7 +40,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				<xs:element name="title" type="xs:string">
 					<xs:annotation>
 						<xs:appinfo source="http://www.ogf.org/dfdl/">
-							<dfdl:element encoding="ASCII" />
+							<dfdl:element encodingErrorPolicy="replace" encoding="ASCII" />
 						</xs:appinfo>
 					</xs:annotation>
 				</xs:element>

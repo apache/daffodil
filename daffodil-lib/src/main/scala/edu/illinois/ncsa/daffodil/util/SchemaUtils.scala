@@ -54,28 +54,6 @@ object SchemaUtils {
    * of having to add properties everywhere when a new property starts being expected.
    */
 
-  val test1 = <dfdl:defineFormat name="daffodilTest1">
-                <dfdl:format representation="text" lengthUnits="bytes" encoding="US-ASCII" alignment='1' alignmentUnits='bytes' textStandardBase='10' binaryFloatRep='ieee' binaryNumberRep='binary' byteOrder='bigEndian' calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday' calendarDaysInFirstWeek='4' calendarTimeZone='UTC' calendarCheckPolicy='strict' calendarLanguage='en' escapeSchemeRef='' documentFinalTerminatorCanBeMissing='no' ignoreCase='no' initiatedContent='no' leadingSkip='0' lengthKind='implicit' occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty' separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard' textNumberCheckPolicy='lax' textStringJustification='left' trailingSkip='0' initiator="" terminator="" separator="" emptyValueDelimiterPolicy="both" utf16Width="fixed" textTrimKind="none" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###" textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0"/>
-              </dfdl:defineFormat>
-
-  //  def appendScopes(ns1: NamespaceBinding, ns2: NamespaceBinding): NamespaceBinding = {
-  //    if (ns1 == TopScope) ns2
-  //    else if (ns2 == TopScope) TopScope
-  //    else {
-  //      val ns2URI = ns2.getURI(ns1.prefix)
-  //      if (ns2URI == null) ns1.copy(parent = appendScopes(ns1.parent, ns2))
-  //      else if (ns2URI == ns1.uri) {
-  //        // same prefix is bound to the same uri.
-  //        // so don't copy.
-  //        appendScopes(ns1.parent, ns2)
-  //      } else {
-  //        // same prefix bound to different URIs
-  //        // first one wins
-  //        appendScopes(ns1, ns2.parent)
-  //      }
-  //    }
-  //  }
-
   /**
    * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
    */
@@ -88,16 +66,12 @@ object SchemaUtils {
          {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ targetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
+               <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
                <xs:annotation>
                  <xs:appinfo source={ dfdlAppinfoSource }>
-                   { test1 }
                    { topLevelAnnotations }
                  </xs:appinfo>
                </xs:annotation>
-               <!-- No imports needed: XML Catalog gets them 
-                       <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
-                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_model_all_parts.xsd"/> 
-                        -->
                { contentElements }
              </xs:schema> % fileAttrib
            })
@@ -124,16 +98,12 @@ object SchemaUtils {
          {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ theTargetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
-               <xs:annotation>
+                <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+                <xs:annotation>
                  <xs:appinfo source={ dfdlAppinfoSource }>
-                   { test1 }
                    { topLevelAnnotations }
                  </xs:appinfo>
                </xs:annotation>
-               <!-- No imports needed: XML Catalog gets them 
-                       <xsd:import namespace={ xsdURI } schemaLocation="XMLSchema.xsd"/>
-                       <xsd:import namespace={ dfdlURI } schemaLocation="DFDL_model_all_parts.xsd"/> 
-                        -->
                { contentElements }
              </xs:schema> % fileAttrib
            })

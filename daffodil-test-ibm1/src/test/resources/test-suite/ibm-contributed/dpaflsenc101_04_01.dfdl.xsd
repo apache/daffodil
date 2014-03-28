@@ -3,6 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified" >
 
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
 
 	<!--
 		Description: Encoding is UTF-32, lenghtUnits specified in bytes
@@ -10,7 +11,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			
-   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no" textBidi="no" floating="no"    encoding="UTF-32LE" 
+   <dfdl:format ref="daffodilTest1" initiator="" terminator="" truncateSpecifiedLengthString="no" textBidi="no" floating="no" encoding="UTF-32LE" 
    alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
    escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit"/>
 			

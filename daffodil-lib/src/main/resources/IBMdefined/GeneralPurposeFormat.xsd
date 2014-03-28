@@ -93,6 +93,7 @@ A general purpose defineFormat annotation.
 <dfdl:format 
 
 encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian"
+encodingErrorPolicy="replace"
 ignoreCase="no" outputNewLine="%CR;%LF;"
 
 alignment="1" alignmentUnits="bytes" fillByte="0"

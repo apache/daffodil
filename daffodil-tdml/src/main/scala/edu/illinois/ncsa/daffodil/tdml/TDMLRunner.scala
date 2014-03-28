@@ -630,7 +630,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       validationMode match {
         case ValidationMode.Off => // Don't Validate
         case mode => {
-          if (actual.isValidationSuccess) { println("Validation Succeeded!") }
+          if (actual.isValidationSuccess) { 
+            // println("Validation Succeeded!") 
+          }
         }
       }
 

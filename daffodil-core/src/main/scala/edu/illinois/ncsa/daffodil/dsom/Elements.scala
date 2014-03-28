@@ -191,14 +191,25 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     rep
   }
 
-  lazy val isScannable: Boolean = {
-    impliedRepresentation match {
-      case Representation.Text => {
-        if (isSimpleType) true
-        else elementComplexType.isScannable
-      }
-      case Representation.Binary => false
-    }
+  override
+  lazy val couldHaveText : Boolean = {
+    hasDelimiters ||
+    (isSimpleType && impliedRepresentation == Representation.Text) ||
+    (isComplexType && elementComplexType.modelGroup.couldHaveText)
+  }
+ 
+  override
+  lazy val isLocallyTextOnly = {
+    this.hasNoSkipRegions &&
+    this.hasTextAlignment &&
+    ((isSimpleType && this.impliedRepresentation == Representation.Text) ||
+        isComplexType)
+  }
+  
+  override
+  lazy val termChildren: Seq[Term] = {
+    if (isSimpleType) Nil
+    else Seq(elementComplexType.modelGroup.group)
   }
 
   lazy val isParentUnorderedSequence: Boolean = {
@@ -361,26 +372,26 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
 
-  /**
-   * everything that we need to look for when deciding how to terminate a data region
-   * based on scanning
-   */
-  lazy val inScopeTerminatingMarkup = {
-    // our own terminator is one thing
-    // the separator of an enclosing group, if we're not last.
-    // the terminator of an enclosing group, if we are last
-    // the terminator of an enclosing element
-    // recursively outward.
-    //
-    // or another way to think of it is
-    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
-    // last member. Plus any inscope terminating markup from what it is encapsulated in.
-    // 
-    // an element has its terminator
-    //
-    // Note: if we are potentially the last item (not required, but no downstream required siblings)
-    Assert.notYetImplemented("inScopeTerminatingMarkup")
-  }
+//  /**
+//   * everything that we need to look for when deciding how to terminate a data region
+//   * based on scanning
+//   */
+//  lazy val inScopeTerminatingMarkup = {
+//    // our own terminator is one thing
+//    // the separator of an enclosing group, if we're not last.
+//    // the terminator of an enclosing group, if we are last
+//    // the terminator of an enclosing element
+//    // recursively outward.
+//    //
+//    // or another way to think of it is
+//    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
+//    // last member. Plus any inscope terminating markup from what it is encapsulated in.
+//    // 
+//    // an element has its terminator
+//    //
+//    // Note: if we are potentially the last item (not required, but no downstream required siblings)
+//    Assert.notYetImplemented("inScopeTerminatingMarkup")
+//  }
 
   lazy val hasExpressionsInTerminatingMarkup: Boolean = {
     this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0
@@ -1118,8 +1129,15 @@ trait ElementDeclMixin
 
   lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  lazy val elementComplexType = typeDef.asInstanceOf[ComplexTypeBase]
-  lazy val elementSimpleType = typeDef.asInstanceOf[SimpleTypeBase]
+  lazy val elementComplexType = {
+    Assert.usage(isComplexType)
+    typeDef.asInstanceOf[ComplexTypeBase]
+  }
+  
+  lazy val elementSimpleType = {
+    Assert.usage(isSimpleType)
+    typeDef.asInstanceOf[SimpleTypeBase]
+  }
 
   /**
    * We require that there be a concept of empty if we're going to be able to default something

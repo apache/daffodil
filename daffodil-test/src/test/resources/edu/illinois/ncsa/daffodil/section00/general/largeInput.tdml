@@ -8,12 +8,12 @@
        to any specific requirements. /!-->
 
   <tdml:defineSchema name="generalSchema">
-    <dfdl:defineFormat name="daffodilTest1">
-      <dfdl:format lengthKind="implicit" representation="text"
+    <dfdl:defineFormat name="generalFormat">
+      <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
         separator="" ignoreCase="no" textNumberRep="standard" leadingSkip="0" />
     </dfdl:defineFormat>
-    <dfdl:format ref="daffodilTest1" />
+    <dfdl:format ref="generalFormat" />
     <xs:element name="string1" dfdl:lengthKind="delimited" type="xs:string" />
     <xs:element name="double" type="xs:double"/>
   </tdml:defineSchema>

@@ -2,22 +2,26 @@
 <tdml:testSuite suiteName="RepresentationPropertyTests" description="Section 10 - Core Representation Properties"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com">
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com">
 
   <tdml:defineSchema name="neededRepProp">
-    <dfdl:format lengthKind="delimited" leadingSkip="0" alignment='implicit' alignmentUnits='bytes' trailingSkip='0' encoding="utf-8" sequenceKind="ordered"/>
-    <xs:element name="root">
-      <xs:complexType>
-        <xs:sequence dfdl:separator=",">
-          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
-          <xs:element name="stringy" type="xs:string" dfdl:lengthKind="delimited" />
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
-  </tdml:defineSchema>
+	<dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
+		alignment='implicit' alignmentUnits='bytes' trailingSkip='0' encoding="utf-8"
+		sequenceKind="ordered" />
+	<xs:element name="root">
+		<xs:complexType>
+			<xs:sequence dfdl:separator=",">
+				<xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited" />
+				<xs:element name="stringy" type="xs:string"
+					dfdl:lengthKind="delimited" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</tdml:defineSchema>
   
   <tdml:defineSchema name="neededRepProp2">
-    <dfdl:format lengthKind="delimited" leadingSkip="0"
+    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
       initiator="" terminator="" separatorPosition="infix" textTrimKind="none"
       encoding="utf-8" initiatedContent="no" alignment="implicit" alignmentUnits="bytes" trailingSkip="0" sequenceKind="ordered"/>
     <xs:element name="root">
@@ -31,7 +35,7 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="neededRepProp3">
-    <dfdl:format lengthKind="delimited" leadingSkip="0"
+    <dfdl:format ref="tns:daffodilNewProperties1" lengthKind="delimited" leadingSkip="0"
       initiator="" terminator="" separatorPosition="infix"
       encoding="utf-8" initiatedContent="no" representation="text"
       textNumberRep="standard" textTrimKind="none"/>

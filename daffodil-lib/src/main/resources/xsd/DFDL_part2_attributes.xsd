@@ -38,6 +38,9 @@
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
   <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
+  
+  <!-- Added to DFDL -->
+  <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
 
   <xsd:attributeGroup name="CommonAG">
     <xsd:attribute name="byteOrder"
@@ -45,6 +48,7 @@
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
+    <xsd:attribute name="encodingErrorPolicy" type="dfdl:EncodingErrorPolicyEnum"/>
     <xsd:attribute name="ignoreCase" type="dfdl:YesNoEnum" />
   </xsd:attributeGroup>
 
@@ -466,6 +470,7 @@
       <!-- List of properties with non-string types -->
       <xsd:enumeration value="byteOrder" />
       <xsd:enumeration value="encoding" />
+      <xsd:enumeration value="encodingErrorPolicy"/>
       <xsd:enumeration value="utf16Width" />
       <xsd:enumeration value="ignoreCase" />
 

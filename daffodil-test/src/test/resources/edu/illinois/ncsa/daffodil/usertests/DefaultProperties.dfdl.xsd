@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/">
+
 	<annotation>
 		<appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineEscapeScheme name="DefaultPropertiesEscapeScheme">
@@ -19,7 +20,8 @@
 					calendarPatternKind="implicit" calendarTimeZone="UTC"
 					choiceLengthKind="implicit" decimalSigned="yes"
 					documentFinalTerminatorCanBeMissing="yes" emptyValueDelimiterPolicy="none"
-					encoding="UTF-8" escapeSchemeRef="" fillByte="0" floating="no" ignoreCase="no"
+					encoding="UTF-8" encodingErrorPolicy="replace"
+					escapeSchemeRef="" fillByte="0" floating="no" ignoreCase="no"
 					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
 					lengthUnits="characters" nilKind="literalValue" nilValueDelimiterPolicy="none"
 					occursCountKind="fixed" outputNewLine="%CR;%LF;" prefixIncludesPrefixLength="no"

@@ -3,6 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	elementFormDefault="qualified" attributeFormDefault="unqualified"
 	>
+    <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
 
 	<!--
 		Description: Encoding is UTF-32, big Endian, lenghtUnits specified in
@@ -26,7 +27,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="config">
-				<dfdl:format  encoding="UTF-32BE" />
+				<dfdl:format ref="daffodilTest1"  encoding="UTF-32BE" />
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>
