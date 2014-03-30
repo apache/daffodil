@@ -84,7 +84,9 @@ class TestDFDLExpressions {
   @Test def test_expressionRules05() { runner.runOneTest("expressionRules05") }
   @Test def test_expressionRules06() { runner.runOneTest("expressionRules06") }
 
-  @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") }
+  // uses lengthUnits bytes with utf-8 and lengthKind Explicit
+  // @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") } 
+  
   @Test def test_lke1_rel() { runner.runOneTest("lke1_rel") }
   @Test def test_lke1_abs() { runner.runOneTest("lke1_abs") }
   @Test def test_ocke1() { runner.runOneTest("ocke1") }

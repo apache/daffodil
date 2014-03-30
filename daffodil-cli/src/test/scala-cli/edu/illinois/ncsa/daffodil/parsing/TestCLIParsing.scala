@@ -241,8 +241,8 @@ class TestCLIparsing {
   }
 
   @Test def test_988_CLI_Parsing_SimpleParse_specifiedRoot() {
-    val expected = """<tns:hcp xmlns:tns="http://www.example.org/example1/">12</tns:hcp>"""
-    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp\n"
+    val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
+    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp2\n"
     val shell = Util.start(cmd)
     shell.expect(expected)
 
@@ -269,8 +269,8 @@ class TestCLIparsing {
   }
 
   @Test def test_997_CLI_Parsing_multSchemas() {
-    val expected = """<tns:hcp xmlns:tns="http://www.example.org/example1/">12</tns:hcp>"""
-    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r hcp\n"
+    val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
+    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r hcp2\n"
     val shell = Util.start(cmd)
     shell.expect(expected)
 
@@ -316,9 +316,9 @@ class TestCLIparsing {
   }
 
   @Test def test_1005_CLI_Parsing_SimpleParse_rootPath() {
-    val expected = """<tns:hcp xmlns:tns="http://www.example.org/example1/">12</tns:hcp>"""
-    val cmdLinux = "echo -ne '12' | ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp -p /\n"
-    val cmdWindows = """echo 12| daffodil-cli\target\start parse -s daffodil-test\src\test\resources\edu\illinois\ncsa\daffodil\section06\entities\charClassEntities.dfdl.xsd -r hcp -p /"""
+    val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
+    val cmdLinux = "echo -ne '12' | ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp2 -p /\n"
+    val cmdWindows = """echo 12| daffodil-cli\target\start parse -s daffodil-test\src\test\resources\edu\illinois\ncsa\daffodil\section06\entities\charClassEntities.dfdl.xsd -r hcp2 -p /"""
 
     val cmd = if (Util.isWindows) cmdWindows else cmdLinux
 

@@ -7,7 +7,7 @@
 	<tdml:defineSchema name="Functions.dfdl.xsd">
 		<dfdl:format ref="ex:daffodilTest1" initiator=""
 			separator="," terminator="" leadingSkip="0" trailingSkip="0"
-			textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian"
+			textBidi="no" floating="no" byteOrder="bigEndian"
 			alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
 			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
 			lengthKind="delimited" nilValueDelimiterPolicy="both"

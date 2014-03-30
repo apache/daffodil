@@ -40,7 +40,8 @@
 				dfdl:lengthKind="explicit" dfdl:length="2">
 
 				</xs:element>
-				<xs:element name="Test3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2">
+				<xs:element name="Test3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"
+				  dfdl:lengthUnits="characters">
 
 				</xs:element>
 			</xs:sequence>

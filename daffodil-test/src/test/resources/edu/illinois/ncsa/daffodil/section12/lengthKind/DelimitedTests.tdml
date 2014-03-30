@@ -8,7 +8,7 @@
   <tdml:defineSchema name="lengthKindDelimited-Embedded.dfdl.xsd">
 
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      lengthUnits="bytes" encoding="ascii" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
 
@@ -170,7 +170,7 @@
           dfdl:separatorPosition="prefix">
           <xs:sequence>
             <xs:element name="e1" type="xs:int"
-              dfdl:lengthKind="explicit" dfdl:length="3" maxOccurs="unbounded" />
+              dfdl:lengthKind="explicit" dfdl:lengthUnits="characters" dfdl:length="3" maxOccurs="unbounded" />
           </xs:sequence>
           <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
         </xs:sequence>

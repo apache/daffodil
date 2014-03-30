@@ -349,11 +349,11 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:encoding="utf-8"/>
+            dfdl:lengthKind="explicit" dfdl:length="{2}" />
           <xs:element name="inner" type="xs:int"
-            dfdl:lengthKind="explicit" dfdl:length="{5}" dfdl:encoding="utf-8"/>
+            dfdl:lengthKind="explicit" dfdl:length="{5}" />
           <xs:element name="last" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{2}" dfdl:encoding="utf-8"/>
+            dfdl:lengthKind="explicit" dfdl:length="{2}" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

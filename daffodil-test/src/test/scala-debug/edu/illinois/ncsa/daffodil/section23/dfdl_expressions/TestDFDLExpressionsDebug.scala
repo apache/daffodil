@@ -53,6 +53,10 @@ class TestDFDLExpressionsDebug {
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
 
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
+  
+  // lengthUnits bytes with variable-width charater set and specified lengthKind
+  @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") } // uses lengthUnits bytes with utf-8 
+
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"

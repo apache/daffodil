@@ -36,6 +36,17 @@
       </xs:annotation>
       <xs:restriction base="xs:string" />
     </xs:simpleType>
+    
+    <xs:element name="LP_03a" type="lp_03a" />
+    <xs:simpleType name="lp_03a">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:simpleType lengthKind="explicit" encoding="ascii"
+            lengthUnits="bytes" length="3" byteOrder="bigEndian" />
+        </xs:appinfo>
+      </xs:annotation>
+      <xs:restriction base="xs:string" />
+    </xs:simpleType>
 
     <xs:element name="LP_04" type="lp_04" />
     <xs:simpleType name="lp_04">
@@ -124,7 +135,7 @@
     </xs:element>
 
     <xs:simpleType name="lp_10" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:lengthUnits="bytes" 
-      dfdl:byteOrder="bigEndian">
+      dfdl:byteOrder="bigEndian" dfdl:encoding="ascii">
       <xs:restriction base="xs:string" />
     </xs:simpleType>
     
@@ -428,10 +439,10 @@
     and should throw an error.
   -->
   <tdml:parserTestCase name="LengthProp_tooShortFailure"
-    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+    root="LP_03a" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
     <tdml:document>
-      <tdml:documentPart type="byte">c2a2</tdml:documentPart>
+      <tdml:documentPart type="text">ab</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Insufficient Bits</tdml:error>
@@ -445,7 +456,7 @@
     and should throw an error.
   -->
   <tdml:parserTestCase name="LengthProp_tooLongFailure"
-    root="LP_03" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
+    root="LP_03a" model="LengthProperties-Embedded.dfdl.xsd" description="Section 12 Length Properties - DFDL-12-039R">
 
     <tdml:document>
       <tdml:documentPart type="byte">74657374</tdml:documentPart>
@@ -519,7 +530,7 @@
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:simpleType lengthKind="explicit"
-            lengthUnits="bytes" length="10" byteOrder="bigEndian" />
+            lengthUnits="bytes" length="10" byteOrder="bigEndian" encoding="ascii"/>
         </xs:appinfo>
       </xs:annotation>
       <xs:restriction base="xs:string" />
@@ -745,7 +756,7 @@
   <!--
     Test name: LengthProp_lengthExpression1
     Schema: LengthProperties-lengthExpression.dfdl.xsd
-    Purpose: This document should have a length of 3 as defined in the previous 
+    Purpose: This document uses an expression to determine the length of an element 
     test.
   -->
   <tdml:parserTestCase name="LengthProp_lengthExpression1"

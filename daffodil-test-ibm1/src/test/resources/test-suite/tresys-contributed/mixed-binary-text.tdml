@@ -10,7 +10,7 @@
   <tdml:defineSchema name="v">
 
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-      encoding="utf-8" />
+      encoding="utf-8" lengthUnits='characters'/>
 
     <xs:element name="c">
       <xs:complexType>

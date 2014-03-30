@@ -251,7 +251,10 @@ trait ElementBaseGrammarMixin
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+      case (LengthUnits.Bytes, false) => {
+        // prims.StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
+        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+      }
       case (LengthUnits.Characters, true) => {
         //
         // we deal with the fact that some encodings have characters taking up smaller than 
@@ -286,7 +289,10 @@ trait ElementBaseGrammarMixin
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytesFixedWidthCharacters(this, maxLengthLong) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => prims.StringFixedLengthInBytesVariableWidthCharacters(this, maxLengthLong)
+      case (LengthUnits.Bytes, false) => {
+        // prims.StringFixedLengthInBytesVariableWidthCharacters(this, maxLengthLong)
+        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+      }
       case (LengthUnits.Characters, true) => {
         //
         // we deal with the fact that some encodings have characters taking up smaller than 
@@ -330,11 +336,16 @@ trait ElementBaseGrammarMixin
       //case (LengthUnits.Bits, _) =>
       //  SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
       case (LengthUnits.Bytes, true) => prims.StringVariableLengthInBytes(this)
-      case (LengthUnits.Bytes, false) => prims.StringVariableLengthInBytesVariableWidthCharacters(this)
+      case (LengthUnits.Bytes, false) => {
+        // prims.StringVariableLengthInBytesVariableWidthCharacters(this)
+        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+      }
       case (LengthUnits.Characters, true) => prims.StringVariableLengthInBytes(this)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => prims.StringVariableLengthInVariableWidthCharacters(this)
+      case (LengthUnits.Characters, false) => {
+        prims.StringVariableLengthInVariableWidthCharacters(this)
+      }
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
     })
 

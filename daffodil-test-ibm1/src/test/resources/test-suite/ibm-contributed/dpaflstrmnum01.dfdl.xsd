@@ -12,7 +12,7 @@
 				lengthKind="explicit" textPadKind="padChar" textTrimKind="padChar"
 				textNumberPadCharacter="0" textStandardBase="10"
 				textNumberJustification="right" textStringPadCharacter=" "
-				textStringJustification="left" lengthUnits="bytes" alignmentUnits="bytes"
+				textStringJustification="left" lengthUnits="characters" alignmentUnits="bytes"
 				fillByte="%#r66;" alignment="1" occursCountKind="implicit" initiatedContent="no"
 				sequenceKind="ordered" textStandardGroupingSeparator=","
 				textStandardDecimalSeparator="." textStandardExponentRep="e"

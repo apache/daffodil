@@ -5329,7 +5329,7 @@
     <xs:element name="hB_root05">
 			<xs:complexType>
         <xs:sequence>
-          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:representation="text" dfdl:length="10" dfdl:lengthUnits="bytes"/>
+          <xs:element name="str" type="xs:string" dfdl:lengthKind="explicit" dfdl:representation="text" dfdl:length="10" dfdl:lengthUnits="characters"/>
           <xs:element name="hex" type="xs:hexBinary" dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ xs:hexBinary(../ex:str) }"/>
 				</xs:sequence>
 			</xs:complexType>

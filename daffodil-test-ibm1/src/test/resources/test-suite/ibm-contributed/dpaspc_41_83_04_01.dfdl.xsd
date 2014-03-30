@@ -28,7 +28,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:format textBidi="no" floating="no" encodingErrorPolicy="replace" encoding="ASCII" byteOrder="littleEndian"
+          <dfdl:format textBidi="no" floating="no" encodingErrorPolicy="replace" encoding="ASCII" 
+            byteOrder="littleEndian"
           	alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
                 initiator="" terminator="" truncateSpecifiedLengthString="no"  separator=""
                 sequenceKind="ordered"  

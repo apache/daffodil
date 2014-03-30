@@ -88,7 +88,10 @@
   </complexType>
 
   <xsd:element name="hcp" type="xsd:string" dfdl:encoding="utf-8"
-    dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="2" />
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="characters" dfdl:length="1" />
+    
+  <xsd:element name="hcp2" type="xsd:string" dfdl:encoding="utf-8"
+    dfdl:lengthKind="explicit" dfdl:lengthUnits="characters" dfdl:length="2" />
   
   <xsd:element name="file">
     <xsd:complexType>
