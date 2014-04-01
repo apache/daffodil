@@ -253,7 +253,7 @@ trait ElementBaseGrammarMixin
       //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => {
         // prims.StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
-        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
       }
       case (LengthUnits.Characters, true) => {
         //
@@ -291,7 +291,7 @@ trait ElementBaseGrammarMixin
       //case (LengthUnits.Bytes, true) => prims.StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => {
         // prims.StringFixedLengthInBytesVariableWidthCharacters(this, maxLengthLong)
-        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
       }
       case (LengthUnits.Characters, true) => {
         //
@@ -338,7 +338,7 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Bytes, true) => prims.StringVariableLengthInBytes(this)
       case (LengthUnits.Bytes, false) => {
         // prims.StringVariableLengthInBytesVariableWidthCharacters(this)
-        SDE("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
       }
       case (LengthUnits.Characters, true) => prims.StringVariableLengthInBytes(this)
       // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
