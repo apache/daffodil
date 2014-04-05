@@ -296,8 +296,7 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>The parsed length of the children</tdml:error>
-      <tdml:error>was greater than that of the parent</tdml:error>
+      <tdml:error>Insufficient bits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -540,6 +539,9 @@
 		</tdml:infoset>
 	</tdml:parserTestCase>
 
+
+    <!-- This is a nasty negative test. It omits a 4-byte binary int length prefix field. So the
+     first 4 chars of the string will be used, 0x30303031 as the length. This is huge.  -->
 	<tdml:parserTestCase name="test_ExplicitLengthBytesNotGiven"
 		root="choiceRef" model="test_ExplicitLengthBytes" description="lengthKind='explicit' - DFDL-12-039R">
 		<tdml:document>

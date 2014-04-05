@@ -578,7 +578,7 @@ class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           schemaDefinitionError("Unable to determine target namespace.")) {
             xsd.targetNamespace
           }
-        log(Info("Included schema from %s into namespace %s.", rsl, ns))
+        log(Debug("Included schema from %s into namespace %s.", rsl, ns))
         rsl
       }
       case None => schemaDefinitionError("Included schema not found at location %s." + whereSearched, slText)

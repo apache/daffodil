@@ -562,8 +562,11 @@ case class PState(
   //  }
 
   def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = this.status) = {
-    var newInStream = inStream.withEndBitLimit(bitLimit)
-    copy(inStream = newInStream, status = newStatus)
+    if (bitLimit == inStream.bitLimit) { this } // already have this bitLimit.
+    else {
+      var newInStream = inStream.withEndBitLimit(bitLimit)
+      copy(inStream = newInStream, status = newStatus)
+    }
   }
 
   def withParent(newParent: InfosetItem, newStatus: ProcessorResult = Success) =

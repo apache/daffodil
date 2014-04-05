@@ -42,11 +42,59 @@ import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 import java.nio.CharBuffer
 import java.io.InputStreamReader
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import java.io.InputStream
+import java.io.File
+import org.apache.commons.io.IOUtils
+import java.nio.file.Files
+import java.nio.ByteBuffer
 
 object InStream {
+
+  val mandatoryAlignment = 8
+
   def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long) = {
     new InStreamFromByteChannel(context, in, bitOffset, bitLimit)
   }
+
+  /**
+   * textOnly
+   * FixedWidth
+   * encodingErrorPolicy='replace'
+   */
+  def forTextOnlyFixedWidthErrorReplace(context: ElementBase, file: File,
+    charsetEncodingName: String, lengthLimitInBits: Long): InStream = {
+    val charset = CharsetUtils.getCharset(charsetEncodingName)
+    val (cBuf, bBuf) = TextOnlyReplaceOnErrorReaderFactory.getCharBuffer(file, charset)
+    val fSize = file.length
+    val fSizeInBits = fSize * 8
+    val bitLimit =
+      if (lengthLimitInBits == -1) fSizeInBits
+      else lengthLimitInBits
+    val bitsPerChar = context.knownEncodingWidthInBits
+    val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
+      bitLimit, cBuf, bBuf)
+    val inStream = InStreamFixedWidthTextOnly(0, info)
+    inStream
+  }
+  
+  def forTextOnlyFixedWidthErrorReplace(context: ElementBase, jis: InputStream,
+    charsetEncodingName: String,
+    lengthLimitInBits: Long): InStream = {
+    val charset = CharsetUtils.getCharset(charsetEncodingName)
+    val bytes = IOUtils.toByteArray(jis)
+    val bBuf = ByteBuffer.wrap(bytes)
+    val cBuf = TextOnlyReplaceOnErrorReaderFactory.getCharBuffer(bBuf, charset)
+    val bitLimit =
+      if (lengthLimitInBits == -1) bytes.length * 8
+      else lengthLimitInBits
+    val bitsPerChar = context.knownEncodingWidthInBits
+    val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
+      bitLimit, cBuf, bBuf)
+    val inStream = InStreamFixedWidthTextOnly(0, info)
+    inStream
+  }
+
 }
 
 /**
@@ -96,12 +144,51 @@ trait InStream {
    * Calling this forces the entire input into memory.
    */
   def lengthInBytes: Long
+
+  /**
+   * Returns a string using up as much as nBytes, along with the number of bits actually consumed.
+   * If end of data is reached before nBytes have been consumed, then result will contain as large
+   * a string as is possible up to the end of the data.
+   * 
+   * TODO: replace usage in primitives where they getBytes and then call decode themselves.
+   * That should be centralized here.
+   */
+  def getStringInBytes(nBytes: Int, charset: Charset, 
+      isCharsetFixedWidth: Boolean, 
+      charsetFixedWidthInBits: Int): (CharSequence, Int) = {
+    Assert.usage(!isCharsetFixedWidth ||
+        charsetFixedWidthInBits % 8 == 0)
+        if (isCharsetFixedWidth) {
+         val charsetWidthInBytes = charsetFixedWidthInBits >> 3
+         val nChars = nBytes / charsetWidthInBytes
+         getStringInChars(nChars, charset, isCharsetFixedWidth, charsetFixedWidthInBits)
+        } else {
+          Assert.notYetImplemented("specified length in bytes for variable-width character set encoding")
+        }
+  }
+
+  /**
+   * Returns a string using up as much as nChars, along with the number of bits actually consumed.
+   * If end of data is reached before nChars have been consumed, then result will contain as large
+   * a string as is possible up to the end of the data.
+   */
+  def getStringInChars(nChars: Int, charset: Charset, 
+      isCharsetFixedWidth: Boolean, 
+      charsetFixedWidthInBits: Int): (CharSequence, Int) = {
+    Assert.notYetImplemented(!isCharsetFixedWidth, "specified length in characters is not supported for variable width character set encodings")
+    val rdr = getCharReader(charset, bitPos)
+    val str = rdr.getStringInChars(nChars)
+    val nBits = str.length * charsetFixedWidthInBits
+    (str, nBits)
+  }
+  
 }
 
 /**
  * Don't use this class directly. Use the factory on InStream object to create.
  */
-case class InStreamFromByteChannel private (val context: ElementBase,
+case class InStreamFromByteChannel private (
+  val context : SchemaComponent,
   val byteReader: DFDLByteReader,
   val bitPos: Long,
   val bitLimit: Long,
@@ -110,6 +197,7 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   extends InStream
   with Logging
   with WithParseErrorThrowing {
+  
 
   // Let's eliminate duplicate information between charPos of the PState, the
   // InStream, and the Reader. It's the reader, and only the reader.
@@ -121,7 +209,7 @@ case class InStreamFromByteChannel private (val context: ElementBase,
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: ElementBase, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long) =
+  def this(context: SchemaComponent, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long) =
     this(context, new DFDLByteReader(inArg), bitOffset, bitLimit, -1, None)
 
   /**
@@ -211,12 +299,6 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     }
 
   }
-
-  // Removed: Bad idea. Makes copy of entire input
-  //  def getAllBytes: Array[Byte] = {
-  //    val bb = byteReader.bb
-  //    bb.array()
-  //  }
 
   private def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
   private def asSignedByte(i: Int) = {
@@ -394,39 +476,22 @@ case class InStreamFromByteChannel private (val context: ElementBase,
     getRawByte(bitPos, order)
   }
 
-  def getRawByte(bitPos: Long, ignored: java.nio.ByteOrder) = {
+  def getRawByte(bitPos: Long, byteOrder: java.nio.ByteOrder) = {
+    Assert.usage(byteOrder != null) // ignored, but we should at least insist on it being one, not null.
     Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     // byteReader.bb.order(order) // must be aligned, so byte order is irrelevant.
     byteReader.getByte(bytePos) // NOT called getByte(pos)
   }
 
-  // Let's not actually shorten the stream. There are too many 
-  // places that need to deal with running into the length limit, so
-  // that really does have to work. This is overkill.
-  // TODO: remove this once we're sure we don't need it anymore.
-  //  def withLimit(startBitPos: Long, endBitPos: Long): InStream = {
-  //    // Appears to only be called from lengthKind=Pattern match code
-  //    Assert.invariant((startBitPos & 7) == 0)
-  //    Assert.invariant((endBitPos & 7) == 0)
-  //    val startByte = startBitPos / 8
-  //    val endByte = (endBitPos + 7) / 8
-  //    val count = endByte - startByte
-  //    var bytes: Array[Byte] = new Array(count.asInstanceOf[Int])
-  //    val oldPos = byteReader.bb.position
-  //    byteReader.bb.position(startByte.asInstanceOf[Int])
-  //    byteReader.bb.get(bytes, 0, count.asInstanceOf[Int])
-  //    val inputStream = new ByteArrayInputStream(bytes)
-  //    val rbc = java.nio.channels.Channels.newChannel(inputStream)
-  //    byteReader.bb.position(oldPos)
-  //    val newInStream = InStream.fromByteChannel(context, rbc, sizeHint)
-  //    newInStream
-  //  }
-
   /**
    * Calling this forces the entire input into memory.
    */
   def lengthInBytes: Long = byteReader.lengthInBytes
+  
+
+    
+
 }
 
 class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {

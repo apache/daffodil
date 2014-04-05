@@ -23,8 +23,8 @@
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.ibm.icu/icu4j/icu4j-51.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar">
 		<attributes>
@@ -45,6 +45,12 @@
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.9-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
+	<classpathentry kind="lib" path="lib_managed/jars/commons-io/commons-io/commons-io-2.4.jar" sourcepath="lib_managed/srcs/commons-io/commons-io/commons-io-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/commons-io/commons-io/commons-io-2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/eclipse/classes"/>

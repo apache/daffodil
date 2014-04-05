@@ -38,4 +38,21 @@ object DaffodilTunableParameters {
    * length delimiter.
    */
   def maxLengthForVariableLengthDelimiterDisplay: Int = 10 // will display this number of bytes
+  
+  /**
+   * In certain I/O optimized situations (text-only, encodingErrorPolicy='replace', fixed-width encoding)
+   * input files larger than this will be mmapped. Input files smaller than this
+   * will be simply read using ordinary I/O (because for small files that is just faster). 
+   * This exists because mmap is more expensive than ordinary I/O for small files.
+   */
+  def inputFileMemoryMapLowThreshold: Long = 32 * 1024 * 1024 // 32Meg
+  
+  /**
+   * TODO: In the future, when we can stream and handle input larger than the JVM single
+   * object limits, input files larger than this will be streamed, i.e., using java.io.InputStream.
+   * They will not be memory mapped. A CharBuffer 2x larger may be created, and that
+   * cannot exceed the JVM maximum size, so this has to be no bigger (and perhaps quite a bit
+   * smaller) than 1/2 the maximum JVM object size.
+   */
+  // def inputFileMemoryMapHighThreshold: Long = 256 * 1024 * 1024 // 256 Meg
 }

@@ -1242,6 +1242,7 @@ object Fakes {
     def getVariables(): VariableMap = EmptyVariableMap
     def unparse(output: Output, node: scala.xml.Node): UnparseResult = null
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
+    def parse(file: File) : ParseResult = null
 
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError

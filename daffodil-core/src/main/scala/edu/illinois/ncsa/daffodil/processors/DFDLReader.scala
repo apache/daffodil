@@ -102,19 +102,31 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
   }
 
   def getByteArray(bytePosition0b: Int, numBytes: Int): Array[Byte] = {
-    val arr = new Array[Byte](numBytes)
+    
+    // It is important to sanitize the numBytes request. 
+    // If the parser is off the rails, it might get gibberish for 
+    // a stored length value. We don't want to allocate 
+    // a giant thing (and perhaps fail when doing so), if 
+    // the number is just noise.
+    //
+    // first let's check if the data is defined at this offset
+    // 
+    val requestedEndBytePos = bytePosition0b + numBytes
+    val realNumBytes =
+      if (psb.isDefinedAt(requestedEndBytePos)) numBytes
+      else {
+        //
+        // The requested length is bigger than our data, 
+        // so we can clamp this to the length of the data
+        //
+        lengthInBytes - bytePosition0b
+      }
+    val arr = new Array[Byte](realNumBytes.toInt)
     for (i <- 0 to (numBytes - 1)) {
       arr(i) = getByte(bytePosition0b + i)
     }
     arr
   }
-
-  // Removed: These are a really bad idea. They will make a giant 
-  // copy of the entire input. Maybe ok for unit testing, but just
-  // having them here is asking for trouble.
-  //
-  // lazy val byteArray: Array[Byte] = psb.toArray[Byte]
-  // lazy val bb: ByteBuffer = ByteBuffer.wrap(byteArray)
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this
@@ -174,13 +186,13 @@ object DFDLCharReader {
     val rdr = new DFDLPagedSeqCharReader(charset, bitPos, bitLimit, psc, charOffset, thePsb)
     rdr
   }
-
 }
 
 /**
- * Reader[Char] constructed from a specific point within a PagedSeq[Byte], for
- * a particular character set encoding. Ends if there is any error trying to decode a
- * character.
+ * Our version of Reader[Char] differs slightly from the Scala-provided 
+ * one in that end-of-data is signified by the first member value of 
+ * (-1.toChar). (Note: Scala's Reader[Char] uses ^Z i.e., 26.toChar, but we
+ * want to preserve the ability for all 256 byte values to be used.  
  *
  * This trait allows for multiple different implementations for performance
  * reasons.
@@ -204,6 +216,22 @@ trait DFDLCharReader
   def characterPos: Int
   def charset: Charset
   def bitLimit: Long
+  /**
+   * Returns string
+   */
+  def getStringInChars(nChars: Int): CharSequence = {
+    var next: DFDLCharReader = this
+    val sb = new StringBuilder(nChars)
+    1 to nChars foreach { _ =>
+      if (atEnd) {
+        return sb.toString
+      }
+      sb.append(next.first)
+      next = next.rest
+    }
+    val str: String = sb.toString
+    str
+  }
 }
 
 /**
@@ -230,15 +258,16 @@ class DFDLUTStringReader private (rdr: Reader[Char])
 // This state should be maintained in the DataProcessor object I think.
 object DFDLCharCounter {
   var count: Long = 0
-  def incr(n: Long) {
-    count += n
+  def incr(n: Long) = synchronized {
+    count += n 
   }
-  def getAndResetCount = {
+  def getAndResetCount = synchronized {
     val c = count
     count = 0
     c
   }
 }
+
 /**
  * This is for arbitrary character sets. Uses a PagedSeq[Char] as underlying cache.
  */
@@ -259,8 +288,11 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   override lazy val source: CharSequence = psc
 
   def first: Char = {
-    val char = psc(offset)
-    char
+    if (atEnd) -1.toChar
+    else {
+      val char = psc(offset)
+      char
+    }
   }
 
   def rest: DFDLCharReader =
@@ -297,7 +329,7 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   override def toString = {
     "DFDLCharReader starting at bitPos " + startingBitPos + " charPos " + characterPos + " bitLimit " + bitLimit
   }
-
+  
 }
 
 // Scala Reader stuff is not consistent about whether it is generic over the element type, 
@@ -305,11 +337,14 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
 // be able to create real Reader[Char] from it at any byte position.
 
 object IterableReadableByteChannel {
-  var byteCount: Long = 0
-  def getAndResetCalls = {
+  private var byteCount: Long = 0
+  def getAndResetCalls = synchronized {
     val res = byteCount
     byteCount = 0
     res
+  }
+  def increment = synchronized {
+    byteCount = byteCount + 1
   }
 }
 
@@ -346,7 +381,7 @@ class IterableReadableByteChannel(rbc: ReadableByteChannel)
   def next(): Byte = {
     if (!hasNext()) throw new IndexOutOfBoundsException(pos.toString)
     pos += 1
-    IterableReadableByteChannel.byteCount += 1
+    IterableReadableByteChannel.increment
     currentBuf.get()
   }
 }

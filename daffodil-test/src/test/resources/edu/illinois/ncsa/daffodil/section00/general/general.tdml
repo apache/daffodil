@@ -51,7 +51,7 @@
 
     <xs:element name="doc" dfdl:lengthKind="implicit">
       <xs:complexType>
-        <xs:sequence dfdl:separator="," dfdl:terminator=";">
+        <xs:sequence dfdl:separator="," dfdl:terminator=";%WSP*;">
           <xs:element name="e1" nillable="true" type="xs:int"
             dfdl:lengthKind="delimited" />
           <xs:element name="e2" nillable="true" type="xs:int"

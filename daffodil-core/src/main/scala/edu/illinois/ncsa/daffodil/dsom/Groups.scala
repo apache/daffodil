@@ -48,6 +48,48 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import java.util.UUID
 
+ /**
+   * Technique for analyzing and combining charset encoding 
+   * information uses a lattice. Top of lattice means
+   * "conflicting" information. Bottom of lattice is "no information" 
+   * and points in between have specific amounts of information.
+   * Basic operation is combine two values of the lattice to 
+   * move up the lattice toward the Top. 
+   */
+  sealed abstract class EncodingLattice
+  
+  /**
+   * This is the Top value for the lattice of knowledge 
+   * about encodings. Mixed as in multiple different encodings
+   * or a mixture of binary and text data, or some things
+   * not known until runtime.
+   */
+  case object Mixed extends EncodingLattice
+  /**
+   * Contains binary data (only)
+   */
+  case object Binary extends EncodingLattice
+  /**
+   * Means the encoding is determined via a runtime expression.
+   */
+  case object Runtime extends EncodingLattice
+  /**
+   * NoText is the bottom of the lattice. We have no information
+   * here. Means the item could have text, but just so happens to not 
+   * have any, so regardless of what it's encoding is, it doesn't
+   * interfere with contained children and parents having a
+   * common encoding. Example: A sequence with no alignment region, 
+   * and no delimiters. It's not binary, it has no text. It's 
+   * nothing really. 
+   */
+  case object NoText extends EncodingLattice
+  
+  /**
+   * Means we have a named encoding.
+   */
+  case class Encoding(name: String) extends EncodingLattice
+
+  
 /////////////////////////////////////////////////////////////////
 // Groups System
 /////////////////////////////////////////////////////////////////
@@ -91,17 +133,64 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * If an encoding is determined at runtime, then we will
    * insist on it being 8-bit aligned code units.
    */
+
+ 
   final lazy val isScannable: Boolean = {
-    !this.isRepresented || (
-      this.isLocallyTextOnly &&
-      {
-        val areAllScannableChildren =
-          termChildren.forall { t =>
-            this.hasCompatibleEncoding(t) &&
-              t.isScannable
-          }
-        areAllScannableChildren
-      })
+    if (!this.isRepresented) true
+    else {
+      val res = summaryEncoding match {
+        case Mixed => false
+        case Binary => false
+        case NoText => false
+        case Runtime => false
+        case _ => true
+      }
+      res
+    }
+  }
+  
+  /**
+   * If s1 and s2 are the same encoding name
+   * then s1, else "mixed". Also "notext" combines
+   * with anything. 
+   */
+  def combinedEncoding(
+      s1: EncodingLattice, 
+      s2: EncodingLattice): EncodingLattice = {
+    (s1, s2) match {
+      case (x, y) if (x == y) => x
+      case (Mixed, _) => Mixed
+      case (_, Mixed) => Mixed
+      case (Binary, Binary) => Binary
+      case (Binary, _) => Mixed
+      case (_, Binary) => Mixed
+      case (NoText, x) => x
+      case (x, NoText) => x
+      case (x, y) => Mixed
+    }
+  }
+  
+  /**
+   * Roll up from the bottom. This is abstract interpretation.
+   * The top (aka conflicting encodings) is "mixed"
+   * The bottom is "noText" (combines with anything)
+   * The values are encoding names, or "runtime" for expressions.
+   * <p>
+   * By doing expression analysis we could do a better job
+   * here and determine when things that use expressions
+   * to get the encoding are all going to get the same
+   * expression value. For now, if it is an expression
+   * then we lose. 
+   */
+  lazy val summaryEncoding: EncodingLattice = {
+    val myEnc = if (!isRepresented) NoText
+    else if (!isLocallyTextOnly) Binary
+    else if (!couldHaveText) NoText
+    else if (!this.isKnownEncoding) Runtime
+    else Encoding(this.knownEncodingName)
+    val childEncs: Seq[EncodingLattice] = termChildren.map{ x => x.summaryEncoding }
+    val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x,y) }
+    res
   }
   
   /**

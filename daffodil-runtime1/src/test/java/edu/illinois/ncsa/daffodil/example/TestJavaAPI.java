@@ -44,6 +44,7 @@ import java.io.File;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
+import edu.illinois.ncsa.daffodil.debugger.Debugger;
 import edu.illinois.ncsa.daffodil.japi.Compiler;
 import edu.illinois.ncsa.daffodil.japi.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.Daffodil;
@@ -108,7 +109,7 @@ public class TestJavaAPI {
 			System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		assertTrue(lw.infos.size() > 0);
+		// assertTrue(lw.infos.size() > 0); // got rid of include info messages (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines
@@ -166,7 +167,7 @@ public class TestJavaAPI {
 
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		assertTrue(lw.infos.size() > 0);
+		// assertTrue(lw.infos.size() > 0);
 		assertEquals(0, lw.others.size());
 
 		// reset the global logging state
@@ -273,10 +274,10 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-		c.setDistinguishedRootNode("e4", null);
+		c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string element
 		ProcessorFactory pf = c.compile(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = getResource("/test/japi/myData3.dat");
+		java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5 bytes
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
@@ -611,7 +612,7 @@ public class TestJavaAPI {
 			System.err.println(e);
 		assertEquals(0, lw2.errors.size());
 		assertEquals(0, lw2.warnings.size());
-		assertTrue(lw2.infos.size() > 0);
+		// assertTrue(lw2.infos.size() > 0);
 		assertTrue(lw2.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines
@@ -743,7 +744,7 @@ public class TestJavaAPI {
 			System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		assertTrue(lw.infos.size() > 0);
+		// assertTrue(lw.infos.size() > 0);
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines

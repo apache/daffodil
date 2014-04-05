@@ -28,6 +28,11 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import scala.xml.Node
 import java.io.File
 import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import java.nio.channels.Channels
+import java.nio.charset.CodingErrorAction
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import java.nio.channels.FileChannel
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -141,12 +146,63 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val initialState = PState.createInitialState(this.processorFactory.sset.schemaComponentRegistry,
-      rootElem,
-      input,
-      this,
-      bitOffset = 0,
-      bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
+    val scr = this.processorFactory.sset.schemaComponentRegistry
+    val initialState = 
+      if (rootElem.isScannable &&
+        rootElem.encodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        rootElem.knownEncodingIsFixedWidth &&
+        rootElem.knownEncodingAlignmentInBits == 8 // byte-aligned characters
+        ) {
+        // use simpler text only I/O layer
+        val charsetEncodingName = rootElem.encoding.constantAsString
+        val jis = Channels.newInputStream(input)
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
+            rootElem,
+            jis, charsetEncodingName, lengthLimitInBits)
+        PState.createInitialState(scr,
+          rootElem,
+          inStream,
+          this)
+      } else {
+        PState.createInitialState(scr,
+          rootElem,
+          input,
+          this,
+          bitOffset = 0,
+          bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
+      }
+    try {
+      Debugger.init(parser)
+      parse(initialState)
+    } finally {
+      Debugger.fini(parser)
+    }
+  }
+
+  def parse(file: File): DFDL.ParseResult = {
+    Assert.usage(!this.isError)
+
+    val scr = this.processorFactory.sset.schemaComponentRegistry
+    val initialState =
+      if (rootElem.isScannable &&
+        rootElem.encodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        rootElem.knownEncodingIsFixedWidth) {
+        // use simpler I/O layer
+        val charsetEncodingName = rootElem.encoding.constantAsString
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(rootElem,
+            file, charsetEncodingName, -1)
+        PState.createInitialState(scr,
+          rootElem,
+          inStream,
+          this)
+      } else {
+        PState.createInitialState(scr,
+          rootElem,
+          FileChannel.open(file.toPath),
+          this,
+          bitOffset = 0,
+          bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
+      }
     try {
       Debugger.init(parser)
       parse(initialState)

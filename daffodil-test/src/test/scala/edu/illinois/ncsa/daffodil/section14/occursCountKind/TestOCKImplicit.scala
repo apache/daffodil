@@ -46,7 +46,6 @@ class TestOCKImplicit {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
   val aa = testDir + "ockImplicit.tdml"
   val res = Misc.getRequiredResource(aa)
-  println(res)
   lazy val runner = new DFDLTestSuite(res)
 
   @Test def test_ockImplicit1() { runner.runOneTest("ockImplicit1") }

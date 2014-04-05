@@ -174,12 +174,20 @@ object DFDL {
      * fewer than the entire input.
      */
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult
+    
+    /**
+     * Returns an object which contains the result, and/or diagnostic information.
+     * <p>
+     * Use this rather than passing a channel/stream because it enables some 
+     * I/O optimizations.
+     */
+    def parse(file: File): ParseResult
   }
 
   trait ParseResult extends Result with WithDiagnostics {
     def result: scala.xml.Node
     def briefResult = XMLUtils.removeAttributes(result)
-    def resultState: PState
+    def resultState: State
     def isValidationSuccess: Boolean
   }
 

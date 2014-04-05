@@ -24,9 +24,9 @@ abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
 
   def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
-      "<SpecifiedLength" + kind + ">" +
+      "<SpecifiedLengthCombinator_" + kind + ">" +
         eParser.toBriefXML(depthLimit - 1) +
-        "</SpecifiedLength" + kind + ">"
+        "</SpecifiedLengthCombinator_" + kind + ">"
   }
 
 }
@@ -106,10 +106,10 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
   extends PrimParser(combinator, e)
   with WithParseErrorThrowing {
 
-  def toBriefXML = combinator.toBriefXML _
+  override def toBriefXML(depthLimit: Int) = combinator.toBriefXML(depthLimit: Int)
 
   final def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
-    log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
+    log(LogLevel.Info, "Limiting data to %s bits.", endBitPos)
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
 
@@ -267,7 +267,6 @@ class SpecifiedLengthExplicitBytesFixedParser(combinator: SpecifiedLengthCombina
         return postEState
       }
       case u: UnsuppressableException => throw u
-      case ex: Exception => { return PE(start, "SpecifiedLengthExplicitBytesFixedParser - Exception: \n%s", ex.getStackTraceString) }
     }
   }
 }

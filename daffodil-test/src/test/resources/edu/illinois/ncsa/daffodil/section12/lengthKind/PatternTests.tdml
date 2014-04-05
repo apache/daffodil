@@ -51,7 +51,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="list_02" dfdl:encoding='ebcdic-cp-us'>
+    <xs:element name="list_02" dfdl:encoding='ascii'>
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"

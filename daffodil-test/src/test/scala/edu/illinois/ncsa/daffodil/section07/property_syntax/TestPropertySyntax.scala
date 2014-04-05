@@ -53,7 +53,7 @@ class TestPropertySyntax {
 
   val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
   val aa = testDir1 + "PropertySyntax.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa), false, false)
 
   @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
   @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }

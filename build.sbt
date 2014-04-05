@@ -27,7 +27,8 @@ libraryDependencies in ThisBuild := Seq(
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
   "org.rogach" %% "scallop" % "0.9.4",
-  "net.sourceforge.expectj" % "expectj" % "2.0.7"
+  "net.sourceforge.expectj" % "expectj" % "2.0.7",
+  "commons-io" % "commons-io" % "2.4"
 )
 
 retrieveManaged := true

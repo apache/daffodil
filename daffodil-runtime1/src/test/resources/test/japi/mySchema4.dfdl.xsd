@@ -16,7 +16,7 @@
     <complexType>
       <sequence dfdl:separator=",">
         <sequence dfdl:hiddenGroupRef="tns:hg" />
-        <element name="e2" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="2" />
+        <element name="e2" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:terminator="%NL;"/>
       </sequence>
     </complexType>
   </element>

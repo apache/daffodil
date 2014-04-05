@@ -171,7 +171,7 @@
   <tdml:defineSchema name="PropertySyntaxInvalid">
 
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
-      lengthUnits="bytes" encoding="-" separator="" initiator=""
+      lengthUnits="bytes" encoding="" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
 
