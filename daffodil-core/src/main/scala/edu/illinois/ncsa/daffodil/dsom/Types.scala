@@ -1197,8 +1197,6 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
 
 }
 
-
-
 // Primitives are not "global" because they don't appear in any schema document
 sealed abstract class PrimitiveType
   extends SchemaComponent(<primitive/>, null)

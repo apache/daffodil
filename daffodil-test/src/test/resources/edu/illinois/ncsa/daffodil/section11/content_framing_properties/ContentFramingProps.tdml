@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com" xmlns:tns="http://example.com"
   xmlns:fn="http://www.w3.org/2005/xpath-functions" >
 
   <tdml:defineSchema name="ContentFramingProperties-Embedded.dfdl.xsd">
@@ -10,7 +10,7 @@
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" />
 
-    <xs:element name="CFP_01" type="cfp_01" />
+    <xs:element name="CFP_01" type="tns:cfp_01" />
     <xs:simpleType name="cfp_01">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">

@@ -35,10 +35,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.9.4.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.9.4-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/org.rogach/scallop_2.9.2/scallop_2.9.2-0.9.4-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.10/scallop_2.10-0.9.5.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

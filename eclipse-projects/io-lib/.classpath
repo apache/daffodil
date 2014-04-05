@@ -47,6 +47,5 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.9.2/scallop_2.9.2-0.9.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

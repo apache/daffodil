@@ -75,7 +75,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="basic" type="basicType"
+          <xs:element name="basic" type="ex:basicType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -115,7 +115,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="scalar" type="scalarType"
+          <xs:element name="scalar" type="ex:scalarType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -145,7 +145,7 @@
       separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
 
-    <xs:element name="array" type="arrayType"
+    <xs:element name="array" type="ex:arrayType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="arrayType">
@@ -177,12 +177,12 @@
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
       separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
-    <xs:element name="arrays" type="arrayOutter"
+    <xs:element name="arrays" type="ex:arrayOutter"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
-        <xs:element name="array" type="array" minOccurs="0"
+        <xs:element name="array" type="ex:array" minOccurs="0"
           maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
@@ -214,12 +214,12 @@
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
       separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
-    <xs:element name="arrays" type="arrayOutter"
+    <xs:element name="arrays" type="ex:arrayOutter"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
-        <xs:element name="array" type="array" minOccurs="1"
+        <xs:element name="array" type="ex:array" minOccurs="1"
           maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
@@ -251,12 +251,12 @@
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
       separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
-    <xs:element name="arrays" type="arrayOutter"
+    <xs:element name="arrays" type="ex:arrayOutter"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="arrayOutter">
       <xs:sequence dfdl:separator=",">
-        <xs:element name="array" type="array" minOccurs="3"
+        <xs:element name="array" type="ex:array" minOccurs="3"
           maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited" />
       </xs:sequence>
     </xs:complexType>
@@ -290,7 +290,7 @@
       separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" />
 
 
-    <xs:element name="basic" type="basicType"
+    <xs:element name="basic" type="ex:basicType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="basicType">
@@ -323,7 +323,7 @@
       separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
-    <xs:element name="basic" type="basicType"
+    <xs:element name="basic" type="ex:basicType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="basicType">
@@ -336,7 +336,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="basic" type="basicType"
+          <xs:element name="basic" type="ex:basicType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -347,7 +347,7 @@
     <xs:element name="root1">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="basic" type="basicType"
+          <xs:element name="basic" type="ex:basicType"
             dfdl:lengthKind="implicit" />
         </xs:sequence>
       </xs:complexType>
@@ -374,7 +374,7 @@
       separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
-    <xs:element name="basic" type="basicType"
+    <xs:element name="basic" type="ex:basicType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="basicType">
@@ -388,7 +388,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="basic" type="basicType"
+          <xs:element name="basic" type="ex:basicType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -415,7 +415,7 @@
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
       separatorSuppressionPolicy="never" separatorPosition="infix" />
 
-    <xs:element name="basic" type="basicType"
+    <xs:element name="basic" type="ex:basicType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="basicType">
@@ -429,7 +429,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="basic" type="basicType"
+          <xs:element name="basic" type="ex:basicType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -461,7 +461,7 @@
       separatorSuppressionPolicy="never" separatorPosition="infix" />
 
 
-    <xs:element name="matrix" type="matrixType"
+    <xs:element name="matrix" type="ex:matrixType"
       dfdl:lengthKind="implicit" />
 
     <xs:complexType name="matrixType">
@@ -519,7 +519,7 @@
     <xs:element name="root">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="matrix" type="matrixType"
+          <xs:element name="matrix" type="ex:matrixType"
             dfdl:lengthKind="implicit" />
           <xs:element name="extra" type="xs:string"
             dfdl:lengthKind="delimited" />
@@ -530,7 +530,7 @@
     <xs:element name="root1">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="matrix" type="matrixType"
+          <xs:element name="matrix" type="ex:matrixType"
             dfdl:lengthKind="implicit" />
         </xs:sequence>
       </xs:complexType>

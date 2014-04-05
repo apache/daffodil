@@ -522,7 +522,7 @@ is multiple bytes in UTF-8 encoding that is used"
         escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
     
-    <xs:element name="e1" type="type1" />
+    <xs:element name="e1" type="ex:type1" />
     <xs:complexType name="type1">
       <xs:sequence dfdl:separator=";">
         <xs:element name="element1" type="xs:string"

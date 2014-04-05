@@ -34,7 +34,7 @@
         escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
     </dfdl:defineEscapeScheme>
     
-    <xs:element name="e1" type="type1" />
+    <xs:element name="e1" type="ex:type1" />
     <xs:complexType name="type1">
       <xs:sequence dfdl:separator=";">
         <xs:element name="element1" type="xs:string"
@@ -42,7 +42,7 @@
       </xs:sequence>
     </xs:complexType>
 
-    <xs:element name="e2" type="type2" />
+    <xs:element name="e2" type="ex:type2" />
     <xs:complexType name="type2">
       <xs:sequence dfdl:separator=";">
         <xs:element name="element2" type="xs:string" minOccurs="1" maxOccurs="unbounded" 
@@ -50,7 +50,7 @@
       </xs:sequence>
     </xs:complexType>
 
-    <xs:element name="e3" type="type3" />
+    <xs:element name="e3" type="ex:type3" />
     <xs:complexType name="type3">
       <xs:sequence dfdl:separator="sep">
         <xs:element name="element3" type="xs:string" minOccurs="1" maxOccurs="unbounded" 
@@ -58,7 +58,7 @@
       </xs:sequence>
     </xs:complexType>
     
-    <xs:element name="e4" type="type4" />
+    <xs:element name="e4" type="ex:type4" />
     <xs:complexType name="type4">
       <xs:sequence dfdl:separator=";">
         <xs:element name="element4" type="xs:string" minOccurs="1" maxOccurs="unbounded" 
@@ -66,7 +66,7 @@
       </xs:sequence>
     </xs:complexType>
     
-    <xs:element name="e5" type="type5" />
+    <xs:element name="e5" type="ex:type5" />
     <xs:complexType name="type5">
       <xs:sequence dfdl:separator=";">
         <xs:element name="element5" type="xs:string" minOccurs="1" maxOccurs="unbounded" 

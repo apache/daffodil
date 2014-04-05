@@ -2,7 +2,7 @@
 <tdml:testSuite suiteName="Regular expressions"
   description="Section 24" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://example.com"
   xmlns:ex="http://example.com">
 
   <tdml:defineSchema name="RegularExpressions-Embedded.dfdl.xsd">
@@ -47,9 +47,9 @@
     <xs:complexType>
       <xs:sequence >
         <xs:choice>
-          <xs:element ref="data_01"/>
+          <xs:element ref="tns:data_01"/>
           <!-- Note that if you put the assert from data_01 above right here, then the test will pass. -->
-          <xs:element ref="data_02">
+          <xs:element ref="tns:data_02">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="(1|2|3)"

@@ -37,6 +37,7 @@ import scala.util.parsing.input.Position
  */
 case class FixedWidthTextInfoCBuf(context: SchemaComponent, bitsPerChar: Int, mandatoryAlignment: Int, charset: Charset,
   bitLimit: Long, cBuf: CharBuffer, bBuf: ByteBuffer) {
+
   Assert.usage(bitLimit == -1 || bitLimit % bitsPerChar == 0)
   // Only true the first time we create one of these. During a parse, the bit limit
   // can get tightened down, and in that case the cBuf.limit will be larger than 
@@ -112,11 +113,13 @@ case class InStreamFixedWidthTextOnly(
 
   def getCharsetName = info.charset.name
   lazy val characterPos = cPos0b // zero based
+  
   def charset = Assert.usageError("not to be used in test reader")
   def bitLimit = info.bitLimit
 
   override def charPos: Long = cPos0b
   override val reader = Some(this)
+
 
   def withPos(newBitPos0b: Long, newCharPos0b: Long, reader: Option[DFDLCharReader]): InStream = {
     Assert.usage(newBitPos0b >= 0)
@@ -157,7 +160,7 @@ case class InStreamFixedWidthTextOnly(
     info.bBuf.get(bytePos)
   }
   def getRawByte(bitPos: Long, order: ByteOrder): Byte = getByte(bitPos, order)
-
+  
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
     val nbytes = numBytes.toInt
     val bytes = new Array[Byte](nbytes)
@@ -189,6 +192,7 @@ case class InStreamFixedWidthTextOnly(
     Assert.usage(charset == info.charset)
     this.atBitPos(bitPos)
   }
+
 
   def lengthInBytes(): Long = {
     if (info.bitLimit != -1) info.bitLimit / 8

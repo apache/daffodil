@@ -155,7 +155,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=","
           dfdl:separatorPosition="infix">
-          <xs:element ref="e1" />
+          <xs:element ref="tns:e1" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>

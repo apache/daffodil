@@ -43,6 +43,8 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.io.ByteArrayOutputStream
 
+import scala.language.reflectiveCalls
+
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
  */
@@ -252,6 +254,7 @@ object Misc {
     s.map { remap(_) }.mkString
   }
 
+  import scala.language.reflectiveCalls // scala 2.10 creates warning unless we have this.
   /**
    * Convenient I/O tools
    */

@@ -33,6 +33,7 @@ package edu.illinois.ncsa.daffodil.util
  */
 
 import scala.util.parsing.combinator.RegexParsers
+import scala.language.implicitConversions
 
 trait DebugRegexParsers extends RegexParsers with Logging {
   /**

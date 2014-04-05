@@ -17,7 +17,7 @@
     <xs:element name="s3">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="e1" type="st1" dfdl:lengthKind="delimited">
+          <xs:element name="e1" type="ex:st1" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -1303,7 +1303,7 @@ c' } "  />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    <xs:element name="e7" type="ct1">
+    <xs:element name="e7" type="ex:ct1">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert test="{ dfdl:checkConstraints(.) }"

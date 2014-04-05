@@ -23,8 +23,8 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedByte(../bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
-          else if (fn:trace(xs:unsignedByte(../bom) eq 20, 'pred2')) then 'littleEndian'
+          if (fn:trace(fn:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          else if (fn:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
           else fn:error()
       }]]></dfdl:property>
                 </dfdl:element>
@@ -44,8 +44,8 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedShort(../bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
-          else if (fn:trace(xs:unsignedShort(../bom) eq 65534, 'pred2')) then 'littleEndian'
+          if (fn:trace(fn:trace(xs:unsignedShort(../ex:bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
+          else if (fn:trace(xs:unsignedShort(../ex:bom) eq 65534, 'pred2')) then 'littleEndian'
           else fn:error()
       }]]></dfdl:property>
                 </dfdl:element>
@@ -65,7 +65,7 @@
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- hoist calculation so we do it only once -->
-                <dfdl:setVariable ref="bom"><![CDATA[{
+                <dfdl:setVariable ref="ex:bom"><![CDATA[{
           if (fn:trace(fn:trace(xs:unsignedShort(.), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
           else if (fn:trace(xs:unsignedShort(.) eq 65534, 'pred2')) then 'littleEndian'
           else fn:error()

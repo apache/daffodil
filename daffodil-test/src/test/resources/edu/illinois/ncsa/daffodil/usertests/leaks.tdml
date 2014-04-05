@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="Checking for memory leaks"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com">
+
+  <tdml:defineSchema name="s">
+    <dfdl:format ref="tns:daffodilTest1"/>
+    <xs:element name="e1" type="xs:int" 
+        dfdl:inputValueCalc="{ 42 }"/>
+    <xs:element name="e2" type="xs:int" 
+        dfdl:inputValueCalc="{ 'foobar' }"/>
+    <xs:element name="e3" type="xs:int"  dfdl:lengthKind="pattern" />
+    <xs:element name="e4" type="xs:int"  dfdl:lengthKind="delimited" dfdl:terminator=";" />
+  </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="leak1"
+    root="e1" model="s"
+    description="Test for leaks on the simplest possible tdml test">
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+       <e1>42</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="leak2"
+    root="e2" model="s"
+    description="Test for leaks on the simplest possible tdml test">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>e2</tdml:error>
+      <tdml:error>foobar</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="leak3"
+    root="e3" model="s"
+    description="Test for leaks on the simplest possible tdml test">
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>e3</tdml:error>
+      <tdml:error>lengthPattern</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="leak4"
+    root="e4" model="s"
+    description="Test for leaks on the simplest possible tdml test">
+    <tdml:document>42;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+       <e4>42</e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  </tdml:testSuite>

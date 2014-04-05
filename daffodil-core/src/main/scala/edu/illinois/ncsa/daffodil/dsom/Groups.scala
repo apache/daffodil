@@ -134,7 +134,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * insist on it being 8-bit aligned code units.
    */
 
- 
   final lazy val isScannable: Boolean = {
     if (!this.isRepresented) true
     else {
@@ -390,7 +389,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
     val thisTerm = this match {
       case eRef: ElementRef => eRef.referencedElement
-      case gd: GlobalGroupDef => gd.thisTermNoRefs
+      // case gd: GlobalGroupDef => gd.thisTermNoRefs // TODO: scala 2.10 compiler says this line is impossible. 
       case gb: GroupBase if gb.enclosingTerm.isDefined => {
         // We're a group.  We need to determine what we're enclosed by.
         gb.enclosingTerm.get match {
@@ -1112,7 +1111,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     // Constructs a sequence of choice using newContent
     val newXML = {
       xmlArg match {
-        case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, newContent: _*)
+        case Elem(prefix, "sequence", attrs, scope, content @ _*) => Elem(prefix, "sequence", attrs, scope, true, newContent: _*)
         case other => other
       }
     }

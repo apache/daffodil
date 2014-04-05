@@ -157,7 +157,7 @@ object XMLUtils {
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
-  val CONFIG_NAMESPACE = EXT_NS
+
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
@@ -194,6 +194,8 @@ object XMLUtils {
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
   val COLUMN_ATTRIBUTE_NAME = "col"
+    
+  val CONFIG_NAMESPACE = EXT_NS
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.
   //  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
@@ -977,7 +979,7 @@ object XMLUtils {
         n match {
           case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
             val removedChildren = removeHiddenElements(children)
-            val newElem = Elem(prefix, label, attributes, scope, removedChildren: _*)
+            val newElem = Elem(prefix, label, attributes, scope, true, removedChildren: _*)
             newElem
           }
           case other => other
@@ -1121,7 +1123,7 @@ object XMLUtils {
           }
         }
 
-        Elem(newPrefix, label, newAttributes, newScope, newChildren: _*)
+        Elem(newPrefix, label, newAttributes, newScope, true, newChildren: _*)
       }
       case c: scala.xml.Comment => new scala.xml.Comment("")
       case other => other
@@ -1151,7 +1153,7 @@ object XMLUtils {
           })
         e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom2.Content], ns))
       }
-      case other => other
+      case other => // do nothing 
     }
   }
 
@@ -1303,7 +1305,6 @@ Differences were (path, expected, actual):
     fw.close()
     tmpSchemaFile
   }
-
 }
 
 trait GetAttributesMixin { self: SchemaComponentBase =>

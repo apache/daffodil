@@ -2,7 +2,7 @@ name := "daffodil"
 
 organization in ThisBuild := "edu.illinois.ncsa"
 
-scalaVersion in ThisBuild := "2.9.2"
+scalaVersion in ThisBuild := "2.10.4"
 
 scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnings")
 
@@ -26,7 +26,7 @@ libraryDependencies in ThisBuild := Seq(
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
-  "org.rogach" %% "scallop" % "0.9.4",
+  "org.rogach" %% "scallop" % "0.9.5",
   "net.sourceforge.expectj" % "expectj" % "2.0.7",
   "commons-io" % "commons-io" % "2.4"
 )

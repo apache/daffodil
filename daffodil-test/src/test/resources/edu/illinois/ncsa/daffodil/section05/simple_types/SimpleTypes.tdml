@@ -2662,7 +2662,7 @@
     <xs:element name="string5">
       <xs:complexType>
         <xs:sequence dfdl:separator="/">
-          <xs:element name="first" type="padded" />
+          <xs:element name="first" type="ex:padded" />
           <xs:element name="second" type="xs:string" dfdl:textStringPadCharacter="_" dfdl:textStringJustification="center" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -2671,7 +2671,7 @@
     <xs:element name="string6">
       <xs:complexType>
         <xs:sequence dfdl:separator="-">
-          <xs:element name="first" type="padded2" />
+          <xs:element name="first" type="ex:padded2" />
           <xs:element name="second" type="xs:string" dfdl:textStringPadCharacter="_" dfdl:textStringJustification="left" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -2716,7 +2716,7 @@
       <xs:restriction base="xs:int" />
     </xs:simpleType>
     
-    <xs:element name="int6" type="int5" />
+    <xs:element name="int6" type="tns:int5" />
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'

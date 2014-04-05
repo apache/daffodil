@@ -74,7 +74,7 @@ class TestTDMLRunnerNew {
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
-          <xsd:element name="array" type="arrayType" dfdl:lengthKind="implicit"/>
+          <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
             <xsd:sequence dfdl:separator="|">
               <xsd:element name="data" type="xsd:int" minOccurs="2" maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
@@ -111,6 +111,10 @@ class TestTDMLRunnerNew {
       ts.runOneTest("testValidation")
     }
     val msg = e.getMessage()
+    if (!msg.contains("Test case invalid")) {
+      println(msg)
+      fail("message did not contain expected contents")
+    }
     assertTrue(msg.contains("Test case invalid"))
     assertTrue(msg.contains("Validation is off"))
     assertTrue(msg.contains("test expects an error"))
@@ -130,7 +134,7 @@ class TestTDMLRunnerNew {
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
-          <xsd:element name="array" type="arrayType" dfdl:lengthKind="implicit"/>
+          <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
             <xsd:sequence dfdl:separator="|">
               <xsd:element name="data" type="xsd:int" minOccurs="2" maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
@@ -178,7 +182,7 @@ class TestTDMLRunnerNew {
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
-          <xsd:element name="array" type="arrayType" dfdl:lengthKind="implicit"/>
+          <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
             <xsd:sequence dfdl:separator="|">
               <xsd:element name="data" type="xsd:int" minOccurs="2" maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>
@@ -226,7 +230,7 @@ class TestTDMLRunnerNew {
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="parsed" truncateSpecifiedLengthString="no" ignoreCase="no" representation="text" lengthKind="delimited" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes" initiatedContent="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix"/>
-          <xsd:element name="array" type="arrayType" dfdl:lengthKind="implicit"/>
+          <xsd:element name="array" type="tns:arrayType" dfdl:lengthKind="implicit"/>
           <xsd:complexType name="arrayType">
             <xsd:sequence dfdl:separator="|">
               <xsd:element name="data" type="xsd:int" minOccurs="2" maxOccurs="5" dfdl:textNumberRep="standard" dfdl:lengthKind="delimited"/>

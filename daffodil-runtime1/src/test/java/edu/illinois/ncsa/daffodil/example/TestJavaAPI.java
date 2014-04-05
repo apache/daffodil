@@ -44,7 +44,6 @@ import java.io.File;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
-import edu.illinois.ncsa.daffodil.debugger.Debugger;
 import edu.illinois.ncsa.daffodil.japi.Compiler;
 import edu.illinois.ncsa.daffodil.japi.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.Daffodil;

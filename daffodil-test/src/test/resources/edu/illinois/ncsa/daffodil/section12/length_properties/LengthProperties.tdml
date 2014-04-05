@@ -20,13 +20,13 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="LP_02" type="lp_02" />
+    <xs:element name="LP_02" type="ex:lp_02" />
     <xs:simpleType name="lp_02" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" 
       dfdl:length="2" dfdl:byteOrder="bigEndian">
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_03" type="lp_03" />
+    <xs:element name="LP_03" type="ex:lp_03" />
     <xs:simpleType name="lp_03">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -37,7 +37,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
     
-    <xs:element name="LP_03a" type="lp_03a" />
+    <xs:element name="LP_03a" type="ex:lp_03a" />
     <xs:simpleType name="lp_03a">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -48,7 +48,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_04" type="lp_04" />
+    <xs:element name="LP_04" type="ex:lp_04" />
     <xs:simpleType name="lp_04">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -58,7 +58,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_05" type="lp_05" />
+    <xs:element name="LP_05" type="ex:lp_05" />
     <xs:simpleType name="lp_05">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -119,7 +119,7 @@
     <xs:element name="LP_10">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="data" type="lp_10" />
+          <xs:element name="data" type="ex:lp_10" />
           <xs:element name="extra" type="xs:string" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -128,7 +128,7 @@
     <xs:element name="LP_11">
       <xs:complexType>
         <xs:sequence dfdl:separator="">
-          <xs:element name="data" type="lp_11" />
+          <xs:element name="data" type="ex:lp_11" />
           <xs:element name="extra" type="xs:string" dfdl:encoding="utf-16be" dfdl:lengthKind="delimited" />
         </xs:sequence>
       </xs:complexType>
@@ -525,7 +525,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="LP_02" type="lp_02" />
+    <xs:element name="LP_02" type="ex:lp_02" />
     <xs:simpleType name="lp_02">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -536,7 +536,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_03" type="lp_03" />
+    <xs:element name="LP_03" type="ex:lp_03" />
     <xs:simpleType name="lp_03">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -547,7 +547,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_04" type="lp_04" />
+    <xs:element name="LP_04" type="ex:lp_04" />
     <xs:simpleType name="lp_04">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -557,7 +557,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_05" type="lp_05" />
+    <xs:element name="LP_05" type="ex:lp_05" />
     <xs:simpleType name="lp_05">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -568,7 +568,7 @@
       <xs:restriction base="xs:string" />
     </xs:simpleType>
 
-    <xs:element name="LP_06" type="lp_06" />
+    <xs:element name="LP_06" type="ex:lp_06" />
     <xs:simpleType name="lp_06">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">

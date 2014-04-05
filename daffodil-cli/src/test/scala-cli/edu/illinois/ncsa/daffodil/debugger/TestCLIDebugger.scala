@@ -200,16 +200,16 @@ class TestCLIdebugger {
     //    shell.send("break element.cell\n")
 
     //    shell.send("continue\n")
-    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
-    //    shell.expect("<tns:cell/>") // scala 2.10 output
+    //    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
+    shell.expect("<tns:cell/>") // scala 2.10 output
 
     //    shell.send("step\n")
     //    shell.send("step\n")
     shell.expect("<tns:cell>0</tns:cell>")
 
     //    shell.send("continue\n")
-    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
-    //    shell.expect("<tns:cell/>") // scala 2.10 output
+    //    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
+    shell.expect("<tns:cell/>") // scala 2.10 output
 
     //    shell.send("step\n")
     //    shell.send("step\n")
@@ -235,8 +235,8 @@ class TestCLIdebugger {
     shell.expect("1: element.cell   dfdl:occursIndex() = 3")
 
     //    shell.send("continue\n")
-    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
-    //    shell.expect("<tns:cell/>") // scala 2.10 output
+    //    shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
+    shell.expect("<tns:cell/>") // scala 2.10 output
 
     //    shell.send("step\n")
     //    shell.send("step\n")

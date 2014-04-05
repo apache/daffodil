@@ -186,7 +186,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     // So we're indifferent to what the surrounding context might be using for namespace bindings.
     //
     val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
-    scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding)
+    scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
   }
 
   /**

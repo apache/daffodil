@@ -541,7 +541,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     }
 
     // Note: dont check occurs counts // if(!checkMinMaxOccurs(e, pstate.arrayPos)) { return java.lang.Boolean.FALSE }
-    Right(java.lang.Boolean.TRUE)
+    Right(())
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,

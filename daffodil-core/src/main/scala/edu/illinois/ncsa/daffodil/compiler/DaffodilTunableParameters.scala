@@ -55,4 +55,5 @@ object DaffodilTunableParameters {
    * smaller) than 1/2 the maximum JVM object size.
    */
   // def inputFileMemoryMapHighThreshold: Long = 256 * 1024 * 1024 // 256 Meg
+
 }

@@ -64,7 +64,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="simple" type="newType" />
+    <xs:element name="simple" type="ex:newType" />
 
     <xs:simpleType name="newType">
       <xs:annotation>
@@ -149,7 +149,7 @@
           dfdl:lengthKind="pattern" dfdl:lengthPattern="house"
           dfdl:representation="text" />
         <xs:choice>
-          <xs:element ref="data_01">
+          <xs:element ref="ex:data_01">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="(a|b|c)"
@@ -157,7 +157,7 @@
               </xs:appinfo>
             </xs:annotation>
           </xs:element>
-          <xs:element ref="data_02">
+          <xs:element ref="ex:data_02">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert testKind="pattern" testPattern="(1|2|3)"

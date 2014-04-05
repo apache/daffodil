@@ -59,7 +59,7 @@ class TestUnicodeXMLI18N {
     // TODO: implement our own enforcement of disallowing NUL in XML infoset strings.
     // TODO: consider XML v1.0 versus v1.1 - infosets allow different character codes. 1.1 only disallows 0.
     val txt = fragment.text
-    assertEquals("abc\000def", txt)
+    assertEquals("abc\u0000def", txt)
     assertEquals(7, txt.length)
   }
 

@@ -61,7 +61,12 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.api.ValidationMode
-import scala.actors.Futures
+import scala.language.reflectiveCalls
+import scala.concurrent.Future
+import scala.reflect.runtime.universe._
+import org.rogach.scallop.ScallopOption
+import scala.concurrent.duration.Duration
+import scala.concurrent.Await
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -118,7 +123,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   // following is illegal: --schema foo bar. Instead, it must be --schema
   // foo --schema bar. It does this by copying listArgConverter, but
   // setting the argType to SINGLE.
-  def singleListArgConverter[A](conv: String => A)(implicit m: Manifest[List[A]]) = new scallop.ValueConverter[List[A]] {
+  def singleListArgConverter[A](conv: String => A)(implicit tt: TypeTag[List[A]]) = new scallop.ValueConverter[List[A]] {
     def parse(s: List[(String, List[String])]) = {
       try {
         // this happens when options are provided after a trailing arg
@@ -131,7 +136,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         case _: Throwable => Left("too many arguments for flag option")
       }
     }
-    val manifest = m
+    val tag = tt
     val argType = scallop.ArgType.SINGLE
   }
 
@@ -156,7 +161,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
    * of the string to the type [A].
    *
    */
-  def optionalValueConverter[A](conv: String => A)(implicit m: Manifest[Option[A]]) = new scallop.ValueConverter[Option[A]] {
+ def optionalValueConverter[A](conv: String => A)(implicit tt: TypeTag[Option[A]]) : scallop.ValueConverter[Option[A]] = 
+   new scallop.ValueConverter[Option[A]] {
 
     // From the Scallop wiki:
     //
@@ -181,7 +187,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one --validate flag
       }
     }
-    val manifest = m
+    val tag = tt
     val argType = scallop.ArgType.LIST
     override def argFormat(name: String): String = "[" + name + "]"
   }
@@ -194,7 +200,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  def validateConverter(s: String) = {
+  def validateConverter(s: String): ValidationMode.Type = {
     s.toLowerCase match {
       case "on" => ValidationMode.Full
       case "limited" => ValidationMode.Limited
@@ -266,10 +272,17 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
-      case None => ValidationMode.Full
-      case Some(mode) => mode
-    })
+    val validate: ScallopOption[ValidationMode.Type] = {
+      val converter = optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map { x => x match {
+              case None => ValidationMode.Full
+              case Some(mode) => mode
+            }}
+      val res = opt[ValidationMode.Type](short = 'V',
+        default = Some(ValidationMode.Off),
+        argName = "mode",
+        descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(converter)
+      res
+    }
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An option namespace may be provided.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
@@ -313,7 +326,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val threads = opt[String](short = 't', argName = "threads", default = Some("1"), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
-    val validate = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
       case Some(mode) => mode
     })
@@ -353,7 +366,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
+    val validate: ScallopOption[ValidationMode.Type]  = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
       case Some(mode) => mode
     })
@@ -406,7 +419,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val namespace = opt[String](argName = "ns", descr = "the namespace of the root element. Requires --root.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
-    val validate = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
       case Some(mode) => mode
     })
@@ -759,28 +772,28 @@ object Main extends Logging {
             }*/
 
             val NSConvert = 1000000000.0
-
+            import scala.concurrent.ExecutionContext.Implicits.global
             val (totalTime, results) = Timer.getTimeResult({
               val tasks = channelsWithIndex.map { case (c, n) =>
-                val task = Futures.future[(Int, Long)] {
+                val task: Future[(Int, Long)] = Future {
                   val (path, channel, len) = c
                   val (time, parseResult) = Timer.getTimeResult({processor.parse(channel, len)})
                   (n, time)
                 }
                 task
               }
-              val results = Futures.awaitAll(10000000L, tasks: _*)
+              val results = tasks.map{ Await.result(_, Duration.fromNanos(10000000L)) }
               results
             })
 
             val rates = results.map { results =>
-                val (runNum: Int, nsTime: Long) = results.get
+                val (runNum: Int, nsTime: Long) = results
                 val rate = 1/(nsTime/NSConvert)
                 log(LogLevel.Info, "\nrun: %d\nseconds: %f\nrate: %f\n", runNum, nsTime/NSConvert, rate)
                 rate
             }
 
-            val sec = totalTime/NSConvert
+            val sec = totalTime / NSConvert
             printf("total parse time (sec): %f\n", sec)
             printf("min rate (files/sec): %f\n", rates.min) 
             printf("max rate (files/sec): %f\n", rates.max) 

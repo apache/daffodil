@@ -242,7 +242,7 @@
 			separatorPosition="infix" />
 
 
-		<xs:element name="array" type="arrayType" dfdl:lengthKind="implicit" />
+		<xs:element name="array" type="ex:arrayType" dfdl:lengthKind="implicit" />
 
 		<xs:complexType name="arrayType">
 			<xs:sequence dfdl:separator="|">

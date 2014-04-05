@@ -42,16 +42,17 @@ class TestListMap {
 
   /*
    * The purpose of this test is to ensure that ListMap maintains insertion
-   * order. A ListMap is used in the IIMap structure, but it is importatnt that
+   * order. A ListMap is used in the IIMap structure, but it is important that
    * it maintains insertion order. From the limited documentation, there does
    * not appear to be a contract that ListMap maintain order. However, in
    * practice, it is implemented as a linked list that does maintain order.
    * This test ensures that this behavior does not change.
    */
   @Test def test_listMap = {
-    val orig = Random.shuffle(0 until 1000)
-    val emptyListMap = ListMap[Int,String]()
-    val listMap = orig.foldLeft(emptyListMap) {
+    val orig = Random.shuffle((0 until 1000).toList)
+    val mt : ListMap[Int, String] = ListMap.empty
+    val listMap: ListMap[Int, String] = orig.foldLeft(mt) {
+
       (lm, n) => lm + (n -> n.toString)
     }
 

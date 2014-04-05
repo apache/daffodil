@@ -45,6 +45,9 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterType._
 import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.Array.canBuildFrom
+import scala.language.reflectiveCalls
+
+import scala.language.reflectiveCalls
 
 object TextJustificationType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -267,7 +270,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
     if (padChar.length() == 0) return None
     //val rAnything = """(.*?)(?=%s*$)""".format(padChar)
     val rAnything = """(.*?)(?=""" + padChar + """*$)"""
-    val anything: Parser[String] = "generateRemovePaddingParser.anything".!!!(rAnything.r)
+    val anything: Parser[String] = toLogged("generateRemovePaddingParser.anything").!!!(rAnything.r)
     val padCharRegex = this.convertDFDLLiteralToRegex(padChar)
     //val rPadCharLeft = """^(%s*)""".format(padCharRegex)
     val rPadCharLeft = """^(""" + padCharRegex + """*)"""

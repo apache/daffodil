@@ -47,6 +47,8 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
 
+import scala.language.implicitConversions
+
 /**
  * These tests characterize behavior of the ICU library. We're going to have to rely on
  * some detailed behaviors here, so the point of these tests is to isolate behaviors we
@@ -193,6 +195,8 @@ object Converter {
     o.flush();
   }
 
+  import scala.language.implicitConversions
+  
   implicit def intArrayToByteArray(intArray: Array[Int]): Array[Byte] = {
     intArray.map(int => int.asInstanceOf[Byte]).toArray
   }

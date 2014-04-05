@@ -98,7 +98,7 @@
           dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="b_float" type="xs:float" />
           <xs:element name="b_string" type="xs:string" />
-          <xs:element ref="NS_05" minOccurs="0" maxOccurs="2" />
+          <xs:element ref="ex:NS_05" minOccurs="0" maxOccurs="2" />
           <xs:element name="b_unsignedInt" type="xs:unsignedInt"
             minOccurs="0" />
           <xs:element name="b_int" type="xs:int" />
@@ -113,7 +113,7 @@
           dfdl:separatorSuppressionPolicy="anyEmpty">
           <xs:element name="a_float" type="xs:float" />
           <xs:element name="a_string" type="xs:string" />
-          <xs:element ref="NS_06" minOccurs="0" />
+          <xs:element ref="ex:NS_06" minOccurs="0" />
           <xs:element name="a_unsignedInt" type="xs:unsignedInt"
             minOccurs="0" />
           <xs:element name="a_int" type="xs:int" />
@@ -177,7 +177,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="e_01" type="error01Type"
+    <xs:element name="e_01" type="ex:error01Type"
       dfdl:lengthKind="implicit" />
     <xs:complexType name="error01Type">
       <xs:sequence dfdl:separator="%NL;"
