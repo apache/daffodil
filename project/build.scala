@@ -44,7 +44,8 @@ object DaffodilBuild extends Build {
   lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(core) 
+                             .dependsOn(core % "compile->compile;test->test") // test in core has utilities that test in runtime1 needs.
+
                              
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
@@ -62,6 +63,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
+                             .dependsOn(core % "test->test") // need test utilities in core's test dirs
   
   lazy val examples    = Project(id = "daffodil-examples", base = file("daffodil-examples"), settings = s ++ nopub)
                              .configs(DebugTest)

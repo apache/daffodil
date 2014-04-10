@@ -311,12 +311,12 @@
     </sequence>
   </group>
   <group name="myGlobal1">
-    <sequence>
-      <group ref="ex:myGlobal2" dfdl:separator=";"></group>
+    <sequence dfdl:sequenceKind="ordered">
+      <group ref="ex:myGlobal2" dfdl:separator=";" dfdl:sequenceKind="ordered"></group>
     </sequence>
   </group>
   <group name="myGlobal3">
-    <sequence dfdl:separatorPosition="infix" dfdl:separator=";">
+    <sequence dfdl:separatorPosition="infix" dfdl:separator=";" dfdl:sequenceKind="ordered">
       <element name="grpRefElement2" type="xs:string"
         dfdl:length="8" dfdl:lengthKind="explicit"></element>
     </sequence>

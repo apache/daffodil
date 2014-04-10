@@ -250,7 +250,11 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true, val v
     println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
-  def runOneTest(testName: String, schema: Option[Node] = None) {
+  def runOneTest(testName: String, schema: Option[Node] = None, leakCheck: Boolean = false) {
+    if (leakCheck) {
+      System.gc()
+      Thread.sleep(1) // needed to give tools like jvisualvm ability to "grab on" quickly
+    }
     runOneTestWithDataVolumes(testName, schema)
   }
 
@@ -894,8 +898,10 @@ case class Document(d: NodeSeq, parent: TestCase) {
 
   /**
    * this 'data' is the kind our parser's parse method expects.
+   * Note: this is def data so that the input is re-read every time.
+   * Needed if you run the same test over and over. 
    */
-  lazy val data = {
+  def data = {
     if (isDPFile) {
       // direct I/O to the file. No 'bits' lowering involved. 
       val dp = documentParts(0)

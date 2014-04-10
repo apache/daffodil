@@ -1287,17 +1287,28 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
   }
 }
 
-abstract class AssertBase(
-  decl: AnnotatedSchemaComponent,
-  exprPropArg: Found,
+abstract class AssertBase(decl: AnnotatedSchemaComponent,
+  exprWithBraces: String,
+  xmlForNamespaceResolution: Node,
+  scWherePropertyWasLocated: AnnotatedSchemaComponent,
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
-  extends ExpressionEvaluatorBase(decl) {
+  extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
+
+  def this(
+    decl: AnnotatedSchemaComponent,
+    foundProp: Found,
+    msg: String,
+    discrim: Boolean, // are we a discriminator or not.
+    assertKindName: String) = 
+      this(decl, foundProp.value, foundProp.location.xml, decl, msg, discrim, assertKindName)
 
   override val baseName = assertKindName
   override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
-  lazy val exprProp = exprPropArg
+  override lazy val exprText = exprWithBraces
+  override lazy val exprXMLForNamespace = xmlForNamespaceResolution
+  override lazy val exprComponent = scWherePropertyWasLocated
 
   def unparser = DummyUnparser
 
@@ -1340,10 +1351,15 @@ case class DiscriminatorBooleanPrim(
   stmt: DFDLAssertionBase)
   extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
+// TODO: performance wise, initiated content is supposed to be faster
+// than evaluating an expression. There should be a better way to say
+// "resolve this point of uncertainty" without having to introduce
+// an XPath evaluator that runs fn:true() expression.
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    Found("{ fn:true() }", Fakes.fakeElem), // always true. We're just an assertion that says an initiator was found.
+    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE } />, decl, 
+    // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
     "initiatedContent")
@@ -1352,7 +1368,10 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluatorBase(decl) {
 
   val baseName = "SetVariable[" + stmt.localName + "]"
-  lazy val exprProp = Found(stmt.value, stmt)
+  
+  override lazy val exprText = stmt.value
+  override lazy val exprXMLForNamespace = stmt.xml
+  override lazy val exprComponent = stmt
 
   lazy val expandedTypeName = stmt.defv.extType
 
@@ -1381,16 +1400,17 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   }
 
   def baseName: String
-  def exprProp: Found
+  def exprXMLForNamespace: Node
+  def exprComponent : SchemaComponent
   def expandedTypeName: String
-  def exprText = exprProp.value
+  def exprText : String
 
   val expressionTypeSymbol = {
     // println(expandedTypeName)
     e.expressionCompiler.convertTypeString(expandedTypeName)
   }
 
-  val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprProp)
+  val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText, exprXMLForNamespace, exprComponent)
 }
 
 case class InputValueCalc(e: ElementBase)
@@ -1402,6 +1422,10 @@ case class InputValueCalc(e: ElementBase)
     case _: NotFound => Assert.invariantFailed("must be a Found object")
   }
 
+  override lazy val exprText = exprProp.value
+  override lazy val exprXMLForNamespace = exprProp.location.xml
+  override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
+  
   lazy val pt = e.primType
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)

@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

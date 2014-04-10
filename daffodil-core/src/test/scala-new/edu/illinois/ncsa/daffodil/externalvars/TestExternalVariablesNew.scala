@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.dsom.Fakes
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.Implicits._

@@ -84,7 +84,15 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val prims = primitiveFactory
 
   val context: SchemaComponent = parent
-
+  
+  /**
+   * Annotations can contain expressions, so we need to be able to compile them.
+   *
+   * We need our own instance so that the expression compiler has this schema
+   * component as its context.
+   */
+  lazy val expressionCompiler = new ExpressionCompiler(this)
+  
   /*
    * Anything non-annotated always returns property not found
    * 
@@ -356,7 +364,12 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   extends SchemaComponent(xml, sc)
   with AnnotatedMixin {
 
-  requiredEvaluations(annotationObjs, shortFormPropertiesCorrect, nonDefaultPropertySources, defaultPropertySources)
+  requiredEvaluations({
+    annotationObjs
+      shortFormPropertiesCorrect
+      nonDefaultPropertySources 
+      defaultPropertySources
+  })
 
   //  /**
   //   * only used for debugging
@@ -570,14 +583,6 @@ trait AnnotatedMixin
     res
   }
 
-  /**
-   * Annotations can contain expressions, so we need to be able to compile them.
-   *
-   * We need our own instance so that the expression compiler has this schema
-   * component as its context.
-   */
-  lazy val expressionCompiler = new ExpressionCompiler(this)
-
   lazy val justThisOneProperties = formatAnnotation.justThisOneProperties
 
 }
@@ -687,14 +692,16 @@ class SchemaSet(
 
   override lazy val primitiveFactory = primFactory
 
-  requiredEvaluations(
-    isValid,
-
+  val wasteSomeMemory = new Array[Byte](500000)
+  
+  requiredEvaluations({
+    isValid
     if (checkAllTopLevel) {
       checkForDuplicateTopLevels()
       this.allTopLevels
-    },
-    validateSchemaFiles)
+    }
+    validateSchemaFiles
+  })
 
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.
@@ -1060,9 +1067,9 @@ class SchemaSet(
    *
    * @return A Seq[DFDLDefineVariable]
    */
-  private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String) = {
+  private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String, sdoc: SchemaDocument) = {
     val dfv = new DFDLDefineVariable(
-      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, Fakes.fakeSD) {
+      <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, sdoc) {
       override lazy val expandedNCNameToQName = "{" + nsURI + "}" + theName
       override lazy val namespace = NS(nsURI)
       override lazy val targetNamespace = NS(nsURI)
@@ -1070,15 +1077,17 @@ class SchemaSet(
     dfv
   }
 
+  lazy val schemaDocForGlobalVars = this.schemas(0).schemaDocuments(0)
+  
   // We'll declare these here at the SchemaSet level since they're global.
   lazy val predefinedVars = {
     val extType = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, "string")
     val nsURI = XMLUtils.DFDL_NAMESPACE.toStringOrNullIfNoNS
 
-    val encDFV = generateDefineVariable("encoding", "xs:string", "UTF-8", nsURI)
-    val boDFV = generateDefineVariable("byteOrder", "xs:string", "bigEndian", nsURI)
-    val binDFV = generateDefineVariable("binaryFloatRep", "xs:string", "ieee", nsURI)
-    val outDFV = generateDefineVariable("outputNewLine", "xs:string", "%LF;", nsURI)
+    val encDFV = generateDefineVariable("encoding", "xs:string", "UTF-8", nsURI, schemaDocForGlobalVars)
+    val boDFV = generateDefineVariable("byteOrder", "xs:string", "bigEndian", nsURI, schemaDocForGlobalVars)
+    val binDFV = generateDefineVariable("binaryFloatRep", "xs:string", "ieee", nsURI, schemaDocForGlobalVars)
+    val outDFV = generateDefineVariable("outputNewLine", "xs:string", "%LF;", nsURI, schemaDocForGlobalVars)
 
     Seq(encDFV, boDFV, binDFV, outDFV)
   }
@@ -1093,7 +1102,7 @@ class SchemaSet(
    *
    * @return A list of external variables updated with any found namespaces.
    */
-  private def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
+   def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
     var finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
 
     val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)
@@ -1370,8 +1379,8 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    * to the compiler, then only that root element (and things reached from it)
    * is compiled. Otherwise all top level elements are compiled.
    */
-  requiredEvaluations(
-    defaultFormat,
+  requiredEvaluations({
+    defaultFormat
     if (schemaSet.checkAllTopLevel) {
       globalElementDecls.map { _.forRoot() }
       defineEscapeSchemes
@@ -1389,7 +1398,8 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
       //    globalSimpleTypeDefs
       //    globalComplexTypeDefs 
       //    globalGroupDefs
-    })
+    }
+  })
 
   override lazy val schemaDocument = this
 

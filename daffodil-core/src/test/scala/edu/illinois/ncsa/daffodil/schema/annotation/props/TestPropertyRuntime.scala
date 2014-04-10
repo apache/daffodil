@@ -38,10 +38,10 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
 import edu.illinois.ncsa.daffodil.dsom.Found
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import edu.illinois.ncsa.daffodil.dsom.Fakes
 import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 sealed trait MyPropType extends MyProp.Value
 object MyProp extends Enum[MyPropType] // with ThrowsSDE

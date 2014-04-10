@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import scala.math.Pi
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 class TestVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"

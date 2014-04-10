@@ -13,6 +13,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 class TestDsomCompiler extends Logging {
 
@@ -555,7 +556,9 @@ class TestDsomCompiler extends Logging {
     assertTrue(e5ctgref.isError)
 
     val msg = e5ctgref.getDiagnostics.mkString("\n").toLowerCase
-    assertTrue(msg.contains("overlap"))
+    val res = msg.contains("overlap")
+    if (!res) println(msg)
+    assertTrue(res)
 
   }
 

@@ -142,17 +142,20 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with BooleanTextMixin
   with TextNumberFormatMixin {
 
-  requiredEvaluations(typeDef, isSimpleType,
-    if (hasPattern) patternValues,
-    if (hasEnumeration) enumerationValues,
-    if (hasMinLength) minLength,
-    if (hasMaxLength) maxLength,
-    if (hasMinInclusive) minInclusive,
-    if (hasMaxInclusive) maxInclusive,
-    if (hasMinExclusive) minExclusive,
-    if (hasMaxExclusive) maxExclusive,
-    if (hasTotalDigits) totalDigits,
-    if (hasFractionDigits) fractionDigits)
+  requiredEvaluations({
+    typeDef
+    isSimpleType
+    if (hasPattern) patternValues
+    if (hasEnumeration) enumerationValues
+    if (hasMinLength) minLength
+    if (hasMaxLength) maxLength
+    if (hasMinInclusive) minInclusive
+    if (hasMaxInclusive) maxInclusive
+    if (hasMinExclusive) minExclusive
+    if (hasMaxExclusive) maxExclusive
+    if (hasTotalDigits) totalDigits
+    if (hasFractionDigits) fractionDigits
+  })
 
   def name: String
 
@@ -826,7 +829,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
   extends ElementBase(xmlArg, parent, position)
   with LocalElementMixin {
 
-  requiredEvaluations(checkForAlignmentAmbiguity)
+  requiredEvaluations(checkForAlignmentAmbiguity )
 
   private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
   private def lcm(a: Int, b: Int): Int = math.abs(a * b) / gcd(a, b)

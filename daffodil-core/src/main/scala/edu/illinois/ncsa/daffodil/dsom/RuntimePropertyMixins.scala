@@ -47,7 +47,7 @@ import scala.collection.mutable.ListBuffer
  */
 trait CommonRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
-  with RawCommonRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
+  with RawCommonRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
   lazy val byteOrder = expressionCompiler.compile(ConvertToType.String, byteOrderRaw)
   lazy val encoding = expressionCompiler.compile(ConvertToType.String, encodingRaw)
@@ -78,7 +78,7 @@ trait CommonRuntimeValuedPropertiesMixin
 
 trait DelimitedRuntimeValuedPropertiesMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with RawDelimitedRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
+  with RawDelimitedRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
   // Can be whitespace separated lists, as a result the entity replacement needs to take place elsewhere
   // as it's possible to replace an entity with a whitespace character.
@@ -145,7 +145,7 @@ trait SequenceRuntimeValuedPropertiesMixin
 trait SimpleTypeRuntimeValuedPropertiesMixin
   extends CommonRuntimeValuedPropertiesMixin
   with DFDLSimpleTypeMixin
-  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: AnnotatedMixin =>
+  with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
   def textStandardDecimalSeparator = {
     val c = expressionCompiler.compile(ConvertToType.String, textStandardDecimalSeparatorRaw)

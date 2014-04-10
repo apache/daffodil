@@ -99,11 +99,12 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     }
   }
 
-  requiredEvaluations(
-    parser,
+  requiredEvaluations({
+    parser
     // force creation of the parser value so that all errors are issued
     // this is in case some compilation happens in the constructors of parsers.
-    rootElem)
+    rootElem
+    })
 
   Assert.usage(pf.canProceed)
 

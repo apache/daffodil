@@ -507,9 +507,15 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
   def compileTimeConvertToDecimal(s: Any) = convertToDecimal(s, edecl)
 
   def compile[T](convertTo: ConvertToType.Type, property: Found): CompiledExpression = {
-
     val expr: String = property.value
     val xmlForNamespaceResolution = property.location.xml
+    val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
+    compile[T](convertTo, expr, xmlForNamespaceResolution, scWherePropertyWasLocated)
+  }
+  
+  def compile[T](convertTo: ConvertToType.Type, exprWithBraces: String, xmlForNamespaceResolution: Node,
+      scWherePropertyWasLocated : SchemaComponent) = {
+	val expr = exprWithBraces
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }
@@ -537,7 +543,6 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
           // or placed on simpleType definitions so their expressions are shared, and
           // are not on the same lexical object that has that length or occurrances.
           // 
-          val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
           XPathUtil.compileExpression(xpath, exprNSBindings, scWherePropertyWasLocated)
         } catch {
           case e: XPathExpressionException => {

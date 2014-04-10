@@ -38,12 +38,12 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.DFDLUTStringReader
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.DelimParser
-import edu.illinois.ncsa.daffodil.dsom.Fakes
 import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.DFDLDelimParserStatic
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 class TestParsingBehaviors {
 

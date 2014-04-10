@@ -8,7 +8,10 @@
       <dfdl:format ref="daffodilNewProperties1" 
         separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef="es"/>
+      <dfdl:defineEscapeScheme name="es">
+        <dfdl:escapeScheme escapeCharacter="\" escapeEscapeCharacter="\" escapeKind="escapeCharacter" />
+      </dfdl:defineEscapeScheme>
     </xs:appinfo>
   </xs:annotation>
   

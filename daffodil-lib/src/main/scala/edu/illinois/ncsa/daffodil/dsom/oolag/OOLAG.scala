@@ -284,91 +284,33 @@ object OOLAG extends Logging {
     // Would be good to eliminate from all objects
     // as space savings. (In a really large schema, every slot
     // counts!)
-    private var errorCheckList: Seq[ZList] = Nil
+    // private var errorCheckList: Seq[ZList] = Nil
 
     // Intended to be used to help enforce that concrete OOLAGHost
     // classes have calls to requiredEvaluations(..) in them.
     // Check not yet implemented though.
     // private var wasErrorUnlessCalled: Boolean = false // ?? Using ??
-    private[oolag] var rootErrorCheckList: Seq[OOLAGHost] = Nil
-
-    def requiredEvaluations(str: ZList): Unit = {
-      oolagRoot.errorCheckList :+= str
-      // this OOLAGHost object added to list
-      if (!oolagRoot.rootErrorCheckList.contains(this)) {
-        oolagRoot.rootErrorCheckList :+= this
-      }
-      // wasErrorUnlessCalled = true
-    }
+    // private[oolag] var rootErrorCheckList: Seq[OOLAGHost] = Nil
 
     /**
      * Up to this many arguments. Add more if we need them.
      *
      * This is because Scala can't do by-name passing of varargs.
      */
-    final def requiredEvaluations(
-      a0: => Any = Nil,
-      a1: => Any = Nil,
-      a2: => Any = Nil,
-      a3: => Any = Nil,
-      a4: => Any = Nil,
-      a5: => Any = Nil,
-      a6: => Any = Nil,
-      a7: => Any = Nil,
-      a8: => Any = Nil,
-      a9: => Any = Nil,
-      a10: => Any = Nil,
-      a11: => Any = Nil,
-      a12: => Any = Nil,
-      a13: => Any = Nil,
-      a14: => Any = Nil): Unit = {
 
-      // See Zlist.scala
-      // The above args are all call-by name. These ZZ list cells are lazy.
-      // So nothing is evaluated here. The argument expressions are just captured
-      // for evaluation later.
-      val zzz = ZZ(a0, ZZ(a1, ZZ(a2, ZZ(a3, ZZ(a4, ZZ(a5, ZZ(a6, ZZ(a7, ZZ(a8, ZZ(a9, ZZ(a10, ZZ(a11, ZZ(a12, ZZ(a13, ZZ(a14, ZEnd)))))))))))))))
-      requiredEvaluations(zzz)
+    def requiredEvaluations(arg : => Any) {
+      oolagRoot.requiredEvalFunctions :+= (() => arg)
     }
+    
+    var requiredEvalFunctions : List[()=>Any] = Nil
 
-    private def checkErrors {
-      ExecutionMode.usingCompilerMode {
-        while (oolagRoot.errorCheckList != Nil) {
-          var ecl = oolagRoot.errorCheckList // grab current errorCheckList
-          oolagRoot.errorCheckList = Nil // truncate it, so we can spot new entries  
-
-          ecl.foreach { z =>
-            var zAtStart = z // keep original ZList for display       
-            var zlist = z
-            while (zlist != ZEnd) {
-              var next = zlist.tail
-              OOLAG.keepGoing() {
-                //
-                // This use of an OOLAG value here insures that anything a user
-                // puts inside of requiredEvaluations(...) if it throws, it does so
-                // across the context of an OOLAG Value, which insures that 
-                // Things are not circular, that things will accumulate SDEs and they
-                // wont just unwind to top level, etc.
-                //
-                val requiredEvals = LV('requiredEvaluations) {
-                  ExecutionMode.usingCompilerMode {
-                    val h = zlist.head
-                    // forces the evaluation of the next head
-                    // we don't actually care what the value is, just that there is one.
-                    // the point is to cause the error to be thrown, caught below, but
-                    // reported on the OOLAGValue, where we pick it up later. 
-                    // println("value was: " + h)
-                  }
-                }
-                requiredEvals.value
-              }
-              zlist = next
-            }
-            // println("errorCheckList: " + str) // displays all the values
-            // pick up any new ones that were placed 
-            // there because new objects were created.
-          }
-          // println("Done with one round.")
+    def checkErrors: Unit = ExecutionMode.usingCompilerMode {
+      OOLAG.keepGoing { () } {
+        Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
+        while (oolagRoot.requiredEvalFunctions != Nil) {
+          val evFuncs = oolagRoot.requiredEvalFunctions
+          oolagRoot.requiredEvalFunctions = Nil
+          evFuncs.foreach { f => LV('f) { OOLAG.keepGoing { () } { f() } }.value }
         }
       }
     }
@@ -714,10 +656,6 @@ object OOLAG extends Logging {
       res.asInstanceOf[T]
     }
 
-    //    final def toList = {
-    //      val res = toListAny
-    //      res.asInstanceOf[List[T]]
-    //    }
   }
 
   //  /**

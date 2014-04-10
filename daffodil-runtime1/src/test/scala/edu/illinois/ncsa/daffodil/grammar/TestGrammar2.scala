@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.RepExactlyN
+import edu.illinois.ncsa.daffodil.util.Fakes
 
 class TestGrammar2 {
 
