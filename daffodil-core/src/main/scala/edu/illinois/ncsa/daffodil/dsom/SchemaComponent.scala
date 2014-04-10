@@ -692,8 +692,6 @@ class SchemaSet(
 
   override lazy val primitiveFactory = primFactory
 
-  val wasteSomeMemory = new Array[Byte](500000)
-  
   requiredEvaluations({
     isValid
     if (checkAllTopLevel) {
