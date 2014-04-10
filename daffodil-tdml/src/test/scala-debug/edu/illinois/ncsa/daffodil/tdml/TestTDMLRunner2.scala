@@ -81,5 +81,14 @@ class TestTDMLRunner2 {
   val t0 = testDir + "tdmlNamespaces.tdml"
   lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
   @Test def test_tdmlNamespaces1() { r.runOneTest("tdmlNamespaces1") }
+  
+
+  val aa = testDir + "tdmlQuoting.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+    
+    @Test def test_quote_test1() = {
+        Debugger.setDebugging(true)
+    runner.runOneTest("quote_test1")
+  }
 
 }
