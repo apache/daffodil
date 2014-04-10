@@ -75,7 +75,7 @@ class TestNamespaces {
     }
   }
 
-  /*  
+  
   @Test def test_errorLocations_01() {
     try {
       // Must turn off the Info logging messages, because those will have the filename in them
@@ -86,7 +86,7 @@ class TestNamespaces {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
   }
-*/
+
 
   @Test def test_defaultNamespaceInExpression() { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2() { runner.runOneTest("defaultNamespaceInExpression2") }

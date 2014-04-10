@@ -54,16 +54,5 @@ class TestNamespacesDebug {
 
   //DFDL-530
   @Test def test_multifile_cyclical() { runner.runOneTest("multifile_cyclical") }
-  
-  @Test def test_errorLocations_01() {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("errorLocations_01")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
 
 }
