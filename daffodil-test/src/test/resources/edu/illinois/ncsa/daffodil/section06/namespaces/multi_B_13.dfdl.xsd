@@ -4,7 +4,9 @@
  
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" 
+      leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" 
+      textNumberRep="standard" encoding="ASCII" textTrimKind="none" sequenceKind='ordered'/>
     </xs:appinfo>
   </xs:annotation>
   

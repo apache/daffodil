@@ -2165,9 +2165,8 @@ jonesington,david,frederick,1986-02-19
     model="multi_base_13.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[temp]]></tdml:document>
       <tdml:errors>
-        <tdml:error>xs:nonExistent</tdml:error>
+        <tdml:error>nonExistent</tdml:error>
         <tdml:error>namespaces/multi_C_13.dfdl.xsd</tdml:error>
-        <tdml:error>namespaces/multi_base_13.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
