@@ -42,5 +42,7 @@ daffodil-extra/*
 # The eclipse-projects directories are supposed to just be 
 # eclipse project .project and .classpath files as far as
 # git is concerned.
-eclipse-projects/*/*
+eclipse-projects/*/src/
+eclipse-projects/*/bin/
+
 
