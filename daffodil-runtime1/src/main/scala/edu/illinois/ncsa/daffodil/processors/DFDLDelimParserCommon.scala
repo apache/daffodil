@@ -45,9 +45,13 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterType._
 import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.Array.canBuildFrom
+
 import scala.language.reflectiveCalls
 
 import scala.language.reflectiveCalls
+
+import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 object TextJustificationType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -198,12 +202,15 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
 
   lazy val EOF: Parser[String] = """\z""".r
 
-  def generateInputPatternedParser(pattern: String): Parser[String] = {
-    val thePattern: Parser[String] = "generateInputPatternedParser.thePattern".!!!(("(?s)" + pattern).r)
-    val entry = "generateInputPatternedParser.entry".!!!(thePattern ~! opt(EOF)) ^^ {
-      case (p ~ _) => p
-    }
-    entry
+  def generateInputPatternedParser(pattern: String, sc: ThrowsSDE): Parser[String] = {
+    try {
+      val thePattern: Parser[String] = "generateInputPatternedParser.thePattern".!!!(("(?s)" + pattern).r)
+      val entry = "generateInputPatternedParser.entry".!!!(thePattern ~! opt(EOF)) ^^ {
+        case (p ~ _) => p
+      }
+      entry
+    } catch { case ex: java.util.regex.PatternSyntaxException => { sc.SDE("%s", ex.getMessage) } }
+
   }
 
   def generateInputNCharactersParser(nChars: Long): Parser[String] = {

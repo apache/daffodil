@@ -384,8 +384,8 @@ case class StringPatternMatched(e: ElementBase)
     override def toString = "StringPatternMatched"
 
     // The pattern will always be defined
+
     lazy val dp = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-    lazy val patternParser = dp.generateInputPatternedParser(pattern)
 
     // TODO: Add parameter for changing CharBuffer size
 
@@ -407,7 +407,7 @@ case class StringPatternMatched(e: ElementBase)
 
         val reader = getReader(charset, start.bitPos, start)
 
-        val result = dp.parseInputPatterned(patternParser, reader)
+        val result = dp.parseInputPatterned(pattern, reader, start)
 
         val postState = result match {
           case _: DelimParseFailure => {

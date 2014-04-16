@@ -763,7 +763,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val result = d.parseInputPatterned(pattern, reader)
+        val result = d.parseInputPatterned(pattern, reader, postEvalState)
 
         result match {
           case _: DelimParseFailure =>
@@ -854,7 +854,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val result = d.parseInputPatterned(pattern, reader)
+        val result = d.parseInputPatterned(pattern, reader, start)
 
         result match {
           case _: DelimParseFailure =>
@@ -942,7 +942,7 @@ case class LiteralNilPattern(e: ElementBase)
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
-        val result = d.parseInputPatterned(pattern, reader)
+        val result = d.parseInputPatterned(pattern, reader, start)
 
         result match {
           case _: DelimParseFailure =>

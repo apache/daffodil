@@ -11,7 +11,6 @@
     <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit"
       lengthUnits="bytes" encoding="US-ASCII" separator="" initiator=""
       terminator="" textNumberRep="standard" representation="text" />
-
     <xs:element name="regExpr_01" type="xs:string"
       dfdl:lengthKind="pattern" dfdl:lengthPattern="[A-Za-z]{1,8}(-[A-Za-z0-9]{1,8})*" />
     <xs:element name="regExpr_02" type="xs:string"
@@ -27,6 +26,10 @@
     <xs:element name="regExpr_07" type="xs:string"
       dfdl:lengthKind="pattern"
       dfdl:lengthPattern="(?imsx-imsx:X)[A-Za-z]{1,8}([-][A-Za-z0-9]{1,8})*" />
+	<xs:element name="regExpr_08" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]{1, 2}" />
+	<xs:element name="regExpr_09" type="xs:string"
+      dfdl:lengthKind="pattern" dfdl:lengthPattern="(?s).*(?!\)" />
 
   <xs:element name="data_01" type="xs:string"
     dfdl:lengthKind="pattern" dfdl:lengthPattern="(a|b|c)">
@@ -63,6 +66,27 @@
   </xs:element>
 
   </tdml:defineSchema>
+  
+  <tdml:parserTestCase name="testDFDL-922" root="regExpr_08"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
+    <tdml:document>0</tdml:document>
+    <tdml:errors>
+    <tdml:error>Unclosed</tdml:error>
+    <tdml:error>counted</tdml:error>
+    <tdml:error>closure</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <tdml:parserTestCase name="testDFDL-922_2" root="regExpr_09"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
+    <tdml:document>0</tdml:document>
+    <tdml:errors>
+    <tdml:error>Unclosed</tdml:error>
+    <tdml:error>group</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
   
    <tdml:parserTestCase name="testAssertWithPattern1" root="a1"
     model="RegularExpressions-Embedded.dfdl.xsd" 
