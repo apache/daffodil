@@ -1559,6 +1559,10 @@ trait Padded { self: Terminal =>
     case "" => None
     case x => Some(x)
   }
+  
+  def removeRightPadding(str: String): String = str.reverse.dropWhile(c => c == padChar.charAt(0)).reverse
+  def removeLeftPadding(str: String): String = str.dropWhile(c => c == padChar.charAt(0))
+  def removePadding(str: String): String = removeRightPadding(removeLeftPadding(str))
 
 }
 

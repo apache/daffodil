@@ -134,7 +134,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
 
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
-      d(str)
+      d.compile(str)
       delimsParser.enqueue(d.delimRegExParseDelim.r) // The regex representing the actual delimiter
       delimsRegex.enqueue(d.delimRegExParseDelim) // The regex representing the actual delimiter
     })
@@ -149,7 +149,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
 
     delimList.foreach(str => {
       val d = new Delimiter()
-      d(str)
+      d.compile(str)
       delims.enqueue((d.delimRegExParseDelim, str))
     })
     delims.toSet

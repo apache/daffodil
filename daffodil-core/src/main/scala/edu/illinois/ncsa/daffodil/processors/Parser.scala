@@ -473,7 +473,8 @@ case class PState(
   val occursCountStack: List[Long],
   val diagnostics: List[Diagnostic],
   val discriminatorStack: List[Boolean],
-  val dataProc: DataProcessor) extends DFDL.State with ThrowsSDE {
+  val dataProc: DataProcessor)
+  extends DFDL.State with ThrowsSDE {
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8

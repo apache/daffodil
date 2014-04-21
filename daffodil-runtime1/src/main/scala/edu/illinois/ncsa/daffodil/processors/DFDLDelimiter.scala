@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.processors
+
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,11 +32,15 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-import java.util.regex.Pattern
-import scala.util.control.Breaks
+package edu.illinois.ncsa.daffodil.processors
+
 import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import scala.collection.mutable.Queue
+import scala.util.control.Breaks
 import edu.illinois.ncsa.daffodil.util.Enum
+
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -71,7 +75,7 @@ class Delimiter {
 
   // Must call to create the necessary structures
   //
-  def apply(pDelimiter: String) = {
+  def compile(pDelimiter: String): Unit = {
     delimiterStr = pDelimiter
     delimBuf = buildDelimBuf(delimiterStr)
 
@@ -386,6 +390,7 @@ abstract class DelimBase extends Base {
   def typeName: String
   def print
   def printStr: String
+  def allChars: Seq[Char]
   override def toString(): String = {
     return typeName
   }
@@ -407,6 +412,7 @@ trait Base {
 }
 
 class CharDelim(val char: Char) extends DelimBase {
+  lazy val allChars: Seq[Char] = Seq(char)
   def checkMatch(charIn: Char): Boolean = {
     val matched = charIn == char
     matched
@@ -434,20 +440,46 @@ trait CharacterClass {
   }
 }
 
-class NLDelim extends DelimBase with CharacterClass {
-  lazy val typeName = "NLDelim"
-
+trait NL extends CharacterClass {
   lazy val LF: Char = { convertUnicodeToChar("\\u000A") }
   lazy val CR: Char = { convertUnicodeToChar("\\u000D") }
   lazy val NEL: Char = { convertUnicodeToChar("\\u0085") }
   lazy val LS: Char = { convertUnicodeToChar("\\u2028") }
+  
+  lazy val allChars: Seq[Char] = Seq(LF, CR, NEL, LS)
+  lazy val allCharsNotCR: Seq[Char] = Seq(NEL, LS, LF)
+}
 
+class NLDelim extends DelimBase with NL {
+  lazy val typeName = "NLDelim"
+  
   def checkMatch(charIn: Char): Boolean = {
     charIn match {
       case LF | CR | NEL | LS => isMatched = true
       case _ => isMatched = false
     }
     isMatched
+  }
+  
+  def isNLNotCR(charIn: Char): Boolean = {
+    charIn match {
+      case LF | NEL | LS => true
+      case _ => false
+    }
+  }
+  
+  def isCR(charIn: Char): Boolean = {
+    charIn match {
+      case CR => true
+      case _ => false
+    }
+  }
+  
+  def isLF(charIn: Char): Boolean = {
+    charIn match {
+      case LF => true
+      case _ => false
+    }
   }
 
   def print = {
@@ -492,6 +524,10 @@ trait WSP extends CharacterClass {
   lazy val NARROW: Char = { convertUnicodeToChar("\\u202F") }
   lazy val MED: Char = { convertUnicodeToChar("\\u205F") }
   lazy val IDE: Char = { convertUnicodeToChar("\\u3000") }
+  
+  lazy val allChars: Seq[Char] = Seq(CTRL0, CTRL1, CTRL2, CTRL3, CTRL4, SPACE, NEL, 
+      NBSP, OGHAM, MONG, SP0, SP1, SP2, SP3, SP4, SP5, SP6, SP7, SP8, SP9, SP10,
+      LSP, PSP, NARROW, MED, IDE)
 }
 
 class WSPBase extends DelimBase with WSP {

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.nio.ByteBuffer
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.Implicits._
@@ -923,6 +922,42 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
   val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
   val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
+  
+  override def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
+    val res = parseResult match {
+      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      case Some(result) => {
+        // We have a field, is it empty?
+        val field = result.field.getOrElse("")
+        val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
+        
+        if (isFieldEmpty && !isEmptyAllowed){
+          return parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+        } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
+          dp.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) { // Not empty, but matches.
+          // Contains a nilValue, Success!
+          state.parentElement.makeNil()
+
+          val numBits = result.numBits
+          //val endCharPos = start.charPos + result.field.length()
+          val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+          val endBitPos = numBits + state.bitPos
+
+          log(LogLevel.Debug, "%s - Found %s", eName, result.field)
+          log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+          log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
+
+          //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
+          return state.withPos(endBitPos, endCharPos, Some(result.next)) // Need to advance past found nilValue 
+          
+        } else {
+          // Fail!
+          return parser.PE(state, "%s - Does not contain a nil literal!", eName)
+        }
+      }
+    }
+    res
+  }
 
   override def processResult(result: DelimParseResult, state: PState): PState = {
     result match {
@@ -963,9 +998,13 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
 }
 
 case class LiteralNilDelimitedEndOfDataStatic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb) with StaticDelim
+  extends LiteralNilDelimitedEndOfData(eb) with StaticDelim {
+  val isDelimRequired: Boolean = false
+}
 case class LiteralNilDelimitedEndOfDataDynamic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb) with DynamicDelim
+  extends LiteralNilDelimitedEndOfData(eb) with DynamicDelim {
+  val isDelimRequired: Boolean = false
+}
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)
 

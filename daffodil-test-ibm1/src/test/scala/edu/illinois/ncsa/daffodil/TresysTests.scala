@@ -59,10 +59,11 @@ class TresysTests {
   lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
   runnerMD.setCheckAllTopLevel(true)
 
-  // AX debugged. Uses escape schemes. 
-  val ax = testDir + "AX.tdml"
-  lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
-  @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
+  // Commented out as part of DFDL-940, due to DFDL-941
+  //  // AX debugged. Uses escape schemes. 
+  //  val ax = testDir + "AX.tdml"
+  //  lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
+  //  @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
 
   val av0 = testDir + "AV000.tdml"
   lazy val runnerAV000 = new DFDLTestSuite(Misc.getRequiredResource(av0))
@@ -158,9 +159,10 @@ class TresysTests {
   @Test def test_AW000() { runnerAW.runOneTest("AW000") } // escape schemes
   @Test def test_AW001() { runnerAW.runOneTest("AW001") }
 
-  val ay = testDir + "AY.tdml"
-  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
-  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
+  // Commented out as part of DFDL-940, due to DFDL-941
+  //  val ay = testDir + "AY.tdml"
+  //  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
+  //  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
 
   val be = testDir + "BE.tdml"
   lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))

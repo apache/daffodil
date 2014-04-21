@@ -78,7 +78,7 @@ case class InStreamFixedWidthTextOnly(
   lazy val first = {
     Assert.invariant(cPos0b <= info.cBuf.limit)
     if (atEnd) -1.toChar
-    info.cBuf.get(cPos0b) // cBuf are zero-based indexing.
+    else info.cBuf.get(cPos0b) // cBuf are zero-based indexing.
   }
 
   lazy val rest = {
@@ -111,7 +111,7 @@ case class InStreamFixedWidthTextOnly(
   }
 
   def getCharsetName = info.charset.name
-  lazy val characterPos = info.cBuf.position // zero based
+  lazy val characterPos = cPos0b // zero based
   def charset = Assert.usageError("not to be used in test reader")
   def bitLimit = info.bitLimit
 

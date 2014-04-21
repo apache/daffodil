@@ -37,6 +37,7 @@ import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
 import scala.util.parsing.input.Reader
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.R
@@ -44,10 +45,19 @@ import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.dfa.DFA
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterMatcher
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.Registers
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -419,7 +429,15 @@ case class StringPatternMatched(e: ElementBase)
 
             val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
             val currentElement = start.parentElement
-            currentElement.setDataValue(s.field)
+            val field = {
+              justificationTrim match {
+                case TextJustificationType.None => s.field
+                case TextJustificationType.Right => removeLeftPadding(s.field)
+                case TextJustificationType.Left => removeRightPadding(s.field)
+                case TextJustificationType.Center => removePadding(s.field)
+              }
+            }
+            currentElement.setDataValue(field)
             start.withPos(endBitPos, endCharPos, Some(s.next))
           }
 
@@ -529,6 +547,8 @@ abstract class StringDelimited(e: ElementBase)
   //  requiredEvaluations(gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, optEscChar,
   //    optEscEscChar, optEscBlkStart, optEscBlkEnd, staticDelimsCooked, elemBase))
 
+  def isDelimRequired: Boolean
+
   val es = e.optionEscapeScheme
   val esObj = EscapeScheme.getEscapeScheme(es, e)
 
@@ -555,41 +575,57 @@ abstract class StringDelimited(e: ElementBase)
   val (staticDelimsParser, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
   val combinedStaticDelimsParser = dp.combineLongest(staticDelimsParser)
 
-  def parseMethod(hasDelim: Boolean, delimsParser: dp.Parser[String], delimsRegex: Array[String],
-    reader: Reader[Char]): DelimParseResult = {
-    // TODO: Change DFDLDelimParser calls to get rid of Array.empty[String] since we're only passing a single list the majority of the time.
-    if (esObj.escapeSchemeKind == EscapeSchemeKind.Block) {
-      val (escapeBlockParser, escapeBlockEndRegex, escapeEscapeRegex) = dp.generateEscapeBlockParsers2(delimsParser,
-        esObj.escapeBlockStart, esObj.escapeBlockEnd, escEscChar, justificationTrim, padChar, true)
-      val removeEscapeBlocksRegex = dp.removeEscapesBlocksRegex(escapeEscapeRegex, escapeBlockEndRegex)
-      val parseInputParser = dp.generateInputParser2(dp.emptyParser, delimsParser, Array.empty[String], delimsRegex,
-        hasDelim, justificationTrim, padChar, true)
-      dp.parseInputEscapeBlock(escapeBlockParser, dp.emptyParser, delimsParser, reader,
-        justificationTrim, removeEscapeBlocksRegex, parseInputParser)
-    } else if (esObj.escapeSchemeKind == EscapeSchemeKind.Character) {
-      val delimsRegexCombined = dp.combineDelimitersRegex(Array.empty[String], delimsRegex)
-      val escapeCharacterParser = dp.generateInputEscapeCharacterParser2(delimsParser, delimsRegexCombined,
-        hasDelim, escChar, escEscChar, justificationTrim, padChar, true)
-      val esRegex = dp.convertDFDLLiteralToRegex(escChar)
-      val esEsRegex = dp.convertDFDLLiteralToRegex(escEscChar)
-      val removeEscapeCharacterRegex = dp.generateRemoveEscapeCharactersSameRegex(esRegex)
-      val removeUnescapedEscapesRegex = dp.removeUnescapedEscapesRegex(esEsRegex, esRegex)
-      val removeEscapeEscapesThatEscapeRegex = dp.removeEscapeEscapesThatEscapeRegex(esEsRegex, esRegex)
-      val removeEscapeRegex = dp.removeEscapeRegex(esRegex)
-      dp.parseInputEscapeCharacter(escapeCharacterParser, dp.emptyParser, delimsParser, reader,
-        justificationTrim, removeEscapeCharacterRegex, removeUnescapedEscapesRegex,
-        removeEscapeEscapesThatEscapeRegex, removeEscapeRegex, escChar,
-        escEscChar)
-    } else {
-      //d.parseInput(Set.empty[String], delimsCooked.toSet, reader, justificationTrim, padChar)
-      val parseInputParser = dp.generateInputParser2(dp.emptyParser, delimsParser, Array.empty[String], delimsRegex,
-        hasDelim, justificationTrim, padChar, true)
-      dp.parseInput(parseInputParser, dp.emptyParser, delimsParser, reader, justificationTrim)
-    }
+  def ec: Option[Char] = if (escChar.isEmpty()) None else Some(escChar.charAt(0))
+  def eec: Option[Char] = if (escEscChar.isEmpty()) None else Some(escEscChar.charAt(0))
+  val pad: Option[Char] = if (padChar.isEmpty()) None else Some(padChar.charAt(0))
 
+  val (blockStart, blockEnd) = {
+    val res: (Option[DFADelimiter], Option[DFADelimiter]) = esObj.escapeSchemeKind match {
+      case EscapeSchemeKind.Block => {
+        (Some(CreateDelimiterDFA(esObj.escapeBlockStart)), Some(CreateDelimiterDFA(esObj.escapeBlockEnd)))
+      }
+      case _ => (None, None)
+    }
+    res
   }
 
-  def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap])
+  val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
+
+  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Option[dfa.ParseResult] = {
+    
+    val delimsMatcher = CreateDelimiterMatcher(delims)
+
+    val result: Option[dfa.ParseResult] = esObj.escapeSchemeKind match {
+      case EscapeSchemeKind.Block => {
+        val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEnd.get))
+        val fieldDFA = CreateFieldDFA(blockEndMatcher, new Registers(), eec)
+        val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad, blockStart.get,
+          blockEnd.get, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+        val blockResult = parser.parse(reader, isDelimRequired)
+        blockResult match {
+          case None => {
+            val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers())
+            val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+            parser.parse(reader, isDelimRequired)
+          }
+          case Some(_) => blockResult
+        }
+      }
+      case EscapeSchemeKind.Character => {
+        val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers(), ec, eec)
+        val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+        parser.parse(reader, isDelimRequired)
+      }
+      case EscapeSchemeKind.None => {
+        val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers())
+        val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+        parser.parse(reader, isDelimRequired)
+      }
+    }
+    result
+  }
+
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap])
 
   /**
    * Called at compile time in static case, at runtime for dynamic case.
@@ -600,6 +636,23 @@ abstract class StringDelimited(e: ElementBase)
       log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
       elemBase.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
     }
+  }
+
+  def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
+    val res = parseResult match {
+      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      case Some(result) => {
+        val field = result.field.getOrElse("")
+        val numBits = result.numBits
+        log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
+        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+        val endBitPos = state.bitPos + numBits
+        val currentElement = state.parentElement
+        currentElement.setDataValue(field)
+        return state.withPos(endBitPos, endCharPos, Some(result.next))
+      }
+    }
+    res
   }
 
   def processResult(result: DelimParseResult, state: PState): PState = {
@@ -636,7 +689,8 @@ abstract class StringDelimited(e: ElementBase)
       val (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState) =
         evaluateEscapeScheme(compiledOptEscChar, compiledOptEscEscChar, start)
 
-      val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(postEscapeSchemeEvalState)
+      //val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(postEscapeSchemeEvalState)
+      val (delims, delimsCooked, vars) = getDelims(postEscapeSchemeEvalState)
 
       // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
       //
@@ -663,7 +717,8 @@ abstract class StringDelimited(e: ElementBase)
       val hasDelim = delimsCooked.length > 0
 
       val result = try {
-        parseMethod(hasDelim, delimsParser, delimsRegex, reader)
+        //parseMethod(hasDelim, delimsParser, delimsRegex, reader)
+        parseMethod(reader, delims, isDelimRequired)
       } catch {
         case mie: MalformedInputException =>
           throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
@@ -695,18 +750,20 @@ trait StaticDelim { self: StringDelimited =>
   // do this at creation time if we're static
   errorIfDelimsHaveWSPStar(staticDelimsCooked)
 
-  def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
-    (staticDelimsCooked, staticDelimsRegex, combinedStaticDelimsParser, None)
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap]) = {
+    (staticDelimsDFAs, staticDelimsCooked, None)
   }
 
 }
 
 case class StringDelimitedEndOfDataStatic(e: ElementBase)
-  extends StringDelimited(e) with StaticDelim
+  extends StringDelimited(e) with StaticDelim {
+  val isDelimRequired: Boolean = false
+}
 
 trait DynamicDelim { self: StringDelimited =>
 
-  override def getDelims(pstate: PState): (List[String], Array[String], dp.Parser[String], Option[VariableMap]) = {
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap]) = {
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
     var vars = pstate.variableMap
@@ -721,24 +778,24 @@ trait DynamicDelim { self: StringDelimited =>
     }
     val dynamicDelimsCooked1 = dynamicDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, elemBase).cooked })
     val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
-    val (dynamicDelimsParser, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
 
     // Combine dynamic and with static delims if they exist
-    val delimsParser = dp.combineLongest(dynamicDelimsParser.union(staticDelimsParser))
     val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-    val delimsRegex = dynamicDelimsRegex.union(staticDelimsRegex)
+
     //
     // moved check here to avoid need for another abstract method to 
     // factor this out.
     errorIfDelimsHaveWSPStar(delimsCooked)
 
-    (delimsCooked, delimsRegex, delimsParser, Some(vars))
+    (CreateDelimiterDFA(dynamicDelimsCooked).union(staticDelimsDFAs), delimsCooked, Some(vars))
   }
 
 }
 
 case class StringDelimitedEndOfDataDynamic(e: ElementBase)
-  extends StringDelimited(e) with DynamicDelim
+  extends StringDelimited(e) with DynamicDelim {
+  val isDelimRequired: Boolean = false
+}
 
 abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
   override val charset: Charset = Charset.forName("ISO-8859-1")
@@ -759,10 +816,33 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
       }
     }
   }
+
+  override def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
+    val res = parseResult match {
+      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      case Some(result) => {
+        val field = result.field.getOrElse("")
+        val numBits = elemBase.knownEncodingStringBitLengthFunction(field)
+        log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
+        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+        val endBitPos = state.bitPos + numBits
+        val currentElement = state.parentElement
+        val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
+        currentElement.setDataValue(hexStr)
+        return state.withPos(endBitPos, endCharPos, Some(result.next))
+      }
+    }
+    res
+  }
+
 }
 
 case class HexBinaryDelimitedEndOfDataStatic(e: ElementBase)
-  extends HexBinaryDelimited(e) with StaticDelim
+  extends HexBinaryDelimited(e) with StaticDelim {
+  val isDelimRequired: Boolean = false
+}
 
 case class HexBinaryDelimitedEndOfDataDynamic(e: ElementBase)
-  extends HexBinaryDelimited(e) with DynamicDelim
+  extends HexBinaryDelimited(e) with DynamicDelim {
+  val isDelimRequired: Boolean = false
+}
