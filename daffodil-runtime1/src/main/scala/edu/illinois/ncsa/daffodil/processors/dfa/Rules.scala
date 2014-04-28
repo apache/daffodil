@@ -179,7 +179,7 @@ abstract class State(states: => ArrayBuffer[State], r: Registers) {
 /**
  * Ambiguity Truth Table
  * 0 means not same, 1 means same
- * ====================================
+ * ------------------------------------
  * EC		EEC		PTERM	Ambiguous?
  * 0		1		1		Y
  * 1		0		1		Y
