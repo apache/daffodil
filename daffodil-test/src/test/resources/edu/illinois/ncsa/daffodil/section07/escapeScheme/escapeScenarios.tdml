@@ -64,7 +64,6 @@
     </infoset>
   </parserTestCase>
 
-  <!-- Test is under discussion 
   <parserTestCase name="scenario1_2" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/bar</document>
@@ -76,7 +75,6 @@
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario1_3" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
@@ -96,25 +94,24 @@
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo/;bar</x>
+          <x>foo/</x>
+	  <y>bar</y>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
   
-  <!-- Test is under discussion 
   <parserTestCase name="scenario1_5" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo///bar</document>
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo//bar</x>
+          <x>foo/bar</x>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario1_6" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
@@ -131,9 +128,14 @@
   <parserTestCase name="scenario1_7" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario1_7_postfix" model="es1"
@@ -171,9 +173,14 @@
   <parserTestCase name="scenario1_9" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/;;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo;</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario1_9_postfix" model="es1"
@@ -191,9 +198,14 @@
   <parserTestCase name="scenario1_10" model="es1"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo//;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo/</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario1_10_postfix" model="es1"
@@ -328,21 +340,17 @@
     </infoset>
   </parserTestCase>
  
- <!-- FROM EMAIL - this should probably be changed to expected <x>foo$;bar</x>, Note, this test would then pass -->
-  <!-- Test is under discussion 
   <parserTestCase name="scenario2_2" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/$;bar</document>
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo</x>
-	  <y>bar</y>
+          <x>foo$;bar</x>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario2_3" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
@@ -370,20 +378,17 @@
     </infoset>
   </parserTestCase>
   
-  <!-- Test is under discussion 
   <parserTestCase name="scenario2_5" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo//$;bar</document>
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo</x>
-	  <y>bar</y>
+          <x>foo$;bar</x>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario2_6" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
@@ -437,9 +442,14 @@
   <parserTestCase name="scenario2_10" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_10_postfix" model="es2"
@@ -477,9 +487,14 @@
   <parserTestCase name="scenario2_12" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$/$;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo/</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_12_postfix" model="es2"
@@ -497,9 +512,14 @@
   <parserTestCase name="scenario2_13" model="es2"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$$/$;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo$/</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario2_13_postfix" model="es2"
@@ -607,20 +627,17 @@
     </infoset>
   </parserTestCase>
   
-  <!-- Test is under discussion 
   <parserTestCase name="scenario3_3" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$$/;bar</document>
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo$</x>
-	  <y>bar</y>
+          <x>foo$/;bar</x>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario3_4" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
@@ -678,7 +695,8 @@
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo//;bar</x>
+          <x>foo//</x>
+	  <y>bar</y>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
@@ -690,7 +708,7 @@
     <infoset>
       <dfdlInfoset>
         <e_infix>
-          <x>foo//;bar</x>
+          <x>foo////;bar</x>
 	</e_infix>
       </dfdlInfoset>
     </infoset>
@@ -699,9 +717,14 @@
   <parserTestCase name="scenario3_10" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario3_10_postfix" model="es3"
@@ -718,15 +741,19 @@
   
   <parserTestCase name="scenario3_11" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
-    <document>foo$/;bar</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <document>foo$/;</document>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo/;</x>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario3_11_postfix" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_postfix">
-    <document>foo$/;bar</document>
+    <document>foo$/;</document>
     <infoset>
       <dfdlInfoset>
         <e_postfix>
@@ -736,7 +763,6 @@
     </infoset>
   </parserTestCase>
   
-  <!-- Test is under discussion 
   <parserTestCase name="scenario3_12" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$$/;</document>
@@ -756,14 +782,18 @@
       <error>Parse Error</error>
     </errors>
   </parserTestCase>
-  -->
   
   <parserTestCase name="scenario3_13" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$//;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo/</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario3_13_postfix" model="es3"
@@ -778,7 +808,6 @@
     </infoset>
   </parserTestCase>
   
-  <!-- Test is under discussion 
   <parserTestCase name="scenario3_14" model="es3"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo$/$/$/;</document>
@@ -798,7 +827,6 @@
       <error>Parse Error</error>
     </errors>
   </parserTestCase>
-  -->
 
   <defineSchema name="es4">
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
@@ -946,9 +974,14 @@
   <parserTestCase name="scenario4_8" model="es4"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo/;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario4_8_postfix" model="es4"
@@ -1006,9 +1039,14 @@
   <parserTestCase name="scenario4_11" model="es4"
     description="Section 13 - escapeCharacter - DFDL-13-029R" root="e_infix">
     <document>foo///;</document>
-    <errors>
-      <error>Parse Error</error>
-    </errors>
+    <infoset>
+      <dfdlInfoset>
+        <e_infix>
+          <x>foo/</x>
+	  <y></y>
+	</e_infix>
+      </dfdlInfoset>
+    </infoset>
   </parserTestCase>
   
   <parserTestCase name="scenario4_11_postfix" model="es4"
@@ -1017,7 +1055,7 @@
     <infoset>
       <dfdlInfoset>
         <e_postfix>
-          <x>foo</x>
+          <x>foo/</x>
 	</e_postfix>
       </dfdlInfoset>
     </infoset>
