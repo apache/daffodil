@@ -52,7 +52,5 @@ class TestLengthKindDelimitedDebug {
   //DFDL-230
   @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   
-  @Test def test_delimsCheck() { 
-    Debugger.setDebugging(true)
-    runner.runOneTest("delimsCheck") }
+  @Test def test_delimsCheck() { runner.runOneTest("delimsCheck") }
 }
