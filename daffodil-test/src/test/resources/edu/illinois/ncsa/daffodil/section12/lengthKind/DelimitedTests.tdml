@@ -994,4 +994,26 @@ C</MessageHeaders>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+	<tdml:defineSchema name="wspStarTest">
+		<dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+			lengthUnits="bytes" encoding="ascii" separator="" initiator=""
+			terminator="" occursCountKind="parsed" ignoreCase="no" textNumberRep="standard"
+			representation="text" initiatedContent="no" />
+		<xs:element name="delimCheck" dfdl:initiator="1"
+			dfdl:terminator="%WSP*;%NL;" type="xs:string" />
+	</tdml:defineSchema>
+
+	<tdml:parserTestCase name="delimsCheck" root="delimCheck"
+		model="wspStarTest">
+		<tdml:document>
+			<tdml:documentPart type="byte">31200a</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<delimCheck />
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+  
 </tdml:testSuite>

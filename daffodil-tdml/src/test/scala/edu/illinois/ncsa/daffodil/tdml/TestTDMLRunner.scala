@@ -704,4 +704,29 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertEquals(9, bytes.length)
     ts.runOneTest("testNilCompare")
   }
+  
+  /**
+   * Make sure our tdml data document preserves CRLFs.
+   * <p>
+   * Note that you can't put them into the tdml file as CRLF actual characters because
+   * XML loading of the tdml file doesn't preserve them. The TDML runner never
+   * sees the CR in that case because the XML loader being used to load the
+   * tdml file has removed the CRLF and replaced it with just LF.
+   */
+  @Test def testDocWithDoubleNewlines() {
+    val xml = <tdml:document>
+                <tdml:documentPart type="text">ab</tdml:documentPart>
+                <tdml:documentPart type="byte">0d0a0d0a</tdml:documentPart>
+                <tdml:documentPart type="text">cd</tdml:documentPart>
+              </tdml:document>
+    val d = new Document(xml, null)
+    val actual = d.documentBytes
+    val expected = Vector(
+        'a'.toByte, 'b'.toByte, 
+        0x0d.toByte, 0x0a.toByte, 
+        0x0d.toByte, 0x0a.toByte, 
+        'c'.toByte, 'd'.toByte).toList
+    assertEquals(expected, actual.toList)
+  }
+  
 }
