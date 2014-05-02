@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.escapeScheme
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -42,12 +41,19 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestEscapeScheme {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml),
     validateTDMLFile = false)
+
+  // Debug Template
+  // @Test def test_name() = Debugger.withDebugger { 
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  // runner.runOneTest("test_name") 
+  // }
 
   @Test def test_escapeSchemeSimple() { runner.runOneTest("escapeSchemeSimple") }
   @Test def test_escapeSchemeFail() { runner.runOneTest("escapeSchemeFail") }
@@ -56,7 +62,7 @@ class TestEscapeScheme {
   @Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
   @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
   @Test def test_escapeSchemeUnused() { runner.runOneTest("escapeSchemeUnused") }
-  
+
   @Test def test_escapeExpressions_01() { runner.runOneTest("escapeExpressions_01") }
   @Test def test_escapeExpressions_01b() { runner.runOneTest("escapeExpressions_01b") }
   @Test def test_escapeExpressions_02() { runner.runOneTest("escapeExpressions_02") }
@@ -94,7 +100,7 @@ class TestEscapeScheme {
   @Test def test_scenario1_12_postfix() { runner2.runOneTest("scenario1_12_postfix") }
   @Test def test_scenario1_13() { runner2.runOneTest("scenario1_13") }
   @Test def test_scenario1_13_postfix() { runner2.runOneTest("scenario1_13_postfix") }
-  
+
   @Test def test_scenario2_1() { runner2.runOneTest("scenario2_1") }
   @Test def test_scenario2_2() { runner2.runOneTest("scenario2_2") }
   @Test def test_scenario2_3() { runner2.runOneTest("scenario2_3") }
@@ -114,7 +120,7 @@ class TestEscapeScheme {
   @Test def test_scenario2_13_postfix() { runner2.runOneTest("scenario2_13_postfix") }
   @Test def test_scenario2_14() { runner2.runOneTest("scenario2_14") }
   @Test def test_scenario2_14_req_term() { runner2.runOneTest("scenario2_14_req_term") }
-  
+
   @Test def test_scenario3_1() { runner2.runOneTest("scenario3_1") }
   @Test def test_scenario3_2() { runner2.runOneTest("scenario3_2") }
   @Test def test_scenario3_3() { runner2.runOneTest("scenario3_3") }

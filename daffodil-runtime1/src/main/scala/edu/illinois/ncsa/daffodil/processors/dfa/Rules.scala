@@ -17,6 +17,7 @@ class Registers {
   var numCharsReadUntilDelim: Int = 0
   var data0: Char = DFA.EndOfDataChar // current character
   var data1: Char = DFA.EndOfDataChar // next (lookahead 1) character
+  var matchStartPos: Int = 0
 
   // Very very loosely bind this whole system
   // to scala's Reader[Char] because that 
@@ -34,7 +35,7 @@ class Registers {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(reader: DFDLCharReader) {
+  def reset(reader: DFDLCharReader, matchStartPos: Int) {
     this.reader = reader
     data0 = nextChar()
     data1 = nextChar()
@@ -42,6 +43,7 @@ class Registers {
     delimString.clear()
     numCharsRead = 0
     numCharsReadUntilDelim = 0
+    this.matchStartPos = matchStartPos
   }
 
   /**
@@ -62,6 +64,7 @@ class Registers {
     this.reader = that.reader
     this.data0 = that.data0
     this.data1 = that.data1
+    this.matchStartPos = that.numCharsReadUntilDelim
     resultString.clear
     delimString.clear
     numCharsRead = 0
@@ -106,13 +109,6 @@ class Registers {
 
   def incCharsRead(): Unit = numCharsRead += 1
   def incCharsReadUntilDelim(): Unit = numCharsReadUntilDelim += 1
-
-  // -1 means no matched delimiter
-  def matchStartPos: Int = {
-    if (!delimString.isEmpty) { resultString.length }
-    else -1 // TODO: I don't think this is valid any longer as we've separated Field/Delimiter DFAs
-    // it's also possible to have an empty delimiter string in the case when WSP* is matched.
-  }
 
   override def toString(): String = {
     "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(resultString.toString, delimString.toString, numCharsRead)

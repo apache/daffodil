@@ -473,7 +473,8 @@ case class PState(
   val occursCountStack: List[Long],
   val diagnostics: List[Diagnostic],
   val discriminatorStack: List[Boolean],
-  val dataProc: DataProcessor)
+  val dataProc: DataProcessor,
+  val foundDelimiter: Option[FoundDelimiterText])
   extends DFDL.State with ThrowsSDE {
 
   def bytePos = bitPos >> 3
@@ -639,6 +640,14 @@ case class PState(
     val newInStream = inStream.withPos(bitPos, charPos, reader)
     copy(inStream = newInStream)
   }
+  
+  def withDelimitedText(foundText: String, originalRepresentation: String) = {
+    val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation)
+    copy(foundDelimiter = Some(newDelimiter))
+  }
+  def clearDelimitedText() = {
+    copy(foundDelimiter = None)
+  }
 
   // Need last state for Assertion Pattern
   // def withLastState = copy(inStreamStateStack = inStreamStateStack.pop)
@@ -720,8 +729,9 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
+    val foundDelimiter: Option[FoundDelimiterText] = None
     val newState = PState(scr, in, doc, variables, targetNamespace, status, groupIndexStack,
-      childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc)
+      childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
     newState
   }
 

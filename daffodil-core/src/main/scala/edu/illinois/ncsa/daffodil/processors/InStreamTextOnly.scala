@@ -145,7 +145,6 @@ case class InStreamFixedWidthTextOnly(
     // Here we are setting the limit smaller on the cBuf.
     // This side effect has to be undone symmetrically when
     // the parser leaves the context which has the smaller limit.
-    println("newCharLimit=" + newCharLimit)
     info.cBuf.limit(newCharLimit.toInt)
     info.bBuf.limit(newByteLimit.toInt)
     val newInfo = info.copy(bitLimit = newBitLimit)

@@ -41,11 +41,18 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestLengthKindImplicit {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val tdml = testDir + "implicit.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  
+  // Debug Template
+  // @Test def test_name() = Debugger.withDebugger { 
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  // runner.runOneTest("test_name") 
+  // }
 
   @Test def test_nested_seq() { runner_01.runOneTest("nested_seq") }
   @Test def test_nested_seq_01() { runner_01.runOneTest("nested_seq_01") }

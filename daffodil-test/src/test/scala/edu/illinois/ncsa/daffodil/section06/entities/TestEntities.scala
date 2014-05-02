@@ -41,11 +41,18 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestEntities {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml = testDir + "charClassEntities.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  // Debug Template
+  // @Test def test_name() = Debugger.withDebugger { 
+  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  // runner.runOneTest("test_name") 
+  // }
 
   @Test def test_doubleNL2() { runner.runOneTest("doubleNL2") }
 
@@ -65,12 +72,12 @@ class TestEntities {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
   val tdml_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-  
+
   @Test def test_entityAndNonMix_01() { runner_01.runOneTest("entityAndNonMix_01") }
   @Test def test_entityAndNonMix_02() { runner_01.runOneTest("entityAndNonMix_02") }
   @Test def test_entityAndNonMix_03() { runner_01.runOneTest("entityAndNonMix_03") }
   @Test def test_entityAndNonMix_04() { runner_01.runOneTest("entityAndNonMix_04") }
-//  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
+  //  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
   @Test def test_doubleNLterminator() { runner_01.runOneTest("doubleNLterminator") }
   @Test def test_doubleNLseparator() { runner_01.runOneTest("doubleNLseparator") }
@@ -87,7 +94,7 @@ class TestEntities {
   @Test def test_byte_entities_6_06() { runner_01.runOneTest("byte_entities_6_06") }
   @Test def test_byte_entities_6_07() { runner_01.runOneTest("byte_entities_6_07") }
   @Test def test_byte_entities_6_08() { runner_01.runOneTest("byte_entities_6_08") }
-//  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
+  //  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
 
   @Test def test_whitespace_01() { runner_01.runOneTest("whitespace_01") }
   @Test def test_whitespace_02() { runner_01.runOneTest("whitespace_02") }
