@@ -24,7 +24,12 @@ STEPS TO RELEASE
 
 5) Publish to NCSA servers
 
-	$ sbt publish-signed
+	$ sbt daffodil-lib/publish-signed
+	$ sbt daffodil-core/publish-signed
+	$ sbt daffodil-runtime1/publish-signed
+	$ sbt daffodil-io/publish-signed
+	$ sbt daffodil-tdml/publish-signed
+	$ sbt daffodil-cli/publish-signed
 
 6) Build the pack files
 
