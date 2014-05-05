@@ -598,13 +598,13 @@ abstract class StringDelimited(e: ElementBase)
     val result: Option[dfa.ParseResult] = esObj.escapeSchemeKind match {
       case EscapeSchemeKind.Block => {
         val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEnd.get))
-        val fieldDFA = CreateFieldDFA(blockEndMatcher, new Registers(), eec)
+        val fieldDFA = CreateFieldDFA(blockEndMatcher, eec)
         val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad, blockStart.get,
           blockEnd.get, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
         val blockResult = parser.parse(reader, isDelimRequired)
         blockResult match {
           case None => {
-            val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers())
+            val fieldDFA = CreateFieldDFA(delimsMatcher)
             val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
             parser.parse(reader, isDelimRequired)
           }
@@ -612,12 +612,12 @@ abstract class StringDelimited(e: ElementBase)
         }
       }
       case EscapeSchemeKind.Character => {
-        val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers(), ec, eec)
+        val fieldDFA = CreateFieldDFA(delimsMatcher, ec, eec)
         val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
         parser.parse(reader, isDelimRequired)
       }
       case EscapeSchemeKind.None => {
-        val fieldDFA = CreateFieldDFA(delimsMatcher, new Registers())
+        val fieldDFA = CreateFieldDFA(delimsMatcher)
         val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
         parser.parse(reader, isDelimRequired)
       }

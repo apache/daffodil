@@ -22,11 +22,11 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object without EscapeSchemeKind.None
    */
-  def apply(compiledDelims: DelimsMatcher, r: Registers): DFAField = {
+  def apply(compiledDelims: DelimsMatcher): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val startState = new StartState(allStates, r, compiledDelims, 0)
+    val startState = new StartState(allStates, compiledDelims, 0)
 
     allStates.insert(0, startState)
 
@@ -36,14 +36,14 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscapeSchemeKind.Character
    */
-  def apply(compiledDelims: DelimsMatcher, r: Registers,
+  def apply(compiledDelims: DelimsMatcher,
     EC: Option[Char], EEC: Option[Char]): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val ecState = new ECState(allStates, EC, r, compiledDelims, 1)
-    val eecState = new EECState(allStates, EEC, EC, r, compiledDelims, 2)
-    val startState = new StartStateEscapeChar(allStates, EEC, EC, r, compiledDelims, 0)
+    val ecState = new ECState(allStates, EC, compiledDelims, 1)
+    val eecState = new EECState(allStates, EEC, EC, compiledDelims, 2)
+    val startState = new StartStateEscapeChar(allStates, EEC, EC, compiledDelims, 0)
 
     allStates.insert(0, eecState)
     allStates.insert(0, ecState)
@@ -55,13 +55,13 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscpaeSchemeKind.Block
    */
-  def apply(compiledDelims: DelimsMatcher, r: Registers,
+  def apply(compiledDelims: DelimsMatcher,
     EEC: Option[Char]): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val eecState = new EECStateBlock(allStates, EEC, r, compiledDelims, 1)
-    val startState = new StartStateEscapeBlock(allStates, EEC, r, compiledDelims, 0)
+    val eecState = new EECStateBlock(allStates, EEC, compiledDelims, 1)
+    val startState = new StartStateEscapeBlock(allStates, EEC, compiledDelims, 0)
 
     allStates.insert(0, eecState)
     allStates.insert(0, startState)

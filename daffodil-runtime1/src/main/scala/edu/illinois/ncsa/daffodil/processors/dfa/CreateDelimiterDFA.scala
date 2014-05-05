@@ -54,23 +54,23 @@ object CreateDelimiterDFA {
    * Returns a state representing the DelimBase object.
    */
   protected def getState(d: DelimBase, nextState: Int, stateNum: Int,
-    allStates: ArrayBuffer[State], registers: Registers): DelimStateBase = {
+    allStates: ArrayBuffer[State]): DelimStateBase = {
 
     val theState = d match {
       case d: CharDelim => {
-        new CharState(allStates, registers, d.char, nextState, stateNum)
+        new CharState(allStates, d.char, nextState, stateNum)
       }
       case d: WSPDelim => {
-        new WSPState(allStates, registers, nextState, stateNum)
+        new WSPState(allStates, nextState, stateNum)
       }
       case d: WSPStarDelim => {
-        new WSPStarState(allStates, registers, nextState, stateNum)
+        new WSPStarState(allStates, nextState, stateNum)
       }
       case d: WSPPlusDelim => {
-        new WSPPlusState(allStates, registers, nextState, stateNum)
+        new WSPPlusState(allStates, nextState, stateNum)
       }
       case d: NLDelim => {
-        new NLState(allStates, registers, nextState, stateNum)
+        new NLState(allStates, nextState, stateNum)
       }
     }
     theState
@@ -79,11 +79,11 @@ object CreateDelimiterDFA {
   private def buildTransitions(delim: Seq[DelimBase],
     allStates: ArrayBuffer[State]): State = {
     assert(!delim.isEmpty)
-    buildTransitions(null, delim.reverse, allStates, new Registers)
+    buildTransitions(null, delim.reverse, allStates)
   }
 
   private def buildTransitions(nextState: DelimStateBase, delim: Seq[DelimBase],
-    allStates: ArrayBuffer[State], registers: Registers): State = {
+    allStates: ArrayBuffer[State]): State = {
 
     if (delim.isEmpty && nextState != null) {
       // We are initial state
@@ -93,7 +93,7 @@ object CreateDelimiterDFA {
 
     val currentState = getState(delim(0),
       if (nextState == null) 0 else nextState.stateNum,
-      delim.length - 1, allStates, registers)
+      delim.length - 1, allStates)
     val rest = delim.tail
 
     if (nextState == null) {
@@ -101,6 +101,6 @@ object CreateDelimiterDFA {
       currentState.nextState = DFA.FinalState
     }
     allStates += currentState
-    return buildTransitions(currentState, rest, allStates, registers)
+    return buildTransitions(currentState, rest, allStates)
   }
 }

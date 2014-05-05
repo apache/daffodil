@@ -110,7 +110,12 @@ class Registers {
   // -1 means no matched delimiter
   def matchStartPos: Int = {
     if (!delimString.isEmpty) { resultString.length }
-    else -1
+    else -1 // TODO: I don't think this is valid any longer as we've separated Field/Delimiter DFAs
+    // it's also possible to have an empty delimiter string in the case when WSP* is matched.
+  }
+
+  override def toString(): String = {
+    "<Registers field='%s' delimiter='%s' numCharsRead='%d' />".format(resultString.toString, delimString.toString, numCharsRead)
   }
 
 }
@@ -122,7 +127,7 @@ class Registers {
  * This object itself will exist and be a member of the states ArrayBuffer as well as the other
  * states before any access to the lazy val members.
  */
-abstract class State(states: => ArrayBuffer[State], r: Registers) {
+abstract class State(states: => ArrayBuffer[State]) {
 
   def stateNum: Int
   def stateName: String
@@ -133,11 +138,11 @@ abstract class State(states: => ArrayBuffer[State], r: Registers) {
    * if rules(n).test() evaluates to true, then take
    * action by rules(n).act().
    */
-  def run(actNum: Int): Either[DFAStatus, Int] = {
+  def run(actNum: Int, r: Registers): Either[DFAStatus, Int] = {
     var actionNum = actNum //0
     while (actionNum < rules.length) {
-      if (rules(actionNum).test()) {
-        val res = rules(actionNum).act()
+      if (rules(actionNum).test(r)) {
+        val res = rules(actionNum).act(r)
         res match {
           case Right(nextStateNum) => return Right(nextStateNum)
           case Left(status) => return Left(new DFAStatus(stateNum, actionNum, status))
@@ -147,11 +152,6 @@ abstract class State(states: => ArrayBuffer[State], r: Registers) {
     }
     Left(new DFAStatus(stateNum, actionNum, StateKind.Failed))
   }
-
-  
-  def reset(reader: DFDLCharReader) = r.reset(reader)
-  def setResume(reader: DFDLCharReader) = r.setResume(reader)
-  def register = r
 
   def findState(name: String): Int = {
     states.find(st => st.stateName == name).get.stateNum
@@ -187,52 +187,57 @@ abstract class State(states: => ArrayBuffer[State], r: Registers) {
  * 1		1		1		Y
  */
 class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Option[Char], EC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName: String = "StartState"
   val rules = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && EC.isDefined && r.data0 == EEC.get } { Right(EECState) },
-    Rule { EC.isDefined && r.data0 == EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && EC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => EC.isDefined && r.data0 == EC.get } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 
 }
 
 class StartState(states: => ArrayBuffer[State],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName: String = "StartState"
   val rules = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 
 }
 
-class StartStatePadding(states: => ArrayBuffer[State], r: Registers,
-  val padChar: Char)
-  extends State(states, r) {
+class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
+  extends State(states) {
 
   val stateName = "StartState"
   val stateNum: Int = 0
   val rules = ArrayBuffer(
-    Rule { r.data0 == padChar } {
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => { r.data0 == padChar } } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     },
-    Rule { true } { Right(DFA.FinalState) })
+    Rule { (r: Registers) => true } { (r: Registers) => { Right(DFA.FinalState) } })
 }
 
 /**
@@ -240,119 +245,140 @@ class StartStatePadding(states: => ArrayBuffer[State], r: Registers,
  * Here compiledDelims should only contain the endBlock DFADelimiter.
  */
 class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
   val stateName: String = "StartState"
 
   val rules = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && (r.data0 == EEC.get) } { Right(EECState) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
 }
 
 class StartStateEscapeChar(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName: String = "StartState"
 
   val rules_NO_EEC_BUT_EC_TERM_SAME = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { r.data0 == EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => { Right(DFA.EndOfData) } },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
   val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } { Right(EECState) },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 != EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
   val rules_EEC_TERM_SAME_NOT_EC = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } { Right(EECState) },
-    Rule { r.data0 == EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => { Left(StateKind.Paused) } },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
   val rules_EC_TERM_SAME_NOT_EEC = ArrayBuffer(
-    Rule { r.data0 == EC.get && r.data1 == EC.get } {
-      // EC followed by EC, first EC gets dropped
-      r.dropChar(r.data0)
-      r.appendToField(r.data1)
-      r.advance
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => { r.data0 == EC.get && r.data1 == EC.get } } { (r: Registers) =>
+      {
+        // EC followed by EC, first EC gets dropped
+        r.dropChar(r.data0)
+        r.appendToField(r.data1)
+        r.advance
+        r.advance
+        Right(StartState)
+      }
     },
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } { Right(EECState) },
-    Rule { r.data0 == EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
   val rules_EC_EEC_TERM_SAME = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 == EEC.get } {
-      Right(EECState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EEC.get } } {
+      (r: Registers) => Right(EECState)
     },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 != DFA.EndOfDataChar } {
-      // EEC followed by something not a PTERM[2]
-      r.dropChar(r.data0)
-      r.appendToField(r.data1)
-      r.advance
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != DFA.EndOfDataChar } } {
+      (r: Registers) =>
+        {
+          // EEC followed by something not a PTERM[2]
+          r.dropChar(r.data0)
+          r.appendToField(r.data1)
+          r.advance
+          r.advance
+          Right(StartState)
+        }
     },
-    Rule { EEC.isDefined && r.data0 == EEC.get && r.data1 == DFA.EndOfDataChar } {
-      Right(ECState)
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == DFA.EndOfDataChar } } {
+      (r: Registers) => Right(ECState)
     },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => r.data0 == DFA.EndOfDataChar } { (r: Registers) => { Right(DFA.EndOfData) } },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
     })
 
   val rules_Unambiguous = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { EEC.isDefined && r.data0 == EEC.get } { Right(EECState) },
-    Rule { EC.isDefined && r.data0 == EC.get } { Right(ECState) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { EC.isDefined && r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 
   val rules_NoEscaping = ArrayBuffer(
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } { Left(StateKind.Paused) },
-    Rule { r.data0 == DFA.EndOfDataChar } { Right(DFA.EndOfData) },
-    Rule { true } {
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 
   /**
@@ -421,37 +447,43 @@ class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher {
 }
 
 class ECState(states: => ArrayBuffer[State], var EC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName = "ECState"
   val rules = ArrayBuffer(
     // ECState, means that data0 is EC
     //
-    Rule { r.data1 == EC.get } {
-      // next char is also EC, drop this EC
-      // but do not treat next EC as char
-      r.dropChar(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => { r.data1 == EC.get } } { (r: Registers) =>
+      {
+        // next char is also EC, drop this EC
+        // but do not treat next EC as char
+        r.dropChar(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     },
-    Rule { r.data1 == DFA.EndOfDataChar } {
-      r.dropChar(r.data0)
-      Right(DFA.EndOfData)
+    Rule { (r: Registers) => { r.data1 == DFA.EndOfDataChar } } { (r: Registers) =>
+      {
+        r.dropChar(r.data0)
+        Right(DFA.EndOfData)
+      }
     },
-    Rule { true } {
-      // constituent character
-      r.dropChar(r.data0)
-      r.appendToField(r.data1)
-      r.advance()
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        // constituent character
+        r.dropChar(r.data0)
+        r.appendToField(r.data1)
+        r.advance()
+        r.advance()
+        Right(StartState)
+      }
     })
 }
 
 class EECState(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName = "EECState"
   val rules = ArrayBuffer(
@@ -462,34 +494,40 @@ class EECState(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Opt
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } {
-      Left(StateKind.Paused) //PTERMState
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } {
+      (r: Registers) => Left(StateKind.Paused) //PTERMState
     },
-    Rule { EC.isDefined && r.data1 == EC.get } {
-      // Drop EEC aka data0
-      r.dropChar(r.data0)
-      r.appendToField(r.data1)
-      r.advance()
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => { EC.isDefined && r.data1 == EC.get } } { (r: Registers) =>
+      {
+        // Drop EEC aka data0
+        r.dropChar(r.data0)
+        r.appendToField(r.data1)
+        r.advance()
+        r.advance()
+        Right(StartState)
+      }
     },
-    Rule { r.data1 == DFA.EndOfDataChar } {
-      r.appendToField(r.data0)
-      Right(DFA.EndOfData)
+    Rule { (r: Registers) => { r.data1 == DFA.EndOfDataChar } } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        Right(DFA.EndOfData)
+      }
     },
-    Rule { true } {
-      // Not followed by an EC, therefore
-      // it is an EEC and should remain in field.
-      //
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        // Not followed by an EC, therefore
+        // it is an EEC and should remain in field.
+        //
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 }
 
 class EECStateBlock(states: => ArrayBuffer[State], var EEC: Option[Char],
-  r: Registers, compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states, r) {
+  compiledDelims: DelimsMatcher, val stateNum: Int)
+  extends State(states) {
 
   val stateName = "EECState"
   val rules = ArrayBuffer(
@@ -500,37 +538,45 @@ class EECStateBlock(states: => ArrayBuffer[State], var EEC: Option[Char],
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { compiledDelims.couldBeFirstChar(r.data0) } {
-      Left(StateKind.Paused) //PTERMState
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } {
+      (r: Registers) => Left(StateKind.Paused) //PTERMState
     },
-    Rule { compiledDelims.couldBeFirstChar(r.data1) } {
-      // EEC followed by possible blockEnd
-      r.dropChar(r.data0)
-      r.appendToField(r.data1)
-      r.advance
-      r.advance
-      Right(StartState)
+    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data1) } { (r: Registers) =>
+      {
+        // EEC followed by possible blockEnd
+        r.dropChar(r.data0)
+        r.appendToField(r.data1)
+        r.advance
+        r.advance
+        Right(StartState)
+      }
     },
-    Rule { r.data1 == EEC.get } {
-      // EEC followed by EEC, stays in field
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => { r.data1 == EEC.get } } { (r: Registers) =>
+      {
+        // EEC followed by EEC, stays in field
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     },
-    Rule { r.data1 == DFA.EndOfDataChar } {
-      r.appendToField(r.data0)
-      Right(DFA.EndOfData)
+    Rule { (r: Registers) => { r.data1 == DFA.EndOfDataChar } } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        Right(DFA.EndOfData)
+      }
     },
-    Rule { true } {
-      // EEC followed by normal character
-      r.appendToField(r.data0)
-      r.advance()
-      Right(StartState)
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        // EEC followed by normal character
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
     })
 }
 
-abstract class DelimStateBase(states: => ArrayBuffer[State], r: Registers)
-  extends State(states, r) {
+abstract class DelimStateBase(states: => ArrayBuffer[State])
+  extends State(states) {
   var stateName: String = null
   def setStateName(name: String) = stateName = name
   def rules: ArrayBuffer[Rule]
@@ -544,29 +590,33 @@ abstract class DelimStateBase(states: => ArrayBuffer[State], r: Registers)
   }
 }
 
-class CharState(states: => ArrayBuffer[State], r: Registers, char: Char, var nextState: Int, val stateNum: Int)
-  extends DelimStateBase(states, r) {
+class CharState(states: => ArrayBuffer[State], char: Char, var nextState: Int, val stateNum: Int)
+  extends DelimStateBase(states) {
 
   stateName = "CharState(" + char + ")"
   val rulesToThisState = ArrayBuffer(
-    Rule { r.data0 == char } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(stateNum)
+    Rule { (r: Registers) => { r.data0 == char } } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(stateNum)
+      }
     })
 
   val rules = ArrayBuffer(
-    Rule { r.data0 == char } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(nextState)
+    Rule { (r: Registers) => { r.data0 == char } } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(nextState)
+      }
     })
 
   def checkMatch(charIn: Char): Boolean = char == charIn
 }
 
-abstract class WSPBase(states: => ArrayBuffer[State], r: Registers)
-  extends DelimStateBase(states, r) with WSP {
+abstract class WSPBase(states: => ArrayBuffer[State])
+  extends DelimStateBase(states) with WSP {
 
   def checkMatch(charIn: Char): Boolean = {
     val result = charIn match {
@@ -580,73 +630,83 @@ abstract class WSPBase(states: => ArrayBuffer[State], r: Registers)
   }
 }
 
-class WSPState(states: => ArrayBuffer[State], r: Registers, var nextState: Int, val stateNum: Int)
-  extends WSPBase(states, r) {
+class WSPState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+  extends WSPBase(states) {
 
   stateName = "WSPState"
   val rulesToThisState = ArrayBuffer(
-    Rule { checkMatch(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(stateNum)
+    Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(stateNum)
+      }
     })
 
   val rules = ArrayBuffer(
-    Rule { checkMatch(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(nextState)
+    Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(nextState)
+      }
     })
 }
 
-abstract class WSPRepeats(states: => ArrayBuffer[State], r: Registers)
-  extends WSPBase(states, r) {
+abstract class WSPRepeats(states: => ArrayBuffer[State])
+  extends WSPBase(states) {
 
 }
 
-class WSPPlusState(states: => ArrayBuffer[State], r: Registers, var nextState: Int, val stateNum: Int)
-  extends WSPRepeats(states, r) {
+class WSPPlusState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+  extends WSPRepeats(states) {
 
   stateName = "WSPPlusState"
   val rulesToThisState = ArrayBuffer(
-    Rule { checkMatch(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(stateNum) // This state
+    Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(stateNum) // This state
+      }
     })
 
   var matchedAtLeastOnce: Boolean = false
   val rules = ArrayBuffer(
-    Rule { checkMatch(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      matchedAtLeastOnce = true
-      Right(stateNum) // This state
+    Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        matchedAtLeastOnce = true
+        Right(stateNum) // This state
+      }
     },
-    Rule { matchedAtLeastOnce } {
+    Rule { (r: Registers) => matchedAtLeastOnce } { (r: Registers) =>
       Right(nextState)
     })
 }
 
-class WSPStarState(states: => ArrayBuffer[State], r: Registers, var nextState: Int, val stateNum: Int)
-  extends WSPRepeats(states, r) {
+class WSPStarState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+  extends WSPRepeats(states) {
 
   stateName = "WSPStarState"
 
   val rules = ArrayBuffer(
-    Rule { checkMatch(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(stateNum) // This state
+    Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(stateNum) // This state
+      }
     },
-    Rule { true } {
-      Right(nextState)
+    Rule { (r: Registers) => true } {
+      (r: Registers) => Right(nextState)
     })
   var rulesToNextStateMinusUs: ArrayBuffer[Rule] = ArrayBuffer.empty
 }
 
-abstract class NLBase(states: => ArrayBuffer[State], r: Registers)
-  extends DelimStateBase(states, r) with NL {
+abstract class NLBase(states: => ArrayBuffer[State])
+  extends DelimStateBase(states) with NL {
 
   def isNLNotCR(charIn: Char): Boolean = {
     charIn match {
@@ -670,28 +730,34 @@ abstract class NLBase(states: => ArrayBuffer[State], r: Registers)
   }
 }
 
-class NLState(states: => ArrayBuffer[State], r: Registers, var nextState: Int, val stateNum: Int)
-  extends NLBase(states, r) {
+class NLState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+  extends NLBase(states) {
 
   stateName = "NLState"
 
   val rules = ArrayBuffer(
-    Rule { isCR(r.data0) && isLF(r.data1) } {
-      r.appendToDelim(r.data0)
-      r.appendToDelim(r.data1)
-      r.advance
-      r.advance
-      Right(nextState)
+    Rule { (r: Registers) => { isCR(r.data0) && isLF(r.data1) } } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.appendToDelim(r.data1)
+        r.advance
+        r.advance
+        Right(nextState)
+      }
     },
-    Rule { isCR(r.data0) && !isLF(r.data1) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(nextState)
+    Rule { (r: Registers) => { isCR(r.data0) && !isLF(r.data1) } } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(nextState)
+      }
     },
-    Rule { isNLNotCR(r.data0) } {
-      r.appendToDelim(r.data0)
-      r.advance
-      Right(nextState)
+    Rule { (r: Registers) => isNLNotCR(r.data0) } { (r: Registers) =>
+      {
+        r.appendToDelim(r.data0)
+        r.advance
+        Right(nextState)
+      }
     })
 
   def checkMatch(charIn: Char): Boolean = isNLNotCR(charIn) || isCR(charIn)

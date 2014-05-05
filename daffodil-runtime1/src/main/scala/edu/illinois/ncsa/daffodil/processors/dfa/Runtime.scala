@@ -45,30 +45,15 @@ trait DFA {
    * what follows us before we can continue. It's needed because of this
    * whole idea of 'pausing' and 'resuming' for back tracking.
    */
-  def run(initialState: Int, actionNum: Int = 0): Either[DFAStatus, Int] = {
+  def run(initialState: Int, r: Registers, actionNum: Int = 0): Either[DFAStatus, Int] = {
     var stateNum = initialState
     while (stateNum != DFA.FinalState) {
-      states(stateNum).run(actionNum) match {
+      states(stateNum).run(actionNum, r) match {
         case Right(nextStateNum) => stateNum = nextStateNum
         case Left(status) => return Left(status)
       }
     }
     Left(new DFAStatus(stateNum, 0, StateKind.Succeeded))
-  }
-
-  def reset(reader: DFDLCharReader): Unit = {
-    states(0).reset(reader)
-  }
-
-  def setResume(reader: DFDLCharReader): Unit = {
-    states(0).setResume(reader)
-  }
-
-  def register = states(0).register
-
-  override def toString(): String = {
-    "<DFA field='%s' delimiter='%s' numCharsRead='%d'/>".format(
-      register.resultString.toString, register.delimString.toString, register.numCharsRead)
   }
 }
 
@@ -114,15 +99,15 @@ trait DFAField extends DFA {
    * some state has an action that transitions
    * to the final state.
    */
-  override def run(initialState: Int, actionNum: Int = 0): Either[DFAStatus, Int] = {
+  override def run(initialState: Int, r: Registers, actionNum: Int = 0): Either[DFAStatus, Int] = {
     var stateNum = initialState
     var resume: Boolean = actionNum > 0
     while (stateNum != DFA.EndOfData) {
       val res = if (resume) {
         resume = false
-        states(stateNum).run(actionNum)
+        states(stateNum).run(actionNum, r)
       } else {
-        states(stateNum).run(0)
+        states(stateNum).run(0, r)
       }
       res match {
         case Right(num) => stateNum = num
@@ -136,10 +121,7 @@ trait DFAField extends DFA {
 
 trait DFADelimiter extends DFA {
   def lookingFor: String
-  override def toString(): String = {
-    "<DFA lookingFor='%s' field='%s' delimiter='%s' numCharsRead='%d'/>".format(lookingFor,
-      register.resultString.toString, register.delimString.toString, register.numCharsRead)
-  }
+  override def toString(): String = "<DFA lookingFor='%s' />".format(lookingFor)
 }
 
 /**
@@ -159,8 +141,8 @@ trait DFADelimiter extends DFA {
  * to gather further information.
  */
 trait Rule {
-  def test(): Boolean // take this action?
-  def act(): Either[StateKind, Int] // modifies the registers and returns next state's index.
+  def test(r: Registers): Boolean // take this action?
+  def act(r: Registers): Either[StateKind, Int] // modifies the registers and returns next state's index.
 }
 
 /**
@@ -170,10 +152,10 @@ trait Rule {
  * Examples in other file.
  */
 object Rule {
-  def apply(testBody: => Boolean)(actionBody: => Either[StateKind, Int]) = {
+  def apply(testBody: Registers => Boolean)(actionBody: Registers => Either[StateKind, Int]) = {
     new Rule {
-      override def test = testBody
-      override def act = actionBody
+      override def test(r: Registers) = testBody(r)
+      override def act(r: Registers) = actionBody(r)
     }
   }
 }
