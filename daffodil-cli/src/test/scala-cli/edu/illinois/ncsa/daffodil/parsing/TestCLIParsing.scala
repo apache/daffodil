@@ -58,7 +58,7 @@ class TestCLIparsing {
   val output11 = Util.getExpectedString("output11.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
-//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  See comment in DFDL-952
 //  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
 //
 //    //var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
@@ -100,7 +100,7 @@ class TestCLIparsing {
     assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
   }
 
-//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  See comment in DFDL-952
 //  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
 //    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
 //    var shell = Util.start(cmd)
@@ -110,7 +110,7 @@ class TestCLIparsing {
 //    shell.expectClose()
 //  }
 
-//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  See comment in DFDL-952
 //  @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
 //    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
 //    var shell = Util.start(cmd)
@@ -440,7 +440,7 @@ class TestCLIparsing {
     shell.expectClose()
   }
 
-//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  See comment in DFDL-952
 //  @Test def test_1971_CLI_Parsing_traceMode01() {
 //    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
 //    val shell = Util.start(cmd)
@@ -451,7 +451,7 @@ class TestCLIparsing {
 //    assert(shell.getExitValue() == 0)
 //  }
 
-//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  See comment in DFDL-952
 //  @Test def test_1972_CLI_Parsing_traceMode02() {
 //    // DFDL-400: Again this was failing due to an error in one of the schemas.
 //    // it would appear that this test is only testing the --trace option.  So
