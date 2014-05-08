@@ -713,6 +713,45 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     case st: SimpleTypeDefBase => Some(st)
     case _ => None
   }
+  
+//  lazy val hasLeftPadding = this.textTrimKind match {
+//      case TextTrimKind.None => false
+//      case TextTrimKind.PadChar if !this.isSimpleType => false
+//      case TextTrimKind.PadChar => {
+//        val eBase = this
+//        eBase.primType match {
+//
+//          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+//            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
+//            PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+//            PrimType.NonNegativeInteger => {
+//            eBase.textNumberJustification match {
+//              case TextNumberJustification.Left => false
+//              case TextNumberJustification.Right | TextNumberJustification.Center => true
+//            }
+//          }
+//          case PrimType.String => {
+//            eBase.textStringJustification match {
+//              case TextStringJustification.Left => false
+//              case TextStringJustification.Right | TextStringJustification.Center => true
+//            }
+//          }
+//          case PrimType.DateTime | PrimType.Date | PrimType.Time => {
+//            eBase.textCalendarJustification match {
+//              case TextCalendarJustification.Left => false
+//              case TextCalendarJustification.Right | TextCalendarJustification.Center => true
+//            }
+//          }
+//          case PrimType.Boolean => {
+//            eBase.textBooleanJustification match {
+//              case TextBooleanJustification.Left => false
+//              case TextBooleanJustification.Right | TextBooleanJustification.Center => true
+//            }
+//          }
+//          case PrimType.HexBinary => false
+//        }
+//      }
+//    }
 
 }
 

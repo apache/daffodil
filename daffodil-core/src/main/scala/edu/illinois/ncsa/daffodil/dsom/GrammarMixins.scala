@@ -80,8 +80,8 @@ trait InitiatedTerminatedMixin
   lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
     if (terminator.isConstant) prims.StaticTerminator(this)
     else prims.DynamicTerminator(this))
-    
-   /**
+
+  /**
    * True if this term has initiator, terminator, or separator that are either statically
    * present, or there is an expression. (Such expressions are not allowed to evaluate to "" - you
    * can't turn off a delimiter by providing "" at runtime. Minimum length is 1 for these at runtime.
@@ -137,7 +137,7 @@ trait AlignedMixin { self: Term =>
   lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, leadingSkip > 0, prims.LeadingSkipRegion(this))
   lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, trailingSkip > 0, prims.TrailingSkipRegion(this))
   lazy val alignmentFill = Prod("alignmentFill", this, !isKnownPreAligned, prims.AlignmentFill(this))
-  
+
   /**
    * true if we can statically determine that the start of this
    * will be properly aligned by where the prior thing left us positioned.
@@ -147,34 +147,34 @@ trait AlignedMixin { self: Term =>
   // known alignment information based on the starting known alignment and known length
   // of prior things (recursively). I.e., it's a bit tricky.
   lazy val isKnownPreAligned = isScannable || (alignment == "1" && alignmentUnits == AlignmentUnits.Bits)
-  
-// TODO: deal with case of a bit field that is not a multiple of bytes wide
-// but has a terminator which is text and so has mandatory alignment.
-//  /**
-//   * Region of up to 7 bits to get us to a byte boundary for text.
-//   */
-//  lazy val initiatorAlign = Prod("initiatorAlign", this, !isInitiatorPreAligned, prims.TextAlign(mandatoryAlignment))
-//  lazy val terminatorAlign = Prod("terminatorAlign", this, !isTerminatorPreAligned, prims.TextAlign(mandatoryAlignment))
-//  lazy val separatorAlign = Prod("separatorAlign", this, !isSeparatorPreAligned, prims.TextAlign(mandatoryAlignment))
-//  
-//  lazy val isInitiatorPreAligned = {
-//    if (!hasInitiator) true
-//    else {
-//      alignmentCompatible(precedingTermAlignment, mandatoryAlignment)
-//    }
-//  }
-  
+
+  // TODO: deal with case of a bit field that is not a multiple of bytes wide
+  // but has a terminator which is text and so has mandatory alignment.
+  //  /**
+  //   * Region of up to 7 bits to get us to a byte boundary for text.
+  //   */
+  //  lazy val initiatorAlign = Prod("initiatorAlign", this, !isInitiatorPreAligned, prims.TextAlign(mandatoryAlignment))
+  //  lazy val terminatorAlign = Prod("terminatorAlign", this, !isTerminatorPreAligned, prims.TextAlign(mandatoryAlignment))
+  //  lazy val separatorAlign = Prod("separatorAlign", this, !isSeparatorPreAligned, prims.TextAlign(mandatoryAlignment))
+  //  
+  //  lazy val isInitiatorPreAligned = {
+  //    if (!hasInitiator) true
+  //    else {
+  //      alignmentCompatible(precedingTermAlignment, mandatoryAlignment)
+  //    }
+  //  }
+
   lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
-  
+
   /**
    * no alignment properties that would explicitly create
    * a need to align in a way that is not on a suitable boundary
    * for a character.
    */
   lazy val hasTextAlignment = {
-      this.knownEncodingAlignmentInBits == this.alignmentValueInBits 
+    this.knownEncodingAlignmentInBits == this.alignmentValueInBits
   }
-         
+
 }
 
 /////////////////////////////////////////////////////////////////
@@ -312,7 +312,8 @@ trait ElementBaseGrammarMixin
       // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
       case (LengthUnits.Characters, false) => prims.StringFixedLengthInVariableWidthCharacters(this, maxLengthLong)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
-    }})
+    }
+  })
 
   lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength, {
     val maxLengthLong = maxLength.longValueExact
@@ -320,7 +321,8 @@ trait ElementBaseGrammarMixin
       case LengthUnits.Bytes => prims.HexBinaryFixedLengthInBytes(this, maxLengthLong)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    }})
+    }
+  })
 
   lazy val variableLengthString = Prod("variableLengthString", this, !isFixedLength,
     (lengthUnits, knownEncodingIsFixedWidth) match {
@@ -823,9 +825,11 @@ trait ElementBaseGrammarMixin
       } ~ nilElementTerminator)
   }
 
+//  lazy val leftPadding =  Prod("leftPadding", this, hasLeftPadding, prims.LeftPadding(this))
+  
   lazy val scalarDefaultableSimpleContent = {
     val res = Prod("scalarDefaultableSimpleContent", this,
-      isSimpleType, nilLit | emptyDefaulted | parsedNil | parsedValue)
+      isSimpleType,  nilLit | emptyDefaulted | parsedNil | parsedValue)
     res
   }
 
@@ -1301,7 +1305,7 @@ trait SequenceGrammarMixin { self: Sequence =>
     if (hasSeparator) if (separatorPosition eq pos) true else false
     else false
   }
-  
+
   lazy val hasSeparator = separator.isKnownNonEmpty
 }
 

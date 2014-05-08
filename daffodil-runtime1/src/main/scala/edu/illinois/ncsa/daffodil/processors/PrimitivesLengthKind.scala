@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.Registers
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -574,6 +575,13 @@ abstract class StringDelimited(e: ElementBase)
     }
     res
   }
+  
+  val leftPaddingOpt: Option[TextPaddingParser] = {
+    pad match {
+      case None => None
+      case Some(padChar) => Some(new TextPaddingParser(padChar, e.knownEncodingStringBitLengthFunction))
+    }
+  }
 
   val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
 
@@ -584,18 +592,12 @@ abstract class StringDelimited(e: ElementBase)
     val result: Option[dfa.ParseResult] = esObj.escapeSchemeKind match {
       case EscapeSchemeKind.Block => {
         val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEnd.get))
-        val fieldDFA = CreateFieldDFA(blockEndMatcher, eec)
+        val fieldEscDFA = CreateFieldDFA(blockEndMatcher, eec)
+        val fieldDFA = CreateFieldDFA(delimsMatcher)
         val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad, blockStart.get,
-          blockEnd.get, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+          blockEnd.get, delims, fieldEscDFA, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
         val blockResult = parser.parse(reader, isDelimRequired)
-        blockResult match {
-          case None => {
-            val fieldDFA = CreateFieldDFA(delimsMatcher)
-            val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
-            parser.parse(reader, isDelimRequired)
-          }
-          case Some(_) => blockResult
-        }
+        blockResult
       }
       case EscapeSchemeKind.Character => {
         val fieldDFA = CreateFieldDFA(delimsMatcher, ec, eec)

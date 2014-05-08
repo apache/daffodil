@@ -3,8 +3,8 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 
-class TextParser(knownEncFunc: String => Int) extends Parser with HasLongestMatch {
-  
+class TextParser(knownEncFunc: String => Int) extends DelimitedParser {
+
   var delims: Seq[DFADelimiter] = Seq.empty
 
   def parse(input: DFDLCharReader, isDelimRequired: Boolean): Option[ParseResult] = {
@@ -14,15 +14,12 @@ class TextParser(knownEncFunc: String => Int) extends Parser with HasLongestMatc
     delims.foreach(d => {
       val reg = new Registers()
       reg.reset(input, 0)
-      d.run(0, reg) match {
-        case Right(stateNum) => // Shouldn't happen
-        case Left(status) => {
-          status.status match {
-            case StateKind.Failed => // Continue
-            case StateKind.Succeeded => successes += (d -> reg)
-            case _ => // Continue
-          }
-        }
+
+      val dfaStatus = d.run(0, reg)
+      dfaStatus.status match {
+        case StateKind.Failed => // Continue
+        case StateKind.Succeeded => successes += (d -> reg)
+        case _ => // Continue
       }
     })
 

@@ -45,15 +45,15 @@ trait DFA {
    * what follows us before we can continue. It's needed because of this
    * whole idea of 'pausing' and 'resuming' for back tracking.
    */
-  def run(initialState: Int, r: Registers, actionNum: Int = 0): Either[DFAStatus, Int] = {
+  def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
     var stateNum = initialState
     while (stateNum != DFA.FinalState) {
       states(stateNum).run(actionNum, r) match {
         case Right(nextStateNum) => stateNum = nextStateNum
-        case Left(status) => return Left(status)
+        case Left(status) => return status
       }
     }
-    Left(new DFAStatus(stateNum, 0, StateKind.Succeeded))
+    new DFAStatus(stateNum, 0, StateKind.Succeeded)
   }
 }
 
@@ -99,7 +99,7 @@ trait DFAField extends DFA {
    * some state has an action that transitions
    * to the final state.
    */
-  override def run(initialState: Int, r: Registers, actionNum: Int = 0): Either[DFAStatus, Int] = {
+  override def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
     var stateNum = initialState
     var resume: Boolean = actionNum > 0
     while (stateNum != DFA.EndOfData) {
@@ -111,10 +111,10 @@ trait DFAField extends DFA {
       }
       res match {
         case Right(num) => stateNum = num
-        case status => return status
+        case Left(status) => return status
       }
     }
-    Left(new DFAStatus(stateNum, 0, StateKind.EndOfData))
+    new DFAStatus(stateNum, 0, StateKind.EndOfData)
   }
 
 }

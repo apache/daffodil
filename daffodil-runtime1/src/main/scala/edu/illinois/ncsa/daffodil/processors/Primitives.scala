@@ -63,6 +63,7 @@ import edu.illinois.ncsa.daffodil.api._
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 
 /**
  * *
@@ -1575,4 +1576,54 @@ trait Padded { self: Terminal =>
   }
 
 }
+
+//case class LeftPadding(e: ElementBase)
+//  extends Terminal(e, true) with TextReader {
+//  def parser: DaffodilParser = new PrimParser(this, e) {
+//
+//    val charset = e.knownEncodingCharset
+//    val padChar = {
+//      e.primType match {
+//        case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+//          PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
+//          PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+//          PrimType.NonNegativeInteger => e.textNumberPadCharacter
+//        case PrimType.String => e.textStringPadCharacter
+//        case PrimType.DateTime | PrimType.Date | PrimType.Time => e.textCalendarPadCharacter
+//        case PrimType.Boolean => e.textBooleanPadCharacter
+//        case PrimType.HexBinary => null
+//      }
+//    }
+//    val leftPaddingParser: TextPaddingParser = {
+//      if (padChar != null)
+//        new TextPaddingParser(padChar.charAt(0), e.knownEncodingStringBitLengthFunction)
+//      else null
+//    }
+//
+//    override def toBriefXML(depthLimit: Int = -1): String = {
+//      "<LeftPadding name='" + e.name + "' padChar='" + padChar + "'/>"
+//    }
+//
+//    def parse(start: PState): PState = {
+//      if (padChar == null) return start
+//
+//      val reader = getReader(charset, start.bitPos, start)
+//      val res = leftPaddingParser.parse(reader)
+//      val finalState = res match {
+//        case None => start
+//        case Some(result) => {
+//          val field = result.field.getOrElse("")
+//          val numBits = result.numBits
+//          log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", e.name, field, numBits / 8, numBits)
+//          val endCharPos = if (start.charPos == -1) result.numCharsRead else start.charPos + result.numCharsRead
+//          val endBitPos = start.bitPos + numBits
+//          start.withPos(endBitPos, endCharPos, Some(result.next))
+//        }
+//      }
+//      finalState
+//    }
+//  }
+//
+//  def unparser = new DummyUnparser(e)
+//}
 

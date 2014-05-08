@@ -4,7 +4,25 @@ import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 
 trait Parser {
+  def parse(input: DFDLCharReader): Option[ParseResult]
+}
+
+trait DelimitedParser extends Parser with HasLongestMatch {
+  def parse(input: DFDLCharReader): Option[ParseResult] = parse(input, false)
   def parse(input: DFDLCharReader, isDelimiterRequired: Boolean): Option[ParseResult]
+}
+
+trait HasLongestMatch {
+  protected def longestMatch(matches: Seq[(DFADelimiter, Registers)]): Option[(DFADelimiter, Registers)] = {
+    if (matches.isEmpty) return None
+
+    val (minD, minR: Registers) = matches.minBy { case (d, r) => r.matchStartPos }
+    val theFirstLongestMatch = {
+      val minValue = matches.filter { case (d: DFADelimiter, r: Registers) => r.matchStartPos == minR.matchStartPos }
+      minValue.maxBy { _._2.delimString.length }
+    }
+    Some(theFirstLongestMatch)
+  }
 }
 
 class ParseResult(val field: Option[String],
