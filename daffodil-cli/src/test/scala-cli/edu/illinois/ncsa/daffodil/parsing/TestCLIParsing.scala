@@ -58,18 +58,19 @@ class TestCLIparsing {
   val output11 = Util.getExpectedString("output11.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
-  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
-
-    //var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
-    var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -D\"{http://example.com}var1=99\" -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml\n"
-
-    val shell = Util.start(cmd)
-
-    shell.expect(output11)
-
-    shell.send("exit\n")
-    shell.expectClose()
-  }
+//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
+//
+//    //var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
+//    var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -D\"{http://example.com}var1=99\" -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml\n"
+//
+//    val shell = Util.start(cmd)
+//
+//    shell.expect(output11)
+//
+//    shell.send("exit\n")
+//    shell.expectClose()
+//  }
 
   @Test def test_2360_CLI_Parsing_SimpleParse_stdOut_extVars2() {
 
@@ -99,23 +100,25 @@ class TestCLIparsing {
     assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
   }
 
-  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
-    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
-    var shell = Util.start(cmd)
+//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
+//    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
+//    var shell = Util.start(cmd)
+//
+//    shell.expect(output9)
+//    shell.send("exit\n")
+//    shell.expectClose()
+//  }
 
-    shell.expect(output9)
-    shell.send("exit\n")
-    shell.expectClose()
-  }
-
-  @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
-    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
-    var shell = Util.start(cmd)
-
-    shell.expect(output10)
-    shell.send("exit\n")
-    shell.expectClose()
-  }
+//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
+//    var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+//    var shell = Util.start(cmd)
+//
+//    shell.expect(output10)
+//    shell.send("exit\n")
+//    shell.expectClose()
+//  }
 
   @Test def test_1587_CLI_Parsing_MultifileSchema_methodImportSameDir2() {
     var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_16.dfdl.xsd\n"
@@ -437,32 +440,34 @@ class TestCLIparsing {
     shell.expectClose()
   }
 
-  @Test def test_1971_CLI_Parsing_traceMode01() {
-    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
-    val shell = Util.start(cmd)
-    shell.expect("parser: <ElementEnd name='rabbitHole'/>")
+//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  @Test def test_1971_CLI_Parsing_traceMode01() {
+//    val cmd = "echo test| daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+//    val shell = Util.start(cmd)
+//    shell.expect("parser: <ElementEnd name='rabbitHole'/>")
+//
+//    shell.send("exit\n")
+//    shell.expectClose()
+//    assert(shell.getExitValue() == 0)
+//  }
 
-    shell.send("exit\n")
-    shell.expectClose()
-    assert(shell.getExitValue() == 0)
-  }
-
-  @Test def test_1972_CLI_Parsing_traceMode02() {
-    // DFDL-400: Again this was failing due to an error in one of the schemas.
-    // it would appear that this test is only testing the --trace option.  So
-    // it should not matter what schema we give it.  Using schemas that work.
-    //
-    //    val cmd = "echo random,data,should,work| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
-    //    val shell = Util.start(cmd)
-    //    shell.expect("parser: <ElementEnd name='base'/>")
-    val cmd = "echo test| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
-    val shell = Util.start(cmd)
-    shell.expect("parser: <ElementEnd name='rabbitHole'/>")
-
-    shell.send("exit\n")
-    shell.expectClose()
-    assert(shell.getExitValue() == 0)
-  }
+//  Moved to debug.  See comment in TestCLIParsingDebug.scala
+//  @Test def test_1972_CLI_Parsing_traceMode02() {
+//    // DFDL-400: Again this was failing due to an error in one of the schemas.
+//    // it would appear that this test is only testing the --trace option.  So
+//    // it should not matter what schema we give it.  Using schemas that work.
+//    //
+//    //    val cmd = "echo random,data,should,work| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_08.dfdl.xsd --root base -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_A_08.dfdl.xsd\n"
+//    //    val shell = Util.start(cmd)
+//    //    shell.expect("parser: <ElementEnd name='base'/>")
+//    val cmd = "echo test| daffodil-cli/target/start --trace parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
+//    val shell = Util.start(cmd)
+//    shell.expect("parser: <ElementEnd name='rabbitHole'/>")
+//
+//    shell.send("exit\n")
+//    shell.expectClose()
+//    assert(shell.getExitValue() == 0)
+//  }
 
   @Test def test_1973_CLI_Parsing_traceMode03() {
     val cmd = "echo 0,1,2,3,,,,| ./daffodil-cli/target/start -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
@@ -486,7 +491,7 @@ class TestCLIparsing {
   @Test def test_DFDL_714() {
     val output = Util.getExpectedString("output_DFDL-714.txt")
 
-    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element_dfdl.xsd daffodil-cli/src/test/resources/edu/issinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
+    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
     val shell = Util.start(cmd)
     shell.expect(output)
 
