@@ -1,0 +1,3 @@
+<tns:elem xmlns:tns=\"baseSchema\">
+  <tns:content xmlns:tns=\"complexSchema\">Hello World </tns:content>
+</tns:elem>

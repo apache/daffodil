@@ -55,7 +55,7 @@ class PropertyGenerator(arg: Node) {
   val dfdlSchema = arg
 
   val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType" , 
-      "SeparatorSuppressionPolicy") // Do these by hand.
+      "SeparatorSuppressionPolicy", "dafint:daffodilAG") // Do these by hand.
   val excludedAttributes = List("TextNumberBase", 
       "SeparatorSuppressionPolicy") // Do these by hand.
 
@@ -259,7 +259,7 @@ class PropertyGenerator(arg: Node) {
     if (excludeType(name)) return ""
     val baseNames = (ct \\ "extension" \ "@base").map { base => stripDFDLPrefix(base.text) }.filterNot { _.startsWith("xsd:") }
     val subAgs = ct \\ "attributeGroup"
-    val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None)
+    val subRefAgs = subAgs.filter(ag => attr(ag, "ref") != None && !(excludeType(attr(ag, "ref").get)))
     // val subNames = subRefAgs.map(ag => stripSuffix("AG", stripDFDLPrefix(attr(ag, "ref"))))
     val subNames = subRefAgs.map(ag => stripDFDLPrefix(attr(ag, "ref").get)) // leave AG suffix on.
 

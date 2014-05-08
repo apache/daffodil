@@ -11,12 +11,15 @@
   * Schema Version 1.0
   ******************************************************************
 -->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dafint="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
-  targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd ">
 
+  <xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
+    schemaLocation="dafint.xsd"/>
   <xsd:include schemaLocation="DFDL_part2_attributes.xsd" />
 
 
@@ -31,7 +34,8 @@
       <xsd:element maxOccurs="unbounded" minOccurs="0"
         ref="dfdl:format" />
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/>
   </xsd:complexType>
 
   <xsd:element name="format" type="dfdl:DFDLFormat" />
@@ -51,7 +55,8 @@
     <xsd:sequence>
       <xsd:element ref="dfdl:escapeScheme" />
     </xsd:sequence>
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/>
   </xsd:complexType>
 
   <xsd:element name="escapeScheme" type="dfdl:DFDLEscapeScheme" />
@@ -74,7 +79,8 @@
   <xsd:complexType name="PropertyType">
     <xsd:simpleContent>
       <xsd:extension base="xsd:string">
-        <xsd:attribute name="name" type="dfdl:PropertyNameType" />
+        <xsd:attribute name="name" type="dfdl:PropertyNameType" use='required'/>
+        <xsd:attributeGroup ref="dafint:daffodilAG"/>
       </xsd:extension>
     </xsd:simpleContent>
   </xsd:complexType>
@@ -86,12 +92,13 @@
   <xsd:complexType name="DFDLVariableType">
     <xsd:simpleContent>
       <xsd:extension base="dfdl:DFDLStringLiteral_Or_DFDLExpression">
+        <xsd:attributeGroup ref="dafint:daffodilAG"/>
       </xsd:extension>
     </xsd:simpleContent>
   </xsd:complexType>
 
   <xsd:attributeGroup name="DefineVariableAG">
-    <xsd:attribute name="name" type="xsd:NCName" />
+    <xsd:attribute name="name" type="xsd:NCName" use='required'/>
     <xsd:attribute name="predefined" type="xsd:boolean" />
     <xsd:attribute name="type" type="xsd:QName" />
     <xsd:attribute name="external" type="xsd:boolean" />
@@ -100,13 +107,13 @@
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="SetVariableAG">
-    <xsd:attribute name="ref" type="xsd:QName" />
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
     <xsd:attribute name="value"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   </xsd:attributeGroup>
 
   <xsd:attributeGroup name="NewVariableInstanceAG">
-    <xsd:attribute name="ref" type="xsd:QName" />
+    <xsd:attribute name="ref" type="xsd:QName" use='required'/>
     <xsd:attribute name="defaultValue"
       type="dfdl:DFDLStringLiteral_Or_DFDLExpression" />
   </xsd:attributeGroup>
@@ -157,6 +164,7 @@
     <xsd:simpleContent>
       <xsd:extension base="dfdl:DFDLExpressionOrPatternOrNothing"> <!-- changed to accept regex -->
         <xsd:attributeGroup ref="dfdl:TestConditionAG" />
+        <xsd:attributeGroup ref="dafint:daffodilAG" />
       </xsd:extension>
     </xsd:simpleContent>
   </xsd:complexType>
@@ -198,6 +206,7 @@
       <xsd:element maxOccurs="unbounded" minOccurs="0"
         ref="dfdl:property" />
     </xsd:sequence>
+    <xsd:attributeGroup ref="dafint:daffodilAG"/> 
   </xsd:complexType>
 
   <xsd:complexType abstract="true" name="DFDLBaseType">

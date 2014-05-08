@@ -7,8 +7,7 @@
     -->
   <uri name="http://www.ibm.com/xmlns/dfdl/testData"
     uri="xsd/tdml.xsd" />
-  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/"
-    uri="xsd/DFDL_model_all_parts.xsd" />
+  <uri name="http://www.ogf.org/dfdl/dfdl-1.0/" uri="xsd/DFDL_part3_model.xsd" />
  <!-- <uri name="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset"
     uri="xsd/DFDLSubsetOfXMLSchema_v1_036.xsd" /> -->
   <uri name="http://www.w3.org/2001/XMLSchema"

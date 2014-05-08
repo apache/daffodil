@@ -483,4 +483,14 @@ class TestCLIparsing {
     shell.expectClose()
   }
 
+  @Test def test_DFDL_714() {
+    val output = Util.getExpectedString("output_DFDL-714.txt")
+
+    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element_dfdl.xsd daffodil-cli/src/test/resources/edu/issinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(output)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
 }

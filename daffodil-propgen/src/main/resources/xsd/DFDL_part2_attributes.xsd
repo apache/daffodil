@@ -13,10 +13,10 @@
   * Schema Version 1.0
   ******************************************************************
 -->
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<xsd:schema targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   attributeFormDefault="unqualified" elementFormDefault="qualified"
-  targetNamespace="http://www.ogf.org/dfdl/dfdl-1.0/"
   xsi:schemaLocation="http://www.w3.org/2001/XMLSchema XMLSchema.xsd ">
 
   <xsd:include schemaLocation="DFDL_part1_simpletypes.xsd" />
@@ -363,13 +363,14 @@
   <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
   <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
   <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
+  
 
   <xsd:attributeGroup name="SeparatorAG">
     <xsd:attribute name="separator"
       type="dfdl:ListOfDFDLStringLiteral_Or_DFDLExpression" />
     <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
     <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
-    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />      
+    <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
   </xsd:attributeGroup>
 
   <xsd:attribute name="initiatedContent" type="dfdl:YesNoEnum" />
@@ -566,6 +567,8 @@
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
     <xsd:attribute form="qualified" name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
+    <xsd:attribute form="qualified" name="encodingErrorPolicy"
+      type="dfdl:EncodingErrorPolicyEnum" />
     <xsd:attribute form="qualified" name="utf16Width"
       type="dfdl:UTF16WidthEnum" />
     <xsd:attribute form="qualified" name="ignoreCase"

@@ -50,8 +50,8 @@ import scala.xml.Null
 import scala.xml.Attribute
 import scala.xml.Text
 import scala.language.reflectiveCalls
-
-import scala.language.reflectiveCalls
+import java.net.URI
+import java.net.URL
 
 object Implicits {
   /**
@@ -119,7 +119,7 @@ class TestXMLCatalogAndValidate {
     val testSuite = <data xmlns={ example }>abc</data>
 
     val testCatalog = <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-                        <uri name={ example } uri={ tmpSchemaFileName.getAbsolutePath }/>
+                        <uri name={ example } uri={ tmpSchemaFileName.toURI().toString() }/>
                       </catalog>
 
     try {
@@ -186,8 +186,8 @@ class TestXMLCatalogAndValidate {
     val testSuite = <data xmlns={ ex1 }>abc</data>
 
     val testCatalog = <catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-                        <uri name={ ex1 } uri={ tmpSchema1FileName.getAbsolutePath() }/>
-                        <uri name={ ex2 } uri={ tmpSchema2FileName.getAbsolutePath() }/>
+                        <uri name={ ex1 } uri={ tmpSchema1FileName.toURI().toString() }/>
+                        <uri name={ ex2 } uri={ tmpSchema2FileName.toURI().toString() }/>
                       </catalog>
 
     try {

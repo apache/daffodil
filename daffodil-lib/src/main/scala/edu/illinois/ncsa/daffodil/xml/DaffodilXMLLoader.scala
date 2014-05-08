@@ -70,6 +70,7 @@ import java.io.InputStream
 import java.io.BufferedInputStream
 import org.w3c.dom.ls.LSResourceResolver
 import java.io.Reader
+import java.io.FileInputStream
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -127,9 +128,8 @@ class DFDLCatalogResolver
   }
 
   lazy val delegate = {
-    val delegate = new Catalog(cm) {
-      // catalogManager.debug.setDebug(100) // uncomment for even more debug output
-    }
+    val delegate = new Catalog(cm)
+//    delegate.getCatalogManager().debug.setDebug(100) // uncomment for even more debug output
     delegate.setupReaders()
     delegate.loadSystemCatalogs()
     delegate
@@ -166,8 +166,31 @@ class DFDLCatalogResolver
     val prior = alreadyResolvingXSD
     val res = try {
       alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
-      val resolvedId = delegate.resolveURI(ns)
-      log(LogLevel.Debug, "resolved to: %s", resolvedId)
+      
+      // When a schema imports another schema that has the same target namespace, resolving using the namespace
+      // will not give the file being imported, but the file that is specified in the catalog for that namespace.
+      // To solve this problem, we are using the ExpandedSystemId, if it is set,
+      // because it will contain the full path of the file being imported.
+      val resolvedId = {
+        if (ri.getExpandedSystemId() != null) {
+          try {
+            val sysId = ri.getExpandedSystemId()
+            if (new URL(sysId).openStream() != null) {
+            	ri.getExpandedSystemId()
+            } else {
+            	delegate.resolveURI(ns)
+            }
+          } catch {
+            case e: Exception => {
+              delegate.resolveURI(ns)
+            }
+          }
+        } else {
+          delegate.resolveURI(ns)
+        }
+      }
+      
+      log(LogLevel.Debug, "resolved ns %s to: %s", ns, resolvedId)
       if (resolvedId == null) return null
       val res = new XMLInputSource(ri.getPublicId(),
         resolvedId,
@@ -183,16 +206,56 @@ class DFDLCatalogResolver
 
   def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
     log(LogLevel.Debug, "resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId)
-    val resolvedId = delegate.resolveURI(nsURI)
+
+    val resolvedUri = delegate.resolveURI(nsURI)
+    val resolvedSystem = delegate.resolveSystem(systemId)
+
+    // An Include in a schema with a target namespace should resolve to the systemId and ignore the nsURI
+    // because the nsURI will reolve to the including schema file.
+    // This will cause the including schema to be repeatedly parsed resulting in a stack overflow.
+
+    val resolvedId = {
+      if (resolvedSystem != null && resolvedSystem != resolvedUri) {
+        resolvedSystem
+      } else if (resolvedUri != null && ((systemId == null) || (systemId != null && resolvedUri.endsWith(systemId)))) {
+        resolvedUri
+      } else
+        null // We were unable to resolve the file based on the URI or systemID, so we will return null. 
+    }
+
     log(LogLevel.Debug, "resolved to: %s", resolvedId)
 
     val result: LSInput = (resolvedId, systemId) match {
       case (null, null) => Assert.invariantFailed("resolvedId and systemId were null.")
       case (null, sysId) => {
+
+        // Attempt to resolve using the classpath
         val resourceAsStream: InputStream = this.getClass().getClassLoader().getResourceAsStream(sysId)
-        val input = Input(publicId, sysId, resourceAsStream)
-        input
+
+        if (resourceAsStream != null) {
+          val input = Input(publicId, sysId, resourceAsStream)
+          val v = this.getClass().getClassLoader().getResource(sysId).toString().replace(sysId, "")
+          input.setBaseURI(v)
+          input
+        } else if (baseURI != null) {
+          // Try resolving relative to the including schema file
+          val absURI = (new URL(new URI(baseURI).toURL, sysId)).toURI
+          val absFile = new File(absURI)
+          if (absFile.exists()) {
+            val input = new Input(publicId, sysId, new BufferedInputStream(new FileInputStream(absFile)))
+            input.setBaseURI(absURI.toString().replace(sysId, ""))
+            input
+          } else {
+            // File does not exist.
+            null // null means we wern't able to resolve
+          }
+        }
+        else {
+          null // We wern't able to resolve
+        }
       }
+
+      // Resolved using the schema catalog
       case (resolved, _) => {
         val input = new DOMInputImpl()
         input.setBaseURI(baseURI)
@@ -249,9 +312,11 @@ object Input {
 class Input(var pubId: String, var sysId: String, var inputStream: BufferedInputStream)
   extends LSInput {
 
+  var myBaseURI: String = null
+    
   def getPublicId = pubId
   def setPublicId(publicId: String) = pubId = publicId
-  def getBaseURI = null
+  def getBaseURI = myBaseURI
   def getByteStream = null
   def getCertifiedText = false
   def getCharacterStream = null
@@ -264,7 +329,7 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
       contents
     }
   }
-  def setBaseURI(baseURI: String) = {}
+  def setBaseURI(baseURI: String) = myBaseURI = baseURI
   def setByteStream(byteStream: InputStream) = {}
   def setCertifiedText(certifiedText: Boolean) = {}
   def setCharacterStream(characterStream: Reader) = {}
@@ -439,7 +504,7 @@ trait SchemaAwareLoaderMixin {
     val parser = f.newSAXParser()
     val xr = parser.getXMLReader()
     xr.setContentHandler(this)
-    xr.setEntityResolver(resolver) // older API?? is this needed? Doesn't seem to hurt.
+    //xr.setEntityResolver(resolver) // older API?? is this needed? Doesn't seem to hurt.
     xr.setProperty(
       "http://apache.org/xml/properties/internal/entity-resolver",
       resolver)
@@ -536,6 +601,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   override def loadXML(source: InputSource, p: SAXParser): Node = {
     // System.err.println("loadXML")
     val xr = p.getXMLReader()
+//    xr.setFeature("http://apache.org/xml/features/namespace-growth", true)
     xr.setErrorHandler(errorHandler)
     // parse file
     scopeStack.push(TopScope)
@@ -576,10 +642,8 @@ case class DFDLSchemaValidationError(msg: String) extends DFDLSchemaValidationEx
  */
 object DFDLSchemaErrorHandler extends org.xml.sax.ErrorHandler {
 
-  def warning(exception: SAXParseException) = {
-    val msg = "DFDL Schema Validation Warning due to %s".format(exception)
-    throw new DFDLSchemaValidationWarning(msg)
-  }
+  // We are escalating all warnings from the schema validation to an error
+  def warning(exception: SAXParseException) = error(exception)
 
   def error(exception: SAXParseException) = {
     val msg = "DFDL Schema Validation Error due to %s".format(exception)
