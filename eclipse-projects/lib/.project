@@ -41,5 +41,10 @@
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/daffodil-lib/src_managed</locationURI>
 		</link>
+		<link>
+			<name>resource_managed</name>
+			<type>2</type>
+			<locationURI>DAFFODIL_ROOT/daffodil-lib/resource_managed</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

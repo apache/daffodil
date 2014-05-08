@@ -28,7 +28,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
 
-  lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings)
+  lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings ++ schemasgenSettings ++ managedgenSettings)
                              .configs(DebugTest)
                              .configs(NewTest)   
 
@@ -123,6 +123,10 @@ object DaffodilBuild extends Build {
     (cliTask <<= cliTask.dependsOn(stageTask))
   )
 
+  val managedGenerator = TaskKey[Unit]("gen-mangaged", "Generate managed sources and resources")
+  lazy val managedgenSettings = managedGenerator <<= Seq(propertyGenerator in Compile, schemasGenerator in Compile).dependOn
+
+
   val propertyGenerator = TaskKey[Seq[File]]("gen-props", "Generate properties scala source")
   lazy val propgenSettings = Seq(
     sourceGenerators in Compile <+= (propertyGenerator in Compile),
@@ -158,8 +162,38 @@ object DaffodilBuild extends Build {
     files
   }
 
-  // modify the managed source directories so that any generated code can be more easily included in IDE's
+  val schemasGenerator = TaskKey[Seq[File]]("gen-schemas", "Generated DFDL schemas")
+  lazy val schemasgenSettings = Seq(
+    resourceGenerators in Compile <+= (schemasGenerator in Compile),
+    schemasGenerator in Compile <<=
+      (resourceManaged in Compile, resources in Compile in propgen, streams in propgen) map {
+        (outdir, inRSrc, stream) => {
+          // FileFunction.cached will only run the schema generator if any
+          // resources in propgen subproject changed
+          val filesToWatch = inRSrc.toSet
+          val cachedFun = FileFunction.cached(stream.cacheDirectory / "schemasgen", FilesInfo.lastModified, FilesInfo.exists) {
+            (in: Set[File]) => copyResources(outdir, inRSrc.toSet, stream.log)
+          }
+          cachedFun(filesToWatch).toSeq
+        }
+      }
+  )
+
+  def copyResources(outdir: File, inRSrc: Set[File], log: Logger): Set[File] = {
+    val dfdlSchemas = inRSrc.filter { f => f.getName.matches("DFDL_part.*\\.xsd") }
+    val managed_resources = dfdlSchemas.map { in =>
+      val out = outdir / "xsd" / in.getName
+      IO.copyFile(in, out)
+      log.info("Generated %s".format(out))
+      out
+    }
+    managed_resources
+  }
+
+  // modify the managed source and resource directories so that any generated code can be more easily included in IDE's
   s ++= Seq(sourceManaged <<= baseDirectory(_ / "src_managed"))
+
+  s ++= Seq(resourceManaged <<= baseDirectory(_ / "resource_managed"))
 
   // creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
   lazy val DebugTest = config("debug") extend(Runtime)
