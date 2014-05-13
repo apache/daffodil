@@ -202,6 +202,10 @@ object DaffodilBuild extends Build {
         assert(branch.length == 1)
         val VersionBranchRegex = """^(\d+\.\d+\.\d+)$""".r
         branch(0) match {
+          case "HEAD" => {
+            // not on the tip of a branch
+            "0.0.0-SNAPSHOT"
+          }
           case VersionBranchRegex(versionBranch) => {
             // we are developing on a version branch, create a snapshot
             versionBranch + "-SNAPSHOT"
@@ -211,13 +215,13 @@ object DaffodilBuild extends Build {
             // out the tracking branch
             val trackingBranch = exec("git for-each-ref --format=%(upstream:short) refs/heads/" + branch(0))
             assert(trackingBranch.length == 1)
-            val TrackingBranchRegex = """^[^/]+/(.+)$""".r
+            val TrackingBranchRegex = """^[^/]+/(\d+\.\d+\.\d+)$""".r
             trackingBranch(0) match {
               case TrackingBranchRegex(trackingVersion) => {
                 trackingVersion + "-SNAPSHOT"
               }
               case _ => {
-                // no idea what the version is, set it to a fefault
+                // no idea what the version is, set it to a default
                 "0.0.0-SNAPSHOT"
               }
             }

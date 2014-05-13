@@ -126,12 +126,12 @@ object DaffodilBuild extends Build {
   lazy val propgenSettings = Seq(
     sourceGenerators in Compile <+= (propertyGenerator in Compile),
     propertyGenerator in Compile <<=
-      (cacheDirectory, sourceManaged in Compile, dependencyClasspath in Runtime in propgen, sources in Compile in propgen, resources in Compile in propgen, streams in propgen) map {
-        (cache, outdir, cp, inSrc, inRSrc, stream) => {
+      (sourceManaged in Compile, dependencyClasspath in Runtime in propgen, sources in Compile in propgen, resources in Compile in propgen, streams in propgen) map {
+        (outdir, cp, inSrc, inRSrc, stream) => {
           // FileFunction.cached will only run the property generator if any
           // source or resources in propgen subproject changed
           val filesToWatch = (inSrc ++ inRSrc).toSet
-          val cachedFun = FileFunction.cached(cache / "propgen", FilesInfo.lastModified, FilesInfo.exists) {
+          val cachedFun = FileFunction.cached(stream.cacheDirectory / "propgen", FilesInfo.lastModified, FilesInfo.exists) {
             (in: Set[File]) => runPropertyGenerator(outdir, cp.files, stream.log)
           }
           cachedFun(filesToWatch).toSeq
@@ -142,7 +142,8 @@ object DaffodilBuild extends Build {
   def runPropertyGenerator(outdir: File, cp: Seq[File], log: Logger): Set[File] = {
     val mainClass = "edu.illinois.ncsa.daffodil.propGen.PropertyGenerator"
     val out = new java.io.ByteArrayOutputStream()
-    val ret = new Fork.ForkScala(mainClass).fork(None, Nil, cp, Seq(outdir.toString), None, false, CustomOutput(out)).exitValue()
+    val forkOpts = new ForkOptions(None, Some(CustomOutput(out)), cp, None, Nil, false)
+    val ret = new Fork("java", Some(mainClass)).fork(forkOpts, Seq(outdir.toString)).exitValue()
     if (ret != 0) {
       sys.error("Failed to generate code")
     }
@@ -301,7 +302,7 @@ object DaffodilBuild extends Build {
                 trackingVersion + "-SNAPSHOT"
               }
               case _ => {
-                // no idea what the version is, set it to a fefault
+                // no idea what the version is, set it to a default
                 "0.0.0-SNAPSHOT"
               }
             }
