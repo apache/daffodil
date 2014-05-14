@@ -3,6 +3,7 @@ import Keys._
 import de.johoop.jacoco4sbt._
 import JacocoPlugin._
 import com.typesafe.sbt.SbtStartScript
+import scala.language.existentials
 
 object DaffodilBuild extends Build {
 
@@ -241,7 +242,7 @@ object DaffodilBuild extends Build {
 
   // test report plugin configuration
   lazy val testReportSettings = testListeners <+= (crossTarget) map {
-    ct => new com.dadrox.sbt.test.reports.Xml(ct.getPath)
+    ct => new eu.henkelmann.sbt.JUnitXmlTestsListener(ct.getPath)
   }
   s ++= Seq(testReportSettings)
 
