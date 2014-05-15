@@ -441,7 +441,7 @@ abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
-  val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
+  val dp = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
 
   private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
     string.startsWith(possiblePrefix)
@@ -1177,6 +1177,8 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
+  lazy val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+
   def parser: DaffodilParser = new PrimParser(this, decl) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
@@ -1201,8 +1203,6 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
           log(LogLevel.Debug, "Retrieving reader")
 
           val reader = getReader(charset, start.bitPos, lastState)
-
-          val d = new DelimParser(decl.knownEncodingStringBitLengthFunction)
 
           val result = d.parseInputPatterned(testPattern, reader)
 
@@ -1236,6 +1236,8 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
+  lazy val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+
   def parser: DaffodilParser = new PrimParser(this, decl) {
 
     override def toBriefXML(depthLimit: Int = -1) = {
@@ -1260,8 +1262,6 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
           log(LogLevel.Debug, "Retrieving reader")
 
           val reader = getReader(charset, start.bitPos, lastState)
-
-          val d = new DelimParser(decl.knownEncodingStringBitLengthFunction)
 
           val result = d.parseInputPatterned(testPattern, reader)
 
@@ -1301,8 +1301,8 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
     foundProp: Found,
     msg: String,
     discrim: Boolean, // are we a discriminator or not.
-    assertKindName: String) = 
-      this(decl, foundProp.value, foundProp.location.xml, decl, msg, discrim, assertKindName)
+    assertKindName: String) =
+    this(decl, foundProp.value, foundProp.location.xml, decl, msg, discrim, assertKindName)
 
   override val baseName = assertKindName
   override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
@@ -1358,7 +1358,7 @@ case class DiscriminatorBooleanPrim(
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE } />, decl, 
+    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>, decl,
     // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
@@ -1368,7 +1368,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluatorBase(decl) {
 
   val baseName = "SetVariable[" + stmt.localName + "]"
-  
+
   override lazy val exprText = stmt.value
   override lazy val exprXMLForNamespace = stmt.xml
   override lazy val exprComponent = stmt
@@ -1401,9 +1401,9 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def baseName: String
   def exprXMLForNamespace: Node
-  def exprComponent : SchemaComponent
+  def exprComponent: SchemaComponent
   def expandedTypeName: String
-  def exprText : String
+  def exprText: String
 
   val expressionTypeSymbol = {
     // println(expandedTypeName)
@@ -1425,7 +1425,7 @@ case class InputValueCalc(e: ElementBase)
   override lazy val exprText = exprProp.value
   override lazy val exprXMLForNamespace = exprProp.location.xml
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
-  
+
   lazy val pt = e.primType
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
@@ -1559,10 +1559,20 @@ trait Padded { self: Terminal =>
     case "" => None
     case x => Some(x)
   }
-  
+
   def removeRightPadding(str: String): String = str.reverse.dropWhile(c => c == padChar.charAt(0)).reverse
   def removeLeftPadding(str: String): String = str.dropWhile(c => c == padChar.charAt(0))
   def removePadding(str: String): String = removeRightPadding(removeLeftPadding(str))
+
+  def trimByJustification(str: String): String = {
+    val result = justificationTrim match {
+      case TextJustificationType.None => str
+      case TextJustificationType.Right => removeLeftPadding(str)
+      case TextJustificationType.Left => removeRightPadding(str)
+      case TextJustificationType.Center => removePadding(str)
+    }
+    result
+  }
 
 }
 

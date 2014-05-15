@@ -80,15 +80,6 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   val maxDelimLength = computeMaxDelimiterLength(allDelims)
 
   // here we define the parsers so that they are pre-compiled/generated
-  val delimParser = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-  val (pInputDelimiterParser, pIsLocalDelimParser, remoteDelimRegex) =
-    delimParser.generateInputDelimiterParsers(staticTextsCooked.toSet, remoteDelims)
-
-  def parseMethod(input: Reader[Char]): DelimParseResult = {
-    val result: DelimParseResult = delimParser.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
-    result
-  }
-
   val delims = CreateDelimiterDFA(allDelims.toSeq)
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
@@ -367,7 +358,6 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
     case (delimValue, elemName, elemPath) => { (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemName, elemPath) }
   }
   lazy val staticDelimsCooked = staticDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
-  lazy val (staticDelimsParsers, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
 
   val constantLocalDelimsCooked: Option[List[String]] = delimExpr.isConstant match {
     case false => None
@@ -382,13 +372,6 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
     allDelims
   }
   val maxDelimLengthStatic = computeMaxDelimiterLength(allStaticDelims)
-
-  def parseMethod(pInputDelimiterParser: dp.Parser[String],
-    pIsLocalDelimParser: dp.Parser[String],
-    input: Reader[Char]): DelimParseResult = {
-    val result: DelimParseResult = dp.parseInputDelimiter(pInputDelimiterParser, pIsLocalDelimParser, input)
-    result
-  }
 
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
@@ -428,7 +411,6 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         }
         val dynamicDelimsCooked = dynamicDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
         val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-        val (dynamicDelimsParsers, dynamicDelimsRegex) = dp.generateDelimiter(dynamicDelimsCooked.toSet)
 
         val localDelimsCookedWithPosition = {
           if (constantLocalDelimsCooked.isDefined) { constantLocalDelimsCooked.get }
@@ -441,8 +423,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         }
 
         val localDelimsCooked = localDelimsCookedWithPosition
-        val (localDelimsParser, localDelimsRegex) = dp.generateDelimiter(localDelimsCooked.toSet)
-
+  
         val remoteDelimsCooked = dynamicDelimsCooked.diff(localDelimsCooked)
 
         def isRemoteText(originalRepresentation: String): Boolean =
@@ -633,6 +614,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
   // a failure to read nBytes is a failure period.
 
   lazy val unparserDelim = Assert.notYetImplemented()
+  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
 
   override def parser = new PrimParser(this, e) {
 
@@ -668,13 +650,13 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
         val decoder = charset.newDecoder()
-        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
+        
         try {
           val reader = in.getCharReader(charset, postEvalState.bitPos)
           val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
           val cb = decoder.decode(ByteBuffer.wrap(bytes))
           val result = cb.toString
-          val trimmedResult = d.removePadding(result, justificationTrim, padChar)
+          val trimmedResult = trimByJustification(result)
           val endBitPos = postEvalState.bitPos + (nBytes.toInt * 8)
           val endCharPos = if (postEvalState.charPos == -1) result.length() else postEvalState.charPos + result.length()
 
@@ -735,6 +717,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
   // TODO: LiteralNilExplicitLengthInChars really is a variation of LiteralNilPattern
   lazy val unparserDelim = Assert.notYetImplemented()
+  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
 
   override def parser = new PrimParser(this, e) {
 
@@ -780,8 +763,6 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-
         val result = d.parseInputPatterned(pattern, reader)
 
         result match {
@@ -789,7 +770,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
             return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
           case s: DelimParseSuccess => {
             // We have a field, is it empty?
-            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val field = trimByJustification(s.field)
             val isFieldEmpty = field.length() == 0
 
             if (isFieldEmpty && isEmptyAllowed) {
@@ -838,6 +819,8 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
+  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  
   override def parser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {
@@ -871,8 +854,6 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-
         val result = d.parseInputPatterned(pattern, reader)
 
         result match {
@@ -880,7 +861,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
             return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
           case s: DelimParseSuccess => {
             // We have a field, is it empty?
-            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val field = trimByJustification(s.field)
             val isFieldEmpty = field.length() == 0
 
             if (isFieldEmpty && isEmptyAllowed) {
@@ -929,6 +910,7 @@ case class LiteralNilPattern(e: ElementBase)
   with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
+  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
 
   override def parser = new PrimParser(this, e) {
 
@@ -960,8 +942,6 @@ case class LiteralNilPattern(e: ElementBase)
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
-        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-
         val result = d.parseInputPatterned(pattern, reader)
 
         result match {
@@ -969,7 +949,7 @@ case class LiteralNilPattern(e: ElementBase)
             return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
           case s: DelimParseSuccess => {
             // We have a field, is it empty?
-            val field = d.removePadding(s.field, justificationTrim, padChar)
+            val field = trimByJustification(s.field)
             val isFieldEmpty = field.length() == 0
 
             if (isFieldEmpty && isEmptyAllowed) {

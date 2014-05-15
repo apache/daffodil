@@ -142,7 +142,7 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
     val in = start.inStream
 
     val reader = in.getCharReader(charset, start.bitPos)
-    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
+    val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
     val result = d.parseInputPatterned(pattern, reader)
     val endBitPos =
       result match {
@@ -280,8 +280,8 @@ class SpecifiedLengthExplicitCharactersFixedParser(combinator: SpecifiedLengthCo
 
     val in = start.inStream
     val rdr = in.getCharReader(charset, start.bitPos)
-    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-    val result = d.parseInputNCharacters(nChars, rdr, TextJustificationType.None, "")
+    val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    val result = d.parseInputNCharacters(nChars, rdr)
     val endBitPos =
       result match {
         case _: DelimParseFailure => start.bitPos + 0 // no match == length is zero!
@@ -303,8 +303,8 @@ class SpecifiedLengthExplicitCharactersParser(combinator: SpecifiedLengthCombina
     val (pState, nChars) = combinator.getLength(start)
     val in = pState.inStream
     val rdr = in.getCharReader(charset, pState.bitPos)
-    val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-    val result = d.parseInputNCharacters(nChars, rdr, TextJustificationType.None, "")
+    val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    val result = d.parseInputNCharacters(nChars, rdr)
     val endBitPos =
       result match {
         case _: DelimParseFailure => pState.bitPos + 0 // no match == length is zero!

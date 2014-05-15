@@ -69,9 +69,6 @@ abstract class StringLength(e: ElementBase)
   val stringLengthInBitsFnc = e.knownEncodingStringBitLengthFunction
   val codepointWidth = e.knownEncodingWidthInBits
 
-  //lazy val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
-  lazy val removePaddingParser: Option[dp.Parser[String]] = dp.generateRemovePaddingParser(justificationTrim, padChar)
-
   def lengthText: String
   def parserName: String
 
@@ -162,14 +159,13 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
 
       val reader = getReader(charset, start.bitPos, start)
 
-      val result = dp.parseInputNCharacters(nCharParser, reader, removePaddingParser, justificationTrim)
+      val result = dp.parseInputNCharacters(nCharParser, reader)
 
       result match {
         case _: DelimParseFailure =>
           return PE(start, "Parse failed to find exactly %s characters.", nChars)
         case s: DelimParseSuccess => {
-
-          val parsedField = s.field
+          val parsedField = trimByJustification(s.field)
           val parsedBits = s.numBits
           val endBitPos = start.bitPos + parsedBits
 
@@ -218,7 +214,8 @@ abstract class StringLengthInBytes(e: ElementBase)
     DFDLCharCounter.incr(result.length)
 
     val currentElement = start.parentElement
-    val trimmedResult = dp.removePadding(removePaddingParser, justificationTrim, result)
+    val trimmedResult = trimByJustification(result)
+
     // Assert.invariant(currentElement.getName != "_document_")
     // Note: this side effect is backtracked, because at points of uncertainty, pre-copies of a node are made
     // and when backtracking occurs they are used to replace the nodes modified by sub-parsers.
@@ -386,7 +383,7 @@ case class StringPatternMatched(e: ElementBase)
     override def toString = "StringPatternMatched"
 
     // The pattern will always be defined
-    lazy val dp = new DFDLDelimParserStatic(e.knownEncodingStringBitLengthFunction)
+    lazy val dp = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
     lazy val patternParser = dp.generateInputPatternedParser(pattern)
 
     // TODO: Add parameter for changing CharBuffer size
@@ -409,8 +406,6 @@ case class StringPatternMatched(e: ElementBase)
 
         val reader = getReader(charset, start.bitPos, start)
 
-        //        val d = new DelimParser(e.knownEncodingStringBitLengthFunction)
-        //        val result = d.parseInputPatterned(pattern, reader)
         val result = dp.parseInputPatterned(patternParser, reader)
 
         val postState = result match {
@@ -429,14 +424,7 @@ case class StringPatternMatched(e: ElementBase)
 
             val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
             val currentElement = start.parentElement
-            val field = {
-              justificationTrim match {
-                case TextJustificationType.None => s.field
-                case TextJustificationType.Right => removeLeftPadding(s.field)
-                case TextJustificationType.Left => removeRightPadding(s.field)
-                case TextJustificationType.Center => removePadding(s.field)
-              }
-            }
+            val field = trimByJustification(s.field)
             currentElement.setDataValue(field)
             start.withPos(endBitPos, endCharPos, Some(s.next))
           }
@@ -572,8 +560,6 @@ abstract class StringDelimited(e: ElementBase)
   }
   val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
   val staticDelimsCooked = staticDelimsCooked1.flatten
-  val (staticDelimsParser, staticDelimsRegex) = dp.generateDelimiter(staticDelimsCooked.toSet)
-  val combinedStaticDelimsParser = dp.combineLongest(staticDelimsParser)
 
   def ec: Option[Char] = if (escChar.isEmpty()) None else Some(escChar.charAt(0))
   def eec: Option[Char] = if (escEscChar.isEmpty()) None else Some(escEscChar.charAt(0))
@@ -677,7 +663,6 @@ abstract class StringDelimited(e: ElementBase)
       val (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState) =
         evaluateEscapeScheme(compiledOptEscChar, compiledOptEscEscChar, start)
 
-      //val (delimsCooked, delimsRegex, delimsParser, vars) = getDelims(postEscapeSchemeEvalState)
       val (delims, delimsCooked, vars) = getDelims(postEscapeSchemeEvalState)
 
       // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
@@ -705,7 +690,6 @@ abstract class StringDelimited(e: ElementBase)
       val hasDelim = delimsCooked.length > 0
 
       val result = try {
-        //parseMethod(hasDelim, delimsParser, delimsRegex, reader)
         parseMethod(reader, delims, isDelimRequired)
       } catch {
         case mie: MalformedInputException =>
