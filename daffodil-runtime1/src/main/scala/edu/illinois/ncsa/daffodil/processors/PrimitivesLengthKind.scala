@@ -138,8 +138,6 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
   extends StringLength(e)
   with WithParseErrorThrowing {
 
-  lazy val nCharParser = dp.generateInputNCharactersParser(nChars)
-
   def getLength(pstate: PState): (Long, PState) = {
     (nChars, pstate)
   }
@@ -160,25 +158,26 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
 
       val reader = getReader(charset, start.bitPos, start)
 
-      val result = dp.parseInputNCharacters(nCharParser, reader)
+      val field = reader.getStringInChars(nChars.toInt).toString()
+      val fieldLength = field.length
 
-      result match {
-        case _: DelimParseFailure =>
-          return PE(start, "Parse failed to find exactly %s characters.", nChars)
-        case s: DelimParseSuccess => {
-          val parsedField = trimByJustification(s.field)
-          val parsedBits = s.numBits
-          val endBitPos = start.bitPos + parsedBits
+      if (fieldLength != nChars.toInt) {
+        return PE(start, "Parse failed to find exactly %s characters.", nChars)
+      } else {
+        val parsedField = trimByJustification(field)
+        val parsedBits = e.knownEncodingStringBitLengthFunction(field)
+        val endBitPos = start.bitPos + parsedBits
 
-          log(LogLevel.Debug, "Parsed: %s", parsedField)
-          log(LogLevel.Debug, "Ended at bit position: %s", endBitPos)
+        log(LogLevel.Debug, "Parsed: %s", field)
+        log(LogLevel.Debug, "Ended at bit position: %s", endBitPos)
 
-          val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
-          val currentElement = start.parentElement
-          currentElement.setDataValue(parsedField)
-          val postState = start.withPos(endBitPos, endCharPos, Some(s.next))
-          postState
-        }
+        val endCharPos = if (start.charPos == -1) nChars else start.charPos + nChars
+        val currentElement = start.parentElement
+        currentElement.setDataValue(parsedField)
+
+        val nextReader = reader.atBitPos(endBitPos)
+        val postState = start.withPos(endBitPos, endCharPos, Some(nextReader))
+        return postState
       }
     }
   }

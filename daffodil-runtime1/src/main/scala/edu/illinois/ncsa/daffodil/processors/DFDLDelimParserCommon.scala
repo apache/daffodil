@@ -213,12 +213,4 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
 
   }
 
-  def generateInputNCharactersParser(nChars: Long): Parser[String] = {
-    val anything: Parser[String] = "generateInputNCharactersParser.anything".!!!(""".*""".r)
-    val rNChars = """(?s).{""" + nChars.toString() + """}"""
-    val firstNChars: Parser[String] = "generateInputNCharactersParser.firstNChars".!!!(rNChars.r)
-    val entry = firstNChars //<~ anything // Technically shouldn't need to add anything, we only want the first nChars
-    entry
-  }
-
 }

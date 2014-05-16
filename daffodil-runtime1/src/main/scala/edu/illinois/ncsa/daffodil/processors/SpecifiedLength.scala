@@ -283,12 +283,13 @@ class SpecifiedLengthExplicitCharactersFixedParser(combinator: SpecifiedLengthCo
 
     val in = start.inStream
     val rdr = in.getCharReader(charset, start.bitPos)
-    val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-    val result = d.parseInputNCharacters(nChars, rdr)
+    val field = rdr.getStringInChars(nChars.toInt).toString()  // TODO: Don't we want getStringInChars to accept Long?!
+    val fieldLength = field.length
     val endBitPos =
-      result match {
-        case _: DelimParseFailure => start.bitPos + 0 // no match == length is zero!
-        case s: DelimParseSuccess => start.bitPos + s.numBits
+      if (fieldLength != nChars.toInt) start.bitPos + 0 // no match == length is zero!
+      else {
+        val numBits = e.knownEncodingStringBitLengthFunction(field)
+        start.bitPos + numBits
       }
     val postEState = parse(start, endBitPos, e)
     postEState
@@ -306,13 +307,16 @@ class SpecifiedLengthExplicitCharactersParser(combinator: SpecifiedLengthCombina
     val (pState, nChars) = combinator.getLength(start)
     val in = pState.inStream
     val rdr = in.getCharReader(charset, pState.bitPos)
-    val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-    val result = d.parseInputNCharacters(nChars, rdr)
+
+    val field = rdr.getStringInChars(nChars.toInt).toString()
+    val fieldLength = field.length
     val endBitPos =
-      result match {
-        case _: DelimParseFailure => pState.bitPos + 0 // no match == length is zero!
-        case s: DelimParseSuccess => pState.bitPos + s.numBits
+      if (fieldLength != nChars.toInt) pState.bitPos + 0 // no match == length is zero!
+      else {
+        val numBits = e.knownEncodingStringBitLengthFunction(field)
+        pState.bitPos + numBits
       }
+
     val postEState = parse(pState, endBitPos, e)
     postEState
   }

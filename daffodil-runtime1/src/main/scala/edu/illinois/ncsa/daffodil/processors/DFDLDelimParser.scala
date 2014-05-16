@@ -36,28 +36,4 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
   }
   
 
-  def parseInputNCharacters(nChars: Long, input: Reader[Char]): DelimParseResult = {
-
-    val entry = this.generateInputNCharactersParser(nChars)
-
-    // For debug can use this logging parser instead.
-    val res = this.synchronized { this.parse(this.log(entry)("DelimParser.parseInputNCharacters"), input) }
-
-    res match {
-      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)
-      case f: NoSuccess => DelimParseFailure(f.msg, f.next)
-    }
-  }
-  
-  def parseInputNCharacters(nChars: Parser[String], input: Reader[Char]): DelimParseResult = {
-
-    // For debug can use this logging parser instead.
-    val res = this.synchronized { this.parse(this.log(nChars)("DelimParser.parseInputNCharacters"), input) }
-
-    res match {
-      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)
-      case f: NoSuccess => DelimParseFailure(f.msg, f.next)
-    }
-  }
-
 }

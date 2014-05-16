@@ -234,7 +234,7 @@ trait DFDLCharReader
     var next: DFDLCharReader = this
     val sb = new StringBuilder(nChars)
     1 to nChars foreach { _ =>
-      if (atEnd) {
+      if (next.atEnd) {
         return sb.toString
       }
       sb.append(next.first)
