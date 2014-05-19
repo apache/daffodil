@@ -123,7 +123,7 @@ object DaffodilBuild extends Build {
     (cliTask <<= cliTask.dependsOn(stageTask))
   )
 
-  val managedGenerator = TaskKey[Unit]("gen-mangaged", "Generate managed sources and resources")
+  val managedGenerator = TaskKey[Unit]("gen-managed", "Generate managed sources and resources")
   lazy val managedgenSettings = managedGenerator <<= Seq(propertyGenerator in Compile, schemasGenerator in Compile).dependOn
 
 
