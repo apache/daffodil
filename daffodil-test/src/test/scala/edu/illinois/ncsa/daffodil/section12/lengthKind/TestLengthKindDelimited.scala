@@ -59,10 +59,10 @@ class TestLengthKindDelimited {
   @Test def test_DoubleNewLineSeparator() = { runner.runOneTest("TestDoubleNewLineSeparator") }
   @Test def test_DoubleNewLineSeparatorBasic() = { runner.runOneTest("TestDoubleNewLineSeparatorBasic") }
 
-  @Test def test_NumSeq_00a() = {  runner.runOneTest("NumSeq_00a") }
+  @Test def test_NumSeq_00a() = { runner.runOneTest("NumSeq_00a") }
   @Test def test_NumSeq_00nl() = { runner.runOneTest("NumSeq_00nl") }
   @Test def test_NumSeq_01() = { runner.runOneTest("NumSeq_01") }
-  @Test def test_nested_NumSeq_01() =  { runner.runOneTest("nested_NumSeq_01") }
+  @Test def test_nested_NumSeq_01() = { runner.runOneTest("nested_NumSeq_01") }
   @Test def test_eofTest1() { runner.runOneTest("eofTest1") }
   @Test def test_NumSeq_03() { runner.runOneTest("NumSeq_03") }
   @Test def test_NumSeq_04() { runner.runOneTest("NumSeq_04") }
@@ -71,7 +71,7 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_07() { runner.runOneTest("NumSeq_07") }
   @Test def test_NumSeq_08() { runner.runOneTest("NumSeq_08") }
   @Test def test_NumSeq_09() { runner.runOneTest("NumSeq_09") }
-//  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
+  //  @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }
   @Test def test_lengthKindDelimited_01() { runner.runOneTest("lengthKindDelimited_01") }
   @Test def test_lengthKindDelimited_02() { runner.runOneTest("lengthKindDelimited_02") }
   @Test def test_lengthKindDelimited_03() { runner.runOneTest("lengthKindDelimited_03") }

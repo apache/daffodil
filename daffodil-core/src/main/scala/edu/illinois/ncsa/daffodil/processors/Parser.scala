@@ -162,8 +162,15 @@ abstract class Parser(val context: SchemaComponent) extends Logging with ToBrief
   final def parse1(pstate: PState, context: SchemaComponent): PState = {
     Debugger.before(pstate, this)
     val afterState = parse(pstate)
+    if (!(afterState eq pstate)) {
+      // they're not the same state object
+      // we make them so.
+      pstate.assignFrom(afterState)
+      pstate.inStream.assignFrom(afterState.inStream)
+    }
     Debugger.after(pstate, afterState, this)
-    afterState
+    // afterState
+    pstate
   }
 
   // TODO: other methods for things like asking for the ending position of something
@@ -393,7 +400,8 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
       {
         log(LogLevel.Debug, "Trying choice alternative: %s", parser)
         try {
-          pResult = parser.parse1(pStart, context)
+          val ps = pStart.duplicate()
+          pResult = parser.parse1(ps, context)
         } catch {
           case u: UnsuppressableException => throw u
           case rsde: RuntimeSchemaDefinitionError => throw rsde
@@ -461,21 +469,44 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  * places where points-of-uncertainty are handled.
  */
 case class PState(
-  val schemaComponentRegistry: SchemaComponentRegistry,
-  val inStream: InStream,
-  val infoset: InfosetItem,
-  val variableMap: VariableMap,
-  val target: NS,
-  val status: ProcessorResult,
-  val groupIndexStack: List[Long],
-  val childIndexStack: List[Long],
-  val arrayIndexStack: List[Long],
-  val occursCountStack: List[Long],
-  val diagnostics: List[Diagnostic],
-  val discriminatorStack: List[Boolean],
-  val dataProc: DataProcessor,
-  val foundDelimiter: Option[FoundDelimiterText])
+  var schemaComponentRegistry: SchemaComponentRegistry,
+  var inStream: InStream,
+  var infoset: InfosetItem,
+  var variableMap: VariableMap,
+  var target: NS,
+  var status: ProcessorResult,
+  var groupIndexStack: List[Long],
+  var childIndexStack: List[Long],
+  var arrayIndexStack: List[Long],
+  var occursCountStack: List[Long],
+  var diagnostics: List[Diagnostic],
+  var discriminatorStack: List[Boolean],
+  var dataProc: DataProcessor,
+  var foundDelimiter: Option[FoundDelimiterText])
   extends DFDL.State with ThrowsSDE {
+
+  def duplicate() = {
+    val res = copy()
+    res.inStream = inStream.duplicate()
+    res
+  }
+
+  def assignFrom(other: PState) {
+    schemaComponentRegistry = other.schemaComponentRegistry
+    inStream = other.inStream
+    infoset = other.infoset
+    variableMap = other.variableMap
+    target = other.target
+    status = other.status
+    groupIndexStack = other.groupIndexStack
+    childIndexStack = other.childIndexStack
+    arrayIndexStack = other.arrayIndexStack
+    occursCountStack = other.occursCountStack
+    diagnostics = other.diagnostics
+    discriminatorStack = other.discriminatorStack
+    dataProc = other.dataProc
+    foundDelimiter = other.foundDelimiter
+  }
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
@@ -567,14 +598,27 @@ case class PState(
     if (bitLimit == inStream.bitLimit) { this } // already have this bitLimit.
     else {
       var newInStream = inStream.withEndBitLimit(bitLimit)
-      copy(inStream = newInStream, status = newStatus)
+      // copy(inStream = newInStream, status = newStatus)
+      this.inStream = newInStream
+      this.status = newStatus
     }
+    this
   }
 
-  def withParent(newParent: InfosetItem, newStatus: ProcessorResult = Success) =
-    copy(infoset = newParent, status = newStatus)
-  def withVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) =
-    copy(variableMap = newVariableMap, status = newStatus)
+  def withParent(newParent: InfosetItem, newStatus: ProcessorResult = Success) = {
+    //    copy(infoset = newParent, status = newStatus)
+    this.infoset = newParent
+    this.status = newStatus
+    this
+  }
+
+  def withVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) = {
+    //    copy(variableMap = newVariableMap, status = newStatus)
+    this.variableMap = newVariableMap
+    this.status = newStatus
+    this
+  }
+
   def withGroupIndexStack(newGroupIndexStack: List[Long], newStatus: ProcessorResult = Success) =
     copy(groupIndexStack = newGroupIndexStack, status = newStatus)
   def withChildIndexStack(newChildIndexStack: List[Long], newStatus: ProcessorResult = Success) =
@@ -589,7 +633,9 @@ case class PState(
   def withValidationError(msg: String, args: Any*) = {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt), this, msg, args: _*)
-    copy(diagnostics = vde :: diagnostics)
+    // copy(diagnostics = vde :: diagnostics)
+    diagnostics = vde :: diagnostics
+    this
   }
   def withValidationErrorNoContext(msg: String, args: Any*) = {
     val vde = new ValidationError(None, this, msg, args: _*)
@@ -638,9 +684,11 @@ case class PState(
    */
   def withPos(bitPos: Long, charPos: Long, reader: Option[DFDLCharReader]) = {
     val newInStream = inStream.withPos(bitPos, charPos, reader)
-    copy(inStream = newInStream)
+    //    copy(inStream = newInStream)
+    this.inStream = newInStream
+    this
   }
-  
+
   def withDelimitedText(foundText: String, originalRepresentation: String) = {
     val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation)
     copy(foundDelimiter = Some(newDelimiter))

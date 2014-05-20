@@ -102,11 +102,11 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
   }
 
   def addElement(e: InfosetElement) = elt.addContent(e.elt)
-  
+
   def setDefaulted() = {
-    elt.setAttribute("defaulted","true", XMLUtils.INT_NS_OBJECT)
+    elt.setAttribute("defaulted", "true", XMLUtils.INT_NS_OBJECT)
   }
-  
+
   def isDefaulted: Boolean = {
     // dafint:defaulted='true'
     val res = elt.getAttribute("defaulted", XMLUtils.INT_NS_OBJECT).getBooleanValue()
@@ -185,6 +185,7 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
   def restoreState(st: Infoset.ElementState): Unit = {
     val previousContentSize: Int = st
     val currentContentSize = elt.getContentSize()
+    Assert.invariant(currentContentSize >= previousContentSize)
     for (i <- (previousContentSize until currentContentSize).reverse) {
       elt.removeContent(i)
     }

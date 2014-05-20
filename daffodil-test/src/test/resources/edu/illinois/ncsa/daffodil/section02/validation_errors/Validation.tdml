@@ -289,7 +289,7 @@
 
 			<tdml:error>element.data</tdml:error>
 			<tdml:error>occurred</tdml:error>
-			<tdml:error>'9'</tdml:error>
+			<!-- <tdml:error>'9'</tdml:error> -->
 			<tdml:error>expected</tdml:error>
 			<tdml:error>minimum of '2'</tdml:error>
 			<tdml:error>maximum of '5'</tdml:error>
@@ -334,7 +334,7 @@
 
 			<tdml:error>element.data</tdml:error>
 			<tdml:error>occurred</tdml:error>
-			<tdml:error>'9'</tdml:error>
+			<!-- <tdml:error>'9'</tdml:error> -->
 			<tdml:error>expected</tdml:error>
 			<tdml:error>minimum of '2'</tdml:error>
 			<tdml:error>maximum of '5'</tdml:error>

@@ -62,12 +62,18 @@ case class DummyPosition(cPos0b: Long) extends Position {
  * removed. They should be one trait/class.
  */
 case class InStreamFixedWidthTextOnly(
-  cPos0b: Int,
-  info: FixedWidthTextInfoCBuf)
+  var cPos0b: Int,
+  var info: FixedWidthTextInfoCBuf)
   extends DFDLCharReader with InStream
   with Logging
   with WithParseErrorThrowing {
 
+  override def assignFrom(other: InStream) {
+    val oth = other.asInstanceOf[InStreamFixedWidthTextOnly]
+    cPos0b = oth.cPos0b
+    info = oth.info
+  }
+  override def duplicate() = copy()
   override def source: java.lang.CharSequence = info.cBuf
 
   override def offset: Int = cPos0b
@@ -113,13 +119,12 @@ case class InStreamFixedWidthTextOnly(
 
   def getCharsetName = info.charset.name
   lazy val characterPos = cPos0b // zero based
-  
+
   def charset = Assert.usageError("not to be used in test reader")
   def bitLimit = info.bitLimit
 
   override def charPos: Long = cPos0b
   override val reader = Some(this)
-
 
   def withPos(newBitPos0b: Long, newCharPos0b: Long, reader: Option[DFDLCharReader]): InStream = {
     Assert.usage(newBitPos0b >= 0)
@@ -160,7 +165,7 @@ case class InStreamFixedWidthTextOnly(
     info.bBuf.get(bytePos)
   }
   def getRawByte(bitPos: Long, order: ByteOrder): Byte = getByte(bitPos, order)
-  
+
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
     val nbytes = numBytes.toInt
     val bytes = new Array[Byte](nbytes)
@@ -192,7 +197,6 @@ case class InStreamFixedWidthTextOnly(
     Assert.usage(charset == info.charset)
     this.atBitPos(bitPos)
   }
-
 
   def lengthInBytes(): Long = {
     if (info.bitLimit != -1) info.bitLimit / 8
@@ -266,7 +270,4 @@ object TextOnlyReplaceOnErrorReaderFactory {
   }
 
 }
-
-
-
 

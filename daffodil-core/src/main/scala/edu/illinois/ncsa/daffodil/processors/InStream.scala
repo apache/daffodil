@@ -49,7 +49,6 @@ import org.apache.commons.io.IOUtils
 import java.nio.file.Files
 import java.nio.ByteBuffer
 
-
 object InStream {
 
   val mandatoryAlignment = 8
@@ -78,7 +77,7 @@ object InStream {
     val inStream = InStreamFixedWidthTextOnly(0, info)
     inStream
   }
-  
+
   def forTextOnlyFixedWidthErrorReplace(context: ElementBase, jis: InputStream,
     charsetEncodingName: String,
     lengthLimitInBits: Long): InStream = {
@@ -104,6 +103,9 @@ object InStream {
  */
 trait InStream {
 
+  def assignFrom(other: InStream): Unit
+
+  def duplicate(): InStream
   def bitPos: Long
   def bitLimit: Long
   def charPos: Long
@@ -150,22 +152,22 @@ trait InStream {
    * Returns a string using up as much as nBytes, along with the number of bits actually consumed.
    * If end of data is reached before nBytes have been consumed, then result will contain as large
    * a string as is possible up to the end of the data.
-   * 
+   *
    * TODO: replace usage in primitives where they getBytes and then call decode themselves.
    * That should be centralized here.
    */
-  def getStringInBytes(nBytes: Int, charset: Charset, 
-      isCharsetFixedWidth: Boolean, 
-      charsetFixedWidthInBits: Int): (CharSequence, Int) = {
+  def getStringInBytes(nBytes: Int, charset: Charset,
+    isCharsetFixedWidth: Boolean,
+    charsetFixedWidthInBits: Int): (CharSequence, Int) = {
     Assert.usage(!isCharsetFixedWidth ||
-        charsetFixedWidthInBits % 8 == 0)
-        if (isCharsetFixedWidth) {
-         val charsetWidthInBytes = charsetFixedWidthInBits >> 3
-         val nChars = nBytes / charsetWidthInBytes
-         getStringInChars(nChars, charset, isCharsetFixedWidth, charsetFixedWidthInBits)
-        } else {
-          Assert.notYetImplemented("specified length in bytes for variable-width character set encoding")
-        }
+      charsetFixedWidthInBits % 8 == 0)
+    if (isCharsetFixedWidth) {
+      val charsetWidthInBytes = charsetFixedWidthInBits >> 3
+      val nChars = nBytes / charsetWidthInBytes
+      getStringInChars(nChars, charset, isCharsetFixedWidth, charsetFixedWidthInBits)
+    } else {
+      Assert.notYetImplemented("specified length in bytes for variable-width character set encoding")
+    }
   }
 
   /**
@@ -173,33 +175,43 @@ trait InStream {
    * If end of data is reached before nChars have been consumed, then result will contain as large
    * a string as is possible up to the end of the data.
    */
-  def getStringInChars(nChars: Int, charset: Charset, 
-      isCharsetFixedWidth: Boolean, 
-      charsetFixedWidthInBits: Int): (CharSequence, Int) = {
+  def getStringInChars(nChars: Int, charset: Charset,
+    isCharsetFixedWidth: Boolean,
+    charsetFixedWidthInBits: Int): (CharSequence, Int) = {
     Assert.notYetImplemented(!isCharsetFixedWidth, "specified length in characters is not supported for variable width character set encodings")
     val rdr = getCharReader(charset, bitPos)
     val str = rdr.getStringInChars(nChars)
     val nBits = str.length * charsetFixedWidthInBits
     (str, nBits)
   }
-  
+
 }
 
 /**
  * Don't use this class directly. Use the factory on InStream object to create.
  */
 case class InStreamFromByteChannel private (
-  val context : SchemaComponent,
-  val byteReader: DFDLByteReader,
-  val bitPos: Long,
-  val bitLimit: Long,
-  val charLimit: Long,
+  var context: SchemaComponent,
+  var byteReader: DFDLByteReader,
+  var bitPos: Long,
+  var bitLimit: Long,
+  var charLimit: Long,
   var reader: Option[DFDLCharReader])
   extends InStream
   with Logging
   with WithParseErrorThrowing {
-  
 
+  override def assignFrom(other: InStream) {
+    val oth = other.asInstanceOf[InStreamFromByteChannel]
+    context = oth.context
+    byteReader = oth.byteReader
+    bitPos = oth.bitPos
+    bitLimit = oth.bitLimit
+    charLimit = oth.charLimit
+    reader = oth.reader
+  }
+
+  override def duplicate() = copy()
   // Let's eliminate duplicate information between charPos of the PState, the
   // InStream, and the Reader. It's the reader, and only the reader.
   def charPos = reader.map { _.characterPos }.getOrElse(-1).toLong
@@ -237,7 +249,10 @@ case class InStreamFromByteChannel private (
     //      if (rdr.characterPos != newCharPos)
     //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
     //    }
-    copy(bitPos = newBitPos, reader = newReader.map { _.atCharPos(newCharPos.toInt) })
+    // copy(bitPos = newBitPos, reader = newReader.map { _.atCharPos(newCharPos.toInt) })
+    this.bitPos = newBitPos
+    this.reader = newReader.map { _.atCharPos(newCharPos.toInt) }
+    this
   }
 
   def withPos(newBitPos: Long, newCharPos: Long): InStream = {
@@ -254,11 +269,16 @@ case class InStreamFromByteChannel private (
         Some(rdr.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
       }
     }
-    copy(bitPos = newBitPos, reader = rdr)
+    // copy(bitPos = newBitPos, reader = rdr)
+    this.bitPos = newBitPos
+    this.reader = rdr
+    this
   }
 
   def withEndBitLimit(newBitLimit: Long): InStream = {
-    copy(bitLimit = newBitLimit)
+    // copy(bitLimit = newBitLimit)
+    this.bitLimit = newBitLimit
+    this
   }
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
@@ -489,9 +509,6 @@ case class InStreamFromByteChannel private (
    * Calling this forces the entire input into memory.
    */
   def lengthInBytes: Long = byteReader.lengthInBytes
-  
-
-    
 
 }
 

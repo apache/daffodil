@@ -164,7 +164,7 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
           //
           // backout any element appended as part of this attempt.
           //
-          newpou.restoreInfosetElementState(cloneNode)
+          pResult.restoreInfosetElementState(cloneNode)
           return pResult // success at prior state. 
         }
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
@@ -214,7 +214,8 @@ class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r)
 
     def parseAllRepeats(pstate: PState): PState = {
 
-      var pResult = pstate
+      var pResult = pstate.duplicate()
+      var priorResult = pstate
       while (pResult.status == Success) {
 
         if ((e.occursCountKind == OccursCountKind.Implicit) &&
@@ -248,16 +249,17 @@ class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r)
           //
           pResult.restoreInfosetElementState(cloneNode)
           log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
-          return pResult // note that it has the prior point of uncertainty. No restore needed.
+          return priorResult // note that it has the prior point of uncertainty. No restore needed.
         }
         // Success
         // Need to check for forward progress
-        if (pResult.bitPos == pNext.bitPos) {
+        if (priorResult.bitPos == pNext.bitPos) {
           return PE(pNext,
             "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
               "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
             pResult.bytePos, e.prettyName)
         }
+        priorResult = pNext.duplicate()
         pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
       }

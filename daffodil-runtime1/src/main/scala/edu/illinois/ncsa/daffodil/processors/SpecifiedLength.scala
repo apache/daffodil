@@ -110,12 +110,13 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
 
   final def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
     log(LogLevel.Info, "Limiting data to %s bits.", endBitPos)
+    val savedLimit = pstate.bitLimit
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
 
     log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit)
 
-    val postState3 = postState2.withEndBitLimit(pstate.bitLimit)
+    val postState3 = postState2.withEndBitLimit(savedLimit)
     val finalState = postState3.status match {
       case Success => {
         // Check that the parsed length is less than or equal to the length of the parent

@@ -157,7 +157,7 @@ object DFDL {
     def setValidationMode(mode: ValidationMode.Type): Unit
     def getValidationMode(): ValidationMode.Type
     def save(output: Output): Unit
-    def setExternalVariables(extVars: Map[String,String]): Unit
+    def setExternalVariables(extVars: Map[String, String]): Unit
     def setExternalVariables(extVars: File): Unit
     def setExternalVariables(extVars: Seq[Binding]): Unit
     def getVariables(): VariableMap
@@ -174,11 +174,11 @@ object DFDL {
      * fewer than the entire input.
      */
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult
-    
+
     /**
      * Returns an object which contains the result, and/or diagnostic information.
      * <p>
-     * Use this rather than passing a channel/stream because it enables some 
+     * Use this rather than passing a channel/stream because it enables some
      * I/O optimizations.
      */
     def parse(file: File): ParseResult
@@ -198,8 +198,8 @@ object DFDL {
    */
   trait State {
     // TODO: add common elements
-    val status: ProcessorResult
-    val diagnostics: Seq[Diagnostic]
+    def status: ProcessorResult
+    def diagnostics: Seq[Diagnostic]
     def currentLocation: DataLocation
     /**
      * Calling this forces the entire input into memory.
