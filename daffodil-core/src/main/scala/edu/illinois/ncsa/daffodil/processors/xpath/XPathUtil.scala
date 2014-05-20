@@ -132,7 +132,7 @@ abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunct
   def evaluate(args: java.util.List[_]): Object = {
     if (args.size() < arity)
       throw new XPathExpressionException("Wrong number of arguments to " + name + ". Should be " + arity + ". Args were: " + args)
-    val state = DFDLFunctions.currentPState
+    val state = DFDLFunctions.currentPState.get
     val res = state match {
       // None can happen when we're testing if something is a constant.
       case None => throw new XPathExpressionException("State not bound for use by DFDL expression functions.")
@@ -153,7 +153,9 @@ object DFDLFunctions {
    * This var must be bound to the current state when an expression is evaluated so that
    * the DFDL functions which access the state can work.
    */
-  var currentPState: Option[PState] = None
+  val currentPState = new ThreadLocal[Option[PState]] {
+    override def initialValue () = None
+  }
 }
 
 /**

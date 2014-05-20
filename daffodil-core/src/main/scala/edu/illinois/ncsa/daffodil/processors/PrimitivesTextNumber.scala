@@ -72,12 +72,7 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
         val (newstate, df) = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
         val num = try {
-          this.synchronized {
-            // as per ICU4J documentation, "DecimalFormat objects are not
-            // synchronized. Multiple threads should not access one formatter
-            // concurrently."
-            df.parse(str, pos)
-          }
+            df.get.parse(str, pos)
         } catch {
           case u: UnsuppressableException => throw u
           case e: Exception =>
@@ -464,16 +459,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     pattern: String,
     rounding: TextNumberRounding,
     roundingMode: Maybe[TextNumberRoundingMode],
-    roundingIncrement: Maybe[Double],
-    context: ThrowsSDE) = {
-
-    checkUnique(decimalSepList,
-      groupingSep,
-      One(exponentRep),
-      infRep,
-      nanRep,
-      parserHelper.zeroRepListRaw,
-      context)
+    roundingIncrement: Maybe[Double]) = {
 
     val dfs = new DecimalFormatSymbols()
 
@@ -587,7 +573,10 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     roundingInc
   }
 
-  def getNumFormat(state: PState): (PState, NumberFormat)
+  // as per ICU4J documentation, "DecimalFormat objects are not
+  // synchronized. Multiple threads should not access one formatter
+  // concurrently."
+  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat])
 
 }
 
@@ -612,23 +601,36 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
   val groupSep = groupingSepExp.map { gse => getGroupingSep(gse.constantAsString, context) }
 
-  val expSep = getExponentRep(exponentRepExp.constantAsString, context)
+  val expRep = getExponentRep(exponentRepExp.constantAsString, context)
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, context) }
 
-  val numFormat = generateNumFormat(decSep,
+  checkUnique(
+    decSep,
     groupSep,
-    expSep,
+    One(expRep),
     infRep,
     nanRep,
-    checkPolicy,
-    pattern,
-    rounding,
-    roundingMode,
-    roundingInc,
+    parserHelper.zeroRepListRaw,
     context)
 
-  def getNumFormat(state: PState) = {
+  val numFormat = new ThreadLocal[NumberFormat] {
+    override def initialValue() = {
+      generateNumFormat(
+        decSep,
+        groupSep,
+        expRep,
+        infRep,
+        nanRep,
+        checkPolicy,
+        pattern,
+        rounding,
+        roundingMode,
+        roundingInc)
+    }
+  }
+
+  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat]) = {
     (state, numFormat)
   }
 }
@@ -729,7 +731,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
 
-  def getNumFormat(state: PState): (PState, NumberFormat) = {
+  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat]) = {
 
     val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
       (s: PState, c: Any) =>
@@ -752,17 +754,31 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
         }
     }
 
-    val numFormat = generateNumFormat(decimalSepList,
+    checkUnique(
+      decimalSepList,
       groupingSep,
-      exponentRep,
+      One(exponentRep),
       infRep,
       nanRep,
-      checkPolicy,
-      pattern,
-      rounding,
-      roundingMode,
-      roundingInc,
+      parserHelper.zeroRepListRaw,
       state)
+
+    val numFormat = new ThreadLocal[NumberFormat] {
+      override def initialValue() = {
+        generateNumFormat(
+          decimalSepList,
+          groupingSep,
+          exponentRep,
+          infRep,
+          nanRep,
+          checkPolicy,
+          pattern,
+          rounding,
+          roundingMode,
+          roundingInc)
+      }
+    }
+
     (exponentRepState, numFormat)
   }
 }

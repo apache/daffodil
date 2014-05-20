@@ -138,7 +138,11 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
 
   val charset = e.knownEncodingCharset
   val pattern = e.lengthPattern
-  val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   if (!e.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
 
@@ -147,7 +151,7 @@ class SpecifiedLengthPatternParser(combinator: SpecifiedLengthCombinatorBase, e:
 
     val reader = in.getCharReader(charset, start.bitPos)
 
-    val result = d.parseInputPatterned(pattern, reader, start)
+    val result = d.get.parseInputPatterned(pattern, reader, start)
 
     val endBitPos =
       result match {

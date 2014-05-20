@@ -15,7 +15,7 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
     val entry = this.generateInputPatternedParser(pattern, sc)
 
     // FOR DEBUGGING might want this logging version
-    val res = this.synchronized { this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input) }
+    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
     //val res = this.parse(entry, input)
 
     res match {
@@ -28,7 +28,7 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
     val entry = pattern
 
     // FOR DEBUGGING might want this logging version
-    val res = this.synchronized { this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input) }
+    val res = this.parse(this.log(entry)("DelimParser.parseInputPatterned"), input)
     //val res = this.parse(entry, input)
 
     res match {

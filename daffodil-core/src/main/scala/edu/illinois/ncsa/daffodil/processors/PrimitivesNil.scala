@@ -74,7 +74,11 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
   // a failure to read nBytes is a failure period.
 
   lazy val unparserDelim = Assert.notYetImplemented()
-  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   override def parser = new PrimParser(this, e) {
 
@@ -130,7 +134,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-          } else if (d.isFieldDfdlLiteral(trimmedResult, nilValuesCooked.toSet)) {
+          } else if (d.get.isFieldDfdlLiteral(trimmedResult, nilValuesCooked.toSet)) {
             // Contains a nilValue, Success!
             postEvalState.parentElement.makeNil()
 
@@ -177,7 +181,11 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
   // TODO: LiteralNilExplicitLengthInChars really is a variation of LiteralNilPattern
   lazy val unparserDelim = Assert.notYetImplemented()
-  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   override def parser = new PrimParser(this, e) {
 
@@ -223,7 +231,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
           return postEvalState // Empty, no need to advance
         }
 
-        val result = d.parseInputPatterned(pattern, reader, postEvalState)
+        val result = d.get.parseInputPatterned(pattern, reader, postEvalState)
 
         result match {
           case _: DelimParseFailure =>
@@ -240,7 +248,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
             } else if (isFieldEmpty && !isEmptyAllowed) {
               // Fail!
               return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            } else if (d.get.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
               // Contains a nilValue, Success!
               start.parentElement.makeNil()
 
@@ -279,7 +287,11 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
-  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   override def parser = new PrimParser(this, e) {
 
@@ -314,7 +326,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
         //        val byteReader = in.byteReader.atPos(bytePos)
         //        val reader = byteReader.charReader(decoder.charset().name())
 
-        val result = d.parseInputPatterned(pattern, reader, start)
+        val result = d.get.parseInputPatterned(pattern, reader, start)
 
         result match {
           case _: DelimParseFailure =>
@@ -331,7 +343,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
             } else if (isFieldEmpty && !isEmptyAllowed) {
               // Fail!
               return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            } else if (d.get.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
               // Contains a nilValue, Success!
               start.parentElement.makeNil()
 
@@ -370,7 +382,11 @@ case class LiteralNilPattern(e: ElementBase)
   with Padded {
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
-  lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   override def parser = new PrimParser(this, e) {
 
@@ -402,7 +418,7 @@ case class LiteralNilPattern(e: ElementBase)
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
-        val result = d.parseInputPatterned(pattern, reader, start)
+        val result = d.get.parseInputPatterned(pattern, reader, start)
 
         result match {
           case _: DelimParseFailure =>
@@ -419,7 +435,7 @@ case class LiteralNilPattern(e: ElementBase)
             } else if (isFieldEmpty && !isEmptyAllowed) {
               // Fail!
               return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
-            } else if (d.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
+            } else if (d.get.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) {
               // Contains a nilValue, Success!
               start.parentElement.makeNil()
 

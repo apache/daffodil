@@ -50,7 +50,7 @@ trait DebugRegexParsers extends RegexParsers with Logging {
    */
   override def log[T](p: => Parser[T])(name: String): Parser[T] = Parser { in =>
     log(LogLevel.DelimDebug, "trying %s at %s", name, in)
-    val r = this.synchronized { p(in) }
+    val r = p(in)
     log(LogLevel.DelimDebug, "end %s --> %s", name, r)
     r
   }

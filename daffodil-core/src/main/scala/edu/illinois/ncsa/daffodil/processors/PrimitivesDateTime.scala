@@ -49,6 +49,21 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
   protected val GramDescription = { GramName(0).toUpper + GramName.substring(1) }
 
   override def toString = "to(xs:" + GramName + ")"
+  
+  // As per ICU4J documentation, "Date formats are not synchronized. If
+  // multiple threads access a format concurrently, it must be synchronized
+  // externally."
+  lazy val tlDataFormatter = new ThreadLocal[SimpleDateFormat] {
+    override def initialValue = {
+      dataFormatter.clone.asInstanceOf[SimpleDateFormat]
+    }
+  }
+
+  lazy val tlInfosetFormatter = new ThreadLocal[SimpleDateFormat] {
+    override def initialValue = {
+      infosetFormatter.clone.asInstanceOf[SimpleDateFormat]
+    }
+  }
 
   def parse(start: PState): PState = {
     val node = start.parentElement
@@ -57,13 +72,8 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
     Assert.invariant(str != null)
 
     val pos = new ParsePosition(0)
-    val cal = dataFormatter.getCalendar.clone.asInstanceOf[Calendar]
-    this.synchronized {
-      // As per ICU4J documentation, "Date formats are not synchronized. If
-      // multiple threads access a format concurrently, it must be synchronized
-      // externally."
-      dataFormatter.parse(str, cal, pos);
-    }
+    val cal = tlDataFormatter.get.getCalendar.clone.asInstanceOf[Calendar]
+    tlDataFormatter.get.parse(str, cal, pos);
 
     // Verify that what was parsed was what was passed exactly in byte count
     // Use pos to verify all characters consumed & check for errors
@@ -85,7 +95,7 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
     }
 
     // Convert to the infoset format
-    val result = this.synchronized { infosetFormatter.format(cal) }
+    val result = tlInfosetFormatter.get.format(cal)
     node.setDataValue(result)
 
     start

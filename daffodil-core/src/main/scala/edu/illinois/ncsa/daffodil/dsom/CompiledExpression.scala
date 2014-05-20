@@ -282,9 +282,8 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = vmap
 
-    val xpathRes = DFDLFunctions.synchronized {
-      try {
-        DFDLFunctions.currentPState = Some(pstate)
+    val xpathRes = try {
+        DFDLFunctions.currentPState.set(Some(pstate))
         variables.currentPState = Some(pstate)
         pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
       } catch {
@@ -294,10 +293,10 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
           PE("Expression evaluation failed. Details: %s", ex)
         }
       } finally {
-        DFDLFunctions.currentPState = None // put it back off
+        DFDLFunctions.currentPState.set(None) // put it back off
         variables.currentPState = None
       }
-    }
+
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val result: Option[List[InfosetElement]] = xpathRes match {
       case NodeResult(n) => {
@@ -325,9 +324,8 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate)
 
-    val xpathRes = DFDLFunctions.synchronized {
-      try {
-        DFDLFunctions.currentPState = Some(pstate)
+    val xpathRes = try {
+        DFDLFunctions.currentPState.set(Some(pstate))
         variables.currentPState = Some(pstate)
         pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
       } catch {
@@ -337,10 +335,10 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
           PE("Expression evaluation failed. Details: %s", ex)
         }
       } finally {
-        DFDLFunctions.currentPState = None // put it back off
+        DFDLFunctions.currentPState.set(None) // put it back off
         variables.currentPState = None
       }
-    }
+
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {
       case NotANumberResult(v) => {
@@ -454,9 +452,8 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
     // withLoggingLevel(LogLevel.Info) 
     {
       val dummyVars = EmptyVariableMap
-      val result = DFDLFunctions.synchronized {
-        try {
-          DFDLFunctions.currentPState = None // no state if we're trying for a constant value.
+      val result = try {
+          DFDLFunctions.currentPState.set(None) // no state if we're trying for a constant value.
           val res = XPathUtil.evalExpression(
             xpathExprFactory.expression + " (to see if constant)",
             xpathExprFactory,
@@ -491,9 +488,9 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
           //            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
           //          }
         } finally {
-          DFDLFunctions.currentPState = None
+          DFDLFunctions.currentPState.set(None)
         }
-      }
+
       result
     }
 

@@ -296,7 +296,11 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+  val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   def parser: DaffodilParser = new PrimParser(this, decl) {
 
@@ -323,7 +327,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
           val reader = getReader(charset, start.bitPos, lastState)
 
-          val result = d.parseInputPatterned(testPattern, reader, start)
+          val result = d.get.parseInputPatterned(testPattern, reader, start)
 
           val postState = result match {
             case s: DelimParseSuccess => {
@@ -355,11 +359,13 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
-  lazy val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+  val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+    }
+  }
 
   def parser: DaffodilParser = new PrimParser(this, decl) {
-
-    val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -384,7 +390,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
           val reader = getReader(charset, start.bitPos, lastState)
 
-          val result = d.parseInputPatterned(testPattern, reader, start)
+          val result = d.get.parseInputPatterned(testPattern, reader, start)
 
           // Only want to set the discriminator if it is true
           // we do not want to modify it unless it's true

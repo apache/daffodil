@@ -225,7 +225,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
     try {
-      DFDLFunctions.currentPState = Some(state)
+      DFDLFunctions.currentPState.set(Some(state))
       val compiledExpr = XPathUtil.compileExpression(expression, parser.context.namespaces, parser.context)
       val element = state.infoset.asInstanceOf[InfosetElement]
       val res = element.evalExpression(expression, compiledExpr, state.variableMap, XPathConstants.BOOLEAN)
@@ -236,7 +236,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     } catch {
       case e: Throwable => false
     } finally {
-      DFDLFunctions.currentPState = None
+      DFDLFunctions.currentPState.set(None)
     }
   }
 
@@ -852,7 +852,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           }
 
           try {
-            DFDLFunctions.currentPState = Some(state)
+            DFDLFunctions.currentPState.set(Some(state))
             val expression = expressionList.mkString(" ")
             val element = state.infoset match {
               case e: InfosetElement => One(e)
@@ -914,7 +914,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
               throw new DebugException("expression evaluation failed: %s".format(ex))
             }
           } finally {
-            DFDLFunctions.currentPState = None
+            DFDLFunctions.currentPState.set(None)
           }
         }
         DebugState.Pause
