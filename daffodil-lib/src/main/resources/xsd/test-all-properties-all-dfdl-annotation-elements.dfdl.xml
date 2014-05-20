@@ -2,12 +2,13 @@
 <xsd:schema targetNamespace="http://example.com"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:ex="http://example.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/XMLSchemaSubset ./DFDLSubsetOfXMLSchema_v1_036.xsd http://www.ogf.org/dfdl/dfdl-1.0/ DFDL_part3_model.xsd">
+  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
+  http://www.w3.org/2001/XMLSchema xsd/XMLSchema_for_DFDL.xsd">
 
-  <xsd:element name="hereForXSI_DoNotRemove" type="xsd:int"
+  <!-- <xsd:element name="hereForXSI_DoNotRemove" type="xsd:int"
     xml:lang="en"
-    xsi:schemaLocation="http://www.ogf.org/dfdl/xmlSubset ./DFDLSubsetOfXMLSchema_v1_035.xsd" />
-
+    xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ DFDL_part3_model.xsd" />
+   -->
   <!--
     Uncomment this to see strict error checking
 
