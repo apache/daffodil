@@ -43,6 +43,11 @@
     
     <xs:element name="e3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1" />
 
+    <xs:element name="ee1" type="xs:string" dfdl:encodingErrorPolicy="replace" dfdl:encoding="ASCII"
+    	dfdl:byteOrder="bigEndian"/>
+    <xs:element name="ee2" type="xs:string" dfdl:encodingErrorPolicy="replace" dfdl:encoding="UTF-8"
+    	dfdl:byteOrder="bigEndian"/>
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="UTF_16_01" root="CFP_01"
@@ -552,6 +557,86 @@
     <tdml:infoset>
       <tdml:dfdlInfoset>
           <e1>ÿ123</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: encodingErrorReplace
+    Schema: ContentFramingProperties-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that when the encodingErrorPolicy is "replace" any error when decoding characters
+    results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
+  -->
+  <tdml:parserTestCase name="encodingErrorReplace" root="ee1"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">64ff67</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ee1>d�g</ee1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- This test has a 4 byte utf-8 character and passes as expected -->
+  <tdml:parserTestCase name="encodingNoError" root="ee2"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">64f09087a167</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ee2>d𐇡g</ee2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- This test has the same character above but is missing the last byte, so I was expecting the replacement character -->
+  <tdml:parserTestCase name="encodingErrorReplace2" root="ee2"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">64f0908767</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ee2>d�g</ee2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!-- This test has invalid utf-8 -->
+  <tdml:parserTestCase name="encodingErrorReplace3" root="ee2"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">64c2ff67</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ee2>d�g</ee2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!-- This test also has invaild utf-8 -->
+  <tdml:parserTestCase name="encodingErrorReplace4" root="ee2"
+    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">648067</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <ee2>d�g</ee2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
