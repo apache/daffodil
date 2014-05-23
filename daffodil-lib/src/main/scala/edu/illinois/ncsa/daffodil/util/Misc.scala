@@ -151,13 +151,6 @@ object Misc {
     if (bits.isEmpty()) Nil.toArray
     else bits2Bytes(Seq(bits))
 
-  def splitStringIntoUnitsOf8Chars(str: String): List[String] = {
-    if (str.length() <= 8) List(str)
-    else {
-      str.substring(0, 8) :: splitStringIntoUnitsOf8Chars(str.substring(8))
-    }
-  }
-
   def bits2Bytes(bits: Seq[String]): Array[Byte] = {
     // split at any character not a 0 or 1, then concatenate all
     val allBitsOnly = bits.flatMap { _.split("[^01]") }.mkString

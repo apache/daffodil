@@ -48,48 +48,47 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import java.util.UUID
 
- /**
-   * Technique for analyzing and combining charset encoding 
-   * information uses a lattice. Top of lattice means
-   * "conflicting" information. Bottom of lattice is "no information" 
-   * and points in between have specific amounts of information.
-   * Basic operation is combine two values of the lattice to 
-   * move up the lattice toward the Top. 
-   */
-  sealed abstract class EncodingLattice
-  
-  /**
-   * This is the Top value for the lattice of knowledge 
-   * about encodings. Mixed as in multiple different encodings
-   * or a mixture of binary and text data, or some things
-   * not known until runtime.
-   */
-  case object Mixed extends EncodingLattice
-  /**
-   * Contains binary data (only)
-   */
-  case object Binary extends EncodingLattice
-  /**
-   * Means the encoding is determined via a runtime expression.
-   */
-  case object Runtime extends EncodingLattice
-  /**
-   * NoText is the bottom of the lattice. We have no information
-   * here. Means the item could have text, but just so happens to not 
-   * have any, so regardless of what it's encoding is, it doesn't
-   * interfere with contained children and parents having a
-   * common encoding. Example: A sequence with no alignment region, 
-   * and no delimiters. It's not binary, it has no text. It's 
-   * nothing really. 
-   */
-  case object NoText extends EncodingLattice
-  
-  /**
-   * Means we have a named encoding.
-   */
-  case class Encoding(name: String) extends EncodingLattice
+/**
+ * Technique for analyzing and combining charset encoding
+ * information uses a lattice. Top of lattice means
+ * "conflicting" information. Bottom of lattice is "no information"
+ * and points in between have specific amounts of information.
+ * Basic operation is combine two values of the lattice to
+ * move up the lattice toward the Top.
+ */
+sealed abstract class EncodingLattice
 
-  
+/**
+ * This is the Top value for the lattice of knowledge
+ * about encodings. Mixed as in multiple different encodings
+ * or a mixture of binary and text data, or some things
+ * not known until runtime.
+ */
+case object Mixed extends EncodingLattice
+/**
+ * Contains binary data (only)
+ */
+case object Binary extends EncodingLattice
+/**
+ * Means the encoding is determined via a runtime expression.
+ */
+case object Runtime extends EncodingLattice
+/**
+ * NoText is the bottom of the lattice. We have no information
+ * here. Means the item could have text, but just so happens to not
+ * have any, so regardless of what it's encoding is, it doesn't
+ * interfere with contained children and parents having a
+ * common encoding. Example: A sequence with no alignment region,
+ * and no delimiters. It's not binary, it has no text. It's
+ * nothing really.
+ */
+case object NoText extends EncodingLattice
+
+/**
+ * Means we have a named encoding.
+ */
+case class Encoding(name: String) extends EncodingLattice
+
 /////////////////////////////////////////////////////////////////
 // Groups System
 /////////////////////////////////////////////////////////////////
@@ -147,15 +146,15 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       res
     }
   }
-  
+
   /**
    * If s1 and s2 are the same encoding name
    * then s1, else "mixed". Also "notext" combines
-   * with anything. 
+   * with anything.
    */
   def combinedEncoding(
-      s1: EncodingLattice, 
-      s2: EncodingLattice): EncodingLattice = {
+    s1: EncodingLattice,
+    s2: EncodingLattice): EncodingLattice = {
     (s1, s2) match {
       case (x, y) if (x == y) => x
       case (Mixed, _) => Mixed
@@ -168,7 +167,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case (x, y) => Mixed
     }
   }
-  
+
   /**
    * Roll up from the bottom. This is abstract interpretation.
    * The top (aka conflicting encodings) is "mixed"
@@ -179,7 +178,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * here and determine when things that use expressions
    * to get the encoding are all going to get the same
    * expression value. For now, if it is an expression
-   * then we lose. 
+   * then we lose.
    */
   lazy val summaryEncoding: EncodingLattice = {
     val myEnc = if (!isRepresented) NoText
@@ -187,31 +186,31 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     else if (!couldHaveText) NoText
     else if (!this.isKnownEncoding) Runtime
     else Encoding(this.knownEncodingName)
-    val childEncs: Seq[EncodingLattice] = termChildren.map{ x => x.summaryEncoding }
-    val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x,y) }
+    val childEncs: Seq[EncodingLattice] = termChildren.map { x => x.summaryEncoding }
+    val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x, y) }
     res
   }
-  
+
   /**
    * True if this term is known to have some text aspect. This can be the value, or it can be
-   * delimiters. 
+   * delimiters.
    * <p>
    * False only if this term cannot ever have text in it. Example: a sequence with no delimiters.
-   * Example: a binary int with no delimiters. 
+   * Example: a binary int with no delimiters.
    * <p>
    * Note: this is not recursive - it does not roll-up from children terms.
    * TODO: it does have to deal with the prefix length situation. The type of the prefix
-   * may be textual. 
+   * may be textual.
    * <p>
    * Override in element base to take simple type or prefix length situations into account
    */
-   lazy val couldHaveText = hasDelimiters
-  
+  lazy val couldHaveText = hasDelimiters
+
   /**
-   * Returns true if this term either cannot conflict because it has no textual 
+   * Returns true if this term either cannot conflict because it has no textual
    * aspects, or if it couldHaveText then the encoding must be same.
    */
-  def hasCompatibleEncoding(t2: Term) : Boolean = {
+  def hasCompatibleEncoding(t2: Term): Boolean = {
     if (!this.couldHaveText) true
     else if (!t2.couldHaveText) true
     else this.knownEncodingCharset == t2.knownEncodingCharset
@@ -224,20 +223,20 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * Not recursive into contained children.
    */
   def isLocallyTextOnly: Boolean
-  
+
   //TODO: if we add recursive types capability to DFDL this will have to change
   // but so will many of these compiler passes up and down through the DSOM objects.
-  
+
   /**
-   * The termChildren are the children that are Terms, i.e., derived from the Term 
+   * The termChildren are the children that are Terms, i.e., derived from the Term
    * base class. This is to make it clear
    * we're not talking about the XML structures inside the XML parent (which might
    * include annotations, etc.
    */
-  def termChildren : Seq[Term]
+  def termChildren: Seq[Term]
 
   val tID = UUID.randomUUID()
-  
+
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
   // highly recommended. Lots of time wasted because a val constructor parameter can be 
@@ -510,21 +509,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   import edu.illinois.ncsa.daffodil.util.ListUtils
 
-  //  lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
-  //  lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)
-  //
-  //  def hasRequiredSiblings(splitter: ListUtils.SubListFinder[Term]) = {
-  //    val res = nearestEnclosingSequence.map { es =>
-  //      {
-  //        val allSiblings = es.groupMembers.map { _.referredToComponent }
-  //        val sibs = splitter(allSiblings, this)
-  //        val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
-  //        hasAtLeastOne != None
-  //      }
-  //    }.getOrElse(false)
-  //    res
-  //  }
-
   lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>
       val allSiblings = enc.groupMembers.map { _.referredToComponent }
@@ -656,14 +640,12 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
         termFactory(n, this, i)
     }
   }
-  
-  override
-  lazy val termChildren = groupMembers
-  
-  override
-  lazy val isLocallyTextOnly = {
+
+  override lazy val termChildren = groupMembers
+
+  override lazy val isLocallyTextOnly = {
     this.hasNoSkipRegions &&
-    this.hasTextAlignment
+      this.hasTextAlignment
   }
 
   lazy val groupMembersNoRefs = groupMembers.map {
@@ -951,12 +933,11 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   with SeparatorSuppressionPolicyMixin {
 
   requiredEvaluations(checkIfValidUnorderedSequence)
-  
+
   lazy val myPeers = sequencePeers
-  
-  override
-  lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
-  
+
+  override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
+
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
@@ -1146,7 +1127,7 @@ class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComp
 }
 
 /**
- * A GroupRef (group reference) is a term, but most everything is delgated to the 
+ * A GroupRef (group reference) is a term, but most everything is delgated to the
  * referred-to Global Group Definition object.
  */
 class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
@@ -1172,10 +1153,9 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val prettyBaseName = "group.ref." + localName
 
   lazy val myPeers = groupRefPeers
-  
-  override
-  lazy val termChildren: Seq[Term] = {
-		  group.termChildren
+
+  override lazy val termChildren: Seq[Term] = {
+    group.termChildren
   }
 
   lazy val qname = resolveQName(ref)
@@ -1194,12 +1174,10 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
   lazy val group = groupDef.modelGroup
-  
-  override 
-  lazy val couldHaveText = group.couldHaveText
-  
-  override
-  lazy val isLocallyTextOnly = group.isLocallyTextOnly
+
+  override lazy val couldHaveText = group.couldHaveText
+
+  override lazy val isLocallyTextOnly = group.isLocallyTextOnly
 
   override lazy val referredToComponent = group
 

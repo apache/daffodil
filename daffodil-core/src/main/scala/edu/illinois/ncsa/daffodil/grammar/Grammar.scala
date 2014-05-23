@@ -296,22 +296,14 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
   private val unparser_ = LV('unparser) {
     gram.unparser
   }
-
-  //  override def toString = {
-  //    val body = if (!guard) EmptyGram.toString else gram.toString
-  //    // name + "(" + body + ")"
-  //    body
-  //  }
 }
 
 object Prod {
-  // there is no guard in this first apply signature
-  // here, so in principle there is no reason to pass by-name the
-  // gram. However, keeping it this way insures uniform behavior if you are say,
-  // walking through productions in a debugger. 
-  //@deprecated("use prod(nameArg, sc) {...body...} form", "2013-10-01")
-  def apply(nameArg: String, sc: Term, gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
 
+  // This inner object is about allowing a curried form of Prod object creation
+  // where the regular args come first, and the nested grammar part is a body section that comes 
+  // after. This is a bit cleaner to use and is a tiny small step in cleanup of
+  // the grammar part of Daffodil.
   object prod {
     def apply(nameArg: String, sc: Term)(gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
     def apply(nameArg: String, sc: Term, guard: Boolean)(gram: => Gram): Prod = new Prod(nameArg, sc, guard, gram)
@@ -321,6 +313,13 @@ object Prod {
   // the guard is satisfied. That's why we pass gram by-name.
   //@deprecated("use prod(nameArg, sc, guard) {...body...} form", "2013-10-01")
   def apply(nameArg: String, sc: Term, guard: Boolean, gram: => Gram): Prod = new Prod(nameArg, sc, guard, gram)
+
+  // there is no guard in this apply signature
+  // here, so in principle there is no reason to pass by-name the
+  // gram. However, keeping it this way insures uniform behavior if you are say,
+  // walking through productions in a debugger. 
+  //@deprecated("use prod(nameArg, sc) {...body...} form", "2013-10-01")
+  def apply(nameArg: String, sc: Term, gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
 
 }
 

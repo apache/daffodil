@@ -14,7 +14,7 @@
         <dfdl:format ref="dateNoTZ" calendarTimeZone="UTC"/>
       </dfdl:defineFormat>
       <dfdl:defineFormat name="dateTZtypo">
-        <dfdl:format ref="dateNoTZ" calendarTimeZone="UTC-19:59:59"/>
+        <dfdl:format ref="dateNoTZ" calendarTimeZone="5 o'clock somewhere"/>
       </dfdl:defineFormat>
     </xs:appinfo>
   </xs:annotation>

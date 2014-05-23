@@ -1139,44 +1139,7 @@ class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
       rtlBigits
     }
   }
-
 }
-
-//object BitOrderUtil {
-//  /**
-//   * Useful for converting non-byte-sized characters.
-//   *
-//   * Inefficient because it starts from a string of characters
-//   * that are either "1" or "0" representing each bit.
-//   */
-//  def bytesOfBitsMSBFirst(bits: String): Seq[String] = {
-//    val byteAndMore = "([01]{8})([01]*)".r
-//    val fragmentOfAByte = "([01]{1,8})".r
-//    bits match {
-//      case "" => Nil
-//      case byteAndMore(byte, more) => {
-//        byte +: bytesOfBitsMSBFirst(more)
-//      }
-//      case fragmentOfAByte(frag) => Seq(frag) // Seq(frag + "0" * (8 - frag.length)) // Multiplication for strings: "c" * 5 = "ccccc"
-//      case _ => Assert.invariantFailed("not a byte, nor fragment of byte")
-//    }
-//  }
-
-//  def bytesOfBitsLSBFirst(msbFirstBits: String): Seq[String] = {
-//    val bits = msbFirstBits.reverse
-//    val byteAndMore = "([01]{8})([01]*)".r
-//    val fragmentOfAByte = "([01]{1,8})".r
-//    bits match {
-//      case "" => Nil
-//      case byteAndMore(byte, more) => {
-//        byte.reverse +: bytesOfBitsLSBFirst(more)
-//      }
-//      case fragmentOfAByte(frag) => Seq(frag.reverse) // Seq(frag + "0" * (8 - frag.length)) // Multiplication for strings: "c" * 5 = "ccccc"
-//      case _ => Assert.invariantFailed("not a byte, nor fragment of byte")
-//    }
-//  }
-//
-//}
 
 class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) {
 

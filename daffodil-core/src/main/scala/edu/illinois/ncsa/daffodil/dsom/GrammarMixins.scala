@@ -181,12 +181,11 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
 trait BitOrderMixin extends GrammarMixin { self: Term =>
 
-  lazy val myBitOrder = bitOrder
   lazy val enclosingBitOrder = enclosingTerm.map(_.bitOrder)
   lazy val priorSiblingBitOrder = priorSibling.map(_.bitOrder)
-  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(myBitOrder))
+  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(bitOrder))
 
-  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != myBitOrder) { prims.BitOrderChange(this) }
+  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != bitOrder) { prims.BitOrderChange(this) }
 }
 
 /////////////////////////////////////////////////////////////////
@@ -837,11 +836,11 @@ trait ElementBaseGrammarMixin
       } ~ nilElementTerminator)
   }
 
-//  lazy val leftPadding =  Prod("leftPadding", this, hasLeftPadding, prims.LeftPadding(this))
-  
+  //  lazy val leftPadding =  Prod("leftPadding", this, hasLeftPadding, prims.LeftPadding(this))
+
   lazy val scalarDefaultableSimpleContent = {
     val res = Prod("scalarDefaultableSimpleContent", this,
-      isSimpleType,  nilLit | emptyDefaulted | parsedNil | parsedValue)
+      isSimpleType, nilLit | emptyDefaulted | parsedNil | parsedValue)
     res
   }
 

@@ -510,21 +510,11 @@ case class InStreamFromByteChannel private (
     b
   }
 
-  def swizzleBitOrder(b: Byte, bitOrder: BitOrder) = {
-    val bi = Bits.asUnsignedByte(b)
-    val resi = if (bitOrder == BitOrder.LeastSignificantBitFirst) Bits.asLSBitFirst(bi) else bi
-    val resb = Bits.asSignedByte(resi)
-    resb
-  }
-
   def getRawByte(bitPos: Long, ignored: java.nio.ByteOrder, bitOrder: BitOrder) = {
     Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
-    // byteReader.bb.order(order) // must be aligned, so byte order is irrelevant.
+    // byteReader.bb.order(order) // must be aligned, so byte order and bit order are irrelevant.
     val b = byteReader.getByte(bytePos) // NOT called getByte(pos)
-    // note that b is of type Byte, which means signed. Converting to int requires us to eliminate the
-    // sign bit and treat it as a regular magnitude bit. 
-    // swizzleBitOrder(b, bitOrder)
     b
   }
 

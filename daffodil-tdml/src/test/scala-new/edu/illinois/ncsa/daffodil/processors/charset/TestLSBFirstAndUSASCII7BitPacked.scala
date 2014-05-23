@@ -39,7 +39,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.tdml.Document
 
-class TestUSASCII7BitPacked {
+class TestLSBFirstAndUSASCII7BitPacked {
 
   @Test def testOne7Bit() {
     val dec = USASCII7BitPackedCharset.newDecoder()
