@@ -253,14 +253,14 @@ class TestCLIparsing {
     shell.expectClose()
   }
 
-  @Test def test_989_CLI_Parsing_negativeTest02() {
-    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -n 'http://www.example.org/example1/'\n"
-    val shell = Util.start(cmd)
-    shell.expectErr("--root must be defined if --namespace is defined")
-
-    shell.send("exit\n")
-    shell.expectClose()
-  }
+//  @Test def test_989_CLI_Parsing_negativeTest02() {
+//    val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -n 'http://www.example.org/example1/'\n"
+//    val shell = Util.start(cmd)
+//    shell.expectErr("--root must be defined if --namespace is defined")
+//
+//    shell.send("exit\n")
+//    shell.expectClose()
+//  }
 
   @Test def test_996_CLI_Parsing_negativeTest04() {
     val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r unknown\n"
@@ -299,8 +299,8 @@ class TestCLIparsing {
 
   @Test def test_1003_CLI_Parsing_SimpleParse_emptyNamespace() {
     //This is one of those rare cases where we cannot make a command work for both Windows and Linux
-    val cmdWin = """./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r address -n "" daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"""
-    val cmdLin = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r address -n '' daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
+    val cmdWin = """./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r {}address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"""
+    val cmdLin = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r {}address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
     val cmd = if (Util.isWindows) cmdWin else cmdLin
     val shell = Util.start(cmd)
     shell.expect(output4)
@@ -310,7 +310,7 @@ class TestCLIparsing {
   }
 
   @Test def test_1004_CLI_Parsing_SimpleParse_namespaceUsed() {
-    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd -r matrix -n target daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
+    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd -r {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
     shell.expect(output6)
 
