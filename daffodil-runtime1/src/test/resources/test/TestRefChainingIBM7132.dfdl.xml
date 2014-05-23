@@ -29,7 +29,7 @@
       <dfdl:defineFormat name="config">
         <dfdl:format initiator="" terminator="" leadingSkip="0"
           trailingSkip="0" truncateSpecifiedLengthString="no" textBidi="no"
-          floating="no" byteOrder="bigEndian" alignment="1"
+          floating="no" byteOrder="bigEndian"  bitOrder="mostSignificantBitFirst" alignment="1"
           alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
           lengthUnits="bytes" initiatedContent="no" sequenceKind="ordered"
           ignoreCase="yes" textPadKind="none" textTrimKind="none"
@@ -47,7 +47,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="baseString">
-        <dfdl:format byteOrder="bigEndian" alignment="1"
+        <dfdl:format byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1"
           alignmentUnits="bytes" fillByte="f" lengthUnits="bytes"
           initiator="" terminator="" leadingSkip="0" trailingSkip="0"
           truncateSpecifiedLengthString="no" textBidi="no" floating="no"

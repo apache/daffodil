@@ -510,20 +510,37 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   import edu.illinois.ncsa.daffodil.util.ListUtils
 
-  lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
-  lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)
+  //  lazy val hasLaterRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.tailAfter _)
+  //  lazy val hasPriorRequiredSiblings: Boolean = hasRequiredSiblings(ListUtils.preceding _)
+  //
+  //  def hasRequiredSiblings(splitter: ListUtils.SubListFinder[Term]) = {
+  //    val res = nearestEnclosingSequence.map { es =>
+  //      {
+  //        val allSiblings = es.groupMembers.map { _.referredToComponent }
+  //        val sibs = splitter(allSiblings, this)
+  //        val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
+  //        hasAtLeastOne != None
+  //      }
+  //    }.getOrElse(false)
+  //    res
+  //  }
 
-  def hasRequiredSiblings(splitter: ListUtils.SubListFinder[Term]) = {
-    val res = nearestEnclosingSequence.map { es =>
-      {
-        val allSiblings = es.groupMembers.map { _.referredToComponent }
-        val sibs = splitter(allSiblings, this)
-        val hasAtLeastOne = sibs.find { term => term.hasStaticallyRequiredInstances }
-        hasAtLeastOne != None
-      }
-    }.getOrElse(false)
-    res
+  lazy val allSiblings: Seq[Term] = {
+    val res = nearestEnclosingSequence.map { enc =>
+      val allSiblings = enc.groupMembers.map { _.referredToComponent }
+      allSiblings
+    }
+    res.getOrElse(Nil)
   }
+
+  lazy val priorSiblings = ListUtils.preceding(allSiblings, this)
+  lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
+
+  lazy val priorSibling = priorSiblings.lastOption
+  lazy val nextSibling = laterSiblings.headOption
+
+  lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredInstances)
+  lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredInstances)
 
   def hasStaticallyRequiredInstances: Boolean
   def isKnownRequiredElement = false

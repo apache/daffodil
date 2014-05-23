@@ -33,7 +33,8 @@
         calendarCheckPolicy="lax" calendarTimeZone="UTC"
         calendarObserveDST="yes" calendarFirstDayOfWeek="Wednesday"
         calendarDaysInFirstWeek="7" calendarCenturyStart="50"
-        calendarLanguage="it-IT" />
+        calendarLanguage="it-IT"
+        bitOrder="mostSignificantBitFirst" />
 
     </xs:appinfo>
   </xs:annotation>

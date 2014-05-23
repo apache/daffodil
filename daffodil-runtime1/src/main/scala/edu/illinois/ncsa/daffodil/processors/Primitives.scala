@@ -691,6 +691,8 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
   protected val GramName = e.primType.name
   protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
 
+  val bitOrd = e.bitOrder
+
   def parser = new PrimParser(this, e) {
     override def toString = gram.toString
 
@@ -698,10 +700,9 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
       try {
         val (start1, nBits) = getBitLength(start0)
         val (start, bo) = getByteOrder(start1)
-
         //if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
 
-        val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo)
+        val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo, bitOrd)
         //if (GramName == "hexBinary") {
         //  val bytes = value.asInstanceOf[Array[Byte]]
         //  var asString: StringBuilder = new StringBuilder()
@@ -1240,9 +1241,8 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
   lazy val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
 
   def parser: DaffodilParser = new PrimParser(this, decl) {
-    
+
     val d = new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
- 
 
     override def toBriefXML(depthLimit: Int = -1) = {
       "<" + kindString + ">" + testPattern + "</" + kindString + ">"

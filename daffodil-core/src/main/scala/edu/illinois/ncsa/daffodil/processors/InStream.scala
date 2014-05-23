@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Misc._
+import edu.illinois.ncsa.daffodil.util.Bits
 import java.io.ByteArrayInputStream
 import java.nio.charset.Charset
 import java.nio.CharBuffer
@@ -48,13 +49,15 @@ import java.io.File
 import org.apache.commons.io.IOUtils
 import java.nio.file.Files
 import java.nio.ByteBuffer
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 object InStream {
 
   val mandatoryAlignment = 8
 
-  def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long) = {
-    new InStreamFromByteChannel(context, in, bitOffset, bitLimit)
+  def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) = {
+    new InStreamFromByteChannel(context, in, bitOffset, bitLimit, bitOrder)
+
   }
 
   /**
@@ -119,13 +122,13 @@ trait InStream {
   /**
    * Checks that all 8-bits are available, and requires alignment also.
    */
-  def getByte(bitPos: Long, order: java.nio.ByteOrder): Byte
+  def getByte(bitPos: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
 
   /**
    * Will deliver a byte even if the bit limit implies only a fragment of a
    * byte is actually available.
    */
-  def getRawByte(bitPos: Long, order: java.nio.ByteOrder): Byte
+  def getRawByte(bitPos: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
 
   /**
    * Returns up to numBytes. Could be fewer. Does not check bitLimit bounds
@@ -133,7 +136,7 @@ trait InStream {
    */
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte]
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long)
+  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): (BigInt, Long)
 
   // TODO: remove if no longer needed
   // def withLimit(startBitPos: Long, endBitPos: Long): InStream
@@ -147,6 +150,8 @@ trait InStream {
    * Calling this forces the entire input into memory.
    */
   def lengthInBytes: Long
+
+  def withBitOrder(bitOrder: BitOrder): InStream
 
   /**
    * Returns a string using up as much as nBytes, along with the number of bits actually consumed.
@@ -222,8 +227,8 @@ case class InStreamFromByteChannel private (
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: SchemaComponent, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long) =
-    this(context, new DFDLByteReader(inArg), bitOffset, bitLimit, -1, None)
+  def this(context: SchemaComponent, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) =
+    this(context, new DFDLByteReader(inArg, bitOrder), bitOffset, bitLimit, -1, None)
 
   /**
    * withPos changes the bit position of the stream, and maintains the char reader
@@ -281,6 +286,14 @@ case class InStreamFromByteChannel private (
     this
   }
 
+  /**
+   * changes the bitOrder - must be done at a byte boundary.
+   */
+  def withBitOrder(bitOrder: BitOrder) = {
+    Assert.usage((bitPos % 8) == 1)
+    copy(byteReader = byteReader.changeBitOrder(bitOrder))
+  }
+
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
     val rdr = reader match {
       case None => {
@@ -318,7 +331,6 @@ case class InStreamFromByteChannel private (
     } else {
       getUnalignedBytes(bitPos, numBytes)
     }
-
   }
 
   private def asUnsignedByte(b: Byte): Int = if (b < 0) 256 + b else b
@@ -334,12 +346,12 @@ case class InStreamFromByteChannel private (
     val bytePos = bitPos >> 3
     val byteShift = bitPos & 0x7
     Assert.usage(byteShift != 0, "Shouldn't be called if bytes are aligned.")
-    val byteSuperset = getByteAlignedBytes(bytePos, numBytes + 1).map { asUnsignedByte(_) }
+    val byteSuperset = getByteAlignedBytes(bytePos, numBytes + 1).map { Bits.asUnsignedByte(_) }
     val bitsKeeping = byteSuperset.map { b => ((b << byteShift) & 0xFF) >> byteShift }.slice(1, byteSuperset.length - 1)
     val bitsAddingToNextByte = byteSuperset.map { b => (b >> byteShift) << byteShift }.slice(1, byteSuperset.length)
     val bothParts = bitsAddingToNextByte zip bitsKeeping
     val resultInts = bothParts.map { case (adding, keeping) => adding | keeping }
-    val resultBytes = resultInts.map { asSignedByte(_) }
+    val resultBytes = resultInts.map { Bits.asSignedByte(_) }
     resultBytes
   }
 
@@ -405,7 +417,7 @@ case class InStreamFromByteChannel private (
     case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
   }
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder): (BigInt, Long) = {
+  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): (BigInt, Long) = {
     checkBounds(bitPos, bitCount)
     val worker: EndianTraits = getEndianTraits(bitPos, bitCount, order)
     var result = BigInt(0)
@@ -492,17 +504,28 @@ case class InStreamFromByteChannel private (
 
   // This still requires alignment, and that a whole byte is available
 
-  def getByte(bitPos: Long, order: java.nio.ByteOrder) = {
+  def getByte(bitPos: Long, byteOrder: java.nio.ByteOrder, bitOrder: BitOrder) = {
     checkBounds(bitPos, 8)
-    getRawByte(bitPos, order)
+    val b = getRawByte(bitPos, byteOrder, bitOrder)
+    b
   }
 
-  def getRawByte(bitPos: Long, byteOrder: java.nio.ByteOrder) = {
-    Assert.usage(byteOrder != null) // ignored, but we should at least insist on it being one, not null.
+  def swizzleBitOrder(b: Byte, bitOrder: BitOrder) = {
+    val bi = Bits.asUnsignedByte(b)
+    val resi = if (bitOrder == BitOrder.LeastSignificantBitFirst) Bits.asLSBitFirst(bi) else bi
+    val resb = Bits.asSignedByte(resi)
+    resb
+  }
+
+  def getRawByte(bitPos: Long, ignored: java.nio.ByteOrder, bitOrder: BitOrder) = {
     Assert.usage(bitPos % 8 == 0)
     val bytePos = (bitPos >> 3).toInt
     // byteReader.bb.order(order) // must be aligned, so byte order is irrelevant.
-    byteReader.getByte(bytePos) // NOT called getByte(pos)
+    val b = byteReader.getByte(bytePos) // NOT called getByte(pos)
+    // note that b is of type Byte, which means signed. Converting to int requires us to eliminate the
+    // sign bit and treat it as a regular magnitude bit. 
+    // swizzleBitOrder(b, bitOrder)
+    b
   }
 
   /**
@@ -527,7 +550,8 @@ class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends Data
     var bytes: List[Byte] = Nil
     try {
       for (i <- 0 until numBytes) {
-        bytes = inStream.getRawByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN) +: bytes
+        bytes = inStream.getRawByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN,
+          BitOrder.MostSignificantBitFirst) +: bytes
       }
     } catch {
       case e: IndexOutOfBoundsException =>

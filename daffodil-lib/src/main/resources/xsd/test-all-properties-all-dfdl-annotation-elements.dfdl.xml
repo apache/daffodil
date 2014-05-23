@@ -28,6 +28,7 @@
     <xsd:annotation>
       <xsd:appinfo>
         <dfdl:simpleType alignment="implicit"
+          bitOrder="mostSignificantBitFirst"
           alignmentUnits="bits" byteOrder="littleEndian" encoding="ascii"
           escapeSchemeRef="ex:foo" fillByte="1" initiator=""
 

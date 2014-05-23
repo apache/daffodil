@@ -40,7 +40,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 					separatorSuppressionPolicy="never" escapeSchemeRef="" lengthKind="delimited"
 					documentFinalTerminatorCanBeMissing="no" outputNewLine="%LF;"
 					textNumberRep="standard" nilValueDelimiterPolicy="both"
-					textNumberRounding="pattern" />
+					textNumberRounding="pattern" 
+                    bitOrder="mostSignificantBitFirst"/>
 			</dfdl:defineFormat>
 
 		</xs:appinfo>
@@ -53,7 +54,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
                     initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no" 
 					ignoreCase="yes" textPadKind="none" textTrimKind="none"
 					textStandardBase="10" textStringJustification="right"
-					escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"/>
+					escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit"
+                    bitOrder="mostSignificantBitFirst"/>
 			</dfdl:defineFormat>
 
 		</xs:appinfo>

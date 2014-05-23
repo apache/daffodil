@@ -34,6 +34,10 @@
   <!-- 11 Properties Common to Both Content and Framing -->
   <xsd:attribute name="byteOrder"
     type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
+  
+  <!-- ADDED PER PUBLIC COMMENT ON Sept 2013 DRAFT -->
+  <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
+  
   <xsd:attribute name="encoding"
     type="dfdl:EncodingEnum_Or_DFDLExpression" />
   <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
@@ -45,6 +49,9 @@
   <xsd:attributeGroup name="CommonAG">
     <xsd:attribute name="byteOrder"
       type="dfdl:ByteOrderEnum_Or_DFDLExpression" />
+      
+    <xsd:attribute name="bitOrder" type="dfdl:BitOrderEnum"/>
+      
     <xsd:attribute name="encoding"
       type="dfdl:EncodingEnum_Or_DFDLExpression" />
     <xsd:attribute name="utf16Width" type="dfdl:UTF16WidthEnum" />
@@ -363,7 +370,6 @@
   <xsd:attribute name="separatorPosition" type="dfdl:SeparatorPositionEnum" />
   <xsd:attribute name="separatorPolicy" type="dfdl:SeparatorPolicyEnum" />
   <xsd:attribute name="separatorSuppressionPolicy" type="dfdl:SeparatorSuppressionPolicyEnum" />  
-  
 
   <xsd:attributeGroup name="SeparatorAG">
     <xsd:attribute name="separator"
@@ -470,6 +476,7 @@
 
       <!-- List of properties with non-string types -->
       <xsd:enumeration value="byteOrder" />
+      <xsd:enumeration value="bitOrder"/>
       <xsd:enumeration value="encoding" />
       <xsd:enumeration value="encodingErrorPolicy"/>
       <xsd:enumeration value="utf16Width" />

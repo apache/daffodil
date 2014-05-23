@@ -16,7 +16,8 @@
 			<dfdl:defineFormat name="daffodilTest1">
 				<dfdl:format ref="daffodilNewProperties1" alignment="1"
 					alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
-					byteOrder="bigEndian" calendarPatternKind="implicit"
+					byteOrder="bigEndian" 
+					calendarPatternKind="implicit"
 					documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
 					encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
 					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="implicit"
@@ -45,9 +46,11 @@
 				<dfdl:format encodingErrorPolicy="replace" sequenceKind="ordered"
 					calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
 					calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
-					calendarCheckPolicy='strict' calendarLanguage='en' />
+					calendarCheckPolicy='strict' calendarLanguage='en' 
+					bitOrder="mostSignificantBitFirst" />
 			</dfdl:defineFormat>
 
 		</xs:appinfo>
 	</xs:annotation>
+
 </xs:schema>

@@ -24,6 +24,9 @@ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001
 		<xsd:complexType>
 			<!-- should be able to use {$dfdl:boundary} here, but Daffodil 0.10.1 
 				doesn't recognize it -->
+            <!-- Not correct. The name boundary is defined above in the namespace
+                 of this schema, however, this schema has no namespace so the name boundary
+                 has no namespace hence no prefix. -->
 			<xsd:sequence dfdl:separator="{$boundary}"
 				dfdl:separatorSuppressionPolicy="anyEmpty" dfdl:separatorPosition="prefix"
 				dfdl:terminator="--%CR;%LF;">

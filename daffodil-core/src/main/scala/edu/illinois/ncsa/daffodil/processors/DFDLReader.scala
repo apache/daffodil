@@ -57,6 +57,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.util.parsing.input.Reader
 import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 //
 // Convention: name index fields like bytePos or bitPos or charPos with suffixes to indicate
@@ -70,19 +71,28 @@ import edu.illinois.ncsa.daffodil.util._
  *
  * This layer doesn't know anything about bits and bit positions like all the higher layers do.
  */
-class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
+class DFDLByteReader private (psb: PagedSeq[Byte], bitOrder: BitOrder, val bytePos0b: Int = 0)
   extends scala.util.parsing.input.Reader[Byte] with Logging {
 
-  def this(in: ReadableByteChannel) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)), 0)
+  def this(in: ReadableByteChannel, bitOrder: BitOrder) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)),
+    bitOrder,
+    0)
+
+  /**
+   * new reader that has different bit order.
+   */
+  def changeBitOrder(newBitOrder: BitOrder): DFDLByteReader = {
+    new DFDLByteReader(psb, newBitOrder, bytePos0b)
+  }
 
   /**
    * Note: calling this will force the entire input into memory.
    */
   def lengthInBytes: Long = psb.length
 
-  lazy val first: Byte = psb(bytePos0b)
+  lazy val first: Byte = getByte(bytePos0b)
 
-  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bytePos0b + 1)
+  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bitOrder, bytePos0b + 1)
 
   // needed because of contract from Reader superclass.
   lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos0b)
@@ -93,7 +103,7 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
     // note: do NOT slice. That copies the psb.
     //new DFDLByteReader(psb.slice(bytePosition), 0) 
     if (bytePosition0b == bytePos0b) this // already at this position.
-    else new DFDLByteReader(psb, bytePosition0b)
+    else new DFDLByteReader(psb, bitOrder, bytePosition0b)
   }
 
   def getByte(bytePosition0b: Int): Byte = {
@@ -102,7 +112,7 @@ class DFDLByteReader private (psb: PagedSeq[Byte], val bytePos0b: Int = 0)
   }
 
   def getByteArray(bytePosition0b: Int, numBytes: Int): Array[Byte] = {
-    
+
     // It is important to sanitize the numBytes request. 
     // If the parser is off the rails, it might get gibberish for 
     // a stored length value. We don't want to allocate 
@@ -189,10 +199,10 @@ object DFDLCharReader {
 }
 
 /**
- * Our version of Reader[Char] differs slightly from the Scala-provided 
- * one in that end-of-data is signified by the first member value of 
+ * Our version of Reader[Char] differs slightly from the Scala-provided
+ * one in that end-of-data is signified by the first member value of
  * (-1.toChar). (Note: Scala's Reader[Char] uses ^Z i.e., 26.toChar, but we
- * want to preserve the ability for all 256 byte values to be used.  
+ * want to preserve the ability for all 256 byte values to be used.
  *
  * This trait allows for multiple different implementations for performance
  * reasons.
@@ -259,7 +269,7 @@ class DFDLUTStringReader private (rdr: Reader[Char])
 object DFDLCharCounter {
   var count: Long = 0
   def incr(n: Long) = synchronized {
-    count += n 
+    count += n
   }
   def getAndResetCount = synchronized {
     val c = count
@@ -329,7 +339,7 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   override def toString = {
     "DFDLCharReader starting at bitPos " + startingBitPos + " charPos " + characterPos + " bitLimit " + bitLimit
   }
-  
+
 }
 
 // Scala Reader stuff is not consistent about whether it is generic over the element type, 

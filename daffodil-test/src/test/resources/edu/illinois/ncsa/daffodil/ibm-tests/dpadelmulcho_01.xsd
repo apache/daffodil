@@ -27,8 +27,8 @@
 				textNumberCheckPolicy="strict" textStandardInfinityRep="~"
 				textStandardNaNRep="z" textNumberRounding="pattern"
 				textStandardZeroRep="0" textOutputMinLength="1" lengthUnits="characters"
-				escapeSchemeRef="" documentFinalTerminatorCanBeMissing="no"
-				emptyValueDelimiterPolicy="none" />
+				escapeSchemeRef="" documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none" 
+                bitOrder="mostSignificantBitFirst"/>
 		</xs:appinfo>
 	</xs:annotation>
 

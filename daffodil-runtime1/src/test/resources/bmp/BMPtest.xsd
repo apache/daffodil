@@ -4,7 +4,7 @@
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:defineFormat name="format1">
             <dfdl:format lengthUnits="bytes" encoding="US-ASCII" byteOrder='littleEndian' 
-            		   binaryNumberRep='binary'
+            		   binaryNumberRep='binary' bitOrder="mostSignificantBitFirst"
                        lengthKind='implicit' initiator="" terminator="" separator=""
                        />
           </dfdl:defineFormat>

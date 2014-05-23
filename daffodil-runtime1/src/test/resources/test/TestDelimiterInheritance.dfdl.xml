@@ -29,7 +29,8 @@
         <dfdl:format initiator="" terminator="g"
           leadingSkip="0" trailingSkip="0"
           truncateSpecifiedLengthString="no" textBidi="no" floating="no"
-          byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+          byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
+          alignment="1" alignmentUnits="bytes"
           fillByte="f" occursCountKind="implicit" lengthUnits="bytes"
           initiatedContent="no" sequenceKind="ordered" ignoreCase="yes"
           textPadKind="none" textTrimKind="none" textStandardBase="10"
@@ -46,7 +47,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:defineFormat name="baseString">
-        <dfdl:format byteOrder="bigEndian" alignment="1"
+        <dfdl:format byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1"
           alignmentUnits="bytes" fillByte="f" lengthUnits="bytes"
           initiator="" terminator="" leadingSkip="0" trailingSkip="0"
           truncateSpecifiedLengthString="no" textBidi="no" floating="no"
@@ -55,7 +56,7 @@
           escapeSchemeRef="" lengthKind="delimited" occursCountKind="implicit" />
       </dfdl:defineFormat>
       <dfdl:defineFormat name="inheritance">
-        <dfdl:format byteOrder="bigEndian" alignment="1"
+        <dfdl:format byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1"
           alignmentUnits="bytes" fillByte="f" lengthUnits="bytes"
           initiator="" terminator="f" leadingSkip="0" trailingSkip="0"
           truncateSpecifiedLengthString="no" textBidi="no" floating="no"

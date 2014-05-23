@@ -18,6 +18,7 @@
 					initiatedContent="no"	
 					outputNewLine="%CR;%LF;"
 					occursCountKind="implicit"
+                    bitOrder="mostSignificantBitFirst"
 					/>
 				
 			</xs:appinfo>

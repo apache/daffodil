@@ -13,7 +13,7 @@
 			
    <dfdl:format ref="daffodilNewProperties1" initiator="" terminator="" truncateSpecifiedLengthString="no" textBidi="no" floating="no"    encoding="UTF-32LE" 
    alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
-   escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit"/>
+   escapeSchemeRef="" ignoreCase="yes" occursCountKind="implicit" bitOrder="mostSignificantBitFirst"/>
 			
 		</xs:appinfo>
 	</xs:annotation>

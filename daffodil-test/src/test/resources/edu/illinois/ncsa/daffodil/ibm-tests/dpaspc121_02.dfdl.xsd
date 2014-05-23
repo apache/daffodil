@@ -25,7 +25,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				textStandardExponentRep="E" textNumberCheckPolicy="lax"
 				textStandardInfinityRep="~" textStandardNaNRep="z"
 				textNumberRoundingMode="roundHalfDown" textStandardZeroRep=""
-				textZonedSignStyle="asciiStandard" textNumberRounding="pattern" />
+				textZonedSignStyle="asciiStandard" textNumberRounding="pattern" 
+                bitOrder="mostSignificantBitFirst" />
 
 
 		</xs:appinfo>

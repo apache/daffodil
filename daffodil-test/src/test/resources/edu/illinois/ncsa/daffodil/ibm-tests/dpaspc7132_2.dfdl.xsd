@@ -40,7 +40,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 					ignoreCase="yes" textPadKind="none" textTrimKind="none"
 					textStandardBase="10" textStringJustification="right"
 					lengthKind="explicit" truncateSpecifiedLengthString="no" 
-					length="2" escapeSchemeRef=""/>
+					length="2" escapeSchemeRef="" 
+                    bitOrder="mostSignificantBitFirst"/>
 			</dfdl:defineFormat>
 
 		</xs:appinfo>

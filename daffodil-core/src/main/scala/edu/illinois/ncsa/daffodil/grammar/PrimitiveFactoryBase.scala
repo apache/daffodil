@@ -145,6 +145,7 @@ trait PrimitiveFactoryBase {
   def SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nChars: Long): Terminal
   def SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram): Terminal
 
+  def BitOrderChange(t: Term): Terminal
   /**
    * Interface to grammar combinators
    */

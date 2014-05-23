@@ -62,8 +62,8 @@ class TestTDMLRunner {
 
   @Test def testDocPart1() {
     val xml = <documentPart type="text">abcde</documentPart>
-    val dp = new DocumentPart(xml, null)
-    val actual = dp.textContentToBytes.toList
+    val dp = new TextDocumentPart(xml, null)
+    val actual = Misc.bits2Bytes(dp.dataBits).toList
     val expected = Vector('a'.toByte, 'b'.toByte, 'c'.toByte, 'd'.toByte, 'e'.toByte).toList
     assertEquals(expected, actual)
   }
@@ -71,8 +71,8 @@ class TestTDMLRunner {
   @Test def testDocPart2() {
     val xml = <document><documentPart type="byte">123abc</documentPart></document>
     val doc = new Document(xml, null)
-    val dp = doc.documentParts(0)
-    val hexDigits = dp.hexDigits
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
     assertEquals("123abc", hexDigits)
     val actual = doc.documentBytes.toList
     val expected = Vector(0x12, 0x3a, 0xbc).map { _.toByte }.toList
@@ -82,8 +82,8 @@ class TestTDMLRunner {
   @Test def testHexOddNumberOfNibbles() {
     val xml = <document><documentPart type="byte">123</documentPart></document>
     val doc = new Document(xml, null)
-    val dp = doc.documentParts(0)
-    val hexDigits = dp.hexDigits
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val hexDigits = dp(0).hexDigits
     assertEquals("123", hexDigits)
     val actual = doc.documentBytes.toList
     val expected = Array(0x12, 0x30).map { _.toByte }.toList
@@ -98,8 +98,9 @@ class TestTDMLRunner {
               </document>
 
     val doc = new Document(xml, null)
-    val firstPart = doc.documentParts(0)
-    val secondPart = doc.documentParts(1)
+    val dp = doc.documentParts.collect { case x: ByteDocumentPart => x }
+    val firstPart = dp(0)
+    val secondPart = dp(1)
     assertEquals("12", firstPart.hexDigits)
     assertEquals("3abc", secondPart.hexDigits)
     val actual = doc.documentBytes.toList
@@ -573,7 +574,6 @@ class TestTDMLRunner {
   @Test def testBits() {
     val doc = new Document(<document><documentPart type="bits">111</documentPart></document>, null)
     val bits = doc.documentParts(0)
-    assertEquals("11100000", doc.documentBitsFullBytes)
     val bytes = doc.documentBytes.toList
     assertEquals(-32, bytes(0))
     assertEquals(3, doc.nBits)
@@ -704,7 +704,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertEquals(9, bytes.length)
     ts.runOneTest("testNilCompare")
   }
-  
+
   /**
    * Make sure our tdml data document preserves CRLFs.
    * <p>
@@ -722,11 +722,151 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     val d = new Document(xml, null)
     val actual = d.documentBytes
     val expected = Vector(
-        'a'.toByte, 'b'.toByte, 
-        0x0d.toByte, 0x0a.toByte, 
-        0x0d.toByte, 0x0a.toByte, 
-        'c'.toByte, 'd'.toByte).toList
+      'a'.toByte, 'b'.toByte,
+      0x0d.toByte, 0x0a.toByte,
+      0x0d.toByte, 0x0a.toByte,
+      'c'.toByte, 'd'.toByte).toList
     assertEquals(expected, actual.toList)
   }
-  
+
+  @Test def testLSB1() {
+    val xml = <document bitOrder="LSBFirst">
+                <documentPart type="bits">00000010</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    assertEquals("00000010", firstPart.bitDigits)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x02).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testLSB2() {
+    val xml = <document>
+                <documentPart type="bits" bitOrder="LSBFirst">010</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x02).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testLSB3_utf8_1char() {
+    val xml = <document>
+                <documentPart type="text" bitOrder="LSBFirst">1</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
+    val firstPart = dp(0)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x31).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testLSB3_7bit_1char() {
+    val xml = <document>
+                <documentPart type="text" bitOrder="LSBFirst" encoding="us-ascii-7-bit-packed">1</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
+    val firstPart = dp(0)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x31).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testLSB3_7bit_2char() {
+    val xml = <document>
+                <documentPart type="text" bitOrder="LSBFirst" encoding="us-ascii-7-bit-packed">12</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: TextDocumentPart => x }
+    val firstPart = dp(0)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x31, 0x19).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testLSB4() {
+    val xml = <document>
+                <documentPart type="bits" bitOrder="LSBFirst">00110011 110</documentPart>
+              </document>
+
+    val doc = new Document(xml, null)
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    val firstPart = dp(0)
+    val actual = doc.documentBytes.toList
+    val expected = List(0x33, 0x6).map { _.toByte }
+    assertEquals(expected, actual)
+  }
+
+  @Test def testCheckForBadBitOrderTransitions1() {
+    val xml = <document>
+                <documentPart type="bits" bitOrder="LSBFirst">1</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
+              </document>
+    val exc = intercept[Exception] {
+      val doc = new Document(xml, null)
+      val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    }
+    assertTrue(exc.getMessage().contains("bitOrder"))
+  }
+
+  @Test def testCheckForBadBitOrderTransitions2() {
+    val xml = <document>
+                <documentPart type="bits" bitOrder="LSBFirst">1</documentPart>
+                <documentPart type="bits" bitOrder="LSBFirst">111 1111</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    // No error in this case because the change of bit order is on a byte boundary.
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    assertEquals(3, dp.length)
+  }
+
+  @Test def testCheckForBadBitOrderTransitions3() {
+    val xml = <document>
+                <documentPart type="bits" bitOrder="LSBFirst">1111 1111</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    // No error in this case because the change of bit order is on a byte boundary.
+    val dp = doc.documentParts.collect { case x: BitsDocumentPart => x }
+    assertEquals(3, dp.length)
+  }
+
+  @Test def testCheckForBadBitOrderTransitions4() {
+    val xml = <document>
+                <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst">abcdefgh</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
+              </document>
+    val doc = new Document(xml, null)
+    // No error in this case because the change of bit order is on a byte boundary.
+    val dp = doc.documentParts.collect { case x: DocumentPart => x }
+    assertEquals(3, dp.length)
+  }
+
+  @Test def testCheckForBadBitOrderTransitions5() {
+    val xml = <document>
+                <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst">abc</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">111 1111</documentPart>
+                <documentPart type="bits" bitOrder="MSBFirst">1</documentPart>
+              </document>
+    val exc = intercept[Exception] {
+      val doc = new Document(xml, null)
+      val dp = doc.documentParts.collect { case x: DocumentPart => x }
+    }
+    assertTrue(exc.getMessage().contains("bitOrder"))
+  }
+
 }

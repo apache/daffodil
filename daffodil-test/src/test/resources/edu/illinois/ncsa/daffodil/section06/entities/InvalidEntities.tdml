@@ -6,7 +6,7 @@
 	xmlns:tns="http://example.com">
 
 	<tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
-
+        
 		<dfdl:format ref="rdefFormat" encoding="utf-8" byteOrder="bigEndian"
 			ignoreCase="no" textStringJustification="left"
 			textStringPadCharacter="0" textTrimKind="none" textPadKind="none"

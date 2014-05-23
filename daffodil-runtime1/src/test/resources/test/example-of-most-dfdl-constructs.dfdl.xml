@@ -112,7 +112,7 @@
     <complexType>
       <annotation>
         <documentation>
-          This is an exaxmple of documentation
+          This is an example of documentation
         </documentation>
       </annotation>
       <sequence dfdl:separator=",">

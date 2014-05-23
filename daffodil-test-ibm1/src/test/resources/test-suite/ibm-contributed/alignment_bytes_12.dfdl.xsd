@@ -14,6 +14,7 @@
 					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"
 					initiatedContent="no"	textPadKind="none" textTrimKind="none" textStringJustification="left"
 					occursCountKind="implicit"	
+                    bitOrder="mostSignificantBitFirst"
 					/>
 				
 			</xs:appinfo>

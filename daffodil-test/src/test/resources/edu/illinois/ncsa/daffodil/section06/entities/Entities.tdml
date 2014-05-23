@@ -245,7 +245,8 @@ is multiple bytes in UTF-8 encoding that is used - DFDL-6-042R"
   </tdml:defineSchema>
     
   <tdml:defineSchema name="Entities_02-Embedded">
-    <dfdl:format ref="daffodilTest1" representation="text" encoding="utf-16" 
+  
+    <dfdl:format ref="ex:daffodilTest1" representation="text" encoding="utf-16" 
       separator="/" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
       initiator="" initiatedContent="no" terminator="" />
 
@@ -506,7 +507,7 @@ is multiple bytes in UTF-8 encoding that is used"
   
   <tdml:defineSchema name="EscapesSchema">
 
-    <dfdl:format ref="daffodilTest1" encoding="utf-8"
+    <dfdl:format ref="ex:daffodilTest1" encoding="utf-8"
       byteOrder="bigEndian" ignoreCase="no" textStringJustification="left"
       textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
       documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"

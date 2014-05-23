@@ -17,7 +17,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				lengthUnits="bytes" lengthKind="implicit"
 				initiatedContent="no" sequenceKind="ordered" 
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
-							/>
+				bitOrder="mostSignificantBitFirst" />
 		</xs:appinfo>
 
 	</xs:annotation>
@@ -32,7 +32,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
                <xs:appinfo source="http://www.ogf.org/dfdl/">
        	      <dfdl:element representation="binary" 
        	      binaryNumberRep="binary"
-                      byteOrder="bigEndian" 
+                      byteOrder="bigEndian"
                       lengthKind="implicit"/>                   
        	    </xs:appinfo>
              </xs:annotation>

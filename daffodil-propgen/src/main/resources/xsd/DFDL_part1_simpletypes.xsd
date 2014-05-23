@@ -471,6 +471,13 @@
       <xsd:enumeration value="bigEndian" />
     </xsd:restriction>
   </xsd:simpleType>
+  
+  <xsd:simpleType name="BitOrderEnum">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="mostSignificantBitFirst" />
+      <xsd:enumeration value="leastSignificantBitFirst" />
+    </xsd:restriction>
+  </xsd:simpleType>
 
   <xsd:simpleType name="YesNoEnum">
     <xsd:restriction base="xsd:string">

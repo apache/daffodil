@@ -13,10 +13,9 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
 			truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   
-			ref="rdefFormat" encoding="ascii" byteOrder="bigEndian"
-				ignoreCase="yes" textStringJustification="left" occursCountKind="implicit"
-				textStringPadCharacter="0" textTrimKind="none" textPadKind="none" />
-
+			ref="rdefFormat" encoding="ascii" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
+			ignoreCase="yes" textStringJustification="left" occursCountKind="implicit"
+			textStringPadCharacter="0" textTrimKind="none" textPadKind="none" />
 		</xs:appinfo>
 	</xs:annotation>
 
@@ -24,8 +23,8 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="rdefFormat">
 				<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
-				textBidi="no" floating="no"   encodingErrorPolicy="replace" encoding="utf-8" 
-				byteOrder="bigEndian"
+					textBidi="no" floating="no"   encodingErrorPolicy="replace" encoding="utf-8" 
+					byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 					ignoreCase="yes" outputNewLine="%LF;"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" nilValueDelimiterPolicy="none"

@@ -12,7 +12,8 @@
 				ignoreCase="no" textStringJustification="left"
 				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
 				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
-				emptyValueDelimiterPolicy="none" escapeSchemeRef="" />
+				emptyValueDelimiterPolicy="none" escapeSchemeRef="" 
+                bitOrder="mostSignificantBitFirst"/>
 
 		</xs:appinfo>
 	</xs:annotation>
@@ -24,7 +25,8 @@
 					ignoreCase="no" outputNewLine="%LF;"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""
-					representation="text" lengthUnits="characters" lengthKind="explicit" />
+					representation="text" lengthUnits="characters" lengthKind="explicit" 
+                    bitOrder="mostSignificantBitFirst"/>
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>

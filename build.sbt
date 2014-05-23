@@ -8,6 +8,8 @@ scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Xfatal-warnin
 
 parallelExecution in ThisBuild := false
 
+concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
+
 logBuffered in ThisBuild := false
 
 testOptions in ThisBuild += Tests.Argument(TestFrameworks.JUnit, "-v")

@@ -6,7 +6,7 @@
 
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="rdefFormat" encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian"
+			<dfdl:format ref="rdefFormat" encoding="utf-8" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 				ignoreCase="no" textStringJustification="left"
 				textStringPadCharacter="0" textTrimKind="none" textPadKind="none"
 				documentFinalTerminatorCanBeMissing="no" nilValueDelimiterPolicy="none"
@@ -18,11 +18,12 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 			<dfdl:defineFormat name="rdefFormat">
-				<dfdl:format initiatedContent="no" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian"
+				<dfdl:format initiatedContent="no" initiator="" terminator="" leadingSkip="0" trailingSkip="0" separator="" textBidi="no" floating="no"   encoding="ascii" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst"
 					ignoreCase="no" outputNewLine="%LF;"
 					truncateSpecifiedLengthString="no" decimalSigned="yes" alignment="1"
 					alignmentUnits="bytes" fillByte="1" occursCountKind="implicit" escapeSchemeRef=""
-					representation="text" lengthUnits="characters" lengthKind="explicit" />
+					representation="text" lengthUnits="characters" lengthKind="explicit" 
+                    encodingErrorPolicy='replace'/>
 			</dfdl:defineFormat>
 		</xs:appinfo>
 	</xs:annotation>

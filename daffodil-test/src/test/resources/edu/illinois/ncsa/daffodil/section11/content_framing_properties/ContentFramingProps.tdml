@@ -236,9 +236,9 @@
 
   <tdml:parserTestCase name="packed7BitASCII1" root="e1"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110100 0110010
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+       0110010 0110100
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
@@ -258,8 +258,8 @@
 
   <tdml:parserTestCase name="packed7BitASCII2" root="e2"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
       0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
       0110001 0110010 0110011 0110100 0110101 0110110 0110111 0111000 0111001 0110000
@@ -271,7 +271,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e2>1234567890123456789012345678901234567890123456789012345678901234</e2>
+        <e2>4321098765432109876543210987654321098765432109876543210987654321</e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -287,9 +287,9 @@
 
   <tdml:parserTestCase name="packed7BitASCII3" root="e3"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110001 0101100 
+    <tdml:document  bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+      0101100 0110001  
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
@@ -308,9 +308,9 @@
 
   <tdml:parserTestCase name="packed7BitASCII4" root="e4"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110001 0000000 
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+       0000000 0110001 
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
@@ -330,16 +330,16 @@
 
   <tdml:parserTestCase name="packed7BitASCII5" root="e4"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110001 0110010 0110011 0110100 
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+        0110011 0110011 0110100 0110001
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e4>
-          <rep>1234</rep> <!-- should be hidden once that feature is implemented. -->
-          <s>1234</s>
+          <rep>1433</rep> <!-- should be hidden once that feature is implemented. -->
+          <s>1433</s>
         </e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -354,16 +354,16 @@
 
   <tdml:parserTestCase name="packed7BitASCII6" root="e4"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110001 0110010 0110011 0000000 
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+      0000000 0110001 0110010 0110011 
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e4>
-          <rep>123&#xE000;</rep> <!-- should be hidden once that feature is implemented. -->
-          <s>123</s>
+          <rep>321&#xE000;</rep> <!-- should be hidden once that feature is implemented. -->
+          <s>321</s>
         </e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -379,16 +379,16 @@
 
   <tdml:parserTestCase name="packed7BitASCII7" root="e5"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110001 0110010 0110011 0110100 
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e5>
-          <rep>1234</rep> <!-- should be hidden once that feature is implemented. -->
-          <s>1234</s>
+          <rep>4321</rep> <!-- should be hidden once that feature is implemented. -->
+          <s>4321</s>
         </e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -404,16 +404,16 @@
 
   <tdml:parserTestCase name="packed7BitASCII8" root="e5"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
-      0110001 0110010 0110011 1111111 
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
+        1111111 0110001 0110010 0110011  
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e5>
-          <rep>123&#x7F;</rep> <!-- should be hidden once that feature is implemented. -->
-          <s>123</s>
+          <rep>321&#x7F;</rep> <!-- should be hidden once that feature is implemented. -->
+          <s>321</s>
         </e5> 
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -431,8 +431,8 @@
 
   <tdml:parserTestCase name="packed7BitASCII9" root="e5"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110001 0110010 0110011 1111111 01011010
       ]]></tdml:documentPart>
     </tdml:document>
@@ -449,14 +449,14 @@
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII" root="e6"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[
       0110100 0110010
       ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e6>42</e6>
+        <e6>24</e6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -469,8 +469,8 @@
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_02" root="e7"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits">01010 0110100 0110010</tdml:documentPart>
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL">  0110010 0110100 01010</tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -488,8 +488,8 @@
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_03" root="e8"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[0110100 0110010]]></tdml:documentPart>
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[0110010 0110100]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -507,12 +507,12 @@
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_04" root="e9"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[11 0110100 0110010]]></tdml:documentPart>
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[ 0110100 0110010 11]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e9>42</e9>
+        <e9>24</e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -526,12 +526,12 @@
 
   <tdml:parserTestCase name="alignmentPacked7BitASCII_05" root="e10"
     model="packed7BitASCII">
-    <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[0110100 0110010]]></tdml:documentPart>
+    <tdml:document bitOrder="LSBFirst">
+      <tdml:documentPart type="bits" byteOrder="RTL"><![CDATA[0110100 0110010]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e9>42</e9>
+        <e10>24</e10>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

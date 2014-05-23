@@ -23,7 +23,8 @@
 				textCalendarJustification="right" nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" escapeSchemeRef="" separator="~"
-				separatorPosition="infix" separatorSuppressionPolicy="never" />
+				separatorPosition="infix" separatorSuppressionPolicy="never" 
+                bitOrder="mostSignificantBitFirst"/>
 		</xs:appinfo>
 	</xs:annotation>
 	

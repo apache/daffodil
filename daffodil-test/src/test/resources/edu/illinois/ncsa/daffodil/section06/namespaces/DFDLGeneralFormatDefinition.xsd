@@ -152,7 +152,8 @@ binaryFloatRep="ieee"
 
 binaryCalendarRep="bcd" binaryCalendarEpoch="1970-01-01T00:00:00+00:00"
 
-binaryBooleanTrueRep="1" binaryBooleanFalseRep="0">
+binaryBooleanTrueRep="1" binaryBooleanFalseRep="0"
+bitOrder="mostSignificantBitFirst" >
 </dfdl:format>
 </dfdl:defineFormat>
 

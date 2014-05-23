@@ -121,6 +121,8 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nChars: Long): Terminal = new SpecifiedLengthExplicitCharactersFixed(e, eGram, nChars)
   def SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram): Terminal = new SpecifiedLengthExplicitCharacters(e, eGram)
 
+  def BitOrderChange(t: Term): Terminal = new BitOrderChange(t)
+
   def StmtEval(context: ElementBase, eGram: Gram): Gram = edu.illinois.ncsa.daffodil.processors.StmtEval(context, eGram) // must call object. Does an optimization.
 
   def UnorderedSequence(context: Term, eGram: Gram): Gram = edu.illinois.ncsa.daffodil.processors.UnorderedSequence(context, eGram)

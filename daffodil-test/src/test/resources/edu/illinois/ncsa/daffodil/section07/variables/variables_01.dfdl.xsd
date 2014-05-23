@@ -15,6 +15,8 @@
     </xsd:appinfo>
   </xsd:annotation>
 
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  
   <xsd:annotation>
     <xsd:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ref="tns:daffodilNewProperties1" representation="text" lengthUnits="bytes"

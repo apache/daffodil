@@ -13,7 +13,7 @@
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"    ref="config" escapeSchemeRef="" emptyValueDelimiterPolicy="none"
 					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
-					byteOrder="bigEndian" lengthUnits="bytes" 
+					byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" lengthUnits="bytes" 
 					textOutputMinLength="1"
 					alignment="1" alignmentUnits="bytes" fillByte="f" leadingSkip="0" trailingSkip="0"
 					ignoreCase="no" lengthKind="implicit" sequenceKind="ordered"

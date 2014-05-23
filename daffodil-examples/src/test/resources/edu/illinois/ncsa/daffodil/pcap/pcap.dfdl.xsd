@@ -85,7 +85,8 @@ The message root is 'pcap'.
 				textStandardNaNRep="NaN" textStandardZeroRep=""
 				textStringJustification="left" textStringPadCharacter="%SP;"
 				textTrimKind="none" textZonedSignStyle="asciiStandard" trailingSkip="0"
-				truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed" />
+				truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed" 
+                bitOrder="mostSignificantBitFirst"/>
 		</dfdl:defineFormat>
 
 		<dfdl:format ref="pcap:defaults" byteOrder="{ $pcap:byte_order }" />

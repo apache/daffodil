@@ -26,6 +26,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.io.FastAsciiToUnicodeConverter
 import scala.util.parsing.input.Position
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Shares constants so that the pure-functional scala I/O Reader[Char]
@@ -159,12 +160,12 @@ case class InStreamFixedWidthTextOnly(
     this.copy(info = newInfo)
   }
 
-  def getByte(bitPos0b: Long, ignore: ByteOrder): Byte = {
+  def getByte(bitPos0b: Long, ignore: ByteOrder, bitOrder: BitOrder): Byte = {
     Assert.usage(bitPos0b % 8 == 0)
     val bytePos = (bitPos0b >> 3).toInt
     info.bBuf.get(bytePos)
   }
-  def getRawByte(bitPos: Long, order: ByteOrder): Byte = getByte(bitPos, order)
+  def getRawByte(bitPos: Long, order: ByteOrder, bitOrder: BitOrder): Byte = getByte(bitPos, order, bitOrder)
 
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
     val nbytes = numBytes.toInt
@@ -172,14 +173,15 @@ case class InStreamFixedWidthTextOnly(
     val bytePos = (bitPos >> 3).toInt
     0 to (nbytes - 1) foreach { i =>
       val iBitPos = bitPos + (i << 3)
-      val bo = ByteOrder.BIG_ENDIAN
+      val dontCareByteOrder = ByteOrder.BIG_ENDIAN
+      val dontCareBitOrder = BitOrder.MostSignificantBitFirst
       // getting one aligned byte, so we don't care what the byteOrder is.
-      bytes.update(i, getByte(iBitPos, bo))
+      bytes.update(i, getByte(iBitPos, dontCareByteOrder, dontCareBitOrder))
     }
     bytes
   }
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: ByteOrder): (BigInt, Long) = {
+  def getBitSequence(bitPos: Long, bitCount: Long, order: ByteOrder, bitOrder: BitOrder): (BigInt, Long) = {
     Assert.usage(bitPos % 8 == 0)
     Assert.usage(bitCount % 8 == 0)
     val byteLen = bitCount >> 3
@@ -203,6 +205,7 @@ case class InStreamFixedWidthTextOnly(
     else -1
   }
 
+  def withBitOrder(bitOrder: BitOrder) = this
 }
 
 /**

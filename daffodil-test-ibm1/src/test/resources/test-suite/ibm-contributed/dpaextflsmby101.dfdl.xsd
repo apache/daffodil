@@ -11,7 +11,7 @@
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
 		
-   <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="UTF-8" byteOrder="bigEndian" 
+   <dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  textBidi="no" floating="no"   encoding="UTF-8" byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" 
    alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"/>
 			
 		</xs:appinfo>

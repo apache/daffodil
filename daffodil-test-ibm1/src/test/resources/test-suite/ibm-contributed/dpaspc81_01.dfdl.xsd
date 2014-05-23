@@ -15,8 +15,11 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	-->
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" truncateSpecifiedLengthString="no"  separator=""  textBidi="no" floating="no" encodingErrorPolicy="replace"   encodingErrorPolicy="replace" encoding="ASCII" representation="text"
-				byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f"
+			<dfdl:format initiator="" terminator="" leadingSkip="0" trailingSkip="0" 
+				truncateSpecifiedLengthString="no"  separator=""  
+				textBidi="no" floating="no" encodingErrorPolicy="replace"
+				encodingErrorPolicy="replace" encoding="ASCII" representation="text"
+				byteOrder="bigEndian" bitOrder="mostSignificantBitFirst" alignment="1" alignmentUnits="bytes" fillByte="f"
 				occursCountKind="implicit" initiatedContent="no" sequenceKind="ordered"
 				ignoreCase="no" textPadKind="none" textTrimKind="none"
 				textStringJustification="right" textStandardBase="10"

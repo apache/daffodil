@@ -32,26 +32,36 @@ package edu.illinois.ncsa.daffodil.processors.charset
  * SOFTWARE.
  */
 
-
 import java.nio.charset.{ Charset, CoderResult, CharsetDecoder, CharsetEncoder }
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Bits
+import scala.language.postfixOps
 
-object USASCII7BitPackedCharset
-  extends java.nio.charset.Charset("US-ASCII-7-bit-packed", Array()) {
+/**
+ * Some encodings are not byte-oriented.
+ *
+ * US-ASCII-7-bit-packed occupies only 7 bits with each
+ * code unit.
+ *
+ * There are 6 bit and 5 bit encodings in use as well. (One can even think of hexadecimal as
+ * a 4-bit encoding of 16 possible characters.)
+ *
+ * This file contains base classes/traits needed for any non-byte-oriented encoding,
+ * as well as the US-ASCII-7-bit-packed implementation.
+ */
 
-  final def contains(cs: Charset): Boolean = {
-    false
-  }
+trait NonByteSizeCharset {
+  def widthOfACodeUnit: Int // in units of bits
 
-  final def newDecoder(): CharsetDecoder = {
-    new USASCII7BitPackedDecoder
-  }
-
-  final def newEncoder(): CharsetEncoder = {
-    new USASCII7BitPackedEncoder
+  /**
+   * Returns a string of '1' and '0' characters for a single unsigned byte.
+   */
+  def asBits(unsignedByte: Int): String = {
+    val hex = "%02x".format(unsignedByte)
+    Misc.hex2Bits(hex)
   }
 }
 
@@ -59,7 +69,8 @@ object USASCII7BitPackedCharset
  * Mixin for Charsets which support initial bit offsets so that
  * their character codepoints need not be byte-aligned.
  */
-trait SupportsInitialBitOffset {
+trait NonByteSizeCharsetEncoderDecoder
+  extends NonByteSizeCharset {
 
   private var startBitOffset = 0
   private var startBitOffsetHasBeenSet = false
@@ -88,6 +99,25 @@ trait SupportsInitialBitOffset {
 
 }
 
+trait USASCII7BitPackedEncoderDecoderMixin
+  extends NonByteSizeCharsetEncoderDecoder {
+
+  val widthOfACodeUnit = 7 // in units of bits
+
+}
+
+object USASCII7BitPackedCharset
+  extends java.nio.charset.Charset("US-ASCII-7-bit-packed", Array())
+  with USASCII7BitPackedEncoderDecoderMixin {
+
+  final def contains(cs: Charset): Boolean = false
+
+  final def newDecoder(): CharsetDecoder = new USASCII7BitPackedDecoder
+
+  final def newEncoder(): CharsetEncoder = new USASCII7BitPackedEncoder
+
+}
+
 /**
  * You have to initialize one of these for a specific ByteBuffer because
  * the encoding is 7-bits wide, so we need additional state beyond just
@@ -96,7 +126,7 @@ trait SupportsInitialBitOffset {
  */
 class USASCII7BitPackedDecoder
   extends java.nio.charset.CharsetDecoder(USASCII7BitPackedCharset, 1, 1)
-  with SupportsInitialBitOffset {
+  with USASCII7BitPackedEncoderDecoderMixin {
 
   override def implReset() {
     // println("Reset")
@@ -125,16 +155,6 @@ class USASCII7BitPackedDecoder
    */
   private var priorByteBitCount = 0
 
-  val widthOfAByte = 7 // the whole point of this class is that we consume this many bits per byte.
-
-  /**
-   * Convert signed Byte type to Int that is the unsigned equivalent.
-   */
-  def asUnsignedByte(n: Byte): Int = {
-    if (n < 0) 256 + n else n
-  }
-
-  
   // some constants to make the table dispatch below clearer.
   private final val NoData = false
   private final val YesData = true
@@ -149,13 +169,7 @@ class USASCII7BitPackedDecoder
       // println("charcode = %2x".format(charCode))
       val char = charCode.toChar
       out.put(char)
-      bitPos += widthOfAByte
-    }
-
-    def asBits(b: Int) = {
-      val hex = "%02x".format(b)
-      // println(hex)
-      Misc.hex2Bits(hex)
+      bitPos += widthOfACodeUnit
     }
 
     Assert.invariant(bitPos <= bitLimit)
@@ -169,7 +183,7 @@ class USASCII7BitPackedDecoder
     }
 
     while (true) {
-      if (bitPos + this.widthOfAByte > bitLimit) {
+      if (bitPos + widthOfACodeUnit > bitLimit) {
         // not enough bits to create another character
         return CoderResult.UNDERFLOW
       }
@@ -180,14 +194,14 @@ class USASCII7BitPackedDecoder
         // byte boundary again
         //
         case (NoPrior, 0, YesData, YesSpace) => {
-          val currentByte = asUnsignedByte(in.get())
+          val currentByte = Bits.asUnsignedByte(in.get())
           // println("no prior byte, current byte = %s".format(asBits(currentByte)))
 
           priorByte = currentByte
-          priorByteBitCount = 8 - widthOfAByte
+          priorByteBitCount = 8 - widthOfACodeUnit
           hasPriorByte = true
 
-          val currentCharCode = currentByte >> 1 // we take the most significant bits first.
+          val currentCharCode = currentByte & 0x7F // we take the least significant bits first.
 
           output(currentCharCode)
 
@@ -197,7 +211,7 @@ class USASCII7BitPackedDecoder
         case (NoPrior, n, YesData, _) => {
           // This happens if we're starting the decode loop at a startBitOffset that is non-zero.
           // we basically grab one byte and pretend it's the prior byte. 
-          priorByte = asUnsignedByte(in.get())
+          priorByte = Bits.asUnsignedByte(in.get())
           hasPriorByte = true
         }
         case (NoPrior, n, NoData, _) => return CoderResult.UNDERFLOW
@@ -210,7 +224,7 @@ class USASCII7BitPackedDecoder
           // println("prior byte = %s, no current byte needed, priorByteBitCount = %d".format(asBits(priorByte), priorByteBitCount))
 
           val currentByte = priorByte
-          val currentCharCode = currentByte & 0x7F // least significant bits for remainder
+          val currentCharCode = (currentByte & 0xFE) >> 1 // most significant bits for remainder
           output(currentCharCode)
 
           hasPriorByte = false
@@ -224,13 +238,17 @@ class USASCII7BitPackedDecoder
         }
         case (YesPrior, n, YesData, YesSpace) => {
           // Straddling bytes. We need another input byte to make up a full character.
-          val currentByte = asUnsignedByte(in.get())
+          val currentByte = Bits.asUnsignedByte(in.get())
+          //
+          // This code is specific to bit order least-significant-bit-first
+          //
           // println("prior byte = %s, current byte = %s, priorByteBitCount = %d".format(asBits(priorByte), asBits(currentByte), priorByteBitCount))
-          val priorMask = 0xFF >> (8 - priorByteBitCount)
-          val priorBits = priorByte & priorMask // keeps LSBs we're going to use
-          val currentByteBitCount = widthOfAByte - priorByteBitCount
-          val currentBitsAlone = currentByte >> (8 - currentByteBitCount)
-          val priorBitsInPosition = priorBits << currentByteBitCount
+          val priorMask = 0xFF << (8 - priorByteBitCount)
+          val priorBits = priorByte & priorMask // keeps MSBs we're going to use
+          val currentByteBitCount = widthOfACodeUnit - priorByteBitCount
+          val currentByteMask = 0xFF >> (8 - currentByteBitCount)
+          val currentBitsAlone = (currentByte & currentByteMask) << priorByteBitCount
+          val priorBitsInPosition = priorBits >> 8 - priorByteBitCount
           val currentCharCode = priorBitsInPosition | currentBitsAlone
           priorByte = currentByte
           hasPriorByte = true // remains true
@@ -251,10 +269,34 @@ class USASCII7BitPackedDecoder
 }
 
 class USASCII7BitPackedEncoder
-  extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset, 1, 1) {
+  extends java.nio.charset.CharsetEncoder(USASCII7BitPackedCharset, 1, 1)
+  with USASCII7BitPackedEncoderDecoderMixin {
 
+  // TODO: make this efficient. Right now it is inflating things to 
+  // strings of "0" and "1". However, the only use is TDML currently.
   def encodeLoop(cb: CharBuffer, bb: ByteBuffer): CoderResult = {
-    Assert.notYetImplemented()
+    val bits =
+      if (cb.length == 0) Seq.empty
+      else {
+        val charsAsBits = (1 to cb.length).map { x =>
+          val charCode = cb.get()
+          val all8Bits = asBits(charCode.toInt)
+          val just7Bits = all8Bits.slice(1, 8)
+          just7Bits
+        }
+        charsAsBits
+      }
+    Assert.invariant(!cb.hasRemaining)
+    val len = bits.map { _.length } sum
+    val padBits = if ((len % 8) == 0) "" else "0" * (8 - (len % 8))
+    //
+    // This is specific to bitOrder leastSignificantBitFirst
+    //
+    val bitsAsFullBytes = (bits.map { _.reverse }.mkString + padBits).reverse
+    // 
+    val bytes = bitsAsFullBytes.sliding(8, 8).map { Integer.parseInt(_, 2).toByte }.toArray.reverse
+    bb.put(bytes)
+    CoderResult.UNDERFLOW
   }
 }
 

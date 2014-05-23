@@ -92,6 +92,8 @@ A general purpose defineFormat annotation.
 <dfdl:defineFormat name="GeneralPurposeFormat">
 <dfdl:format 
 
+bitOrder="mostSignificantBitFirst"
+
 encoding="UTF-8" utf16Width="fixed" byteOrder="bigEndian"
 encodingErrorPolicy="replace"
 ignoreCase="no" outputNewLine="%CR;%LF;"

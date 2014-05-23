@@ -54,17 +54,17 @@ class PropertyGenerator(arg: Node) {
 
   val dfdlSchema = arg
 
-  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType" , 
-      "SeparatorSuppressionPolicy", "dafint:daffodilAG") // Do these by hand.
-  val excludedAttributes = List("TextNumberBase", 
-      "SeparatorSuppressionPolicy") // Do these by hand.
+  val excludedTypes = List("TextNumberBase", "AlignmentType", "FillByteType",
+    "SeparatorSuppressionPolicy", "dafint:daffodilAG") // Do these by hand.
+  val excludedAttributes = List("TextNumberBase",
+    "SeparatorSuppressionPolicy") // Do these by hand.
 
-  def excludeType(name : String) = {
-      excludedTypes.exists { _.toUpperCase.contains(name.toUpperCase()) }
+  def excludeType(name: String) = {
+    excludedTypes.exists { _.toUpperCase.contains(name.toUpperCase()) }
   }
-  
-  def excludeAttribute(name : String) = {
-      excludedAttributes.exists { _.toUpperCase.contains(name.toUpperCase()) }
+
+  def excludeAttribute(name: String) = {
+    excludedAttributes.exists { _.toUpperCase.contains(name.toUpperCase()) }
   }
 
   def generate() = {
@@ -192,7 +192,7 @@ class PropertyGenerator(arg: Node) {
     //
     // for each attribute that is an Enum type, we want to use a Mixin of that type
     //
-    val nonExcludedAttribs = attribs.filter{ attrNode =>
+    val nonExcludedAttribs = attribs.filter { attrNode =>
       val rawName = attr(attrNode, "name").get
       !excludeAttribute(rawName)
     }
@@ -227,8 +227,8 @@ class PropertyGenerator(arg: Node) {
       // We don't want properties for these.
       val notFormatProperties = List("ref", "type", "name", "test", "defaultValue", "message", "baseFormat")
       val notScopedFormatProperties = List("inputValueCalc", "outputValueCalc", "hiddenGroupRef") // do these by-hand since they are not scoped.
-
-      val exclusions = notFormatProperties ++ notScopedFormatProperties
+      val excludedBecauseDoneByHand = List("separatorSuppressionPolicy", "separatorPolicy")
+      val exclusions = notFormatProperties ++ notScopedFormatProperties ++ excludedBecauseDoneByHand
       if (rawName == "binaryFloatRep") {
       }
       if (exclusions.contains(rawName)) {

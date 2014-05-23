@@ -21,7 +21,8 @@
 				textCalendarJustification="right" emptyValueDelimiterPolicy="none"  nilValueDelimiterPolicy="both" 
 				documentFinalTerminatorCanBeMissing="no" initiatedContent="no"
 				sequenceKind="ordered" escapeSchemeRef="" separator=""
-				separatorPosition="prefix" separatorSuppressionPolicy="anyEmpty" />
+				separatorPosition="prefix" separatorSuppressionPolicy="anyEmpty" 
+                bitOrder="mostSignificantBitFirst"/>
 		</xs:appinfo>
 	</xs:annotation>
 	<xs:annotation>

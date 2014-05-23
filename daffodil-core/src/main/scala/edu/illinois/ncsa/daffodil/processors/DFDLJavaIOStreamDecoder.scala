@@ -49,10 +49,10 @@ import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedCharset
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
-import edu.illinois.ncsa.daffodil.processors.charset.SupportsInitialBitOffset
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.charset.CharacterSetAlignmentError
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.processors.charset.NonByteSizeCharsetEncoderDecoder
 
 /**
  * The purpose of re-implementing this class is to gain control over
@@ -109,7 +109,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
   // then we configure it that way. If not we insist we are byte aligned and fail if not. 
   //
   decoder match {
-    case decoderWithBits: SupportsInitialBitOffset =>
+    case decoderWithBits: NonByteSizeCharsetEncoderDecoder =>
       decoderWithBits.setInitialBitOffset(bitOffsetWithinAByte)
     case _ if (bitOffsetWithinAByte == 0) => // ok. Do nothing. We are luckily, aligned to a byte.
     // We're counting on the parser surrounding us to catch this error and turn it into 

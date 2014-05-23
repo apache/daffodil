@@ -115,8 +115,16 @@ object SeparatorSuppressionPolicy extends Enum[SeparatorSuppressionPolicy] {
   def apply(name: String, self: ThrowsSDE): SeparatorSuppressionPolicy = stringToEnum("separatorSuppressionPolicy", name, self)
 }
 
+/**
+ * This mixin provides separatorSuppressionPolicy, using that modern
+ * property name, but also a legacy property name separatorPolicy that has been superceded now.
+ *
+ * SeparatorSuppressionPolicyMixin is not auto generated
+ * by propgen. Nor is SeparatorPolicyMixin
+ */
+trait SeparatorPolicyMixin
 trait SeparatorSuppressionPolicyMixin
-  extends PropertyMixin { self: SchemaComponentBase =>
+  extends PropertyMixin {
 
   /**
    * FIXME: really we need to either eliminate separatorPolicy (deprecated name)
@@ -129,8 +137,7 @@ trait SeparatorSuppressionPolicyMixin
    * DFDL standard in this way, so this approach is better than the loader that rewrites. It
    * gives us more flexibility in warnings or error treatment of the old/deprecated names.
    */
-  lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
+  lazy val separatorSuppressionPolicy = {
     val sp = getPropertyOption("separatorPolicy")
     val ssp = getPropertyOption("separatorSuppressionPolicy")
     (sp, ssp) match {
@@ -332,7 +339,7 @@ trait ImpliedRepresentationMixin extends RepresentationMixin {
 trait NillableMixin extends PropertyMixin
   with NilKindMixin
   with NilValueDelimiterPolicyMixin
-  with ImpliedRepresentationMixin  {
+  with ImpliedRepresentationMixin {
 
   // Information regarding Representation was needed here to characterize
   // appropriate behavior of nilValue

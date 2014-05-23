@@ -309,10 +309,18 @@ object Prod {
   // here, so in principle there is no reason to pass by-name the
   // gram. However, keeping it this way insures uniform behavior if you are say,
   // walking through productions in a debugger. 
-  def apply(nameArg: String, sc: Term, gram: => Gram) = new Prod(nameArg, sc, true, gram)
+  //@deprecated("use prod(nameArg, sc) {...body...} form", "2013-10-01")
+  def apply(nameArg: String, sc: Term, gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
+
+  object prod {
+    def apply(nameArg: String, sc: Term)(gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
+    def apply(nameArg: String, sc: Term, guard: Boolean)(gram: => Gram): Prod = new Prod(nameArg, sc, guard, gram)
+  }
 
   // If there is a guard, then delay evaluating the gram until we know if 
   // the guard is satisfied. That's why we pass gram by-name.
-  def apply(nameArg: String, sc: Term, guard: Boolean, gram: => Gram) = new Prod(nameArg, sc, guard, gram)
+  //@deprecated("use prod(nameArg, sc, guard) {...body...} form", "2013-10-01")
+  def apply(nameArg: String, sc: Term, guard: Boolean, gram: => Gram): Prod = new Prod(nameArg, sc, guard, gram)
+
 }
 

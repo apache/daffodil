@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL.DataProcessor
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -753,6 +754,17 @@ case class PState(
    *
    */
   def lengthInBytes: Long = inStream.lengthInBytes
+
+  /**
+   * Change the bitOrder
+   *
+   * Must be done at a byte boundary.
+   */
+
+  def withBitOrder(bitOrder: BitOrder) = {
+    schemaDefinitionUnless((bitPos % 8) == 1, "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position mod 8 is %s.", bitPos)
+    copy(inStream = inStream.withBitOrder(bitOrder))
+  }
 }
 
 object PState {
@@ -804,8 +816,9 @@ object PState {
     dataProc: DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
+    val bitOrder = rootElemDecl.bitOrder
     val inStream =
-      InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit)
+      InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit, bitOrder)
     createInitialState(scr, rootElemDecl, inStream, dataProc)
   }
 

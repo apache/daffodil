@@ -45,6 +45,8 @@ import java.math.BigInteger
 
 trait GrammarMixin {
   protected val NYI = false // our flag for Not Yet Implemented 
+
+  val prod = Prod.prod
 }
 
 trait InitiatedTerminatedMixin
@@ -91,7 +93,7 @@ trait InitiatedTerminatedMixin
   lazy val hasDelimiters = hasInitiator || hasTerminator
 }
 
-trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
+trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
    *
@@ -133,7 +135,7 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
 }
 
-trait AlignedMixin { self: Term =>
+trait AlignedMixin extends GrammarMixin { self: Term =>
   lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, leadingSkip > 0, prims.LeadingSkipRegion(this))
   lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, trailingSkip > 0, prims.TrailingSkipRegion(this))
   lazy val alignmentFill = Prod("alignmentFill", this, !isKnownPreAligned, prims.AlignmentFill(this))
@@ -175,6 +177,16 @@ trait AlignedMixin { self: Term =>
     this.knownEncodingAlignmentInBits == this.alignmentValueInBits
   }
 
+}
+
+trait BitOrderMixin extends GrammarMixin { self: Term =>
+
+  lazy val myBitOrder = bitOrder
+  lazy val enclosingBitOrder = enclosingTerm.map(_.bitOrder)
+  lazy val priorSiblingBitOrder = priorSibling.map(_.bitOrder)
+  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(myBitOrder))
+
+  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != myBitOrder) { prims.BitOrderChange(this) }
 }
 
 /////////////////////////////////////////////////////////////////
@@ -928,9 +940,8 @@ trait ElementReferenceGrammarMixin { self: ElementRef =>
 
 trait LocalElementGrammarMixin { self: LocalElementBase =>
 
-  lazy val termContentBody = {
-    val res = Prod("termContentBody", self, if (isScalar) scalarDefaultable else recurrance)
-    res
+  lazy val termContentBody = prod("termContentBody", self) {
+    bitOrderChange ~ (if (isScalar) scalarDefaultable else recurrance)
   }
 
   lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
@@ -1112,7 +1123,7 @@ trait GlobalElementDeclGrammarMixin
 // Groups System
 /////////////////////////////////////////////////////////////////
 
-trait TermGrammarMixin { self: Term =>
+trait TermGrammarMixin extends BitOrderMixin { self: Term =>
 
   lazy val newVars = this.annotationObjs.filter { st =>
     st.isInstanceOf[DFDLNewVariableInstance]
@@ -1255,7 +1266,10 @@ trait ModelGroupGrammarMixin
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val termContentBody = Prod("termContentBody", this, dfdlStatementEvaluations ~ groupLeftFraming ~ groupContent ~ groupRightFraming)
+  lazy val termContentBody = prod("termContentBody", this) {
+    bitOrderChange ~ dfdlStatementEvaluations ~
+      groupLeftFraming ~ groupContent ~ groupRightFraming
+  }
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
 

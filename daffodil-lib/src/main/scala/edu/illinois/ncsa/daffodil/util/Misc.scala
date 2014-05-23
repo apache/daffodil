@@ -42,6 +42,7 @@ import java.io.ByteArrayInputStream
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.io.ByteArrayOutputStream
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 import scala.language.reflectiveCalls
 
@@ -146,21 +147,26 @@ object Misc {
     "0x" + bytes.map(cvtByte(_)).mkString.toUpperCase
   }
 
-  def bits2Bytes(bits: String): Array[Byte] = {
-    (for { i <- 0 to bits.length - 1 by 8 }
-      yield bits.substring(i, math.min(bits.length, i + 8)))
-      .map(Integer.parseInt(_, 2).toByte).toArray
+  def bits2Bytes(bits: String): Array[Byte] =
+    if (bits.isEmpty()) Nil.toArray
+    else bits2Bytes(Seq(bits))
+
+  def splitStringIntoUnitsOf8Chars(str: String): List[String] = {
+    if (str.length() <= 8) List(str)
+    else {
+      str.substring(0, 8) :: splitStringIntoUnitsOf8Chars(str.substring(8))
+    }
+  }
+
+  def bits2Bytes(bits: Seq[String]): Array[Byte] = {
+    // split at any character not a 0 or 1, then concatenate all
+    val allBitsOnly = bits.flatMap { _.split("[^01]") }.mkString
+    val byteSizedBits = allBitsOnly.sliding(8, 8)
+    byteSizedBits.map(Integer.parseInt(_, 2).toByte).toArray
   }
 
   def bytes2Bits(bytes: Array[Byte]): String = {
-    def cvtByte(b: Byte) = {
-      val indexes = (0 to 7).reverse
-      val bits = indexes.map { index => (b >> index) & 0x01 }
-      bits
-    }
-    val converted = bytes.flatMap { cvtByte(_) }
-    val res = converted.mkString
-    res
+    bytes.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.mkString
   }
 
   // Moved here from Compiler object.
@@ -271,7 +277,7 @@ object Misc {
 
   /**
    * Detects the encoding of the File for us.
-   * 
+   *
    * This was needed for the ConstructingParser
    * in order to read in xml from a file.
    */

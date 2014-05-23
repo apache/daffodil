@@ -5,9 +5,9 @@
   xmlns:ex="http://example.com" xmlns:tns="http://example.com">
 
   <tdml:defineSchema name="SimpleTypes-Embedded.dfdl.xsd">
-    <dfdl:format ref="daffodilTest1" lengthKind="implicit" representation="text"
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="implicit" representation="text"
         lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator=""
-        separator="" ignoreCase="no" textNumberRep="standard" textNumberCheckPolicy="lax"/>
+        separator="" ignoreCase="no" textNumberRep="standard"/>
     <xs:element name="double" type="xs:double"/>
     <xs:element name="int" type="xs:int"/>
     <xs:element name="byte" type="xs:byte"/>
@@ -3095,9 +3095,9 @@
   
   <tdml:defineSchema name="dateTimeSchemaTNR">
 			<dfdl:format ref="tns:daffodilNewProperties1" initiator="" terminator="" leadingSkip="0" 
-        trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" 
-        byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
-        occursCountKind="implicit" 
+                trailingSkip="0"  textBidi="no" floating="no"   encoding="utf-8" 
+                byteOrder="bigEndian" alignment="1" alignmentUnits="bytes" fillByte="f" 
+                occursCountKind="implicit" 
 				truncateSpecifiedLengthString="no" ignoreCase="no"
 				representation="text"  textPadKind="none"
 				textTrimKind="none"  lengthKind="delimited" escapeSchemeRef=""
@@ -3119,7 +3119,8 @@
   </tdml:defineSchema>
   
   <tdml:defineSchema name="dateTimeSchema">
-    <dfdl:format ref="daffodilTest1" />
+  
+    <dfdl:format ref="ex:daffodilTest1" />
 
 <!--
      xs:date      yyyy-MM-dd

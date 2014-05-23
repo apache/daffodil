@@ -683,8 +683,8 @@
     model="multi_base_03.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[5632]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Property lengthKind is not defined</tdml:error>
-      <tdml:error>Default Properties</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>lengthKind</tdml:error>
       <tdml:error>Non-default Properties</tdml:error>  
       <tdml:error>multi_A_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_B_03.dfdl.xsd</tdml:error>    
@@ -1010,7 +1010,7 @@
         error messages to specifically mention this file, not just show that
         it was included. -->
       <tdml:error>subfolder/multi_C_06_nons.dfdl.xsd</tdml:error>
-      <tdml:error>calendarTimeZone defined as '5 o'clock somewhere'</tdml:error>
+      <tdml:error>UTC-19:59:59</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

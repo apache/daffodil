@@ -41,7 +41,8 @@ xmlns:tns="http://example.com">
 					textStringJustification="left" textStringPadCharacter="%SP;" textTrimKind="none"
 					textZonedSignStyle="asciiStandard" trailingSkip="0"
 					truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed"
-				> </dfdl:format>
+					bitOrder="mostSignificantBitFirst"> 
+				</dfdl:format>
 			</dfdl:defineFormat>
 		</appinfo>
 	</annotation>

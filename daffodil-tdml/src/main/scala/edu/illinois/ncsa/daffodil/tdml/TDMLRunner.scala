@@ -36,7 +36,6 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.net.URI
-
 import scala.io.Codec.string2codec
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -44,11 +43,8 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.Utility
 import scala.xml.parsing.ConstructingParser
-
 import org.xml.sax.InputSource
-
 import com.ibm.icu.charset.CharsetICU
-
 import edu.illinois.ncsa.daffodil.Tak
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -75,6 +71,14 @@ import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.Timer
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.Bits
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.CoderResult
+import java.io.InputStream
+import edu.illinois.ncsa.daffodil.processors.charset.NonByteSizeCharsetEncoderDecoder
+import scala.language.postfixOps
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -634,7 +638,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       validationMode match {
         case ValidationMode.Off => // Don't Validate
         case mode => {
-          if (actual.isValidationSuccess) { 
+          if (actual.isValidationSuccess) {
             // println("Validation Succeeded!") 
           }
         }
@@ -833,14 +837,60 @@ case object ContentTypeBits extends DocumentContentType
 case object ContentTypeFile extends DocumentContentType
 // TODO: add capability to specify character set encoding into which text is to be converted (all UTF-8 currently)
 
+sealed abstract class BitOrderType
+case object LSBFirst extends BitOrderType
+case object MSBFirst extends BitOrderType
+
+sealed abstract class ByteOrderType
+case object RTL extends ByteOrderType
+case object LTR extends ByteOrderType
+
 case class Document(d: NodeSeq, parent: TestCase) {
+
+  lazy val documentExplicitBitOrder = (d \ "@bitOrder").toString match {
+    case "LSBFirst" => Some(LSBFirst)
+    case "MSBFirst" => Some(MSBFirst)
+    case "" => None
+    case _ => Assert.invariantFailed("invalid bit order.")
+  }
+
+  lazy val nDocumentParts = dataDocumentParts.length
+
+  lazy val documentBitOrder: BitOrderType = {
+    this.documentExplicitBitOrder match {
+      case Some(order) => order
+      case None => {
+        // analyze the child parts 
+        val groups = dataDocumentParts.groupBy(_.explicitBitOrder).map {
+          case (key, seq) => (key, seq.length)
+        }
+        if (groups.get(Some(MSBFirst)) == Some(nDocumentParts)) MSBFirst // all are msb first
+        else if (groups.get(Some(LSBFirst)) == Some(nDocumentParts)) LSBFirst // all are lsb first
+        else if (groups.get(None) == Some(nDocumentParts)) MSBFirst // everything is silent on bit order.
+        else {
+          // Some mixture of explicit and non-explicit bitOrder
+          Assert.usageError(
+            "Must specify bitOrder on document element when parts have a mixture of bit orders.")
+        }
+      }
+    }
+  }
 
   val Seq(<document>{ children @ _* }</document>) = d
 
   val actualDocumentPartElementChildren = children.toList.flatMap {
     child =>
       child match {
-        case <documentPart>{ _* }</documentPart> => List(new DocumentPart(child, this))
+        case <documentPart>{ _* }</documentPart> => {
+          List((child \ "@type").toString match {
+            case "text" => new TextDocumentPart(child, this)
+            case "byte" => new ByteDocumentPart(child, this)
+            case "bits" => new BitsDocumentPart(child, this)
+            case "file" => new FileDocumentPart(child, this)
+            case _ => Assert.invariantFailed("invalid content type.")
+
+          })
+        }
         case _ => Nil
       }
   }
@@ -859,52 +909,96 @@ case class Document(d: NodeSeq, parent: TestCase) {
     }
   }
 
-  val documentParts =
+  lazy val unCheckedDocumentParts: Seq[DocumentPart] = {
     if (actualDocumentPartElementChildren.length > 0) actualDocumentPartElementChildren
-    else List(new DocumentPart(<documentPart type="text">{ children }</documentPart>, this))
+    else List(new TextDocumentPart(<documentPart type="text">{ children }</documentPart>, this))
+  }
+  lazy val dataDocumentParts = {
+    val dps = unCheckedDocumentParts.collect { case dp: DataDocumentPart => dp }
+    dps
+  }
+
+  lazy val fileParts = {
+    val fps = unCheckedDocumentParts.collect { case fp: FileDocumentPart => fp }
+    Assert.usage(fps.length == 0 ||
+      (fps.length == 1 && dataDocumentParts.length == 0),
+      "There can be only one documentPart of type file, and it must be the only documentPart.")
+    fps
+  }
+
+  lazy val documentParts = {
+    checkForBadBitOrderTransitions(dataDocumentParts)
+    dataDocumentParts ++ fileParts
+  }
 
   /**
-   * When data is coming from the TDML file as small test data, then
+   * A method because it is easier to unit test it
+   */
+  def checkForBadBitOrderTransitions(dps: Seq[DataDocumentPart]) {
+    if (dps.length <= 1) return
+    // these are the total lengths BEFORE the component
+    val lengths = dps.map { _.lengthInBits }
+    val cumulativeDocumentPartLengthsInBits = lengths.scanLeft(0) { case (sum, num) => sum + num }
+    val docPartBitOrders = dps.map { _.partBitOrder }
+    val transitions = docPartBitOrders zip docPartBitOrders.tail zip cumulativeDocumentPartLengthsInBits.tail zip dps
+    transitions.foreach {
+      case (((bitOrderPrior, bitOrderHere), cumulativeLength), docPart) => {
+        // println("transition " + bitOrderPrior + " " + bitOrderHere + " " + cumulativeLength)
+        Assert.usage(
+          (bitOrderPrior == bitOrderHere) || ((cumulativeLength % 8) == 0),
+          "bitOrder can only change on a byte boundary.")
+      }
+    }
+  }
+
+  /**
+   * When data is coming from the TDML file as small test data in
+   * DataDocumentParts, then
    * Due to alignment, and bits-granularity issues, everything is lowered into
    * bits first, and then concatenated, and then converted back into bytes
    *
    * These are all lazy val, since if data is coming from a file these aren't
    * needed at all.
    */
-  lazy val documentBits = documentParts.map { _.contentAsBits }.mkString
-  lazy val nBits: Long =
-    if (isDPFile) -1
-    else documentBits.length
-  lazy val nFragBits = (nBits % 8).toInt
-  lazy val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
-  lazy val addOnBits = (1 to nAddOnBits).collect { case _ => "0" }.mkString
-  lazy val documentBitsFullBytes = documentBits + addOnBits
-  lazy val documentBytes = {
-    Assert.usage(!isDPFile, "Cannot call documentBytes if documentPart type is file.")
-    bits2Bytes(documentBitsFullBytes)
+  lazy val documentBits = {
+    val nFragBits = (nBits.toInt % 8)
+    val nAddOnBits = if (nFragBits == 0) 0 else 8 - nFragBits
+    val addOnBits = "0" * nAddOnBits
+    val bitsFromParts = dataDocumentParts.map { _.contentAsBits }
+    val allPartsBits = documentBitOrder match {
+      case MSBFirst => bitsFromParts.flatten
+      case LSBFirst => {
+        val x = bitsFromParts.map { _.map { _.reverse } }
+        val rtlBits = x.flatten.mkString.reverse
+        val ltrBits = rtlBits.reverse.sliding(8, 8).map { _.reverse }.toList
+        ltrBits
+      }
+    }
+    val allBits = allPartsBits.mkString.sliding(8, 8).toList
+    if (allBits == Nil) Nil
+    else {
+      val lastByte = this.documentBitOrder match {
+        case MSBFirst => allBits.last + addOnBits
+        case LSBFirst => addOnBits + allBits.last
+      }
+      val res = allBits.dropRight(1) :+ lastByte
+      res
+    }
   }
 
-  /**
-   * data coming from a file?
-   */
-  val isDPFile = {
-    val res = documentParts.length > 0 &&
-      documentParts(0).partContentType == ContentTypeFile
-    if (res) {
-      Assert.usage(documentParts.length == 1, "There can be only one documentPart of type file, and it must be the only documentPart.")
-    }
-    res
-  }
+  lazy val nBits: Long = documentParts.map { _.nBits } sum
+
+  lazy val documentBytes = bits2Bytes(documentBits)
 
   /**
    * this 'data' is the kind our parser's parse method expects.
    * Note: this is def data so that the input is re-read every time.
-   * Needed if you run the same test over and over. 
+   * Needed if you run the same test over and over.
    */
   def data = {
     if (isDPFile) {
       // direct I/O to the file. No 'bits' lowering involved. 
-      val dp = documentParts(0)
+      val dp = documentParts(0).asInstanceOf[FileDocumentPart]
       val input = dp.fileDataInput
       input
     } else {
@@ -917,36 +1011,26 @@ case class Document(d: NodeSeq, parent: TestCase) {
     }
   }
 
-}
-
-case class DocumentPart(part: Node, parent: Document) {
-  val validHexDigits = "0123456789abcdefABCDEF"
-  val validBinaryDigits = "01"
-
-  lazy val replaceDFDLEntities: Boolean = {
-    val res = (part \ "@replaceDFDLEntities")
-    if (res.length == 0) { false }
-    else { res(0).toString().toBoolean }
-  }
-  lazy val partContentType = (part \ "@type").toString match {
-    case "text" => ContentTypeText
-    case "byte" => ContentTypeByte
-    case "bits" => ContentTypeBits
-    case "file" => ContentTypeFile
-    case _ => Assert.invariantFailed("invalid content type.")
-  }
-  lazy val encoder = CharsetICU.forNameICU("UTF-8").newEncoder()
-  lazy val partRawContent = part.child.text
-
-  lazy val contentAsBits = {
-    val res = partContentType match {
-      case ContentTypeText => textContentAsBits
-      case ContentTypeByte => hexContentAsBits
-      case ContentTypeBits => bitDigits
-      case ContentTypeFile =>
-        Assert.invariantFailed("shouldn't do contentAsBits for file documentPart type")
+  /**
+   * data coming from a file?
+   */
+  val isDPFile = {
+    val res = documentParts.length > 0 &&
+      documentParts(0).isInstanceOf[FileDocumentPart]
+    if (res) {
+      Assert.usage(documentParts.length == 1, "There can be only one documentPart of type file, and it must be the only documentPart.")
     }
     res
+  }
+
+}
+
+class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
+
+  lazy val encoder = {
+    if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
+      Assert.usage(partBitOrder == LSBFirst, "encoding US-ASCII-7-BIT-PACKED requires bitOrder='LSBFirst'")
+    CharsetUtils.getCharset(encodingName).newEncoder()
   }
 
   lazy val textContentWithoutEntities = {
@@ -956,19 +1040,289 @@ case class DocumentPart(part: Node, parent: Document) {
     } else partRawContent
   }
 
-  lazy val textContentToBytes = {
+  /**
+   * Result is sequence of strings, each string representing a byte or
+   * partial byte using '1' and '0' characters for the bits.
+   */
+  def encodeUtf8ToBits(s: String): Seq[String] = {
     // Fails here if we use getBytes("UTF-8") because that uses the utf-8 encoder,
     // and that will fail on things like unpaired surrogate characters that we allow
     // in our data and our infoset.
     // So instead we must do our own UTF-8-like encoding of the data
     // so that we can put in codepoints we want. 
-    val bytes = utf8LikeEncode(textContentWithoutEntities)
-    // val bytes = replacedRawContent.getBytes("UTF-8") //must specify charset name (JIRA DFDL-257)
-    bytes.toArray
+    val bytes = UTF8Encoder.utf8LikeEncode(textContentWithoutEntities).toArray
+    val res = bytes.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
+    res
   }
 
-  def byteList(args: Int*) = args.map { _.toByte }
+  def encodeWith7BitEncoder(s: String): Seq[String] = {
+    val bb = ByteBuffer.allocate(4 * s.length)
+    val cb = CharBuffer.wrap(s)
+    val coderResult = encoder.encode(cb, bb, true)
+    Assert.invariant(coderResult == CoderResult.UNDERFLOW)
+    bb.flip()
+    val res = (0 to bb.limit() - 1).map { bb.get(_) }
+    val bitsAsString = bytes2Bits(res.toArray)
+    val enc = encoder.asInstanceOf[NonByteSizeCharsetEncoderDecoder]
+    val nBits = s.length * enc.widthOfACodeUnit
+    val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
+    val allBits = bitStrings.reverse.mkString.takeRight(nBits)
+    val sevenBitChunks = allBits.reverse.sliding(7, 7).map { _.reverse }.toList
+    sevenBitChunks
+  }
 
+  def encodeWith8BitEncoder(s: String): Seq[String] = {
+    val bb = ByteBuffer.allocate(4 * s.length)
+    val cb = CharBuffer.wrap(s)
+    val coderResult = encoder.encode(cb, bb, true)
+    Assert.invariant(coderResult == CoderResult.UNDERFLOW)
+    bb.flip()
+    val res = (0 to bb.limit() - 1).map { bb.get(_) }
+    val bitsAsString = bytes2Bits(res.toArray)
+    val nBits = bb.limit() * 8
+    val bitStrings = res.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
+    bitStrings
+  }
+
+  lazy val dataBits = {
+    val bytesAsStrings =
+      if (encoder.charset.name.toLowerCase == "utf-8")
+        encodeUtf8ToBits(textContentWithoutEntities)
+      else if (encodingName.toUpperCase == "US-ASCII-7-BIT-PACKED")
+        encodeWith7BitEncoder(textContentWithoutEntities)
+      else encodeWith8BitEncoder(textContentWithoutEntities)
+    bytesAsStrings
+  }
+}
+
+class ByteDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
+  val validHexDigits = "0123456789abcdefABCDEF"
+
+  lazy val dataBits = {
+    val hexBytes = partByteOrder match {
+      case LTR => {
+        val ltrDigits = hexDigits.sliding(2, 2).toList
+        ltrDigits
+      }
+      case RTL => {
+        val rtlDigits = hexDigits.reverse.sliding(2, 2).toList.map { _.reverse }
+        rtlDigits
+      }
+    }
+    val bits = hexBytes.map { hex2Bits(_) }
+    bits
+  }
+
+  // Note: anything that is not a valid hex digit (or binary digit for binary) is simply skipped
+  // TODO: we should check for whitespace and other characters we want to allow, and verify them.
+  // TODO: Or better, validate this in the XML Schema for tdml via a pattern facet
+  // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
+  //
+  lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
+
+}
+class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(part, parent) {
+  // val validBinaryDigits = "01"
+
+  // lazy val bitContentToBytes = bits2Bytes(bitDigits).toList
+
+  lazy val bitDigits = partRawContent.split("[^01]").mkString
+
+  lazy val dataBits = partByteOrder match {
+    case LTR => {
+      val ltrBigits = bitDigits.sliding(8, 8).toList
+      ltrBigits
+    }
+    case RTL => {
+      val rtlBigits =
+        bitDigits.reverse.sliding(8, 8).toList.map { _.reverse }
+      rtlBigits
+    }
+  }
+
+}
+
+//object BitOrderUtil {
+//  /**
+//   * Useful for converting non-byte-sized characters.
+//   *
+//   * Inefficient because it starts from a string of characters
+//   * that are either "1" or "0" representing each bit.
+//   */
+//  def bytesOfBitsMSBFirst(bits: String): Seq[String] = {
+//    val byteAndMore = "([01]{8})([01]*)".r
+//    val fragmentOfAByte = "([01]{1,8})".r
+//    bits match {
+//      case "" => Nil
+//      case byteAndMore(byte, more) => {
+//        byte +: bytesOfBitsMSBFirst(more)
+//      }
+//      case fragmentOfAByte(frag) => Seq(frag) // Seq(frag + "0" * (8 - frag.length)) // Multiplication for strings: "c" * 5 = "ccccc"
+//      case _ => Assert.invariantFailed("not a byte, nor fragment of byte")
+//    }
+//  }
+
+//  def bytesOfBitsLSBFirst(msbFirstBits: String): Seq[String] = {
+//    val bits = msbFirstBits.reverse
+//    val byteAndMore = "([01]{8})([01]*)".r
+//    val fragmentOfAByte = "([01]{1,8})".r
+//    bits match {
+//      case "" => Nil
+//      case byteAndMore(byte, more) => {
+//        byte.reverse +: bytesOfBitsLSBFirst(more)
+//      }
+//      case fragmentOfAByte(frag) => Seq(frag.reverse) // Seq(frag + "0" * (8 - frag.length)) // Multiplication for strings: "c" * 5 = "ccccc"
+//      case _ => Assert.invariantFailed("not a byte, nor fragment of byte")
+//    }
+//  }
+//
+//}
+
+class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) {
+
+  override lazy val nBits = -1L // signifies we do not know how many.
+
+  lazy val fileDataInput = {
+    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent)
+    val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
+    val fis = new FileInputStream(file)
+    val rbc = fis.getChannel()
+    rbc.asInstanceOf[DFDL.Input]
+  }
+
+}
+
+/**
+ * Base class for all document parts that contain data directly expressed in the XML
+ */
+sealed abstract class DataDocumentPart(part: Node, parent: Document)
+  extends DocumentPart(part, parent) {
+
+  def dataBits: Seq[String]
+
+  lazy val lengthInBits = dataBits.map { _.length } sum
+  override lazy val nBits: Long = lengthInBits
+
+  lazy val contentAsBits = dataBits
+
+}
+
+/**
+ * Base class for all document parts
+ */
+sealed abstract class DocumentPart(part: Node, parent: Document) {
+
+  def nBits: Long
+
+  lazy val explicitBitOrder: Option[BitOrderType] = {
+    val bitOrd = (part \ "@bitOrder").toString match {
+
+      case "LSBFirst" => Some(LSBFirst)
+      case "MSBFirst" => Some(MSBFirst)
+      case "" => None
+      case _ => Assert.invariantFailed("invalid bit order.")
+    }
+    Assert.usage(!isInstanceOf[FileDocumentPart],
+      "bitOrder may not be specified on document parts of type 'file'")
+    bitOrd
+  }
+
+  lazy val partBitOrder = explicitBitOrder.getOrElse(parent.documentBitOrder)
+
+  lazy val partByteOrder = {
+    val bo = (part \ "@byteOrder").toString match {
+      case "RTL" => {
+        Assert.usage(partBitOrder == LSBFirst, "byteOrder RTL can only be used with bitOrder LSBFirst")
+        RTL
+      }
+      case "LTR" => LTR
+      case "" => LTR
+      case _ => Assert.invariantFailed("invalid byte order.")
+    }
+    Assert.usage(this.isInstanceOf[ByteDocumentPart] || this.isInstanceOf[BitsDocumentPart],
+      "byteOrder many only be specified for document parts of type 'byte' or 'bits'")
+    bo
+  }
+
+  lazy val partRawContent = part.child.text
+
+  lazy val replaceDFDLEntities: Boolean = {
+    val res = (part \ "@replaceDFDLEntities")
+    if (res.length == 0) { false }
+    else {
+      Assert.usage(this.isInstanceOf[TextDocumentPart])
+      res(0).toString().toBoolean
+    }
+  }
+
+  lazy val encodingName: String = {
+    val res = (part \ "@encoding").text
+    if (res.length == 0) { "utf-8" }
+    else {
+      Assert.usage(this.isInstanceOf[TextDocumentPart])
+      res
+    }
+  }
+
+}
+
+case class Infoset(i: NodeSeq, parent: TestCase) {
+  lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
+  lazy val contents = dfdlInfoset.contents
+}
+
+case class DFDLInfoset(di: Node, parent: Infoset) {
+  lazy val Seq(contents) = {
+    Assert.usage(di.child.size == 1, "dfdlInfoset element must contain a single root element")
+
+    val c = di.child(0)
+    val expected = Utility.trim(c) // must be exactly one root element in here.
+    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
+    //
+    // Let's validate the expected content against the schema
+    // Just to be sure they don't drift.
+    //
+    //    val ptc = parent.parent
+    //    val schemaNode = ptc.findModel(ptc.model)
+    //
+    // This is causing trouble, with the stripped attributes, etc.
+    // TODO: Fix so we can validate these expected results against
+    // the DFDL schema used as a XSD for the expected infoset XML.
+    //
+    expectedNoAttrs
+  }
+}
+
+abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
+  lazy val matchAttrib = (n \ "@match").text
+  protected def diagnosticNodes: Seq[Node]
+  lazy val messages = diagnosticNodes.map { _.text }
+
+  def hasDiagnostics: Boolean = diagnosticNodes.length > 0
+}
+
+case class ExpectedErrors(node: NodeSeq, parent: TestCase)
+  extends ErrorWarningBase(node, parent) {
+
+  val diagnosticNodes = node \\ "error"
+
+}
+
+case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
+  extends ErrorWarningBase(node, parent) {
+
+  val diagnosticNodes = node \\ "warning"
+
+}
+
+case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
+  extends ErrorWarningBase(node, parent) {
+
+  val diagnosticNodes = node \\ "error"
+
+}
+
+object UTF8Encoder {
   def utf8LikeEncode(s: String): Seq[Byte] = {
     // 
     // Scala/Java strings represent characters above 0xFFFF as a surrogate pair
@@ -985,6 +1339,8 @@ case class DocumentPart(part: Node, parent: Document) {
     // val bytes = tuples.flatMap { case ((prevcp, cp), nextcp) => utf8LikeEncoding(prevcp, cp, nextcp) }
     bytes
   }
+
+  def byteList(args: Int*) = args.map { _.toByte }
 
   /**
    * Encode in the style of utf-8 (see wikipedia article on utf-8)
@@ -1075,90 +1431,5 @@ case class DocumentPart(part: Node, parent: Document) {
     }
     res
   }
-
-  lazy val textContentAsBits = bytes2Bits(textContentToBytes)
-
-  lazy val hexContentAsBits = hex2Bits(hexDigits)
-
-  // Note: anything that is not a valid hex digit (or binary digit for binary) is simply skipped
-  // TODO: we should check for whitespace and other characters we want to allow, and verify them.
-  // TODO: Or better, validate this in the XML Schema for tdml via a pattern facet
-  // TODO: Consider whether to support a comment syntax. When showing data examples this may be useful.
-  //
-  lazy val hexDigits = partRawContent.flatMap { ch => if (validHexDigits.contains(ch)) List(ch) else Nil }
-
-  lazy val bitContentToBytes = bits2Bytes(bitDigits).toList
-
-  lazy val bitDigits = partRawContent.flatMap {
-    ch =>
-      {
-        if (validBinaryDigits.contains(ch))
-          List(ch)
-        else Nil
-      }
-  }
-
-  lazy val fileDataInput = {
-    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent)
-    val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
-    val fis = new FileInputStream(file)
-    val rbc = fis.getChannel()
-    rbc.asInstanceOf[DFDL.Input]
-  }
-}
-
-case class Infoset(i: NodeSeq, parent: TestCase) {
-  lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
-  lazy val contents = dfdlInfoset.contents
-}
-
-case class DFDLInfoset(di: Node, parent: Infoset) {
-  lazy val Seq(contents) = {
-    Assert.usage(di.child.size == 1, "dfdlInfoset element must contain a single root element")
-
-    val c = di.child(0)
-    val expected = Utility.trim(c) // must be exactly one root element in here.
-    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
-    //
-    // Let's validate the expected content against the schema
-    // Just to be sure they don't drift.
-    //
-    //    val ptc = parent.parent
-    //    val schemaNode = ptc.findModel(ptc.model)
-    //
-    // This is causing trouble, with the stripped attributes, etc.
-    // TODO: Fix so we can validate these expected results against
-    // the DFDL schema used as a XSD for the expected infoset XML.
-    //
-    expectedNoAttrs
-  }
-}
-
-abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
-  lazy val matchAttrib = (n \ "@match").text
-  protected def diagnosticNodes: Seq[Node]
-  lazy val messages = diagnosticNodes.map { _.text }
-
-  def hasDiagnostics: Boolean = diagnosticNodes.length > 0
-}
-
-case class ExpectedErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
-
-  val diagnosticNodes = node \\ "error"
-
-}
-
-case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
-
-  val diagnosticNodes = node \\ "warning"
-
-}
-
-case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
-
-  val diagnosticNodes = node \\ "error"
 
 }
