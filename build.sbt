@@ -18,7 +18,7 @@ resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.i
 
 libraryDependencies in ThisBuild := Seq(
   "junit" % "junit" % "4.11",
-  "com.novocode" % "junit-interface" % "0.10-M4",
+  "com.novocode" % "junit-interface" % "0.10",
   "org.jdom" % "jdom2" % "2.0.5",
   "net.sf.saxon" % "Saxon-HE" % "9.5.1-1",
   "net.sf.saxon" % "Saxon-HE-jdom2" % "9.5.1-1",
