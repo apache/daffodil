@@ -781,7 +781,7 @@ object Main extends Logging {
                 }
                 task
               }
-              val results = tasks.map{ Await.result(_, Duration(10, "seconds")) }
+              val results = tasks.map{ Await.result(_, Duration.Inf) }
               results
             })
 
