@@ -43,8 +43,9 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypesNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-  val aa = testDir + "SimpleTypes.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
+  //  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  //  val aa = testDir + "BitOrder.tdml"
+  //  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  //
+  //  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
 }

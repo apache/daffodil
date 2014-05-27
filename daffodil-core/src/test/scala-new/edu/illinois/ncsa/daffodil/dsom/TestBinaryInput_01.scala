@@ -47,54 +47,54 @@ class TestBinaryInput_01 {
   /*** DFDL-334 ***/
   // Verify Bit Extraction
   val msbFirst = BitOrder.MostSignificantBitFirst
+  val lsbFirst = BitOrder.LeastSignificantBitFirst
+  val BE = java.nio.ByteOrder.BIG_ENDIAN
+  val LE = java.nio.ByteOrder.LITTLE_ENDIAN
 
   @Test def testOneBit1() {
     val in = Misc.byteArrayToReadableByteChannel(Misc.bits2Bytes(Seq("00000011")))
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    val bit1 = inStream.getPartialByte(6, 2, 0)
+    val bit1 = inStream.getLong(6, 2, BE, msbFirst)
     assertEquals(3, bit1)
-    val bit2 = inStream.getPartialByte(4, 2, 0)
+    val bit2 = inStream.getLong(4, 2, BE, msbFirst)
     assertEquals(0, bit2)
   }
 
   @Test def testOneBit2() {
     val in = Misc.byteArrayToReadableByteChannel(Misc.bits2Bytes(Seq("11000000")))
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    val bit1 = inStream.getPartialByte(0, 2, 0)
+    val bit1 = inStream.getLong(0, 2, BE, msbFirst)
     assertEquals(3, bit1)
-    val bit2 = inStream.getPartialByte(2, 2, 0)
+    val bit2 = inStream.getLong(2, 2, BE, msbFirst)
     assertEquals(0, bit2)
   }
 
   @Test def testOneBit3() {
     val in = Misc.byteArrayToReadableByteChannel(Misc.bits2Bytes(Seq("00000011")))
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    val (n, len) = inStream.getBitSequence(6, 2, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)
-    assertEquals(BigInt(3), n)
-    assertEquals(8, len)
-    //    val bit2 = inStream.getPartialByte(4, 2, 0)
-    //    assertEquals(0, bit2)
+    val n = inStream.getLong(6, 2, BE, msbFirst)
+    assertEquals(3, n)
   }
 
   @Test
   def testBufferBitExtraction() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getPartialByte(1, 3) == 3)
+    assertEquals(3, inStream.getLong(1, 3, BE, msbFirst))
   }
 
   @Test
   def testBufferBitExtractionShift() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getPartialByte(1, 3, 2) == 12)
+    assertEquals(12, inStream.getLong(2, 4, BE, msbFirst))
   }
 
   @Test
   def testBufferLeastSignificantBitExtractionShift() {
     var in = Misc.stringToReadableByteChannel("4")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getPartialByte(5, 3, 2) == 16)
+    assertEquals(4, inStream.getLong(5, 3, BE, msbFirst))
   }
 
   // Verify aligned byte/short/int/long/bigint extraction
@@ -102,74 +102,73 @@ class TestBinaryInput_01 {
   def testBufferByteBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 8, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 51)
+    assertEquals(51, inStream.getLong(0, 8, BE, msbFirst))
   }
 
   @Test
   def testBufferByteLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 8, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 51)
+    assertEquals(51, inStream.getLong(0, 8, LE, msbFirst))
   }
 
   @Test
   def testBufferShortBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Om")
     val inStream = InStream.fromByteChannel(null, in, 2, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 16, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 20333)
+    assertEquals(20333, inStream.getLong(0, 16, BE, msbFirst))
   }
 
   @Test
   def testBufferShortLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Om")
     val inStream = InStream.fromByteChannel(null, in, 2, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 16, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 27983)
+    assertEquals(27983, inStream.getLong(0, 16, LE, msbFirst))
   }
 
   @Test
   def testBufferIntBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Help")
     val inStream = InStream.fromByteChannel(null, in, 4, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 32, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1214606448)
+    assertEquals(1214606448, inStream.getLong(0, 32, BE, msbFirst))
   }
 
   @Test
   def testBufferIntLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Help")
     val inStream = InStream.fromByteChannel(null, in, 4, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 32, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1886152008)
+    assertEquals(1886152008, inStream.getLong(0, 32, LE, msbFirst))
   }
 
   @Test
   def testBufferLongBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Harrison")
     val inStream = InStream.fromByteChannel(null, in, 8, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 64, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1.toString ==
-      "5215575679192756078")
+    assertEquals(BigInt(5215575679192756078L), inStream.getBigInt(0, 64, BE, msbFirst))
   }
 
   @Test
   def testBufferLongLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Harrison")
     val inStream = InStream.fromByteChannel(null, in, 8, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 64, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1.toString ==
-      "7957705963315814728")
+    assertEquals(BigInt(7957705963315814728L), inStream.getBigInt(0, 64, LE, msbFirst))
   }
 
   @Test
   def testBufferBigIntBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Something in the way she moves, ")
     val inStream = InStream.fromByteChannel(null, in, 32, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 256, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1.toString ==
-      "37738841482167102822784581157237036764884875846207476558974346160344516471840")
+    val bigInt = inStream.getBigInt(0, 256, BE, msbFirst)
+    assertEquals(BigInt("37738841482167102822784581157237036764884875846207476558974346160344516471840"),
+      bigInt)
   }
 
   @Test
   def testBufferBigIntLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("Something in the way she moves, ")
     val inStream = InStream.fromByteChannel(null, in, 32, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 256, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1.toString ==
-      "14552548861771956163454220823873430243364312915206513831353612029437431082835")
+    assertEquals(BigInt("14552548861771956163454220823873430243364312915206513831353612029437431082835"),
+      inStream.getBigInt(0, 256, LE, msbFirst))
   }
 
   // Aligned but not full string
@@ -177,14 +176,14 @@ class TestBinaryInput_01 {
   def testBufferPartialIntBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 24, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 5456468)
+    assertEquals(5456468, inStream.getLong(0, 24, BE, msbFirst))
   }
 
   @Test
   def testBufferPartialIntLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 24, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 5522003)
+    assertEquals(5522003, inStream.getLong(0, 24, LE, msbFirst))
   }
 
   // Non-Aligned 1 Byte or less
@@ -192,28 +191,28 @@ class TestBinaryInput_01 {
   def testBufferBitNumberBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(1, 3, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 3)
+    assertEquals(3, inStream.getLong(1, 3, BE, msbFirst))
   }
 
   @Test
   def testBufferBitNumberLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3")
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(1, 3, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 3)
+    assertEquals(3, inStream.getLong(1, 3, LE, msbFirst))
   }
 
   @Test
   def testBufferBitByteBigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3>")
     val inStream = InStream.fromByteChannel(null, in, 2, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(2, 8, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 204)
+    assertEquals(204, inStream.getLong(2, 8, BE, msbFirst))
   }
 
   @Test
   def testBufferBitByteLittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("3>")
     val inStream = InStream.fromByteChannel(null, in, 2, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(2, 8, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 204)
+    assertEquals(0xCC, inStream.getLong(2, 8, LE, msbFirst))
   }
 
   // Non-Aligned multi-byte
@@ -221,28 +220,52 @@ class TestBinaryInput_01 {
   def testBufferPartialInt22At0BigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 22, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1364117)
+    assertEquals(1364117, inStream.getLong(0, 22, BE, msbFirst))
   }
 
   @Test
   def testBufferPartialInt22At0LittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(0, 22, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1393235)
+    assertEquals(0x544253, inStream.getLong(0, 22, LE, msbFirst))
   }
 
   @Test
   def testBufferPartialInt22At2BigEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(2, 22, java.nio.ByteOrder.BIG_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1262164)
+    assertEquals(0x134254, inStream.getLong(2, 22, BE, msbFirst))
   }
 
   @Test
   def testBufferPartialInt22At2LittleEndianExtraction() {
     var in = Misc.stringToReadableByteChannel("SBT")
     val inStream = InStream.fromByteChannel(null, in, 3, -1, msbFirst)
-    assertTrue(inStream.getBitSequence(2, 22, java.nio.ByteOrder.LITTLE_ENDIAN, BitOrder.MostSignificantBitFirst)._1 == 1313101)
+    assertEquals(0x50094d, inStream.getLong(2, 22, LE, msbFirst))
   }
 
+  @Test def testOneBit1LSBFirst() {
+    val in = Misc.byteArrayToReadableByteChannel(Misc.bits2Bytes(Seq("01100000")))
+    val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
+    val bit1 = inStream.getLong(5, 2, LE, lsbFirst)
+    assertEquals(3, bit1)
+    val bit2 = inStream.getLong(4, 2, LE, lsbFirst)
+    assertEquals(2, bit2)
+  }
+
+  @Test def testOneBit2LSBFirst() {
+    val in = Misc.byteArrayToReadableByteChannel(Misc.bits2Bytes(Seq("01010000")))
+    val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
+    val bit1 = inStream.getLong(5, 2, LE, lsbFirst)
+    assertEquals(2, bit1)
+    val bit2 = inStream.getLong(4, 2, LE, lsbFirst)
+    assertEquals(1, bit2)
+  }
+
+  @Test def testOneBit3LSBFirst() {
+    val in = Misc.byteArrayToReadableByteChannel(BigInt(0xE4567A).toByteArray)
+    val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
+    val bit1 = inStream.getLong(13, 12, LE, lsbFirst)
+    assertEquals(0x2B3, bit1)
+  }
 }

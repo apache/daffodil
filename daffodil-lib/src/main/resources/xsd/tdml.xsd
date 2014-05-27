@@ -140,6 +140,7 @@
 					use="required" />
 				<attribute name="replaceDFDLEntities" type="xs:boolean" />
                 <attributeGroup ref="tns:bitOrderAG"/>
+                <attribute name="encoding" type="xs:token" use="optional"/>
 			</extension>
 		</simpleContent>
 	</complexType>

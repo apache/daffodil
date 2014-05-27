@@ -78,6 +78,7 @@ class DFDLByteReader private (psb: PagedSeq[Byte], bitOrder: BitOrder, val byteP
     bitOrder,
     0)
 
+  def getBitOrder() = bitOrder
   /**
    * new reader that has different bit order.
    */

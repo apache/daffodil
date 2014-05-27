@@ -370,4 +370,18 @@ class TestTDMLRunnerNew {
     lazy val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testRegex")
   }
+
+  @Test def testComplexDocument() = {
+    val doc = <tdml:document>
+                <tdml:documentPart type="bits">00101010</tdml:documentPart>
+                <tdml:documentPart type="bits">1</tdml:documentPart>
+                <tdml:documentPart type="bits">00000000 00000000 00000000 00000001</tdml:documentPart>
+                <tdml:documentPart type="bits">0</tdml:documentPart>
+                <tdml:documentPart type="bits">1</tdml:documentPart>
+              </tdml:document>
+    val docObj = new Document(doc, null)
+    val bits = docObj.documentBits
+    val expected = List("00101010", "10000000", "00000000", "00000000", "00000000", "10100000")
+    assertEquals(expected, bits)
+  }
 }

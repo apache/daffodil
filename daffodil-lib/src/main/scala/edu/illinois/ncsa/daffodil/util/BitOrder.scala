@@ -63,17 +63,53 @@ object Bits {
   }
 
   /**
+   * Treat a byte array like a logical shift register
+   * <p>
+   * Using BigInt for this is a pain because it
+   * does sign extension, or removes zero leading bytes
+   * for non-negative values, etc.
+   */
+  def shiftLeft(ba: Array[Byte], n: Int) {
+    Assert.usage(n < 8)
+    var leftBits: Int = 0
+    var i: Int = ba.length - 1
+    val mask = ((1 << n) - 1)
+    while (i >= 0) {
+      val rightBits = (leftBits >>> 8) & mask
+      val b = asUnsignedByte(ba(i))
+      leftBits = (b << n)
+      ba(i) = asSignedByte((leftBits | rightBits) & 0xFF)
+      i = i - 1
+    }
+  }
+
+  def shiftRight(ba: Array[Byte], n: Int) {
+    Assert.usage(n < 8)
+    var rightBits: Int = 0
+    var i: Int = 0
+    val mask = ((1 << n) - 1) & 0xFF
+    while (i < ba.length) {
+      val leftBits = rightBits << (8 - n)
+      val b = asUnsignedByte(ba(i))
+      rightBits = b & mask
+      val v = ((b >>> n) | leftBits) & 0xFF
+      ba(i) = asSignedByte(v)
+      i = i + 1
+    }
+  }
+
+  /**
    * Given a value b, and a field width, produces the value
    * obtained by reversing the order of its bits.
    *
    * For unit testing.
    */
-  def swizzle(b: Int, width: Int) = {
-    assert(width <= 8 && width >= 1)
-    assert(b <= (1 << width) - 1)
-    assert(b >= 0)
-    val flipped = asLSBitFirst(b)
-    val res = flipped >> 8 - width
-    res
-  }
+  //  def swizzle(b: Int, width: Int) = {
+  //    assert(width <= 8 && width >= 1)
+  //    assert(b <= (1 << width) - 1)
+  //    assert(b >= 0)
+  //    val flipped = asLSBitFirst(b)
+  //    val res = flipped >> 8 - width
+  //    res
+  //  }
 }

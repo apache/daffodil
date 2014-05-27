@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="BitOrder"
+  description="new property bitOrder='leastSignificantBitFirst'" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com">
+
+
+  <tdml:defineSchema name="s">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" bitOrder='leastSignificantBitFirst' />
+
+    <xs:element name="tabBI">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="Version" type="xs:unsignedInt"
+            dfdl:length="4" />
+          <xs:element name="FPI" type="xs:unsignedInt" dfdl:length="1" />
+          <xs:element name="GPI_OriginatorAddress" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="FPI_URN" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24" />
+          <xs:element name="FPI_UnitName" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="UnitName" type="xs:string" dfdl:encoding="us-ascii-7-bit-packed"
+            dfdl:lengthKind="delimited" dfdl:terminator="&#x7F;" />
+          <xs:element name="GPI_RecipAddrGroup" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="GRI_R1" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="FPI_URN2" type="xs:unsignedInt"
+            dfdl:length="1" />
+          <xs:element name="URN2" type="xs:unsignedInt" dfdl:length="24" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:parserTestCase name="TestMIL2045_47001D_Page70_TableB_I_with_string"
+    root="tabBI" model="s" description="Verification that user's test works for DFDL-677">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="RTL">Version                         XXXX 0011</documentPart>
+      <documentPart type="bits" byteOrder="RTL">FPI                             XXX0 XXXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">Compression                     NA       </documentPart>
+      <documentPart type="bits" byteOrder="RTL">GPI for Originator Address      XX1X XXXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">FPI for URN                     X1XX XXXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">URN  X0000000 00000000 01100111 1XXX XXXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">FPI for Unit Name               1XXX XXXX</documentPart>
+      <documentPart type="text" encoding="us-ascii-7-bit-packed">UNITA&#x7F;</documentPart>
+      <documentPart type="bits" byteOrder="RTL">GPI for Recip. Addr Group       XXXX X1XX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">GRI for R_ONE                   XXXX 0XXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">FPI for URN                     XXX1 XXXX</documentPart>
+      <documentPart type="bits" byteOrder="RTL">URN XXXX00000 00000000 00000000 011X XXXX</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <tabBI>
+          <Version>3</Version>
+          <FPI>0</FPI>
+          <GPI_OriginatorAddress>1</GPI_OriginatorAddress>
+          <FPI_URN>1</FPI_URN>
+          <URN>207</URN>
+          <FPI_UnitName>1</FPI_UnitName>
+          <UnitName>UNITA</UnitName>
+          <GPI_RecipAddrGroup>1</GPI_RecipAddrGroup>
+          <GRI_R1>0</GRI_R1>
+          <FPI_URN2>1</FPI_URN2>
+          <URN2>3</URN2>
+        </tabBI>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>

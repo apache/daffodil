@@ -57,7 +57,6 @@ object InStream {
 
   def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) = {
     new InStreamFromByteChannel(context, in, bitOffset, bitLimit, bitOrder)
-
   }
 
   /**
@@ -97,7 +96,6 @@ object InStream {
     val inStream = InStreamFixedWidthTextOnly(0, info)
     inStream
   }
-
 }
 
 /**
@@ -136,15 +134,11 @@ trait InStream {
    */
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte]
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): (BigInt, Long)
+  def getLong(bitPos0b: Long, bitCount: Long, byteOrd: java.nio.ByteOrder, bitOrd: BitOrder): Long
 
-  // TODO: remove if no longer needed
-  // def withLimit(startBitPos: Long, endBitPos: Long): InStream
+  def getBigInt(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): BigInt
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader
-
-  // Removed: bad idea. Makes copy of entire input
-  // def getAllBytes: Array[Byte]
 
   /**
    * Calling this forces the entire input into memory.
@@ -321,7 +315,7 @@ case class InStreamFromByteChannel private (
     rdr
   }
 
-  private val emptyByteArray = Array[Byte]()
+  //  private val emptyByteArray = Array[Byte]()
 
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
     // checkBounds(bitPos, 8 * numBytes)
@@ -329,7 +323,19 @@ case class InStreamFromByteChannel private (
       val bytePos = (bitPos >> 3)
       getByteAlignedBytes(bytePos, numBytes)
     } else {
-      getUnalignedBytes(bitPos, numBytes)
+      val bitOrder = byteReader.getBitOrder()
+      //
+      // We're just getting bytes, but to allow us to reuse
+      // getBitSequence we need to have some byte order consistent with the
+      // bit order
+      val tempByteOrder = if (bitOrder == BitOrder.LeastSignificantBitFirst) {
+        java.nio.ByteOrder.LITTLE_ENDIAN
+      } else {
+        java.nio.ByteOrder.BIG_ENDIAN
+      }
+      val bigNum = getBigInt(bitPos, numBytes * 8, tempByteOrder, bitOrder)
+      val bytes = bigNum.toByteArray
+      bytes
     }
   }
 
@@ -340,21 +346,6 @@ case class InStreamFromByteChannel private (
     res.toByte
   }
 
-  private def getUnalignedBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
-    Assert.usage(numBytes <= Int.MaxValue, "32-bit limit on number of bytes (due to underlying libraries restriction.)")
-    Assert.usage((bitPos >> 3) <= Int.MaxValue, "32-bit limit on byte position (due to underlying libraries restriction.)")
-    val bytePos = bitPos >> 3
-    val byteShift = bitPos & 0x7
-    Assert.usage(byteShift != 0, "Shouldn't be called if bytes are aligned.")
-    val byteSuperset = getByteAlignedBytes(bytePos, numBytes + 1).map { Bits.asUnsignedByte(_) }
-    val bitsKeeping = byteSuperset.map { b => ((b << byteShift) & 0xFF) >> byteShift }.slice(1, byteSuperset.length - 1)
-    val bitsAddingToNextByte = byteSuperset.map { b => (b >> byteShift) << byteShift }.slice(1, byteSuperset.length)
-    val bothParts = bitsAddingToNextByte zip bitsKeeping
-    val resultInts = bothParts.map { case (adding, keeping) => adding | keeping }
-    val resultBytes = resultInts.map { Bits.asSignedByte(_) }
-    resultBytes
-  }
-
   private def getByteAlignedBytes(bytePos: Long, numBytes: Long): Array[Byte] = {
     Assert.usage(numBytes <= Int.MaxValue, "32-bit limit on number of bytes (due to underlying libraries restriction.)")
     Assert.usage(bytePos <= Int.MaxValue, "32-bit limit on byte position (due to underlying libraries restriction.)")
@@ -362,138 +353,162 @@ case class InStreamFromByteChannel private (
     res
   }
 
-  abstract class EndianTraits(val startBit: Long, val bitCount: Long) {
-    lazy val byteLength = 8.toLong
-    lazy val alignmentOffsetLength = startBit & 7
-    lazy val isAligned = alignmentOffsetLength == 0
-    lazy val startBitInByteRemaining = if (isAligned) byteLength - alignmentOffsetLength else 0
-    lazy val shortByteLength = bitCount & 7
-    lazy val wholeBytesLength = bitCount - shortByteLength
-    lazy val wholeBytesSize = wholeBytesLength >>> 3
-    lazy val isShortSplit = alignmentOffsetLength + shortByteLength > byteLength
-    lazy val restOfBytesAlignment = (alignmentOffsetLength + initialByteLength) & 7
-    lazy val finalBytesAlignment = (alignmentOffsetLength + shortByteLength) & 7
-    lazy val isSplit = restOfBytesAlignment != 0
-    lazy val longByteLength = if (wholeBytesSize == 0) 0 else byteLength
-    val isInitialSplit: Boolean
-    val isFinalSplit: Boolean
-    val initialShiftLeft: Long
-    val nextByteShiftLeft: Long
-    val initialByteLength: Long
-    val finalByteLength: Long
-    lazy val initialTopByteShiftCount = if (isInitialSplit) restOfBytesAlignment else 0
-    lazy val topByteShiftCount = restOfBytesAlignment
-    lazy val finalTopByteShiftCount = if (isFinalSplit) finalBytesAlignment else 0
-    lazy val initialTopByteLength = initialByteLength - initialTopByteShiftCount
-    lazy val topByteLength = byteLength - restOfBytesAlignment
-    lazy val finalTopByteLength = finalByteLength - finalTopByteShiftCount
-    lazy val initialBottomByteLength = initialTopByteShiftCount
-    lazy val bottomByteLength = topByteShiftCount
-    lazy val finalBottomByteLength = finalTopByteShiftCount
-    lazy val hasInitialByte = initialByteLength != 0
-    lazy val hasFinalByte = finalByteLength != 0
-    lazy val hasShortByte = shortByteLength != 0
-  }
-  case class BigEndianTraits(override val startBit: Long, override val bitCount: Long) extends EndianTraits(startBit, bitCount) {
-    lazy val isInitialSplit = isShortSplit
-    lazy val isFinalSplit = isSplit
-    lazy val initialShiftLeft = if (hasShortByte) wholeBytesLength else wholeBytesLength - byteLength
-    lazy val nextByteShiftLeft = -byteLength
-    lazy val initialByteLength = shortByteLength
-    lazy val finalByteLength = longByteLength
-  }
-  case class LittleEndianTraits(override val startBit: Long, override val bitCount: Long) extends EndianTraits(startBit, bitCount) {
-    lazy val isInitialSplit = isSplit
-    lazy val isFinalSplit = isShortSplit
-    lazy val initialShiftLeft = 0.toLong
-    lazy val nextByteShiftLeft = byteLength
-    lazy val initialByteLength = longByteLength
-    lazy val finalByteLength = shortByteLength
-  }
-
-  def getEndianTraits(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder) = order match {
-    case java.nio.ByteOrder.BIG_ENDIAN => BigEndianTraits(bitPos, bitCount)
-    case java.nio.ByteOrder.LITTLE_ENDIAN => LittleEndianTraits(bitPos, bitCount)
-    case _ => Assert.invariantFailed("Invalid Byte Order: " + order)
-  }
-
-  def getBitSequence(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): (BigInt, Long) = {
-    checkBounds(bitPos, bitCount)
-    val worker: EndianTraits = getEndianTraits(bitPos, bitCount, order)
-    var result = BigInt(0)
-    var position = worker.startBit
-    var outShift = worker.initialShiftLeft
-
-    // Read first byte (be it complete or partial)
-    if (worker.hasInitialByte) {
-      result =
-        (BigInt(
-          if (worker.isInitialSplit) {
-            (getPartialByte(position, worker.initialTopByteLength, worker.initialTopByteShiftCount) |
-              getPartialByte(position + worker.initialTopByteLength, worker.initialBottomByteLength, 0)).toByte
-          } else {
-            getPartialByte(position, worker.initialByteLength, 0)
-          }) & 0xFF) << outShift.toInt
-      position = position + worker.initialByteLength
-      outShift = outShift + worker.nextByteShiftLeft
+  def reverseBytesAndReverseBits(a: Array[Byte]) {
+    var i: Int = 0
+    val len = a.length
+    while (i < (len >> 1)) {
+      // swap positions end to end, and swap bit order within each
+      // byte at the same time.
+      // Do this in-place to avoid unnecessary further allocation.
+      val upperByte = a(len - i - 1)
+      val lowerByte = a(i)
+      a(len - i - 1) = Bits.asLSBitFirst(lowerByte)
+      a(i) = Bits.asLSBitFirst(upperByte)
+      i = i + 1
     }
-
-    // Next all the middle bytes; we skip one byte because that will be handled either in the initial or final handler
-    for (thisByte <- 1 until worker.wholeBytesSize.toInt) {
-      result = result +
-        ((BigInt(
-          if (worker.isSplit) {
-            (getPartialByte(position, worker.topByteLength, worker.topByteShiftCount) |
-              getPartialByte(position + worker.topByteLength, worker.bottomByteLength, 0)).toByte
-          } else {
-            getPartialByte(position, worker.byteLength, 0)
-          }) & 0xFF) << outShift.toInt)
-      position = position + worker.byteLength
-      outShift = outShift + worker.nextByteShiftLeft
+    if ((len & 1) == 1) {
+      // odd number of bytes, so we have one more flip to do
+      // which is the middle byte
+      i = (len >> 1)
+      a(i) = Bits.asLSBitFirst(a(i))
     }
-
-    // Read first byte (be it complete or partial)
-    if (worker.hasFinalByte) {
-      result = result +
-        ((BigInt(
-          if (worker.isFinalSplit) {
-            (getPartialByte(position, worker.finalTopByteLength, worker.finalTopByteShiftCount) |
-              getPartialByte(position + worker.finalTopByteLength, worker.finalBottomByteLength, 0)).toByte
-          } else {
-            getPartialByte(position, worker.finalByteLength, 0)
-          }) & 0xFF) << outShift.toInt)
-      position = position + worker.finalByteLength
-      outShift = outShift + worker.nextByteShiftLeft
-    }
-
-    (result, position)
   }
 
-  // littleEndian shift left except last, bigEndian shift right except first
-  def getPartialByte(bitPos: Long, bitCount: Long, shift: Long = 0): Int = {
-    Assert.invariant(shift >= 0 && shift + bitCount <= 8)
-    val bytePos = (bitPos >>> 3).toInt
-    val bitOffset = (bitPos % 8).toByte
-    var result: Int = byteReader.getByte(bytePos)
-    result = if (result < 0) 256 + result else result
+  def reverseBytes(a: Array[Byte]) {
+    var i: Int = 0
+    val len = a.length
+    while (i < (len >> 1)) {
+      // swap positions end to end, 
+      // Do this in-place to avoid unnecessary further allocation.
+      val upperByte = a(len - i - 1)
+      val lowerByte = a(i)
+      a(len - i - 1) = lowerByte
+      a(i) = upperByte
+      i = i + 1
+    }
+  }
 
-    if (bitCount != 8) {
-      Assert.invariant(0 < bitCount && bitCount <= 8 && bitOffset + bitCount <= 8)
-      val mask = ((1 << bitCount) - 1) << (8 - bitOffset - bitCount)
+  def getLong(bitPos0b: Long, bitCount: Long, byteOrd: java.nio.ByteOrder, bitOrd: BitOrder) = {
+    Assert.usage(bitCount <= 63)
+    //
+    // TODO: we should have a way to get a long
+    // that does not require allocating anything.
+    // For now we just want one code path to maintain.
+    // So we pay some performance cost.
+    //
+    val bigInt = getBigInt(bitPos0b, bitCount, byteOrd, bitOrd)
+    bigInt.toLong
+  }
 
-      result = (result & mask)
-
-      // Shift so LSB of result is at LSB of octet then mask off top bits
-      val finalShift = 8 - bitCount - bitOffset - shift
-      val res =
-        if (finalShift < 0) result << -finalShift
-        else result >> finalShift
+  /**
+   * Constructs a BigInt from the data stream
+   */
+  def getBigInt(bitPos0b: Long, bitCount: Long, byteOrd: java.nio.ByteOrder, bitOrd: BitOrder): BigInt = {
+    checkBounds(bitPos0b, bitCount)
+    var bitOrder = bitOrd
+    var byteOrder = byteOrd
+    val firstBytePos = bitPos0b >> 3
+    var numBitsFirstByte = if ((bitPos0b % 8) == 0) 8 else 8 - (bitPos0b % 8).toInt // if the whole byte is in use. 
+    val nextBitPos0b = bitPos0b + bitCount
+    val lastValidBitPos = nextBitPos0b - 1
+    val lastBytePos = lastValidBitPos >> 3
+    val numBytes = if (lastBytePos == firstBytePos) 1 else (lastBytePos - firstBytePos).toInt + 1
+    var numBitsLastByte: Int = if ((nextBitPos0b % 8) == 0) 8 else (nextBitPos0b % 8).toInt
+    var allBytes = getByteAlignedBytes(firstBytePos, numBytes)
+    if (bitOrder == BitOrder.LeastSignificantBitFirst) {
+      // LSB first is exactly the same as big endian with MSBFirst, 
+      // but with the bits reversed order. 
+      // We must also adjust the start position however since reversing the bytes, 
+      // the offset into the new first byte can be different.
+      reverseBytesAndReverseBits(allBytes)
+      byteOrder = java.nio.ByteOrder.BIG_ENDIAN
+      // numBitsLastByte = 8
+    } else if (byteOrder == java.nio.ByteOrder.LITTLE_ENDIAN &&
+      firstBytePos < lastBytePos) {
+      //
+      // Conventional little endian case, and at least two bytes
+      // are involved.
+      //
+      // How little-endian vs. big endian works when dealing with fields that 
+      // don't start or end on byte boundaries isn't very clear
+      //
+      // The DFDL spec has a chunk of code for littleEndian that
+      // we have in scala as BitsUtils.littleEndianBitValue. This can be used
+      // to determine the correct bit values. But it is unsuitable 
+      // as an algorithm since it computes the value of individual bits.
+      //
+      // Our decision is to take the set of bytes that the bits occupy,
+      // treat as a list of whole bytes except the last (right-most) byte. The last byte
+      // is padded on the right with zeros (the right being least-significant bits).
+      // 
+      // In general the field begins in the middle of a byte, and ends in the 
+      // middle of a byte. 
+      // We shift left until the first bit of the field is the first bit of the
+      // first byte.
+      val shift1 = (8 - numBitsFirstByte)
+      val bytes =
+        if (shift1 == 0) allBytes // bypass for the bytes-are-aligned case.
+        else {
+          Bits.shiftLeft(allBytes, shift1)
+          //
+          // So we now have the field byte starting on a byte boundary on the
+          // left. However, the right-most byte might have become all zero. 
+          // That is, by aligning our bytes on the left, we may have shifted all
+          // the bits of the field into the bytes preceding the last.
+          // So we must check for this case, and drop the last byte if this is the
+          // case. The right-most byte might not have the value 0, as it could 
+          // still have some bits in it that are from beyond the length of the
+          // field.
+          //
+          if (bitCount <= ((allBytes.length - 1) * 8)) {
+            // we don't need all the bytes. The shift moved ALL field bits
+            // out of the rightmost byte
+            allBytes = allBytes.dropRight(1)
+          }
+        }
+      //
+      // we may need to zero out some bits of the last byte that are 
+      // past the end of the field.
+      //
+      val numUnusedFinalBits = (allBytes.length * 8) - bitCount
+      val unusedMask = ~((1 << numUnusedFinalBits) - 1) & 0xFF
+      val last = allBytes.length - 1
+      val lastByte = allBytes(last)
+      val newLastByte = lastByte & unusedMask // preserve only the used bits
+      allBytes(last) = newLastByte.toByte
+      // 
+      // Now we reverse the bytes due to little-endianness 
+      //
+      reverseBytes(allBytes)
+      val result = BigInt(0x0.toByte +: allBytes)
+      return result
+    }
+    //
+    // Big endian case
+    //
+    // Also handles case where there is only one byte
+    // so that we don't care about byte order.
+    //
+    Assert.invariant(numBytes == 1 || byteOrder == java.nio.ByteOrder.BIG_ENDIAN)
+    val rawBigNum = BigInt(allBytes)
+    val shiftRight = 8 - numBitsLastByte
+    val shifted = rawBigNum >> shiftRight
+    val mask = ((BigInt(1) << bitCount.toInt) - 1)
+    val resultBE = shifted & mask
+    val result = if (bitOrder == BitOrder.LeastSignificantBitFirst) {
+      //
+      // We must reverse-back to get the correct value
+      //
+      val bytes = resultBE.toByteArray
+      val shift = 8 - (bitCount.toInt % 8)
+      reverseBytesAndReverseBits(bytes)
+      val bi = BigInt(bytes)
+      val res = (bi >> shift) & mask
       res
     } else {
-      // Verify byte alignment and disallow shift
-      Assert.invariant(bitOffset == 0 && shift == 0)
-      result
+      resultBE
     }
+    result
   }
 
   def checkBounds(bitStart: Long, bitLength: Long) {
@@ -573,15 +588,5 @@ class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends Data
   def isAtEnd: Boolean = {
     bitPos >= bitLimit
   }
-  //  def isAtEnd: Boolean = {
-  //    try {
-  //      inStream.getBitSequence(bitPos, 1, java.nio.ByteOrder.BIG_ENDIAN)
-  //      false
-  //    } catch {
-  //      case e: IndexOutOfBoundsException => {
-  //        val exc = e
-  //        true
-  //      }
-  //    }
-  //  }
+
 }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -49,7 +48,7 @@ class TestSimpleTypes2 {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_warning_exercise() {
     val exc = intercept[Exception] {
       runner.runOneTest("warning_exercise")
@@ -57,12 +56,12 @@ class TestSimpleTypes2 {
     assertTrue(exc.getMessage().contains("Did not find"))
   }
 
-//////////////////////// DFDL-529 /////////////////////////////
+  //////////////////////// DFDL-529 /////////////////////////////
 
   @Test def test_dateCalendarCenturyStart() { runner.runOneTest("dateCalendarCenturyStart") }
   @Test def test_dateCalendarCenturyStart2() { runner.runOneTest("dateCalendarCenturyStart2") }
 
-///////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////
 
   @Test def test_whiteSpaceAfterValidInt() { runner.runOneTest("whiteSpaceAfterValidInt") }
 
@@ -88,4 +87,14 @@ class TestSimpleTypes2 {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
+
+  val testDir1 = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  val aaa = testDir1 + "BitOrder.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aaa))
+
+  /**
+   * New test for bitOrder='leastSignificantBitFirst' feature.
+   */
+  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
+
 }

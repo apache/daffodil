@@ -702,7 +702,8 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         val (start, bo) = getByteOrder(start1)
         //if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
 
-        val (value, newPos) = start.inStream.getBitSequence(start.bitPos, nBits, bo, bitOrd)
+        val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
+        val newPos = start.bitPos + nBits
         //if (GramName == "hexBinary") {
         //  val bytes = value.asInstanceOf[Array[Byte]]
         //  var asString: StringBuilder = new StringBuilder()

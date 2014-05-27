@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.length_properties
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -43,6 +42,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class TestLengthProperties {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
@@ -67,7 +67,7 @@ class TestLengthProperties {
   @Test def test_LengthProp_sequenceByLength() { runner_02.runOneTest("LengthProp_sequenceByLength") }
   // Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
   // @Test def test_LengthProp_charVsBytes() { runner_02.runOneTest("LengthProp_charVsBytes") }
-  
+
   // Uses lengthUnits bytes with utf-8 and explicit lengthKind
   // @Test def test_LengthProp_charVsBytes2() { runner_02.runOneTest("LengthProp_charVsBytes2") }
   @Test def test_LengthProp_tooShortFailure() { runner_02.runOneTest("LengthProp_tooShortFailure") }
@@ -77,7 +77,7 @@ class TestLengthProperties {
   @Test def test_LengthProp_byteLength() { runner_02.runOneTest("LengthProp_byteLength") }
   @Test def test_LengthProp_byteLength_UTF16() { runner_02.runOneTest("LengthProp_byteLength_UTF16") }
   @Test def test_LengthProp_byteLength_UTF16fail() { runner_02.runOneTest("LengthProp_byteLength_UTF16fail") }
-  
+
   // Uses lengthKind explicit with utf-8 and lengthUnits bytes
   // @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
   @Test def test_LengthProp_longTextLength() { runner_02.runOneTest("LengthProp_longTextLength") }
@@ -85,7 +85,7 @@ class TestLengthProperties {
 
   @Test def test_LengthProp_bits_01() { runner_02.runOneTest("LengthProp_bits_01") }
   @Test def test_LengthProp_bits_02() { runner_02.runOneTest("LengthProp_bits_02") }
-  
+
   @Test def test_OneBitLeftOver() { runner_02.runOneTest("OneBitLeftOver") }
   @Test def test_OneBit1() { runner_02.runOneTest("OneBit1") }
   @Test def test_ThreeBit1() { runner_02.runOneTest("ThreeBit1") }
@@ -101,13 +101,21 @@ class TestLengthProperties {
 
   @Test def test_bitsRepresentedAsText1() { runner_02.runOneTest("bitsRepresentedAsText1") }
   @Test def test_bitsRepresentedAsText2() { runner_02.runOneTest("bitsRepresentedAsText2") }
-  
+
   @Test def test_lengthGreaterThanEight1() { runner_02.runOneTest("lengthGreaterThanEight1") }
   @Test def test_lengthGreaterThanEight2() { runner_02.runOneTest("lengthGreaterThanEight2") }
   @Test def test_lengthGreaterThanEight3() { runner_02.runOneTest("lengthGreaterThanEight3") }
   @Test def test_lengthGreaterThanEight4() { runner_02.runOneTest("lengthGreaterThanEight4") }
   @Test def test_lengthGreaterThanEight5() { runner_02.runOneTest("lengthGreaterThanEight5") }
- 
+
+  @Test def test_littleEndianBits1() = {
+    import edu.illinois.ncsa.daffodil.util._
+    val b1 = BitsUtils.littleEndianBitValue(1, 10)
+    val b2 = BitsUtils.littleEndianBitValue(10, 10)
+    val res = b1 + b2
+    assertEquals(384, res)
+  }
+
   @Test def test_bitULong() { runner_02.runOneTest("bitULong") }
   @Test def test_bitULong2() { runner_02.runOneTest("bitULong2") }
   @Test def test_bitULong3() { runner_02.runOneTest("bitULong3") }
@@ -116,15 +124,15 @@ class TestLengthProperties {
   @Test def test_bitUCombo() { runner_02.runOneTest("bitUCombo") }
   @Test def test_bitUCombo2() { runner_02.runOneTest("bitUCombo2") }
 
-//  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
+  //  @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }
 
   @Test def test_LengthProp_leftover1() { runner_02.runOneTest("LengthProp_leftover1") }
   @Test def test_LengthProp_leftover2() { runner_02.runOneTest("LengthProp_leftover2") }
   @Test def test_LengthProp_leftover3() { runner_02.runOneTest("LengthProp_leftover3") }
   @Test def test_LengthProp_leftover4() { runner_02.runOneTest("LengthProp_leftover4") }
-  
-//  @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
- 
+
+  //  @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
+
   @Test def test_bitShort() { runner_02.runOneTest("bitShort") }
   @Test def test_bitShort2() { runner_02.runOneTest("bitShort2") }
   @Test def test_bitShort3() { runner_02.runOneTest("bitShort3") }

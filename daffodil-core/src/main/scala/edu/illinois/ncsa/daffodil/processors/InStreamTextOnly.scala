@@ -181,19 +181,11 @@ case class InStreamFixedWidthTextOnly(
     bytes
   }
 
-  def getBitSequence(bitPos: Long, bitCount: Long, order: ByteOrder, bitOrder: BitOrder): (BigInt, Long) = {
-    Assert.usage(bitPos % 8 == 0)
-    Assert.usage(bitCount % 8 == 0)
-    val byteLen = bitCount >> 3
-    val bytes = getBytes(bitPos, byteLen)
-    val res =
-      if (order == ByteOrder.BIG_ENDIAN) BigInt(bytes)
-      else {
-        Assert.invariant(order == ByteOrder.LITTLE_ENDIAN)
-        BigInt(bytes.reverse)
-      }
-    (res, byteLen)
-  }
+  def getLong(bitPos: Long, bitCount: Long, order: ByteOrder, bitOrder: BitOrder): Long =
+    Assert.usageError("should not get binary long values from all text input source")
+
+  def getBigInt(bitPos: Long, bitCount: Long, order: ByteOrder, bitOrder: BitOrder): BigInt =
+    Assert.usageError("should not get binary long values from all text input source")
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
     Assert.usage(charset == info.charset)

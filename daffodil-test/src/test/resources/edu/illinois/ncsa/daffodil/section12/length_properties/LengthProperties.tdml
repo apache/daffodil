@@ -1321,7 +1321,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <bit9>384</bit9>
+        <bit9>32896</bit9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1335,13 +1335,13 @@
   <tdml:parserTestCase name="lengthGreaterThanEight5"
     root="s1" model="bitSchema" description="Section 12 Length Properties - DFDL-12-153R">
     <tdml:document>
-      <tdml:documentPart type="bits"><![CDATA[1000000011000000001]]></tdml:documentPart>
+      <tdml:documentPart type="bits"><![CDATA[1000 0000 1|100 0000 001]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <s1>
           <bit10>257</bit10>
-          <bit11>384</bit11>
+          <bit11>16512</bit11>
         </s1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
