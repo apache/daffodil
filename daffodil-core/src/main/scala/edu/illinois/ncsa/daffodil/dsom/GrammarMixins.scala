@@ -806,12 +806,24 @@ trait ElementBaseGrammarMixin
   lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator, EmptyGram)
 
   lazy val complexContent = Prod("complexContent", this, isComplexType,
-    initiatorRegion ~ elementComplexType.mainGrammar ~ terminatorRegion)
+    elementComplexType.mainGrammar)
 
   lazy val nilLit = {
     Prod("nilLit", this,
       isNillable && nilKind == NilKind.LiteralValue,
-      nilElementInitiator ~ {
+      nilElementInitiator ~ nilLitContent ~ nilElementTerminator)
+  }
+
+  lazy val nilLitSpecifiedLength = {
+    Prod("nilLitSpecifiedLength", this, isNillable && nilKind == NilKind.LiteralValue, {
+      nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator
+    })
+  }
+
+  lazy val nilLitContent = {
+    Prod("nilLitContent", this,
+      isNillable && nilKind == NilKind.LiteralValue,
+      {
         // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
@@ -833,7 +845,7 @@ trait ElementBaseGrammarMixin
           case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
           case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
         }
-      } ~ nilElementTerminator)
+      })
   }
 
   //  lazy val leftPadding =  Prod("leftPadding", this, hasLeftPadding, prims.LeftPadding(this))
@@ -868,7 +880,11 @@ trait ElementBaseGrammarMixin
 
   }
 
-  lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType, specifiedLength(nilLit | complexContent))
+  lazy val complexContentSpecifiedLength = Prod("complexContentSpecifiedLength", this, isComplexType,
+    initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion)
+
+  lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType,
+    nilLitSpecifiedLength | complexContentSpecifiedLength)
 
   // Note: there is no such thing as defaultable complex content because you can't have a 
   // default value for a complex type element.
