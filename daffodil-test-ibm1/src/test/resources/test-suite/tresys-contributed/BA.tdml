@@ -8,8 +8,8 @@
     <document><![CDATA[:item1,item#,2,item!#3,item!4,item!!5
 :item1,item#
 2,item##3,item###,4
-:item1,START,,2,,,END,START3XXX!END,item!S4
-:item1,itemS2,itemSS3,START4END4,SSTARTX5XXEND,START,,6END,START777SEND
+:item1,START,,2,,,END,START3XXX!END3END,item!S4
+:item1,itemS2,itemSS3,START4END,SSTARTX5XXEND,START,,6END,STARTSTART777SENDEND
 ]]></document>
     <infoset>
       <dfdlInfoset>
@@ -26,12 +26,12 @@
           <character2>item#,4</character2>
           <block1>item1</block1>
           <block1>,,2,,,</block1>
-          <block1>START3XXXEND</block1>
+          <block1>3XXXEND3</block1>
           <block1>item!S4</block1>
           <block2>item1</block2>
           <block2>itemS2</block2>
           <block2>itemSS3</block2>
-          <block2>START4END4</block2>
+          <block2>4</block2>
           <block2>SSTARTX5XXEND</block2>
           <block2>,,6</block2>
           <block2>START777END</block2>
