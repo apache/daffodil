@@ -315,8 +315,6 @@ case class InStreamFromByteChannel private (
     rdr
   }
 
-  //  private val emptyByteArray = Array[Byte]()
-
   def getBytes(bitPos: Long, numBytes: Long): Array[Byte] = {
     // checkBounds(bitPos, 8 * numBytes)
     if (bitPos % 8 == 0) {
