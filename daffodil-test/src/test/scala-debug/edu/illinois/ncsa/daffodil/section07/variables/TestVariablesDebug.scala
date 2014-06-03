@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.variables
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._

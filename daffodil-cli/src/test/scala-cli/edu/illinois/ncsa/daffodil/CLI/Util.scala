@@ -69,7 +69,7 @@ object Util {
 
     return getShell(cmd, spawnCmd)
   }
- 
+
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
   def startNoConvert(cmd: String): Spawn = {
@@ -81,14 +81,14 @@ object Util {
 
     return getShell(cmd, spawnCmd)
   }
-  
+
   def getShell(cmd: String, spawnCmd: String): Spawn = {
     val shell = ex.spawn(spawnCmd)
     if (!isWindows) {
       shell.send(cmd)
     }
     return shell
-  } 
+  }
 
   def cmdConvert(str: String): String = {
     var newstr = str.replaceAll("""\\n?""", "")

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.facets
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -48,6 +47,5 @@ class TestFacetsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
-
 
 }

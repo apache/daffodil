@@ -110,7 +110,7 @@ object PrimitiveFactory extends PrimitiveFactoryBase {
   def StringDelimitedEndOfDataDynamic(e: ElementBase): Terminal = new StringDelimitedEndOfDataDynamic(e)
   def HexBinaryDelimitedEndOfDataStatic(e: ElementBase): Terminal = new HexBinaryDelimitedEndOfDataStatic(e)
   def HexBinaryDelimitedEndOfDataDynamic(e: ElementBase): Terminal = new HexBinaryDelimitedEndOfDataDynamic(e)
-  
+
   //def LeftPadding(e: ElementBase): Terminal = new LeftPadding(e)
 
   def SpecifiedLengthPattern(e: ElementBase, eGram: => Gram): Terminal = new SpecifiedLengthPattern(e, eGram)

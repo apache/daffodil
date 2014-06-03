@@ -41,7 +41,6 @@ import scala.collection.mutable.Queue
 import scala.util.control.Breaks
 import edu.illinois.ncsa.daffodil.util.Enum
 
-
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
   case object Separator extends Type
@@ -445,14 +444,14 @@ trait NL extends CharacterClass {
   lazy val CR: Char = { convertUnicodeToChar("\\u000D") }
   lazy val NEL: Char = { convertUnicodeToChar("\\u0085") }
   lazy val LS: Char = { convertUnicodeToChar("\\u2028") }
-  
+
   lazy val allChars: Seq[Char] = Seq(LF, CR, NEL, LS)
   lazy val allCharsNotCR: Seq[Char] = Seq(NEL, LS, LF)
 }
 
 class NLDelim extends DelimBase with NL {
   lazy val typeName = "NLDelim"
-  
+
   def checkMatch(charIn: Char): Boolean = {
     charIn match {
       case LF | CR | NEL | LS => isMatched = true
@@ -460,21 +459,21 @@ class NLDelim extends DelimBase with NL {
     }
     isMatched
   }
-  
+
   def isNLNotCR(charIn: Char): Boolean = {
     charIn match {
       case LF | NEL | LS => true
       case _ => false
     }
   }
-  
+
   def isCR(charIn: Char): Boolean = {
     charIn match {
       case CR => true
       case _ => false
     }
   }
-  
+
   def isLF(charIn: Char): Boolean = {
     charIn match {
       case LF => true
@@ -524,10 +523,10 @@ trait WSP extends CharacterClass {
   lazy val NARROW: Char = { convertUnicodeToChar("\\u202F") }
   lazy val MED: Char = { convertUnicodeToChar("\\u205F") }
   lazy val IDE: Char = { convertUnicodeToChar("\\u3000") }
-  
-  lazy val allChars: Seq[Char] = Seq(CTRL0, CTRL1, CTRL2, CTRL3, CTRL4, SPACE, NEL, 
-      NBSP, OGHAM, MONG, SP0, SP1, SP2, SP3, SP4, SP5, SP6, SP7, SP8, SP9, SP10,
-      LSP, PSP, NARROW, MED, IDE)
+
+  lazy val allChars: Seq[Char] = Seq(CTRL0, CTRL1, CTRL2, CTRL3, CTRL4, SPACE, NEL,
+    NBSP, OGHAM, MONG, SP0, SP1, SP2, SP3, SP4, SP5, SP6, SP7, SP8, SP9, SP10,
+    LSP, PSP, NARROW, MED, IDE)
 }
 
 class WSPBase extends DelimBase with WSP {

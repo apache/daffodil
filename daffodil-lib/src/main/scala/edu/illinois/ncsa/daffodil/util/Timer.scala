@@ -86,7 +86,6 @@ object Timer extends Logging {
     getTimeNS(null, f)
   }
 
-
   def getTimeResult[A](f: => A): (Long, A) = {
     val t0 = System.nanoTime
     val result = f

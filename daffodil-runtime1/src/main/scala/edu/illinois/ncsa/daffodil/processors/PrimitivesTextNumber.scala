@@ -50,10 +50,7 @@ import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 
-
-
-case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], gram: Gram, e: SchemaComponent) extends PrimParser(gram, e)
-{
+case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], gram: Gram, e: SchemaComponent) extends PrimParser(gram, e) {
   override def toString = "to(xs:" + helper.GramName + ")"
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
@@ -78,21 +75,21 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
             // synchronized. Multiple threads should not access one formatter
             // concurrently."
             df.parse(str, pos)
-         }
+          }
         } catch {
           case u: UnsuppressableException => throw u
           case e: Exception =>
             return PE(newstate, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
               helper.GramDescription, helper.GramName, str, e)
         }
-            
+
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
         if (num == null || pos.getIndex != str.length) {
           return PE(newstate, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
             helper.GramDescription, helper.GramName, str)
         }
-    
+
         val asString = num match {
           // if num is infRep, -infRep, or nanRep, then parse() returns
           // Double.{POSINF, NEGINF, NAN}. otherwise, it returns some kind
@@ -188,8 +185,7 @@ case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserH
 }
 */
 
-abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String])
-{
+abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) {
   val GramName: String
   val GramDescription: String
 
@@ -211,8 +207,7 @@ abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String
 }
 
 abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep)
-{
+  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep) {
   override def isInt = true
 
   override def getStringFormat(n: S): String = n.toString()
@@ -250,8 +245,7 @@ abstract class ConvertTextIntegerNumberParserUnparserHelper[S](zeroRep: List[Str
 }
 
 abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: List[String])
-  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep)
-{
+  extends ConvertTextNumberParserUnparserHelperBase[S](zeroRep) {
   override def isInt = false
   override def getStringFormat(n: S): String = {
 
@@ -430,18 +424,14 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
   }
 }
 
-
-
-
-abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S])
-{
+abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) {
   protected def checkUnique(decimalSepList: Option[List[Char]],
-                            groupingSep: Option[Char],
-                            exponentRep: Option[String],
-                            infRep: Option[String],
-                            nanRep: Option[String],
-                            zeroRep: List[String],
-                            context: ThrowsSDE) = {
+    groupingSep: Option[Char],
+    exponentRep: Option[String],
+    infRep: Option[String],
+    nanRep: Option[String],
+    zeroRep: List[String],
+    context: ThrowsSDE) = {
 
     import scala.collection.mutable.{ HashMap, MultiMap, Set }
 
@@ -456,31 +446,32 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     zeroRep.foreach { zr => mm.addBinding(zr, "textStandardZeroRep") }
 
     val dupes = mm.filter { case (k, s) => s.size > 1 }
-    val dupeStrings = dupes.map { case (k, s) =>
-      "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
+    val dupeStrings = dupes.map {
+      case (k, s) =>
+        "Non-distinct property '%s' found in: %s".format(k, s.mkString(", "))
     }
     context.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
 
   protected def generateNumFormat(decimalSepList: Option[List[Char]],
-                                  groupingSep: Option[Char],
-                                  exponentRep: String,
-                                  infRep: Option[String],
-                                  nanRep: Option[String],
-                                  checkPolicy: TextNumberCheckPolicy,
-                                  pattern: String,
-                                  rounding: TextNumberRounding,
-                                  roundingMode: Option[TextNumberRoundingMode],
-                                  roundingIncrement: Option[Double],
-                                  context: ThrowsSDE) = {
+    groupingSep: Option[Char],
+    exponentRep: String,
+    infRep: Option[String],
+    nanRep: Option[String],
+    checkPolicy: TextNumberCheckPolicy,
+    pattern: String,
+    rounding: TextNumberRounding,
+    roundingMode: Option[TextNumberRoundingMode],
+    roundingIncrement: Option[Double],
+    context: ThrowsSDE) = {
 
     checkUnique(decimalSepList,
-                groupingSep,
-                Some(exponentRep),
-                infRep,
-                nanRep,
-                parserHelper.zeroRepListRaw,
-                context)
+      groupingSep,
+      Some(exponentRep),
+      infRep,
+      nanRep,
+      parserHelper.zeroRepListRaw,
+      context)
 
     val dfs = new DecimalFormatSymbols()
 
@@ -520,13 +511,13 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
       }
       case TextNumberRounding.Explicit => {
         val rm = roundingMode.get match {
-          case TextNumberRoundingMode.RoundCeiling     => java.math.BigDecimal.ROUND_CEILING
-          case TextNumberRoundingMode.RoundFloor       => java.math.BigDecimal.ROUND_FLOOR
-          case TextNumberRoundingMode.RoundDown        => java.math.BigDecimal.ROUND_DOWN
-          case TextNumberRoundingMode.RoundUp          => java.math.BigDecimal.ROUND_UP
-          case TextNumberRoundingMode.RoundHalfEven    => java.math.BigDecimal.ROUND_HALF_EVEN
-          case TextNumberRoundingMode.RoundHalfDown    => java.math.BigDecimal.ROUND_HALF_DOWN
-          case TextNumberRoundingMode.RoundHalfUp      => java.math.BigDecimal.ROUND_HALF_UP
+          case TextNumberRoundingMode.RoundCeiling => java.math.BigDecimal.ROUND_CEILING
+          case TextNumberRoundingMode.RoundFloor => java.math.BigDecimal.ROUND_FLOOR
+          case TextNumberRoundingMode.RoundDown => java.math.BigDecimal.ROUND_DOWN
+          case TextNumberRoundingMode.RoundUp => java.math.BigDecimal.ROUND_UP
+          case TextNumberRoundingMode.RoundHalfEven => java.math.BigDecimal.ROUND_HALF_EVEN
+          case TextNumberRoundingMode.RoundHalfDown => java.math.BigDecimal.ROUND_HALF_DOWN
+          case TextNumberRoundingMode.RoundHalfUp => java.math.BigDecimal.ROUND_HALF_UP
           case TextNumberRoundingMode.RoundUnnecessary => java.math.BigDecimal.ROUND_UNNECESSARY
         }
         df.setRoundingMode(rm)
@@ -590,7 +581,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   }
 
   protected def getRoundingIncrement(roundingInc: Double, context: ThrowsSDE): Double = {
-    context.schemaDefinitionUnless(roundingInc >= 0, "textNumberRoundingIncrement cannot be negative") 
+    context.schemaDefinitionUnless(roundingInc >= 0, "textNumberRoundingIncrement cannot be negative")
     roundingInc
   }
 
@@ -599,22 +590,21 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 }
 
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
-                                   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-                                   decimalSepExp: Option[CompiledExpression],
-                                   groupingSepExp: Option[CompiledExpression],
-                                   exponentRepExp: CompiledExpression,
-                                   infRep: Option[String],
-                                   nanRep: Option[String],
-                                   checkPolicy: TextNumberCheckPolicy,
-                                   pattern: String,
-                                   rounding: TextNumberRounding,
-                                   roundingMode: Option[TextNumberRoundingMode],
-                                   roundingIncrement: Option[Double])
-  extends NumberFormatFactoryBase[S](parserHelper)
-{
+  parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
+  decimalSepExp: Option[CompiledExpression],
+  groupingSepExp: Option[CompiledExpression],
+  exponentRepExp: CompiledExpression,
+  infRep: Option[String],
+  nanRep: Option[String],
+  checkPolicy: TextNumberCheckPolicy,
+  pattern: String,
+  rounding: TextNumberRounding,
+  roundingMode: Option[TextNumberRoundingMode],
+  roundingIncrement: Option[Double])
+  extends NumberFormatFactoryBase[S](parserHelper) {
   Assert.invariant((!decimalSepExp.isDefined || decimalSepExp.get.isConstant) &&
-                   (!groupingSepExp.isDefined || groupingSepExp.get.isConstant) &&
-                   exponentRepExp.isConstant)
+    (!groupingSepExp.isDefined || groupingSepExp.get.isConstant) &&
+    exponentRepExp.isConstant)
 
   val decSep = decimalSepExp.map { dse => getDecimalSepList(dse.constantAsString, context) }
 
@@ -625,37 +615,35 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, context) }
 
   val numFormat = generateNumFormat(decSep,
-                                    groupSep,
-                                    expSep,
-                                    infRep,
-                                    nanRep,
-                                    checkPolicy,
-                                    pattern,
-                                    rounding,
-                                    roundingMode,
-                                    roundingInc,
-                                    context)
+    groupSep,
+    expSep,
+    infRep,
+    nanRep,
+    checkPolicy,
+    pattern,
+    rounding,
+    roundingMode,
+    roundingInc,
+    context)
 
   def getNumFormat(state: PState) = {
     (state, numFormat)
   }
 }
 
-
 class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
-                                    parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-                                    decimalSepExp: Option[CompiledExpression],
-                                    groupingSepExp: Option[CompiledExpression],
-                                    exponentRepExp: CompiledExpression,
-                                    infRep: Option[String],
-                                    nanRep: Option[String],
-                                    checkPolicy: TextNumberCheckPolicy,
-                                    pattern: String,
-                                    rounding: TextNumberRounding,
-                                    roundingMode: Option[TextNumberRoundingMode],
-                                    roundingIncrement: Option[Double])
-  extends NumberFormatFactoryBase[S](parserHelper)
-{
+  parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
+  decimalSepExp: Option[CompiledExpression],
+  groupingSepExp: Option[CompiledExpression],
+  exponentRepExp: CompiledExpression,
+  infRep: Option[String],
+  nanRep: Option[String],
+  checkPolicy: TextNumberCheckPolicy,
+  pattern: String,
+  rounding: TextNumberRounding,
+  roundingMode: Option[TextNumberRoundingMode],
+  roundingIncrement: Option[Double])
+  extends NumberFormatFactoryBase[S](parserHelper) {
   type CachedDynamic[A] = Either[CompiledExpression, A]
 
   // Returns an Either, with Right being the value of the constant, and the
@@ -734,53 +722,52 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
 
   checkUnique(getStatic(decimalSepListCached),
-              getStatic(groupingSepCached),
-              getStatic(exponentRepCached),
-              infRep,
-              nanRep,
-              parserHelper.zeroRepListRaw,
-              staticContext)
+    getStatic(groupingSepCached),
+    getStatic(exponentRepCached),
+    infRep,
+    nanRep,
+    parserHelper.zeroRepListRaw,
+    staticContext)
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
 
   def getNumFormat(state: PState): (PState, NumberFormat) = {
 
     val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
-      (s: PState, c: Any) => {
-        getDecimalSepList(c.asInstanceOf[String], s)
-      }
+      (s: PState, c: Any) =>
+        {
+          getDecimalSepList(c.asInstanceOf[String], s)
+        }
     }
 
     val (groupingSepState, groupingSep) = evalWithConversion(decimalSepState, groupingSepCached) {
-      (s: PState, c: Any) => {
-        getGroupingSep(c.asInstanceOf[String], s)
-      }
+      (s: PState, c: Any) =>
+        {
+          getGroupingSep(c.asInstanceOf[String], s)
+        }
     }
 
     val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
-      (s: PState, c: Any) => {
-        getExponentRep(c.asInstanceOf[String], s)
-      }
+      (s: PState, c: Any) =>
+        {
+          getExponentRep(c.asInstanceOf[String], s)
+        }
     }
 
     val numFormat = generateNumFormat(decimalSepList,
-                                      groupingSep,
-                                      exponentRep,
-                                      infRep,
-                                      nanRep,
-                                      checkPolicy,
-                                      pattern,
-                                      rounding,
-                                      roundingMode,
-                                      roundingInc,
-                                      state)
+      groupingSep,
+      exponentRep,
+      infRep,
+      nanRep,
+      checkPolicy,
+      pattern,
+      rounding,
+      roundingMode,
+      roundingInc,
+      state)
     (exponentRepState, numFormat)
   }
 }
-
-
-
-
 
 abstract class ConvertTextNumberPrim[S](e: ElementBase)
   extends Terminal(e, true) {
@@ -831,8 +818,8 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 
     val decSep =
       if (!h.isInt && (patternStripped.contains(".") ||
-                       patternStripped.contains("E") ||
-                       patternStripped.contains("@"))) {
+        patternStripped.contains("E") ||
+        patternStripped.contains("@"))) {
         Some(e.textStandardDecimalSeparator)
       } else {
         None
@@ -846,42 +833,41 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       }
 
     val isConstant = ((decSep.isEmpty || decSep.get.isConstant) &&
-                      (groupSep.isEmpty || groupSep.get.isConstant) &&
-                      e.textStandardExponentRep.isConstant)
+      (groupSep.isEmpty || groupSep.get.isConstant) &&
+      e.textStandardExponentRep.isConstant)
 
     val nff = if (isConstant) {
-        new NumberFormatFactoryStatic[S](e, h,
-                                         decSep,
-                                         groupSep,
-                                         e.textStandardExponentRep,
-                                         infRep,
-                                         nanRep,
-                                         e.textNumberCheckPolicy,
-                                         pattern,
-                                         e.textNumberRounding,
-                                         roundingMode,
-                                         roundingIncrement)
-     } else {
-       new NumberFormatFactoryDynamic[S](e, h,
-                                         decSep,
-                                         groupSep,
-                                         e.textStandardExponentRep,
-                                         infRep,
-                                         nanRep,
-                                         e.textNumberCheckPolicy,
-                                         pattern,
-                                         e.textNumberRounding,
-                                         roundingMode,
-                                         roundingIncrement)
-     }
-     nff
+      new NumberFormatFactoryStatic[S](e, h,
+        decSep,
+        groupSep,
+        e.textStandardExponentRep,
+        infRep,
+        nanRep,
+        e.textNumberCheckPolicy,
+        pattern,
+        e.textNumberRounding,
+        roundingMode,
+        roundingIncrement)
+    } else {
+      new NumberFormatFactoryDynamic[S](e, h,
+        decSep,
+        groupSep,
+        e.textStandardExponentRep,
+        infRep,
+        nanRep,
+        e.textNumberCheckPolicy,
+        pattern,
+        e.textNumberRounding,
+        roundingMode,
+        roundingIncrement)
+    }
+    nff
   }
 
   def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, this, e)
 
   def unparser: Unparser = DummyUnparser(e) //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
 }
-
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {
   val helper = new ConvertTextIntegerParserUnparserHelper[BigInteger](e.textStandardZeroRep)

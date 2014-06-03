@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section12.lengthKind
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -53,7 +52,7 @@ class TestLengthKindPatternDebug {
 
   //DFDL-745
   @Test def test_LengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
-  
+
   // Now fail due to scanability check 
   @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
 }

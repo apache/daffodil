@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.Implicits._

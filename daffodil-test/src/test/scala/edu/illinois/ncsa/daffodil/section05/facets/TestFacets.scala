@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section05.facets
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -59,7 +58,7 @@ class TestFacets {
   @Test def test_minMaxInEx08b() { runner.runOneTest("minMaxInEx08b") }
   @Test def test_minMaxInEx15() { runner.runOneTest("minMaxInEx15") }
   @Test def test_minMaxInEx16() { runner.runOneTest("minMaxInEx16") }
- 
+
   @Test def test_maxLength07() { runner.runOneTest("maxLength07") }
   @Test def test_maxLength08() { runner.runOneTest("maxLength08") }
   @Test def test_maxLength09() { runner.runOneTest("maxLength09") }
@@ -120,7 +119,7 @@ class TestFacets {
   @Test def test_fractionDigitsFailNeg() { runner.runOneTest("fractionDigitsFailNeg") }
   @Test def test_fractionTotalDigitsFail() { runner.runOneTest("fractionTotalDigitsFail") }
   @Test def test_fractionDigitsFailNotInt() { runner.runOneTest("fractionDigitsFailNotInt") }
- 
+
   @Test def test_arraysMinOccursZero() { runner.runOneTest("arraysMinOccursZero") }
   @Test def test_arraysOccursInRange_01() { runner.runOneTest("arraysOccursInRange_01") }
   @Test def test_arraysOccursInRange_02() { runner.runOneTest("arraysOccursInRange_02") }
@@ -130,30 +129,30 @@ class TestFacets {
   @Test def test_arraysOccursOutOfRange_01() { runner.runOneTest("arraysOccursOutOfRange_01") }
   @Test def test_arraysOccursOutOfRange_02() { runner.runOneTest("arraysOccursOutOfRange_02") }
 
-  @Test def test_checkMinInclusive_Pass { runner.runOneTest("checkMinInclusive_Pass")}
-  @Test def test_checkMaxInclusive_Pass { runner.runOneTest("checkMaxInclusive_Pass")}
-  @Test def test_checkMinInclusive_Fail { runner.runOneTest("checkMinInclusive_Fail")}
-  @Test def test_checkMaxInclusive_Fail { runner.runOneTest("checkMaxInclusive_Fail")}
-  @Test def test_checkMaxInclusive_Pass_MaxInt { runner.runOneTest("checkMaxInclusive_Pass_MaxInt")}  
-  @Test def test_checkMaxInclusive_Fail_MaxInt { runner.runOneTest("checkMaxInclusive_Fail_MaxInt")}
-  @Test def test_checkMinInclusive_Fail_MinInt { runner.runOneTest("checkMinInclusive_Fail_MinInt")}  
-  
-  @Test def test_checkMinExclusive_Fail { runner.runOneTest("checkMinExclusive_Fail")}
-  @Test def test_checkMaxExclusive_Fail { runner.runOneTest("checkMaxExclusive_Fail")}
-  @Test def test_checkMinExclusive_Pass { runner.runOneTest("checkMinExclusive_Pass")}
-  @Test def test_checkMaxExclusive_Pass { runner.runOneTest("checkMaxExclusive_Pass")}
-  @Test def test_checkCombining_Pass { runner.runOneTest("checkCombining_Pass")}
-  @Test def test_checkCombining_Fail { runner.runOneTest("checkCombining_Fail")}
-  @Test def test_checkCombining_Fail_1 { runner.runOneTest("checkCombining_Fail_1")}
-  
-  @Test def test_checkEnumeration_Pass { runner.runOneTest("checkEnumeration_Pass")}
-  @Test def test_checkEnumeration_Fail { runner.runOneTest("checkEnumeration_Fail")}
-  @Test def test_checkEnumeration_Pass_Subset { runner.runOneTest("checkEnumeration_Pass_Subset")}
-  @Test def test_checkEnumeration_Fail_Subset { runner.runOneTest("checkEnumeration_Fail_Subset")}
-  
+  @Test def test_checkMinInclusive_Pass { runner.runOneTest("checkMinInclusive_Pass") }
+  @Test def test_checkMaxInclusive_Pass { runner.runOneTest("checkMaxInclusive_Pass") }
+  @Test def test_checkMinInclusive_Fail { runner.runOneTest("checkMinInclusive_Fail") }
+  @Test def test_checkMaxInclusive_Fail { runner.runOneTest("checkMaxInclusive_Fail") }
+  @Test def test_checkMaxInclusive_Pass_MaxInt { runner.runOneTest("checkMaxInclusive_Pass_MaxInt") }
+  @Test def test_checkMaxInclusive_Fail_MaxInt { runner.runOneTest("checkMaxInclusive_Fail_MaxInt") }
+  @Test def test_checkMinInclusive_Fail_MinInt { runner.runOneTest("checkMinInclusive_Fail_MinInt") }
+
+  @Test def test_checkMinExclusive_Fail { runner.runOneTest("checkMinExclusive_Fail") }
+  @Test def test_checkMaxExclusive_Fail { runner.runOneTest("checkMaxExclusive_Fail") }
+  @Test def test_checkMinExclusive_Pass { runner.runOneTest("checkMinExclusive_Pass") }
+  @Test def test_checkMaxExclusive_Pass { runner.runOneTest("checkMaxExclusive_Pass") }
+  @Test def test_checkCombining_Pass { runner.runOneTest("checkCombining_Pass") }
+  @Test def test_checkCombining_Fail { runner.runOneTest("checkCombining_Fail") }
+  @Test def test_checkCombining_Fail_1 { runner.runOneTest("checkCombining_Fail_1") }
+
+  @Test def test_checkEnumeration_Pass { runner.runOneTest("checkEnumeration_Pass") }
+  @Test def test_checkEnumeration_Fail { runner.runOneTest("checkEnumeration_Fail") }
+  @Test def test_checkEnumeration_Pass_Subset { runner.runOneTest("checkEnumeration_Pass_Subset") }
+  @Test def test_checkEnumeration_Fail_Subset { runner.runOneTest("checkEnumeration_Fail_Subset") }
+
   // Satisfied that Date and Time should also work if DateTime works.
-  @Test def test_maxInclusive_Pass_DateTime { runner.runOneTest("checkMaxInclusive_Pass_DateTime")}
-  @Test def test_maxInclusive_Fail_DateTime { runner.runOneTest("checkMaxInclusive_Fail_DateTime")}
+  @Test def test_maxInclusive_Pass_DateTime { runner.runOneTest("checkMaxInclusive_Pass_DateTime") }
+  @Test def test_maxInclusive_Fail_DateTime { runner.runOneTest("checkMaxInclusive_Fail_DateTime") }
 
   @Test def test_checkMinLength_Pass { runner.runOneTest("checkMinLength_Pass") }
   @Test def test_checkMinLength_Fail { runner.runOneTest("checkMinLength_Fail") }
@@ -165,9 +164,9 @@ class TestFacets {
   @Test def test_checkMaxLength_Fail_NotString { runner.runOneTest("checkMaxLength_Fail_NotString") }
   @Test def test_checkMaxLength_Fail_Combining { runner.runOneTest("checkMaxLength_Fail_Combining") }
   @Test def test_checkMaxLength_Pass_Combining { runner.runOneTest("checkMaxLength_Pass_Combining") }
-  @Test def test_checkTotalDigits_Pass{ runner.runOneTest("checkTotalDigits_Pass") }
-  @Test def test_checkTotalDigits_Fail{ runner.runOneTest("checkTotalDigits_Fail") }
- 
+  @Test def test_checkTotalDigits_Pass { runner.runOneTest("checkTotalDigits_Pass") }
+  @Test def test_checkTotalDigits_Fail { runner.runOneTest("checkTotalDigits_Fail") }
+
   @Test def test_minMaxInEx01() { runner.runOneTest("minMaxInEx01") }
 
   @Test def test_minMaxInEx02() { runner.runOneTest("minMaxInEx02") }
@@ -203,15 +202,15 @@ class TestFacets {
   @Test def test_maxOccursPass() { runner.runOneTest("checkMaxOccurs_Pass") }
   @Test def test_maxOccursFail() { runner.runOneTest("checkMaxOccurs_Fail") }
   @Test def test_maxOccursUnboundedPass() { runner.runOneTest("checkMaxOccursUnbounded_Pass") }
-  
+
   @Test def test_testBinary() { runner.runOneTest("testBinary") }
-  @Test def test_totalDigits_Pass_Decimal{ runner.runOneTest("checkTotalDigits_Pass_Decimal") }
-  @Test def test_totalDigits_Fail_Decimal{ runner.runOneTest("checkTotalDigits_Fail_Decimal") }
-  @Test def test_fractionDigits_Pass{ runner.runOneTest("checkFractionDigits_Pass") }
-  @Test def test_fractionDigits_Fail{ runner.runOneTest("checkFractionDigits_Fail") }
-  @Test def test_fractionDigits_Pass_LessDigits{ runner.runOneTest("checkFractionDigits_Pass_LessDigits")} 
-  @Test def test_totalDigitsAndFractionDigits_Pass { runner.runOneTest("checkTotalDigitsFractionDigits_Pass")}  
-  @Test def test_totalDigitsAndFractionDigits_Pass2 { runner.runOneTest("checkTotalDigitsFractionDigits_Pass2")}  
+  @Test def test_totalDigits_Pass_Decimal { runner.runOneTest("checkTotalDigits_Pass_Decimal") }
+  @Test def test_totalDigits_Fail_Decimal { runner.runOneTest("checkTotalDigits_Fail_Decimal") }
+  @Test def test_fractionDigits_Pass { runner.runOneTest("checkFractionDigits_Pass") }
+  @Test def test_fractionDigits_Fail { runner.runOneTest("checkFractionDigits_Fail") }
+  @Test def test_fractionDigits_Pass_LessDigits { runner.runOneTest("checkFractionDigits_Pass_LessDigits") }
+  @Test def test_totalDigitsAndFractionDigits_Pass { runner.runOneTest("checkTotalDigitsFractionDigits_Pass") }
+  @Test def test_totalDigitsAndFractionDigits_Pass2 { runner.runOneTest("checkTotalDigitsFractionDigits_Pass2") }
 
   @Test def test_fractionDigitsPass() { runner.runOneTest("fractionDigitsPass") }
   @Test def test_fractionDigitsFail() { runner.runOneTest("fractionDigitsFail") }
@@ -225,7 +224,7 @@ class TestFacets {
 
   @Test def test_totalDigits05b() { runner.runOneTest("totalDigits05b") }
   @Test def test_totalDigits09() { runner.runOneTest("totalDigits09") }
-  
+
   @Test def test_patternRegexDFDL708_01() { runner.runOneTest("patternRegexDFDL708_01") }
   @Test def test_patternRegexDFDL708_02() { runner.runOneTest("patternRegexDFDL708_02") }
   @Test def test_patternRegexDFDL708_03() { runner.runOneTest("patternRegexDFDL708_03") }

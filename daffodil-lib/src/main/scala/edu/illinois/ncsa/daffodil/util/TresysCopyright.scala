@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 object TresysCopyright {
 
   private val tresysCopyright = """

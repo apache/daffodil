@@ -59,16 +59,13 @@ class TresysTestsDebug {
   lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
   runnerMD.setCheckAllTopLevel(true)
 
-
-    // AX debugged. Uses escape schemes. 
+  // AX debugged. Uses escape schemes. 
   val ax = testDir + "AX.tdml"
   lazy val runnerAX = new DFDLTestSuite(Misc.getRequiredResource(ax))
   @Test def test_AX000() = { runnerAX.runOneTest("AX000") } // escape schemes
 
-
   val ay = testDir + "AY.tdml"
   lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
   @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
-
 
 }

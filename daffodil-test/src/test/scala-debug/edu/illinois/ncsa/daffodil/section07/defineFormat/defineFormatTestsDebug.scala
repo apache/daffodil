@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.defineFormat
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._

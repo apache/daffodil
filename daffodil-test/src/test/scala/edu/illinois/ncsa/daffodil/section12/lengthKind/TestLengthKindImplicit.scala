@@ -47,7 +47,7 @@ class TestLengthKindImplicit {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val tdml = testDir + "implicit.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
+
   // Debug Template
   // @Test def test_name() = Debugger.withDebugger { 
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)

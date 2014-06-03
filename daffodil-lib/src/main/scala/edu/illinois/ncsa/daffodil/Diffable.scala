@@ -32,20 +32,18 @@ package edu.illinois.ncsa.daffodil.schema
  * SOFTWARE.
  */
 
-
-
 /**
  * Diffable is a facility for comparing objects for equality, and providing valuable diagnostic capability
  * when they are different by capturing why they are different.
- * 
- * The theme here is "Design for Test" - unit tests in particular need to compare rich data structures. 
+ *
+ * The theme here is "Design for Test" - unit tests in particular need to compare rich data structures.
  * Equality will tell you if the test passes or not, but be very little help in isolating why the structures
  * are not equal. Diff fixes this by saving the point at which the structures are different, and returning that
  * as the diagnostic of why they aren't equal.
- * 
- * At a small cost in performance, it is better to implement diff than equals. Equals is realized in terms of diff 
+ *
+ * At a small cost in performance, it is better to implement diff than equals. Equals is realized in terms of diff
  * for classes that mix in trait Diffable.
- * 
+ *
  * If a class does NOT have a diff method, and does not inherit one from a parent class, then it is compared via
  * equals to compute differences.
  */

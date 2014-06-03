@@ -51,8 +51,8 @@ class TestCLIdebugger {
   // with the debugger on Windows. The commands are sent via an instructions file. The commands have been
   // left in this file so it is obvious which input goes with which output; also, if this issue is
   // resolved, the commands will be used again.
-  
-  @Test def test_1339_CLI_Debugger_removeHidden() { 
+
+  @Test def test_1339_CLI_Debugger_removeHidden() {
     val cmd = "./daffodil-cli/target/start -d daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1339 parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
     val shell = Util.start(cmd)
 
@@ -422,7 +422,7 @@ class TestCLIdebugger {
     shell.stop()
     shell.expectClose()
   }
-  
+
   @Test def test_1863_CLI_Debugger_groupIndex01() {
     val cmd = "daffodil-cli/target/start -d daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/debugger/1863 parse -r list -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt\n"
     val shell = Util.start(cmd)

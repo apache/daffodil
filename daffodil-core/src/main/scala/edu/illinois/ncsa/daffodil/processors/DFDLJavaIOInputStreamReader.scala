@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 import java.nio.charset.Charset
 import java.nio.charset.CharsetDecoder
 import java.io.InputStream

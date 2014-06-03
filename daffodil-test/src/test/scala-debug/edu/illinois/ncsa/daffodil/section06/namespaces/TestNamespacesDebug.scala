@@ -60,8 +60,8 @@ class TestNamespacesDebug {
   // Because of an imported schema that has errors in it for testing, all of these tests are now failing.
   // They will need to be updated to import only the schemas necessary to properly test each case
   // and not include those schemas that they do not use but are causing parser errors.
-  
-    @Test def test_combinations_02() {
+
+  @Test def test_combinations_02() {
     try {
       // Must turn off the Info logging messages, because those will have the filename in them
       // which would create a false positive in this test.

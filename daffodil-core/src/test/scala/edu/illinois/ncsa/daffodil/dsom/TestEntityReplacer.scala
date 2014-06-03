@@ -186,7 +186,7 @@ class TestEntityReplacer {
     assertEquals(testString8, EntityReplacer.replaceAll(testString8, None))
     assertEquals(testString9, EntityReplacer.replaceAll(testString9, None))
   }
-  
+
   @Test def testSemiColonSP = {
     val testString = ";%SP;"
     assertEquals("; ", EntityReplacer.replaceAll(testString))

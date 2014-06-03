@@ -423,7 +423,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         }
 
         val localDelimsCooked = localDelimsCookedWithPosition
-  
+
         val remoteDelimsCooked = dynamicDelimsCooked.diff(localDelimsCooked)
 
         def isRemoteText(originalRepresentation: String): Boolean =
@@ -650,7 +650,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
         // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
         val decoder = charset.newDecoder()
-        
+
         try {
           val reader = in.getCharReader(charset, postEvalState.bitPos)
           val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
@@ -820,7 +820,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   //val stParser = super.parser
 
   lazy val d = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-  
+
   override def parser = new PrimParser(this, e) {
 
     override def toBriefXML(depthLimit: Int = -1): String = {

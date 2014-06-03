@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.discriminators
  * SOFTWARE.
  */
 
-
 import org.junit.Test
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite

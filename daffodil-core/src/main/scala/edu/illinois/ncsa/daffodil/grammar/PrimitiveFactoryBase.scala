@@ -134,8 +134,8 @@ trait PrimitiveFactoryBase {
   def StringDelimitedEndOfDataDynamic(e: ElementBase): Terminal
   def HexBinaryDelimitedEndOfDataStatic(e: ElementBase): Terminal
   def HexBinaryDelimitedEndOfDataDynamic(e: ElementBase): Terminal
-  
-//  def LeftPadding(e: ElementBase): Terminal
+
+  //  def LeftPadding(e: ElementBase): Terminal
 
   def SpecifiedLengthPattern(e: ElementBase, eGram: => Gram): Terminal
   def SpecifiedLengthExplicitBitsFixed(e: ElementBase, eGram: => Gram, nBits: Long): Terminal

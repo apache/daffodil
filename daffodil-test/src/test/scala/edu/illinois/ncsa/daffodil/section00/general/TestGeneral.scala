@@ -63,23 +63,23 @@ class TestGeneral {
 
   // Test causes exception as the file is not found
   // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
-  
+
   val bb = testDir + "largeInput.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(bb))
 
   @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
-  
+
   val testDir2 = "/test space/"
 
   val a_b = testDir2 + "A BTinyData.tdml.dat"
   lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
 
   @Test def test_dir_and_file_with_spaces() { runnerA_B.runOneTest("AB006") }
-  
+
   val testDir3 = "/test space/test 1/"
   val cc = testDir3 + "namespaces.tdml"
   lazy val runner_ns = new DFDLTestSuite(Misc.getRequiredResource(cc))
-  
+
   @Test def test_no_namespace_02() { runner_ns.runOneTest("no_namespace_02") }
 
 }

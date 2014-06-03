@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS

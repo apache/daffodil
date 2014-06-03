@@ -78,28 +78,28 @@ object Assert extends Assert {
   // which allows the scala compiler checking for dead-code pass
   // to be enabled.
   //
-  
-  def usageError(message: => String = "Usage error.") : Nothing = {
+
+  def usageError(message: => String = "Usage error."): Nothing = {
     abort(message)
   }
 
-  def notYetImplemented(info: String) : Nothing = {
+  def notYetImplemented(info: String): Nothing = {
     toss(new NotYetImplementedException(info + "\n" + shortBacktrace))
   }
 
-  def notYetImplemented() : Nothing = {
+  def notYetImplemented(): Nothing = {
     toss(new NotYetImplementedException(shortBacktrace))
   }
 
-  def abort(message: => String = "") : Nothing = {
+  def abort(message: => String = ""): Nothing = {
     toss(new Abort(message + "\n" + shortBacktrace))
   }
 
-  def abort(th: Throwable) : Nothing = {
+  def abort(th: Throwable): Nothing = {
     toss(new Abort(th))
   }
 
-  def impossible(message: String = "impossible! this code path is supposed to be unreachable.")  : Nothing = {
+  def impossible(message: String = "impossible! this code path is supposed to be unreachable."): Nothing = {
     abort(message)
   }
 

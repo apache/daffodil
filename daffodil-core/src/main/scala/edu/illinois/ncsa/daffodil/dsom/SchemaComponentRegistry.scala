@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 class SchemaComponentRegistry {
 
   val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
-  
+
   def getComponentByID(uid: String): Option[ElementBase] = {
     val ctxMap = contextMap
     // TODO: why this try/catch??
@@ -67,7 +67,7 @@ class SchemaComponentRegistry {
     ctxMap.put(uuid, sc)
     uuid.toString
   }
-  
+
   def getSchemas(): Option[Seq[String]] = {
     if (contextMap.size > 0) {
       val uuid = contextMap.keySet.head
@@ -77,8 +77,7 @@ class SchemaComponentRegistry {
       }
       val schemas = e.schemaDocument.schemaSet.schemas.map(s => s.fileName)
       Some(schemas)
-    }
-    else None
+    } else None
   }
 
 }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.input
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader

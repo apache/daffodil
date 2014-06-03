@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section16.array_optional_elem
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -48,8 +47,8 @@ class TestArrayOptionalElemDebug {
   val aa = testDir + "ArrayOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
-// DFDL-886
+
+  // DFDL-886
   @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
 
   @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }

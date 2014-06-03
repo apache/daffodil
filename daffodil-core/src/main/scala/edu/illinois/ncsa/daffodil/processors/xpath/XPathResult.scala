@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.xpath
  * SOFTWARE.
  */
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies
@@ -94,10 +93,10 @@ case class StringResult(string: String) extends XPathResult
 /** The result is a number */
 case class NumberResult(num: String) extends XPathResult
 
-/** 
+/**
  *  Since we changed NumberResult to accept a BigDecimal, we need
  *  a way to represent a NaN result.
- **/
+ */
 case class NotANumberResult(value: Any) extends XPathResult
 
 case class BooleanResult(v: Boolean) extends XPathResult

@@ -53,9 +53,9 @@ import java.net.URI
  * manages loading of it, and keeping track of validation errors
  */
 class DFDLSchemaFile(val sset: SchemaSet,
-                     sourceOfSchema: => Any, // fileName, URL, or a scala.xml.Node
-                     val iiParent: IIBase,
-                     seenBeforeArg: IIMap)
+  sourceOfSchema: => Any, // fileName, URL, or a scala.xml.Node
+  val iiParent: IIBase,
+  seenBeforeArg: IIMap)
   extends SchemaComponent(<file/>, sset)
   with org.xml.sax.ErrorHandler {
 

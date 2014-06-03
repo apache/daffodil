@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 object ListUtils {
   type SubListFinder[T] = (Seq[T], Any) => Seq[T]
 

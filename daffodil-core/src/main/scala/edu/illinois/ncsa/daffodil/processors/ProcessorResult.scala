@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-
 /**
  * Copyright (c) 2010 NCSA.  All rights reserved.
  * Developed by: NCSA Cyberenvironments and Technologies

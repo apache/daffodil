@@ -194,23 +194,20 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     rep
   }
 
-  override
-  lazy val couldHaveText : Boolean = {
+  override lazy val couldHaveText: Boolean = {
     hasDelimiters ||
-    (isSimpleType && impliedRepresentation == Representation.Text) ||
-    (isComplexType && elementComplexType.modelGroup.couldHaveText)
+      (isSimpleType && impliedRepresentation == Representation.Text) ||
+      (isComplexType && elementComplexType.modelGroup.couldHaveText)
   }
- 
-  override
-  lazy val isLocallyTextOnly = {
+
+  override lazy val isLocallyTextOnly = {
     this.hasNoSkipRegions &&
-    this.hasTextAlignment &&
-    ((isSimpleType && this.impliedRepresentation == Representation.Text) ||
+      this.hasTextAlignment &&
+      ((isSimpleType && this.impliedRepresentation == Representation.Text) ||
         isComplexType)
   }
-  
-  override
-  lazy val termChildren: Seq[Term] = {
+
+  override lazy val termChildren: Seq[Term] = {
     if (isSimpleType) Nil
     else Seq(elementComplexType.modelGroup.group)
   }
@@ -375,26 +372,26 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
 
-//  /**
-//   * everything that we need to look for when deciding how to terminate a data region
-//   * based on scanning
-//   */
-//  lazy val inScopeTerminatingMarkup = {
-//    // our own terminator is one thing
-//    // the separator of an enclosing group, if we're not last.
-//    // the terminator of an enclosing group, if we are last
-//    // the terminator of an enclosing element
-//    // recursively outward.
-//    //
-//    // or another way to think of it is
-//    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
-//    // last member. Plus any inscope terminating markup from what it is encapsulated in.
-//    // 
-//    // an element has its terminator
-//    //
-//    // Note: if we are potentially the last item (not required, but no downstream required siblings)
-//    Assert.notYetImplemented("inScopeTerminatingMarkup")
-//  }
+  //  /**
+  //   * everything that we need to look for when deciding how to terminate a data region
+  //   * based on scanning
+  //   */
+  //  lazy val inScopeTerminatingMarkup = {
+  //    // our own terminator is one thing
+  //    // the separator of an enclosing group, if we're not last.
+  //    // the terminator of an enclosing group, if we are last
+  //    // the terminator of an enclosing element
+  //    // recursively outward.
+  //    //
+  //    // or another way to think of it is
+  //    // a sequence member has terminating markup, which is its separator for any item but the last, (last too if postfix), and the sequence terminator for the
+  //    // last member. Plus any inscope terminating markup from what it is encapsulated in.
+  //    // 
+  //    // an element has its terminator
+  //    //
+  //    // Note: if we are potentially the last item (not required, but no downstream required siblings)
+  //    Assert.notYetImplemented("inScopeTerminatingMarkup")
+  //  }
 
   lazy val hasExpressionsInTerminatingMarkup: Boolean = {
     this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0
@@ -508,8 +505,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     elementSimpleType match {
       case prim: PrimitiveType => {
         schemaDefinitionWhen((prim == PrimType.String || prim == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
-            "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
-            prim.name)
+          "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
+          prim.name)
         //
         // We handle text numbers by getting a stringValue first, then
         // we convert to the number type. 
@@ -713,45 +710,45 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     case st: SimpleTypeDefBase => Some(st)
     case _ => None
   }
-  
-//  lazy val hasLeftPadding = this.textTrimKind match {
-//      case TextTrimKind.None => false
-//      case TextTrimKind.PadChar if !this.isSimpleType => false
-//      case TextTrimKind.PadChar => {
-//        val eBase = this
-//        eBase.primType match {
-//
-//          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-//            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
-//            PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
-//            PrimType.NonNegativeInteger => {
-//            eBase.textNumberJustification match {
-//              case TextNumberJustification.Left => false
-//              case TextNumberJustification.Right | TextNumberJustification.Center => true
-//            }
-//          }
-//          case PrimType.String => {
-//            eBase.textStringJustification match {
-//              case TextStringJustification.Left => false
-//              case TextStringJustification.Right | TextStringJustification.Center => true
-//            }
-//          }
-//          case PrimType.DateTime | PrimType.Date | PrimType.Time => {
-//            eBase.textCalendarJustification match {
-//              case TextCalendarJustification.Left => false
-//              case TextCalendarJustification.Right | TextCalendarJustification.Center => true
-//            }
-//          }
-//          case PrimType.Boolean => {
-//            eBase.textBooleanJustification match {
-//              case TextBooleanJustification.Left => false
-//              case TextBooleanJustification.Right | TextBooleanJustification.Center => true
-//            }
-//          }
-//          case PrimType.HexBinary => false
-//        }
-//      }
-//    }
+
+  //  lazy val hasLeftPadding = this.textTrimKind match {
+  //      case TextTrimKind.None => false
+  //      case TextTrimKind.PadChar if !this.isSimpleType => false
+  //      case TextTrimKind.PadChar => {
+  //        val eBase = this
+  //        eBase.primType match {
+  //
+  //          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+  //            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
+  //            PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+  //            PrimType.NonNegativeInteger => {
+  //            eBase.textNumberJustification match {
+  //              case TextNumberJustification.Left => false
+  //              case TextNumberJustification.Right | TextNumberJustification.Center => true
+  //            }
+  //          }
+  //          case PrimType.String => {
+  //            eBase.textStringJustification match {
+  //              case TextStringJustification.Left => false
+  //              case TextStringJustification.Right | TextStringJustification.Center => true
+  //            }
+  //          }
+  //          case PrimType.DateTime | PrimType.Date | PrimType.Time => {
+  //            eBase.textCalendarJustification match {
+  //              case TextCalendarJustification.Left => false
+  //              case TextCalendarJustification.Right | TextCalendarJustification.Center => true
+  //            }
+  //          }
+  //          case PrimType.Boolean => {
+  //            eBase.textBooleanJustification match {
+  //              case TextBooleanJustification.Left => false
+  //              case TextBooleanJustification.Right | TextBooleanJustification.Center => true
+  //            }
+  //          }
+  //          case PrimType.HexBinary => false
+  //        }
+  //      }
+  //    }
 
 }
 
@@ -868,7 +865,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
   extends ElementBase(xmlArg, parent, position)
   with LocalElementMixin {
 
-  requiredEvaluations(checkForAlignmentAmbiguity )
+  requiredEvaluations(checkForAlignmentAmbiguity)
 
   private def gcd(a: Int, b: Int): Int = if (b == 0) a else gcd(b, a % b)
   private def lcm(a: Int, b: Int): Int = math.abs(a * b) / gcd(a, b)
@@ -1175,7 +1172,7 @@ trait ElementDeclMixin
     Assert.usage(isComplexType)
     typeDef.asInstanceOf[ComplexTypeBase]
   }
-  
+
   lazy val elementSimpleType = {
     Assert.usage(isSimpleType)
     typeDef.asInstanceOf[SimpleTypeBase]

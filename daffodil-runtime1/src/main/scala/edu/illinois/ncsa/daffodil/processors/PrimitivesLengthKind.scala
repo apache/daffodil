@@ -574,7 +574,7 @@ abstract class StringDelimited(e: ElementBase)
     }
     res
   }
-  
+
   val leftPaddingOpt: Option[TextPaddingParser] = {
     pad match {
       case None => None

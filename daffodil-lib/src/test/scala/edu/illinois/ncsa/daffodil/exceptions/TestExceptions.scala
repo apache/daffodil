@@ -37,12 +37,12 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 
 class TestExceptions {
-  
-  @Test 
+
+  @Test
   def testAssert() {
     intercept[Abort] {
       Assert.abort("yadda")
     }
   }
-  
+
 }

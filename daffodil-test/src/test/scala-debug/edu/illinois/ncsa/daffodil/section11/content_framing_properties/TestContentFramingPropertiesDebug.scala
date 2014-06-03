@@ -48,16 +48,16 @@ class TestContentFramingPropertiesDebug {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   @Test def test_encoding_property_expression() { runner2.runOneTest("encoding_property_expression") }
 
-//  DFDL-751 - 7-bit ASCII alignment should be 1 bit, complains that it needs to be 8 bits
-  @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") } 
-  @Test def test_alignmentPacked7BitASCII_05() { runner2.runOneTest("alignmentPacked7BitASCII_05") } 
+  //  DFDL-751 - 7-bit ASCII alignment should be 1 bit, complains that it needs to be 8 bits
+  @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") }
+  @Test def test_alignmentPacked7BitASCII_05() { runner2.runOneTest("alignmentPacked7BitASCII_05") }
 
   @Test def test_encodingErrorReplace() { runner2.runOneTest("encodingErrorReplace") }
   @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
   @Test def test_encodingErrorReplace2() { runner2.runOneTest("encodingErrorReplace2") }
   @Test def test_encodingErrorReplace3() { runner2.runOneTest("encodingErrorReplace3") }
   @Test def test_encodingErrorReplace4() { runner2.runOneTest("encodingErrorReplace4") }
-  
+
   // Implementing DFDL-951 caused regression
   @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }

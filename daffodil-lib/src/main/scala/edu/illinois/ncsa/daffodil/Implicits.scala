@@ -32,13 +32,12 @@ package edu.illinois.ncsa.daffodil
  * SOFTWARE.
  */
 
-
 import java.io.{ ByteArrayInputStream, BufferedInputStream }
 import edu.illinois.ncsa.daffodil.xml.NS
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
 
-import scala.language.{implicitConversions, reflectiveCalls} // silences scala 2.10 warnings
+import scala.language.{ implicitConversions, reflectiveCalls } // silences scala 2.10 warnings
 
 object Implicits {
 
@@ -64,7 +63,7 @@ object Implicits {
   /**
    * Based on JUnitSuite intercept
    */
-  def intercept[T <: AnyRef] (body: => Any)(implicit tag: scala.reflect.ClassTag[T]): T = {
+  def intercept[T <: AnyRef](body: => Any)(implicit tag: scala.reflect.ClassTag[T]): T = {
     val clazz = tag.runtimeClass.asInstanceOf[Class[T]]
     val caught = try {
       body

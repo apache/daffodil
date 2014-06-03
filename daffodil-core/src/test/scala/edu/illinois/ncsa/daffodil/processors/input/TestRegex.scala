@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.processors.input
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import scala.util.parsing.combinator._
 import java.io.StringReader
@@ -48,7 +47,6 @@ class TestRegex extends RegexParsers {
 
   override def skipWhitespace = skipWS
   var skipWS = false // assign this to turn on/off whitespace skipping.
-
 
   @Test def testEscapeRemoval_Blocks = {
     // Assumptions:
@@ -161,9 +159,9 @@ class TestRegex extends RegexParsers {
     assertEquals("text1SEtext2", test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1SSEtext2"))
     assertEquals("text1Stext2", test(removeUnescapedEscapes, removeEscapeEscapesThatEscape, "text1Stext2"))
   }
-  
-    // Need to capture everything to get length of parsed data
-  @Test def testParser_CaptureEverything= {
+
+  // Need to capture everything to get length of parsed data
+  @Test def testParser_CaptureEverything = {
     var testNum = 0
     def test(theParser: Parser[(Vector[String], String)], theInput: String, isPadLeft: Boolean, isPadRight: Boolean) = {
       testNum = testNum + 1
@@ -197,7 +195,7 @@ class TestRegex extends RegexParsers {
     }
     val padChar = "P"
     val delim = "(DD)|(D)"
-    val rPadChar= """(%s*)"""
+    val rPadChar = """(%s*)"""
     val pPadChar: Parser[String] = rPadChar.format(padChar).r
     // Everything until:
     // 1.	PadChar ~ delim
@@ -214,26 +212,26 @@ class TestRegex extends RegexParsers {
     val pBefore: Parser[String] = rBefore.format(padChar, delim).r
     val pDelims: Parser[String] = """D""".r ||| """DD""".r
     val pEOF: Parser[String] = """\z""".r
-    
-    val paddedContent = pPadChar ~ pBefore ~ pPadChar ^^ { case (lp ~ c ~ rp) => Vector(lp,c,rp)}
-    val leftPaddedContent = pPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp,c)}
-    val rightPaddedContent = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp)}
-    
-    val content = pBefore ~ (pDelims | pEOF) ^^ { case(c ~ d) => (Vector(c), d) }
-    val contentLeft = rightPaddedContent ~ (pDelims | pEOF) ^^ { case(c ~ d) => (c, d) }
-    val contentRight = leftPaddedContent ~ (pDelims | pEOF) ^^ { case(c ~ d) => (c, d) }
-    val contentCenter = paddedContent ~ (pDelims | pEOF) ^^ { case(c ~ d) => (c, d) }
-    
-    val contentDelimReq = pBefore ~ pDelims ^^ { case(c ~ d) => (Vector(c), d) }
-    val contentLeftDelimReq = rightPaddedContent ~ pDelims ^^ { case(c ~ d) => (c, d) }
-    val contentRightDelimReq = leftPaddedContent ~ pDelims ^^ { case(c ~ d) => (c, d) }
-    val contentCenterDelimReq = paddedContent ~ pDelims ^^ { case(c ~ d) => (c, d) }
-    
-    assertEquals(Some("abc","D","abc"), test(contentDelimReq, "abcDefg", false, false))
-    assertEquals(Some("abc","D","PPPabc"), test(contentRightDelimReq, "PPPabcDefg", true, false))
-    assertEquals(Some("abc","D","abcPPP"), test(contentLeftDelimReq, "abcPPPDefg", false, true))
-    assertEquals(Some("abc","D","PPPabcPPP"), test(contentCenterDelimReq, "PPPabcPPPDefg", true, true))
-    
+
+    val paddedContent = pPadChar ~ pBefore ~ pPadChar ^^ { case (lp ~ c ~ rp) => Vector(lp, c, rp) }
+    val leftPaddedContent = pPadChar ~ pBefore ^^ { case (lp ~ c) => Vector(lp, c) }
+    val rightPaddedContent = pBefore ~ pPadChar ^^ { case (c ~ rp) => Vector(c, rp) }
+
+    val content = pBefore ~ (pDelims | pEOF) ^^ { case (c ~ d) => (Vector(c), d) }
+    val contentLeft = rightPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    val contentRight = leftPaddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+    val contentCenter = paddedContent ~ (pDelims | pEOF) ^^ { case (c ~ d) => (c, d) }
+
+    val contentDelimReq = pBefore ~ pDelims ^^ { case (c ~ d) => (Vector(c), d) }
+    val contentLeftDelimReq = rightPaddedContent ~ pDelims ^^ { case (c ~ d) => (c, d) }
+    val contentRightDelimReq = leftPaddedContent ~ pDelims ^^ { case (c ~ d) => (c, d) }
+    val contentCenterDelimReq = paddedContent ~ pDelims ^^ { case (c ~ d) => (c, d) }
+
+    assertEquals(Some("abc", "D", "abc"), test(contentDelimReq, "abcDefg", false, false))
+    assertEquals(Some("abc", "D", "PPPabc"), test(contentRightDelimReq, "PPPabcDefg", true, false))
+    assertEquals(Some("abc", "D", "abcPPP"), test(contentLeftDelimReq, "abcPPPDefg", false, true))
+    assertEquals(Some("abc", "D", "PPPabcPPP"), test(contentCenterDelimReq, "PPPabcPPPDefg", true, true))
+
   }
 
   // Need to capture everything to get length of parsed data
@@ -1629,7 +1627,7 @@ class TestRegex extends RegexParsers {
       // DFDL spec seems to say so. Only escape-escaped escape characters are preserved.
       //
       def removeActiveEscapes(str: String): String = {
-System.err.println(str)
+        System.err.println(str)
         // if contains ER, replace with just R
         val str2 = removeActiveEscapes1(str)
         str2
@@ -1667,7 +1665,7 @@ System.err.println(str)
     assertEquals(Some("PbeforeP", "D", "after"), test3("PPEPbeforeEPPPDafter"))
 
     assertEquals(Some("PPPbeforePPP", "D", "after"), test3("PEPPEPbeforeEPPEPDafter"))
-    
+
     assertEquals(Some("before1EDbefore2", "D", "after"), test3("before1EEEDbefore2Dafter"))
     assertEquals(Some("..../;....", ";", "after"), test4("....///;....;after"))
   }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section02.schema_definition_errors
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -51,6 +50,6 @@ class TestSDE {
 
   @Test def test_AS000_rev() { runner.runOneTest("AS000_rev") }
 
-//  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
+  //  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
 
 }

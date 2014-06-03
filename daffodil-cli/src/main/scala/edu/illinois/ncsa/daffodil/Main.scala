@@ -165,36 +165,36 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
    * of the string to the type [A].
    *
    */
- def optionalValueConverter[A](conv: String => A)(implicit tt: TypeTag[Option[A]]) : scallop.ValueConverter[Option[A]] = 
-   new scallop.ValueConverter[Option[A]] {
+  def optionalValueConverter[A](conv: String => A)(implicit tt: TypeTag[Option[A]]): scallop.ValueConverter[Option[A]] =
+    new scallop.ValueConverter[Option[A]] {
 
-    // From the Scallop wiki:
-    //
-    // parse is a method, that takes a list of arguments to all option invocations:
-    // for example, "-a 1 2 -a 3 4 5" would produce List(List(1,2),List(3,4,5)).
-    // parse returns Left with error message, if there was an error while parsing
-    // if no option was found, it returns Right(None)
-    // and if option was found, it returns Right(...)
-    def parse(s: List[(String, List[String])]): Either[String, Option[Option[A]]] = {
-      s match {
-        case Nil => Right(None) // --validate flag was not present
-        case (_, Nil) :: Nil => Right(Some(None)) // --validate flag was present but 'mode' wasn't
-        case (_, v :: Nil) :: Nil => { // --validate [mode] was present, perform the conversion
-          try {
-            Right(Some(Some(conv(v))))
-          } catch {
-            case e: Exception => {
-              Left(e.getMessage())
+      // From the Scallop wiki:
+      //
+      // parse is a method, that takes a list of arguments to all option invocations:
+      // for example, "-a 1 2 -a 3 4 5" would produce List(List(1,2),List(3,4,5)).
+      // parse returns Left with error message, if there was an error while parsing
+      // if no option was found, it returns Right(None)
+      // and if option was found, it returns Right(...)
+      def parse(s: List[(String, List[String])]): Either[String, Option[Option[A]]] = {
+        s match {
+          case Nil => Right(None) // --validate flag was not present
+          case (_, Nil) :: Nil => Right(Some(None)) // --validate flag was present but 'mode' wasn't
+          case (_, v :: Nil) :: Nil => { // --validate [mode] was present, perform the conversion
+            try {
+              Right(Some(Some(conv(v))))
+            } catch {
+              case e: Exception => {
+                Left(e.getMessage())
+              }
             }
           }
+          case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one --validate flag
         }
-        case _ => Left("you should provide no more than one argument for this option") // Error because we expect there to be at most one --validate flag
       }
+      val tag = tt
+      val argType = scallop.ArgType.LIST
+      override def argFormat(name: String): String = "[" + name + "]"
     }
-    val tag = tt
-    val argType = scallop.ArgType.LIST
-    override def argFormat(name: String): String = "[" + name + "]"
-  }
 
   def validateConf(c1: => Option[scallop.ScallopConf])(fn: (Option[scallop.ScallopConf]) => Either[String, Unit]) {
     validations :+= new Function0[Either[String, Unit]] {
@@ -214,8 +214,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter [(Option[NS], String)]((s : String) => XMLUtils.getQName(s))
-  
+  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[(Option[NS], String)]((s: String) => XMLUtils.getQName(s))
+
   printedName = "daffodil"
 
   helpWidth(76)
@@ -278,10 +278,12 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
     val validate: ScallopOption[ValidationMode.Type] = {
-      val converter = optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map { x => x match {
-              case None => ValidationMode.Full
-              case Some(mode) => mode
-            }}
+      val converter = optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map { x =>
+        x match {
+          case None => ValidationMode.Full
+          case Some(mode) => mode
+        }
+      }
       val res = opt[ValidationMode.Type](short = 'V',
         default = Some(ValidationMode.Off),
         argName = "mode",
@@ -304,7 +306,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case _ => Right(Unit)
     }
   }
-  
+
   // Performance Subcommand Options
   val performance = new scallop.Subcommand("performance") {
     banner("""|Usage: daffodil performance (-s <schema>... [-r [{namespace}]<root>] [-p <path>] |
@@ -364,7 +366,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
-    val validate: ScallopOption[ValidationMode.Type]  = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
       case Some(mode) => mode
     })
@@ -690,7 +692,7 @@ object Main extends Logging {
         }
         rc
       }
-      
+
       case Some(conf.performance) => {
         val performanceOpts = conf.performance
 
@@ -722,7 +724,7 @@ object Main extends Logging {
             val infile = new java.io.File(performanceOpts.infile())
 
             val files = {
-              if (infile.isDirectory()){
+              if (infile.isDirectory()) {
                 infile.listFiles.filter(!_.isDirectory)
               } else {
                 Array(infile)
@@ -734,19 +736,19 @@ object Main extends Logging {
               val dataSize = filePath.length()
               var fileContent = new Array[Byte](dataSize.toInt)
               input.read(fileContent)
-              (filePath, fileContent, dataSize*8)
+              (filePath, fileContent, dataSize * 8)
             }
 
             val channels = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
               val (path, data, dataLen) = dataSeq(index)
-              val newArr:Array[Byte] = data.clone()
-              val bais:ByteArrayInputStream = new ByteArrayInputStream(newArr)
+              val newArr: Array[Byte] = data.clone()
+              val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
               val inChannel = java.nio.channels.Channels.newChannel(bais);
               (path, inChannel, dataLen)
             }
             val channelsWithIndex = channels.zipWithIndex
-            
+
             processor.setValidationMode(validate)
 
             implicit val executionContext = new ExecutionContext {
@@ -761,35 +763,36 @@ object Main extends Logging {
 
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
-              val tasks = channelsWithIndex.map { case (c, n) =>
-                val task: Future[(Int, Long, Boolean)] = Future {
-                  val (path, channel, len) = c
-                  val (time, parseResult) = Timer.getTimeResult({processor.parse(channel, len)})
-                  (n, time, parseResult.isError)
-                }
-                task
+              val tasks = channelsWithIndex.map {
+                case (c, n) =>
+                  val task: Future[(Int, Long, Boolean)] = Future {
+                    val (path, channel, len) = c
+                    val (time, parseResult) = Timer.getTimeResult({ processor.parse(channel, len) })
+                    (n, time, parseResult.isError)
+                  }
+                  task
               }
-              val results = tasks.map{ Await.result(_, Duration.Inf) }
+              val results = tasks.map { Await.result(_, Duration.Inf) }
               results
             })
 
             val rates = results.map { results =>
-                val (runNum: Int, nsTime: Long, error: Boolean) = results
-                val rate = 1/(nsTime/NSConvert)
-                log(LogLevel.Info, "run: %d, seconds: %f, rate: %f, status: %s", runNum, nsTime/NSConvert, rate, if (error) "fail" else "pass" )
-                rate
+              val (runNum: Int, nsTime: Long, error: Boolean) = results
+              val rate = 1 / (nsTime / NSConvert)
+              log(LogLevel.Info, "run: %d, seconds: %f, rate: %f, status: %s", runNum, nsTime / NSConvert, rate, if (error) "fail" else "pass")
+              rate
             }
 
             val numFailures = results.map { _._3 }.filter { e => e }.length
             if (numFailures > 0) {
               log(LogLevel.Error, "%d failures found\n", numFailures)
             }
-      
+
             val sec = totalTime / NSConvert
             printf("total parse time (sec): %f\n", sec)
-            printf("min rate (files/sec): %f\n", rates.min) 
-            printf("max rate (files/sec): %f\n", rates.max) 
-            printf("avg rate (files/sec): %f\n", (performanceOpts.number()/sec)) 
+            printf("min rate (files/sec): %f\n", rates.min)
+            printf("max rate (files/sec): %f\n", rates.max)
+            printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
 
             numFailures
           }

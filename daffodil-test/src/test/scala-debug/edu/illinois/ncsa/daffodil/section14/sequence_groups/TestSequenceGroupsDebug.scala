@@ -48,7 +48,7 @@ class TestSequenceGroupsDebug {
 
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
   val tdml_02 = testDir_01 + "SequenceGroup.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile=false)
+  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile = false)
 
   //  This test sets up an infinite loop of hidden groups. It is currently commented-out
   //  because it runs indefinitely and prevents the rest of the suite from executing  

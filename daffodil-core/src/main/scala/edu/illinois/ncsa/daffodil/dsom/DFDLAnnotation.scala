@@ -651,7 +651,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
-  
+
   // So that we can display the namespace information associated with
   // the variable when toString is called.
   override def prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"

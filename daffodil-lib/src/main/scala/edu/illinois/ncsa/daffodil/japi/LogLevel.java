@@ -17,7 +17,8 @@ package edu.illinois.ncsa.daffodil.japi;
  * 
  */
 public enum LogLevel {
-	Error(10), Warning(20), Info(30), Compile(40), Debug(50), OOLAGDebug(60), DelimDebug(70);
+	Error(10), Warning(20), Info(30), Compile(40), Debug(50), OOLAGDebug(60), DelimDebug(
+			70);
 
 	public int id;
 

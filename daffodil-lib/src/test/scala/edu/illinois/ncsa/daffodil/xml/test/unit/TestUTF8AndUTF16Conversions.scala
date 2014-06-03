@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import junit.framework.Assert._
 import java.io.ByteArrayInputStream

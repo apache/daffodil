@@ -104,7 +104,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     // force creation of the parser value so that all errors are issued
     // this is in case some compilation happens in the constructors of parsers.
     rootElem
-    })
+  })
 
   Assert.usage(pf.canProceed)
 
@@ -148,7 +148,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     Assert.usage(!this.isError)
 
     val scr = this.processorFactory.sset.schemaComponentRegistry
-    val initialState = 
+    val initialState =
       if (rootElem.isScannable &&
         rootElem.encodingErrorPolicy == EncodingErrorPolicy.Replace &&
         rootElem.knownEncodingIsFixedWidth &&
@@ -158,8 +158,8 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
         val charsetEncodingName = rootElem.encoding.constantAsString
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-            rootElem,
-            jis, charsetEncodingName, lengthLimitInBits)
+          rootElem,
+          jis, charsetEncodingName, lengthLimitInBits)
         PState.createInitialState(scr,
           rootElem,
           inStream,
@@ -191,7 +191,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
         // use simpler I/O layer
         val charsetEncodingName = rootElem.encoding.constantAsString
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(rootElem,
-            file, charsetEncodingName, -1)
+          file, charsetEncodingName, -1)
         PState.createInitialState(scr,
           rootElem,
           inStream,

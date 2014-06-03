@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.exceptions._
 import java.io.FileNotFoundException
 import junit.framework.Assert._
 
-
 class TestImplicits {
 
   @Test

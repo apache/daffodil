@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import scala.xml._
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue

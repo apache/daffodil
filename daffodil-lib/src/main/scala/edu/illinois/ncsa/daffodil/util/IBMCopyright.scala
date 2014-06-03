@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 object IBMCopyright {
   private val ibmCopyright = """
    XML Schemas for DFDL Annotations (C) Copyright IBM Corp 2011 All Rights Reserved

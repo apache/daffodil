@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.grammar
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._

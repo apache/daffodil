@@ -47,4 +47,3 @@ public class DebuggerRunnerForJAPITest extends TraceRunner {
 		lines.add(line + "\n");
 	}
 }
-

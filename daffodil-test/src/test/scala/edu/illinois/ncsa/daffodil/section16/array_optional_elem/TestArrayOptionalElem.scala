@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section16.array_optional_elem
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -48,16 +47,16 @@ class TestArrayOptionalElem {
   val aa = testDir + "ArrayOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
-// DFDL-886
-//  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
+  // DFDL-886
+  //  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
   @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }
   @Test def test_arrayExpressions02c() { runner.runOneTest("arrayExpressions02c") }
   @Test def test_arrayExpressions02d() { runner.runOneTest("arrayExpressions02d") }
-//  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
+  //  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   @Test def test_arrayExpressions04() { runner.runOneTest("arrayExpressions04") }
-  
+
   @Test def test_error01() { runner.runOneTest("error01") }
   @Test def test_postfixNoErr() { runner.runOneTest("postfixNoErr") }
 
@@ -74,7 +73,7 @@ class TestArrayOptionalElem {
   val ab = testDir01 + "Facets.tdml"
   lazy val runner01 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false)
   @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
-  
+
   val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml1 = testDir1 + "dpaext2.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))

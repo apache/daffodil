@@ -298,11 +298,11 @@ object OOLAG extends Logging {
      * This is because Scala can't do by-name passing of varargs.
      */
 
-    def requiredEvaluations(arg : => Any) {
+    def requiredEvaluations(arg: => Any) {
       oolagRoot.requiredEvalFunctions :+= (() => arg)
     }
-    
-    var requiredEvalFunctions : List[()=>Any] = Nil
+
+    var requiredEvalFunctions: List[() => Any] = Nil
 
     def checkErrors: Unit = ExecutionMode.usingCompilerMode {
       OOLAG.keepGoing { () } {

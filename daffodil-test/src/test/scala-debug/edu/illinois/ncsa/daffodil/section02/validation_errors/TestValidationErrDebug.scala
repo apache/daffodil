@@ -45,7 +45,7 @@ class TestValidationErrDebug {
   val aa = testDir + "Validation.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-// DFDL-903
+  // DFDL-903
   @Test def test_choice_errorNotSuppressed_validationErrorCheck() { runner.runOneTest("choice_errorNotSuppressed_validationErrorCheck") }
 
 }

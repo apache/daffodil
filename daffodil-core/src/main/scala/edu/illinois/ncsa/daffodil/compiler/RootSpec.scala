@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.compiler
 
 import edu.illinois.ncsa.daffodil.xml.NS
 
-
 /**
  * Contains a specification of the root element to be used.
  *

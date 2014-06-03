@@ -53,20 +53,19 @@ class TestDFDLExpressionsDebug {
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
 
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
-  
+
   // lengthUnits bytes with variable-width charater set and specified lengthKind
   @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") } // uses lengthUnits bytes with utf-8 
-
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-//  DFDL-818
+  //  DFDL-818
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
 
-// DFDL-827
+  // DFDL-827
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
   @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
@@ -83,13 +82,13 @@ class TestDFDLExpressionsDebug {
 
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-  
+
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
   @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
   @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
-  
+
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }

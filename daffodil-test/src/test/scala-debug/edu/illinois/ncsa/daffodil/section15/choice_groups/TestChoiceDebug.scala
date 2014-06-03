@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section15.choice_groups
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -49,5 +48,5 @@ class TestChoiceDebug {
   val aa = testDir + "choice.tdml"
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
 }

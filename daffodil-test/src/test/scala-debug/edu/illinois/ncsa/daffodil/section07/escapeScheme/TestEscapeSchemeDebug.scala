@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.escapeScheme
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -48,11 +47,11 @@ class TestEscapeSchemeDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val aa = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
-  
+
   @Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
-  
+
   val bb = testDir + "escapeScenarios.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb), validateTDMLFile = false)
-  
+
   @Test def test_scenario3_11_postfix() { runner2.runOneTest("scenario3_11_postfix") }
 }

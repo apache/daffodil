@@ -84,7 +84,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val prims = primitiveFactory
 
   val context: SchemaComponent = parent
-  
+
   /**
    * Annotations can contain expressions, so we need to be able to compile them.
    *
@@ -92,7 +92,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * component as its context.
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
-  
+
   /*
    * Anything non-annotated always returns property not found
    * 
@@ -366,9 +366,9 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
 
   requiredEvaluations({
     annotationObjs
-      shortFormPropertiesCorrect
-      nonDefaultPropertySources 
-      defaultPropertySources
+    shortFormPropertiesCorrect
+    nonDefaultPropertySources
+    defaultPropertySources
   })
 
   //  /**
@@ -1076,7 +1076,7 @@ class SchemaSet(
   }
 
   lazy val schemaDocForGlobalVars = this.schemas(0).schemaDocuments(0)
-  
+
   // We'll declare these here at the SchemaSet level since they're global.
   lazy val predefinedVars = {
     val extType = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, "string")
@@ -1100,7 +1100,7 @@ class SchemaSet(
    *
    * @return A list of external variables updated with any found namespaces.
    */
-   def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
+  def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
     var finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
 
     val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._

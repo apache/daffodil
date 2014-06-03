@@ -43,5 +43,4 @@ class TestVariables2 {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-
 }

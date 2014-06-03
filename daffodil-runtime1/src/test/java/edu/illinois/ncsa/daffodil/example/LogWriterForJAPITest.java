@@ -44,48 +44,47 @@ public class LogWriterForJAPITest extends LogWriter {
 	ArrayList<String> others = new ArrayList<String>();
 
 	public void write(LogLevel level, String logID, String msg) {
-		switch(level) {
-			case Error:
-				errors.add(msg);
-				break;
-			case Warning:
-				warnings.add(msg);
-				break;
-			case Info:
-				infos.add(msg);
-				break;
-			default:
-				others.add(msg);
+		switch (level) {
+		case Error:
+			errors.add(msg);
+			break;
+		case Warning:
+			warnings.add(msg);
+			break;
+		case Info:
+			infos.add(msg);
+			break;
+		default:
+			others.add(msg);
 		}
 	}
-	
 
 	public String prefix(LogLevel level, String logID) {
 		String prefix;
-		switch(level) {
-			case Error:
-				prefix = "[error] ";
-				break;
-			case Warning:
-				prefix = "[warning] ";
-				break;
-			case Info:
-				prefix = "[info] ";
-				break;
-			case Compile:
-				prefix = "[compile] ";
-				break;
-			case Debug:
-				prefix = "[debug] ";
-				break;
-			case DelimDebug:
-				prefix = "[delimdebug] ";
-				break;
-			case OOLAGDebug:
-				prefix = "[oolagdebug] ";
-				break;
-			default:
-				prefix = "[unknown] ";
+		switch (level) {
+		case Error:
+			prefix = "[error] ";
+			break;
+		case Warning:
+			prefix = "[warning] ";
+			break;
+		case Info:
+			prefix = "[info] ";
+			break;
+		case Compile:
+			prefix = "[compile] ";
+			break;
+		case Debug:
+			prefix = "[debug] ";
+			break;
+		case DelimDebug:
+			prefix = "[delimdebug] ";
+			break;
+		case OOLAGDebug:
+			prefix = "[oolagdebug] ";
+			break;
+		default:
+			prefix = "[unknown] ";
 		}
 		return "[JAPI LOG] " + prefix;
 	}

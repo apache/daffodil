@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.variables
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -52,7 +51,7 @@ class TestVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-  
+
   @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
   @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }
 
@@ -63,7 +62,7 @@ class TestVariables {
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }
   @Test def test_setVarOnGroupRef() { runner.runOneTest("setVarOnGroupRef") }
   @Test def test_setVarSimpleType() { runner.runOneTest("setVarSimpleType") }
-  
+
   @Test def test_setVarValAttribute() { runner.runOneTest("setVarValAttribute") }
   @Test def test_setVarValAttribute2() { runner.runOneTest("setVarValAttribute2") }
   @Test def test_setVarTypeMismatch() { runner.runOneTest("setVarTypeMismatch") }
@@ -74,7 +73,7 @@ class TestVariables {
   @Test def test_setVarBadScope() { runner.runOneTest("setVarBadScope") }
   @Test def test_varAsSeparator2() { runner.runOneTest("varAsSeparator2") }
   @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
-  
+
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
@@ -82,7 +81,7 @@ class TestVariables {
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
 
-/*****************************************************************/
+  /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
   val xsi = XMLUtils.XSI_NAMESPACE

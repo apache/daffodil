@@ -46,7 +46,7 @@ class TestSimpleTypes {
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
 
@@ -396,7 +396,7 @@ class TestSimpleTypes {
   @Test def test_padding_nil() { runner.runOneTest("padding_nil") }
   @Test def test_padding_nil2() { runner.runOneTest("padding_nil2") }
   @Test def test_justification_1() { runner.runOneTest("justification_1") }
-  
+
   // Verification that user's test works for DFDL-677
   @Test def test_unsignedInt() { runner.runOneTest("TestUnsignedInt") }
 
@@ -412,7 +412,7 @@ class TestSimpleTypes {
   @Test def test_nonNegativeInteger_bin4() { runner.runOneTest("nonNegativeInteger_bin4") }
   @Test def test_nonNegativeInteger_bin5() { runner.runOneTest("nonNegativeInteger_bin5") }
   @Test def test_nonNegativeInteger_bin6() { runner.runOneTest("nonNegativeInteger_bin6") }
-  
+
   @Test def test_integer_binary() { runner.runOneTest("integer_binary") }
   @Test def test_integer_binary_01() { runner.runOneTest("integer_binary_01") }
   @Test def test_integer_binary_02() { runner.runOneTest("integer_binary_02") }

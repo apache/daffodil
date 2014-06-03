@@ -62,8 +62,8 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     // the error even though the parser won't actually consume
     // that much of the data. 
     //
-    schemaDefinitionUnless(encodingErrorPolicy == EncodingErrorPolicy.Replace, 
-        "Property encodingErrorPolicy='error' not supported.")
+    schemaDefinitionUnless(encodingErrorPolicy == EncodingErrorPolicy.Replace,
+      "Property encodingErrorPolicy='error' not supported.")
     val isKnown = encoding.isConstant
     if (isKnown) {
       val encName = encoding.constantAsString.toUpperCase()
@@ -139,7 +139,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     }
     res
   }
-  
+
   lazy val mustBeAnEncodingWith8BitAlignment = {
     !isKnownEncoding || knownEncodingAlignmentInBits == 8
   }

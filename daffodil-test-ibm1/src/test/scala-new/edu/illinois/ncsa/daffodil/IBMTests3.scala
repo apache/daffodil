@@ -45,6 +45,5 @@ class IBMTestsThatPass2 {
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-
 }
 

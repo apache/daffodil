@@ -80,9 +80,9 @@ class TestPropertyRuntime {
     assertEquals(MyProp.PropVal1, propVal1)
   }
 
-  class HasMixin extends SchemaComponentBase(<dummy/>, null) 
-  with TheExamplePropMixin
-   with LookupLocation { 
+  class HasMixin extends SchemaComponentBase(<dummy/>, null)
+    with TheExamplePropMixin
+    with LookupLocation {
     def findPropertyOption(pname: String) =
       Found("left", this)
     override val xml = <foo/>
@@ -111,8 +111,8 @@ object TheExampleProp extends Enum[TheExampleProp] {
   def apply(name: String, self: ThrowsSDE): TheExampleProp = stringToEnum("theExampleProp", name, self)
 }
 
-trait TheExamplePropMixin 
- extends PropertyMixin with ThrowsSDE {self: SchemaComponentBase =>
+trait TheExamplePropMixin
+  extends PropertyMixin with ThrowsSDE { self: SchemaComponentBase =>
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)

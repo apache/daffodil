@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import com.ibm.icu.text.DecimalFormat
 import java.text.ParsePosition

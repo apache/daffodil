@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section07.discriminators
  * SOFTWARE.
  */
 
-
 import org.junit.Test
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -48,9 +47,10 @@ class TestDiscriminators {
 
   @Test def test_discriminatorGuidesChoice() { runner.runOneTest("discriminatorGuidesChoice") }
   @Test def test_discriminatorGuidesChoice2() { runner.runOneTest("discriminatorGuidesChoice2") }
-  @Test def test_discriminatorGuidesChoice3() ={ 
+  @Test def test_discriminatorGuidesChoice3() = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-    runner.runOneTest("discriminatorGuidesChoice3") }
+    runner.runOneTest("discriminatorGuidesChoice3")
+  }
   @Test def test_discriminatorGuidesChoice4() { runner.runOneTest("discriminatorGuidesChoice4") }
   @Test def test_discriminatorGuidesChoice5() { runner.runOneTest("discriminatorGuidesChoice5") }
 
@@ -70,7 +70,7 @@ class TestDiscriminators {
 
   @Test def test_discrimPatternMatch() = { runner.runOneTest("discrimPatternMatch") }
   @Test def test_discrimPatternNoMatch() = { runner.runOneTest("discrimPatternNoMatch") }
-  
+
   @Test def test_discrimExpression_01() = { runner.runOneTest("discrimExpression_01") }
   @Test def test_discrimExpression_02() = { runner.runOneTest("discrimExpression_02") }
   @Test def test_discrimExpression_03() = { runner.runOneTest("discrimExpression_03") }

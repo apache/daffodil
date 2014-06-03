@@ -129,7 +129,7 @@ class DFDLCatalogResolver
 
   lazy val delegate = {
     val delegate = new Catalog(cm)
-//    delegate.getCatalogManager().debug.setDebug(100) // uncomment for even more debug output
+    //    delegate.getCatalogManager().debug.setDebug(100) // uncomment for even more debug output
     delegate.setupReaders()
     delegate.loadSystemCatalogs()
     delegate
@@ -166,7 +166,7 @@ class DFDLCatalogResolver
     val prior = alreadyResolvingXSD
     val res = try {
       alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
-      
+
       // When a schema imports another schema that has the same target namespace, resolving using the namespace
       // will not give the file being imported, but the file that is specified in the catalog for that namespace.
       // To solve this problem, we are using the ExpandedSystemId, if it is set,
@@ -176,9 +176,9 @@ class DFDLCatalogResolver
           try {
             val sysId = ri.getExpandedSystemId()
             if (new URL(sysId).openStream() != null) {
-            	ri.getExpandedSystemId()
+              ri.getExpandedSystemId()
             } else {
-            	delegate.resolveURI(ns)
+              delegate.resolveURI(ns)
             }
           } catch {
             case e: Exception => {
@@ -189,7 +189,7 @@ class DFDLCatalogResolver
           delegate.resolveURI(ns)
         }
       }
-      
+
       log(LogLevel.Debug, "resolved ns %s to: %s", ns, resolvedId)
       if (resolvedId == null) return null
       val res = new XMLInputSource(ri.getPublicId(),
@@ -249,8 +249,7 @@ class DFDLCatalogResolver
             // File does not exist.
             null // null means we wern't able to resolve
           }
-        }
-        else {
+        } else {
           null // We wern't able to resolve
         }
       }
@@ -313,7 +312,7 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
   extends LSInput {
 
   var myBaseURI: String = null
-    
+
   def getPublicId = pubId
   def setPublicId(publicId: String) = pubId = publicId
   def getBaseURI = myBaseURI
@@ -524,14 +523,14 @@ trait SchemaAwareLoaderMixin {
    * The problem is that checks like UPA aren't expressible in a
    * schema-for-DFDL-schemas. They are coded algorithmically right into Xerces.
    *
-   * In order to get the UPA checks on DFDL schemas we have to do this in two 
+   * In order to get the UPA checks on DFDL schemas we have to do this in two
    * passes in order for things to be compatible with the TDMLRunner because
    * a TDML file is not a valid schema.
-   * 
+   *
    * First pass: The DFDL schema (or TDML file) is read as an XML document.
-   * Second pass: We specially load up the DFDL schemas (in the case 
-   * of the TDMLRunner the DFDL Schema is extracted and loaded) treating them 
-   * as XML schemas, just to get these UPA diagnostics.  This is accomplished by 
+   * Second pass: We specially load up the DFDL schemas (in the case
+   * of the TDMLRunner the DFDL Schema is extracted and loaded) treating them
+   * as XML schemas, just to get these UPA diagnostics.  This is accomplished by
    * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
    * newSchema call is what forces schema validation to take place.
    */
@@ -601,7 +600,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   override def loadXML(source: InputSource, p: SAXParser): Node = {
     // System.err.println("loadXML")
     val xr = p.getXMLReader()
-//    xr.setFeature("http://apache.org/xml/features/namespace-growth", true)
+    //    xr.setFeature("http://apache.org/xml/features/namespace-growth", true)
     xr.setErrorHandler(errorHandler)
     // parse file
     scopeStack.push(TopScope)

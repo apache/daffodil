@@ -196,7 +196,7 @@ object Converter {
   }
 
   import scala.language.implicitConversions
-  
+
   implicit def intArrayToByteArray(intArray: Array[Int]): Array[Byte] = {
     intArray.map(int => int.asInstanceOf[Byte]).toArray
   }

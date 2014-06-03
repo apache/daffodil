@@ -47,7 +47,7 @@ class TestTextNumberPropsDebug {
   val aa = testDir + "TextNumberProps.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-// DFDL-845
+  // DFDL-845
   @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }
   @Test def test_textNumberCheckPolicy_lax05() { runner.runOneTest("textNumberCheckPolicy_lax05") }
   @Test def test_textNumberCheckPolicy_lax04() { runner.runOneTest("textNumberCheckPolicy_lax04") }
@@ -59,26 +59,26 @@ class TestTextNumberPropsDebug {
   @Test def test_textNumberCheckPolicy_lax15() { runner.runOneTest("textNumberCheckPolicy_lax15") }
   @Test def test_textNumberCheckPolicy_lax16() { runner.runOneTest("textNumberCheckPolicy_lax16") }
 
-// DFDL-847
+  // DFDL-847
   @Test def test_textStandardDecimalSeparator10() { runner.runOneTest("textStandardDecimalSeparator10") }
   @Test def test_textStandardDecimalSeparator11() { runner.runOneTest("textStandardDecimalSeparator11") }
 
-// DFDL-851
+  // DFDL-851
   @Test def test_textStandardGroupingSeparator12() { runner.runOneTest("textStandardGroupingSeparator12") }
   @Test def test_textStandardDecimalSeparator17() { runner.runOneTest("textStandardDecimalSeparator17") }
   @Test def test_standardZeroRep07() { runner.runOneTest("standardZeroRep07") }
 
-// DFDL-853
+  // DFDL-853
   @Test def test_textNumberPattern_pSymbol01() { runner.runOneTest("textNumberPattern_pSymbol01") }
   @Test def test_textNumberPattern_pSymbol02() { runner.runOneTest("textNumberPattern_pSymbol02") }
 
   @Test def test_textNumberPattern_scientificNotation02() { runner.runOneTest("textNumberPattern_scientificNotation02") }
 
-//DFDL-191
+  //DFDL-191
   @Test def test_infnanCaseInsensitive() { runner.runOneTest("infnanCaseInsensitive") }
   @Test def test_expCaseSensitive() { runner.runOneTest("expCaseSensitive") }
 
-// DFDL-861
+  // DFDL-861
   @Test def test_standardZeroRep03() { runner.runOneTest("standardZeroRep03") }
 
 }

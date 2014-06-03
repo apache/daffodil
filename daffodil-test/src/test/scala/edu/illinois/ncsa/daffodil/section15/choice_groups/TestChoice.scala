@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section15.choice_groups
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -55,7 +54,7 @@ class TestChoice {
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }
-  
+
   @Test def test_choiceWithInitsAndTermsInt() { runnerCH.runOneTest("choiceWithInitsAndTermsInt") }
   @Test def test_choiceWithInitsAndTermsStr() { runnerCH.runOneTest("choiceWithInitsAndTermsStr") }
   @Test def test_choiceWithInitsAndTermsError() { runnerCH.runOneTest("choiceWithInitsAndTermsError") }
@@ -64,7 +63,7 @@ class TestChoice {
   @Test def test_nestedChoiceWithInitsAndTermsNestedInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedInt") }
   @Test def test_nestedChoiceWithInitsAndTermsNestedStr() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsNestedStr") }
   @Test def test_nestedChoiceWithInitsAndTermsInt() { runnerCH.runOneTest("nestedChoiceWithInitsAndTermsInt") }
-  
+
   @Test def test_choiceWithSequence1() { runnerCH.runOneTest("choiceWithSequence1") }
   @Test def test_choiceWithSequence2() { runnerCH.runOneTest("choiceWithSequence2") }
   @Test def test_choiceWithChoiceInt() { runnerCH.runOneTest("choiceWithChoiceInt") }
@@ -110,7 +109,7 @@ class TestChoice {
   val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml1 = testDir1 + "dpaext2.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-  
+
   @Test def test_choices_basic_15_01() { runner.runOneTest("choices_basic_15_01") }
   @Test def test_choices_basic_15_02() { runner.runOneTest("choices_basic_15_02") }
   @Test def test_choices_basic_15_03() { runner.runOneTest("choices_basic_15_03") }

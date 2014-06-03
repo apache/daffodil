@@ -50,7 +50,7 @@ class TestListMap {
    */
   @Test def test_listMap = {
     val orig = Random.shuffle((0 until 1000).toList)
-    val mt : ListMap[Int, String] = ListMap.empty
+    val mt: ListMap[Int, String] = ListMap.empty
     val listMap: ListMap[Int, String] = orig.foldLeft(mt) {
 
       (lm, n) => lm + (n -> n.toString)

@@ -47,15 +47,15 @@ class TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
-  
+
   @Test def test_alignmentUnitsInvalid() = { runner1.runOneTest("alignmentUnitsInvalid") }
 
   @Test def test_encodingAlignmentUtf32be() = { runner1.runOneTest("encodingAlignmentUtf32be") }
-  
+
   @Test def test_leftAndRightFramingArray01() = { runner1.runOneTest("leftAndRightFramingArray01") }
   @Test def test_leftAndRightFramingArray02() = { runner1.runOneTest("leftAndRightFramingArray02") }
   @Test def test_leftAndRightFramingArray03() = { runner1.runOneTest("leftAndRightFramingArray03") }
-  
+
   @Test def test_leftAndRightFramingChoice01() = { runner1.runOneTest("leftAndRightFramingChoice01") }
   @Test def test_leftAndRightFramingChoice02() = { runner1.runOneTest("leftAndRightFramingChoice02") }
   @Test def test_leftAndRightFramingChoice03() = { runner1.runOneTest("leftAndRightFramingChoice03") }
@@ -63,7 +63,7 @@ class TestAlignedData {
   @Test def test_leftAndRightFramingChoice05() = { runner1.runOneTest("leftAndRightFramingChoice05") }
   @Test def test_leftAndRightFramingChoice06() = { runner1.runOneTest("leftAndRightFramingChoice06") }
   @Test def test_leftAndRightFramingChoice07() = { runner1.runOneTest("leftAndRightFramingChoice07") }
-  
+
   @Test def test_leftAndRightFramingNested01() = { runner1.runOneTest("leftAndRightFramingNested01") }
   @Test def test_leftAndRightFramingNested02() = { runner1.runOneTest("leftAndRightFramingNested02") }
   @Test def test_leftAndRightFramingNested03() = { runner1.runOneTest("leftAndRightFramingNested03") }
@@ -76,16 +76,15 @@ class TestAlignedData {
   @Test def test_leftAndRightFraming02() = { runner1.runOneTest("leftAndRightFraming02") }
 
   @Test def test_alignmentStringErr() = { runner1.runOneTest("alignmentStringErr") }
-//  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
-//  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
-
+  //  @Test def test_alignmentStringBitSkip() = { runner1.runOneTest("alignmentStringBitSkip") }
+  //  @Test def test_alignmentTerminatorBitSkip() = { runner1.runOneTest("alignmentTerminatorBitSkip") }
 
   @Test def test_explicitAlignmentNoSkips01() = { runner1.runOneTest("explicitAlignmentNoSkips01") }
   @Test def test_explicitAlignmentNoSkips02() = { runner1.runOneTest("explicitAlignmentNoSkips02") }
   @Test def test_explicitAlignmentNoSkips03() = { runner1.runOneTest("explicitAlignmentNoSkips03") }
   @Test def test_explicitAlignmentNoSkips04() = { runner1.runOneTest("explicitAlignmentNoSkips04") }
   @Test def test_explicitAlignmentNoSkips05() = { runner1.runOneTest("explicitAlignmentNoSkips05") }
-  
+
   @Test def test_trailingSkipDelimited01() = { runner1.runOneTest("trailingSkipDelimited01") }
   @Test def test_trailingSkipDelimited02() = { runner1.runOneTest("trailingSkipDelimited02") }
   @Test def test_trailingSkipDelimited03() = { runner1.runOneTest("trailingSkipDelimited03") }
@@ -160,11 +159,11 @@ class TestAlignedData {
 
   @Test def test_implicitAlignmentString1() = { runner1.runOneTest("implicitAlignmentString1") }
   @Test def test_implicitAlignmentString2() = { runner1.runOneTest("implicitAlignmentString2") }
-  
+
   @Test def test_impAlignmentNonNegativeInteger() = { runner1.runOneTest("impAlignmentNonNegativeInteger") }
   @Test def test_impAlignmentNonNegativeInteger2() = { runner1.runOneTest("impAlignmentNonNegativeInteger2") }
   @Test def test_impAlignmentNonNegativeInteger3() = { runner1.runOneTest("impAlignmentNonNegativeInteger3") }
-  
+
   @Test def test_impAlignmentInteger1() = { runner1.runOneTest("impAlignmentInteger1") }
   @Test def test_impAlignmentInteger2() = { runner1.runOneTest("impAlignmentInteger2") }
   @Test def test_impAlignmentInteger3() = { runner1.runOneTest("impAlignmentInteger3") }

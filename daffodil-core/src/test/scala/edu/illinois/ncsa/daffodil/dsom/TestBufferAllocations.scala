@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test

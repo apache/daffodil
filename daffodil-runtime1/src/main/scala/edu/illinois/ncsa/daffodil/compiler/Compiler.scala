@@ -130,7 +130,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   extends DFDL.Compiler
   with Logging
   with HavingRootSpec {
-  
+
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
   private val externalDFDLVariables: Queue[Binding] = Queue.empty

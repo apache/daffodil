@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 /**
  * Put copies of any copyright notices in this class by appending them to the
  * noticesText variable.
@@ -109,8 +108,7 @@ this copyright is preserved in both the source and binary forms, and
 in any documentation provided with the software. 
 """)
 
-
- add("""Copyright (c) 2010 NCSA.  All rights reserved.
+  add("""Copyright (c) 2010 NCSA.  All rights reserved.
 Developed by: NCSA Cyberenvironments and Technologies
               University of Illinois at Urbana-Champaign
               http://cet.ncsa.uiuc.edu/

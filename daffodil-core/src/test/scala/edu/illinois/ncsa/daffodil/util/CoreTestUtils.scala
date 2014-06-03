@@ -22,7 +22,7 @@ object Fakes {
   def fakeGroupRef = new Fakes().fakeGroupRef
 }
 
-class Fakes private() {
+class Fakes private () {
   lazy val sch = SchemaUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
     <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
@@ -39,9 +39,9 @@ class Fakes private() {
       </xs:choice>
     </xs:group>)
   val DummyPrimitiveFactory = null
-  lazy val xsd_sset: SchemaSet = new SchemaSet(DummyPrimitiveFactory, sch, "http://example.com", "fake") 
+  lazy val xsd_sset: SchemaSet = new SchemaSet(DummyPrimitiveFactory, sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
-  lazy val fakeSD = xsd_schema.schemaDocuments(0) 
+  lazy val fakeSD = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get.forRoot()
   lazy val fakeCT = fakeSD.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
   lazy val fakeSequence = fakeCT.modelGroup.asInstanceOf[Sequence]
@@ -58,7 +58,7 @@ class Fakes private() {
     def getVariables(): VariableMap = EmptyVariableMap
     def unparse(output: Output, node: scala.xml.Node): UnparseResult = null
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
-    def parse(file: File) : ParseResult = null
+    def parse(file: File): ParseResult = null
 
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError

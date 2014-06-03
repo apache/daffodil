@@ -282,20 +282,22 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = vmap
 
-    val xpathRes = DFDLFunctions.synchronized { try {
-      DFDLFunctions.currentPState = Some(pstate)
-      variables.currentPState = Some(pstate)
-      pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
-    } catch {
-      case e: XPathException => {
-        // runtime processing error in expression evaluation
-        val ex = if (e.getMessage() == null) e.getCause() else e
-        PE("Expression evaluation failed. Details: %s", ex)
+    val xpathRes = DFDLFunctions.synchronized {
+      try {
+        DFDLFunctions.currentPState = Some(pstate)
+        variables.currentPState = Some(pstate)
+        pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
+      } catch {
+        case e: XPathException => {
+          // runtime processing error in expression evaluation
+          val ex = if (e.getMessage() == null) e.getCause() else e
+          PE("Expression evaluation failed. Details: %s", ex)
+        }
+      } finally {
+        DFDLFunctions.currentPState = None // put it back off
+        variables.currentPState = None
       }
-    } finally {
-      DFDLFunctions.currentPState = None // put it back off
-      variables.currentPState = None
-    }}
+    }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val result: Option[List[InfosetElement]] = xpathRes match {
       case NodeResult(n) => {
@@ -323,20 +325,22 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     var variables = checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate)
 
-    val xpathRes = DFDLFunctions.synchronized { try {
-      DFDLFunctions.currentPState = Some(pstate)
-      variables.currentPState = Some(pstate)
-      pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
-    } catch {
-      case e: XPathException => {
-        // runtime processing error in expression evaluation
-        val ex = if (e.getMessage() == null) e.getCause() else e
-        PE("Expression evaluation failed. Details: %s", ex)
+    val xpathRes = DFDLFunctions.synchronized {
+      try {
+        DFDLFunctions.currentPState = Some(pstate)
+        variables.currentPState = Some(pstate)
+        pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
+      } catch {
+        case e: XPathException => {
+          // runtime processing error in expression evaluation
+          val ex = if (e.getMessage() == null) e.getCause() else e
+          PE("Expression evaluation failed. Details: %s", ex)
+        }
+      } finally {
+        DFDLFunctions.currentPState = None // put it back off
+        variables.currentPState = None
       }
-    } finally {
-      DFDLFunctions.currentPState = None // put it back off
-      variables.currentPState = None
-    }}
+    }
     val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
     val converted: T = xpathRes match {
       case NotANumberResult(v) => {
@@ -488,7 +492,8 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
           //          }
         } finally {
           DFDLFunctions.currentPState = None
-        }}
+        }
+      }
       result
     }
 
@@ -512,10 +517,10 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
     val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
     compile[T](convertTo, expr, xmlForNamespaceResolution, scWherePropertyWasLocated)
   }
-  
+
   def compile[T](convertTo: ConvertToType.Type, exprWithBraces: String, xmlForNamespaceResolution: Node,
-      scWherePropertyWasLocated : SchemaComponent) = {
-	val expr = exprWithBraces
+    scWherePropertyWasLocated: SchemaComponent) = {
+    val expr = exprWithBraces
     if (!XPathUtil.isExpression(expr)) {
       // not an expression. For some properties like delimiters, you can use a literal string 
       // whitespace separated list of literal strings, or an expression in { .... }

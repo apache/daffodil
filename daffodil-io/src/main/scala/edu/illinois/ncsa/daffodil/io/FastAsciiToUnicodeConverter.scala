@@ -6,8 +6,8 @@ import java.nio.ByteBuffer
  * Highly optimized converter for Ascii to Unicode
  */
 object FastAsciiToUnicodeConverter {
-  
-  def convert (bb : ByteBuffer) = {
+
+  def convert(bb: ByteBuffer) = {
     val cb = ByteBuffer.allocate(2 * bb.limit)
     val cbChar = cb.asCharBuffer()
     //
@@ -16,29 +16,29 @@ object FastAsciiToUnicodeConverter {
     //
     val bbBytesOfWholeLongWords = ((bb.limit >> 3) << 3).toLong
     val numBytesTrailingFragment = bb.limit - bbBytesOfWholeLongWords
-    
+
     val bLong = bb.asLongBuffer()
     val cbLong = cb.asLongBuffer()
     1 to bLong.limit foreach { i =>
       val bbl = bLong.get()
-      val long1 : Int = (bbl >> 32).toInt & 0xFFFFFFFF
-      val long2 : Int = bbl.toInt & 0xFFFFFFFF
+      val long1: Int = (bbl >> 32).toInt & 0xFFFFFFFF
+      val long2: Int = bbl.toInt & 0xFFFFFFFF
       val cbl1 = convertLong(long1)
       val cbl2 = convertLong(long2)
       cbLong.put(cbl1)
       cbLong.put(cbl2)
     }
-    
+
     1 to numBytesTrailingFragment.toInt foreach { j =>
       val pos = bb.limit - j
       val byte = bb.get(pos)
       val char = convertByte(byte)
       cbChar.put(pos, char)
     }
-    
+
     cb.asCharBuffer()
   }
-  
+
   val UnicodeReplacementCharacter = 0xFFFD.toChar
   /**
    * Convert a single byte of ascii to unicode.
@@ -51,16 +51,16 @@ object FastAsciiToUnicodeConverter {
     if (byte < 0) UnicodeReplacementCharacter
     else byte.toChar
   }
-  
+
   @inline
-  def convertInt(int : Int) = {
+  def convertInt(int: Int) = {
     val i = int & 0xFF
     if (i > 127) UnicodeReplacementCharacter
     else i.toChar
   }
-  
+
   @inline
-  def convertLong(bytes : Int) : Long = {
+  def convertLong(bytes: Int): Long = {
     val int1 = bytes & 0xFF
     val int2 = (bytes >> 8) & 0xFF
     val int3 = (bytes >> 16) & 0xFF
@@ -72,5 +72,5 @@ object FastAsciiToUnicodeConverter {
     val res = (char4.toLong << 48) | (char3.toLong << 32) | (char2.toLong << 16) | char1
     res
   }
-    
+
 }

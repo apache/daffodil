@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.section31.escape_characters
  * SOFTWARE.
  */
 
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -79,7 +78,7 @@ class TestEscapes {
   @Test def test_escape_entry2_16() { runner.runOneTest("escape_entry2_16") }
   @Test def test_escape_entry2_17() { runner.runOneTest("escape_entry2_17") }
   @Test def test_escape_entry2_18() { runner.runOneTest("escape_entry2_18") }
-  
+
   @Test def test_escape_entry3_1() { runner.runOneTest("escape_entry3_1") }
   @Test def test_escape_entry3_2() { runner.runOneTest("escape_entry3_2") }
   @Test def test_escape_entry3_3() { runner.runOneTest("escape_entry3_3") }
@@ -111,7 +110,7 @@ class TestEscapes {
   @Test def test_escape_entry3_29() { runner.runOneTest("escape_entry3_29") }
   @Test def test_escape_entry3_30() { runner.runOneTest("escape_entry3_30") }
   @Test def test_escape_entry3_31() { runner.runOneTest("escape_entry3_31") }
-  
+
   @Test def test_escape_entry4_1() { runner.runOneTest("escape_entry4_1") }
   @Test def test_escape_entry4_2() { runner.runOneTest("escape_entry4_2") }
   @Test def test_escape_entry4_3() { runner.runOneTest("escape_entry4_3") }

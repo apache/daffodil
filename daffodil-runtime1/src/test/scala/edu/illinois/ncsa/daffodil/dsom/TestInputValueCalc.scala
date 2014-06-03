@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
@@ -67,7 +66,7 @@ class TestInputValueCalc extends Logging {
 
     val actual = TestUtils.testString(testSchema, "A")
     val actualString = actual.result.toString
-     val expected: Node = <data><e1>A</e1><e2>A</e2></data>
+    val expected: Node = <data><e1>A</e1><e2>A</e2></data>
     TestUtils.assertEqualsXMLElements(expected, actual.result)
   }
 

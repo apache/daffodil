@@ -57,27 +57,26 @@ class TestNamespaces {
   @Test def test_schemaSameDir_01() { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02() { runner.runOneTest("schemaSameDir_02") }
   @Test def test_schemaSameDir_03() { runner.runOneTest("schemaSameDir_03") }
-  
+
   @Test def test_schemaSameDirClasspath_01() { runner.runOneTest("schemaSameDirClasspath_01") }
 
   // See comments in related bug. JIRA-549
   // This test is looking for a specific file to be mentioned in an error message 
   // which is the file with the content responsible for the error, not the file
   // of the object where the error was detected.
-  
-  // Moved to debug.  See comment in TestNamespacesDebug.scala
-//  @Test def test_combinations_02() {
-//    try {
-//      // Must turn off the Info logging messages, because those will have the filename in them
-//      // which would create a false positive in this test.
-//      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-//      runner.runOneTest("combinations_02")
-//    } finally {
-//      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-//    }
-//  }
 
-  
+  // Moved to debug.  See comment in TestNamespacesDebug.scala
+  //  @Test def test_combinations_02() {
+  //    try {
+  //      // Must turn off the Info logging messages, because those will have the filename in them
+  //      // which would create a false positive in this test.
+  //      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+  //      runner.runOneTest("combinations_02")
+  //    } finally {
+  //      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+  //    }
+  //  }
+
   @Test def test_errorLocations_01() {
     try {
       // Must turn off the Info logging messages, because those will have the filename in them
@@ -88,7 +87,6 @@ class TestNamespaces {
       LoggingDefaults.setLoggingLevel(LogLevel.Info)
     }
   }
-
 
   @Test def test_defaultNamespaceInExpression() { runner.runOneTest("defaultNamespaceInExpression") }
   @Test def test_defaultNamespaceInExpression2() { runner.runOneTest("defaultNamespaceInExpression2") }
@@ -153,8 +151,8 @@ class TestNamespaces {
   // @Test def test_combinations_01() { runner.runOneTest("combinations_01") }
 
   // Moved to debug.  See comment in TestNamespacesDebug.scala  
-//  @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
-//  @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
+  //  @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
+  //  @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
 
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }
 
@@ -183,18 +181,18 @@ class TestNamespaces {
   @Test def test_lion_eater_ambiguity_05() { runner.runOneTest("lion_eater_ambiguity_05") }
 
   // Moved to debug.  See comment in TestNamespacesDebug.scala  
-//  @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
-//  @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
-//  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-//  @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
-  
+  //  @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
+  //  @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
+  //  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
+  //  @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
+
   @Test def test_primTypesPrefixes01() { runner.runOneTest("primTypesPrefixes01") }
   @Test def test_typeNameOverlap_01() { runner.runOneTest("typeNameOverlap_01") }
   @Test def test_typeNameOverlap_02() { runner.runOneTest("typeNameOverlap_02") }
 
   // Moved to debug.  See comment in TestNamespacesDebug.scala
-//  @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
-//  @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
+  //  @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
+  //  @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
   @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }
 
@@ -205,7 +203,7 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_02() { runner.runOneTest("nonsense_namespace_02") }
   @Test def test_nonsense_namespace_03() { runner.runOneTest("nonsense_namespace_03") }
   @Test def test_nonsense_namespace_04() { runner.runOneTest("nonsense_namespace_04") }
-  
+
   @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
 
   val tdmlFile = testDir + "includeImport.tdml"

@@ -158,7 +158,6 @@ object XMLUtils {
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
 
-
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
   def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
@@ -194,7 +193,7 @@ object XMLUtils {
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
   val COLUMN_ATTRIBUTE_NAME = "col"
-    
+
   val CONFIG_NAMESPACE = EXT_NS
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.

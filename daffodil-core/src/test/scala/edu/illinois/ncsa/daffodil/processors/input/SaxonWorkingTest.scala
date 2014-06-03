@@ -153,7 +153,7 @@ class SaxonWorkingTest extends XPathVariableResolver with NamespaceContext {
    */
 
   /**
-   *Get Namespace URI bound to a prefix in the current scope.</p>
+   * Get Namespace URI bound to a prefix in the current scope.</p>
    * @param prefix prefix to look up
    * @return Namespace URI bound to prefix in the current scope
    */
@@ -168,7 +168,7 @@ class SaxonWorkingTest extends XPathVariableResolver with NamespaceContext {
   }
 
   /**
-   *Get prefix bound to Namespace URI in the current scope.</p>
+   * Get prefix bound to Namespace URI in the current scope.</p>
    * @param namespaceURI URI of Namespace to lookup
    * @return prefix bound to Namespace URI in current context
    */

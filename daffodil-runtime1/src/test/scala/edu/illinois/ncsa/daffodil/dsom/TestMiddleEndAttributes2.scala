@@ -7,7 +7,7 @@ import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import edu.illinois.ncsa.daffodil.util.TestUtils
 
 class TestMiddleEndAttributes2 {
-  
+
   @Test def testNestedSequencePrefixSep() = {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     val testSchema = SchemaUtils.dfdlTestSchema(
@@ -41,5 +41,5 @@ class TestMiddleEndAttributes2 {
     val expected = <e1><x>5</x></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  
+
 }

@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.util
  * SOFTWARE.
  */
 
-
 import scala.xml._;
 import junit.framework.Assert._;
 import org.junit.Test;

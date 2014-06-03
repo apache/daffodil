@@ -8,21 +8,21 @@ import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 
 class TestDFDLExpressionCompiler {
-  
+
   @Test def test_single_path_expression() = {
     val expr = "{ /bookstore/book/title }"
     val dfdl = new DFDLPathExpressionCompiler(null)
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
 
     assertTrue(result.isRight) // Success
-    
+
     result match {
       case Right((paths, vmap)) => {
         assertEquals(2, paths.length)
         assertEquals("/bookstore/book/title", paths(0).toString)
         assertEquals("bookstore/book/title", paths(1).toString)
       }
-      case Left(_) => fail// FAILED
+      case Left(_) => fail // FAILED
     }
   }
 
@@ -31,14 +31,14 @@ class TestDFDLExpressionCompiler {
     val dfdl = new DFDLPathExpressionCompiler(null)
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success
-    
+
     result match {
       case Right((paths, vmap)) => {
         assertEquals(2, paths.length)
         assertEquals("/bookstore/book/title", paths(0).toString)
         assertEquals("bookstore/book/title", paths(1).toString)
       }
-      case Left(_) => fail// FAILED
+      case Left(_) => fail // FAILED
     }
   }
 
@@ -48,7 +48,7 @@ class TestDFDLExpressionCompiler {
 
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success
-    
+
     result match {
       case Right((paths, vmap)) => {
         assertEquals(6, paths.length)
@@ -59,7 +59,7 @@ class TestDFDLExpressionCompiler {
         assertEquals("bookstore/book[2]/title", paths(4).toString)
         assertEquals("2", paths(5).toString)
       }
-      case Left(_) => fail// FAILED
+      case Left(_) => fail // FAILED
     }
   }
 
@@ -69,7 +69,7 @@ class TestDFDLExpressionCompiler {
 
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success
-    
+
     result match {
       case Right((paths, vmap)) => {
         assertEquals(6, paths.length)
@@ -80,7 +80,7 @@ class TestDFDLExpressionCompiler {
         assertEquals("bookstore/book[2]/title", paths(4).toString)
         assertEquals("2", paths(5).toString)
       }
-      case Left(_) => fail// FAILED
+      case Left(_) => fail // FAILED
     }
   }
 

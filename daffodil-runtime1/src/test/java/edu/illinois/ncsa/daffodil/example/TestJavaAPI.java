@@ -108,7 +108,8 @@ public class TestJavaAPI {
 			System.err.println(e);
 		assertEquals(0, lw.errors.size());
 		assertEquals(0, lw.warnings.size());
-		// assertTrue(lw.infos.size() > 0); // got rid of include info messages (too noisy)
+		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
+		// (too noisy)
 		assertTrue(lw.others.size() > 0);
 		assertTrue(debugger.lines.size() > 0);
 		assertTrue(debugger.lines
@@ -273,10 +274,12 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-		c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string element
+		c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
+												// element
 		ProcessorFactory pf = c.compile(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
-		java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5 bytes
+		java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
+																	// bytes
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);

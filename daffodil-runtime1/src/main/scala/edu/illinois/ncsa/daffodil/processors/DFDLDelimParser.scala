@@ -21,7 +21,7 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
       case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }
-  
+
   def parseInputPatterned(pattern: Parser[String], input: Reader[Char]): DelimParseResult = {
     val entry = pattern
 
@@ -34,6 +34,5 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
       case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }
-  
 
 }

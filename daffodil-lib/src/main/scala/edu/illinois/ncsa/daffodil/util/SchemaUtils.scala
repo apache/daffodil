@@ -62,7 +62,7 @@ object SchemaUtils {
     val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
     val scopeToInherit = nodeWithScope.scope
     val schemaNode = {
-      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI } >
+      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI }>
          {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ targetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
@@ -85,7 +85,7 @@ object SchemaUtils {
     //
     schemaNode
   }
-  
+
   /**
    * Constructs a DFDL schema more conveniently than having to specify all those xmlns attributes.
    */
@@ -94,12 +94,12 @@ object SchemaUtils {
     val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
     val scopeToInherit = nodeWithScope.scope
     val schemaNode = {
-      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI } >
+      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI }>
          {
            nodeWithScope.copy(child = {
              <xs:schema targetNamespace={ theTargetNS } elementFormDefault="qualified" attributeFormDefault="unqualified">
-                <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
-                <xs:annotation>
+               <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+               <xs:annotation>
                  <xs:appinfo source={ dfdlAppinfoSource }>
                    { topLevelAnnotations }
                  </xs:appinfo>

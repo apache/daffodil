@@ -55,5 +55,4 @@ class TestInputValueCalcDebug {
   lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
-
 }

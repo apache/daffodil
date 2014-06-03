@@ -10,8 +10,8 @@ import edu.illinois.ncsa.daffodil.xml._
 
 //object Fakes {
 //  lazy val sch = <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/">
- //                  <xs:element name="e1" type="xs:int" dfdl:representation="binary" dfdl:inputValueCalc="{ 42 }" dfdl:encodingErrorPolicy="replace" dfdl:encoding="ascii"/>
- //                </xs:schema>
+//                  <xs:element name="e1" type="xs:int" dfdl:representation="binary" dfdl:inputValueCalc="{ 42 }" dfdl:encodingErrorPolicy="replace" dfdl:encoding="ascii"/>
+//                </xs:schema>
 //  lazy val xsd_sset = new SchemaSet(null, sch, "", "fake")
 //  lazy val xsd_schema = xsd_sset.getSchema(NS("")).get
 //  lazy val fakeSD = xsd_schema.schemaDocuments(0)
@@ -27,10 +27,6 @@ import edu.illinois.ncsa.daffodil.xml._
 //  lazy val fakeSD = new H
 //}
 
-
-
-
-  
 class TestForMemLeak {
 
   @Test def testParseSimpleLeakChecking() {
@@ -41,7 +37,6 @@ class TestForMemLeak {
     val expected: Node = <e1>5678</e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-
 
   @Test def testLeak() {
     1 to 100 foreach { _ =>

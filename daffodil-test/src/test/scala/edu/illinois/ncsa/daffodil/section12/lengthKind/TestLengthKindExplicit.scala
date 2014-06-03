@@ -57,18 +57,18 @@ class TestLengthKindExplicit {
   @Test def test_ExplicitLengthCharsNotFixed() = { runner.runOneTest("ExplicitLengthCharsNotFixed") }
   @Test def test_ExplicitLengthCharsFixed() = { runner.runOneTest("ExplicitLengthCharsFixed") }
   @Test def test_ExplicitLengthBytesFixed50() = { runner.runOneTest("ExplicitLengthBytesFixed50") }
-  
+
   // This test should give runtime SDE, not parse error (DFDL-908)
   //@Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
   @Test def test_ExplicitLengthBytesBroken() = { runner.runOneTest("test_ExplicitLengthBytesBroken") }
 
-  @Test def test_ExplicitLengthBytesNotGiven() = {runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
+  @Test def test_ExplicitLengthBytesNotGiven() = { runner.runOneTest("test_ExplicitLengthBytesNotGiven") }
 
   @Test def test_ExplicitLengthBytesChoiceRef() = { runner.runOneTest("test_ExplicitLengthBytesChoiceRef") }
   @Test def test_ExplicitLengthChildLengthLessParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Chars") }
   @Test def test_ExplicitLengthChildLengthLessParent_Bytes() = { runner.runOneTest("test_ExplicitLengthChildLengthLessParent_Bytes") }
   @Test def test_ExplicitLengthChildLengthMoreParent_Chars() = { runner.runOneTest("test_ExplicitLengthChildLengthMoreParent_Chars") }
-  
+
   @Test def test_explicitBytes_string_01() = { runner.runOneTest("explicitBytes_string_01") }
   @Test def test_explicitBytes_int_01() = { runner.runOneTest("explicitBytes_int_01") }
   @Test def test_explicitBytes_int_02() = { runner.runOneTest("explicitBytes_int_02") }
