@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
-import edu.illinois.ncsa.daffodil.api.DFDL.DataProcessor
+import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
@@ -482,7 +482,7 @@ case class PState(
   var occursCountStack: List[Long],
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
-  var dataProc: DataProcessor,
+  var dataProc: DFDL.DataProcessor,
   var foundDelimiter: Option[FoundDelimiterText])
   extends DFDL.State with ThrowsSDE {
 
@@ -775,7 +775,7 @@ object PState {
   def createInitialState(scr: SchemaComponentRegistry,
     rootElemDecl: GlobalElementDecl,
     in: InStream,
-    dataProc: DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor): PState = {
 
     val dataProcessor = dataProc
     val doc = Infoset.newDocument()
@@ -802,7 +802,7 @@ object PState {
     rootElemDecl: GlobalElementDecl,
     data: String,
     bitOffset: Long,
-    dataProc: DataProcessor): PState = {
+    dataProc: DFDL.DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
     createInitialState(scr, rootElemDecl, in, dataProc, data.length, bitOffset)
   }
@@ -813,7 +813,7 @@ object PState {
   def createInitialState(scr: SchemaComponentRegistry,
     rootElemDecl: GlobalElementDecl,
     input: DFDL.Input,
-    dataProc: DataProcessor,
+    dataProc: DFDL.DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
     val bitOrder = rootElemDecl.bitOrder

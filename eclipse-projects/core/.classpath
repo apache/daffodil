@@ -48,5 +48,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/commons-io/commons-io/commons-io-2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

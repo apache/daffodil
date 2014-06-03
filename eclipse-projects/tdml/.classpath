@@ -48,6 +48,5 @@
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

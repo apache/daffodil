@@ -34,7 +34,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/com.jcraft/jsch/jsch-0.1.42.jar" sourcepath="lib_managed/srcs/com.jcraft/jsch/jsch-0.1.42-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="lib" path="lib_managed/jars/commons-logging/commons-logging/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

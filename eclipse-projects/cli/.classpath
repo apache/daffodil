@@ -29,7 +29,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/com.jcraft/jsch/jsch-0.1.42.jar" sourcepath="lib_managed/srcs/com.jcraft/jsch/jsch-0.1.42-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.9-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>

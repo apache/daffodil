@@ -54,8 +54,6 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import javax.xml.validation.SchemaFactory
-import javax.xml.XMLConstants
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
