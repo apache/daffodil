@@ -79,6 +79,7 @@ class TestLengthKindDelimited {
   @Test def test_NumSeq_11() { runner.runOneTest("NumSeq_11") }
   @Test def test_NumSeq_12() { runner.runOneTest("NumSeq_12") }
   @Test def test_NumSeq_13() { runner.runOneTest("NumSeq_13") }
+  @Test def test_NumSeq_13Fail() { runner.runOneTest("NumSeq_13Fail") }
   @Test def test_NumSeq_14() { runner.runOneTest("NumSeq_14") }
   // Tests that initiator is found when on ElementRef
   @Test def test_refInitiator() { runner.runOneTest("refInitiator") }

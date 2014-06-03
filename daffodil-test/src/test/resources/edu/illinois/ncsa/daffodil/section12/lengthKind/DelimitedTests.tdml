@@ -158,7 +158,13 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=","
           dfdl:separatorPosition="infix">
-          <xs:sequence />
+          <xs:sequence>
+          	<xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:assert>{fn:true()}</dfdl:assert>
+              </xs:appinfo>
+          	</xs:annotation>
+          </xs:sequence>
           <xs:element name="e2" type="xs:int" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
@@ -817,7 +823,7 @@ C</MessageHeaders>
   <tdml:parserTestCase name="NumSeq_13" root="NS_13"
     model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
 
-    <tdml:document><![CDATA[,408,52283,22]]></tdml:document>
+    <tdml:document><![CDATA[408,52283,22]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -828,6 +834,16 @@ C</MessageHeaders>
         </NS_13>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="NumSeq_13Fail" root="NS_13"
+    model="lengthKindDelimited-Embedded.dfdl.xsd" description="lengthKind delimited infix separator - DFDL-12-043R">
+
+    <tdml:document><![CDATA[,408,52283,22]]></tdml:document>
+	<tdml:errors>
+	  <tdml:error>Parse Error</tdml:error>
+	  <tdml:error>empty string</tdml:error>
+	</tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="NumSeq_14" root="NS_14"

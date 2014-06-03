@@ -188,9 +188,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
   private def isInteresting(parser: Parser): Boolean = {
     parser.toString match {
-      case "StartSequence" => false
+      case "SequenceStartEnd" => false
       case "StartChildren" => false
-      case "EndSequence" => false
       case "EndChildren" => false
       case _ => {
         if (parser.toString.startsWith("<seq>")) {

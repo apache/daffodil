@@ -1310,10 +1310,10 @@ trait SequenceGrammarMixin { self: Sequence =>
     }
   }
 
-  lazy val orderedSequenceContent = Prod("sequenceContent", this, StartSequence(this) ~ terms.foldRight(mt)(folder) ~ EndSequence(this))
+  lazy val orderedSequenceContent = Prod("sequenceContent", this, new SequenceStartEnd(this, terms.foldRight(mt)(folder)))
   lazy val unorderedSequenceContent = {
     val uoseq = self.unorderedSeq.get
-    Prod("unorderedSequenceContent", this, StartSequence(this) ~ UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder)) ~ EndSequence(this))
+    Prod("unorderedSequenceContent", this, new SequenceStartEnd(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))
   }
 
   def folder(p: Gram, q: Gram): Gram = p ~ q

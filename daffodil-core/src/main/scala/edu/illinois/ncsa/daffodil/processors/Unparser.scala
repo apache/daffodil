@@ -386,8 +386,8 @@ class UState(
    * the start of a complex type that does that.
    */
   def moveOverByOneElement = {
-    val s1 = moveOverOneGroupIndexOnly
-    val s2 = s1.moveOverOneElementChildOnly
+    moveOverOneGroupIndexOnly
+    val s2 = moveOverOneElementChildOnly
     val s3 = s2.moveOverOneArrayIndexOnly
     s3
   }

@@ -39,6 +39,10 @@ import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import scala.collection.mutable.Stack
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 
 
 
@@ -313,19 +317,31 @@ case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Ter
   }
 }
 
-case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
+class SequenceStartEnd(sq: Sequence, body: => Gram) extends Terminal(sq, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, sq) {
-    override def toString = "StartSequence"
+    override def toString = "SequenceStartEnd"
+
+    val bodyParser = body.parser
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      if (depthLimit == 0) "..." else
+        "<SequenceStartEnd>" +
+        bodyParser.toBriefXML(depthLimit - 1) +
+        "</SequenceStartEnd>"
+    }
 
     def parse(start: PState): PState = {
-      val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
-      postState
+      GroupIndexStack.get.push(1L)
+      val parseState = bodyParser.parse1(start, context)
+      GroupIndexStack.get.pop()
+      GroupIndexStack.moveOverOneGroupIndexOnly()
+      parseState
     }
   }
 
   def unparser: Unparser = new Unparser(sq) {
-    override def toString = "StartSequence"
+    override def toString = "SequenceStartEnd"
 
     def unparse(start: UState): UState = {
       val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
@@ -333,6 +349,25 @@ case class StartSequence(sq: Sequence, guard: Boolean = true) extends Terminal(s
     }
   }
 }
+
+object GroupIndexStack {
+  private val tl = new ThreadLocal[Stack[Long]] {
+    override def initialValue = {
+      val s = new Stack[Long]
+      s.push(-1L)
+      s
+    }
+  }
+  
+  def moveOverOneGroupIndexOnly() {
+    val gis = GroupIndexStack.get
+    Assert.usage(!gis.isEmpty)
+    gis.push(gis.pop + 1)
+  }
+
+  def get = tl.get()
+}
+
 case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
 
   def parser: DaffodilParser = new PrimParser(this, ct.element) {
@@ -354,28 +389,28 @@ case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Termi
   }
 }
 
-case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
-
-  def parser: DaffodilParser = new PrimParser(this, sq) {
-    override def toString = "EndSequence"
-
-    def parse(start: PState): PState = {
-      // When we end a sequence group, we have created a group child in the parent
-      // so we advance that index. 
-      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
-      postState
-    }
-  }
-
-  def unparser: Unparser = new Unparser(sq) {
-    override def toString = "EndSequence"
-
-    def unparse(start: UState): UState = {
-      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
-      postState
-    }
-  }
-}
+//case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
+//
+//  def parser: DaffodilParser = new PrimParser(this, sq) {
+//    override def toString = "EndSequence"
+//
+//    def parse(start: PState): PState = {
+//      // When we end a sequence group, we have created a group child in the parent
+//      // so we advance that index. 
+//      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
+//      postState
+//    }
+//  }
+//
+//  def unparser: Unparser = new Unparser(sq) {
+//    override def toString = "EndSequence"
+//
+//    def unparse(start: UState): UState = {
+//      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
+//      postState
+//    }
+//  }
+//}
 
 case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
 

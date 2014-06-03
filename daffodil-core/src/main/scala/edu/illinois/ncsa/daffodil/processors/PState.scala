@@ -82,7 +82,6 @@ case class PState(
   var variableMap: VariableMap,
   var target: NS,
   var status: ProcessorResult,
-  var groupIndexStack: List[Long],
   var childIndexStack: List[Long],
   var arrayIndexStack: List[Long],
   var occursCountStack: List[Long],
@@ -105,7 +104,6 @@ case class PState(
     variableMap = other.variableMap
     target = other.target
     status = other.status
-    groupIndexStack = other.groupIndexStack
     childIndexStack = other.childIndexStack
     arrayIndexStack = other.arrayIndexStack
     occursCountStack = other.occursCountStack
@@ -117,7 +115,10 @@ case class PState(
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
-  def groupPos = if (groupIndexStack != Nil) groupIndexStack.head else -1
+  def groupPos = {
+    Assert.usage(!GroupIndexStack.get.isEmpty)
+    GroupIndexStack.get.top
+  }
   def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = if (occursCountStack != Nil) occursCountStack.head else -1
@@ -226,8 +227,6 @@ case class PState(
     this
   }
 
-  def withGroupIndexStack(newGroupIndexStack: List[Long], newStatus: ProcessorResult = Success) =
-    copy(groupIndexStack = newGroupIndexStack, status = newStatus)
   def withChildIndexStack(newChildIndexStack: List[Long], newStatus: ProcessorResult = Success) =
     copy(childIndexStack = newChildIndexStack, status = newStatus)
   def withArrayIndexStack(newArrayIndexStack: List[Long], newStatus: ProcessorResult = Success) =
@@ -315,8 +314,8 @@ case class PState(
    * the start of a complex type that does that.
    */
   def moveOverByOneElement = {
-    val s1 = moveOverOneGroupIndexOnly
-    val s2 = s1.moveOverOneElementChildOnly
+    GroupIndexStack.moveOverOneGroupIndexOnly
+    val s2 = moveOverOneElementChildOnly
     // val s3 = s2.moveOverOneArrayIndexOnly // move over in array happens only in the RepParsers
     s2
   }
@@ -327,16 +326,6 @@ case class PState(
       case hd :: tl => {
         val newChildIndex = hd + 1
         withChildIndexStack(newChildIndex :: tl)
-      }
-    }
-  }
-
-  def moveOverOneGroupIndexOnly = {
-    groupIndexStack match {
-      case Nil => this
-      case hd :: tl => {
-        val newGroupIndex = hd + 1
-        withGroupIndexStack(newGroupIndex :: tl)
       }
     }
   }
@@ -388,7 +377,6 @@ object PState {
     val variables = dataProc.getVariables
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val status = Success
-    val groupIndexStack = Nil
     val childIndexStack = Nil
     val arrayIndexStack = Nil
     val occursCountStack = Nil
@@ -396,7 +384,7 @@ object PState {
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
     val foundDelimiter: Option[FoundDelimiterText] = None
-    val newState = PState(scr, in, doc, variables, targetNamespace, status, groupIndexStack,
+    val newState = PState(scr, in, doc, variables, targetNamespace, status,
       childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
     newState
   }
