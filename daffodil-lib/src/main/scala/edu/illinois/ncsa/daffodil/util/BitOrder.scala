@@ -48,7 +48,7 @@ object Bits {
   val LSBitTable = {
     val ints = 0 to 255
     val table = ints.map { asLSBitFirst1(_) }
-    table
+    table.toArray
   }
 
   /**

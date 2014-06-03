@@ -116,7 +116,8 @@
           <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
             dfdl:length="1" dfdl:alignment="1"/>
           <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
-            minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:alignment="1"/>
+            minOccurs="0" maxOccurs="1" dfdl:length="1" dfdl:alignment="1"
+            dfdl:occursCountKind='implicit' />
           <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"
             dfdl:length="3" dfdl:alignment="4"/>
         </xs:sequence>
@@ -127,7 +128,8 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
-            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="1" dfdl:alignment="1"/>
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="1" dfdl:alignment="1"
+            dfdl:occursCountKind='implicit'/>
           <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit"
             dfdl:length="1" dfdl:lengthUnits="bits" dfdl:alignment="2"/>
           <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit"
@@ -143,12 +145,14 @@
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="e" type="xs:unsignedInt" dfdl:lengthKind="explicit" 
-                  minOccurs="0" maxOccurs="5" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="2"/>
+                  minOccurs="0" maxOccurs="5" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="2"
+                  dfdl:occursCountKind='implicit'/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>
           <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
-            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"/>
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"
+            dfdl:occursCountKind='implicit'/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -157,7 +161,8 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="one" type="xs:unsignedInt" dfdl:lengthKind="explicit"
-            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"/>
+            minOccurs="0" maxOccurs="1" dfdl:lengthUnits="bits" dfdl:length="8" dfdl:alignment="1"
+            dfdl:occursCountKind='implicit'/>
           <xs:element name="two" type="xs:unsignedInt" dfdl:lengthKind="explicit"
             dfdl:length="8" dfdl:lengthUnits="bits" dfdl:alignment="2"/>
           <xs:element name="three" type="xs:unsignedInt" dfdl:lengthKind="explicit"
@@ -1896,15 +1901,20 @@
   -->
 
   <tdml:parserTestCase name="alignmentOptionalElem" root="e10"
-    model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
-
+    model="alignmentSchema"
+    description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
     <tdml:document>
-      <tdml:documentPart type="bits">1 0 101</tdml:documentPart>
+      <tdml:documentPart type="bits">1 0 11 101 </tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>element.two is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.three's alignment (4)</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10><one>1</one><two>0</two><three>5</three></e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>element.two is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.three's alignment (4)</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
   
   <!--
@@ -1918,13 +1928,17 @@
   <tdml:parserTestCase name="alignmentOptionalElem02" root="e10a"
     model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
 
-    <tdml:document>
-      <tdml:documentPart type="bits">0 1 101</tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:error>
-    </tdml:errors>
+  <tdml:document>
+    <tdml:documentPart type="bits">0 1 1 1 101</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset><e10a><one>0</one><two>1</two><three>5</three></e10a>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:warning>
+  </tdml:warnings>
   </tdml:parserTestCase>
   
   <!--
@@ -1938,13 +1952,17 @@
   <tdml:parserTestCase name="alignmentOptionalElem03" root="e10b"
     model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
 
-    <tdml:document>
-      <tdml:documentPart type="bits">10101011 00100100 11111110 01001001</tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>element.e is an optional element or a variable-occurrence array and its alignment (2) is not the same as element.one's alignment (1)</tdml:error>
-    </tdml:errors>
+  <tdml:document>
+    <tdml:documentPart type="bits">00001011 00000100 00001110 00001001 00001011 00001011</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset><e10b><varArr><e>11</e><e>4</e><e>14</e><e>9</e><e>11</e></varArr><one>11</one></e10b>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>element.e is an optional element or a variable-occurrence array and its alignment (2) is not the same as element.one's alignment (1)</tdml:warning>
+  </tdml:warnings>
   </tdml:parserTestCase>
   
   <!--
@@ -1958,13 +1976,17 @@
   <tdml:parserTestCase name="alignmentOptionalElem04" root="e10c"
     model="alignmentSchema" description="Section 12.1 Aligned Data - Avoid Ambiguity when parsing - DFDL-12-011R">
 
-    <tdml:document>
-      <tdml:documentPart type="bits">01000001 00001000 101</tdml:documentPart>
-    </tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:error>
-    </tdml:errors>
+  <tdml:document>
+    <tdml:documentPart type="bits">00000001 00001000 101</tdml:documentPart>
+  </tdml:document>
+  <tdml:infoset>
+    <tdml:dfdlInfoset><e10c><one>1</one><two>8</two><three>5</three></e10c>
+    </tdml:dfdlInfoset>
+  </tdml:infoset>
+  <tdml:warnings>
+    <tdml:warning>Schema Definition Warning</tdml:warning>
+    <tdml:warning>element.one is an optional element or a variable-occurrence array and its alignment (1) is not the same as element.two's alignment (2)</tdml:warning>
+  </tdml:warnings>
   </tdml:parserTestCase>
   
   <!--

@@ -47,6 +47,10 @@ class TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = testDir_01 + "Aligned_Data.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
+  def dbg = {
+    Debugger.withTracing(false)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
 
   @Test def test_alignmentUnitsInvalid() = { runner1.runOneTest("alignmentUnitsInvalid") }
 

@@ -190,8 +190,8 @@ class Diagnostic(d: SDiagnostic) {
 class DataLocation(dl: SDataLocation) {
   override def toString() = dl.toString
   def isAtEnd() = dl.isAtEnd
-  def bitPos() = dl.bitPos
-  def bytePos() = dl.bytePos
+  def bitPos1b() = dl.bitPos1b
+  def bytePos1b() = dl.bytePos1b
 }
 
 class LocationInSchemaFile(lsf: SLocationInSchemaFile) {

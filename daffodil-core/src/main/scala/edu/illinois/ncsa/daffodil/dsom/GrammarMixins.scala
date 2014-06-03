@@ -901,7 +901,6 @@ trait ElementBaseGrammarMixin
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
-
   //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
   //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
   //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
@@ -940,8 +939,9 @@ trait ElementBaseGrammarMixin
 
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption.isInstanceOf[Found],
-    ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
-      InputValueCalc(self), elementRightFraming ~ dfdlScopeEnd))
+    // No framing surrounding inputValueCalc elements.
+    ElementCombinator(this, dfdlScopeBegin ~
+      InputValueCalc(self), dfdlScopeEnd))
 
   lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
     if (this.isParentUnorderedSequence)

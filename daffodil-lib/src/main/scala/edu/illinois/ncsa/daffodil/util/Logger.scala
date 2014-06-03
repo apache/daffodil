@@ -39,6 +39,7 @@ import java.io.PrintStream
 import java.io.FileOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * Simple logging system evolved from code found on Stack Overflow, on the web.
@@ -89,7 +90,7 @@ object LogLevel extends Enum {
   }
 }
 
-abstract class GlobBase(lvl: LogLevel.Type) {
+sealed abstract class GlobBase(lvl: LogLevel.Type) {
   // Have to do this by having an overload for each number of args.
   // This is because we're depending on scala's call-by-name trick to NOT
   // evaluate these arguments unless something else decides to force this whole adventure.
@@ -254,22 +255,26 @@ trait Logging extends Identity {
     else className
   }
 
-  private var logWriter: Option[LogWriter] = None
-  private var logLevel: Option[LogLevel.Type] = None
+  private var logWriter: Maybe[LogWriter] = Nope
+  private var logLevel: Maybe[LogLevel.Type] = Nope
 
-  def setLoggingLevel(level: LogLevel.Type) { logLevel = Some(level) }
+  def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
 
-  def getLoggingLevel(): LogLevel.Type = { logLevel.getOrElse(LoggingDefaults.logLevel) }
+  final def getLoggingLevel(): LogLevel.Type = { logLevel.getOrElse(LoggingDefaults.logLevel) }
 
-  def setLogWriter(lw: LogWriter) { logWriter = Some(lw) }
+  def setLogWriter(lw: LogWriter) { logWriter = One(lw) }
 
   def getLogWriter(): LogWriter = { logWriter.getOrElse(LoggingDefaults.logWriter) }
 
-  def log(glob: Glob) {
+  final def log(glob: => Glob) {
     if (getLoggingLevel >= glob.lvl) getLogWriter.log(logID, glob)
   }
 
-  @inline def log(lvl: LogLevel.Type, msg: String, args: Any*) {
+  private def log1(glob: => Glob) {
+    getLogWriter.log(logID, glob)
+  }
+
+  final def log(lvl: LogLevel.Type, msg: String, args: Any*) {
     if (getLoggingLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
   }
 
@@ -283,7 +288,7 @@ trait Logging extends Identity {
    */
   def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S) = {
     val previousLogLevel = logLevel
-    logLevel = Some(newLevel)
+    logLevel = One(newLevel)
     try body
     finally {
       logLevel = previousLogLevel

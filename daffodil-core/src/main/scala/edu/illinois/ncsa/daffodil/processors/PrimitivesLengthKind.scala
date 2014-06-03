@@ -93,7 +93,9 @@ abstract class StringLength(e: ElementBase)
         return postState
       } catch {
         case m: MalformedInputException => { return PE(start, "%s - MalformedInputException: \n%s", parserName, m.getMessage()) }
-        case e: IndexOutOfBoundsException => { return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage()) }
+        case e: IndexOutOfBoundsException => {
+          return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
+        }
         case u: UnsuppressableException => throw u
         case e: Exception => { return PE(start, "%s - Exception: \n%s", parserName, e.getStackTraceString) }
       }
@@ -477,24 +479,23 @@ trait HasEscapeScheme { self: StringDelimited =>
 
   protected def evalAsConstant(knownValue: Maybe[CompiledExpression]) = {
     if (!knownValue.isDefined) Nope
-    else if (knownValue.get.isConstant){
-        val constValue = knownValue.get.constantAsString
-        val l = new SingleCharacterLiteralES(constValue, context)
-        val result = l.cooked
-        One(result)      
-    }
-    else Nope
+    else if (knownValue.get.isConstant) {
+      val constValue = knownValue.get.constantAsString
+      val l = new SingleCharacterLiteralES(constValue, context)
+      val result = l.cooked
+      One(result)
+    } else Nope
   }
 
   protected def runtimeEvalEsc(optEsc: Maybe[CompiledExpression], state: PState): (Maybe[String], PState) = {
     val (finalOptEsc, afterEscEval) =
       if (!optEsc.isDefined) (Nope, state)
       else {
-          val R(res, newVMap) = optEsc.get.evaluate(state.parentElement, state.variableMap, state)
-          val l = new SingleCharacterLiteralES(res.toString, context)
-          val resultEsc = l.cooked
-          val newState = state.withVariables(newVMap)
-          (One(resultEsc), newState)        
+        val R(res, newVMap) = optEsc.get.evaluate(state.parentElement, state.variableMap, state)
+        val l = new SingleCharacterLiteralES(res.toString, context)
+        val resultEsc = l.cooked
+        val newState = state.withVariables(newVMap)
+        (One(resultEsc), newState)
       }
     (finalOptEsc, afterEscEval)
   }
@@ -515,7 +516,7 @@ trait HasEscapeScheme { self: StringDelimited =>
     val (finalOptEscEscChar, postEscapeSchemeEvalState) =
       if (escChar.isDefined) (escEscChar, afterEscCharEval)
       else runtimeEvalEsc(esObj.escapeEscapeCharacter, afterEscCharEval)
-      
+
     (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState)
   }
 }
@@ -807,7 +808,7 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
-      if (!parseResult.isDefined)parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      if (!parseResult.isDefined) parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
       else {
         val result = parseResult.get
         // We have a field, is it empty?

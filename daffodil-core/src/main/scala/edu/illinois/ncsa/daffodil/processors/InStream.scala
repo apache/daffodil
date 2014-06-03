@@ -57,8 +57,13 @@ object InStream {
 
   val mandatoryAlignment = 8
 
-  def fromByteChannel(context: ElementBase, in: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) = {
-    new InStreamFromByteChannel(context, in, bitOffset, bitLimit, bitOrder)
+  def fromByteChannel(context: ElementBase,
+    in: DFDL.Input,
+    bitOffset0b: Long,
+    numBitsLimit: Long, // a count, not a position
+    bitOrder: BitOrder) = {
+    val bitLimit0b = if (numBitsLimit == -1) -1 else bitOffset0b + numBitsLimit
+    new InStreamFromByteChannel(context, in, bitOffset0b, bitLimit0b, bitOrder)
   }
 
   /**
@@ -109,38 +114,38 @@ trait InStream {
   def assignFrom(other: InStream): Unit
 
   def duplicate(): InStream
-  def bitPos: Long
-  def bitLimit: Long
-  def charPos: Long
-  def charLimit: Long
+  def bitPos0b: Long
+  def bitLimit0b: Long
+  def charPos0b: Long
+  def charLimit0b: Long
   def reader: Maybe[DFDLCharReader]
 
-  def withPos(newBitPos: Long, newCharPos: Long, newReader: Maybe[DFDLCharReader]): InStream
-  def withPos(newBitPos: Long, newCharPos: Long): InStream
-  def withEndBitLimit(newBitLimit: Long): InStream
+  def withPos(newBitPos0b: Long, newCharPos0b: Long, newReader: Maybe[DFDLCharReader]): InStream
+  def withPos(newBitPos0b: Long, newCharPos0b: Long): InStream
+  def withEndBitLimit(newBitLimit0b: Long): InStream
 
   /**
    * Checks that all 8-bits are available, and requires alignment also.
    */
-  def getByte(bitPos: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
+  def getByte(bitPos0b: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
 
   /**
    * Will deliver a byte even if the bit limit implies only a fragment of a
    * byte is actually available.
    */
-  def getRawByte(bitPos: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
+  def getRawByte(bitPos0b: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): Byte
 
   /**
    * Returns up to numBytes. Could be fewer. Does not check bitLimit bounds
    * precisely.
    */
-  def getBytes(bitPos: Long, numBytes: Long): Array[Byte]
+  def getBytes(bitPos0b: Long, numBytes: Long): Array[Byte]
 
   def getLong(bitPos0b: Long, bitCount: Long, byteOrd: java.nio.ByteOrder, bitOrd: BitOrder): Long
 
-  def getBigInt(bitPos: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): BigInt
+  def getBigInt(bitPos0b: Long, bitCount: Long, order: java.nio.ByteOrder, bitOrder: BitOrder): BigInt
 
-  def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader
+  def getCharReader(charset: Charset, bitPos0b: Long): DFDLCharReader
 
   /**
    * Calling this forces the entire input into memory.
@@ -180,7 +185,7 @@ trait InStream {
     isCharsetFixedWidth: Boolean,
     charsetFixedWidthInBits: Int): (CharSequence, Int) = {
     Assert.notYetImplemented(!isCharsetFixedWidth, "specified length in characters is not supported for variable width character set encodings")
-    val rdr = getCharReader(charset, bitPos)
+    val rdr = getCharReader(charset, bitPos0b)
     val str = rdr.getStringInChars(nChars)
     val nBits = str.length * charsetFixedWidthInBits
     (str, nBits)
@@ -194,9 +199,9 @@ trait InStream {
 case class InStreamFromByteChannel private (
   var context: SchemaComponent,
   var byteReader: DFDLByteReader,
-  var bitPos: Long,
-  var bitLimit: Long,
-  var charLimit: Long,
+  var bitPos0b: Long,
+  var bitLimit0b: Long, // the bit position position one past the last valid bit position.
+  var charLimit0b: Long,
   var reader: Maybe[DFDLCharReader])
   extends InStream
   with Logging
@@ -206,16 +211,16 @@ case class InStreamFromByteChannel private (
     val oth = other.asInstanceOf[InStreamFromByteChannel]
     context = oth.context
     byteReader = oth.byteReader
-    bitPos = oth.bitPos
-    bitLimit = oth.bitLimit
-    charLimit = oth.charLimit
+    bitPos0b = oth.bitPos0b
+    bitLimit0b = oth.bitLimit0b
+    charLimit0b = oth.charLimit0b
     reader = oth.reader
   }
 
   override def duplicate() = copy()
   // Let's eliminate duplicate information between charPos of the PState, the
   // InStream, and the Reader. It's the reader, and only the reader.
-  def charPos = reader.map { _.characterPos }.getOrElse(-1).toLong
+  def charPos0b = reader.map { _.characterPos }.getOrElse(-1).toLong
   // 
   // the reason for the private constructor above, and this public constructor is that the methods 
   // of this class should NOT have access to the DFDL.Input argument 'in', but only to the DFDLByteReader
@@ -244,39 +249,39 @@ case class InStreamFromByteChannel private (
    * or the actual amount of alignment fill to be skipped in a particular data stream is 0, then
    * one should preserve the reader.
    */
-  def withPos(newBitPos: Long, newCharPos: Long, newReader: Maybe[DFDLCharReader]): InStream = {
-    Assert.invariant((newCharPos == -1 && (newReader == Nope)) || (newCharPos > -1 && !(newReader == Nope)))
+  def withPos(newBitPos0b: Long, newCharPos0b: Long, newReader: Maybe[DFDLCharReader]): InStream = {
+    Assert.invariant((newCharPos0b == -1 && (newReader == Nope)) || (newCharPos0b > -1 && !(newReader == Nope)))
     //    newReader.foreach { rdr =>
     //      if (rdr.characterPos != newCharPos)
     //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
     //    }
     // copy(bitPos = newBitPos, reader = newReader.map { _.atCharPos(newCharPos.toInt) })
-    this.bitPos = newBitPos
-    this.reader = newReader.map { _.atCharPos(newCharPos.toInt) }
+    this.bitPos0b = newBitPos0b
+    this.reader = newReader.map { _.atCharPos(newCharPos0b.toInt) }
     this
   }
 
-  def withPos(newBitPos: Long, newCharPos: Long): InStream = {
+  def withPos(newBitPos0b: Long, newCharPos0b: Long): InStream = {
     val rdr = {
       if (!reader.isDefined) Nope
       else {
-        if (newCharPos == -1) Nope
+        if (newCharPos0b == -1) Nope
         else {
           // if (rdr.characterPos != newCharPos)
           // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
-          One(reader.get.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
+          One(reader.get.atCharPos(newCharPos0b.toInt)) // TODO: 32-bit offset limit! (not our fault)
         }
       }
     }
     // copy(bitPos = newBitPos, reader = rdr)
-    this.bitPos = newBitPos
+    this.bitPos0b = newBitPos0b
     this.reader = rdr
     this
   }
 
-  def withEndBitLimit(newBitLimit: Long): InStream = {
+  def withEndBitLimit(newBitLimit0b: Long): InStream = {
     // copy(bitLimit = newBitLimit)
-    this.bitLimit = newBitLimit
+    this.bitLimit0b = newBitLimit0b
     this
   }
 
@@ -284,30 +289,29 @@ case class InStreamFromByteChannel private (
    * changes the bitOrder - must be done at a byte boundary.
    */
   def withBitOrder(bitOrder: BitOrder) = {
-    Assert.usage((bitPos % 8) == 1)
+    Assert.usage((bitPos0b % 8) == 0)
     copy(byteReader = byteReader.changeBitOrder(bitOrder))
   }
 
-  def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
+  def getCharReader(charset: Charset, bitPos0b: Long): DFDLCharReader = {
     val rdr = {
-      if (!reader.isDefined){
+      if (!reader.isDefined) {
         // println("Miss: no reader found in PState")
-        byteReader.newCharReader(charset, bitPos, bitLimit)
-      }
-      else {
+        byteReader.newCharReader(charset, bitPos0b, bitLimit0b)
+      } else {
         val rdr = reader.get
         rdr.charset match {
           case `charset` => {
             // println("getCharReader: rdr.bitLimit = " + rdr.bitLimit + " inStream bitLimit = " + bitLimit)
-            if (rdr.bitLimit >= bitLimit)
-              rdr.atBitPos(bitPos) // use same reader. Just adjust the bitLimit
+            if (rdr.bitLimit0b >= bitLimit0b)
+              rdr.atBitPos(bitPos0b) // use same reader. Just adjust the bitLimit
             else
-              byteReader.newCharReader(charset, bitPos, bitLimit)
+              byteReader.newCharReader(charset, bitPos0b, bitLimit0b)
           }
           case _ => {
             Assert.invariant(rdr.charset.name() != charset.name())
             //println("Miss: wrong character set encoding.")
-            byteReader.newCharReader(charset, bitPos, bitLimit)
+            byteReader.newCharReader(charset, bitPos0b, bitLimit0b)
           }
         }
       }
@@ -353,23 +357,16 @@ case class InStreamFromByteChannel private (
   }
 
   def reverseBytesAndReverseBits(a: Array[Byte]) {
+    reverseBytes(a)
+    reverseBitsWithinBytes(a)
+  }
+
+  def reverseBitsWithinBytes(a: Array[Byte]) {
     var i: Int = 0
     val len = a.length
-    while (i < (len >> 1)) {
-      // swap positions end to end, and swap bit order within each
-      // byte at the same time.
-      // Do this in-place to avoid unnecessary further allocation.
-      val upperByte = a(len - i - 1)
-      val lowerByte = a(i)
-      a(len - i - 1) = Bits.asLSBitFirst(lowerByte)
-      a(i) = Bits.asLSBitFirst(upperByte)
-      i = i + 1
-    }
-    if ((len & 1) == 1) {
-      // odd number of bytes, so we have one more flip to do
-      // which is the middle byte
-      i = (len >> 1)
+    while (i < len) {
       a(i) = Bits.asLSBitFirst(a(i))
+      i = i + 1
     }
   }
 
@@ -404,6 +401,7 @@ case class InStreamFromByteChannel private (
    */
   def getBigInt(bitPos0b: Long, bitCount: Long, byteOrd: java.nio.ByteOrder, bitOrd: BitOrder): BigInt = {
     checkBounds(bitPos0b, bitCount)
+    val zeroByte = 0.toByte
     var bitOrder = bitOrd
     var byteOrder = byteOrd
     val firstBytePos = bitPos0b >> 3
@@ -414,14 +412,37 @@ case class InStreamFromByteChannel private (
     val numBytes = if (lastBytePos == firstBytePos) 1 else (lastBytePos - firstBytePos).toInt + 1
     var numBitsLastByte: Int = if ((nextBitPos0b % 8) == 0) 8 else (nextBitPos0b % 8).toInt
     var allBytes = getByteAlignedBytes(firstBytePos, numBytes)
+    val lastPos = allBytes.length - 1
+
     if (bitOrder == BitOrder.LeastSignificantBitFirst) {
-      // LSB first is exactly the same as big endian with MSBFirst, 
-      // but with the bits reversed order. 
-      // We must also adjust the start position however since reversing the bytes, 
-      // the offset into the new first byte can be different.
+      //
+      // mask off the unused bits of first byte
+      //
+      val fbMask = (0xFF << (8 - numBitsFirstByte))
+      allBytes(0) = (allBytes(0) & fbMask).toByte
+      //
+      // mask off the unused bits of last byte
+      //
+      val lbMask = (1 << numBitsLastByte) - 1
+      allBytes(lastPos) = (allBytes(lastPos) & lbMask).toByte
+      //
+      // shift and orient as big-endian bytes
+      //
+      reverseBitsWithinBytes(allBytes)
+      Bits.shiftLeft(allBytes, 8 - numBitsFirstByte)
       reverseBytesAndReverseBits(allBytes)
-      byteOrder = java.nio.ByteOrder.BIG_ENDIAN
-      // numBitsLastByte = 8
+      //
+      // note: sign is handled elsewhere. We 
+      // always want to return a non-negative integer
+      //
+      var res: BigInt = null
+      if (allBytes(0) < 0) {
+        // sign bit is on. We want an unsigned BigInt
+        res = BigInt(zeroByte +: allBytes)
+      } else {
+        res = BigInt(allBytes)
+      }
+      res
     } else if (byteOrder == java.nio.ByteOrder.LITTLE_ENDIAN &&
       firstBytePos < lastBytePos) {
       //
@@ -471,7 +492,7 @@ case class InStreamFromByteChannel private (
       //
       val numUnusedFinalBits = (allBytes.length * 8) - bitCount
       val unusedMask = ~((1 << numUnusedFinalBits) - 1) & 0xFF
-      val last = allBytes.length - 1
+      val last = allBytes.length - 1 // new last position since might have shortened array above
       val lastByte = allBytes(last)
       val newLastByte = lastByte & unusedMask // preserve only the used bits
       allBytes(last) = newLastByte.toByte
@@ -479,41 +500,45 @@ case class InStreamFromByteChannel private (
       // Now we reverse the bytes due to little-endianness 
       //
       reverseBytes(allBytes)
-      val result = BigInt(0x0.toByte +: allBytes)
-      return result
-    }
-    //
-    // Big endian case
-    //
-    // Also handles case where there is only one byte
-    // so that we don't care about byte order.
-    //
-    Assert.invariant(numBytes == 1 || byteOrder == java.nio.ByteOrder.BIG_ENDIAN)
-    val rawBigNum = BigInt(allBytes)
-    val shiftRight = 8 - numBitsLastByte
-    val shifted = rawBigNum >> shiftRight
-    val mask = ((BigInt(1) << bitCount.toInt) - 1)
-    val resultBE = shifted & mask
-    val result = if (bitOrder == BitOrder.LeastSignificantBitFirst) {
       //
-      // We must reverse-back to get the correct value
+      // note: sign is handled elsewhere. We 
+      // always want to return a non-negative integer
       //
-      val bytes = resultBE.toByteArray
-      val shift = 8 - (bitCount.toInt % 8)
-      reverseBytesAndReverseBits(bytes)
-      val bi = BigInt(bytes)
-      val res = (bi >> shift) & mask
+      var res: BigInt = null
+      if (allBytes(0) < 0) {
+        // sign bit is on. We want an unsigned BigInt
+        res = BigInt(zeroByte +: allBytes)
+      } else {
+        res = BigInt(allBytes)
+      }
       res
     } else {
+      //
+      // Big endian case
+      //
+      // Also handles case where there is only one byte
+      // so that we don't care about byte order.
+      //
+      Assert.invariant(numBytes == 1 || byteOrder == java.nio.ByteOrder.BIG_ENDIAN)
+      var rawBigNum: BigInt = null
+      if (allBytes(0) < 0) {
+        // sign bit is on. We want an unsigned BigInt
+        rawBigNum = BigInt(zeroByte +: allBytes)
+      } else {
+        rawBigNum = BigInt(allBytes)
+      }
+      val shiftRight = 8 - numBitsLastByte
+      val shifted = rawBigNum >> shiftRight
+      val mask = ((BigInt(1) << bitCount.toInt) - 1)
+      val resultBE = shifted & mask
       resultBE
     }
-    result
   }
 
-  def checkBounds(bitStart: Long, bitLength: Long) {
-    if (bitLimit > -1)
-      if (!(bitStart + bitLength <= bitLimit))
-        throw new IndexOutOfBoundsException("bitStart: %s bitLength: %s".format(bitStart, bitLength))
+  def checkBounds(bitStart0b: Long, bitLength: Long) {
+    if (bitLimit0b > -1)
+      if (!(bitStart0b + bitLength <= bitLimit0b))
+        throw new IndexOutOfBoundsException("bitStart: %s bitLength: %s".format(bitStart0b, bitLength))
   }
 
   // This still requires alignment, and that a whole byte is available
@@ -539,16 +564,16 @@ case class InStreamFromByteChannel private (
 
 }
 
-class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends DataLocation {
+class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStream: InStream) extends DataLocation {
   private val DEFAULT_DUMP_SIZE = 40
 
-  val bytePos = bitPos >> 3
+  val bytePos1b = (bitPos1b >> 3) + 1
 
-  override def toString() = "byte " + bitPos / 8 +
+  override def toString() = "byte " + bitPos1b / 8 +
     "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump() + ")" +
     "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump() + ")"
 
-  def aligned64BitsPos = (bitPos >> 6) << 6
+  def aligned64BitsPos = (bitPos1b >> 6) << 6
 
   def byteDump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
     var bytes: List[Byte] = Nil
@@ -582,10 +607,10 @@ class DataLoc(val bitPos: Long, bitLimit: Long, inStream: InStream) extends Data
   }
 
   /*
-   * We're at the end if an attempt to get a bit fails with an index exception
+   * We're at the end if the position is at the limit. 
    */
   def isAtEnd: Boolean = {
-    bitPos >= bitLimit
+    bitPos1b >= bitLimit1b
   }
 
 }

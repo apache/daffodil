@@ -43,9 +43,14 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypesNew {
-  //  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-  //  val aa = testDir + "BitOrder.tdml"
-  //  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  //
-  //  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
+  val testDir1 = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  val aaa = testDir1 + "BitOrder.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aaa))
+
+  /**
+   * New tests for bitOrder='leastSignificantBitFirst' feature.
+   */
+  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
+  @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
+  @Test def test_LSBFirstSpan3Bytes() { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
 }

@@ -1074,6 +1074,20 @@ object XMLUtils {
   }
 
   /**
+   * Remove Comments
+   */
+
+  def removeComments(e: Node): Node = {
+    e match {
+      case Elem(prefix, label, attribs, scope, child @ _*) => {
+        val newChildren = child.filterNot { _.isInstanceOf[Comment] }.map { removeComments(_) }
+        Elem(prefix, label, attribs, scope, true, newChildren: _*)
+      }
+      case x => x
+    }
+  }
+
+  /**
    * Removes attributes associated xmlns quasi-attributes.
    *
    * If a sequence of namespaces are given, only those attributes and scopes in

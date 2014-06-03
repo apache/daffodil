@@ -266,6 +266,6 @@ class TestBinaryInput_01 {
     val in = Misc.byteArrayToReadableByteChannel(BigInt(0xE4567A).toByteArray)
     val inStream = InStream.fromByteChannel(null, in, 1, -1, msbFirst)
     val bit1 = inStream.getLong(13, 12, LE, lsbFirst)
-    assertEquals(0x2B3, bit1)
+    assertEquals(0x2B7, bit1)
   }
 }

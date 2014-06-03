@@ -141,24 +141,18 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
       try {
         val (start1, nBits) = getBitLength(start0)
         val (start, bo) = getByteOrder(start1)
-        //if (start.bitLimit != -1L && (start.bitLimit - start.bitPos < nBits)) PE(start, "Not enough bits to create an xs:" + primName)
-
+        if (start.bitLimit0b != -1L && (start.bitLimit0b - start.bitPos0b < nBits)) {
+          return PE(start, "Insufficient bits to create an xs:" + primName)
+        }
         val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
         val newPos = start.bitPos + nBits
-        //if (GramName == "hexBinary") {
-        //  val bytes = value.asInstanceOf[Array[Byte]]
-        //  var asString: StringBuilder = new StringBuilder()
-        //  for (i <- 0 until bytes.length) {
-        //    val byte = String.format("%02X", bytes(i).asInstanceOf[java.lang.Byte])
-        //    asString.append(byte)
-        //  }
-        //  start.parentElement.setDataValue(asString.toString())
-        //} else
         val convertedValue: T = convertValue(value, nBits.toInt)
         start.parentElement.setDataValue(convertValueToString(convertedValue))
         start.withPos(newPos, -1, Nope)
       } catch {
-        case e: IndexOutOfBoundsException => { return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage()) }
+        case e: IndexOutOfBoundsException => {
+          return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
+        }
         case u: UnsuppressableException => throw u
         case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
       }
@@ -280,5 +274,4 @@ class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lo
     n.underlying.toPlainString
   }
 }
-
 

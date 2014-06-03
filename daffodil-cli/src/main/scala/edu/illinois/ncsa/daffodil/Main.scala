@@ -672,7 +672,7 @@ object Main extends Logging {
                   // see how big it is. We do this after execution so as
                   // not to traverse the data twice.
                   val lengthInBytes = parseResult.resultState.lengthInBytes
-                  val positionInBytes = loc.bytePos
+                  val positionInBytes = loc.bytePos1b
                   if (positionInBytes != lengthInBytes) {
                     log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
                     true

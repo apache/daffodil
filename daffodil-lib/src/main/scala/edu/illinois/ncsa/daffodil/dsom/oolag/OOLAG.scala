@@ -102,14 +102,14 @@ object OOLAG extends Logging {
   // private[oolag] 
   trait OOLAGRethrowException extends Exception with OOLAGException {
     self: Exception =>
-    def cause: Option[Throwable]
+    def cause1: Option[Throwable]
   }
 
   // private [oolag] 
   case class AlreadyTried(val lv: OOLAGValue)
     extends Exception() with OOLAGRethrowException {
     override def getMessage() = lv.toString
-    val cause = None
+    override val cause1 = None
   }
 
   /**
@@ -120,7 +120,7 @@ object OOLAG extends Logging {
   // that are not being seen until runtime.
   case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAGValue)
     extends Exception(th) with OOLAGRethrowException {
-    val cause = Some(th)
+    override val cause1 = Some(th)
   }
 
   protected case class CircularDefinition(val lv: OOLAGValue, list: Seq[OOLAGValue]) extends Exception with OOLAGException {

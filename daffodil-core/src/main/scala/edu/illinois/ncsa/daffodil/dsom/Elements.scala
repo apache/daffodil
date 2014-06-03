@@ -876,9 +876,19 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
   }
 
   /**
-   * To avoid ambiguity when parsing, optional elements and variable-occurrence arrays
-   * where the minimum number of occurrences is zero cannot have alignment properties
-   * different from the items that follow them. It is a schema definition error otherwise.
+   * Changed to a warning - DFDL WG decided to make this check optional, but it
+   * is still useful as a warning.
+   *
+   * Turns out that MIL STD 2045 header format needs to pad out to a byte boundary
+   * at the end of the structure. An optional, non-byte aligned field precedes
+   * the end of the structure; hence, putting a zero-length byte-aligned field
+   * at the end was crashing into this error. I couldn't think of a work-around,
+   * so changed this into a warning.
+   *
+   * The old requirement was:
+   *   To avoid ambiguity when parsing, optional elements and variable-occurrence arrays
+   *   where the minimum number of occurrences is zero cannot have alignment properties
+   *   different from the items that follow them. It is a schema definition error otherwise.
    *
    * Part of the required evaluations for LocalElementBase.
    */
@@ -887,7 +897,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
       this.couldBeNext.filterNot(m => m == thisTermNoRefs).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
         if (!isSame) {
-          this.SDE("%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
+          this.SDW("%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
             this, this.alignmentValueInBits, that, that.alignmentValueInBits)
         }
       }

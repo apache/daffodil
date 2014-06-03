@@ -139,7 +139,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   val isHidden = context.isHidden
 
-  def parser: Parser = new StatementElementParser(context, new ElementBeginParser(context),  new ElementEndParser(context))
+  def parser: Parser = new StatementElementParser(context, new ElementBeginParser(context), new ElementEndParser(context))
 
   def unparser: Unparser = new Unparser(context) {
     def unparse(start: UState): UState = {
@@ -175,10 +175,16 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   class ElementBeginParser(context: ElementBase) extends PrimParser(this, context) {
     def parse(pstate: PState): PState = parseElementBegin(pstate)
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<ElementBegin name='" + context.name + "'/>"
+    }
   }
 
   class ElementEndParser(context: ElementBase) extends PrimParser(this, context) {
     def parse(pstate: PState): PState = parseElementEnd(pstate)
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      "<ElementEnd name='" + context.name + "'/>"
+    }
   }
 
   class StatementElementParser(context: ElementBase, beginParser: Parser, endParser: Parser) extends PrimParser(this, context) {
@@ -188,7 +194,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<Element>" +
+        "<Element name='" + context.name + "'>" +
           patDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           patAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           eParser.toBriefXML(depthLimit - 1) +
@@ -196,7 +202,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
           testDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           testAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           eAfterParser.toBriefXML(depthLimit - 1) +
-          "</Element>"
+          "</Element name='" + context.name + "'>"
     }
 
     val patDiscrimParser = patDiscrim.map(_.parser)

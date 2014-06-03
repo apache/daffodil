@@ -122,6 +122,17 @@ case class PState(
   val mpstate: MPState)
   extends DFDL.State with ThrowsSDE {
 
+  // TODO: many off-by-one errors due to not keeping strong separation of 
+  // one-based and zero-based indexes.
+  // 
+  // We could separate these with the type system.
+  //
+  // So implement a OneBasedBitPos and ZeroBasedBitPos value class with
+  // operations that convert between them, allow adding & subtracting only
+  // in sensible ways, etc. 
+  def bitPos = bitPos0b
+  def bytePos = bytePos0b
+
   def duplicate() = {
     val res = copy()
     res.inStream = inStream.duplicate()
@@ -137,11 +148,14 @@ case class PState(
     discriminatorStack = other.discriminatorStack
   }
 
-  def bytePos = bitPos >> 3
-  def whichBit = bitPos % 8
+  def bytePos0b = bitPos0b >> 3
+  def bytePos1b = (bitPos0b >> 3) + 1
+  def bitPos1b = bitPos0b + 1
+  def bitLimit1b = bitLimit0b + 1
+  def whichBit = bitPos0b % 8
 
   override def toString() = {
-    "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
+    "PState( bitPos=%s charPos=%s status=%s )".format(bitPos0b, charPos, status)
   }
   def getContext(): ElementBase = {
     // Assumes that a JDOM element was already created
@@ -199,12 +213,12 @@ case class PState(
   }
 
   def discriminator = discriminatorStack.head
-  def currentLocation: DataLocation = new DataLoc(bitPos, bitLimit, inStream)
+  def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, inStream)
   // def inStreamState = inStreamStateStack top
-  def bitPos = inStream.bitPos
-  def bitLimit = inStream.bitLimit
-  def charPos = inStream.charPos
-  def charLimit = inStream.charLimit
+  def bitPos0b = inStream.bitPos0b
+  def bitLimit0b = inStream.bitLimit0b
+  def charPos = inStream.charPos0b
+  def charLimit = inStream.charLimit0b
   def parentElement = infoset.asInstanceOf[InfosetElement]
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
   def textReader = inStream.reader
@@ -219,10 +233,10 @@ case class PState(
   //    copy(inStream = newInStream, status = newStatus)
   //  }
 
-  def withEndBitLimit(bitLimit: Long, newStatus: ProcessorResult = this.status) = {
-    if (bitLimit == inStream.bitLimit) { this } // already have this bitLimit.
+  def withEndBitLimit(bitLimit0b: Long, newStatus: ProcessorResult = this.status) = {
+    if (bitLimit0b == inStream.bitLimit0b) { this } // already have this bitLimit.
     else {
-      var newInStream = inStream.withEndBitLimit(bitLimit)
+      var newInStream = inStream.withEndBitLimit(bitLimit0b)
       // copy(inStream = newInStream, status = newStatus)
       this.inStream = newInStream
       this.status = newStatus
@@ -320,7 +334,8 @@ case class PState(
    */
 
   def withBitOrder(bitOrder: BitOrder) = {
-    schemaDefinitionUnless((bitPos % 8) == 1, "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position mod 8 is %s.", bitPos)
+    schemaDefinitionUnless((bitPos1b % 8) == 1,
+      "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position (1 based) mod 8 is %s.", bitPos1b)
     copy(inStream = inStream.withBitOrder(bitOrder))
   }
 }

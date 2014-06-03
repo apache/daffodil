@@ -107,7 +107,9 @@ import scala.language.postfixOps
  * rejects the TDML file itself.
  */
 
-class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true, val validateDFDLSchemas: Boolean = true)
+class DFDLTestSuite(aNodeFileOrURL: Any,
+  validateTDMLFile: Boolean = true,
+  val validateDFDLSchemas: Boolean = true)
   extends Logging {
 
   val errorHandler = new org.xml.sax.ErrorHandler {
@@ -288,7 +290,12 @@ class DFDLTestSuite(aNodeFileOrURL: Any, validateTDMLFile: Boolean = true, val v
   def findTDMLResource(fileName: String): Option[File] = {
     // try it as is. Maybe it will be in the cwd or relative to that or absolute
     val firstTry = new File(fileName)
-    if (firstTry.exists()) return Some(firstTry)
+    if (firstTry.exists()) {
+      // it exists, but since validation may use this for defaulting other
+      // files, we really do need it to have the directory part.
+      val fileWithDir = firstTry.getAbsoluteFile()
+      return Some(fileWithDir)
+    }
     // see if it can be found relative to the tdml test file, like next to it.
     val sysId = tsInputSource.getSystemId()
     if (sysId != null) {
@@ -846,7 +853,6 @@ case object RTL extends ByteOrderType
 case object LTR extends ByteOrderType
 
 case class Document(d: NodeSeq, parent: TestCase) {
-
   lazy val documentExplicitBitOrder = (d \ "@bitOrder").toString match {
     case "LSBFirst" => Some(LSBFirst)
     case "MSBFirst" => Some(MSBFirst)
@@ -1126,7 +1132,10 @@ class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 
   // lazy val bitContentToBytes = bits2Bytes(bitDigits).toList
 
-  lazy val bitDigits = partRawContent.split("[^01]").mkString
+  lazy val bitDigits = {
+    val res = partRawContent.split("[^01]").mkString
+    res
+  }
 
   lazy val dataBits = partByteOrder match {
     case LTR => {
@@ -1146,7 +1155,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
   override lazy val nBits = -1L // signifies we do not know how many.
 
   lazy val fileDataInput = {
-    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent)
+    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent.trim())
     val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
     val fis = new FileInputStream(file)
     val rbc = fis.getChannel()

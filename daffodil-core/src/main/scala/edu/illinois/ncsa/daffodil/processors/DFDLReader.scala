@@ -226,7 +226,7 @@ trait DFDLCharReader
   def getCharsetName: String
   def characterPos: Int
   def charset: Charset
-  def bitLimit: Long
+  def bitLimit0b: Long
   /**
    * Returns string
    */
@@ -262,7 +262,7 @@ class DFDLUTStringReader private (rdr: Reader[Char])
   def getCharsetName = Assert.usageError("not to be used in test reader")
   def characterPos = Assert.usageError("not to be used in test reader")
   def charset = Assert.usageError("not to be used in test reader")
-  def bitLimit = -1
+  def bitLimit0b = -1
 }
 
 // TODO: make this global singleton go away!
@@ -284,7 +284,7 @@ object DFDLCharCounter {
  */
 class DFDLPagedSeqCharReader(charsetArg: Charset,
   val startingBitPos: Int,
-  bitLimitArg: Long,
+  bitLimitArg0b: Long,
   psc: PagedSeq[Char],
   override val offset: Int,
   psb: PagedSeq[Byte])
@@ -294,7 +294,7 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   Assert.usage(startingBitPos >= 0)
 
   val charset = charsetArg
-  val bitLimit = bitLimitArg
+  val bitLimit0b = bitLimitArg0b
 
   override lazy val source: CharSequence = psc
 
@@ -307,24 +307,24 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   }
 
   def rest: DFDLCharReader =
-    if (psc.isDefinedAt(offset)) new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, offset + 1, psb)
+    if (psc.isDefinedAt(offset)) new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, offset + 1, psb)
     else this
 
   def atEnd: Boolean = !psc.isDefinedAt(offset)
 
   def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
 
-  override def drop(n: Int): DFDLCharReader = new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, offset + n, psb)
+  override def drop(n: Int): DFDLCharReader = new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, offset + n, psb)
 
   def atCharPos(characterPos: Int): DFDLCharReader = {
     if (characterPos == this.characterPos) this
-    else new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit, psc, characterPos, psb)
+    else new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, characterPos, psb)
   }
 
   // We really want to be able to ask for a CharReader starting at said bitPos
   def atBitPos(bitPos: Long): DFDLCharReader = {
     log(LogLevel.Debug, "creating new DFDLCharReader.atBytePos(%s)", (bitPos >> 3))
-    new DFDLPagedSeqCharReader(charset, startingBitPos = bitPos.toInt, bitLimit, psc, characterPos, psb)
+    new DFDLPagedSeqCharReader(charset, startingBitPos = bitPos.toInt, bitLimit0b, psc, characterPos, psb)
   }
 
   def getCharsetName: String = charset.name()
@@ -338,7 +338,7 @@ class DFDLPagedSeqCharReader(charsetArg: Charset,
   }
 
   override def toString = {
-    "DFDLCharReader starting at bitPos " + startingBitPos + " charPos " + characterPos + " bitLimit " + bitLimit
+    "DFDLCharReader starting at bitPos0b " + startingBitPos + " charPos0b " + characterPos + " bitLimit0b " + bitLimit0b
   }
 
 }

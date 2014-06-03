@@ -37,14 +37,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.File;
 
 import org.jdom2.output.Format;
 import org.junit.Test;
 
-import edu.illinois.ncsa.daffodil.japi.Compiler;
 import edu.illinois.ncsa.daffodil.japi.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.Daffodil;
 import edu.illinois.ncsa.daffodil.japi.DataProcessor;
@@ -75,7 +74,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(true);
 		Daffodil.setDebugger(debugger);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -99,8 +98,8 @@ public class TestJavaAPI {
 			System.err.println(d.getMessage());
 		}
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 
 		for (String e : lw.errors)
 			System.err.println(e);
@@ -130,7 +129,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Info);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
@@ -182,7 +181,7 @@ public class TestJavaAPI {
 	 */
 	@Test
 	public void testJavaAPI3() throws IOException {
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
@@ -207,10 +206,10 @@ public class TestJavaAPI {
 		}
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
-		assertEquals(1, res.location().bytePos());
-		assertEquals(8, res.location().bitPos());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		assertEquals(2, res.location().bytePos1b());
+		assertEquals(9, res.location().bitPos1b());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	/*
@@ -237,7 +236,7 @@ public class TestJavaAPI {
 
 	@Test
 	public void testJavaAPI4b() throws IOException {
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
@@ -262,15 +261,15 @@ public class TestJavaAPI {
 		}
 		assertFalse(err);
 		assertFalse(res.location().isAtEnd());
-		assertEquals(4, res.location().bytePos());
-		assertEquals(32, res.location().bitPos());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		assertEquals(5, res.location().bytePos1b());
+		assertEquals(33, res.location().bitPos1b());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	@Test
 	public void testJavaAPI5() throws IOException {
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
@@ -298,10 +297,10 @@ public class TestJavaAPI {
 		assertFalse(err);
 		assertTrue("Assertion failed: End of data not reached.", res.location()
 				.isAtEnd());
-		assertEquals(4, res.location().bytePos());
-		assertEquals(32, res.location().bitPos());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		assertEquals(5, res.location().bytePos1b());
+		assertEquals(33, res.location().bitPos1b());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 	}
 
 	/***
@@ -317,7 +316,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[4];// String[]
 															// schemaFileNames =
@@ -357,7 +356,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
@@ -409,7 +408,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
@@ -456,7 +455,7 @@ public class TestJavaAPI {
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
@@ -494,7 +493,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI10() throws IOException {
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema4.dfdl.xsd");
@@ -529,7 +528,7 @@ public class TestJavaAPI {
 	@Test
 	public void testJavaAPI11() throws IOException {
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema5.dfdl.xsd");
@@ -580,7 +579,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(true);
 		Daffodil.setDebugger(debugger);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 
 		java.io.File[] schemaFiles = new java.io.File[2];
@@ -605,8 +604,8 @@ public class TestJavaAPI {
 			System.err.println(d.getMessage());
 		}
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 
 		for (String e : lw2.errors)
 			System.err.println(e);
@@ -639,7 +638,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(true);
 		Daffodil.setDebugger(debugger);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File extVarsFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File[] schemaFiles = new java.io.File[2];
@@ -705,7 +704,7 @@ public class TestJavaAPI {
 		Daffodil.setDebugging(true);
 		Daffodil.setDebugger(debugger);
 
-		Compiler c = Daffodil.compiler();
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File extVarFile = getResource("/test/japi/external_vars_1.xml");
 		java.io.File[] schemaFiles = new java.io.File[2];
@@ -737,8 +736,8 @@ public class TestJavaAPI {
 			System.err.println(d.getMessage());
 		}
 		assertTrue(res.location().isAtEnd());
-		System.err.println("bitPos = " + res.location().bitPos());
-		System.err.println("bytePos = " + res.location().bytePos());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
 
 		for (String e : lw.errors)
 			System.err.println(e);

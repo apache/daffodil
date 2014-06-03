@@ -85,8 +85,8 @@ trait Diagnostic extends Throwable with HasIsError {
 trait DataLocation {
   def toString: String
   def isAtEnd: Boolean
-  def bitPos: Long
-  def bytePos: Long
+  def bitPos1b: Long
+  def bytePos1b: Long
 }
 
 /**

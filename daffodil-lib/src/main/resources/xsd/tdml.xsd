@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:sub="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.ibm.com/xmlns/dfdl/testData"
-	xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData" elementFormDefault="unqualified"
-	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
+<xsd:schema 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData"
+  elementFormDefault="unqualified" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
+  http://www.w3.org/2001/XMLSchema XMLSchema_for_DFDL.xsd
+  urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext dafext.xsd">
 
-	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
+	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" 
+        schemaLocation="XMLSchema_for_DFDL.xsd"/>
 	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
-		schemaLocation="DFDL_model_all_parts.xsd" />
+		schemaLocation="xsd/DFDL_part3_model.xsd" />
 	<xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
 	    schemaLocation="dafext.xsd" />
 

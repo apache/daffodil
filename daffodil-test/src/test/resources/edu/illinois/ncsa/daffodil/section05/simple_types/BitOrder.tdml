@@ -8,9 +8,10 @@
 
   <tdml:defineSchema name="s">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
-      lengthUnits="bits" bitOrder='leastSignificantBitFirst' />
+      lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
+      byteOrder='littleEndian' alignmentUnits='bits' alignment='1'/>
 
-    <xs:element name="tabBI">
+    <xs:element name="tabBI" dfdl:lengthKind='implicit' >
       <xs:complexType>
         <xs:sequence>
           <xs:element name="Version" type="xs:unsignedInt"
@@ -35,8 +36,43 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="ver" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="URN" type="xs:unsignedInt" dfdl:length="24" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="span3Bytes" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="before" type="xs:unsignedInt" dfdl:length="5" />
+          <xs:element name="middle" type="xs:unsignedInt" dfdl:length="13" />
+          <xs:element name="after" type="xs:unsignedInt" dfdl:length="6" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
 
   </tdml:defineSchema>
+
+ <tdml:parserTestCase name="TestMIL2045_47001D_1"
+    root="ver" model="s" description="Verification that user's test works for DFDL-677">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="RTL">URN  X0000000 00000000 01100111 1XXX XXXX</documentPart>      
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <ver>
+          <URN>207</URN>
+        </ver>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 
   <tdml:parserTestCase name="TestMIL2045_47001D_Page70_TableB_I_with_string"
     root="tabBI" model="s" description="Verification that user's test works for DFDL-677">
@@ -74,5 +110,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-
+ <tdml:parserTestCase name="TestLSBFirstSpan3Bytes"
+    root="span3Bytes" model="s" description="13 bits from the middle of a 24 bit field">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="RTL">010110|10 00110111 011|10001</documentPart>      
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <span3Bytes>
+          <before>17</before>
+          <middle>4539</middle>
+          <after>22</after>
+        </span3Bytes>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
 </tdml:testSuite>

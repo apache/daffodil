@@ -211,7 +211,7 @@ class DFDLCatalogResolver
     val resolvedSystem = delegate.resolveSystem(systemId)
 
     // An Include in a schema with a target namespace should resolve to the systemId and ignore the nsURI
-    // because the nsURI will reolve to the including schema file.
+    // because the nsURI will resolve to the including schema file.
     // This will cause the including schema to be repeatedly parsed resulting in a stack overflow.
 
     val resolvedId = {
@@ -222,8 +222,6 @@ class DFDLCatalogResolver
       } else
         null // We were unable to resolve the file based on the URI or systemID, so we will return null. 
     }
-
-    log(LogLevel.Debug, "resolved to: %s", resolvedId)
 
     val result: LSInput = (resolvedId, systemId) match {
       case (null, null) => Assert.invariantFailed("resolvedId and systemId were null.")
@@ -272,6 +270,7 @@ class DFDLCatalogResolver
         input
       }
     }
+    log(LogLevel.Debug, "resolved to: %s", result)
 
     result
   }

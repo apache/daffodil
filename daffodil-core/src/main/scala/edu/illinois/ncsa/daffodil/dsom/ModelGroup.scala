@@ -303,7 +303,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
                     case Some(e: LocalElementBase) if e.isOptional => Seq(e) ++ e.couldBeNext
                     case Some(e: LocalElementBase) => Seq(e)
                     case Some(gb: GroupBase) => Seq(gb.group)
-                    case None => Assert.impossibleCase
+                    case None => Nil
                   }
                 nextMembers
               }

@@ -1030,8 +1030,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current bit limit"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.bitLimit != -1) {
-            debugPrintln("%s: %d".format(name, state.bitLimit))
+          if (state.bitLimit0b != -1) {
+            debugPrintln("%s: %d".format(name, state.bitLimit0b))
           } else {
             debugPrintln("%s: no bit limit set".format(name))
           }
@@ -1172,7 +1172,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           debugPrintln("%s:".format(name))
           var diff = false
           if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
-          if (prestate.bitLimit != state.bitLimit) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit, state.bitLimit), "  "); diff = true }
+          if (prestate.bitLimit0b != state.bitLimit0b) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit0b, state.bitLimit0b), "  "); diff = true }
           if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
           if (prestate.mpstate.arrayPos != state.mpstate.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.mpstate.arrayPos, state.mpstate.arrayPos), "  "); diff = true }
           if (prestate.mpstate.groupPos != state.mpstate.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.mpstate.groupPos, state.mpstate.groupPos), "  "); diff = true }

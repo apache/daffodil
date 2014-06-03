@@ -82,8 +82,8 @@ case class InStreamFixedWidthTextOnly(
   override def offset: Int = cPos0b
 
   def context = info.context
-  def charLimit = info.bitLimit / info.bitsPerChar
-  def bitPos = cPos0b * info.bitsPerChar
+  override def charLimit0b = info.bitLimit / info.bitsPerChar
+  override def bitPos0b = cPos0b * info.bitsPerChar
 
   lazy val first = {
     Assert.invariant(cPos0b <= info.cBuf.limit)
@@ -124,9 +124,9 @@ case class InStreamFixedWidthTextOnly(
   lazy val characterPos = cPos0b // zero based
 
   def charset = Assert.usageError("not to be used in test reader")
-  def bitLimit = info.bitLimit
+  override def bitLimit0b = info.bitLimit
 
-  override def charPos: Long = cPos0b
+  override def charPos0b: Long = cPos0b
   override val reader: Maybe[DFDLCharReader] = One(this)
 
   def withPos(newBitPos0b: Long, newCharPos0b: Long, reader: Maybe[DFDLCharReader]): InStream = {
@@ -138,10 +138,9 @@ case class InStreamFixedWidthTextOnly(
     if (reader.isDefined) {
       if (reader.get.isInstanceOf[InStreamFixedWidthTextOnly]) {
         Assert.invariant(reader.get.asInstanceOf[InStreamFixedWidthTextOnly].info == info)
-      }
-      else Assert.invariantFailed("not same inStream/reader")
+      } else Assert.invariantFailed("not same inStream/reader")
     }
-    
+
     atBitPos(newBitPos0b)
   }
 
