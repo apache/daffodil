@@ -33,32 +33,5 @@ package edu.illinois.ncsa.daffodil.processors
  */
 
 import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 
-abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
-  extends Terminal(e, guard) {
-  override def toString = "Prim[" + name + "]"
-  def parser: DaffodilParser = DummyParser(e)
-  def unparser: Unparser = DummyUnparser(e)
-
-}
-
-// base stub classes
-
-case class NoValue(e: GlobalElementDecl, guard: Boolean = true) extends Primitive(e, guard)
-
-case class SaveInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard)
-
-case class SetEmptyInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard)
-
-case class RestoreInputStream(e: ElementBase, guard: Boolean = true) extends Primitive(e, guard)
-
-case class NotStopValue(e: ElementBase with LocalElementMixin) extends Primitive(e, e.hasStopValue)
-
-case class StopValue(e: ElementBase with LocalElementMixin) extends Primitive(e, e.hasStopValue)
-
-case class TheDefaultValue(e: ElementBase) extends Primitive(e, e.isDefaultable)
-
-case class UnicodeByteOrderMark(e: GlobalElementDecl) extends Primitive(e, false)
-
+case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)

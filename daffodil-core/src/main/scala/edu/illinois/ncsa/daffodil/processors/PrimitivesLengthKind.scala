@@ -37,14 +37,11 @@ import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
 import scala.util.parsing.input.Reader
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
-import edu.illinois.ncsa.daffodil.dsom.R
-import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
+import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.dfa.DFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
@@ -59,6 +56,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.Registers
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -861,3 +859,24 @@ case class LiteralNilDelimitedEndOfDataDynamic(eb: ElementBase)
   extends LiteralNilDelimitedEndOfData(eb) with DynamicDelim {
   val isDelimRequired: Boolean = false
 }
+
+case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
+
+class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
+
+  val sepParser = sep.parser
+
+  def parser: DaffodilParser = new PrimParser(this, term) {
+
+    override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
+
+    def parse(start: PState): PState = {
+      if (start.arrayPos > 1) sepParser.parse1(start, term)
+      else if (start.groupPos > 1) sepParser.parse1(start, term)
+      else start
+    }
+  }
+
+  def unparser = DummyUnparser(term)
+}
+
