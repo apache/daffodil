@@ -48,7 +48,8 @@ class TestPCAP {
   val aa = testDir + "pcap.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_pcap_test() { runner.runOneTest("pcap_test") }
-  @Test def test_pcap_test_2() { runner.runOneTest("pcap_test_2") }
+  @Test def test_pcap_test_dns() { runner.runOneTest("pcap_test_dns") }
+  @Test def test_pcap_test_http_ipv6() { runner.runOneTest("pcap_test_http_ipv6") }
+  @Test def test_pcap_test_icmp() { runner.runOneTest("pcap_test_icmp") }
 
 }
