@@ -49,7 +49,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
   extends OOLAGHost(contextArg) {
 
-  lazy val prims = context.prims
+  //lazy val prims = context.prims
 
   def rethrowAsDiagnostic(th: Throwable) = contextArg.rethrowAsDiagnostic(th)
 

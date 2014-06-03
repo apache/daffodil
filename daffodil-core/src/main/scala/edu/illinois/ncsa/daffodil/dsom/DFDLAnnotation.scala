@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors.VariableFactory
+import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
@@ -614,8 +614,8 @@ class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   lazy val gram = gram_.value
   private val gram_ = LV('gram) {
     testKind match {
-      case TestKind.Pattern => prims.AssertPatternPrim(decl, this)
-      case TestKind.Expression => prims.AssertBooleanPrim(decl, this)
+      case TestKind.Pattern => AssertPatternPrim(decl, this)
+      case TestKind.Expression => AssertBooleanPrim(decl, this)
     }
   }
 }
@@ -625,8 +625,8 @@ class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   lazy val gram = gram_.value
   private val gram_ = LV('gram) {
     testKind match {
-      case TestKind.Pattern => prims.DiscriminatorPatternPrim(decl, this)
-      case TestKind.Expression => prims.DiscriminatorBooleanPrim(decl, this)
+      case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
+      case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
     }
   }
 }
@@ -665,8 +665,8 @@ class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
 
-  lazy val gram: Gram = prims.NewVariableInstanceStart(decl, this)
-  lazy val endGram: Gram = prims.NewVariableInstanceEnd(decl, this)
+  lazy val gram: Gram = NewVariableInstanceStart(decl, this)
+  lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
 
   lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
   lazy val expName = XMLUtils.expandedQName(uri, localName)
@@ -697,7 +697,7 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
 
   lazy val gram = gram_.value
   private val gram_ = LV('gram) {
-    prims.SetVariable(decl, this)
+    SetVariable(decl, this)
   }
 }
 
