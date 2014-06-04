@@ -901,26 +901,22 @@ trait ElementBaseGrammarMixin
 
   lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
 
-  lazy val dfdlElementBegin = Prod("dfdlElementBegin", this, {
-    if (this.isParentUnorderedSequence) ChoiceElementBegin(this)
-    else ElementBegin(this)
-  })
-
-  lazy val dfdlElementEnd = Prod("dfdlElementEnd", this, {
-    if (this.isParentUnorderedSequence) ChoiceElementEnd(this)
-    else {
-      if (isRepresented) ElementEnd(this)
-      else ElementEndNoRep(this)
-    }
-  })
 
   //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
   //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
   //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
 
+  //  lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
+  //    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
+  //      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
+
   lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
-    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
+    if (this.isParentUnorderedSequence)
+      ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd)
+    else
+      ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+        scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd))
 
   //  def scalarDefaultable: Prod
   //
@@ -937,16 +933,23 @@ trait ElementBaseGrammarMixin
       case _: Found => inputValueCalcElement
     })
 
+  //  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
+  //    isSimpleType && inputValueCalcOption.isInstanceOf[Found],
+  //    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
+  //      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
+
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption.isInstanceOf[Found],
-    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
-      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
+    ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      InputValueCalc(self), elementRightFraming ~ dfdlScopeEnd))
 
-  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this, {
-    val res = StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-      scalarDefaultableContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd
-    res
-  })
+  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
+    if (this.isParentUnorderedSequence)
+      ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
+    else
+      ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd))
 
 }
 
