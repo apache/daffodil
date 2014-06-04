@@ -188,8 +188,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
   private def isInteresting(parser: Parser): Boolean = {
     parser.toString match {
-      case "SequenceCombinator" => false
-      case "ComplexTypeCombinator" => false
+      case "Sequence" => false
+      case "ComplexType" => false
       case _ => {
         if (parser.toString.startsWith("<seq>")) {
           false
@@ -991,7 +991,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursCount, InfoParser, InfoPath)
+      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoPath)
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         args.size match {
           case 0 => throw new DebugException("one or more commands are required")
@@ -1284,14 +1284,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         }
       }
 
-      object InfoOccursCount extends DebugCommand {
-        val name = "occursCount"
+      object InfoOccursBounds extends DebugCommand {
+        val name = "occursBounds"
         override lazy val short = "oc"
-        val desc = "display the current occurs count"
+        val desc = "display the current occurs bounds"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.occursCount != -1) {
-            debugPrintln("%s: %d".format(name, state.occursCount))
+          if (state.occursBounds != -1) {
+            debugPrintln("%s: %d".format(name, state.occursBounds))
           } else {
             debugPrintln("%s: occurs count not set".format(name))
           }

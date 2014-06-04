@@ -21,7 +21,7 @@ object DaffodilTunableParameters {
   // that we generate.
 
   def maxFieldContentLengthInBytes: Long = 1024 // Can be as large as Int.MaxValue
-  def occursCountMax: Long = 1024 // Can be as large as Int.MaxValue 
+  def maxOccursBounds: Long = 1024 // Can be as large as Int.MaxValue
   def maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
   def maxBinaryDecimalVirtualPoint: Int = 200 // Can be as large as Int.MaxValue
   def minBinaryDecimalVirtualPoint: Int = -200 // Can be as small as Int.MinValue

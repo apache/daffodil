@@ -80,8 +80,6 @@ case class PState(
   var infoset: InfosetItem,
   var variableMap: VariableMap,
   var status: ProcessorResult,
-  var arrayIndexStack: List[Long],
-  var occursCountStack: List[Long],
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
   var foundDelimiter: Option[FoundDelimiterText])
@@ -98,8 +96,6 @@ case class PState(
     infoset = other.infoset
     variableMap = other.variableMap
     status = other.status
-    arrayIndexStack = other.arrayIndexStack
-    occursCountStack = other.occursCountStack
     diagnostics = other.diagnostics
     discriminatorStack = other.discriminatorStack
     foundDelimiter = other.foundDelimiter
@@ -115,8 +111,14 @@ case class PState(
     Assert.usage(!ChildIndexStack.get.isEmpty)
     ChildIndexStack.get.top
   }
-  def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
-  def occursCount = if (occursCountStack != Nil) occursCountStack.head else -1
+  def arrayPos = {
+    Assert.usage(!ArrayIndexStack.get.isEmpty)
+    ArrayIndexStack.get.top
+  }
+  def occursBounds = {
+    Assert.usage(!OccursBoundsStack.get.isEmpty)
+    OccursBoundsStack.get.top
+  }
 
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
@@ -222,13 +224,6 @@ case class PState(
     this
   }
 
-  def withArrayIndexStack(newArrayIndexStack: List[Long], newStatus: ProcessorResult = Success) =
-    copy(arrayIndexStack = newArrayIndexStack, status = newStatus)
-  def setOccursCount(oc: Long) =
-    copy(occursCountStack = oc :: occursCountStack.tail)
-  def withOccursCountStack(ocs: List[Long]) =
-    copy(occursCountStack = ocs)
-
   def withValidationError(msg: String, args: Any*) = {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt), this, msg, args: _*)
@@ -296,19 +291,6 @@ case class PState(
     copy(foundDelimiter = None)
   }
 
-  // Need last state for Assertion Pattern
-  // def withLastState = copy(inStreamStateStack = inStreamStateStack.pop)
-
-  def moveOverOneArrayIndexOnly = {
-    arrayIndexStack match {
-      case Nil => this
-      case hd :: tl => {
-        val newArrayIndex = hd + 1
-        withArrayIndexStack(newArrayIndex :: tl)
-      }
-    }
-  }
-
   def captureInfosetElementState = parentElement.captureState()
 
   def restoreInfosetElementState(st: Infoset.ElementState) = parentElement.restoreState(st)
@@ -344,16 +326,18 @@ object PState {
     val doc = Infoset.newDocument()
     val variables = dataProc.getVariables
     val status = Success
-    val arrayIndexStack = Nil
-    val occursCountStack = Nil
     val diagnostics = Nil
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
     val foundDelimiter: Option[FoundDelimiterText] = None
     SchemaComponentRegistry.setup(scr)
     SchemaComponentRegistry.setup(dataProc)
-    val newState = PState(in, doc, variables, status,
-      arrayIndexStack, occursCountStack, diagnostics, List(false), foundDelimiter)
+    ArrayIndexStack.setup()
+    GroupIndexStack.setup()
+    ChildIndexStack.setup()
+    OccursBoundsStack.setup()
+
+    val newState = PState(in, doc, variables, status, diagnostics, List(false), foundDelimiter)
     newState
   }
 

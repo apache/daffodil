@@ -979,7 +979,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
 
   lazy val recurrance = Prod("recurrance", this,
     !isScalar,
-    StartArray(this) ~ arrayContents ~ EndArray(this) ~ FinalUnusedRegion(this))
+    ArrayCombinator(this, arrayContents) ~ FinalUnusedRegion(this))
 
   override lazy val asTermInChoice = {
     val res = Prod("asTermInChoice", this, nonSeparatedScalarDefaultable | recurrance)

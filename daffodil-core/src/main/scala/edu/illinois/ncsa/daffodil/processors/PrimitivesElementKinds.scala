@@ -48,15 +48,15 @@ import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, ct.element) {
-    override def toString = "ComplexTypeCombinator"
+    override def toString = "ComplexType"
     
     val bodyParser = body.parser
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<ComplexTypeCombinator>" +
+        "<ComplexType>" +
         bodyParser.toBriefXML(depthLimit - 1) +
-        "</ComplexTypeCombinator>"
+        "</ComplexType>"
     }
 
     def parse(start: PState): PState = {
@@ -68,7 +68,7 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
   }
 
   def unparser: Unparser = new Unparser(ct.element) {
-    override def toString = "ComplexTypeCombinator"
+    override def toString = "ComplexType"
 
     val bodyUnparser = body.unparser
 
@@ -96,21 +96,26 @@ object ChildIndexStack {
     cis.push(cis.pop + 1)
   }
 
+  def setup() {
+    tl.get.clear
+    tl.get.push(-1L)
+  }
+
   def get = tl.get()
 }
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, sq) {
-    override def toString = "SequenceCombinator"
+    override def toString = "Sequence"
 
     val bodyParser = body.parser
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<SequenceCombinator>" +
+        "<Sequence>" +
         bodyParser.toBriefXML(depthLimit - 1) +
-        "</SequenceCombinator>"
+        "</Sequence>"
     }
 
     def parse(start: PState): PState = {
@@ -123,7 +128,7 @@ case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !bo
   }
 
   def unparser: Unparser = new Unparser(sq) {
-    override def toString = "SequenceCombinator"
+    override def toString = "Sequence"
 
     def unparse(start: UState): UState = {
       val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
@@ -147,64 +152,40 @@ object GroupIndexStack {
     gis.push(gis.pop + 1)
   }
 
+  def setup() {
+    tl.get.clear
+    tl.get.push(-1L)
+  }
+
   def get = tl.get()
 }
 
-//case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
-//
-//  def parser: DaffodilParser = new PrimParser(this, sq) {
-//    override def toString = "EndSequence"
-//
-//    def parse(start: PState): PState = {
-//      // When we end a sequence group, we have created a group child in the parent
-//      // so we advance that index. 
-//      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
-//      postState
-//    }
-//  }
-//
-//  def unparser: Unparser = new Unparser(sq) {
-//    override def toString = "EndSequence"
-//
-//    def unparse(start: UState): UState = {
-//      val postState = start.withGroupIndexStack(start.groupIndexStack.tail).moveOverOneGroupIndexOnly
-//      postState
-//    }
-//  }
-//}
-
-case class StartArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
+case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, e) {
-    override def toString = "StartArray"
+    override def toString = "Array"
+
+    val bodyParser = body.parser
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      if (depthLimit == 0) "..." else
+        "<Array>" +
+        bodyParser.toBriefXML(depthLimit - 1) +
+        "</Array>"
+    }
 
     def parse(start: PState): PState = {
-      val postState1 = start.withArrayIndexStack(1L :: start.arrayIndexStack)
-      val postState2 = postState1.withOccursCountStack(DaffodilTunableParameters.occursCountMax :: postState1.occursCountStack)
-      postState2
-    }
-  }
 
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "StartArray"
+      ArrayIndexStack.get.push(1L)
+      OccursBoundsStack.get.push(DaffodilTunableParameters.maxOccursBounds)
 
-    def unparse(start: UState): UState = {
-      val postState = start.withArrayIndexStack(1L :: start.arrayIndexStack)
-      postState
-    }
-  }
-}
+      val parseState = bodyParser.parse1(start, e)
+      if (parseState.status != Success) return parseState
 
-case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, guard) {
-
-  def parser: DaffodilParser = new PrimParser(this, e) {
-    override def toString = "EndArray"
-
-    def parse(start: PState): PState = {
       val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
-      val actualOccurs = start.arrayIndexStack.headOption
-      val postState1 = start.withArrayIndexStack(start.arrayIndexStack.tail)
-      val postState2 = postState1.withOccursCountStack(postState1.occursCountStack.tail)
+
+      val actualOccurs = ArrayIndexStack.get.pop()
+      OccursBoundsStack.get.pop()
 
       val finalState = {
         if (shouldValidate) {
@@ -213,44 +194,89 @@ case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, g
               val expectedMinOccurs = led.minOccurs
               val expectedMaxOccurs = led.maxOccurs
               val isUnbounded = expectedMaxOccurs == -1
-              val postValidationState = actualOccurs match {
-                case Some(o) => {
-                  val occurrence = o - 1
-                  val result =
-                    if (isUnbounded && occurrence < expectedMinOccurs)
-                      start.withValidationError("%s occurred '%s' times when it was expected to be a " +
-                        "minimum of '%s' and a maximum of 'UNBOUNDED' times.", e,
-                        occurrence, expectedMinOccurs)
-                    else if (!isUnbounded && (occurrence < expectedMinOccurs || occurrence > expectedMaxOccurs))
-                      start.withValidationError("%s occurred '%s' times when it was expected to be a " +
-                        "minimum of '%s' and a maximum of '%s' times.", e,
-                        occurrence, expectedMinOccurs, expectedMaxOccurs)
-                    else
-                      postState2
-
-                  result
-                }
-                case None => start.withValidationError("No occurrence found for %s when it was expected to be a " +
-                  "minimum of '%s' times and a maximum of '%s' times.", e,
-                  expectedMinOccurs, if (isUnbounded) "UNBOUNDED" else expectedMaxOccurs)
+              val occurrence = actualOccurs - 1
+              val postValidationState = {
+                if (isUnbounded && occurrence < expectedMinOccurs)
+                  parseState.withValidationError("%s occurred '%s' times when it was expected to be a " +
+                    "minimum of '%s' and a maximum of 'UNBOUNDED' times.", e,
+                    occurrence, expectedMinOccurs)
+                else if (!isUnbounded && (occurrence < expectedMinOccurs || occurrence > expectedMaxOccurs))
+                  parseState.withValidationError("%s occurred '%s' times when it was expected to be a " +
+                    "minimum of '%s' and a maximum of '%s' times.", e,
+                    occurrence, expectedMinOccurs, expectedMaxOccurs)
+                else
+                  parseState
               }
               postValidationState
             }
-            case _ => postState2
+          case _ => parseState
           }
-        } else postState2
+        } else {
+          parseState
+        }
       }
       finalState
     }
   }
 
   def unparser: Unparser = new Unparser(e) {
-    override def toString = "EndArray"
+    override def toString = "Array"
+
+    val bodyUnparser = body.unparser
 
     def unparse(start: UState): UState = {
-      val postState = start.withArrayIndexStack(start.arrayIndexStack.tail)
+      val preState = start.withArrayIndexStack(1L :: start.arrayIndexStack)
+
+      val unparseState = bodyUnparser.unparse(preState)
+      if (unparseState.status != Success) return unparseState
+
+      val postState = unparseState.withArrayIndexStack(unparseState.arrayIndexStack.tail)
       postState
     }
   }
+}
+
+object ArrayIndexStack {
+  private val tl = new ThreadLocal[Stack[Long]] {
+    override def initialValue = {
+      val s = new Stack[Long]
+      s.push(-1L)
+      s
+    }
+  }
+  def moveOverOneArrayIndexOnly = {
+    val ais = tl.get
+    ais.push(ais.pop + 1)
+  }
+
+  def setup() {
+    tl.get.clear
+    tl.get.push(-1L)
+  }
+
+  def get = tl.get()
+}
+
+object OccursBoundsStack {
+  private val tl = new ThreadLocal[Stack[Long]] {
+    override def initialValue = {
+      val s = new Stack[Long]
+      s.push(-1L)
+      s
+    }
+  }
+
+  def updateHead(ob: Long) = {
+    val obs = tl.get
+    obs.pop()
+    obs.push(ob)
+  }
+
+  def setup() {
+    tl.get.clear
+    tl.get.push(-1L)
+  }
+
+  def get = tl.get()
 }
 

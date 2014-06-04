@@ -55,10 +55,10 @@ abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends U
 
   abstract class RepParser(context: LocalElementBase, baseName: String) extends Parser(context) {
     def checkN(pstate: PState, n: Long): Option[PState] = {
-      if (n > DaffodilTunableParameters.occursCountMax) {
+      if (n > DaffodilTunableParameters.maxOccursBounds) {
         // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
         // after all....
-        Some(PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.occursCountMax))
+        Some(PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.maxOccursBounds))
       } else None
     }
 
@@ -122,7 +122,8 @@ class RepExactlyNPrim(context: LocalElementBase, n: Long, r: => Gram) extends Re
           val pNext = rParser.parse1(pResult, context)
           Debugger.afterRepetition(pResult, pNext, this)
           if (pNext.status != Success) return pNext // they all must succeed, otherwise we fail here.
-          pResult = pNext.moveOverOneArrayIndexOnly
+          ArrayIndexStack.moveOverOneArrayIndexOnly
+          pResult = pNext
         }
       }
       pResult
@@ -138,7 +139,7 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
 
     def parseAllRepeats(pstate: PState): PState = {
       var pResult = pstate
-      while (pResult.arrayIndexStack.head <= intN) {
+      while (pResult.arrayPos <= intN) {
         // Since each one could fail, each is a new point of uncertainty.
         val newpou = pResult.withNewPointOfUncertainty
         // 
@@ -167,7 +168,8 @@ class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extend
           pResult.restoreInfosetElementState(cloneNode)
           return pResult // success at prior state. 
         }
-        pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty
+        ArrayIndexStack.moveOverOneArrayIndexOnly
+        pResult = pNext.withRestoredPointOfUncertainty
       }
       pResult
     }
@@ -191,7 +193,8 @@ object Rep {
       val pNext = rParser.parse1(pResult, context)
       Debugger.afterRepetition(pResult, pNext, iParser)
       if (pNext.status != Success) return pNext // fail if we don't get them all 
-      pResult = pNext.moveOverOneArrayIndexOnly
+      ArrayIndexStack.moveOverOneArrayIndexOnly
+      pResult = pNext
     }
     pResult
   }
@@ -260,7 +263,8 @@ class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r)
             pResult.bytePos, e.prettyName)
         }
         priorResult = pNext.duplicate()
-        pResult = pNext.moveOverOneArrayIndexOnly.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
+        ArrayIndexStack.moveOverOneArrayIndexOnly
+        pResult = pNext.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
       }
       Assert.invariantFailed("Unbounded loop terminated wrong")
@@ -290,10 +294,11 @@ case class OccursCountExpression(e: ElementBase)
         priorElement.removeContent(pseudoElement) // TODO: faster way? This might involve searching. We should keep the index.
         val ocLong = oc.asInstanceOf[Long]
         if (ocLong < 0 ||
-          ocLong > DaffodilTunableParameters.occursCountMax) {
+          ocLong > DaffodilTunableParameters.maxOccursBounds) {
           return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", exprText, ocLong)
         }
-        postEvalState.setOccursCount(ocLong)
+        OccursBoundsStack.updateHead(ocLong)
+        postEvalState
       } catch {
         case u: UnsuppressableException => throw u
         case e: Exception =>
@@ -318,7 +323,7 @@ class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram)
   def parser = new RepParser(e, "AtMostOccursCount") {
     def parseAllRepeats(pstate: PState): PState = {
       // repeat either n times, or occursCount times if that's less than n.
-      val n = math.min(pstate.occursCount, e.minOccurs)
+      val n = math.min(pstate.occursBounds, e.minOccurs)
       Rep.loopExactlyTotalN(intN, rParser, pstate, e, this)
     }
   }
@@ -330,7 +335,7 @@ class RepExactlyTotalOccursCountPrim(e: LocalElementBase, r: => Gram) extends Re
 
   def parser = new RepParser(e, "ExactlyTotalOccursCount") {
     def parseAllRepeats(pstate: PState): PState = {
-      val ocInt = pstate.occursCount.toInt
+      val ocInt = pstate.occursBounds.toInt
       Rep.loopExactlyTotalN(ocInt, rParser, pstate, e, this)
     }
   }
