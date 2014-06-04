@@ -80,7 +80,6 @@ case class PState(
   var inStream: InStream,
   var infoset: InfosetItem,
   var variableMap: VariableMap,
-  var target: NS,
   var status: ProcessorResult,
   var arrayIndexStack: List[Long],
   var occursCountStack: List[Long],
@@ -101,7 +100,6 @@ case class PState(
     inStream = other.inStream
     infoset = other.infoset
     variableMap = other.variableMap
-    target = other.target
     status = other.status
     arrayIndexStack = other.arrayIndexStack
     occursCountStack = other.occursCountStack
@@ -350,7 +348,6 @@ object PState {
     val dataProcessor = dataProc
     val doc = Infoset.newDocument()
     val variables = dataProc.getVariables
-    val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val status = Success
     val arrayIndexStack = Nil
     val occursCountStack = Nil
@@ -358,7 +355,7 @@ object PState {
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
     val foundDelimiter: Option[FoundDelimiterText] = None
-    val newState = PState(scr, in, doc, variables, targetNamespace, status,
+    val newState = PState(scr, in, doc, variables, status,
       arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
     newState
   }
