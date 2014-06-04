@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 
 object ElementCombinator {
   def apply(context: ElementBase, eGram: Gram, eAfterGram: Gram) = {
@@ -45,7 +46,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   def parseElementEnd(pstate: PState): PState = {
     val currentElement = pstate.parentElement
 
-    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && context.isSimpleType) {
         // Execute checkConstraints
@@ -93,7 +94,7 @@ class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfter
   def parseElementEnd(pstate: PState): PState = {
     val currentElement = pstate.parentElement
 
-    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && context.isSimpleType) {
         // Execute checkConstraints

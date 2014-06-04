@@ -47,7 +47,7 @@ object NS {
 
   private val nsCache = scala.collection.mutable.Map[String, NS]()
 
-  def apply(nsString: String) = {
+  def apply(nsString: String): NS = {
     // null means NoNamespace. So does ""
     val s = if (nsString == null) "" else nsString
     val haveIt = nsCache.get(s)
@@ -61,6 +61,8 @@ object NS {
     }
   }
 
+  def apply (ns: org.jdom2.Namespace): NS = apply(ns.getURI().toString())
+  
   nsCache.put("", NoNamespace)
 }
 

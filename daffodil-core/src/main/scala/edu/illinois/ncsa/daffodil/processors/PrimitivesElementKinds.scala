@@ -201,7 +201,7 @@ case class EndArray(e: ElementBase, guard: Boolean = true) extends Terminal(e, g
     override def toString = "EndArray"
 
     def parse(start: PState): PState = {
-      val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
+      val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
       val actualOccurs = start.arrayIndexStack.headOption
       val postState1 = start.withArrayIndexStack(start.arrayIndexStack.tail)
       val postState2 = postState1.withOccursCountStack(postState1.occursCountStack.tail)

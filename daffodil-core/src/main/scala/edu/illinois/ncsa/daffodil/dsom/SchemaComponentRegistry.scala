@@ -32,10 +32,11 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.collection.mutable.HashMap
-import java.util.UUID
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import scala.collection.mutable.ArrayBuffer
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.api.DFDL
 
 /**
  * Used to navigate from the Infoset back to schema components relevant
@@ -43,14 +44,14 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  */
 class SchemaComponentRegistry {
 
-  val contextMap: HashMap[UUID, ElementBase] = HashMap.empty
-
-  def getComponentByID(uid: String): Option[ElementBase] = {
-    val ctxMap = contextMap
+  private val contextMap: ArrayBuffer[ElementBase] = ArrayBuffer.empty
+    
+  def getComponentByID(uid: Int): Option[ElementBase] = {
     // TODO: why this try/catch??
+    Assert.usage(uid >= 0)
+    Assert.usage(uid < contextMap.length)
     val res = try {
-      val uuid = UUID.fromString(uid)
-      ctxMap.get(uuid)
+      contextMap(uid)
     } catch {
       case u: UnsuppressableException => throw u
       case e: Exception => {
@@ -58,27 +59,58 @@ class SchemaComponentRegistry {
         // TODO: if the above never happens, eliminate the try/catch
       }
     }
-    res
+    Some(res)
   }
 
-  def addComponent(sc: ElementBase): String = {
-    val ctxMap = contextMap
-    val uuid = UUID.randomUUID()
-    ctxMap.put(uuid, sc)
-    uuid.toString
+  def getIDByName(name: String, ns: org.jdom2.Namespace) = {
+    val targetNS = NS(ns)
+    val index = contextMap.indexWhere(eb => eb.targetNamespace == targetNS && eb.name == name)
+    Assert.invariant(index >= 0)
+    index
+  }
+
+  def addComponent(sc: ElementBase): Int = {
+    contextMap.append(sc)
+    contextMap.length - 1
   }
 
   def getSchemas(): Option[Seq[String]] = {
     if (contextMap.size > 0) {
-      val uuid = contextMap.keySet.head
-      val e = contextMap.get(uuid) match {
-        case Some(x) => x
-        case None => return None
-      }
+      val e = contextMap(0)
       val schemas = e.schemaDocument.schemaSet.schemas.map(s => s.fileName)
       Some(schemas)
     } else None
   }
-
 }
 
+object SchemaComponentRegistry {
+
+  private case class TLSCR (var scr: SchemaComponentRegistry, var dataProc: DFDL.DataProcessor)
+  
+  private val tl = new ThreadLocal[TLSCR] {
+    override def initialValue = {
+      val s = new TLSCR(null, null)
+      s
+    }
+  }
+  
+  def setup (scr: SchemaComponentRegistry) {
+    tl.get.scr = scr
+  }
+  
+  def setup (dataProc: DFDL.DataProcessor) {
+    tl.get.dataProc = dataProc
+  }
+  
+  def getSCR = {
+    val scr = tl.get().scr
+    Assert.usage(scr != null, "Must setup before get.")
+    scr
+  }
+  
+  def getDataProc = {
+    val dataProc = tl.get().dataProc
+    Assert.usage(dataProc != null, "Must setup before get.")
+    dataProc
+  }
+}

@@ -537,29 +537,14 @@ class SchemaSet(
     finalVMap
   }
 
-  private lazy val elements = schemaComponentRegistry.contextMap
 
-  def getIDByName(name: String, ns: org.jdom2.Namespace) = {
-    val matches = elements.filter {
-      case (uuid, eb) => {
-        eb.targetNamespace.toJDOM == ns &&
-          eb.name == name
-      }
-    }
-    matches.headOption
-  }
 
   def getSCIDAugmentedInfoset(origInfoset: Node) = {
     val infoset = XMLUtils.elem2Element(origInfoset)
 
-    val rootMatch = getIDByName(infoset.getName(), infoset.getNamespace())
-
-    rootMatch match {
-      case None => // Nothing to do here
-      case Some((uuid, _)) => {
-        infoset.setAttribute("context", uuid.toString(), XMLUtils.INT_NS_OBJECT)
-      }
-    }
+    val rootMatch = this.schemaComponentRegistry.getIDByName(infoset.getName(), infoset.getNamespace())
+    Assert.invariant(rootMatch >= 0)
+    infoset.setAttribute("context", rootMatch.toString(), XMLUtils.INT_NS_OBJECT)
 
     val it = infoset.getDescendants(new org.jdom2.filter.ElementFilter).asInstanceOf[java.util.Iterator[org.jdom2.Element]]
 
@@ -567,14 +552,8 @@ class SchemaSet(
       val name = e.getName()
       val ns = e.getNamespace()
 
-      val theMatch = getIDByName(name, ns)
-      theMatch match {
-        case None => // Nothing to do here
-        case Some((uuid, _)) => {
-          e.setAttribute("context", uuid.toString(), XMLUtils.INT_NS_OBJECT)
-        }
-      }
-
+      val theMatch = this.schemaComponentRegistry.getIDByName(name, ns)
+      e.setAttribute("context", theMatch.toString(), XMLUtils.INT_NS_OBJECT)
     }
 
     infoset

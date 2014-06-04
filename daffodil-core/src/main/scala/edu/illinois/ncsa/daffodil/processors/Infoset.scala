@@ -48,11 +48,11 @@ import edu.illinois.ncsa.daffodil.Implicits._
 
 object Infoset {
 
-  type SchemaComponentIDObject = String
+  type SchemaComponentIDObject = Int
 
   def addComponent(e: ElementBase): SchemaComponentIDObject = {
-    val idString = e.schemaSet.schemaComponentRegistry.addComponent(e)
-    idString
+    val id = e.schemaSet.schemaComponentRegistry.addComponent(e)
+    id
   }
 
   def newElement(e: ElementBase, isHidden: Boolean) = {
@@ -63,7 +63,8 @@ object Infoset {
     // Note: you can't save the attribute and reuse it because in JDOM
     // attributes have parent pointers. So this creates one and points it back at the jdomE
     // holding it.
-    jdomE.setAttribute("context", e.schemaComponentID, XMLUtils.INT_NS_OBJECT)
+    Assert.invariant(e.schemaComponentID >= 0)
+    jdomE.setAttribute("context", e.schemaComponentID.toString, XMLUtils.INT_NS_OBJECT)
     jdomE.setAttribute("defaulted", "false", XMLUtils.INT_NS_OBJECT)
     if (isHidden)
       jdomE.setAttribute("hidden", "true", XMLUtils.INT_NS_OBJECT)
@@ -136,10 +137,10 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
       case null => {
         Assert.invariantFailed("No schema component context attribute on Infoset element")
       }
-      case uuid => {
-        val scr = pstate.schemaComponentRegistry
-        // We have a uuid, retrieve the schema component
-        scr.getComponentByID(uuid) match {
+      case uid => {
+        val scr = SchemaComponentRegistry.getSCR
+        // We have a uid, retrieve the schema component
+        scr.getComponentByID(uid.toInt) match {
           case Some(e) => e
           case None => {
             Assert.invariantFailed("Schema context component was not found in lookup table")

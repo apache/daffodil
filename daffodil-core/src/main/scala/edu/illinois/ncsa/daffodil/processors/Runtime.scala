@@ -214,6 +214,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
   def parse(initialState: PState) = {
 
+    
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = parser
@@ -338,7 +339,7 @@ abstract class ParseResult(dp: DataProcessor)
    */
   private def validateWithXerces(state: PState): Unit = {
     if (state.status == Success) {
-      val schemaFileNames = state.schemaComponentRegistry.getSchemas
+      val schemaFileNames = SchemaComponentRegistry.getSCR.getSchemas
       Validator.validateXMLSources(schemaFileNames.get, result)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))

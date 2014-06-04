@@ -76,7 +76,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  * places where points-of-uncertainty are handled.
  */
 case class PState(
-  var schemaComponentRegistry: SchemaComponentRegistry,
   var inStream: InStream,
   var infoset: InfosetItem,
   var variableMap: VariableMap,
@@ -85,7 +84,6 @@ case class PState(
   var occursCountStack: List[Long],
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
-  var dataProc: DFDL.DataProcessor,
   var foundDelimiter: Option[FoundDelimiterText])
   extends DFDL.State with ThrowsSDE {
 
@@ -96,7 +94,6 @@ case class PState(
   }
 
   def assignFrom(other: PState) {
-    schemaComponentRegistry = other.schemaComponentRegistry
     inStream = other.inStream
     infoset = other.infoset
     variableMap = other.variableMap
@@ -105,7 +102,6 @@ case class PState(
     occursCountStack = other.occursCountStack
     diagnostics = other.diagnostics
     discriminatorStack = other.discriminatorStack
-    dataProc = other.dataProc
     foundDelimiter = other.foundDelimiter
   }
 
@@ -345,7 +341,6 @@ object PState {
     in: InStream,
     dataProc: DFDL.DataProcessor): PState = {
 
-    val dataProcessor = dataProc
     val doc = Infoset.newDocument()
     val variables = dataProc.getVariables
     val status = Success
@@ -355,8 +350,10 @@ object PState {
     val discriminator = false
     val textReader: Option[DFDLCharReader] = None
     val foundDelimiter: Option[FoundDelimiterText] = None
-    val newState = PState(scr, in, doc, variables, status,
-      arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
+    SchemaComponentRegistry.setup(scr)
+    SchemaComponentRegistry.setup(dataProc)
+    val newState = PState(in, doc, variables, status,
+      arrayIndexStack, occursCountStack, diagnostics, List(false), foundDelimiter)
     newState
   }
 
