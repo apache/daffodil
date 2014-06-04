@@ -82,7 +82,6 @@ case class PState(
   var variableMap: VariableMap,
   var target: NS,
   var status: ProcessorResult,
-  var childIndexStack: List[Long],
   var arrayIndexStack: List[Long],
   var occursCountStack: List[Long],
   var diagnostics: List[Diagnostic],
@@ -104,7 +103,6 @@ case class PState(
     variableMap = other.variableMap
     target = other.target
     status = other.status
-    childIndexStack = other.childIndexStack
     arrayIndexStack = other.arrayIndexStack
     occursCountStack = other.occursCountStack
     diagnostics = other.diagnostics
@@ -119,7 +117,10 @@ case class PState(
     Assert.usage(!GroupIndexStack.get.isEmpty)
     GroupIndexStack.get.top
   }
-  def childPos = if (childIndexStack != Nil) childIndexStack.head else -1
+  def childPos = {
+    Assert.usage(!ChildIndexStack.get.isEmpty)
+    ChildIndexStack.get.top
+  }
   def arrayPos = if (arrayIndexStack != Nil) arrayIndexStack.head else -1
   def occursCount = if (occursCountStack != Nil) occursCountStack.head else -1
 
@@ -227,8 +228,6 @@ case class PState(
     this
   }
 
-  def withChildIndexStack(newChildIndexStack: List[Long], newStatus: ProcessorResult = Success) =
-    copy(childIndexStack = newChildIndexStack, status = newStatus)
   def withArrayIndexStack(newArrayIndexStack: List[Long], newStatus: ProcessorResult = Success) =
     copy(arrayIndexStack = newArrayIndexStack, status = newStatus)
   def setOccursCount(oc: Long) =
@@ -306,30 +305,6 @@ case class PState(
   // Need last state for Assertion Pattern
   // def withLastState = copy(inStreamStateStack = inStreamStateStack.pop)
 
-  /**
-   * advance our position, as a child element of a parent, and our index within the current sequence group.
-   *
-   * These can be different because an element can have sequences nested directly in sequences. Those effectively all
-   * get flattened into children of the element. The start of a sequence doesn't start the numbering of children. It's
-   * the start of a complex type that does that.
-   */
-  def moveOverByOneElement = {
-    GroupIndexStack.moveOverOneGroupIndexOnly
-    val s2 = moveOverOneElementChildOnly
-    // val s3 = s2.moveOverOneArrayIndexOnly // move over in array happens only in the RepParsers
-    s2
-  }
-
-  def moveOverOneElementChildOnly = {
-    childIndexStack match {
-      case Nil => this
-      case hd :: tl => {
-        val newChildIndex = hd + 1
-        withChildIndexStack(newChildIndex :: tl)
-      }
-    }
-  }
-
   def moveOverOneArrayIndexOnly = {
     arrayIndexStack match {
       case Nil => this
@@ -377,7 +352,6 @@ object PState {
     val variables = dataProc.getVariables
     val targetNamespace = rootElemDecl.schemaDocument.targetNamespace
     val status = Success
-    val childIndexStack = Nil
     val arrayIndexStack = Nil
     val occursCountStack = Nil
     val diagnostics = Nil
@@ -385,7 +359,7 @@ object PState {
     val textReader: Option[DFDLCharReader] = None
     val foundDelimiter: Option[FoundDelimiterText] = None
     val newState = PState(scr, in, doc, variables, targetNamespace, status,
-      childIndexStack, arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
+      arrayIndexStack, occursCountStack, diagnostics, List(false), dataProc, foundDelimiter)
     newState
   }
 

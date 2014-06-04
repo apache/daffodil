@@ -1313,10 +1313,10 @@ trait SequenceGrammarMixin { self: Sequence =>
     }
   }
 
-  lazy val orderedSequenceContent = Prod("sequenceContent", this, new SequenceStartEnd(this, terms.foldRight(mt)(folder)))
+  lazy val orderedSequenceContent = Prod("sequenceContent", this, SequenceCombinator(this, terms.foldRight(mt)(folder)))
   lazy val unorderedSequenceContent = {
     val uoseq = self.unorderedSeq.get
-    Prod("unorderedSequenceContent", this, new SequenceStartEnd(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))
+    Prod("unorderedSequenceContent", this, SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))
   }
 
   def folder(p: Gram, q: Gram): Gram = p ~ q
@@ -1353,9 +1353,6 @@ trait GroupRefGrammarMixin { self: GroupRef =>
 /////////////////////////////////////////////////////////////////
 
 trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val startChildren = StartChildren(this, true)
-  lazy val endChildren = EndChildren(this, true)
-
-  lazy val mainGrammar = Prod("mainGrammar", self.element, startChildren ~ modelGroup.group.asChildOfComplexType ~ endChildren)
-
+  lazy val mainGrammar = Prod("mainGrammar", self.element,
+    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
 }

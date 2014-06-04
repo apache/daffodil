@@ -27,7 +27,10 @@ object ChoiceElementCombinator {
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move(pstate: PState) = pstate.moveOverByOneElement
+  def move() {
+    GroupIndexStack.moveOverOneGroupIndexOnly
+    ChildIndexStack.moveOverOneElementChildOnly
+  }
   def parseElementBegin(pstate: PState): PState = {
     val currentElement = Infoset.newElement(context, isHidden)
 
@@ -53,7 +56,8 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
     // Assert.invariant(currentElement.getName() != "_document_" )
     val priorElement = currentElement.parent
     log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = move(postValidate.withParent(priorElement))
+    val postState = postValidate.withParent(priorElement)
+    move()
     postState
   }
 }
@@ -64,12 +68,14 @@ class ElementCombinatorNoRep(context: ElementBase, eGram: Gram, eAfterGram: Gram
   // but we don't create anything new as far as the group is concerned, and we don't want 
   // the group 'thinking' that there's a prior sibling inside the group and placing a 
   // separator after it. So in the case of NoRep, we don't advance group child, just element child.
-  override def move(pstate: PState) = pstate.moveOverOneElementChildOnly
+  override def move() {
+    ChildIndexStack.moveOverOneElementChildOnly
+  }
 }
 
 class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move(pstate: PState) = pstate
+  def move() = {}
 
   /**
    * ElementBegin just adds the element we are constructing to the infoset and changes
@@ -97,7 +103,8 @@ class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfter
 
     val priorElement = currentElement.parent
     log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = move(postValidate)
+    val postState = postValidate
+    move()
     postState
   }
 }
@@ -142,7 +149,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
     }
   }
 
-  def move(pstate: PState): PState // implement for different kinds of "moving over to next thing"
+  def move(): Unit // implement for different kinds of "moving over to next thing"
   def parseElementBegin(pstate: PState): PState
   def parseElementEnd(pstate: PState): PState
 
@@ -180,14 +187,15 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<StmtEval>" +
+        "<Element>" +
           patDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           patAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           eParser.toBriefXML(depthLimit - 1) +
           setVar.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           testDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
           testAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          "</StmtEval>"
+          eAfterParser.toBriefXML(depthLimit - 1) +
+          "</Element>"
     }
 
     val patDiscrimParser = patDiscrim.map(_.parser)
@@ -226,7 +234,9 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
       if (postElementStartState.status != Success) return postElementStartState
 
-      val postEState = eParser.parse1(postElementStartState, context)
+      val postEState =
+        if (eParser.isInstanceOf[EmptyGramParser]) postElementStartState
+        else eParser.parse1(postElementStartState, context)
 
       var someSetVarFailed: Option[PState] = None
 

@@ -44,62 +44,73 @@ import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 
-//case class ComplexElementEndPattern(e: ElementBase) extends Terminal(e, e.isComplexType == true && e.lengthKind == LengthKind.Pattern) {
-//  // TODO: Should this be more generic; is there a way to detect state from the current element to tell us if it's time
-//  //       to pop the input stack?
-//
-//  def parser: DaffodilParser = new PrimParser(this, e) {
-//    override def toString = "</" + e.name + " dfdl:lengthKind='pattern'>"
-//
-//    /**
-//     * ElementEnd just moves back to the parent element of the current one.
-//     */
-//    def parse(start: PState): PState = {
-//      val currentElement = start.parentElement
-//      log(LogLevel.Debug, "currentElement = %s", currentElement))
-//      var priorElement = currentElement.parent
-//      log(LogLevel.Debug, "priorElement = %s", priorElement))
-//      val postState = start.withParent(priorElement).moveOverByOneElement.withLastInStream()
-//      postState
-//    }
-//  }
-//
-//  def unparser: Unparser = new DummyUnparser(e)
-//}
 
-case class StartChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
+case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, ct.element) {
-    override def toString = "StartChildren"
+    override def toString = "ComplexTypeCombinator"
+    
+    val bodyParser = body.parser
+
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      if (depthLimit == 0) "..." else
+        "<ComplexTypeCombinator>" +
+        bodyParser.toBriefXML(depthLimit - 1) +
+        "</ComplexTypeCombinator>"
+    }
 
     def parse(start: PState): PState = {
-      val postState = start.withChildIndexStack(1L :: start.childIndexStack)
-      postState
+      ChildIndexStack.get.push(1L)
+      val parseState = bodyParser.parse1(start, ct)
+      ChildIndexStack.get.pop()
+      parseState
     }
   }
 
   def unparser: Unparser = new Unparser(ct.element) {
-    override def toString = "StartChildren"
+    override def toString = "ComplexTypeCombinator"
+
+    val bodyUnparser = body.unparser
 
     def unparse(start: UState): UState = {
-      val postState = start.withChildIndexStack(1L :: start.childIndexStack)
-      postState
+      ChildIndexStack.get.push(1L)
+      val parseState = bodyUnparser.unparse(start)
+      ChildIndexStack.get.pop()
+      parseState
     }
   }
 }
 
-class SequenceStartEnd(sq: Sequence, body: => Gram) extends Terminal(sq, !body.isEmpty) {
+object ChildIndexStack {
+  private val tl = new ThreadLocal[Stack[Long]] {
+    override def initialValue = {
+      val s = new Stack[Long]
+      s.push(-1L)
+      s
+    }
+  }
+
+  def moveOverOneElementChildOnly = {
+    val cis = tl.get
+    Assert.usage(!cis.isEmpty)
+    cis.push(cis.pop + 1)
+  }
+
+  def get = tl.get()
+}
+
+case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
   def parser: DaffodilParser = new PrimParser(this, sq) {
-    override def toString = "SequenceStartEnd"
+    override def toString = "SequenceCombinator"
 
     val bodyParser = body.parser
 
     override def toBriefXML(depthLimit: Int = -1): String = {
       if (depthLimit == 0) "..." else
-        "<SequenceStartEnd>" +
+        "<SequenceCombinator>" +
         bodyParser.toBriefXML(depthLimit - 1) +
-        "</SequenceStartEnd>"
+        "</SequenceCombinator>"
     }
 
     def parse(start: PState): PState = {
@@ -112,7 +123,7 @@ class SequenceStartEnd(sq: Sequence, body: => Gram) extends Terminal(sq, !body.i
   }
 
   def unparser: Unparser = new Unparser(sq) {
-    override def toString = "SequenceStartEnd"
+    override def toString = "SequenceCombinator"
 
     def unparse(start: UState): UState = {
       val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
@@ -137,27 +148,6 @@ object GroupIndexStack {
   }
 
   def get = tl.get()
-}
-
-case class EndChildren(ct: ComplexTypeBase, guard: Boolean = true) extends Terminal(ct.element, guard) {
-
-  def parser: DaffodilParser = new PrimParser(this, ct.element) {
-    override def toString = "EndChildren"
-
-    def parse(start: PState): PState = {
-      val postState = start.withChildIndexStack(start.childIndexStack.tail)
-      postState
-    }
-  }
-
-  def unparser: Unparser = new Unparser(ct.element) {
-    override def toString = "EndChildren"
-
-    def unparse(start: UState): UState = {
-      val postState = start.withChildIndexStack(start.childIndexStack.tail)
-      postState
-    }
-  }
 }
 
 //case class EndSequence(sq: Sequence, guard: Boolean = true) extends Terminal(sq, guard) {
