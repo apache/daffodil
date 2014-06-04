@@ -97,8 +97,7 @@ class ValidationError(schemaContext: Option[SchemaComponentBase],
     schContextLocDescription: String,
     annContextLocDescription: String,
     schemaContext: Option[SchemaComponentBase]): String = {
-    val dataLocDescription =
-      Some(runtimeContext).map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
+    val dataLocDescription = currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
     val res = "Validation " + diagnosticKind + ": " + msg +
       "\nSchema context: " + Some(schemaContext).getOrElse("top level") + "." +
       // TODO: should be one or the other, never(?) both
@@ -112,23 +111,25 @@ class ValidationError(schemaContext: Option[SchemaComponentBase],
 
 abstract class SchemaDefinitionDiagnosticBase(
   val schemaContext: Option[SchemaComponentBase],
-  val runtimeContext: Option[PState],
+  runtimeContext: Option[PState],
   val annotationContext: Option[DFDLAnnotation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
 
+  protected val currentLocation = runtimeContext.map { _.currentLocation }
+  
   override def equals(b: Any): Boolean = {
     b match {
       case other: SchemaDefinitionDiagnosticBase => {
         val isSCSame = schemaContext == other.schemaContext
-        val isRTCSame = runtimeContext == other.runtimeContext
         val isACSame = annotationContext == other.annotationContext
         val isKindSame = kind == other.kind
         val isArgsSame = args == other.args
         val isDiagnosticKindSame = diagnosticKind == other.diagnosticKind
+        val isCLSame = currentLocation == other.currentLocation
 
-        val res = isSCSame && isRTCSame && isACSame && isKindSame &&
-          isArgsSame && isDiagnosticKindSame
+        val res = isSCSame && isACSame && isKindSame &&
+          isArgsSame && isDiagnosticKindSame && isCLSame
         res
       }
       case _ => Assert.usageError("why are you comparing two things that aren't the same type even?")
@@ -137,7 +138,7 @@ abstract class SchemaDefinitionDiagnosticBase(
 
   override def hashCode = {
     schemaContext.hashCode +
-      runtimeContext.hashCode +
+      currentLocation.hashCode +
       annotationContext.hashCode +
       kind.hashCode +
       args.hashCode +
@@ -152,9 +153,9 @@ abstract class SchemaDefinitionDiagnosticBase(
     schContextLocDescription: String,
     annContextLocDescription: String,
     schemaContext: Option[SchemaComponentBase]): String = {
-    val runtime = if (runtimeContext.isDefined) "Runtime " else ""
+    val runtime = if (currentLocation.isDefined) "Runtime " else ""
     val dataLocDescription =
-      runtimeContext.map { " Data Context: " + _.currentLocation.toString + "." }.getOrElse("")
+      currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
     val res = runtime + "Schema Definition " + diagnosticKind + ": " + msg +
       "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
       // TODO: should be one or the other, never(?) both
