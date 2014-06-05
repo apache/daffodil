@@ -42,18 +42,18 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.CLI.Util._
 import java.io.File
-import expectj.ExpectJ
-import expectj.Spawn
 import edu.illinois.ncsa.daffodil.CLI.Util
+import net.sf.expectit.Expect
+import net.sf.expectit.matcher.Matchers.contains
 
 class TestCLIlisting {
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
     val cmd = "./daffodil-cli/target/start test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
     val shell = Util.start(cmd)
-    shell.expect("byte_entities_6_08")
+    shell.expect(contains("byte_entities_6_08"))
     shell.send("exit\n")
-    shell.expectClose()
+    shell.close()
   }
   /* 
   @Test def test_993_CLI_Executing_Listing_listAll() {
@@ -90,12 +90,14 @@ class TestCLIlisting {
   @Test def test_1016_CLI_Executing_Listing_listVerbose() {
     val cmd = "./daffodil-cli/target/start test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell = Util.start(cmd)
-    shell.expect("assertPatternAndExp")
+    shell.expect(contains("assertPatternAndExp"))
+    shell.send("exit\n")
+    shell.close()
     val cmd2 = "./daffodil-cli/target/start test -l -i --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
     val shell2 = Util.start(cmd2)
-    shell2.expect("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R")
+    shell2.expect(contains("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"))
     shell2.send("exit\n")
-    shell2.expectClose()
+    shell2.close()
   }
 
 }

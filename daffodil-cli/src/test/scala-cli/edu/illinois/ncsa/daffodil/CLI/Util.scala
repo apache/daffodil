@@ -35,8 +35,9 @@ package edu.illinois.ncsa.daffodil.CLI
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
-import expectj.ExpectJ
-import expectj.Spawn
+import net.sf.expectit.ExpectBuilder
+import net.sf.expectit.Expect
+import net.sf.expectit.echo.EchoOutput
 
 object Util {
 
@@ -44,7 +45,6 @@ object Util {
   val testDir = "/edu/illinois/ncsa/daffodil/CLI/"
   val outputDir = testDir + "output/"
 
-  val ex = new ExpectJ(30);
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
   def getExpectedString(filename: String): String = {
@@ -60,19 +60,19 @@ object Util {
     }
   }
 
-  def start(cmd: String): Spawn = {
+  def start(cmd: String, expectErr: Boolean = false): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
-
-    return getShell(cmd, spawnCmd)
+    
+    return getShell(cmd, spawnCmd, expectErr)
   }
 
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
-  def startNoConvert(cmd: String): Spawn = {
+  def startNoConvert(cmd: String): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmd
     } else {
@@ -82,8 +82,28 @@ object Util {
     return getShell(cmd, spawnCmd)
   }
 
-  def getShell(cmd: String, spawnCmd: String): Spawn = {
-    val shell = ex.spawn(spawnCmd)
+  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false): Expect = {
+    val process = Runtime.getRuntime().exec(spawnCmd)
+    val inputStream = if (expectErr) {
+      process.getErrorStream()
+    } else {
+      process.getInputStream()
+    }
+    val shell = new ExpectBuilder()
+        .withInputs(inputStream)
+	.withOutput(process.getOutputStream())
+	.withEchoOutput(new EchoOutput() {
+	        @Override
+		def onReceive(input: Int, string: String) = {
+		    print(string)
+		}
+		@Override
+		def onSend(string: String) = {
+		    //print(string)
+		}
+	})
+	.withErrorOnTimeout(true)
+	.build();
     if (!isWindows) {
       shell.send(cmd)
     }

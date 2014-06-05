@@ -29,7 +29,7 @@ libraryDependencies in ThisBuild := Seq(
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
   "org.rogach" %% "scallop" % "0.9.5",
-  "net.sourceforge.expectj" % "expectj" % "2.0.7",
+  "net.sf.expectit" % "expectit-core" % "0.3.1",
   "commons-io" % "commons-io" % "2.4"
 )
 
