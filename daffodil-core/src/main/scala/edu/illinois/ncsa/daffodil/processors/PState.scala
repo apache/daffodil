@@ -64,6 +64,31 @@ import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
+import scala.collection.mutable.Stack
+
+case class MPState(val scr: SchemaComponentRegistry, val dataProc: DFDL.DataProcessor) {
+
+  val arrayIndexStack = Stack[Long](1L)
+  def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
+  def arrayPos = arrayIndexStack.top
+
+  val groupIndexStack = Stack[Long](1L)
+  def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
+  def groupPos = groupIndexStack.top
+
+  // TODO: it doesn't look anything is actually reading the value of childindex
+  // stack. Can we get rid of it?
+  val childIndexStack = Stack[Long](1L)
+  def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
+  def childPos = childIndexStack.top
+
+  val occursBoundsStack = new Stack[Long]
+  def updateBoundsHead(ob: Long) = {
+    occursBoundsStack.pop()
+    occursBoundsStack.push(ob)
+  }
+  def occursBounds = occursBoundsStack.top
+}
 
 /**
  * A parser takes a state, and returns an updated state
@@ -83,7 +108,8 @@ case class PState(
   var status: ProcessorResult,
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
-  var foundDelimiter: Maybe[FoundDelimiterText])
+  var foundDelimiter: Maybe[FoundDelimiterText],
+  val mpstate: MPState)
   extends DFDL.State with ThrowsSDE {
 
   def duplicate() = {
@@ -104,22 +130,6 @@ case class PState(
 
   def bytePos = bitPos >> 3
   def whichBit = bitPos % 8
-  def groupPos = {
-    Assert.usage(!GroupIndexStack.get.isEmpty)
-    GroupIndexStack.get.top
-  }
-  def childPos = {
-    Assert.usage(!ChildIndexStack.get.isEmpty)
-    ChildIndexStack.get.top
-  }
-  def arrayPos = {
-    Assert.usage(!ArrayIndexStack.get.isEmpty)
-    ArrayIndexStack.get.top
-  }
-  def occursBounds = {
-    Assert.usage(!OccursBoundsStack.get.isEmpty)
-    OccursBoundsStack.get.top
-  }
 
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos, charPos, status)
@@ -331,14 +341,9 @@ object PState {
     val discriminator = false
     val textReader: Maybe[DFDLCharReader] = None
     val foundDelimiter: Maybe[FoundDelimiterText] = None
-    SchemaComponentRegistry.setup(scr)
-    SchemaComponentRegistry.setup(dataProc)
-    ArrayIndexStack.setup()
-    GroupIndexStack.setup()
-    ChildIndexStack.setup()
-    OccursBoundsStack.setup()
+    val mutablePState = MPState(scr, dataProc)
 
-    val newState = PState(in, doc, variables, status, diagnostics, List(false), foundDelimiter)
+    val newState = PState(in, doc, variables, status, diagnostics, List(false), foundDelimiter, mutablePState)
     newState
   }
 

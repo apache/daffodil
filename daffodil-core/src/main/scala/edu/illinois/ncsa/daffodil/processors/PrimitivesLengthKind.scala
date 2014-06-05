@@ -874,8 +874,8 @@ class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends 
     override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
 
     def parse(start: PState): PState = {
-      if (start.arrayPos > 1) sepParser.parse1(start, term)
-      else if (start.groupPos > 1) sepParser.parse1(start, term)
+      if (start.mpstate.arrayPos > 1) sepParser.parse1(start, term)
+      else if (start.mpstate.groupPos > 1) sepParser.parse1(start, term)
       else start
     }
   }

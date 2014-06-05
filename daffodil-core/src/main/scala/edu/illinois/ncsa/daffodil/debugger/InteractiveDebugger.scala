@@ -1013,8 +1013,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current array limit"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.arrayPos != -1) {
-            debugPrintln("%s: %d".format(name, state.arrayPos))
+          if (state.mpstate.arrayPos != -1) {
+            debugPrintln("%s: %d".format(name, state.mpstate.arrayPos))
           } else {
             debugPrintln("%s: not in an array".format(name))
           }
@@ -1078,8 +1078,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current child index"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.childPos != -1) {
-            debugPrintln("%s: %d".format(name, state.childPos))
+          if (state.mpstate.childPos != -1) {
+            debugPrintln("%s: %d".format(name, state.mpstate.childPos))
           } else {
             debugPrintln("%s: not a child element".format(name))
           }
@@ -1172,9 +1172,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
           if (prestate.bitLimit != state.bitLimit) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit, state.bitLimit), "  "); diff = true }
           if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
-          if (prestate.arrayPos != state.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
-          if (prestate.groupPos != state.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  "); diff = true }
-          if (prestate.childPos != state.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  "); diff = true }
+          if (prestate.mpstate.arrayPos != state.mpstate.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.mpstate.arrayPos, state.mpstate.arrayPos), "  "); diff = true }
+          if (prestate.mpstate.groupPos != state.mpstate.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.mpstate.groupPos, state.mpstate.groupPos), "  "); diff = true }
+          if (prestate.mpstate.childPos != state.mpstate.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.mpstate.childPos, state.mpstate.childPos), "  "); diff = true }
 
           if (diff == false) {
             debugPrintln("No differences", "  ")
@@ -1222,8 +1222,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current group index"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.groupPos != -1) {
-            debugPrintln("%s: %d".format(name, state.groupPos))
+          if (state.mpstate.groupPos != -1) {
+            debugPrintln("%s: %d".format(name, state.mpstate.groupPos))
           } else {
             debugPrintln("%s: not in a group".format(name))
           }
@@ -1290,8 +1290,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the current occurs bounds"
         val longDesc = desc
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.occursBounds != -1) {
-            debugPrintln("%s: %d".format(name, state.occursBounds))
+          if (state.mpstate.occursBounds != -1) {
+            debugPrintln("%s: %d".format(name, state.mpstate.occursBounds))
           } else {
             debugPrintln("%s: occurs count not set".format(name))
           }

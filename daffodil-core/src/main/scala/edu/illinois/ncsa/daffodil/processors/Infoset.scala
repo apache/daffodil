@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import javax.xml.namespace.QName
 import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil
@@ -138,9 +137,8 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
         Assert.invariantFailed("No schema component context attribute on Infoset element")
       }
       case uid => {
-        val scr = SchemaComponentRegistry.getSCR
         // We have a uid, retrieve the schema component
-        scr.getComponentByID(uid.toInt) match {
+        pstate.mpstate.scr.getComponentByID(uid.toInt) match {
           case Some(e) => e
           case None => {
             Assert.invariantFailed("Schema context component was not found in lookup table")

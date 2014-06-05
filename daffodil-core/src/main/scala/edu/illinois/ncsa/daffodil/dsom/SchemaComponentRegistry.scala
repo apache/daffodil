@@ -82,35 +82,3 @@ class SchemaComponentRegistry {
     } else None
   }
 }
-
-object SchemaComponentRegistry {
-
-  private case class TLSCR (var scr: SchemaComponentRegistry, var dataProc: DFDL.DataProcessor)
-  
-  private val tl = new ThreadLocal[TLSCR] {
-    override def initialValue = {
-      val s = new TLSCR(null, null)
-      s
-    }
-  }
-  
-  def setup (scr: SchemaComponentRegistry) {
-    tl.get.scr = scr
-  }
-  
-  def setup (dataProc: DFDL.DataProcessor) {
-    tl.get.dataProc = dataProc
-  }
-  
-  def getSCR = {
-    val scr = tl.get().scr
-    Assert.usage(scr != null, "Must setup before get.")
-    scr
-  }
-  
-  def getDataProc = {
-    val dataProc = tl.get().dataProc
-    Assert.usage(dataProc != null, "Must setup before get.")
-    dataProc
-  }
-}

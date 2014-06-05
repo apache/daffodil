@@ -9,7 +9,6 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 
 object ElementCombinator {
   def apply(context: ElementBase, eGram: Gram, eAfterGram: Gram) = {
@@ -28,9 +27,9 @@ object ChoiceElementCombinator {
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move() {
-    GroupIndexStack.moveOverOneGroupIndexOnly
-    ChildIndexStack.moveOverOneElementChildOnly
+  def move(start: PState) {
+    start.mpstate.moveOverOneGroupIndexOnly
+    start.mpstate.moveOverOneElementChildOnly
   }
   def parseElementBegin(pstate: PState): PState = {
     val currentElement = Infoset.newElement(context, isHidden)
@@ -46,7 +45,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   def parseElementEnd(pstate: PState): PState = {
     val currentElement = pstate.parentElement
 
-    val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && context.isSimpleType) {
         // Execute checkConstraints
@@ -58,7 +57,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
     val priorElement = currentElement.parent
     log(LogLevel.Debug, "priorElement = %s", priorElement)
     val postState = postValidate.withParent(priorElement)
-    move()
+    move(pstate)
     postState
   }
 }
@@ -69,14 +68,14 @@ class ElementCombinatorNoRep(context: ElementBase, eGram: Gram, eAfterGram: Gram
   // but we don't create anything new as far as the group is concerned, and we don't want 
   // the group 'thinking' that there's a prior sibling inside the group and placing a 
   // separator after it. So in the case of NoRep, we don't advance group child, just element child.
-  override def move() {
-    ChildIndexStack.moveOverOneElementChildOnly
+  override def move(state: PState) {
+    state.mpstate.moveOverOneElementChildOnly
   }
 }
 
 class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move() = {}
+  def move(state: PState) = {}
 
   /**
    * ElementBegin just adds the element we are constructing to the infoset and changes
@@ -94,7 +93,7 @@ class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfter
   def parseElementEnd(pstate: PState): PState = {
     val currentElement = pstate.parentElement
 
-    val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && context.isSimpleType) {
         // Execute checkConstraints
@@ -105,7 +104,7 @@ class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfter
     val priorElement = currentElement.parent
     log(LogLevel.Debug, "priorElement = %s", priorElement)
     val postState = postValidate
-    move()
+    move(pstate)
     postState
   }
 }
@@ -149,7 +148,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
     }
   }
 
-  def move(): Unit // implement for different kinds of "moving over to next thing"
+  def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
   def parseElementBegin(pstate: PState): PState
   def parseElementEnd(pstate: PState): PState
 

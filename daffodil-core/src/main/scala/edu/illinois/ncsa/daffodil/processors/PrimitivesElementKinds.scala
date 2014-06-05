@@ -60,9 +60,9 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
     }
 
     def parse(start: PState): PState = {
-      ChildIndexStack.get.push(1L)
+      start.mpstate.childIndexStack.push(1L) // one-based indexing
       val parseState = bodyParser.parse1(start, ct)
-      ChildIndexStack.get.pop()
+      start.mpstate.childIndexStack.pop()
       parseState
     }
   }
@@ -73,35 +73,12 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
     val bodyUnparser = body.unparser
 
     def unparse(start: UState): UState = {
-      ChildIndexStack.get.push(1L)
-      val parseState = bodyUnparser.unparse(start)
-      ChildIndexStack.get.pop()
-      parseState
+      //start.mpstate.childIndexStack.push(1L)
+      //val parseState = bodyUnparser.unparse(start)
+      //start.mpstate.childIndexStack.pop()
+      start
     }
   }
-}
-
-object ChildIndexStack {
-  private val tl = new ThreadLocal[Stack[Long]] {
-    override def initialValue = {
-      val s = new Stack[Long]
-      s.push(-1L)
-      s
-    }
-  }
-
-  def moveOverOneElementChildOnly = {
-    val cis = tl.get
-    Assert.usage(!cis.isEmpty)
-    cis.push(cis.pop + 1)
-  }
-
-  def setup() {
-    tl.get.clear
-    tl.get.push(-1L)
-  }
-
-  def get = tl.get()
 }
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
@@ -119,10 +96,10 @@ case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !bo
     }
 
     def parse(start: PState): PState = {
-      GroupIndexStack.get.push(1L)
+      start.mpstate.groupIndexStack.push(1L) // one-based indexing
       val parseState = bodyParser.parse1(start, context)
-      GroupIndexStack.get.pop()
-      GroupIndexStack.moveOverOneGroupIndexOnly()
+      start.mpstate.groupIndexStack.pop()
+      start.mpstate.moveOverOneGroupIndexOnly()
       parseState
     }
   }
@@ -135,29 +112,6 @@ case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !bo
       postState
     }
   }
-}
-
-object GroupIndexStack {
-  private val tl = new ThreadLocal[Stack[Long]] {
-    override def initialValue = {
-      val s = new Stack[Long]
-      s.push(-1L)
-      s
-    }
-  }
-  
-  def moveOverOneGroupIndexOnly() {
-    val gis = GroupIndexStack.get
-    Assert.usage(!gis.isEmpty)
-    gis.push(gis.pop + 1)
-  }
-
-  def setup() {
-    tl.get.clear
-    tl.get.push(-1L)
-  }
-
-  def get = tl.get()
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -176,16 +130,16 @@ case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body
 
     def parse(start: PState): PState = {
 
-      ArrayIndexStack.get.push(1L)
-      OccursBoundsStack.get.push(DaffodilTunableParameters.maxOccursBounds)
+      start.mpstate.arrayIndexStack.push(1L) // one-based indexing
+      start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
       val parseState = bodyParser.parse1(start, e)
       if (parseState.status != Success) return parseState
 
-      val shouldValidate = SchemaComponentRegistry.getDataProc.getValidationMode != ValidationMode.Off
+      val shouldValidate = start.mpstate.dataProc.getValidationMode != ValidationMode.Off
 
-      val actualOccurs = ArrayIndexStack.get.pop()
-      OccursBoundsStack.get.pop()
+      val actualOccurs = start.mpstate.arrayIndexStack.pop()
+      start.mpstate.occursBoundsStack.pop()
 
       val finalState = {
         if (shouldValidate) {
@@ -236,47 +190,4 @@ case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body
   }
 }
 
-object ArrayIndexStack {
-  private val tl = new ThreadLocal[Stack[Long]] {
-    override def initialValue = {
-      val s = new Stack[Long]
-      s.push(-1L)
-      s
-    }
-  }
-  def moveOverOneArrayIndexOnly = {
-    val ais = tl.get
-    ais.push(ais.pop + 1)
-  }
-
-  def setup() {
-    tl.get.clear
-    tl.get.push(-1L)
-  }
-
-  def get = tl.get()
-}
-
-object OccursBoundsStack {
-  private val tl = new ThreadLocal[Stack[Long]] {
-    override def initialValue = {
-      val s = new Stack[Long]
-      s.push(-1L)
-      s
-    }
-  }
-
-  def updateHead(ob: Long) = {
-    val obs = tl.get
-    obs.pop()
-    obs.push(ob)
-  }
-
-  def setup() {
-    tl.get.clear
-    tl.get.push(-1L)
-  }
-
-  def get = tl.get()
-}
 

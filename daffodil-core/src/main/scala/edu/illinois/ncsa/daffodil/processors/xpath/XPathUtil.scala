@@ -161,7 +161,7 @@ object DFDLFunctions {
  */
 object DFDLPositionFunction extends DFDLFunction("position", 0) {
   def evaluate1(hasNoArgs: java.util.List[_], pstate: PState): Object = {
-    val res: java.lang.Long = pstate.arrayPos
+    val res: java.lang.Long = pstate.mpstate.arrayPos
     res
   }
 }
@@ -171,7 +171,7 @@ object DFDLPositionFunction extends DFDLFunction("position", 0) {
  */
 object DFDLOccursIndexFunction extends DFDLFunction("occursIndex", 0) {
   def evaluate1(hasNoArgs: java.util.List[_], pstate: PState): Object = {
-    val res: java.lang.Long = pstate.arrayPos
+    val res: java.lang.Long = pstate.mpstate.arrayPos
     res
   }
 }

@@ -339,7 +339,7 @@ abstract class ParseResult(dp: DataProcessor)
    */
   private def validateWithXerces(state: PState): Unit = {
     if (state.status == Success) {
-      val schemaFileNames = SchemaComponentRegistry.getSCR.getSchemas
+      val schemaFileNames = state.mpstate.scr.getSchemas
       Validator.validateXMLSources(schemaFileNames.get, result)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
