@@ -238,7 +238,7 @@
     <tdml:document><![CDATA[05-33-1999 03:20:22]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Details: ValidationException: Invalid date</tdml:error>
+      <tdml:error>Invalid date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -255,7 +255,7 @@
     <tdml:document><![CDATA[03:20:22GMT]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Details: ValidationException: Invalid date</tdml:error>
+      <tdml:error>Invalid date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -272,7 +272,7 @@
     <tdml:document><![CDATA[2012-07-30]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Details: ValidationException: Invalid time</tdml:error>
+      <tdml:error>Invalid time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
