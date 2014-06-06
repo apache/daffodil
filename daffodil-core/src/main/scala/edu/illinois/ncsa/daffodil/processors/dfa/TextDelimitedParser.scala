@@ -4,8 +4,10 @@ import scala.util.parsing.input.Reader
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
-abstract class TextDelimitedParserBase(val justification: TextJustificationType.Type, val padCharOpt: Option[Char], knownEncFunc: String => Int)
+abstract class TextDelimitedParserBase(val justification: TextJustificationType.Type, val padCharOpt: Maybe[Char], knownEncFunc: String => Int)
   extends DelimitedParser {
 
   val leftPadding: DFADelimiter = {
@@ -29,7 +31,7 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
   def removeLeftPadding(str: String): String = str.dropWhile(c => c == padCharOpt.get)
   def removePadding(str: String): String = removeLeftPadding(removeRightPadding(str))
 
-  def parse(input: DFDLCharReader, isDelimRequired: Boolean): Option[ParseResult] = {
+  def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
     val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
     val fieldReg: Registers = new Registers
 
@@ -74,10 +76,29 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
       }
     }
 
-    val result = longestMatch(successes) match {
-      case None if isDelimRequired => None
-      case None => {
-        val fieldValue: Option[String] = {
+    val lm = longestMatch(successes)
+    val result = {
+      if (!lm.isDefined) {
+        if (isDelimRequired) Nope
+        else {
+          val fieldValue: Maybe[String] = {
+            val str = fieldReg.resultString.toString
+            val fieldNoPadding = justification match {
+              case TextJustificationType.None => str
+              case TextJustificationType.Left => removeRightPadding(str)
+              case TextJustificationType.Right => removeLeftPadding(str)
+              case TextJustificationType.Center => removePadding(str)
+            }
+            One(fieldNoPadding)
+          }
+          val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
+          val numBits: Int = knownEncFunc(fieldReg.charsReadUntilDelim.toString)
+          val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
+          One(new ParseResult(fieldValue, Nope, "", totalNumCharsRead, numBits, nextReader))
+        }
+      } else {
+        val (dfa, r) = lm.get
+        val fieldValue: Maybe[String] = {
           val str = fieldReg.resultString.toString
           val fieldNoPadding = justification match {
             case TextJustificationType.None => str
@@ -85,33 +106,17 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
             case TextJustificationType.Right => removeLeftPadding(str)
             case TextJustificationType.Center => removePadding(str)
           }
-          Some(fieldNoPadding)
+          One(fieldNoPadding)
         }
-        val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
-        val numBits: Int = knownEncFunc(fieldReg.charsReadUntilDelim.toString)
-        val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
-        Some(new ParseResult(fieldValue, None, "", totalNumCharsRead, numBits, nextReader))
-      }
-      case Some((dfa, r)) => {
-        val fieldValue: Option[String] = {
-          val str = fieldReg.resultString.toString
-          val fieldNoPadding = justification match {
-            case TextJustificationType.None => str
-            case TextJustificationType.Left => removeRightPadding(str)
-            case TextJustificationType.Right => removeLeftPadding(str)
-            case TextJustificationType.Center => removePadding(str)
-          }
-          Some(fieldNoPadding)
-        }
-        val delim: Option[String] = {
-          Some(r.delimString.toString)
+        val delim: Maybe[String] = {
+          One(r.delimString.toString)
         }
         val lookingFor = dfa.lookingFor
         val totalNumCharsRead = fieldReg.numCharsReadUntilDelim
         val numBits: Int = knownEncFunc(fieldReg.charsReadUntilDelim.toString)
         val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
 
-        Some(new ParseResult(fieldValue, delim, lookingFor, totalNumCharsRead, numBits, nextReader))
+        One(new ParseResult(fieldValue, delim, lookingFor, totalNumCharsRead, numBits, nextReader))
       }
     }
     result
@@ -123,7 +128,7 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
  * Assumes that the delims DFAs were constructed with the Esc
  * and EscEsc in mind.
  */
-class TextDelimitedParser(justArg: TextJustificationType.Type, padCharArg: Option[Char],
+class TextDelimitedParser(justArg: TextJustificationType.Type, padCharArg: Maybe[Char],
   var delims: Seq[DFADelimiter],
   var field: DFAField, knownEncFunc: String => Int)
   extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc) {
@@ -134,7 +139,7 @@ class TextDelimitedParser(justArg: TextJustificationType.Type, padCharArg: Optio
  * Assumes that endBlock DFA was constructed with the
  * EscEsc in mind.
  */
-class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type, val padCharArg: Option[Char],
+class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type, val padCharArg: Maybe[Char],
   var startBlock: DFADelimiter, var endBlock: DFADelimiter, var delims: Seq[DFADelimiter], var fieldEsc: DFAField,
   var field: DFAField, knownEncFunc: String => Int)
   extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc) {
@@ -164,20 +169,20 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
     rightPaddingRegister
   }
 
-  protected def parseStartBlock(readerAfterPadding: DFDLCharReader): Option[Registers] = {
+  protected def parseStartBlock(readerAfterPadding: DFDLCharReader): Maybe[Registers] = {
     val startBlockRegister = new Registers
     startBlockRegister.reset(readerAfterPadding, 0)
 
     val startStatus = startBlock.run(0, startBlockRegister) // find the block start, fail otherwise
     startStatus.status match {
-      case StateKind.Succeeded => Some(startBlockRegister) // continue
-      case _ => None // Failed
+      case StateKind.Succeeded => One(startBlockRegister) // continue
+      case _ => Nope // Failed
     }
   }
 
   protected def parseRemainder(input: DFDLCharReader, isDelimRequired: Boolean,
     startBlockRegister: Registers, leftPaddingRegister: Registers,
-    initialCharPos: Int, numCharsReadAfterLeftPadding: Int): Option[ParseResult] = {
+    initialCharPos: Int, numCharsReadAfterLeftPadding: Int): Maybe[ParseResult] = {
     val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
     val numCharsReadAfterStartBlock = numCharsReadAfterLeftPadding + startBlockRegister.numCharsRead
 
@@ -242,46 +247,49 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
         }
       }
     } // End While
-    val result = longestMatch(successes) match {
-      case None if isDelimRequired => None
-      case None => {
-        val fieldValue: Option[String] = {
-          Some(fieldRegister.resultString.toString)
-        }
-        val totalCharsRead = {
-          startBlockRegister.numCharsRead +
-            fieldRegister.numCharsReadUntilDelim + endBlockRegister.numCharsRead +
-            {
-              justification match {
-                case TextJustificationType.None => 0
-                case TextJustificationType.Left => rightPaddingRegister.numCharsRead
-                case TextJustificationType.Right => leftPaddingRegister.numCharsRead
-                case TextJustificationType.Center => rightPaddingRegister.numCharsRead + leftPaddingRegister.numCharsRead
+    val lm = longestMatch(successes)
+    val result = {
+      if (!lm.isDefined) {
+        if (isDelimRequired) Nope
+        else {
+          val fieldValue: Maybe[String] = {
+            One(fieldRegister.resultString.toString)
+          }
+          val totalCharsRead = {
+            startBlockRegister.numCharsRead +
+              fieldRegister.numCharsReadUntilDelim + endBlockRegister.numCharsRead +
+              {
+                justification match {
+                  case TextJustificationType.None => 0
+                  case TextJustificationType.Left => rightPaddingRegister.numCharsRead
+                  case TextJustificationType.Right => leftPaddingRegister.numCharsRead
+                  case TextJustificationType.Center => rightPaddingRegister.numCharsRead + leftPaddingRegister.numCharsRead
+                }
               }
-            }
-        }
-        val totalField = {
-          startBlockRegister.delimString.toString +
-            fieldRegister.charsReadUntilDelim.toString + endBlockRegister.delimString.toString +
-            {
-              justification match {
-                case TextJustificationType.None => ""
-                case TextJustificationType.Left => rightPaddingRegister.resultString.toString
-                case TextJustificationType.Right => leftPaddingRegister.resultString.toString
-                case TextJustificationType.Center => rightPaddingRegister.resultString.toString + leftPaddingRegister.resultString.toString
+          }
+          val totalField = {
+            startBlockRegister.delimString.toString +
+              fieldRegister.charsReadUntilDelim.toString + endBlockRegister.delimString.toString +
+              {
+                justification match {
+                  case TextJustificationType.None => ""
+                  case TextJustificationType.Left => rightPaddingRegister.resultString.toString
+                  case TextJustificationType.Right => leftPaddingRegister.resultString.toString
+                  case TextJustificationType.Center => rightPaddingRegister.resultString.toString + leftPaddingRegister.resultString.toString
+                }
               }
-            }
+          }
+          val numBits: Int = knownEncFunc(totalField)
+          val nextReader: DFDLCharReader = input.drop(totalCharsRead).asInstanceOf[DFDLCharReader]
+          One(new ParseResult(fieldValue, Nope, "", totalCharsRead, numBits, nextReader))
         }
-        val numBits: Int = knownEncFunc(totalField)
-        val nextReader: DFDLCharReader = input.drop(totalCharsRead).asInstanceOf[DFDLCharReader]
-        Some(new ParseResult(fieldValue, None, "", totalCharsRead, numBits, nextReader))
-      }
-      case Some((dfa, r)) => {
-        val fieldValue: Option[String] = {
-          Some(fieldRegister.resultString.toString)
+      } else {
+        val (dfa, r) = lm.get
+        val fieldValue: Maybe[String] = {
+          One(fieldRegister.resultString.toString)
         }
-        val delim: Option[String] = {
-          Some(r.delimString.toString)
+        val delim: Maybe[String] = {
+          One(r.delimString.toString)
         }
         val lookingFor = dfa.lookingFor
         val totalNumCharsRead = {
@@ -310,20 +318,22 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
         }
         val numBits: Int = knownEncFunc(totalField)
         val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
-        Some(new ParseResult(fieldValue, delim, lookingFor, totalNumCharsRead, numBits, nextReader))
+        One(new ParseResult(fieldValue, delim, lookingFor, totalNumCharsRead, numBits, nextReader))
       }
     }
     result
   }
 
-  override def parse(input: DFDLCharReader, isDelimRequired: Boolean): Option[ParseResult] = {
+  override def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
     val initialCharPos = input.characterPos
     val leftPaddingRegister = removeLeftPadding(input)
     val numCharsReadAfterLeftPadding = leftPaddingRegister.numCharsReadUntilDelim
     val readerAfterPadding = input.atCharPos(initialCharPos + numCharsReadAfterLeftPadding)
-    parseStartBlock(readerAfterPadding) match {
-      case None => super.parse(input, isDelimRequired)
-      case Some(startBlockRegister) => parseRemainder(input, isDelimRequired,
+    val psb = parseStartBlock(readerAfterPadding)
+    if (!psb.isDefined) super.parse(input, isDelimRequired)
+    else {
+      val startBlockRegister = psb.get 
+      parseRemainder(input, isDelimRequired,
         startBlockRegister, leftPaddingRegister, initialCharPos,
         numCharsReadAfterLeftPadding)
     }

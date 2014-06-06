@@ -2,31 +2,33 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 trait Parser {
-  def parse(input: DFDLCharReader): Option[ParseResult]
+  def parse(input: DFDLCharReader): Maybe[ParseResult]
 }
 
 trait DelimitedParser extends Parser with HasLongestMatch {
-  def parse(input: DFDLCharReader): Option[ParseResult] = parse(input, false)
-  def parse(input: DFDLCharReader, isDelimiterRequired: Boolean): Option[ParseResult]
+  def parse(input: DFDLCharReader): Maybe[ParseResult] = parse(input, false)
+  def parse(input: DFDLCharReader, isDelimiterRequired: Boolean): Maybe[ParseResult]
 }
 
 trait HasLongestMatch {
-  protected def longestMatch(matches: Seq[(DFADelimiter, Registers)]): Option[(DFADelimiter, Registers)] = {
-    if (matches.isEmpty) return None
+  protected def longestMatch(matches: Seq[(DFADelimiter, Registers)]): Maybe[(DFADelimiter, Registers)] = {
+    if (matches.isEmpty) return Nope
 
     val (minD, minR: Registers) = matches.minBy { case (d, r) => r.matchStartPos }
     val theFirstLongestMatch = {
       val minValue = matches.filter { case (d: DFADelimiter, r: Registers) => r.matchStartPos == minR.matchStartPos }
       minValue.maxBy { _._2.delimString.length }
     }
-    Some(theFirstLongestMatch)
+    One(theFirstLongestMatch)
   }
 }
 
-class ParseResult(val field: Option[String],
-  val matchedDelimiterValue: Option[String],
+class ParseResult(val field: Maybe[String],
+  val matchedDelimiterValue: Maybe[String],
   val originalDelimiterRep: String,
   val numCharsRead: Int,
   val numBits: Int,

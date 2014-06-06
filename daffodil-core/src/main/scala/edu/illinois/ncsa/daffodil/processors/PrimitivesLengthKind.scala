@@ -57,6 +57,8 @@ import edu.illinois.ncsa.daffodil.processors.dfa.Registers
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -559,9 +561,9 @@ abstract class StringDelimited(e: ElementBase)
   val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
   val staticDelimsCooked = staticDelimsCooked1.flatten
 
-  def ec: Option[Char] = if (escChar.isEmpty()) None else Some(escChar.charAt(0))
-  def eec: Option[Char] = if (escEscChar.isEmpty()) None else Some(escEscChar.charAt(0))
-  val pad: Option[Char] = if (padChar.isEmpty()) None else Some(padChar.charAt(0))
+  def ec: Maybe[Char] = if (escChar.isEmpty()) Nope else One(escChar.charAt(0))
+  def eec: Maybe[Char] = if (escEscChar.isEmpty()) Nope else One(escEscChar.charAt(0))
+  val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
 
   val (blockStart, blockEnd) = {
     val res: (Option[DFADelimiter], Option[DFADelimiter]) = esObj.escapeSchemeKind match {
@@ -574,19 +576,17 @@ abstract class StringDelimited(e: ElementBase)
   }
 
   val leftPaddingOpt: Option[TextPaddingParser] = {
-    pad match {
-      case None => None
-      case Some(padChar) => Some(new TextPaddingParser(padChar, e.knownEncodingStringBitLengthFunction))
-    }
+    if (!pad.isDefined) None
+    else Some(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
   }
 
   val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
 
-  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Option[dfa.ParseResult] = {
+  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[dfa.ParseResult] = {
 
     val delimsMatcher = CreateDelimiterMatcher(delims)
 
-    val result: Option[dfa.ParseResult] = esObj.escapeSchemeKind match {
+    val result: Maybe[dfa.ParseResult] = esObj.escapeSchemeKind match {
       case EscapeSchemeKind.Block => {
         val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEnd.get))
         val fieldEscDFA = CreateFieldDFA(blockEndMatcher, eec)
@@ -623,10 +623,11 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
-    val res = parseResult match {
-      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
-      case Some(result) => {
+  def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
+    val res = {
+      if (!parseResult.isDefined) parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      else {
+        val result = parseResult.get
         val field = result.field.getOrElse("")
         val numBits = result.numBits
         log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
@@ -635,9 +636,9 @@ abstract class StringDelimited(e: ElementBase)
         val currentElement = state.parentElement
         currentElement.setDataValue(field)
         val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
-        val finalState = result.matchedDelimiterValue match {
-          case None => stateWithPos
-          case Some(matchedVal) => stateWithPos.withDelimitedText(matchedVal, result.originalDelimiterRep)
+        val finalState = {
+          if (!result.matchedDelimiterValue.isDefined) stateWithPos
+          else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         }
         return finalState
       }
@@ -771,10 +772,11 @@ case class StringDelimitedEndOfDataDynamic(e: ElementBase)
 abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
   override val charset: Charset = Charset.forName("ISO-8859-1")
 
-  override def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
-    val res = parseResult match {
-      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
-      case Some(result) => {
+  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
+    val res = {
+      if (!parseResult.isDefined) parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      else {
+        val result = parseResult.get
         val field = result.field.getOrElse("")
         val numBits = elemBase.knownEncodingStringBitLengthFunction(field)
         log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
@@ -784,9 +786,9 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
         val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
         currentElement.setDataValue(hexStr)
         val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
-        val finalState = result.matchedDelimiterValue match {
-          case None => stateWithPos
-          case Some(matchedVal) => stateWithPos.withDelimitedText(matchedVal, result.originalDelimiterRep)
+        val finalState = {
+          if (!result.matchedDelimiterValue.isDefined) stateWithPos
+          else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         }
         return finalState
       }
@@ -811,10 +813,11 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
   val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
   val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
 
-  override def processResult(parseResult: Option[dfa.ParseResult], state: PState): PState = {
-    val res = parseResult match {
-      case None => parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
-      case Some(result) => {
+  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
+    val res = {
+      if (!parseResult.isDefined)parser.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      else {
+        val result = parseResult.get
         // We have a field, is it empty?
         val field = result.field.getOrElse("")
         val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
@@ -835,9 +838,9 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
           log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
           val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
-          val finalState = result.matchedDelimiterValue match {
-            case None => stateWithPos
-            case Some(matchedVal) => stateWithPos.withDelimitedText(matchedVal, result.originalDelimiterRep)
+          val finalState = {
+            if (!result.matchedDelimiterValue.isDefined) stateWithPos
+            else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
           }
           return finalState
         } else {

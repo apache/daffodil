@@ -48,6 +48,9 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+
 
 abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: Term, guard: Boolean = true)
   extends StaticText(delim, e, eb, kindString, guard)
@@ -124,15 +127,15 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
           case None => {
             textParser.delims = delims
             val result = textParser.parse(reader, true)
-            result match {
-              case None => {
-                val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-                log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                  this.toString(), eName, allDelims.mkString(", "), foundInstead)
-                return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                  this.toString(), eName, allDelims.mkString(", "), foundInstead)
-              }
-              case Some(res) if isRemoteText(res.originalDelimiterRep) => {
+            if (!result.isDefined) {
+              val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
+              log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
+                this.toString(), eName, allDelims.mkString(", "), foundInstead)
+              return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
+                this.toString(), eName, allDelims.mkString(", "), foundInstead)
+            } else {
+              val res = result.get
+              if (isRemoteText(res.originalDelimiterRep)) {
                 val (remoteDelimValue, remoteElemName, remoteElemPath) =
                   getMatchedDelimiterInfo(res.originalDelimiterRep, delimsCookedWithPosition)
 
@@ -140,8 +143,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
                   this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
                 return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
                   this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
-              }
-              case Some(res) => {
+              } else {
                 val numBits = res.numBits
                 val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
                 val endBitPosDelim = numBits + start.bitPos
@@ -153,7 +155,6 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
                 return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
               }
             }
-
           }
           case Some(found) if isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation) => {
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
@@ -457,18 +458,18 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             val delims = CreateDelimiterDFA(allDelims)
             textParser.delims = delims
             val result = textParser.parse(reader, true)
-            result match {
-              case None => {
-                val maxDelimLengthDynamic = computeMaxDelimiterLength(allDynamicDelims)
-                val maxDelimLength = Seq(maxDelimLengthDynamic, maxDelimLengthStatic).max
+            if (!result.isDefined) {
+              val maxDelimLengthDynamic = computeMaxDelimiterLength(allDynamicDelims)
+              val maxDelimLength = Seq(maxDelimLengthDynamic, maxDelimLengthStatic).max
 
-                val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-                log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                  this.toString(), eName, allDelims.mkString(", "), foundInstead)
-                return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                  this.toString(), eName, allDelims.mkString(", "), foundInstead)
-              }
-              case Some(res) if isRemoteText(res.originalDelimiterRep) => {
+              val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
+              log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
+                this.toString(), eName, allDelims.mkString(", "), foundInstead)
+              return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
+                this.toString(), eName, allDelims.mkString(", "), foundInstead)
+            } else {
+              val res = result.get
+              if (isRemoteText(res.originalDelimiterRep)) {
                 val (remoteDelimValue, remoteElemName, remoteElemPath) =
                   getMatchedDelimiterInfo(res.originalDelimiterRep, staticDelimsCookedWithPosition ::: dynamicDelimsCookedWithPosition)
 
@@ -476,8 +477,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
                   this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
                 return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
                   this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
-              }
-              case Some(res) => {
+              } else {
                 val numBits = res.numBits
                 val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
                 val endBitPosDelim = numBits + start.bitPos

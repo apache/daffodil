@@ -8,6 +8,8 @@ import edu.illinois.ncsa.daffodil.processors.NL
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.DelimBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 // This is the block of mutable things
 // including the source of characters.
@@ -182,7 +184,7 @@ abstract class State(states: => ArrayBuffer[State]) {
  * 1		1		0		Y
  * 1		1		1		Y
  */
-class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Option[Char], EC: Option[Char],
+class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Maybe[Char], EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -240,7 +242,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
  * StartState for Field portion of EscapeBlock.
  * Here compiledDelims should only contain the endBlock DFADelimiter.
  */
-class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Option[Char],
+class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
   val stateName: String = "StartState"
@@ -258,7 +260,7 @@ class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Option[Char]
 
 }
 
-class StartStateEscapeChar(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Option[Char],
+class StartStateEscapeChar(states: => ArrayBuffer[State], var EEC: Maybe[Char], var EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -382,40 +384,43 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], var EEC: Option[Char],
    */
   def getRules: ArrayBuffer[Rule] = {
 
-    val result = EEC match {
-      case None if !EC.isDefined => {
-        // No Escaping
-        rules_NoEscaping
-      }
-      case None if EC.isDefined && compiledDelims.couldBeFirstChar(EC.get) => {
-        // EC == PTERM0
-        rules_NO_EEC_BUT_EC_TERM_SAME
-      }
-      case None if EC.isDefined && !compiledDelims.couldBeFirstChar(EC.get) => {
-        // Unambiguous
-        rules_Unambiguous
-      }
-      case Some(escEsc) if EC.isDefined && !compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get) && escEsc != EC.get => {
-        // EC != EEC != PTERM0
-        rules_Unambiguous
-      }
-      case Some(escEsc) if EC.isDefined && EC.get == escEsc && compiledDelims.couldBeFirstChar(escEsc) => {
-        // EC == EEC == PTERM0
-        rules_EC_EEC_TERM_SAME
-      }
-      case Some(escEsc) if EC.isDefined && compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get) => {
-        // (EEC == PTERM0) != EC
-        rules_EEC_TERM_SAME_NOT_EC
-      }
-      case Some(escEsc) if EC.isDefined && !compiledDelims.couldBeFirstChar(escEsc) && compiledDelims.couldBeFirstChar(EC.get) => {
-        // (EC == PTERM0) != EEC
-        rules_EC_TERM_SAME_NOT_EEC
-      }
-      case Some(escEsc) if EC.isDefined && EC.get == escEsc && !compiledDelims.couldBeFirstChar(escEsc) => {
-        // (EC == EEC) != PTERM0
-        rules_EEC_EC_SAME_NOT_TERM
-      }
-      case _ => throw new Exception("Unexpected case.")
+    val result = {
+      if (!EEC.isDefined) {
+        if (!EC.isDefined) {
+          // No Escaping
+          rules_NoEscaping
+        } else {
+          if (compiledDelims.couldBeFirstChar(EC.get)) {
+            // EC == PTERM0
+            rules_NO_EEC_BUT_EC_TERM_SAME
+          } else {
+            // Unambiguous
+            rules_Unambiguous
+          }
+        }
+      } else if (EEC.isDefined && EC.isDefined) {
+        val escEsc = EEC.get
+        if (!compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get) && escEsc != EC.get) {
+          // EC != EEC != PTERM0
+          rules_Unambiguous
+        }
+        else if (EC.get == escEsc && compiledDelims.couldBeFirstChar(escEsc)) {
+          // EC == EEC == PTERM0
+          rules_EC_EEC_TERM_SAME
+        }
+        else if (compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get)) {
+          // (EEC == PTERM0) != EC
+          rules_EEC_TERM_SAME_NOT_EC
+        }
+        else if (!compiledDelims.couldBeFirstChar(escEsc) && compiledDelims.couldBeFirstChar(EC.get)) {
+          // (EC == PTERM0) != EEC
+          rules_EC_TERM_SAME_NOT_EEC
+        }
+        else if (EC.get == escEsc && !compiledDelims.couldBeFirstChar(escEsc)) {
+          // (EC == EEC) != PTERM0
+          rules_EEC_EC_SAME_NOT_TERM
+        } else throw new Exception("Unexpected case.")	
+      } else throw new Exception("Unexpected case.")
     }
     result
   }
@@ -442,7 +447,7 @@ class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher {
   val r: Registers = new Registers()
 }
 
-class ECState(states: => ArrayBuffer[State], var EC: Option[Char],
+class ECState(states: => ArrayBuffer[State], var EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -477,7 +482,7 @@ class ECState(states: => ArrayBuffer[State], var EC: Option[Char],
     })
 }
 
-class EECState(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Option[Char],
+class EECState(states: => ArrayBuffer[State], var EEC: Maybe[Char], var EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -521,7 +526,7 @@ class EECState(states: => ArrayBuffer[State], var EEC: Option[Char], var EC: Opt
     })
 }
 
-class EECStateBlock(states: => ArrayBuffer[State], var EEC: Option[Char],
+class EECStateBlock(states: => ArrayBuffer[State], var EEC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
