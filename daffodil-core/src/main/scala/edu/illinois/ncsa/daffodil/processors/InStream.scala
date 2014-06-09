@@ -50,6 +50,8 @@ import org.apache.commons.io.IOUtils
 import java.nio.file.Files
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 object InStream {
 
@@ -111,9 +113,9 @@ trait InStream {
   def bitLimit: Long
   def charPos: Long
   def charLimit: Long
-  def reader: Option[DFDLCharReader]
+  def reader: Maybe[DFDLCharReader]
 
-  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream
+  def withPos(newBitPos: Long, newCharPos: Long, newReader: Maybe[DFDLCharReader]): InStream
   def withPos(newBitPos: Long, newCharPos: Long): InStream
   def withEndBitLimit(newBitLimit: Long): InStream
 
@@ -195,7 +197,7 @@ case class InStreamFromByteChannel private (
   var bitPos: Long,
   var bitLimit: Long,
   var charLimit: Long,
-  var reader: Option[DFDLCharReader])
+  var reader: Maybe[DFDLCharReader])
   extends InStream
   with Logging
   with WithParseErrorThrowing {
@@ -242,8 +244,8 @@ case class InStreamFromByteChannel private (
    * or the actual amount of alignment fill to be skipped in a particular data stream is 0, then
    * one should preserve the reader.
    */
-  def withPos(newBitPos: Long, newCharPos: Long, newReader: Option[DFDLCharReader]): InStream = {
-    Assert.invariant((newCharPos == -1 && (newReader == None)) || (newCharPos > -1 && !(newReader == None)))
+  def withPos(newBitPos: Long, newCharPos: Long, newReader: Maybe[DFDLCharReader]): InStream = {
+    Assert.invariant((newCharPos == -1 && (newReader == Nope)) || (newCharPos > -1 && !(newReader == Nope)))
     //    newReader.foreach { rdr =>
     //      if (rdr.characterPos != newCharPos)
     //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
@@ -255,17 +257,15 @@ case class InStreamFromByteChannel private (
   }
 
   def withPos(newBitPos: Long, newCharPos: Long): InStream = {
-    val rdr = reader match {
-      case None => {
-        //        if (newCharPos != -1)
-        //          println("withPos setting newCharPos to value %s when there is no reader".format(newCharPos))
-        None
-      }
-      case Some(rdr) if (newCharPos == -1) => None
-      case Some(rdr) => {
-        // if (rdr.characterPos != newCharPos)
-        // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
-        Some(rdr.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
+    val rdr = {
+      if (!reader.isDefined) None
+      else {
+        if (newCharPos == -1) None
+        else {
+          // if (rdr.characterPos != newCharPos)
+          // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
+          Some(reader.get.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
+        }
       }
     }
     // copy(bitPos = newBitPos, reader = rdr)
@@ -289,12 +289,13 @@ case class InStreamFromByteChannel private (
   }
 
   def getCharReader(charset: Charset, bitPos: Long): DFDLCharReader = {
-    val rdr = reader match {
-      case None => {
+    val rdr = {
+      if (!reader.isDefined){
         // println("Miss: no reader found in PState")
         byteReader.newCharReader(charset, bitPos, bitLimit)
       }
-      case Some(rdr) => {
+      else {
+        val rdr = reader.get
         rdr.charset match {
           case `charset` => {
             // println("getCharReader: rdr.bitLimit = " + rdr.bitLimit + " inStream bitLimit = " + bitLimit)
@@ -311,7 +312,7 @@ case class InStreamFromByteChannel private (
         }
       }
     }
-    reader = Some(rdr) // cache the reader in the InStream so it will be here again if needed.
+    reader = One(rdr) // cache the reader in the InStream so it will be here again if needed.
     rdr
   }
 

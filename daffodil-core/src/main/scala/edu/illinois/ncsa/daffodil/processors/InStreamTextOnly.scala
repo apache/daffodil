@@ -27,6 +27,8 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.io.FastAsciiToUnicodeConverter
 import scala.util.parsing.input.Position
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * Shares constants so that the pure-functional scala I/O Reader[Char]
@@ -125,21 +127,21 @@ case class InStreamFixedWidthTextOnly(
   def bitLimit = info.bitLimit
 
   override def charPos: Long = cPos0b
-  override val reader = Some(this)
+  override val reader: Maybe[DFDLCharReader] = One(this)
 
-  def withPos(newBitPos0b: Long, newCharPos0b: Long, reader: Option[DFDLCharReader]): InStream = {
+  def withPos(newBitPos0b: Long, newCharPos0b: Long, reader: Maybe[DFDLCharReader]): InStream = {
     Assert.usage(newBitPos0b >= 0)
     Assert.invariant(newCharPos0b == -1 || (newBitPos0b / info.bitsPerChar) == newCharPos0b)
     // We don't use the reader being provided because this object IS the reader.
     // However, the existing code does think it has computed a new reader and passes
     // it to us. So we might as well verify that it is doing that consistently.
-    reader match {
-      case None => // nothing
-      case Some(x: InStreamFixedWidthTextOnly) => {
-        Assert.invariant(x.info == info)
+    if (reader.isDefined) {
+      if (reader.get.isInstanceOf[InStreamFixedWidthTextOnly]) {
+        Assert.invariant(reader.get.asInstanceOf[InStreamFixedWidthTextOnly].info == info)
       }
-      case _ => Assert.invariantFailed("not same inStream/reader")
+      else Assert.invariantFailed("not same inStream/reader")
     }
+    
     atBitPos(newBitPos0b)
   }
 

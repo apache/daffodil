@@ -63,6 +63,7 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.Maybe
 
 /**
  * A parser takes a state, and returns an updated state
@@ -82,7 +83,7 @@ case class PState(
   var status: ProcessorResult,
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
-  var foundDelimiter: Option[FoundDelimiterText])
+  var foundDelimiter: Maybe[FoundDelimiterText])
   extends DFDL.State with ThrowsSDE {
 
   def duplicate() = {
@@ -276,7 +277,7 @@ case class PState(
    * needs to avoid just passing None also. So this Scaladoc appears both here and on the withPos
    * method of inStream.
    */
-  def withPos(bitPos: Long, charPos: Long, reader: Option[DFDLCharReader]) = {
+  def withPos(bitPos: Long, charPos: Long, reader: Maybe[DFDLCharReader]) = {
     val newInStream = inStream.withPos(bitPos, charPos, reader)
     //    copy(inStream = newInStream)
     this.inStream = newInStream
@@ -328,8 +329,8 @@ object PState {
     val status = Success
     val diagnostics = Nil
     val discriminator = false
-    val textReader: Option[DFDLCharReader] = None
-    val foundDelimiter: Option[FoundDelimiterText] = None
+    val textReader: Maybe[DFDLCharReader] = None
+    val foundDelimiter: Maybe[FoundDelimiterText] = None
     SchemaComponentRegistry.setup(scr)
     SchemaComponentRegistry.setup(dataProc)
     ArrayIndexStack.setup()
