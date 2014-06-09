@@ -138,9 +138,8 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   val isHidden = context.isHidden
 
-  def beginParser: Parser = new ElementBeginParser(context)
-  def endParser: Parser = new ElementEndParser(context)
-  def parser: Parser = new StatementElementParser(context)
+  def parser: Parser = new StatementElementParser(context, new ElementBeginParser(context),  new ElementEndParser(context))
+
   def unparser: Unparser = new Unparser(context) {
     def unparse(start: UState): UState = {
       // FIXME: setVariables have to execute. We don't do asserts and discriminators when unparsing however.
@@ -181,7 +180,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
     def parse(pstate: PState): PState = parseElementEnd(pstate)
   }
 
-  class StatementElementParser(context: ElementBase) extends PrimParser(this, context) {
+  class StatementElementParser(context: ElementBase, beginParser: Parser, endParser: Parser) extends PrimParser(this, context) {
 
     Assert.invariant(testDiscrim.size <= 1)
     Assert.invariant(patDiscrim.size <= 1)
