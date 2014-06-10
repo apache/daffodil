@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   extends LiteralNilInBytesBase(e, "LiteralNilExplicit") {
@@ -136,7 +138,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
             log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
             log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            return postEvalState.withPos(endBitPos, endCharPos, Some(reader)) // Need to advance past found nilValue
+            return postEvalState.withPos(endBitPos, endCharPos, One(reader)) // Need to advance past found nilValue
           } else {
             // Fail!
             return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
@@ -252,7 +254,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
               log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
               log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+              return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
             } else {
               // Fail!
               return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
@@ -345,7 +347,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
               log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
               //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+              return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
             } else {
               // Fail!
               return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
@@ -432,7 +434,7 @@ case class LiteralNilPattern(e: ElementBase)
               log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
               log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-              return postEvalState.withPos(endBitPos, endCharPos, Some(s.next)) // Need to advance past found nilValue
+              return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
             } else {
               // Fail!
               return PE(postEvalState, "%s - Does not contain a nil literal!", eName)

@@ -6,6 +6,8 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimParserCommon(stringBitLengthFunction) {
 
@@ -17,7 +19,7 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
     //val res = this.parse(entry, input)
 
     res match {
-      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)
+      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, Nope, DelimiterLocation.Local)
       case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }
@@ -30,7 +32,7 @@ class DFDLDelimParser(stringBitLengthFunction: String => Int) extends DFDLDelimP
     //val res = this.parse(entry, input)
 
     res match {
-      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, None, DelimiterLocation.Local)
+      case s @ Success(_, _) => DelimParseSuccessFactory(s, "", DelimiterType.NotDelimited, Nope, DelimiterLocation.Local)
       case f: NoSuccess => DelimParseFailure(f.msg, f.next)
     }
   }

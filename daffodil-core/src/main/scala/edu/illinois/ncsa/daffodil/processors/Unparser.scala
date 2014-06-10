@@ -50,13 +50,15 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class UnparseAlternativeFailed(sc: SchemaComponent, state: UState, val errors: Seq[Diagnostic])
-  extends UnparseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
+  extends UnparseError(sc, One(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltUnparseFailed(sc: SchemaComponent, state: UState,
   val p: Diagnostic, val q: Diagnostic)
-  extends UnparseError(sc, Some(state), "All alternatives failed. Reason(s): %s", p, q) {
+  extends UnparseError(sc, One(state), "All alternatives failed. Reason(s): %s", p, q) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = p.getLocationsInSchemaFiles ++ q.getLocationsInSchemaFiles
 
@@ -67,7 +69,7 @@ class AltUnparseFailed(sc: SchemaComponent, state: UState,
   }
 }
 
-class UnparseError(sc: SchemaComponent, ustate: Option[UState], kind: String, args: Any*) extends ProcessingError {
+class UnparseError(sc: SchemaComponent, ustate: Maybe[UState], kind: String, args: Any*) extends ProcessingError {
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
   override def getDataLocations: Seq[DataLocation] = ustate.map { _.currentLocation }.toList
 
@@ -100,7 +102,7 @@ abstract class Unparser(val context: AnnotatedSchemaComponent) extends Logging {
 
   def UE(ustate: UState, kind: String, args: Any*) = {
     ustate.outStream.clearCharBuffer()
-    ustate.failed(new UnparseError(context, Some(ustate), kind, args: _*))
+    ustate.failed(new UnparseError(context, One(ustate), kind, args: _*))
   }
 
   def processingError(ustate: UState, kind: String, args: Any*) =

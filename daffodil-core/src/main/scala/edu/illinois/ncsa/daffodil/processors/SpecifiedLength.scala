@@ -7,6 +7,8 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
   extends Terminal(e, true)
@@ -122,7 +124,7 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
         // Check that the parsed length is less than or equal to the length of the parent
         //Assert.invariant(postState2.bitPos <= endBitPos)
         this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children (%s bits) was greater than that of the parent (%s bits).", postState2.bitPos, endBitPos)
-        postState3.withPos(endBitPos, -1, None)
+        postState3.withPos(endBitPos, -1, Nope)
       }
       case _ => postState3
     }

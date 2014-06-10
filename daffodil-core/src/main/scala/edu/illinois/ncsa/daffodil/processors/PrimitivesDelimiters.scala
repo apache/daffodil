@@ -361,11 +361,11 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   }
   lazy val staticDelimsCooked = staticDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
 
-  val constantLocalDelimsCooked: Option[List[String]] = delimExpr.isConstant match {
-    case false => None
+  val constantLocalDelimsCooked: Maybe[List[String]] = delimExpr.isConstant match {
+    case false => Nope
     case true => {
       val cookedResult = new ListOfStringValueAsLiteral(delimExpr.constantAsString, e).cooked
-      Some(cookedResult)
+      One(cookedResult)
     }
   }
   val allStaticDelims = {
@@ -591,11 +591,11 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   private def checkPadCharDistinctness(
-    padChar: Option[String],
-    escChar: Option[String],
-    escEscChar: Option[String],
-    escBlockStart: Option[String],
-    escBlockEnd: Option[String],
+    padChar: Maybe[String],
+    escChar: Maybe[String],
+    escEscChar: Maybe[String],
+    escBlockStart: Maybe[String],
+    escBlockEnd: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 
@@ -625,7 +625,7 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   private def checkEscCharDistinctness(
-    escChar: Option[String],
+    escChar: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 
@@ -638,9 +638,9 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   private def checkEscEscCharDistinctness(
-    escEscChar: Option[String],
-    escBlockStart: Option[String],
-    escBlockEnd: Option[String],
+    escEscChar: Maybe[String],
+    escBlockStart: Maybe[String],
+    escBlockEnd: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 
@@ -665,8 +665,8 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   private def checkEscapeBlockDistinctness(
-    escBlockStart: Option[String],
-    escBlockEnd: Option[String],
+    escBlockStart: Maybe[String],
+    escBlockEnd: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 
@@ -684,11 +684,11 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   private def checkDelimiterDistinctness_(
-    padChar: Option[String],
-    escChar: Option[String],
-    escEscChar: Option[String],
-    escBlockStart: Option[String],
-    escBlockEnd: Option[String],
+    padChar: Maybe[String],
+    escChar: Maybe[String],
+    escEscChar: Maybe[String],
+    escBlockStart: Maybe[String],
+    escBlockEnd: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 
@@ -700,11 +700,11 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
 
   def checkDelimiterDistinctness(
     escapeSchemeKind: EscapeSchemeKind.Type,
-    optPadChar: Option[String],
-    optEscChar: Option[String], // Could be a DFDL expression
-    optEscEscChar: Option[String], // Could be a DFDL expression
-    optEscBlkStart: Option[String],
-    optEscBlkEnd: Option[String],
+    optPadChar: Maybe[String],
+    optEscChar: Maybe[String], // Could be a DFDL expression
+    optEscEscChar: Maybe[String], // Could be a DFDL expression
+    optEscBlkStart: Maybe[String],
+    optEscBlkEnd: Maybe[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 

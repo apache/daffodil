@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ AlignmentUnits, 
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
@@ -52,7 +54,7 @@ case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   def parser: DaffodilParser = new PrimParser(this, e) {
     def parse(pstate: PState) = {
       val newBitPos = alignment * e.leadingSkip + pstate.bitPos
-      pstate.withPos(newBitPos, -1, None)
+      pstate.withPos(newBitPos, -1, Nope)
     }
 
     override def toString = "leadingSkip(" + e.leadingSkip + ")"
@@ -83,7 +85,7 @@ case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
   def parser: Parser = new PrimParser(this, e) {
     def parse(pstate: PState) = {
       val newBitPos = alignment * e.trailingSkip + pstate.bitPos
-      pstate.withPos(newBitPos, -1, None)
+      pstate.withPos(newBitPos, -1, Nope)
     }
     override def toString = "trailingSkip(" + e.trailingSkip + ")"
   }
@@ -106,7 +108,7 @@ case class AlignmentFill(e: Term) extends Terminal(e, true) {
       if (!isAligned(pstate.bitPos)) {
         val maxBitPos = pstate.bitPos + alignment - 1
         val newBitPos = maxBitPos - maxBitPos % alignment
-        pstate.withPos(newBitPos, -1, None)
+        pstate.withPos(newBitPos, -1, Nope)
       } else
         pstate
     }
@@ -170,8 +172,8 @@ trait Padded { self: Terminal =>
   }
 
   val optPadChar = padChar match {
-    case "" => None
-    case x => Some(x)
+    case "" => Nope
+    case x => One(x)
   }
 
   def removeRightPadding(str: String): String = str.reverse.dropWhile(c => c == padChar.charAt(0)).reverse

@@ -136,7 +136,7 @@ class TestExternalVariablesNew {
       case None => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Some((key, value)) => {
         // Found var1 but is the value correct?
-        assertTrue(value.toString.contains("Variable(VariableDefined,Some(" + expectedValue + ")"))
+        assertTrue(value.toString.contains("Variable(VariableDefined,One(" + expectedValue + ")"))
       }
     }
   }

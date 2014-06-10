@@ -224,7 +224,7 @@ case class InStreamFromByteChannel private (
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
   def this(context: SchemaComponent, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) =
-    this(context, new DFDLByteReader(inArg, bitOrder), bitOffset, bitLimit, -1, None)
+    this(context, new DFDLByteReader(inArg, bitOrder), bitOffset, bitLimit, -1, Nope)
 
   /**
    * withPos changes the bit position of the stream, and maintains the char reader
@@ -258,13 +258,13 @@ case class InStreamFromByteChannel private (
 
   def withPos(newBitPos: Long, newCharPos: Long): InStream = {
     val rdr = {
-      if (!reader.isDefined) None
+      if (!reader.isDefined) Nope
       else {
-        if (newCharPos == -1) None
+        if (newCharPos == -1) Nope
         else {
           // if (rdr.characterPos != newCharPos)
           // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
-          Some(reader.get.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
+          One(reader.get.atCharPos(newCharPos.toInt)) // TODO: 32-bit offset limit! (not our fault)
         }
       }
     }

@@ -9,6 +9,8 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 object ElementCombinator {
   def apply(context: ElementBase, eGram: Gram, eAfterGram: Gram) = {
@@ -237,7 +239,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
         if (eParser.isInstanceOf[EmptyGramParser]) postElementStartState
         else eParser.parse1(postElementStartState, context)
 
-      var someSetVarFailed: Option[PState] = None
+      var someSetVarFailed: Maybe[PState] = Nope
 
       var afterSetVar = postEState
       if (postEState.status == Success) {
@@ -253,7 +255,7 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
             //
             // So it's a bit odd, but we're going to just keep parsing using this
             // failed state as the input to the next setVariable parse step.
-            someSetVarFailed = Some(afterOneSetVar)
+            someSetVarFailed = One(afterOneSetVar)
             afterSetVar = afterOneSetVar
           }
         })

@@ -146,7 +146,7 @@ case class InStreamFixedWidthTextOnly(
   }
 
   def withPos(newBitPos: Long, newCharPos: Long): InStream = {
-    withPos(newBitPos, newCharPos, None)
+    withPos(newBitPos, newCharPos, Nope)
   }
 
   def withEndBitLimit(newBitLimit: Long): InStream = {

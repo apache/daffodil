@@ -57,6 +57,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.xpath.NodeSetResult
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -853,7 +855,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
             DFDLFunctions.currentPState = Some(state)
             val expression = expressionList.mkString(" ")
             val element = state.infoset match {
-              case e: InfosetElement => Some(e)
+              case e: InfosetElement => One(e)
               case d: InfosetDocument => d.getRootElement()
             }
             val res = element.map { e =>

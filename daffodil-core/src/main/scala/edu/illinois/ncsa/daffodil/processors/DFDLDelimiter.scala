@@ -40,6 +40,8 @@ import java.util.regex.Pattern
 import scala.collection.mutable.Queue
 import scala.util.control.Breaks
 import edu.illinois.ncsa.daffodil.util.Enum
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -117,28 +119,26 @@ class Delimiter {
           // return the equivalent representation (if any)
           val result = getReducedDelim(numWSP, numWSP_Plus, numWSP_Star)
 
-          result match {
-            case Some(x) => {
-              // WSP exists and an equivalent representation was found
-              x.index = idx // Set the delimiter's index
-              q += x
-              idx += 1
-            }
-            case None => {
-              // Reduction not possible, but did we come across
-              // more than one WSP?
+          if (result.isDefined) {
+            val x = result.get
+            // WSP exists and an equivalent representation was found
+            x.index = idx // Set the delimiter's index
+            q += x
+            idx += 1
+          } else {
+            // Reduction not possible, but did we come across
+            // more than one WSP?
 
-              var i = 0
-              while (i < numWSP) {
-                val wsp = new WSPDelim
-                wsp.index = idx
-                q += wsp
-                idx += 1
-                i += 1
-              }
+            var i = 0
+            while (i < numWSP) {
+              val wsp = new WSPDelim
+              wsp.index = idx
+              q += wsp
+              idx += 1
+              i += 1
             }
           }
-
+          
           // Set the delimiter's index, needed to
           // update the delimBuf individual node (DelimBase) state later
           delim.index = idx
@@ -157,33 +157,31 @@ class Delimiter {
     // ends in spaces
     val result = getReducedDelim(numWSP, numWSP_Plus, numWSP_Star)
 
-    result match {
-      case Some(x) => {
-        x.index = idx
-        q += x
-      }
-      case None => {
-        // Reduction not possible, but did we come across
-        // more than one WSP?
+    if (result.isDefined) {
+      val x = result.get
+      x.index = idx
+      q += x
+    } else {
+      // Reduction not possible, but did we come across
+      // more than one WSP?
 
-        var i = 0
-        while (i < numWSP) {
-          val wsp = new WSPDelim
-          wsp.index = idx
-          q += wsp
-          idx += 1
-          i += 1
-        }
+      var i = 0
+      while (i < numWSP) {
+        val wsp = new WSPDelim
+        wsp.index = idx
+        q += wsp
+        idx += 1
+        i += 1
       }
     }
-
+    
     q.toArray[DelimBase]
   }
 
   // Based upon what WSP delimiters were encountered,
   // determine the equivalent representation (if any) and return it.
   //
-  def getReducedDelim(numWSP: Int, numWSP_Plus: Int, numWSP_Star: Int): Option[DelimBase] = {
+  def getReducedDelim(numWSP: Int, numWSP_Plus: Int, numWSP_Star: Int): Maybe[DelimBase] = {
     // 				TRUTH TABLE
     //		WSP		WSP+	WSP*	RESULT
     // 1	0		0		0		NONE
@@ -196,18 +194,18 @@ class Delimiter {
     // 8	1		1		1		WSP+
     if (numWSP_Plus != 0) {
       // Case: 3, 4, 7, 8
-      return Some(new WSPPlusDelim())
+      return One(new WSPPlusDelim())
     } else if (numWSP != 0 && numWSP_Plus == 0 && numWSP_Star != 0) { // WSP+ == 0
       // Case: 6
-      return Some(new WSPPlusDelim())
+      return One(new WSPPlusDelim())
     } else if (numWSP == 0 && numWSP_Plus == 0 && numWSP_Star != 0) {
       // Case: 2
-      return Some(new WSPStarDelim())
+      return One(new WSPStarDelim())
     } else if (numWSP == 1 && numWSP_Plus == 0 && numWSP_Star == 0) {
       // Case: 5
-      return Some(new WSPDelim())
+      return One(new WSPDelim())
     }
-    None
+    Nope
   }
 
   // Creates a RegEx representation of the delimiter.
@@ -274,7 +272,7 @@ class Delimiter {
   // Returns the first character class in the String
   // or None if one is not found
   //
-  def findCharClasses(str: String): (Int, Option[DelimBase]) = {
+  def findCharClasses(str: String): (Int, Maybe[DelimBase]) = {
     val mNL: Matcher = NL.matcher(str)
     val mWSP: Matcher = WSP.matcher(str)
     val mWSP_Plus: Matcher = WSP_Plus.matcher(str)
@@ -303,14 +301,14 @@ class Delimiter {
       val minItem = classList.minBy(x => x._2._1)
       length = minItem._2._2 - minItem._2._1
       val result = minItem._1 match {
-        case "NL" => (length, Some(new NLDelim()))
-        case "WSP" => (length, Some(new WSPDelim()))
-        case "WSP+" => (length, Some(new WSPPlusDelim()))
-        case "WSP*" => (length, Some(new WSPStarDelim()))
+        case "NL" => (length, One(new NLDelim()))
+        case "WSP" => (length, One(new WSPDelim()))
+        case "WSP+" => (length, One(new WSPPlusDelim()))
+        case "WSP*" => (length, One(new WSPStarDelim()))
       }
       return result
     }
-    (-1, None) // Unrecognized CharClass
+    (-1, Nope) // Unrecognized CharClass
   }
 
   // Populates the delimBuf object with an object

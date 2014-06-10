@@ -45,6 +45,8 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterType._
 import edu.illinois.ncsa.daffodil.processors.DelimiterLocation._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.Array.canBuildFrom
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 import scala.language.reflectiveCalls
 
@@ -99,7 +101,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
      * If content is supplied then it is used to determine the field length.
      * If None then the extracted field value itself is used.
      */
-    def apply(res: Success[String], delimiter: String, delimiterType: DelimiterType.Type, contentOpt: Option[String],
+    def apply(res: Success[String], delimiter: String, delimiterType: DelimiterType.Type, contentOpt: Maybe[String],
       dLoc: DelimiterLocation.Type) = {
 
       val Success(fieldResult, next) = res

@@ -43,6 +43,8 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 import java.math.BigInteger
 import java.text.ParsePosition
@@ -425,11 +427,11 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
 }
 
 abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) {
-  protected def checkUnique(decimalSepList: Option[List[Char]],
-    groupingSep: Option[Char],
-    exponentRep: Option[String],
-    infRep: Option[String],
-    nanRep: Option[String],
+  protected def checkUnique(decimalSepList: Maybe[List[Char]],
+    groupingSep: Maybe[Char],
+    exponentRep: Maybe[String],
+    infRep: Maybe[String],
+    nanRep: Maybe[String],
     zeroRep: List[String],
     context: ThrowsSDE) = {
 
@@ -453,21 +455,21 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
     context.schemaDefinitionUnless(dupeStrings.size == 0, dupeStrings.mkString("\n"))
   }
 
-  protected def generateNumFormat(decimalSepList: Option[List[Char]],
-    groupingSep: Option[Char],
+  protected def generateNumFormat(decimalSepList: Maybe[List[Char]],
+    groupingSep: Maybe[Char],
     exponentRep: String,
-    infRep: Option[String],
-    nanRep: Option[String],
+    infRep: Maybe[String],
+    nanRep: Maybe[String],
     checkPolicy: TextNumberCheckPolicy,
     pattern: String,
     rounding: TextNumberRounding,
-    roundingMode: Option[TextNumberRoundingMode],
-    roundingIncrement: Option[Double],
+    roundingMode: Maybe[TextNumberRoundingMode],
+    roundingIncrement: Maybe[Double],
     context: ThrowsSDE) = {
 
     checkUnique(decimalSepList,
       groupingSep,
-      Some(exponentRep),
+      One(exponentRep),
       infRep,
       nanRep,
       parserHelper.zeroRepListRaw,
@@ -591,16 +593,16 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
 
 class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Option[CompiledExpression],
-  groupingSepExp: Option[CompiledExpression],
+  decimalSepExp: Maybe[CompiledExpression],
+  groupingSepExp: Maybe[CompiledExpression],
   exponentRepExp: CompiledExpression,
-  infRep: Option[String],
-  nanRep: Option[String],
+  infRep: Maybe[String],
+  nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
   pattern: String,
   rounding: TextNumberRounding,
-  roundingMode: Option[TextNumberRoundingMode],
-  roundingIncrement: Option[Double])
+  roundingMode: Maybe[TextNumberRoundingMode],
+  roundingIncrement: Maybe[Double])
   extends NumberFormatFactoryBase[S](parserHelper) {
   Assert.invariant((!decimalSepExp.isDefined || decimalSepExp.get.isConstant) &&
     (!groupingSepExp.isDefined || groupingSepExp.get.isConstant) &&
@@ -633,16 +635,16 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
 
 class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   parserHelper: ConvertTextNumberParserUnparserHelperBase[S],
-  decimalSepExp: Option[CompiledExpression],
-  groupingSepExp: Option[CompiledExpression],
+  decimalSepExp: Maybe[CompiledExpression],
+  groupingSepExp: Maybe[CompiledExpression],
   exponentRepExp: CompiledExpression,
-  infRep: Option[String],
-  nanRep: Option[String],
+  infRep: Maybe[String],
+  nanRep: Maybe[String],
   checkPolicy: TextNumberCheckPolicy,
   pattern: String,
   rounding: TextNumberRounding,
-  roundingMode: Option[TextNumberRoundingMode],
-  roundingIncrement: Option[Double])
+  roundingMode: Maybe[TextNumberRoundingMode],
+  roundingIncrement: Maybe[Double])
   extends NumberFormatFactoryBase[S](parserHelper) {
   type CachedDynamic[A] = Either[CompiledExpression, A]
 
@@ -660,7 +662,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
   }
 
-  def cacheConstantExpression[A](oe: Option[CompiledExpression])(conv: (Any) => A): Option[CachedDynamic[A]] = {
+  def cacheConstantExpression[A](oe: Maybe[CompiledExpression])(conv: (Any) => A): Maybe[CachedDynamic[A]] = {
     oe.map { e => cacheConstantExpression[A](e)(conv) }
   }
 
@@ -679,39 +681,35 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     }
   }
 
-  def evalWithConversion[A](s: PState, oe: Option[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, Option[A]) = {
-    oe match {
-      case Some(e) => {
-        val (s1, a) = evalWithConversion[A](s, e)(conv)
-        (s1, Some(a))
-      }
-      case None => (s, None)
+  def evalWithConversion[A](s: PState, oe: Maybe[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, Maybe[A]) = {
+    if (oe.isDefined) {
+        val (s1, a) = evalWithConversion[A](s, oe.get)(conv)
+        (s1, One(a))      
     }
+    else (s, Nope)
   }
 
-  // With an property that can potentially be compiled, this returns an Option,
-  // which is either Some(s) if the value of the property is static, or None
+  // With an property that can potentially be compiled, this returns a Maybe,
+  // which is either One(s) if the value of the property is static, or Nope
   // otherwise
-  def getStatic[A](e: CachedDynamic[A]): Option[A] = {
+  def getStatic[A](e: CachedDynamic[A]): Maybe[A] = {
     e match {
-      case Left(l) => None
-      case Right(r) => Some(r)
+      case Left(l) => Nope
+      case Right(r) => One(r)
     }
   }
 
-  def getStatic[A](oe: Option[CachedDynamic[A]]): Option[A] = {
-    oe match {
-      case Some(e) => getStatic(e)
-      case None => None
-    }
+  def getStatic[A](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
+    if (oe.isDefined) getStatic(oe.get)
+    else Nope
   }
 
-  val decimalSepListCached: Option[CachedDynamic[List[Char]]] =
+  val decimalSepListCached: Maybe[CachedDynamic[List[Char]]] =
     cacheConstantExpression(decimalSepExp) {
       (a: Any) => getDecimalSepList(a.asInstanceOf[String], staticContext)
     }
 
-  val groupingSepCached: Option[CachedDynamic[Char]] =
+  val groupingSepCached: Maybe[CachedDynamic[Char]] =
     cacheConstantExpression(groupingSepExp) {
       (a: Any) => getGroupingSep(a.asInstanceOf[String], staticContext)
     }
@@ -805,31 +803,31 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 
     val (roundingIncrement, roundingMode) =
       e.textNumberRounding match {
-        case TextNumberRounding.Explicit => (Some(e.textNumberRoundingIncrement), Some(e.textNumberRoundingMode))
-        case TextNumberRounding.Pattern => (None, None)
+        case TextNumberRounding.Explicit => (One(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
+        case TextNumberRounding.Pattern => (Nope, Nope)
       }
 
     val (infRep, nanRep) =
       if (h.allowInfNaN) {
-        (Some(e.textStandardInfinityRep), Some(e.textStandardNaNRep))
+        (One(e.textStandardInfinityRep), One(e.textStandardNaNRep))
       } else {
-        (None, None)
+        (Nope, Nope)
       }
 
     val decSep =
       if (!h.isInt && (patternStripped.contains(".") ||
         patternStripped.contains("E") ||
         patternStripped.contains("@"))) {
-        Some(e.textStandardDecimalSeparator)
+        One(e.textStandardDecimalSeparator)
       } else {
-        None
+        Nope
       }
 
     val groupSep =
       if (patternStripped.contains(",")) {
-        Some(e.textStandardGroupingSeparator)
+        One(e.textStandardGroupingSeparator)
       } else {
-        None
+        Nope
       }
 
     val isConstant = ((decSep.isEmpty || decSep.get.isConstant) &&

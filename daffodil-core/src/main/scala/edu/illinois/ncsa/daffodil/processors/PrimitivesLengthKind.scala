@@ -176,7 +176,7 @@ abstract class StringLengthInChars(e: ElementBase, nChars: Long)
         currentElement.setDataValue(parsedField)
 
         val nextReader = reader.atBitPos(endBitPos)
-        val postState = start.withPos(endBitPos, endCharPos, Some(nextReader))
+        val postState = start.withPos(endBitPos, endCharPos, One(nextReader))
         return postState
       }
     }
@@ -228,10 +228,10 @@ abstract class StringLengthInBytes(e: ElementBase)
     val postState = {
       // TODO: Shouldn't the 8 * nBytes really be codepointWidth * nBytes?
       if ((endBitPos - start.bitPos) == (8 * nBytes)) {
-        start.withPos(endBitPos, endCharPos, Some(reader))
+        start.withPos(endBitPos, endCharPos, One(reader))
       } else {
         Assert.invariant((endBitPos - start.bitPos) < (8 * nBytes))
-        start.withPos(endBitPos, -1, None)
+        start.withPos(endBitPos, -1, Nope)
         // -1 means a subsequent primitive will have to construct
         // a new reader at said bitPosition              
       }
@@ -426,7 +426,7 @@ case class StringPatternMatched(e: ElementBase)
             val currentElement = start.parentElement
             val field = trimByJustification(s.field)
             currentElement.setDataValue(field)
-            start.withPos(endBitPos, endCharPos, Some(s.next))
+            start.withPos(endBitPos, endCharPos, One(s.next))
           }
 
         }
@@ -449,52 +449,48 @@ trait HasEscapeScheme { self: StringDelimited =>
 
   lazy val optEscBlkStart =
     esObj.escapeBlockStart match {
-      case "" => None
-      case x => Some(x)
+      case "" => Nope
+      case x => One(x)
     }
 
   lazy val optEscBlkEnd =
     esObj.escapeBlockEnd match {
-      case "" => None
-      case x => Some(x)
+      case "" => Nope
+      case x => One(x)
     }
 
-  protected def constEval(knownValue: Option[String]) = {
-    val optConstValue = knownValue match {
-      case None => None
-      case Some(constValue) => {
-        val l = new SingleCharacterLiteralES(constValue, context)
+  protected def constEval(knownValue: Maybe[String]) = {
+    val optConstValue = {
+      if (!knownValue.isDefined) Nope
+      else {
+        val l = new SingleCharacterLiteralES(knownValue.get, context)
         val result = l.cooked
-        Some(result)
+        One(result)
       }
     }
     optConstValue
   }
 
-  protected def evalAsConstant(knownValue: Option[CompiledExpression]) = {
-    knownValue match {
-      case None => None
-      case Some(ce) if ce.isConstant => {
-        val constValue = ce.constantAsString
+  protected def evalAsConstant(knownValue: Maybe[CompiledExpression]) = {
+    if (!knownValue.isDefined) Nope
+    else if (knownValue.get.isConstant){
+        val constValue = knownValue.get.constantAsString
         val l = new SingleCharacterLiteralES(constValue, context)
         val result = l.cooked
-        Some(result)
-      }
-      case Some(_) => None
+        One(result)      
     }
+    else Nope
   }
 
-  protected def runtimeEvalEsc(optEsc: Option[CompiledExpression], state: PState): (Option[String], PState) = {
+  protected def runtimeEvalEsc(optEsc: Maybe[CompiledExpression], state: PState): (Maybe[String], PState) = {
     val (finalOptEsc, afterEscEval) =
-      optEsc match {
-        case None => (None, state)
-        case Some(esc) => {
-          val R(res, newVMap) = esc.evaluate(state.parentElement, state.variableMap, state)
+      if (!optEsc.isDefined) (Nope, state)
+      else {
+          val R(res, newVMap) = optEsc.get.evaluate(state.parentElement, state.variableMap, state)
           val l = new SingleCharacterLiteralES(res.toString, context)
           val resultEsc = l.cooked
           val newState = state.withVariables(newVMap)
-          (Some(resultEsc), newState)
-        }
+          (One(resultEsc), newState)        
       }
     (finalOptEsc, afterEscEval)
   }
@@ -504,21 +500,18 @@ trait HasEscapeScheme { self: StringDelimited =>
    * escape and escapeEscape characters if they exist.  If they are run time
    * values, we shall compute it.
    */
-  protected def evaluateEscapeScheme(escChar: Option[String],
-    escEscChar: Option[String],
-    state: PState): (Option[String], Option[String], PState) = {
+  protected def evaluateEscapeScheme(escChar: Maybe[String],
+    escEscChar: Maybe[String],
+    state: PState): (Maybe[String], Maybe[String], PState) = {
 
     val (finalOptEscChar, afterEscCharEval) =
-      escChar match {
-        case Some(_) => (escChar, state)
-        case None => runtimeEvalEsc(esObj.escapeCharacter, state)
-      }
+      if (escChar.isDefined) (escChar, state)
+      else runtimeEvalEsc(esObj.escapeCharacter, state)
 
     val (finalOptEscEscChar, postEscapeSchemeEvalState) =
-      escEscChar match {
-        case Some(_) => (escEscChar, afterEscCharEval)
-        case None => runtimeEvalEsc(esObj.escapeEscapeCharacter, afterEscCharEval)
-      }
+      if (escChar.isDefined) (escEscChar, afterEscCharEval)
+      else runtimeEvalEsc(esObj.escapeEscapeCharacter, afterEscCharEval)
+      
     (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState)
   }
 }
@@ -540,8 +533,8 @@ abstract class StringDelimited(e: ElementBase)
   val es = e.optionEscapeScheme
   val esObj = EscapeScheme.getEscapeScheme(es, e)
 
-  val compiledOptEscChar: Option[String] = evalAsConstant(esObj.escapeCharacter)
-  val compiledOptEscEscChar: Option[String] = evalAsConstant(esObj.escapeEscapeCharacter)
+  val compiledOptEscChar: Maybe[String] = evalAsConstant(esObj.escapeCharacter)
+  val compiledOptEscEscChar: Maybe[String] = evalAsConstant(esObj.escapeEscapeCharacter)
 
   val tm = e.allTerminatingMarkup
   val cname = toString
@@ -566,18 +559,18 @@ abstract class StringDelimited(e: ElementBase)
   val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
 
   val (blockStart, blockEnd) = {
-    val res: (Option[DFADelimiter], Option[DFADelimiter]) = esObj.escapeSchemeKind match {
+    val res: (Maybe[DFADelimiter], Maybe[DFADelimiter]) = esObj.escapeSchemeKind match {
       case EscapeSchemeKind.Block => {
-        (Some(CreateDelimiterDFA(esObj.escapeBlockStart)), Some(CreateDelimiterDFA(esObj.escapeBlockEnd)))
+        (One(CreateDelimiterDFA(esObj.escapeBlockStart)), One(CreateDelimiterDFA(esObj.escapeBlockEnd)))
       }
-      case _ => (None, None)
+      case _ => (Nope, Nope)
     }
     res
   }
 
-  val leftPaddingOpt: Option[TextPaddingParser] = {
-    if (!pad.isDefined) None
-    else Some(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
+  val leftPaddingOpt: Maybe[TextPaddingParser] = {
+    if (!pad.isDefined) Nope
+    else One(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
   }
 
   val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
@@ -610,7 +603,7 @@ abstract class StringDelimited(e: ElementBase)
     result
   }
 
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap])
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap])
 
   /**
    * Called at compile time in static case, at runtime for dynamic case.
@@ -635,7 +628,7 @@ abstract class StringDelimited(e: ElementBase)
         val endBitPos = state.bitPos + numBits
         val currentElement = state.parentElement
         currentElement.setDataValue(field)
-        val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
+        val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
         val finalState = {
           if (!result.matchedDelimiterValue.isDefined) stateWithPos
           else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
@@ -675,10 +668,9 @@ abstract class StringDelimited(e: ElementBase)
 
       // We must feed variable context out of one evaluation and into the next.
       // So that the resulting variable map has the updated status of all evaluated variables.
-      val postEvalState = vars match {
-        case Some(v) => postEscapeSchemeEvalState.withVariables(v)
-        case None => postEscapeSchemeEvalState
-      }
+      val postEvalState =
+        if (vars.isDefined) postEscapeSchemeEvalState.withVariables(vars.get)
+        else postEscapeSchemeEvalState
 
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
@@ -722,8 +714,8 @@ trait StaticDelim { self: StringDelimited =>
   // do this at creation time if we're static
   errorIfDelimsHaveWSPStar(staticDelimsCooked)
 
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap]) = {
-    (staticDelimsDFAs, staticDelimsCooked, None)
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap]) = {
+    (staticDelimsDFAs, staticDelimsCooked, Nope)
   }
 
 }
@@ -735,7 +727,7 @@ case class StringDelimitedEndOfDataStatic(e: ElementBase)
 
 trait DynamicDelim { self: StringDelimited =>
 
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Option[VariableMap]) = {
+  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap]) = {
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
     var vars = pstate.variableMap
@@ -759,7 +751,7 @@ trait DynamicDelim { self: StringDelimited =>
     // factor this out.
     errorIfDelimsHaveWSPStar(delimsCooked)
 
-    (CreateDelimiterDFA(dynamicDelimsCooked).union(staticDelimsDFAs), delimsCooked, Some(vars))
+    (CreateDelimiterDFA(dynamicDelimsCooked).union(staticDelimsDFAs), delimsCooked, One(vars))
   }
 
 }
@@ -785,7 +777,7 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
         val currentElement = state.parentElement
         val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
         currentElement.setDataValue(hexStr)
-        val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
+        val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
         val finalState = {
           if (!result.matchedDelimiterValue.isDefined) stateWithPos
           else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
@@ -837,7 +829,7 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
           log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
           log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-          val stateWithPos = state.withPos(endBitPos, endCharPos, Some(result.next))
+          val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
           val finalState = {
             if (!result.matchedDelimiterValue.isDefined) stateWithPos
             else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)

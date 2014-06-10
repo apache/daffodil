@@ -63,10 +63,12 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
-class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, args: Any*)
+class ParseError(sc: SchemaComponent, val pstate: Maybe[PState], kind: String, args: Any*)
   extends ProcessingError {
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
   override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
@@ -95,13 +97,14 @@ class ParseError(sc: SchemaComponent, val pstate: Option[PState], kind: String, 
   override def getMessage = toString
 }
 
-class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: Option[String] = None)
-  extends ParseError(sc, Some(state), "Assertion failed. %s", msg) {
+class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: Maybe[String] = Nope)
+  extends ParseError(sc, One(state), "Assertion failed. %s", msg) {
   override def componentText: String = {
     val currentElem = state.infoset
 
-    val parsedValue = currentElem.jdomElt match {
-      case Some(jdomElem) => {
+    val parsedValue =
+      if (currentElem.jdomElt.isDefined) {
+        val jdomElem = currentElem.jdomElt.get
         "\nParsed value was: " + {
           if (jdomElem.getChildren().size() > 0) {
             // Complex
@@ -112,23 +115,21 @@ class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: 
             currentElem.toBriefXML.toString
           }
         }
-      }
-      case None => ""
-    }
-    val finalString = details match {
-      case Some(d) => "\nDetails: " + d + parsedValue
-      case None => parsedValue
-    }
+      } else ""
+    
+    val finalString =
+      if (details.isDefined) "\nDetails: " + details.get + parsedValue
+      else parsedValue
     finalString
   }
 }
 
 class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq[Diagnostic])
-  extends ParseError(sc, Some(state), "Alternative failed. Reason(s): %s", errors)
+  extends ParseError(sc, One(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(sc: SchemaComponent, state: PState,
   diags: Seq[Diagnostic])
-  extends ParseError(sc, Some(state), "All alternatives failed. Reason(s): %s", diags) {
+  extends ParseError(sc, One(state), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
@@ -185,7 +186,7 @@ trait WithParseErrorThrowing {
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(context, None, kind, args: _*)
+      throw new ParseError(context, Nope, kind, args: _*)
     }
   }
 
@@ -197,7 +198,7 @@ trait WithParseErrorThrowing {
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(contextArg, None, kind, args: _*)
+      throw new ParseError(contextArg, Nope, kind, args: _*)
     }
   }
 
@@ -207,7 +208,7 @@ trait WithParseErrorThrowing {
 
   def PE(context: SchemaComponent, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
-    throw new ParseError(context, None, kind, args: _*)
+    throw new ParseError(context, Nope, kind, args: _*)
   }
 
   /**

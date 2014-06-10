@@ -33,6 +33,8 @@ import java.nio.channels.Channels
 import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import java.nio.channels.FileChannel
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -386,14 +388,13 @@ abstract class ParseResult(dp: DataProcessor)
 
   lazy val resultAsJDOMDocument =
     if (postParseState.status == Success) {
-      val xmlClean = postParseState.infoset.jdomElt match {
-        case Some(e) => {
+      val xmlClean =
+        if (postParseState.infoset.jdomElt.isDefined) {
+          val e = postParseState.infoset.jdomElt.get
           XMLUtils.removeHiddenElements(e)
           XMLUtils.removeAttributesJDOM(e, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))
           e.getDocument()
-        }
-        case None => Assert.impossibleCase() // Shouldn't happen, success means there IS a result.
-      }
+        } else Assert.impossibleCase() // Shouldn't happen, success means there IS a result.
       xmlClean
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))

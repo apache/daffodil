@@ -42,6 +42,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -331,7 +333,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
             }
             case f: DelimParseFailure => {
               log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
-              val diag = new AssertionFailed(decl, start, stmt.message, Some(f.msg))
+              val diag = new AssertionFailed(decl, start, stmt.message, One(f.msg))
               start.failed(diag)
             }
           }
@@ -389,7 +391,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
           val finalState = result match {
             case s: DelimParseSuccess => start.withDiscriminator(true)
             case f: DelimParseFailure => {
-              val diag = new AssertionFailed(decl, start, stmt.message, Some(f.msg))
+              val diag = new AssertionFailed(decl, start, stmt.message, One(f.msg))
               start.failed(diag)
             }
           }

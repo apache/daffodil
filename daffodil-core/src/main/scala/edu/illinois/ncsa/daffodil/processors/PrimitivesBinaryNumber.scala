@@ -38,7 +38,8 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ LengthKind, LengthUnits, ByteOrder, AlignmentUnits }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
@@ -155,7 +156,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
         //} else
         val convertedValue: T = convertValue(value, nBits.toInt)
         start.parentElement.setDataValue(convertValueToString(convertedValue))
-        start.withPos(newPos, -1, None)
+        start.withPos(newPos, -1, Nope)
       } catch {
         case e: IndexOutOfBoundsException => { return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage()) }
         case u: UnsuppressableException => throw u

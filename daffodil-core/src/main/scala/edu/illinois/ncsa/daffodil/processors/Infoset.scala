@@ -40,6 +40,8 @@ import javax.xml.namespace.QName
 import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil
 import javax.xml.xpath.XPathConstants._
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * Our abstraction layer over JDOM for the DFDL Infoset
@@ -92,7 +94,7 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
 
   Assert.usage(elt != null)
 
-  val jdomElt = Some(elt)
+  val jdomElt = One(elt)
 
   def isNil: Boolean = XMLUtils.isNil(elt)
   def makeNil(): Unit = { elt.setAttribute(XMLUtils.nilAttribute()) }
@@ -205,8 +207,8 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
 class InfosetDocument(val jDoc: org.jdom2.Document) extends InfosetItem {
 
   val jdomElt = {
-    if (jDoc.hasRootElement()) Some(jDoc.getRootElement())
-    else None
+    if (jDoc.hasRootElement()) One(jDoc.getRootElement())
+    else Nope
   }
 
   def toXML: scala.xml.Node = {
@@ -214,16 +216,16 @@ class InfosetDocument(val jDoc: org.jdom2.Document) extends InfosetItem {
     else <dafint:document xmlns:dafint={ XMLUtils.INT_NS }/>
   }
 
-  var rootElement: Option[InfosetElement] =
-    if (jDoc.hasRootElement()) Some(new InfosetElement(jDoc.getRootElement))
-    else None
+  var rootElement: Maybe[InfosetElement] =
+    if (jDoc.hasRootElement()) One(new InfosetElement(jDoc.getRootElement))
+    else Nope
 
   def getRootElement() = {
     rootElement
   }
 
   def addElement(e: InfosetElement) = {
-    rootElement = Some(e)
+    rootElement = One(e)
     // Content of the document is the root element.
     jDoc.setRootElement(e.jdomElt.get)
     // jDoc.addContent(e.jdomElt.get)
@@ -234,7 +236,7 @@ class InfosetDocument(val jDoc: org.jdom2.Document) extends InfosetItem {
 sealed abstract class InfosetItem {
   override def toString(): String = jdomElt.getOrElse("InfosetItem(None)").toString
 
-  def jdomElt: Option[org.jdom2.Element]
+  def jdomElt: Maybe[org.jdom2.Element]
 
   def addElement(e: InfosetElement): Unit
 
