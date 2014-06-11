@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 
 
 abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: Term, guard: Boolean = true)
@@ -215,7 +216,7 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
     }
     oes
   }
-  lazy val esObj = EscapeScheme.getEscapeScheme(oes, e)
+
   val eName = e.toString()
 
   val positionalInfo = {
@@ -701,12 +702,12 @@ abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guar
   }
 
   def checkDelimiterDistinctness(
-    escapeSchemeKind: EscapeSchemeKind.Type,
-    optPadChar: Maybe[String],
-    optEscChar: Maybe[String], // Could be a DFDL expression
-    optEscEscChar: Maybe[String], // Could be a DFDL expression
-    optEscBlkStart: Maybe[String],
-    optEscBlkEnd: Maybe[String],
+    escapeSchemeKind: EscapeKind,
+    optPadChar: Option[String],
+    optEscChar: Option[String], // Could be a DFDL expression
+    optEscEscChar: Option[String], // Could be a DFDL expression
+    optEscBlkStart: Option[String],
+    optEscBlkEnd: Option[String],
     terminatingMarkup: Seq[String],
     context: ThrowsSDE): Unit = {
 

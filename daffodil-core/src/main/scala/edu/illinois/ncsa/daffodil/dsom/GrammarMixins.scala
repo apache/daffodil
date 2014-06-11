@@ -371,8 +371,7 @@ trait ElementBaseGrammarMixin
     })
 
   //lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
-  lazy val stringDelimitedEndOfDataStatic = Prod("stringDelimitedEndOfDataStatic", this, StringDelimitedEndOfDataStatic(this))
-  lazy val stringDelimitedEndOfDataDynamic = Prod("stringDelimitedEndOfDataDynamic", this, StringDelimitedEndOfDataDynamic(this))
+  lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
   lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
 
   lazy val stringValue = stringValue_.value
@@ -381,8 +380,7 @@ trait ElementBaseGrammarMixin
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Explicit => variableLengthString
       //case LengthKind.Delimited => stringDelimitedEndOfData
-      case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => stringDelimitedEndOfDataDynamic
-      case LengthKind.Delimited => stringDelimitedEndOfDataStatic
+      case LengthKind.Delimited => stringDelimitedEndOfData
       case LengthKind.Pattern => stringPatternMatched
       case LengthKind.Implicit => {
         val pt = this.simpleType.primitiveType
@@ -394,16 +392,14 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  lazy val hexBinaryDelimitedEndOfDataStatic = Prod("hexBinaryDelimitedEndOfDataStatic", this, HexBinaryDelimitedEndOfDataStatic(this))
-  lazy val hexBinaryDelimitedEndOfDataDynamic = Prod("hexBinaryDelimitedEndOfDataDynamic", this, HexBinaryDelimitedEndOfDataDynamic(this))
+  lazy val hexBinaryDelimitedEndOfData = Prod("hexBinaryDelimitedEndOfData", this, HexBinaryDelimitedEndOfData(this))
 
   lazy val hexBinaryValue = hexBinaryValue_.value
   private val hexBinaryValue_ = LV('hexBinaryValue) {
     val res = Prod("hexBinaryValue", this, lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthHexBinary
       case LengthKind.Explicit => variableLengthHexBinary
-      case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => hexBinaryDelimitedEndOfDataDynamic
-      case LengthKind.Delimited => hexBinaryDelimitedEndOfDataStatic
+      case LengthKind.Delimited => hexBinaryDelimitedEndOfData
       case LengthKind.Pattern => SDE("lengthKind Pattern is not allowed for hexBinary.")
       case LengthKind.Implicit => implicitLengthHexBinary
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
@@ -828,8 +824,7 @@ trait ElementBaseGrammarMixin
         // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
         lengthKind match {
           //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
-          case LengthKind.Delimited if this.hasExpressionsInTerminatingMarkup => LiteralNilDelimitedEndOfDataDynamic(this)
-          case LengthKind.Delimited => LiteralNilDelimitedEndOfDataStatic(this)
+          case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
           case LengthKind.Pattern => LiteralNilPattern(this)
           case LengthKind.Explicit => {
             lengthUnits match {

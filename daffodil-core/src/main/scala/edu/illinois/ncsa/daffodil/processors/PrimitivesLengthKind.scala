@@ -59,6 +59,12 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.processors.dfa.DelimsMatcher
+import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -387,7 +393,7 @@ case class StringPatternMatched(e: ElementBase)
     // The pattern will always be defined
 
     lazy val dp = new ThreadLocal[DFDLDelimParser] {
-      override def initialValue() =  {
+      override def initialValue() = {
         new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
       }
     }
@@ -448,28 +454,115 @@ case class StringPatternMatched(e: ElementBase)
   }
 }
 
+class Delimiters(delimDFAs: DFADelimiter, delims: List[String])
+
+/**
+ * Here allTerminatingMarkup is a List[(CompiledExpression, ElementName, ElementPath)]
+ */
+sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  context: ThrowsSDE, elemBase: ElementBase) extends Logging {
+
+  // These static delims are used whether we're static or dynamic
+  // because even a dynamic can have some static from enclosing scopes.
+  val staticDelimsRaw = allTerminatingMarkup.filter {
+    case (delimValue, _, _) => delimValue.isConstant
+  }.map {
+    case (delimValue, _, _) => delimValue.constantAsString
+  }
+
+  val dynamicDelimsRaw = allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }
+
+  val staticDelimsCooked = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, elemBase).cooked }).flatten
+  val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
+
+  /**
+   * Called at compile time in static case, at runtime for dynamic case.
+   */
+  def errorIfDelimsHaveWSPStar(delims: List[String], ctxt: ThrowsSDE): Unit = {
+    if (delims.filter(x => x == "%WSP*;").length > 0) {
+      // We cannot detect this error until expressions have been evaluated!
+      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", elemBase.toString())
+      ctxt.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
+    }
+  }
+
+  protected def constEval(knownValue: String) = {
+    val l = new StringValueAsLiteral(knownValue, context)
+    val constValue = l.cooked
+    constValue
+  }
+
+  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap])
+
+}
+
+case class DelimiterFactoryStatic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends DelimiterFactoryBase(allTerminatingMarkup, context, elemBase) {
+
+  errorIfDelimsHaveWSPStar(staticDelimsCooked, elemBase)
+
+  val delimsMatcher = CreateDelimiterMatcher(staticDelimsDFAs)
+
+  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
+    (staticDelimsDFAs, delimsMatcher, staticDelimsCooked, Some(pstate.variableMap))
+  }
+}
+
+case class DelimiterFactoryDynamic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends DelimiterFactoryBase(allTerminatingMarkup, context, elemBase)
+  with Dynamic {
+
+  val tmCE = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue }
+  val dynamicDelimsCached: List[CachedDynamic[String]] = cacheConstantExpression(tmCE) {
+    (a: Any) => constEval(a.asInstanceOf[String])
+  }
+
+  def getDelimValue(knownValue: String, state: PState): String = {
+    val l = new StringValueAsLiteral(knownValue, state)
+    l.cooked
+  }
+
+  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
+
+    // Evaluate dynamic delimiters if they exist
+    val (afterDelimEval, dynamicDelimsCooked) = evalWithConversion(pstate, dynamicDelimsCached) {
+      (s: PState, c: Any) =>
+        {
+          getDelimValue(c.asInstanceOf[String], s)
+        }
+    }
+    val vars = afterDelimEval.variableMap
+
+    // Combine dynamic and with static delims if they exist
+    val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
+
+    errorIfDelimsHaveWSPStar(delimsCooked, pstate)
+
+    val dynamicDelimsDFAs = CreateDelimiterDFA(dynamicDelimsCooked)
+    val delimDFAs = dynamicDelimsDFAs.union(staticDelimsDFAs)
+    val delimsMatcher = CreateDelimiterMatcher(delimDFAs)
+
+    (delimDFAs, delimsMatcher, delimsCooked, Some(vars))
+  }
+
+}
+
 trait HasEscapeScheme { self: StringDelimited =>
 
-  var escEscChar = ""
-  var escChar = ""
+  var escEscChar: Maybe[Char] = Nope
+  var escChar: Maybe[Char] = Nope
+  var blockStart: Option[DFADelimiter] = None
+  var blockEnd: Option[DFADelimiter] = None
 
-  lazy val optEscBlkStart =
-    esObj.escapeBlockStart match {
-      case "" => Nope
-      case x => One(x)
-    }
-
-  lazy val optEscBlkEnd =
-    esObj.escapeBlockEnd match {
-      case "" => Nope
-      case x => One(x)
-    }
-
-  protected def constEval(knownValue: Maybe[String]) = {
-    val optConstValue = {
-      if (!knownValue.isDefined) Nope
-      else {
-        val l = new SingleCharacterLiteralES(knownValue.get, context)
+  protected def constEval(knownValue: Option[String]) = {
+    val optConstValue = knownValue match {
+      case None => None
+      case Some(constValue) => {
+        val l = new SingleCharacterLiteralES(constValue, context)
         val result = l.cooked
         One(result)
       }
@@ -500,24 +593,275 @@ trait HasEscapeScheme { self: StringDelimited =>
     (finalOptEsc, afterEscEval)
   }
 
-  /**
-   * The purpose of this method is to use the compile time value of the
-   * escape and escapeEscape characters if they exist.  If they are run time
-   * values, we shall compute it.
-   */
-  protected def evaluateEscapeScheme(escChar: Maybe[String],
-    escEscChar: Maybe[String],
-    state: PState): (Maybe[String], Maybe[String], PState) = {
+}
 
-    val (finalOptEscChar, afterEscCharEval) =
-      if (escChar.isDefined) (escChar, state)
-      else runtimeEvalEsc(esObj.escapeCharacter, state)
+sealed abstract class EscapeScheme
+case class EscapeSchemeChar(private val escChar: Maybe[String], private val escEscChar: Maybe[String])
+  extends EscapeScheme {
+  val ec: Maybe[Char] = if (escChar.isDefined) One(escChar.get.charAt(0)) else Nope
+  val eec: Maybe[Char] = if (escEscChar.isDefined) One(escEscChar.get.charAt(0)) else Nope
+}
+case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
+  blockStart: String,
+  blockEnd: String)
+  extends EscapeScheme {
+  // Should note there that fieldDFA (not here) is dependent on
+  // the whether or not the delimiters are constant or not.
+  // As a result, it cannot be generated here.
 
-    val (finalOptEscEscChar, postEscapeSchemeEvalState) =
-      if (escChar.isDefined) (escEscChar, afterEscCharEval)
-      else runtimeEvalEsc(esObj.escapeEscapeCharacter, afterEscCharEval)
+  val eec: Maybe[Char] = if (escEscChar.isDefined) One(escEscChar.get.charAt(0)) else Nope
+  val blockStartDFA: DFADelimiter = CreateDelimiterDFA(blockStart)
+  val blockEndDFA: DFADelimiter = CreateDelimiterDFA(blockEnd)
+  val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEndDFA))
+  val fieldEscDFA = CreateFieldDFA(blockEndMatcher, eec)
 
-    (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState)
+}
+
+/**
+ * What's going on here is that we have three factory classes:
+ *
+ * 1. EscapeScheme
+ * 2. Delimiters
+ * 3. Field
+ *
+ * Field depends on Delimiters and EscapeScheme. As such it needs to handle
+ * dynamic/static cases. Delimiters can be static or dynamic and so need to
+ * be generated prior to Field. EscapeScheme can also be static or
+ * dynamic and so needs to also be generated prior to Field.
+ *
+ * We use information regarding whether or not we have Static vs. Dynamic
+ * Delimiters/EscapeScheme to determine if we can statically generate the
+ * Field. So there is some cascading going on here as a result of these
+ * dependencies.
+ */
+sealed abstract class FieldFactoryBase(ef: Option[EscapeSchemeFactoryBase],
+  df: DelimiterFactoryBase,
+  context: ThrowsSDE,
+  elemBase: ElementBase) {
+
+  def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme])
+}
+case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryStatic],
+  df: DelimiterFactoryStatic,
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends FieldFactoryBase(ef, df, context, elemBase) {
+
+  val fieldDFA = {
+    val dfa =
+      if (ef.isDefined) {
+        val scheme = ef.get.theScheme
+        val res = scheme match {
+          case s: EscapeSchemeBlock => CreateFieldDFA(df.delimsMatcher)
+          case s: EscapeSchemeChar => CreateFieldDFA(df.delimsMatcher, s.ec, s.eec)
+        }
+        res
+      } else {
+        CreateFieldDFA(df.delimsMatcher)
+      }
+    dfa
+  }
+
+  def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme]) = {
+    val theScheme = if (ef.isDefined) {
+      Some(ef.get.theScheme)
+    } else None
+    (state, df.staticDelimsDFAs, df.delimsMatcher, df.staticDelimsCooked, fieldDFA, theScheme)
+  }
+}
+case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
+  df: DelimiterFactoryBase,
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends FieldFactoryBase(ef, df, context, elemBase) {
+
+  def getFieldDFA(start: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme]) = {
+    val (postEscapeSchemeEvalState, scheme) = {
+      if (ef.isDefined) {
+        val factory = ef.get
+        val (state, escScheme) = factory.getEscapeScheme(start)
+        (state, Some(escScheme))
+      } else (start, None)
+    }
+
+    val (delims, delimsMatcher, delimsCooked, vars) = df.getDelims(postEscapeSchemeEvalState, elemBase)
+
+    // We must feed variable context out of one evaluation and into the next.
+    // So that the resulting variable map has the updated status of all evaluated variables.
+    val postEvalState = vars match {
+      case Some(v) => postEscapeSchemeEvalState.withVariables(v)
+      case None => postEscapeSchemeEvalState
+    }
+
+    val fieldDFA =
+      if (scheme.isDefined) {
+        val theScheme = scheme.get
+        val res = theScheme match {
+          case s: EscapeSchemeBlock => CreateFieldDFA(delimsMatcher)
+          case s: EscapeSchemeChar => CreateFieldDFA(delimsMatcher, s.ec, s.eec)
+        }
+        res
+      } else {
+        CreateFieldDFA(delimsMatcher)
+      }
+    (postEvalState, delims, delimsMatcher, delimsCooked, fieldDFA, scheme)
+  }
+}
+
+abstract class EscapeSchemeFactoryBase(scheme: DFDLEscapeScheme,
+  context: ThrowsSDE) {
+  protected def constEval(knownValue: Option[String]) = {
+    val optConstValue = knownValue match {
+      case None => None
+      case Some(constValue) => {
+        val l = new SingleCharacterLiteralES(constValue, context)
+        val result = l.cooked
+        Some(result)
+      }
+    }
+    optConstValue
+  }
+
+  protected def evalAsConstant(knownValue: Option[CompiledExpression]) = {
+    knownValue match {
+      case None => None
+      case Some(ce) if ce.isConstant => {
+        val constValue = ce.constantAsString
+        val l = new SingleCharacterLiteralES(constValue, context)
+        val result = l.cooked
+        Some(result)
+      }
+      case Some(_) => None
+    }
+  }
+
+  protected def constEval(knownValue: String, context: ThrowsSDE) = {
+    val l = new SingleCharacterLiteralES(knownValue, context)
+    val result = l.cooked
+    result
+  }
+
+  protected def getOptEscChar = {
+    scheme.escapeKind match {
+      case EscapeKind.EscapeBlock => None
+      case EscapeKind.EscapeCharacter => {
+        if (!scheme.optionEscapeCharacter.isDefined) {
+          context.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.")
+        }
+        scheme.optionEscapeCharacter
+      }
+    }
+  }
+
+  protected def getOptEscEscChar = {
+    scheme.optionEscapeEscapeCharacter
+  }
+
+  protected def getEscValue(escChar: String, context: ThrowsSDE): String = {
+    val l = new SingleCharacterLiteralES(escChar, context).cooked
+    l
+  }
+
+  protected def getBlockStart: String = {
+    if (scheme.escapeKind == EscapeKind.EscapeCharacter) return ""
+    if (scheme.escapeBlockStart == "") { context.SDE("escapeBlockStart cannot be the empty string when EscapeSchemeKind is Block.") }
+
+    val bs = new StringValueAsLiteral(scheme.escapeBlockStart, context).cooked
+    bs
+  }
+
+  protected def getBlockEnd: String = {
+    if (scheme.escapeKind == EscapeKind.EscapeCharacter) return ""
+    if (scheme.escapeBlockEnd == "") { context.SDE("escapeBlockEnd cannot be the empty string when EscapeSchemeKind is Block.") }
+
+    val be = new StringValueAsLiteral(scheme.escapeBlockEnd, context).cooked
+    be
+  }
+
+  def getEscapeScheme(state: PState): (PState, EscapeScheme)
+
+}
+class EscapeSchemeFactoryStatic(scheme: DFDLEscapeScheme,
+  context: ThrowsSDE)
+  extends EscapeSchemeFactoryBase(scheme, context) {
+
+  val escChar = evalAsConstant(getOptEscChar)
+  val escEscChar = evalAsConstant(getOptEscEscChar)
+  val blockStart = getBlockStart
+  val blockEnd = getBlockEnd
+
+  def generateEscapeScheme: EscapeScheme = {
+    val result = scheme.escapeKind match {
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlock(escEscChar, blockStart, blockEnd)
+      case EscapeKind.EscapeCharacter => new EscapeSchemeChar(escChar, escEscChar)
+    }
+    result
+  }
+
+  val theScheme = generateEscapeScheme
+
+  def getEscapeScheme(state: PState) = {
+    (state, theScheme)
+  }
+}
+
+class EscapeSchemeFactoryDynamic(scheme: DFDLEscapeScheme,
+  context: ThrowsSDE)
+  extends EscapeSchemeFactoryBase(scheme, context) with Dynamic {
+
+  val escapeCharacterCached: Maybe[CachedDynamic[String]] = {
+    scheme.escapeKind match {
+      case EscapeKind.EscapeBlock => // do nothing
+      case EscapeKind.EscapeCharacter => {
+        if (!scheme.optionEscapeCharacter.isDefined) {
+          context.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.")
+        }
+      }
+    }
+    val ec = scheme.optionEscapeCharacter match {
+      case None => Nope
+      case Some(c) => One(c)
+    }
+    cacheConstantExpression(ec) {
+      (a: Any) => constEval(a.asInstanceOf[String], context)
+    }
+  }
+
+  val escapeEscapeCharacterCached: Maybe[CachedDynamic[String]] = cacheConstantExpression(scheme.optionEscapeEscapeCharacter) {
+    (a: Any) => constEval(a.asInstanceOf[String], context)
+  }
+
+  val blockStart = getBlockStart
+  val blockEnd = getBlockEnd
+
+  def getEscapeScheme(state: PState) = {
+    val (finalState, theScheme) = scheme.escapeKind match {
+      case EscapeKind.EscapeCharacter => {
+        val (afterEscCharEval, finalOptEscChar) = evalWithConversion(state, escapeCharacterCached) {
+          (s: PState, c: Any) =>
+            {
+              getEscValue(c.asInstanceOf[String], s)
+            }
+        }
+        val (afterEscEscCharEval, finalOptEscEscChar) = evalWithConversion(afterEscCharEval, escapeEscapeCharacterCached) {
+          (s: PState, c: Any) =>
+            {
+              getEscValue(c.asInstanceOf[String], s)
+            }
+        }
+        (afterEscEscCharEval, new EscapeSchemeChar(finalOptEscChar, finalOptEscEscChar))
+      }
+      case EscapeKind.EscapeBlock => {
+        val (afterEscEscCharEval, finalOptEscEscChar) = evalWithConversion(state, escapeEscapeCharacterCached) {
+          (s: PState, c: Any) =>
+            {
+              getEscValue(c.asInstanceOf[String], s)
+            }
+        }
+        (afterEscEscCharEval, new EscapeSchemeBlock(finalOptEscEscChar, blockStart, blockEnd))
+      }
+    }
+    (finalState, theScheme)
   }
 }
 
@@ -536,10 +880,6 @@ abstract class StringDelimited(e: ElementBase)
   def isDelimRequired: Boolean
 
   val es = e.optionEscapeScheme
-  val esObj = EscapeScheme.getEscapeScheme(es, e)
-
-  val compiledOptEscChar: Maybe[String] = evalAsConstant(esObj.escapeCharacter)
-  val compiledOptEscEscChar: Maybe[String] = evalAsConstant(esObj.escapeEscapeCharacter)
 
   val tm = e.allTerminatingMarkup
   val cname = toString
@@ -548,67 +888,88 @@ abstract class StringDelimited(e: ElementBase)
   val charset = e.knownEncodingCharset
   val elemBase = e
 
-  // These static delims are used whether we're static or dynamic
-  // because even a dynamic can have some static from enclosing scopes.
-  //  val staticDelimsRaw = e.allTerminatingMarkup.filter(x => x.isConstant).map { _.constantAsString }
-  val staticDelimsRaw = e.allTerminatingMarkup.filter {
-    case (delimValue, _, _) => delimValue.isConstant
-  }.map {
-    case (delimValue, _, _) => delimValue.constantAsString
-  }
-  val staticDelimsCooked1 = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, e).cooked })
-  val staticDelimsCooked = staticDelimsCooked1.flatten
+  val hasDynamicDelims: Boolean =
+    e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
 
-  def ec: Maybe[Char] = if (escChar.isEmpty()) Nope else One(escChar.charAt(0))
-  def eec: Maybe[Char] = if (escEscChar.isEmpty()) Nope else One(escEscChar.charAt(0))
+  val escf = escSchemeFactory
+  val df = delimiterFactory
+  val ff = fieldFactory
+
   val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
 
-  val (blockStart, blockEnd) = {
-    val res: (Maybe[DFADelimiter], Maybe[DFADelimiter]) = esObj.escapeSchemeKind match {
-      case EscapeSchemeKind.Block => {
-        (One(CreateDelimiterDFA(esObj.escapeBlockStart)), One(CreateDelimiterDFA(esObj.escapeBlockEnd)))
-      }
-      case _ => (Nope, Nope)
-    }
-    res
+  val leftPaddingOpt: Option[TextPaddingParser] = {
+    if (!pad.isDefined) None
+    else Some(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
   }
 
-  val leftPaddingOpt: Maybe[TextPaddingParser] = {
-    if (!pad.isDefined) Nope
-    else One(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
+  def escSchemeFactory: Option[EscapeSchemeFactoryBase] = {
+    if (es.isDefined) {
+      val scheme = es.get
+      val isConstant = scheme.escapeKind match {
+        case EscapeKind.EscapeBlock => {
+          (scheme.optionEscapeEscapeCharacter.isEmpty ||
+            scheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+        case EscapeKind.EscapeCharacter => {
+          (scheme.optionEscapeCharacter.isEmpty ||
+            scheme.optionEscapeCharacter.get.isConstant) &&
+            (scheme.optionEscapeEscapeCharacter.isEmpty ||
+              scheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+      }
+      val theScheme =
+        if (isConstant) new EscapeSchemeFactoryStatic(scheme, context)
+        else new EscapeSchemeFactoryDynamic(scheme, context)
+      Some(theScheme)
+    } else None
   }
 
-  val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
-
-  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[dfa.ParseResult] = {
-
-    val delimsMatcher = CreateDelimiterMatcher(delims)
-
-    val result: Maybe[dfa.ParseResult] = esObj.escapeSchemeKind match {
-      case EscapeSchemeKind.Block => {
-        val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEnd.get))
-        val fieldEscDFA = CreateFieldDFA(blockEndMatcher, eec)
-        val fieldDFA = CreateFieldDFA(delimsMatcher)
-        val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad, blockStart.get,
-          blockEnd.get, delims, fieldEscDFA, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
-        val blockResult = parser.parse(reader, isDelimRequired)
-        blockResult
+  def delimiterFactory: DelimiterFactoryBase = {
+    val factory =
+      if (hasDynamicDelims) {
+        new DelimiterFactoryDynamic(e.allTerminatingMarkup, context, elemBase)
+      } else {
+        new DelimiterFactoryStatic(e.allTerminatingMarkup, context, elemBase)
       }
-      case EscapeSchemeKind.Character => {
-        val fieldDFA = CreateFieldDFA(delimsMatcher, ec, eec)
-        val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
-        parser.parse(reader, isDelimRequired)
-      }
-      case EscapeSchemeKind.None => {
-        val fieldDFA = CreateFieldDFA(delimsMatcher)
+    factory
+  }
+
+  def fieldFactory: FieldFactoryBase = {
+    val hasDynamicEscapeScheme =
+      if (escf.isDefined) escf.get.isInstanceOf[EscapeSchemeFactoryDynamic]
+      else false
+
+    val fieldDFAFact =
+      if (!hasDynamicDelims && !hasDynamicEscapeScheme)
+        new FieldFactoryStatic(escf.asInstanceOf[Option[EscapeSchemeFactoryStatic]], df.asInstanceOf[DelimiterFactoryStatic], context, elemBase)
+      else new FieldFactoryDynamic(escf, df, context, elemBase)
+    fieldDFAFact
+  }
+
+  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean,
+    escScheme: Maybe[EscapeScheme], delimsMatcher: DelimsMatcher, fieldDFA: DFAField): Maybe[dfa.ParseResult] = {
+
+    val result: Maybe[dfa.ParseResult] = {
+      if (escScheme.isDefined) {
+        val scheme = escScheme.get
+        scheme match {
+          case s: EscapeSchemeBlock => {
+            val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad,
+              s.blockStartDFA, s.blockEndDFA, delims, s.fieldEscDFA, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+            parser.parse(reader, isDelimRequired)
+          }
+          case s: EscapeSchemeChar => {
+            val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
+            parser.parse(reader, isDelimRequired)
+          }
+        }
+      } else {
         val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, elemBase.knownEncodingStringBitLengthFunction)
         parser.parse(reader, isDelimRequired)
       }
     }
     result
   }
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap])
 
   /**
    * Called at compile time in static case, at runtime for dynamic case.
@@ -655,24 +1016,12 @@ abstract class StringDelimited(e: ElementBase)
 
     def parse(start: PState): PState = withParseErrorThrowing(start) {
 
-      val (finalOptEscChar, finalOptEscEscChar, postEscapeSchemeEvalState) =
-        evaluateEscapeScheme(compiledOptEscChar, compiledOptEscEscChar, start)
-
-      val (delims, delimsCooked, vars) = getDelims(postEscapeSchemeEvalState)
-
       // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
       //
       //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
       //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-      escChar = finalOptEscChar.getOrElse("")
-      escEscChar = finalOptEscEscChar.getOrElse("")
-
-      // We must feed variable context out of one evaluation and into the next.
-      // So that the resulting variable map has the updated status of all evaluated variables.
-      val postEvalState =
-        if (vars.isDefined) postEscapeSchemeEvalState.withVariables(vars.get)
-        else postEscapeSchemeEvalState
+      val (postEvalState, delims, delimsMatcher, delimsCooked, fieldDFA, scheme) = ff.getFieldDFA(start)
 
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
@@ -684,9 +1033,9 @@ abstract class StringDelimited(e: ElementBase)
       val hasDelim = delimsCooked.length > 0
 
       start.mpstate.clearDelimitedText
-      
+
       val result = try {
-        parseMethod(reader, delims, isDelimRequired)
+        parseMethod(reader, delims, isDelimRequired, scheme, delimsMatcher, fieldDFA)
       } catch {
         case mie: MalformedInputException =>
           throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
@@ -713,55 +1062,8 @@ abstract class StringDelimited(e: ElementBase)
   }
 }
 
-trait StaticDelim { self: StringDelimited =>
-
-  // do this at creation time if we're static
-  errorIfDelimsHaveWSPStar(staticDelimsCooked)
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap]) = {
-    (staticDelimsDFAs, staticDelimsCooked, Nope)
-  }
-
-}
-
-case class StringDelimitedEndOfDataStatic(e: ElementBase)
-  extends StringDelimited(e) with StaticDelim {
-  val isDelimRequired: Boolean = false
-}
-
-trait DynamicDelim { self: StringDelimited =>
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], List[String], Maybe[VariableMap]) = {
-    // We must feed variable context out of one evaluation and into the next.
-    // So that the resulting variable map has the updated status of all evaluated variables.
-    var vars = pstate.variableMap
-
-    val dynamicDelimsRaw = elemBase.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.map {
-      case (delimValue, _, _) =>
-        {
-          val R(res, newVMap) = delimValue.evaluate(pstate.parentElement, vars, pstate)
-          vars = newVMap
-          res
-        }
-    }
-    val dynamicDelimsCooked1 = dynamicDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, elemBase).cooked })
-    val dynamicDelimsCooked = dynamicDelimsCooked1.flatten
-
-    // Combine dynamic and with static delims if they exist
-    val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-
-    //
-    // moved check here to avoid need for another abstract method to 
-    // factor this out.
-    errorIfDelimsHaveWSPStar(delimsCooked)
-
-    (CreateDelimiterDFA(dynamicDelimsCooked).union(staticDelimsDFAs), delimsCooked, One(vars))
-  }
-
-}
-
-case class StringDelimitedEndOfDataDynamic(e: ElementBase)
-  extends StringDelimited(e) with DynamicDelim {
+case class StringDelimitedEndOfData(e: ElementBase)
+  extends StringDelimited(e) {
   val isDelimRequired: Boolean = false
 }
 
@@ -791,20 +1093,17 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
 
 }
 
-case class HexBinaryDelimitedEndOfDataStatic(e: ElementBase)
-  extends HexBinaryDelimited(e) with StaticDelim {
+case class HexBinaryDelimitedEndOfData(e: ElementBase)
+  extends HexBinaryDelimited(e) {
   val isDelimRequired: Boolean = false
 }
 
-case class HexBinaryDelimitedEndOfDataDynamic(e: ElementBase)
-  extends HexBinaryDelimited(e) with DynamicDelim {
-  val isDelimRequired: Boolean = false
-}
-
-abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
+case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
   val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
   val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
+
+  val isDelimRequired: Boolean = false
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
@@ -842,15 +1141,6 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
     res
   }
 
-}
-
-case class LiteralNilDelimitedEndOfDataStatic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb) with StaticDelim {
-  val isDelimRequired: Boolean = false
-}
-case class LiteralNilDelimitedEndOfDataDynamic(eb: ElementBase)
-  extends LiteralNilDelimitedEndOfData(eb) with DynamicDelim {
-  val isDelimRequired: Boolean = false
 }
 
 case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
