@@ -91,4 +91,11 @@ class TestDelimiterProperties {
   @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix() = {
     runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Postfix")
   }
+
+  @Test def test_OptionalWSPTermWithExplicitLength() = {
+    runner_02.runOneTest("OptionalWSPTermWithExplicitLength")
+  }
+  @Test def test_OptionalWSPTermWithExplicitLength2() = {
+    runner_02.runOneTest("OptionalWSPTermWithExplicitLength2")
+  }
 }

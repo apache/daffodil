@@ -95,6 +95,40 @@
 
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="DelimiterProperties-Embedded2.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="explicit" />
+
+    <xs:element dfdl:lengthKind="implicit" name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e2" dfdl:terminator="%WSP*;" dfdl:lengthKind="explicit" dfdl:length="10">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="s1" type="xs:string" dfdl:length="1" />
+                <xs:element name="s2" type="xs:string" dfdl:length="9" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="e3" dfdl:terminator="%WSP*;" dfdl:lengthKind="explicit" dfdl:length="10">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="s3" type="xs:string" dfdl:length="1" >
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+	              <dfdl:assert message="Invalid">{. eq '2'}</dfdl:assert>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="s4" type="xs:string" dfdl:length="9" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:parserTestCase name="DelimProp_01"
     model="DelimiterProperties-Embedded.dfdl.xsd"
     description="Section 12 property delimiters, a whitespace separated list of initiators and terminators - DFDL-12-032R"
@@ -255,6 +289,49 @@
           <s1>3.99</s1>
           <s1>7.33</s1>
         </DP_04_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength" root="e1"
+    model="DelimiterProperties-Embedded2.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
+    <tdml:document><![CDATA[12 45 78  
+257 1 9  4]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <e1>
+	  <e2>
+            <s1>1</s1>
+            <s2>2 45 78</s2>
+          </e2>
+	  <e3>
+	    <s3>2</s3>
+	    <s4>57 1 9 4</s4>
+	  </e3>
+	</e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="OptionalWSPTermWithExplicitLength2" root="e1"
+    model="DelimiterProperties-Embedded2.dfdl.xsd"
+    description="Section 14 Sequence groups with delimiters -use of %WSP*; as terminator - DFDL-12-033R should pass">
+    <tdml:document><![CDATA[12 45 78  257 1 9  4]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <e1>
+	  <e2>
+            <s1>1</s1>
+            <s2>2 45 78</s2>
+          </e2>
+	  <e3>
+	    <s3>2</s3>
+	    <s4>57 1 9 4</s4>
+	  </e3>
+	</e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
