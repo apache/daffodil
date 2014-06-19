@@ -67,6 +67,7 @@ abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram) extends U
     final def parse(pstate: PState): PState = {
       checkN(pstate, n).map { perr => return perr }
       val res = parseAllRepeats(pstate)
+      pstate.mpstate.clearDelimitedText
       res
     }
 

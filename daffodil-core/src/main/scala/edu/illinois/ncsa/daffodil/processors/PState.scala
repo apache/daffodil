@@ -64,6 +64,7 @@ import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Stack
 
 case class MPState(val scr: SchemaComponentRegistry, val dataProc: DFDL.DataProcessor) {
@@ -88,6 +89,16 @@ case class MPState(val scr: SchemaComponentRegistry, val dataProc: DFDL.DataProc
     occursBoundsStack.push(ob)
   }
   def occursBounds = occursBoundsStack.top
+  
+  var foundDelimiter: Maybe[FoundDelimiterText] = Nope
+
+  def withDelimitedText(foundText: String, originalRepresentation: String) {
+    val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation)
+    this.foundDelimiter = One(newDelimiter)
+  }
+  def clearDelimitedText() {
+    this.foundDelimiter = Nope
+  }
 }
 
 /**
@@ -108,7 +119,6 @@ case class PState(
   var status: ProcessorResult,
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
-  var foundDelimiter: Maybe[FoundDelimiterText],
   val mpstate: MPState)
   extends DFDL.State with ThrowsSDE {
 
@@ -125,7 +135,6 @@ case class PState(
     status = other.status
     diagnostics = other.diagnostics
     discriminatorStack = other.discriminatorStack
-    foundDelimiter = other.foundDelimiter
   }
 
   def bytePos = bitPos >> 3
@@ -294,14 +303,6 @@ case class PState(
     this
   }
 
-  def withDelimitedText(foundText: String, originalRepresentation: String) = {
-    val newDelimiter = new FoundDelimiterText(foundText, originalRepresentation)
-    copy(foundDelimiter = Some(newDelimiter))
-  }
-  def clearDelimitedText() = {
-    copy(foundDelimiter = None)
-  }
-
   def captureInfosetElementState = parentElement.captureState()
 
   def restoreInfosetElementState(st: Infoset.ElementState) = parentElement.restoreState(st)
@@ -339,11 +340,10 @@ object PState {
     val status = Success
     val diagnostics = Nil
     val discriminator = false
-    val textReader: Maybe[DFDLCharReader] = None
-    val foundDelimiter: Maybe[FoundDelimiterText] = None
+    val textReader: Maybe[DFDLCharReader] = Nope
     val mutablePState = MPState(scr, dataProc)
 
-    val newState = PState(in, doc, variables, status, diagnostics, List(false), foundDelimiter, mutablePState)
+    val newState = PState(in, doc, variables, status, diagnostics, List(false), mutablePState)
     newState
   }
 

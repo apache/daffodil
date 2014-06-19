@@ -633,11 +633,8 @@ abstract class StringDelimited(e: ElementBase)
         val currentElement = state.parentElement
         currentElement.setDataValue(field)
         val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-        val finalState = {
-          if (!result.matchedDelimiterValue.isDefined) stateWithPos
-          else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-        }
-        return finalState
+        if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        return stateWithPos
       }
     }
     res
@@ -685,6 +682,8 @@ abstract class StringDelimited(e: ElementBase)
       val reader = getReader(charset, postEvalState.bitPos, postEvalState)
       val hasDelim = delimsCooked.length > 0
 
+      start.mpstate.clearDelimitedText
+      
       val result = try {
         parseMethod(reader, delims, isDelimRequired)
       } catch {
@@ -782,11 +781,8 @@ abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
         val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
         currentElement.setDataValue(hexStr)
         val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-        val finalState = {
-          if (!result.matchedDelimiterValue.isDefined) stateWithPos
-          else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-        }
-        return finalState
+        if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        return stateWithPos
       }
     }
     res
@@ -834,11 +830,8 @@ abstract class LiteralNilDelimitedEndOfData(eb: ElementBase)
           log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
           val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-          val finalState = {
-            if (!result.matchedDelimiterValue.isDefined) stateWithPos
-            else stateWithPos.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-          }
-          return finalState
+          if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+          return stateWithPos
         } else {
           // Fail!
           return parser.PE(state, "%s - Does not contain a nil literal!", eName)

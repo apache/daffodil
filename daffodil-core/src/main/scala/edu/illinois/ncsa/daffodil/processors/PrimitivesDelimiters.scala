@@ -123,7 +123,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, start)
 
-          if (!start.foundDelimiter.isDefined) {
+          if (!start.mpstate.foundDelimiter.isDefined) {
             textParser.delims = delims
             val result = textParser.parse(reader, true)
             if (!result.isDefined) {
@@ -155,7 +155,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
               }
             }
           } else {
-            val found = start.foundDelimiter.get
+            val found = start.mpstate.foundDelimiter.get
           if (isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
               getMatchedDelimiterInfo(found.originalRepresentation, delimsCookedWithPosition)
@@ -179,7 +179,8 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
             log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
 
             val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-            return state.clearDelimitedText
+            state.mpstate.clearDelimitedText
+            return state
           }
         }
       }
@@ -446,7 +447,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
         log(LogLevel.Debug, "Retrieving reader state.")
         val reader = getReader(charset, start.bitPos, postEvalState)
 
-        if (!start.foundDelimiter.isDefined) {
+        if (!start.mpstate.foundDelimiter.isDefined) {
           val allDynamicDelims = {
             val localDynamicDelims = if (constantLocalDelimsCooked.isDefined) { Seq.empty } else { localDelimsCooked }
             localDynamicDelims.toSet.union(dynamicDelimsCooked.toSet)
@@ -487,7 +488,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             }
           }
         } else {
-          val found = start.foundDelimiter.get
+          val found = start.mpstate.foundDelimiter.get
           if (isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
             val (remoteDelimValue, remoteElemName, remoteElemPath) =
               getMatchedDelimiterInfo(found.originalRepresentation, staticDelimsCookedWithPosition ::: dynamicDelimsCookedWithPosition)
@@ -516,7 +517,8 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
             log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
 
             val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-            return state.clearDelimitedText
+            state.mpstate.clearDelimitedText
+            return state
           }
         }
       }
