@@ -124,19 +124,24 @@ The message root is 'pcap'.
         <xs:element name="PCAPHeader">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="MagicNumber" type="pcap:uint32" dfdl:byteOrder="bigEndian">
+              <xs:element name="MagicNumber" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes" dfdl:byteOrder="bigEndian">
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:setVariable ref="pcap:ByteOrder"><![CDATA[{
-                      if (xs:unsignedInt(.) eq 2712847316) then 'bigEndian'
-                      else if (xs:unsignedInt(.) eq 3569595041) then 'littleEndian'
-                      else 'Error: Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian).'
-                    }]]></dfdl:setVariable>
+                    <dfdl:assert message="Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian)."
+                                 test="{ (xs:string(.) eq 'A1B2C3D4') or (xs:string(.) eq 'D4C3B2A1') }" />
+                    <dfdl:setVariable ref="pcap:ByteOrder" value="{ if (xs:string(.) eq 'A1B2C3D4') then 'bigEndian' else 'littleEndian' }" />
                   </xs:appinfo>
                 </xs:annotation>
               </xs:element>
               <xs:element name="VersionMajor" type="pcap:uint16" />
               <xs:element name="VersionMinor" type="pcap:uint16" />
+              <xs:sequence>
+                <xs:annotation>
+                  <xs:appinfo source="http://www.ogf.org/dfdl/">
+                    <dfdl:assert message="PCAP version must be 2.4" test="{ (xs:unsignedInt(./pcap:VersionMajor) eq 2) and (xs:unsignedInt(./pcap:VersionMinor) eq 4) }" />
+                  </xs:appinfo>
+                </xs:annotation>
+              </xs:sequence>
               <xs:element name="Zone" type="pcap:int32" />
               <xs:element name="SigFigs" type="pcap:uint32" />
               <xs:element name="SnapLen" type="pcap:uint32" />

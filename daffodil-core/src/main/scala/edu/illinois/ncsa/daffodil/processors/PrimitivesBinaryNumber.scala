@@ -80,7 +80,7 @@ trait RuntimeExplicitByteOrderMixin[T] {
   def e: ElementBase
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
     val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parentElement, s.variableMap, s)
-    val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, e)
+    val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
       case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN

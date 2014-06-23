@@ -19,7 +19,7 @@
       <tdml:dfdlInfoset>
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
-            <pcap:MagicNumber>3569595041</pcap:MagicNumber>
+            <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
             <pcap:VersionMajor>2</pcap:VersionMajor>
             <pcap:VersionMinor>4</pcap:VersionMinor>
             <pcap:Zone>0</pcap:Zone>
@@ -1900,7 +1900,7 @@
       <tdml:dfdlInfoset>
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
-            <pcap:MagicNumber>3569595041</pcap:MagicNumber>
+            <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
             <pcap:VersionMajor>2</pcap:VersionMajor>
             <pcap:VersionMinor>4</pcap:VersionMinor>
             <pcap:Zone>0</pcap:Zone>
@@ -2426,7 +2426,7 @@
       <tdml:dfdlInfoset>
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
-            <pcap:MagicNumber>3569595041</pcap:MagicNumber>
+            <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
             <pcap:VersionMajor>2</pcap:VersionMajor>
             <pcap:VersionMinor>4</pcap:VersionMinor>
             <pcap:Zone>0</pcap:Zone>
