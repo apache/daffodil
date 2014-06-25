@@ -59,11 +59,11 @@ object InStream {
 
   def fromByteChannel(context: ElementBase,
     in: DFDL.Input,
-    bitOffset0b: Long,
+    bitStartPos0b: Long,
     numBitsLimit: Long, // a count, not a position
     bitOrder: BitOrder) = {
-    val bitLimit0b = if (numBitsLimit == -1) -1 else bitOffset0b + numBitsLimit
-    new InStreamFromByteChannel(context, in, bitOffset0b, bitLimit0b, bitOrder)
+    val bitLimit0b = if (numBitsLimit == -1) -1 else bitStartPos0b + numBitsLimit
+    new InStreamFromByteChannel(context, in, bitStartPos0b, bitLimit0b, bitOrder)
   }
 
   /**
@@ -107,7 +107,7 @@ object InStream {
 
 /**
  * Encapsulates the I/O as an abstraction that works something like a java.nio.ByteBuffer
- * but a bit more specialized for DFDL needs, e.g., supports offsets and positions in bits.
+ * but a bit more specialized for DFDL needs, e.g., supports lengths and positions in bits.
  */
 trait InStream {
 
@@ -228,8 +228,8 @@ case class InStreamFromByteChannel private (
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: SchemaComponent, inArg: DFDL.Input, bitOffset: Long, bitLimit: Long, bitOrder: BitOrder) =
-    this(context, new DFDLByteReader(inArg, bitOrder), bitOffset, bitLimit, -1, Nope)
+  def this(context: SchemaComponent, inArg: DFDL.Input, bitStartPos: Long, bitLimit: Long, bitOrder: BitOrder) =
+    this(context, new DFDLByteReader(inArg, bitOrder), bitStartPos, bitLimit, -1, Nope)
 
   /**
    * withPos changes the bit position of the stream, and maintains the char reader
@@ -269,7 +269,7 @@ case class InStreamFromByteChannel private (
         else {
           // if (rdr.characterPos != newCharPos)
           // println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
-          One(reader.get.atCharPos(newCharPos0b.toInt)) // TODO: 32-bit offset limit! (not our fault)
+          One(reader.get.atCharPos(newCharPos0b.toInt)) // TODO: 32-bit size limit! (not our fault)
         }
       }
     }
