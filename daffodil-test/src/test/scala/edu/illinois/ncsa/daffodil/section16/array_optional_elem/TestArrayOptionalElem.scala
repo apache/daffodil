@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.section16.array_optional_elem
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestArrayOptionalElem {
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
@@ -78,4 +79,9 @@ class TestArrayOptionalElem {
   val tdml1 = testDir1 + "dpaext2.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   @Test def test_arrays_16_01() { runner1.runOneTest("arrays_16_01") }
+  
+  val tdmlBack = testDir + "backtracking.tdml"
+  lazy val rBack = new DFDLTestSuite(Misc.getRequiredResource(tdmlBack))
+
+  @Test def test_backtrack1() = { rBack.runOneTest("backtrack1") }
 }
