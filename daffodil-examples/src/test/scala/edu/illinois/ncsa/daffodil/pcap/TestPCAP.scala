@@ -51,5 +51,6 @@ class TestPCAP {
   @Test def test_pcap_test_dns() { runner.runOneTest("pcap_test_dns") }
   @Test def test_pcap_test_http_ipv6() { runner.runOneTest("pcap_test_http_ipv6") }
   @Test def test_pcap_test_icmp() { runner.runOneTest("pcap_test_icmp") }
+  @Test def test_pcap_test_tcp_ecn() { runner.runOneTest("pcap_test_tcp_ecn") }
 
 }
