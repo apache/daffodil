@@ -1108,7 +1108,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
               val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
               val dumpLoc = ((prestate.bitPos >> 6) << 6) / 8;
 
-              val numPrespaces = (prestate.charPos - dumpLoc).toInt
+              val numPrespaces = (math.max(prestate.charPos, 0L) - dumpLoc).toInt
               val numSpaces = (state.charPos - dumpLoc).toInt
 
               val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength

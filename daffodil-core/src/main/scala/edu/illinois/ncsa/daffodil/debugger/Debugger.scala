@@ -47,6 +47,10 @@ object Debugger {
     areDebugging = flag
   }
 
+  def getDebugging() = {
+    areDebugging
+  }
+
   def init(parser: Parser) {
     if (areDebugging) { debugger.init(parser) }
   }

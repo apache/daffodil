@@ -80,6 +80,12 @@ abstract class Parser(val context: SchemaComponent) extends Logging with ToBrief
 
   final def parse1(pstate: PState, context: SchemaComponent): PState = {
     Debugger.before(pstate, this)
+    // 
+    // Since the pstate is being overwritten (in most case) now,
+    // we must explicitly make a copy so we can compute a delta
+    // after
+    //
+    val beforeState = if (Debugger.getDebugging()) pstate.duplicate() else pstate
     val afterState = parse(pstate)
     if (!(afterState eq pstate)) {
       // they're not the same state object
@@ -87,7 +93,7 @@ abstract class Parser(val context: SchemaComponent) extends Logging with ToBrief
       pstate.assignFrom(afterState)
       pstate.inStream.assignFrom(afterState.inStream)
     }
-    Debugger.after(pstate, afterState, this)
+    Debugger.after(beforeState, afterState, this)
     // afterState
     pstate
   }
