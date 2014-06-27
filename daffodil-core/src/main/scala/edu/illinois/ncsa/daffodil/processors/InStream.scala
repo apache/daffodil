@@ -255,10 +255,10 @@ case class InStreamFromByteChannel private (
     //      if (rdr.characterPos != newCharPos)
     //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
     //    }
-    // copy(bitPos = newBitPos, reader = newReader.map { _.atCharPos(newCharPos.toInt) })
-    this.bitPos0b = newBitPos0b
-    this.reader = newReader.map { _.atCharPos(newCharPos0b.toInt) }
-    this
+    val res = this.duplicate()
+    res.bitPos0b = newBitPos0b
+    res.reader = newReader.map { _.atCharPos(newCharPos0b.toInt) }
+    res
   }
 
   def withPos(newBitPos0b: Long, newCharPos0b: Long): InStream = {
@@ -273,16 +273,16 @@ case class InStreamFromByteChannel private (
         }
       }
     }
-    // copy(bitPos = newBitPos, reader = rdr)
-    this.bitPos0b = newBitPos0b
-    this.reader = rdr
-    this
+    val res = this // .duplicate()
+    res.bitPos0b = newBitPos0b
+    res.reader = rdr
+    res
   }
 
   def withEndBitLimit(newBitLimit0b: Long): InStream = {
-    // copy(bitLimit = newBitLimit)
-    this.bitLimit0b = newBitLimit0b
-    this
+    val res = this //.duplicate()
+    res.bitLimit0b = newBitLimit0b
+    res
   }
 
   /**
