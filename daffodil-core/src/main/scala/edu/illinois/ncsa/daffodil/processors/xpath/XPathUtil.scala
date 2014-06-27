@@ -448,6 +448,9 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     val currentElement = pstate.parentElement
     val e = pstate.getContext()
     if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
+    
+    currentElement.setCheckConstraintsRan
+    
     val data = currentElement.dataValue
     val primType = e.primType
 

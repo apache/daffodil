@@ -98,6 +98,9 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
 
   def isNil: Boolean = XMLUtils.isNil(elt)
   def makeNil(): Unit = { elt.setAttribute(XMLUtils.nilAttribute()) }
+  
+  def wasCheckConstraintsRun: Boolean = XMLUtils.wasCheckConstraintsRan(elt)
+  def setCheckConstraintsRan(): Unit = { elt.setAttribute(XMLUtils.checkConstraintsRanAttribute)}
 
   def setDataValue(s: String): Unit = {
     elt.setContent(new org.jdom2.Text(XMLUtils.remapXMLIllegalCharactersToPUA(s)))

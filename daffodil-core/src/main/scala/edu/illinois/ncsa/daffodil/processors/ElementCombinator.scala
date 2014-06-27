@@ -156,6 +156,9 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   def validate(pstate: PState): PState = {
     val currentElement = pstate.parentElement
+    
+    if (currentElement.wasCheckConstraintsRun) { return pstate }
+
     val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
       case Right(boolVal) => {
         log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toBriefXML)

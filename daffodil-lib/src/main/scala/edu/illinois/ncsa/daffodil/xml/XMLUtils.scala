@@ -161,12 +161,20 @@ object XMLUtils {
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
   def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
+  def checkConstraintsRanAttribute() = new org.jdom2.Attribute("checkConstraintsRan", "true", XMLUtils.INT_NS_OBJECT)
 
   def isNil(e: Element) = {
     val nilAttr = e.getAttribute("nil", xsiNS)
     val res =
       if (nilAttr == null) false
       else nilAttr.getValue() == "true"
+    res
+  }
+  def wasCheckConstraintsRan(e: Element) = {
+    val checkAttr = e.getAttribute("checkConstraintsRan", XMLUtils.INT_NS_OBJECT)
+    val res =
+      if (checkAttr == null) false
+      else checkAttr.getValue() == "true"
     res
   }
 
