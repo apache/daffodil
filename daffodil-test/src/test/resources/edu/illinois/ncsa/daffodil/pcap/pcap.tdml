@@ -14,12 +14,48 @@
   <tdml:parserTestCase name="invalid_magic_number" root="PCAP"
     model="pcap.dfdl.xsd" description="pcap test - DFDL-980">
     <tdml:document>
-      <tdml:documentPart type="file">icmp.invalid.cap</tdml:documentPart>
+      <tdml:documentPart type="file">icmp.badMagicNum.cap</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Assertion failed</tdml:error>
       <tdml:error>Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian)</tdml:error>
       <tdml:error><![CDATA[Parsed value was: <MagicNumber>11111111</MagicNumber>]]></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: invalid_version
+       Schema: pcap.dfdl.xsd
+         Root: PCAP
+      Purpose: This test demonstrates that the pcap schema will validate the version number, which should be 2.4
+  -->
+
+  <tdml:parserTestCase name="invalid_version" root="PCAP"
+    model="pcap.dfdl.xsd" description="pcap test - DFDL-928">
+    <tdml:document>
+      <tdml:documentPart type="file">icmp.badVersion.cap</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed</tdml:error>
+      <tdml:error>PCAP version must be 2.4</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: invalid_network_type
+       Schema: pcap.dfdl.xsd
+         Root: PCAP
+      Purpose: This test demonstrates that the pcap schema will validate the network typer, which currently must be 1 (LINKTYPE_ETHERNET)
+  -->
+
+  <tdml:parserTestCase name="invalid_network_type" root="PCAP"
+    model="pcap.dfdl.xsd" description="pcap test - DFDL-928">
+    <tdml:document>
+      <tdml:documentPart type="file">http.ipv6.badNetwork.cap</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed</tdml:error>
+      <tdml:error>Link layer type is not Ethernet</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -49,5 +49,7 @@ class TestPCAP {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_invalid_magic_number() { runner.runOneTest("invalid_magic_number") }
+  @Test def test_invalid_version() { runner.runOneTest("invalid_version") }
+  @Test def test_invalid_network_type() { runner.runOneTest("invalid_network_type") }
 
 }
