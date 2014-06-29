@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="Namespaces"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <!--
+    Test name: invalid_magic_number
+       Schema: pcap.dfdl.xsd
+         Root: PCAP
+      Purpose: This test demonstrates the fix for DFDL-980, where an invalid magic number was resulting in 
+               the Abort error "Invariant broken"
+  -->
+
+  <tdml:parserTestCase name="invalid_magic_number" root="PCAP"
+    model="pcap.dfdl.xsd" description="pcap test - DFDL-980">
+    <tdml:document>
+      <tdml:documentPart type="file">icmp.invalid.cap</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error: Assertion failed</tdml:error>
+      <tdml:error>Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian)</tdml:error>
+      <tdml:error><![CDATA[Parsed value was: <MagicNumber>11111111</MagicNumber>]]></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+</testSuite>
