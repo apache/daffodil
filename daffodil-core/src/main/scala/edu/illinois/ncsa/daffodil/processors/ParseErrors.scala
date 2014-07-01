@@ -33,6 +33,7 @@ package edu.illinois.ncsa.daffodil.processors
  */
 
 import scala.xml.Node
+import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
@@ -58,6 +59,7 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
@@ -109,7 +111,15 @@ class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: 
           if (jdomElem.getChildren().size() > 0) {
             // Complex
             val name = jdomElem.getName()
-            "<" + name + ">...</" + name + ">"
+            "<" + name + ">" +
+            (jdomElem.getChildren.map { c =>
+              if (c.getChildren().size() > 0) {
+                "<" + c.getName() + ">...<" + c.getName() + ">"
+              } else {
+                XMLUtils.removeAttributes(XMLUtils.element2Elem(c)).toString()
+              }
+            }.mkString) +
+            "</" + name + ">"
           } else {
             // Simple
             currentElem.toBriefXML.toString

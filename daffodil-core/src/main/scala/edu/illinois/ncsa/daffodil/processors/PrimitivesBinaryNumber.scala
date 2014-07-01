@@ -78,8 +78,9 @@ trait KnownLengthInBitsMixin[T] {
 trait RuntimeExplicitByteOrderMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
+  val bo = e.byteOrder // ensure byteOrder compiled expression is computed non lazily at compile time
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    val R(byteOrderAsAny, newVMap) = e.byteOrder.evaluate(s.parentElement, s.variableMap, s)
+    val R(byteOrderAsAny, newVMap) = bo.evaluate(s.parentElement, s.variableMap, s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN

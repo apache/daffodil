@@ -309,7 +309,7 @@
     <tdml:errors>
       <tdml:error>Parse Error: Assertion failed.</tdml:error>
       <tdml:error>Parsed value was:</tdml:error>
-      <tdml:error><![CDATA[<seq_02>...</seq_02>]]></tdml:error>
+      <tdml:error><![CDATA[<seq_02><e1>1</e1><e2>2</e2><e3>3</e3><e4>4</e4></seq_02>]]></tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

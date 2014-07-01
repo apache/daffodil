@@ -133,15 +133,21 @@ The message root is 'pcap'.
                   </xs:appinfo>
                 </xs:annotation>
               </xs:element>
-              <xs:element name="VersionMajor" type="pcap:uint16" />
-              <xs:element name="VersionMinor" type="pcap:uint16" />
-              <xs:sequence>
-                <xs:annotation>
-                  <xs:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:assert message="PCAP version must be 2.4" test="{ (xs:unsignedInt(./pcap:VersionMajor) eq 2) and (xs:unsignedInt(./pcap:VersionMinor) eq 4) }" />
-                  </xs:appinfo>
-                </xs:annotation>
-              </xs:sequence>
+              <xs:element name="Version">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Major" type="pcap:uint16" />
+                    <xs:element name="Minor" type="pcap:uint16" />
+                    <xs:sequence>
+                      <xs:annotation>
+                        <xs:appinfo source="http://www.ogf.org/dfdl/">
+                          <dfdl:assert message="PCAP version must be 2.4" test="{ (xs:unsignedInt(./pcap:Major) eq 2) and (xs:unsignedInt(./pcap:Minor) eq 4) }" />
+                        </xs:appinfo>
+                      </xs:annotation>
+                    </xs:sequence>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
               <xs:element name="Zone" type="pcap:int32" />
               <xs:element name="SigFigs" type="pcap:uint32" />
               <xs:element name="SnapLen" type="pcap:uint32" />

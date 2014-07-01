@@ -21,8 +21,10 @@
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
             <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
-            <pcap:VersionMajor>2</pcap:VersionMajor>
-            <pcap:VersionMinor>4</pcap:VersionMinor>
+            <pcap:Version>
+              <pcap:Major>2</pcap:Major>
+              <pcap:Minor>4</pcap:Minor>
+            </pcap:Version>
             <pcap:Zone>0</pcap:Zone>
             <pcap:SigFigs>0</pcap:SigFigs>
             <pcap:SnapLen>8192</pcap:SnapLen>
@@ -26254,8 +26256,10 @@
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
             <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
-            <pcap:VersionMajor>2</pcap:VersionMajor>
-            <pcap:VersionMinor>4</pcap:VersionMinor>
+            <pcap:Version>
+              <pcap:Major>2</pcap:Major>
+              <pcap:Minor>4</pcap:Minor>
+            </pcap:Version>
             <pcap:Zone>0</pcap:Zone>
             <pcap:SigFigs>0</pcap:SigFigs>
             <pcap:SnapLen>65535</pcap:SnapLen>
@@ -28135,8 +28139,10 @@
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
             <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
-            <pcap:VersionMajor>2</pcap:VersionMajor>
-            <pcap:VersionMinor>4</pcap:VersionMinor>
+            <pcap:Version>
+              <pcap:Major>2</pcap:Major>
+              <pcap:Minor>4</pcap:Minor>
+            </pcap:Version>
             <pcap:Zone>0</pcap:Zone>
             <pcap:SigFigs>0</pcap:SigFigs>
             <pcap:SnapLen>65535</pcap:SnapLen>
@@ -28661,8 +28667,10 @@
         <pcap:PCAP xmlns:pcap="urn:pcap:2.4">
           <pcap:PCAPHeader>
             <pcap:MagicNumber>D4C3B2A1</pcap:MagicNumber>
-            <pcap:VersionMajor>2</pcap:VersionMajor>
-            <pcap:VersionMinor>4</pcap:VersionMinor>
+            <pcap:Version>
+              <pcap:Major>2</pcap:Major>
+              <pcap:Minor>4</pcap:Minor>
+            </pcap:Version>
             <pcap:Zone>0</pcap:Zone>
             <pcap:SigFigs>0</pcap:SigFigs>
             <pcap:SnapLen>65535</pcap:SnapLen>
