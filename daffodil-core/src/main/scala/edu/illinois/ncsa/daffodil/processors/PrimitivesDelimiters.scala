@@ -51,7 +51,10 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-
+import edu.illinois.ncsa.daffodil.processors.parsers.DynamicTextDelimiterValues
+import edu.illinois.ncsa.daffodil.processors.parsers.DynamicTextParser
+import edu.illinois.ncsa.daffodil.processors.parsers.StaticTextDelimiterValues
+import edu.illinois.ncsa.daffodil.processors.parsers.StaticTextParser
 
 abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: Term, guard: Boolean = true)
   extends StaticText(delim, e, eb, kindString, guard)
@@ -59,134 +62,17 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: T
 abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
   extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
   with DelimiterText
-  with WithParseErrorThrowing with TextReader {
-
-  val charset = e.knownEncodingCharset
-  val term = e.asInstanceOf[Term]
-
-  val staticTexts = delim.split("\\s").toList
-  val staticTextsCooked: Queue[String] = new Queue
-
-  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x, Some(e))))
-
-  val delimsRaw = e.allTerminatingMarkup.map {
-    case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)
-  }
-  val delimsCookedWithPosition = delimsRaw.map {
-    case (delimValue, elemName, elemPath) => {
-      (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemName, elemPath)
-    }
-  }
-  val delimsCooked = delimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
-
-  // Here we expect that remoteDelims shall be defined as those delimiters who are not
-  // also defined locally.  That is to say that local should win over remote.
-  val remoteDelims = delimsCooked.toSet.diff(staticTextsCooked.toSet)
-
-  val allDelims = staticTextsCooked.toSet.union(remoteDelims.toSet)
-  val maxDelimLength = computeMaxDelimiterLength(allDelims)
-
-  // here we define the parsers so that they are pre-compiled/generated
-  val delims = CreateDelimiterDFA(allDelims.toSeq)
-  val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
+  with WithParseErrorThrowing
+  with TextReader {
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  def isRemoteText(originalRepresentation: String): Boolean =
-    remoteDelims.find(local => local == originalRepresentation).isDefined
+  val delimValues = new StaticTextDelimiterValues(delim, e)
+  val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
-  def isLocalText(originalRepresentation: String): Boolean =
-    staticTextsCooked.find(local => local == originalRepresentation).isDefined
-
-  def parser: DaffodilParser = new PrimParser(this, e) {
-
-    override def toBriefXML(depthLimit: Int = -1) = {
-      "<" + kindString + ">" + delim + " " + delimsRaw + "</" + kindString + ">"
-    }
-
-    override def toString = kindString + "('" + delim + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
-
-    val eName = e.toString()
-
-    def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Debug) 
-      {
-
-        log(LogLevel.Debug, "%s - Parsing delimiter at byte position: %s", eName, (start.bitPos >> 3))
-        log(LogLevel.Debug, "%s - Parsing delimiter at bit position: %s", eName, start.bitPos)
-
-        log(LogLevel.Debug, "%s - Looking for local(%s) not remote (%s).", eName, staticTextsCooked.toSet, remoteDelims)
-
-        val bytePos = (start.bitPos >> 3).toInt
-
-        log(LogLevel.Debug, "Retrieving reader state.")
-        val reader = getReader(charset, start.bitPos, start)
-
-          if (!start.mpstate.foundDelimiter.isDefined) {
-            textParser.delims = delims
-            val result = textParser.parse(reader, true)
-            if (!result.isDefined) {
-              val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-              log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                this.toString(), eName, allDelims.mkString(", "), foundInstead)
-              return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-                this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            } else {
-              val res = result.get
-              if (isRemoteText(res.originalDelimiterRep)) {
-                val (remoteDelimValue, remoteElemName, remoteElemPath) =
-                  getMatchedDelimiterInfo(res.originalDelimiterRep, delimsCookedWithPosition)
-
-                log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-                  this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
-                return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-                  this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
-              } else {
-                val numBits = res.numBits
-                val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
-                val endBitPosDelim = numBits + start.bitPos
-
-                log(LogLevel.Debug, "%s - Found %s", eName, res.matchedDelimiterValue.get)
-                log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
-                log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
-
-                return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
-              }
-            }
-          } else {
-            val found = start.mpstate.foundDelimiter.get
-          if (isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
-            val (remoteDelimValue, remoteElemName, remoteElemPath) =
-              getMatchedDelimiterInfo(found.originalRepresentation, delimsCookedWithPosition)
-
-            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
-            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, staticTexts.mkString(" "), e.path, positionalInfo)
-          } else if (!isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
-            val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-          } else {
-            val numBits = e.knownEncodingStringBitLengthFunction(found.foundText)
-            val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
-            val endBitPosDelim = numBits + start.bitPos
-            log(LogLevel.Debug, "%s - Found %s", eName, found.foundText)
-            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
-            log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
-
-            val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-            state.mpstate.clearDelimitedText
-            return state
-          }
-        }
-      }
-    }
-  }
+  def parser: DaffodilParser = new StaticTextParser(e, delimValues, kindString, textParser, this, eb)
 
   def unparser: Unparser = new Unparser(e) {
     val t = e.asInstanceOf[Term]
@@ -346,185 +232,13 @@ trait DelimiterText {
 abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
   extends Text(e, e, guard)
   with DelimiterText
-  with WithParseErrorThrowing with TextReader {
+  with WithParseErrorThrowing
+  with TextReader {
 
-  val charset = e.knownEncodingCharset
-  val term = e.asInstanceOf[Term]
-
-  // If there are any static delimiters, pre-process them here
-  lazy val staticDelimsRaw =
-    e.allTerminatingMarkup.filter {
-      case (delimValue, _, _) => delimValue.isConstant
-    }.map {
-      case (delimValue, eName, ePath) => (delimValue.constantAsString, eName, ePath)
-    }
-  lazy val staticDelimsCookedWithPosition = staticDelimsRaw.map {
-    case (delimValue, elemName, elemPath) => { (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemName, elemPath) }
-  }
-  lazy val staticDelimsCooked = staticDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
-
-  val constantLocalDelimsCooked: Maybe[List[String]] = delimExpr.isConstant match {
-    case false => Nope
-    case true => {
-      val cookedResult = new ListOfStringValueAsLiteral(delimExpr.constantAsString, e).cooked
-      One(cookedResult)
-    }
-  }
-  val allStaticDelims = {
-    val localDelimsCooked = if (constantLocalDelimsCooked.isDefined) { constantLocalDelimsCooked.get } else { Seq.empty }
-    val allDelims = staticDelimsCooked.union(localDelimsCooked).toSet
-    allDelims
-  }
-  val maxDelimLengthStatic = computeMaxDelimiterLength(allStaticDelims)
-
+  val delimValues = new DynamicTextDelimiterValues(delimExpr, e)
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
-  def parser: DaffodilParser = new PrimParser(this, e) {
-
-    override def toBriefXML(depthLimit: Int = -1) = {
-      "<" + kindString + ">" + delimExpr + " " + delimExpr + "</" + kindString + ">"
-    }
-
-    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
-
-    Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
-    override def toString = kindString + "('" + delimExpr + "')" //  with terminating markup: " + term.prettyTerminatingMarkup + ")"
-
-    lazy val tm = e.allTerminatingMarkup
-    val eName = e.toString()
-
-    def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Debug) 
-      {
-
-        // We must feed variable context out of one evaluation and into the next.
-        // So that the resulting variable map has the updated status of all evaluated variables.
-        var vars = start.variableMap
-
-        val dynamicDelimsRaw = e.allTerminatingMarkup.filter { case (delimValue, elemName, elemPath) => !delimValue.isConstant }.map {
-          case (delimValue, elemName, elemPath) =>
-            {
-              val R(res, newVMap) = delimValue.evaluate(start.parentElement, vars, start)
-              vars = newVMap
-              (res, elemName, elemPath)
-            }
-        }
-        // Dynamic delimiters can only be evaluated at runtime
-        val dynamicDelimsCookedWithPosition = dynamicDelimsRaw.map {
-          case (delimValue, elemValue, elemPath) => { (new ListOfStringValueAsLiteral(delimValue.toString, e).cooked, elemValue, elemPath) }
-        }
-        val dynamicDelimsCooked = dynamicDelimsCookedWithPosition.map { case (delimValue, _, _) => delimValue }.flatten
-        val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-
-        val localDelimsCookedWithPosition = {
-          if (constantLocalDelimsCooked.isDefined) { constantLocalDelimsCooked.get }
-          else {
-            val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
-            vars = newVMap
-            val cookedResult = new ListOfStringValueAsLiteral(res.toString(), e).cooked
-            cookedResult
-          }
-        }
-
-        val localDelimsCooked = localDelimsCookedWithPosition
-
-        val remoteDelimsCooked = dynamicDelimsCooked.diff(localDelimsCooked)
-
-        def isRemoteText(originalRepresentation: String): Boolean =
-          remoteDelimsCooked.find(remote => remote == originalRepresentation).isDefined
-
-        def isLocalText(originalRepresentation: String): Boolean =
-          localDelimsCooked.find(remote => remote == originalRepresentation).isDefined
-
-        val postEvalState = start.withVariables(vars)
-
-        log(LogLevel.Debug, "%s - Parsing delimiter at byte position: %s", eName, (postEvalState.bitPos >> 3))
-        log(LogLevel.Debug, "%s - Parsing delimiter at bit position: %s", eName, postEvalState.bitPos)
-
-        log(LogLevel.Debug, "%s - Looking for local(%s) not remote (%s).", eName, localDelimsCooked.toSet, delimsCooked.toSet)
-
-        val bytePos = (postEvalState.bitPos >> 3).toInt
-
-        log(LogLevel.Debug, "Retrieving reader state.")
-        val reader = getReader(charset, start.bitPos, postEvalState)
-
-        if (!start.mpstate.foundDelimiter.isDefined) {
-          val allDynamicDelims = {
-            val localDynamicDelims = if (constantLocalDelimsCooked.isDefined) { Seq.empty } else { localDelimsCooked }
-            localDynamicDelims.toSet.union(dynamicDelimsCooked.toSet)
-          }
-          val allDelims = allStaticDelims.union(allDynamicDelims).toSeq
-          val delims = CreateDelimiterDFA(allDelims)
-          textParser.delims = delims
-          val result = textParser.parse(reader, true)
-          if (!result.isDefined) {
-            val maxDelimLengthDynamic = computeMaxDelimiterLength(allDynamicDelims)
-            val maxDelimLength = Seq(maxDelimLengthDynamic, maxDelimLengthStatic).max
-
-            val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-          } else {
-            val res = result.get
-            if (isRemoteText(res.originalDelimiterRep)) {
-              val (remoteDelimValue, remoteElemName, remoteElemPath) =
-                getMatchedDelimiterInfo(res.originalDelimiterRep, staticDelimsCookedWithPosition ::: dynamicDelimsCookedWithPosition)
-
-              log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-                this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
-              return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-                this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
-            } else {
-              val numBits = res.numBits
-              val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
-              val endBitPosDelim = numBits + start.bitPos
-
-              log(LogLevel.Debug, "%s - Found %s", eName, res.matchedDelimiterValue.get)
-              log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
-              log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
-
-              return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
-            }
-          }
-        } else {
-          val found = start.mpstate.foundDelimiter.get
-          if (isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
-            val (remoteDelimValue, remoteElemName, remoteElemPath) =
-              getMatchedDelimiterInfo(found.originalRepresentation, staticDelimsCookedWithPosition ::: dynamicDelimsCookedWithPosition)
-
-            log(LogLevel.Debug, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
-            return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-              this.toString(), eName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), e.path, positionalInfo)
-          } else if (!isRemoteText(found.originalRepresentation) && !isLocalText(found.originalRepresentation)) {
-            val allDynamicDelims = {
-              val localDynamicDelims = if (constantLocalDelimsCooked.isDefined) { Seq.empty } else { localDelimsCooked }
-              localDynamicDelims.toSet.union(dynamicDelimsCooked.toSet)
-            }
-            val allDelims = allStaticDelims.union(allDynamicDelims).toSeq
-            val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLengthStatic)
-            log(LogLevel.Debug, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-            return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-              this.toString(), eName, allDelims.mkString(", "), foundInstead)
-          } else {
-            val numBits = e.knownEncodingStringBitLengthFunction(found.foundText)
-            val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
-            val endBitPosDelim = numBits + start.bitPos
-            log(LogLevel.Debug, "%s - Found %s", eName, found.foundText)
-            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPosDelim >> 3))
-            log(LogLevel.Debug, "%s - Ended at bit position %s", eName, endBitPosDelim)
-
-            val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-            state.mpstate.clearDelimitedText
-            return state
-          }
-        }
-      }
-    }
-  }
+  def parser: DaffodilParser = new DynamicTextParser(e, delimExpr, delimValues, kindString, textParser, this, e)
 
   /*
   def unparser: Unparser = new Unparser(e) {
@@ -582,8 +296,6 @@ case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", 
   lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
 case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep", s.separator, s)
-
-
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
