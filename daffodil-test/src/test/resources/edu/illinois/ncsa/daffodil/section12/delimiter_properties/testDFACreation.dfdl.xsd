@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:ex="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <include schemaLocation="xsd/built-in-formats.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:daffodilTest1" initiator=""
+        leadingSkip="0" trailingSkip="0" separator=""
+        encoding="utf-8" occursCountKind="parsed" separatorSuppressionPolicy="anyEmpty"
+        textNumberRep="standard" ignoreCase="no" representation="text"
+        lengthUnits="characters" lengthKind="delimited" initiatedContent="no" />
+    </appinfo>
+  </annotation>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s1" type="xs:int"
+            dfdl:terminator="/" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence>
+	  <xs:element name="term" type="xs:string"
+	    dfdl:lengthKind="explicit" dfdl:length="1" />
+          <xs:element name="s1" type="xs:int"
+            dfdl:terminator="{ ../ex:term }" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+</schema>
