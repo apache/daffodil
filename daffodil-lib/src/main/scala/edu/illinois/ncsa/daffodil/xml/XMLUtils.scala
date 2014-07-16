@@ -127,17 +127,44 @@ object XMLUtils {
    * This calls a body function with prev, current, next bound to those.
    * For first codepoint prev will be 0. For last codepoint next will be 0.
    *
-   * This is done as a walker that takes a function because that way we
-   * can reimplement as a tight loop instead of this zip stuff, should we decide
-   * that this is speed-path enough to care.
+   * NOTE: This function contains the same algorithm as
+   * remapXMLIllegalCharactersToPUA, but is more general and is a bit slower.
+   * Any changes made to this function probably need to be incorporated into
+   * the other.
    */
-  def walkUnicodeString[T](s: String)(bodyFunc: (Char, Char, Char) => T): Seq[T] = {
-    if (s.length == 0) return Nil
-    val pairs = (0.toChar +: s.substring(0, s.length - 1)) zip s zip (s.tail :+ 0.toChar)
-    val res = pairs.map { case ((p, c), n) => bodyFunc(p, c, n) }
-    res
+  def walkUnicodeString[T](str: String)(bodyFunc: (Char, Char, Char) => T): Seq[T] = {
+    val len = str.length
+    if (len == 0) return Nil
+
+    val list = new scala.collection.mutable.ListBuffer[T]
+
+    var pos = 0;
+    var prev = 0.toChar
+    var curr = str(0)
+    var next = 0.toChar
+
+    while (pos < len) {
+      next = if (pos + 1 < len) str(pos + 1) else 0.toChar
+      list += bodyFunc(prev, curr, next)
+      prev = curr
+      curr = next
+
+      pos += 1
+    }
+    list
   }
 
+  /*
+   * This function contains the same string traversal algorithm as
+   * walkUnicodeString. The only difference is that it uses a StringBuilder
+   * rather than a ListBuffer[T] that would be used in walkUnicodeString. Note
+   * that since StringBuilder is not synchronized it is noticably faster than
+   * StringBuffer, and since the StringBuilder is local to the function, we
+   * don't have to worry about any threading issues. This specificity makes for
+   * a noticable speed increase, so much so that the code duplication is worth
+   * it. Any changes made to this function probably need to be incorporated
+   * into the other.
+   */
   def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
     // we want to remap XML-illegal characters
     // but leave legal surrogate-pair character pairs alone.
@@ -146,8 +173,27 @@ object XMLUtils {
       if (isTrailingSurrogate(current) && isLeadingSurrogate(previous)) return current
       remapXMLIllegalCharToPUA(current, false)
     }
-    val res = walkUnicodeString(dfdlString)(remapOneChar)
-    res.mkString
+
+    val len = dfdlString.length
+    if (len == 0) return dfdlString
+
+    val sb = new StringBuilder()
+
+    var pos = 0;
+    var prev = 0.toChar
+    var curr = dfdlString(0)
+    var next = 0.toChar
+
+    while (pos < len) {
+      next = if (pos + 1 < len) dfdlString(pos + 1) else 0.toChar
+      sb.append(remapOneChar(prev, curr, next))
+      prev = curr
+      curr = next
+
+      pos += 1
+    }
+
+    sb.toString
   }
 
   val XSD_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema") // removed trailing slash (namespaces care)
