@@ -50,6 +50,7 @@ The message root is 'pcap'.
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:pcap="urn:pcap:2.4"
            targetNamespace="urn:pcap:2.4">
 
@@ -216,6 +217,22 @@ The message root is 'pcap'.
     </xs:complexType>
   </xs:element>
 
+  <xs:simpleType name="IPSeg" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="1">
+    <xs:restriction base="xs:unsignedInt"/>
+  </xs:simpleType>
+
+  <xs:group name="IPSrcGrp">
+    <xs:sequence>
+      <xs:element name="IPSrcByte" type="pcap:IPSeg" minOccurs="4" maxOccurs="4"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="IPDestGrp">
+    <xs:sequence>
+      <xs:element name="IPDestByte" type="pcap:IPSeg" minOccurs="4" maxOccurs="4"/>
+    </xs:sequence>
+  </xs:group>
+
   <xs:element name="IPv4">
     <xs:complexType>
       <xs:sequence>
@@ -238,8 +255,10 @@ The message root is 'pcap'.
               <xs:element name="TTL" type="pcap:bit" dfdl:length="8" />
               <xs:element name="Protocol" type="pcap:bit" dfdl:length="8" />
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
-              <xs:element name="IPSrc" type="pcap:hexByte" dfdl:length="4" />
-              <xs:element name="IPDest" type="pcap:hexByte" dfdl:length="4" />
+              <xs:sequence dfdl:hiddenGroupRef="pcap:IPSrcGrp"/>
+              <xs:element name="IPSrc" type="xs:string" dfdl:inputValueCalc="{ fn:string-join(../pcap:IPSrcByte/text(), '.') }"/>
+              <xs:sequence dfdl:hiddenGroupRef="pcap:IPDestGrp"/>
+              <xs:element name="IPDest" type="xs:string" dfdl:inputValueCalc="{ fn:string-join(../pcap:IPDestByte/text(), '.') }"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
