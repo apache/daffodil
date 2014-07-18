@@ -40,6 +40,9 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.parsers.LeadingSkipRegionParser
+import edu.illinois.ncsa.daffodil.processors.parsers.TrailingSkipRegionParser
+import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
 
 case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
@@ -51,14 +54,7 @@ case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
     case _ => 0 //SDE("Skip/Alignment values must have length units of Bits or Bytes.")
   }
 
-  def parser: DaffodilParser = new PrimParser(this, e) {
-    def parse(pstate: PState) = {
-      val newBitPos = alignment * e.leadingSkip + pstate.bitPos
-      pstate.withPos(newBitPos, -1, Nope)
-    }
-
-    override def toString = "leadingSkip(" + e.leadingSkip + ")"
-  }
+  def parser: DaffodilParser = new LeadingSkipRegionParser(alignment, e.leadingSkip, this, e)
 
   def unparser: Unparser = new DummyUnparser(e)
 }
@@ -82,13 +78,9 @@ case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
     case AlignmentUnits.Bytes => 8
     case _ => 0 //SDE("Skip/Alignment values must have lenght units of Bits or Bytes")
   }
-  def parser: Parser = new PrimParser(this, e) {
-    def parse(pstate: PState) = {
-      val newBitPos = alignment * e.trailingSkip + pstate.bitPos
-      pstate.withPos(newBitPos, -1, Nope)
-    }
-    override def toString = "trailingSkip(" + e.trailingSkip + ")"
-  }
+
+  def parser: Parser = new TrailingSkipRegionParser(alignment, e.trailingSkip, this, e)
+
   def unparser: Unparser = new DummyUnparser(e)
 }
 
@@ -103,17 +95,7 @@ case class AlignmentFill(e: Term) extends Terminal(e, true) {
     return false
   }
 
-  def parser: Parser = new PrimParser(this, e) {
-    def parse(pstate: PState) = {
-      if (!isAligned(pstate.bitPos)) {
-        val maxBitPos = pstate.bitPos + alignment - 1
-        val newBitPos = maxBitPos - maxBitPos % alignment
-        pstate.withPos(newBitPos, -1, Nope)
-      } else
-        pstate
-    }
-    override def toString = "aligningSkip(" + e.alignment + ")"
-  }
+  def parser: Parser = new AlignmentFillParser(e.alignment, alignment, this, e)
 
   def unparser: Unparser = new DummyUnparser(e)
 }
