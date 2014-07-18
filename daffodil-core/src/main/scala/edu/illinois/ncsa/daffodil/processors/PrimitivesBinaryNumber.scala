@@ -40,6 +40,15 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.parsers.UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.SignedKnownLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryKnownLengthBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryRuntimeLengthBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.FloatKnownLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.DecimalKnownLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.parsers.DoubleKnownLengthRuntimeByteOrderBinaryNumberParser
 
 trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
@@ -79,32 +88,6 @@ trait RuntimeExplicitByteOrderMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   val bo = e.byteOrder // ensure byteOrder compiled expression is computed non lazily at compile time
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    val R(byteOrderAsAny, newVMap) = bo.evaluate(s.parentElement, s.variableMap, s)
-    val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
-    val byteOrder = dfdlByteOrderEnum match {
-      case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
-      case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
-    }
-    val start = s.withVariables(newVMap)
-    (start, byteOrder)
-  }
-}
-
-trait SignedNumberMixin[T] {
-  self: BinaryNumberBase[T] =>
-  def convertValue(n: BigInt, msb: Int): T = {
-    val signed = n.testBit(msb - 1) match { // msb is zero-based bit counting
-      case true => n - (BigInt(1) << msb)
-      case false => n
-    }
-    signed.asInstanceOf[T]
-  }
-}
-
-trait UnsignedNumberMixin[T] {
-  self: BinaryNumberBase[T] =>
-  def convertValue(n: BigInt, msb: Int): T = n.asInstanceOf[T]
 }
 
 // TODO: Double Conversion as a Sign-Trait
@@ -124,63 +107,35 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
   }
 
   //def getNum(t: Number): BigInt
-  protected def getBitLength(s: PState): (PState, Long)
-  protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)
-  protected def convertValue(n: BigInt, msb: Int): T
   override def toString = "binary(xs:" + primName + ", " + label + ")"
   val gram = this
 
   protected val GramName = e.primType.name
   protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
 
-  val bitOrd = e.bitOrder
-
-  def parser = new PrimParser(this, e) {
-    override def toString = gram.toString
-
-    def parse(start0: PState): PState = withParseErrorThrowing(start0) {
-      try {
-        val (start1, nBits) = getBitLength(start0)
-        val (start, bo) = getByteOrder(start1)
-        if (start.bitLimit0b != -1L && (start.bitLimit0b - start.bitPos0b < nBits)) {
-          return PE(start, "Insufficient bits to create an xs:" + primName)
-        }
-        val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
-        val newPos = start.bitPos + nBits
-        val convertedValue: T = convertValue(value, nBits.toInt)
-        start.parentElement.setDataValue(convertValueToString(convertedValue))
-        start.withPos(newPos, -1, Nope)
-      } catch {
-        case e: IndexOutOfBoundsException => {
-          return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
-        }
-        case u: UnsuppressableException => throw u
-        case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
-      }
-    }
-  }
-
-  def convertValueToString(n: T): String = {
-    n.toString
-  }
-
   def unparser = DummyUnparser
 }
 
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with UnsignedNumberMixin[T] {
+  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
+
+  def parser = new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, this, e)
 }
 
 class UnsignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with UnsignedNumberMixin[T] {
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
+
+  def parser = new UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
 }
 
 class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] with SignedNumberMixin[T] {
+  with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
+  def parser = new SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, this, e)
 }
 
 class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
-  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] with SignedNumberMixin[T] {
+  with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
+  def parser = new SignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
 }
 
 // Not needed. No runtime-determined lengths for binary floats.
@@ -194,25 +149,7 @@ class HexBinaryKnownLengthBinaryNumber(e: ElementBase, val len: Long)
   // get at compile time, not runtime.
   val lUnits = e.lengthUnits
 
-  // binary numbers will use this conversion. Others won't.
-  lazy val toBits = lUnits match {
-    case LengthUnits.Bits => 1
-    case LengthUnits.Bytes => 8
-    case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
-  }
-
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    (s, java.nio.ByteOrder.BIG_ENDIAN)
-  }
-
-  def getBitLength(s: PState): (PState, Long) = {
-    (s, len * toBits)
-  }
-  def getLength(s: PState): (PState, Long) = {
-    (s, len)
-  }
-
-  final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
+  def parser = new HexBinaryKnownLengthBinaryNumberParser(len, this, e)
 }
 
 class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
@@ -224,7 +161,7 @@ class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
     (s, java.nio.ByteOrder.BIG_ENDIAN)
   }
 
-  final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
+  def parser = new HexBinaryRuntimeLengthBinaryNumberParser(lUnits, this, e)
 }
 
 class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -232,16 +169,7 @@ class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long
   with RuntimeExplicitByteOrderMixin[Float]
   with KnownLengthInBitsMixin[Float] {
 
-  final def convertValue(n: BigInt, ignored_msb: Int): Float = {
-    val nWith33rdBit = n | (BigInt(1) << 33) // make sure we have 5 bytes here. Then we'll ignore 5th byte.
-    val ba = nWith33rdBit.toByteArray
-    val bb = java.nio.ByteBuffer.wrap(ba)
-    val res = ba.length match {
-      case 5 => bb.getFloat(1)
-      case _ => Assert.invariantFailed("byte array should be 5 long")
-    }
-    res
-  }
+  def parser = new FloatKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
 }
 
 class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -249,16 +177,7 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
   with RuntimeExplicitByteOrderMixin[Double]
   with KnownLengthInBitsMixin[Double] {
 
-  final def convertValue(n: BigInt, ignored_msb: Int): Double = {
-    val nWith65thBit = n | (BigInt(1) << 65) // make sure we have 9 bytes of bigint here. Then we'll ignore the 9th byte.
-    val ba = nWith65thBit.toByteArray
-    val bb = java.nio.ByteBuffer.wrap(ba)
-    val res = ba.length match {
-      case 9 => bb.getDouble(1) // ignore first byte.
-      case _ => Assert.invariantFailed("byte array should be 9 long")
-    }
-    res
-  }
+  def parser = new DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
 }
 
 class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -266,13 +185,6 @@ class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lo
   with RuntimeExplicitByteOrderMixin[BigDecimal]
   with KnownLengthInBitsMixin[BigDecimal] {
 
-  final def convertValue(n: BigInt, ignored_msb: Int): BigDecimal = {
-    val res = BigDecimal(n, e.binaryDecimalVirtualPoint)
-    res
-  }
-
-  override def convertValueToString(n: BigDecimal): String = {
-    n.underlying.toPlainString
-  }
+  def parser = new DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
 }
 
