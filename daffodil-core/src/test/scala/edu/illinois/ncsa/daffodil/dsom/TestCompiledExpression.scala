@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.processors.IVCParser
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InputValueCalc
@@ -51,6 +50,7 @@ import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
 import edu.illinois.ncsa.daffodil.util.Fakes
+import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression

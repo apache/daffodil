@@ -46,9 +46,14 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceStartParser
-import edu.illinois.ncsa.daffodil.processors.parsers.AssertPatternPrimParser
-import edu.illinois.ncsa.daffodil.processors.parsers.AssertBaseExpressionEvaluationParser
-import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternPrimParser
+import edu.illinois.ncsa.daffodil.processors.parsers.AssertExpressionEvaluationParser
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.processors.parsers.AssertPatternParser
+import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternParser
+import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParser
+import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
+import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
+
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -75,7 +80,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
 
   def unparser = DummyUnparser
 
-  def parser: DaffodilParser = new AssertBaseExpressionEvaluationParser(msg, discrim, decl, this)
+  def parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl, this)
 
 }
 
@@ -142,10 +147,7 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
-  def parser: DaffodilParser = new PrimParser(this, decl) {
-    stmt.notYetImplemented("newVariableInstance")
-    def parse(pstate: PState) = stmt.notYetImplemented("newVariableInstance")
-  }
+  def parser: DaffodilParser = new NewVariableInstanceEndParser(stmt, this, decl)
 
   def unparser: Unparser = Assert.notYetImplemented()
 }
@@ -205,58 +207,6 @@ case class InputValueCalc(e: ElementBase)
   def unparser = DummyUnparser
 }
 
-/**
- * Common parser base class for any parser that evaluates an expression.
- */
-abstract class ExpressionEvaluationParser(context: ExpressionEvaluatorBase, e: AnnotatedSchemaComponent)
-  extends Parser(e) with WithParseErrorThrowing {
-
-  override def toBriefXML(depthLimit: Int = -1) = context.toBriefXML(depthLimit)
-
-  def eval(start: PState) = {
-    val currentElement = start.parentElement
-    val R(res, newVMap) =
-      context.expr.evaluate(currentElement, start.variableMap, start)
-    // val result = res.toString // Everything in JDOM is a string!
-    R(res, newVMap)
-  }
-}
-
-class IVCParser(context: InputValueCalc, e: ElementBase)
-  extends ExpressionEvaluationParser(context, e) {
-  Assert.invariant(e.isSimpleType)
-
-  def parse(start: PState): PState =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      withParseErrorThrowing(start) {
-        log(LogLevel.Debug, "This is %s", toString)
-        val currentElement = start.parentElement
-        val R(res, newVMap) = eval(start)
-
-        currentElement.setDataValue(res.toString)
-        val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
-        postState
-      }
-    }
-}
-
-class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-  extends ExpressionEvaluationParser(context, decl) {
-
-  def parse(start: PState): PState =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      withParseErrorThrowing(start) {
-        log(LogLevel.Debug, "This is %s", toString)
-        val R(res, newVMap) = eval(start)
-        val newVMap2 = newVMap.setVariable(stmt.defv.extName, res, decl)
-        val postState = start.withVariables(newVMap2)
-        postState
-      }
-    }
-}
-
 abstract class AssertPatternBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
   extends Terminal(decl, true)
   with WithParseErrorThrowing
@@ -283,7 +233,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
     }
   }
 
-  def parser: DaffodilParser = new AssertPatternPrimParser(eName, kindString, charset, d, decl, stmt, this)
+  def parser: DaffodilParser = new AssertPatternParser(eName, kindString, charset, d, decl, stmt, this)
 
   def unparser: Unparser = new Unparser(decl) {
 
@@ -304,7 +254,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
     }
   }
 
-  def parser: DaffodilParser = new DiscriminatorPatternPrimParser(testPattern, eName, kindString, charset, d, decl, stmt, this)
+  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, charset, d, decl, stmt, this)
   
   def unparser: Unparser = new Unparser(decl) {
 

@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import edu.illinois.ncsa.daffodil.util.Fakes
+import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
