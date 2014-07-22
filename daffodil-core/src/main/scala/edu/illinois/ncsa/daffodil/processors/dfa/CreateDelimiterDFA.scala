@@ -92,14 +92,10 @@ object CreateDelimiterDFA {
     }
 
     val currentState = getState(delim(0),
-      if (nextState == null) 0 else nextState.stateNum,
+      if (nextState == null) DFA.FinalState else nextState.stateNum,
       delim.length - 1, allStates)
     val rest = delim.tail
 
-    if (nextState == null) {
-      // We are an accepting state
-      currentState.nextState = DFA.FinalState
-    }
     allStates += currentState
     return buildTransitions(currentState, rest, allStates)
   }

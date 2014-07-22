@@ -20,6 +20,7 @@ class Registers {
   var data0: Char = DFA.EndOfDataChar // current character
   var data1: Char = DFA.EndOfDataChar // next (lookahead 1) character
   var matchStartPos: Int = 0
+  var matchedAtLeastOnce: Boolean = false // WSPStar WSPPlus
 
   // Very very loosely bind this whole system
   // to scala's Reader[Char] because that 
@@ -46,6 +47,7 @@ class Registers {
     numCharsRead = 0
     numCharsReadUntilDelim = 0
     this.matchStartPos = matchStartPos
+    matchedAtLeastOnce = false
   }
 
   /**
@@ -71,6 +73,7 @@ class Registers {
     delimString.clear
     numCharsRead = 0
     numCharsReadUntilDelim = 0
+    matchedAtLeastOnce = false
   }
 
   def getReader: DFDLCharReader = reader
@@ -242,7 +245,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
  * StartState for Field portion of EscapeBlock.
  * Here compiledDelims should only contain the endBlock DFADelimiter.
  */
-class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Maybe[Char],
+class StartStateEscapeBlock(states: => ArrayBuffer[State], val EEC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
   val stateName: String = "StartState"
@@ -260,7 +263,7 @@ class StartStateEscapeBlock(states: => ArrayBuffer[State], var EEC: Maybe[Char],
 
 }
 
-class StartStateEscapeChar(states: => ArrayBuffer[State], var EEC: Maybe[Char], var EC: Maybe[Char],
+class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -447,7 +450,7 @@ class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher {
   val r: Registers = new Registers()
 }
 
-class ECState(states: => ArrayBuffer[State], var EC: Maybe[Char],
+class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -482,7 +485,7 @@ class ECState(states: => ArrayBuffer[State], var EC: Maybe[Char],
     })
 }
 
-class EECState(states: => ArrayBuffer[State], var EEC: Maybe[Char], var EC: Maybe[Char],
+class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -526,7 +529,7 @@ class EECState(states: => ArrayBuffer[State], var EEC: Maybe[Char], var EC: Mayb
     })
 }
 
-class EECStateBlock(states: => ArrayBuffer[State], var EEC: Maybe[Char],
+class EECStateBlock(states: => ArrayBuffer[State], val EEC: Maybe[Char],
   compiledDelims: DelimsMatcher, val stateNum: Int)
   extends State(states) {
 
@@ -582,7 +585,7 @@ abstract class DelimStateBase(states: => ArrayBuffer[State])
   def setStateName(name: String) = stateName = name
   def rules: ArrayBuffer[Rule]
 
-  var nextState: Int
+  def nextState: Int
 
   def checkMatch(charIn: Char): Boolean
 
@@ -591,7 +594,7 @@ abstract class DelimStateBase(states: => ArrayBuffer[State])
   }
 }
 
-class CharState(states: => ArrayBuffer[State], char: Char, var nextState: Int, val stateNum: Int)
+class CharState(states: => ArrayBuffer[State], char: Char, val nextState: Int, val stateNum: Int)
   extends DelimStateBase(states) {
 
   stateName = "CharState(" + char + ")"
@@ -631,7 +634,7 @@ abstract class WSPBase(states: => ArrayBuffer[State])
   }
 }
 
-class WSPState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+class WSPState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
   extends WSPBase(states) {
 
   stateName = "WSPState"
@@ -659,7 +662,7 @@ abstract class WSPRepeats(states: => ArrayBuffer[State])
 
 }
 
-class WSPPlusState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
   extends WSPRepeats(states) {
 
   stateName = "WSPPlusState"
@@ -672,22 +675,22 @@ class WSPPlusState(states: => ArrayBuffer[State], var nextState: Int, val stateN
       }
     })
 
-  var matchedAtLeastOnce: Boolean = false
   val rules = ArrayBuffer(
     Rule { (r: Registers) => checkMatch(r.data0) } { (r: Registers) =>
       {
         r.appendToDelim(r.data0)
         r.advance
-        matchedAtLeastOnce = true
+        r.matchedAtLeastOnce = true
         Right(stateNum) // This state
       }
     },
-    Rule { (r: Registers) => matchedAtLeastOnce } { (r: Registers) =>
+    Rule { (r: Registers) => r.matchedAtLeastOnce } { (r: Registers) =>
+      r.matchedAtLeastOnce = false
       Right(nextState)
     })
 }
 
-class WSPStarState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+class WSPStarState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
   extends WSPRepeats(states) {
 
   stateName = "WSPStarState"
@@ -731,7 +734,7 @@ abstract class NLBase(states: => ArrayBuffer[State])
   }
 }
 
-class NLState(states: => ArrayBuffer[State], var nextState: Int, val stateNum: Int)
+class NLState(states: => ArrayBuffer[State], val nextState: Int, val stateNum: Int)
   extends NLBase(states) {
 
   stateName = "NLState"
