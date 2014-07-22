@@ -62,7 +62,6 @@ class StringDelimitedParser(
         val result = parseResult.get
         val field = result.field.getOrElse("")
         val numBits = result.numBits
-        log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
         val currentElement = state.parentElement
@@ -84,11 +83,7 @@ class StringDelimitedParser(
     
     val (postEvalState, textParser, delimsCooked) = pf.getParser(start)
 
-    log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
-
     val bytePos = (postEvalState.bitPos >> 3).toInt
-    log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
-    log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
     val reader = getReader(charset, postEvalState.bitPos, postEvalState)
     val hasDelim = delimsCooked.length > 0
@@ -144,10 +139,6 @@ class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationTyp
           val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
           val endBitPos = numBits + state.bitPos
 
-          log(LogLevel.Debug, "%s - Found %s", eName, result.field)
-          log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
-          log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
-
           val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
           if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
           return stateWithPos
@@ -183,7 +174,6 @@ class HexBinaryDelimitedParser(justificationTrim: TextJustificationType.Type,
         val result = parseResult.get
         val field = result.field.getOrElse("")
         val numBits = e.knownEncodingStringBitLengthFunction(field)
-        log(LogLevel.Debug, "%s - Parsed: %s Parsed Bytes: %s (bits %s)", eName, field, numBits / 8, numBits)
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
         val currentElement = state.parentElement
