@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.processors.IVCParser
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InputValueCalc
 import edu.illinois.ncsa.daffodil.processors.PState
