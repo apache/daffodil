@@ -182,11 +182,19 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
 trait BitOrderMixin extends GrammarMixin { self: Term =>
 
-  lazy val enclosingBitOrder = enclosingTerm.map(_.bitOrder)
-  lazy val priorSiblingBitOrder = priorSibling.map(_.bitOrder)
-  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(bitOrder))
+  lazy val defaultBitOrder = {
+    if (DaffodilTunableParameters.requireBitOrderProperty) {
+      bitOrder
+    } else {
+      optionBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
+    }
+  }
 
-  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != bitOrder) { new BitOrderChange(this) }
+  lazy val enclosingBitOrder = enclosingTerm.map(_.defaultBitOrder)
+  lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
+  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
+
+  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != defaultBitOrder) { new BitOrderChange(this) }
 }
 
 /////////////////////////////////////////////////////////////////

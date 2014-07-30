@@ -10,7 +10,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
  */
 
 class BitOrderChange(t: Term) extends Terminal(t, true) {
-  val bitOrder = t.bitOrder
+  val bitOrder = t.defaultBitOrder
   def parser = new BitOrderChangeParser(t, bitOrder, this)
   def unparser = DummyUnparser
 }

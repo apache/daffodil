@@ -152,7 +152,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val scr = this.processorFactory.sset.schemaComponentRegistry
     val initialState =
       if (rootElem.isScannable &&
-        rootElem.encodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        rootElem.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         rootElem.knownEncodingIsFixedWidth &&
         rootElem.knownEncodingAlignmentInBits == 8 // byte-aligned characters
         ) {
@@ -188,7 +188,7 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val scr = this.processorFactory.sset.schemaComponentRegistry
     val initialState =
       if (rootElem.isScannable &&
-        rootElem.encodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        rootElem.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         rootElem.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
         val charsetEncodingName = rootElem.encoding.constantAsString

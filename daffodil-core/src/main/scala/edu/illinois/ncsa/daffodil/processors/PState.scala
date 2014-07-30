@@ -383,7 +383,7 @@ object PState {
     dataProc: DFDL.DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
-    val bitOrder = rootElemDecl.bitOrder
+    val bitOrder = rootElemDecl.defaultBitOrder
     val inStream =
       InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit, bitOrder)
     createInitialState(scr, rootElemDecl, inStream, dataProc)

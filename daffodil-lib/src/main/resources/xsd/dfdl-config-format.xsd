@@ -11,12 +11,13 @@
 	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" />
 	<xsd:include schemaLocation="dafext.xsd" /> 
 
-	<!-- Copyright (C) 2013, Tresys Technologies LLC. All Rights Reserved. -->
+	<!-- Copyright (C) 2013-2014 Tresys Technologies LLC. All Rights Reserved. -->
 
 		<element name="dfdlConfig">
 			<complexType>
 				<sequence>
-					<element ref="tns:externalVariableBindings" />
+					<element ref="tns:externalVariableBindings" minOccurs="0" />
+					<element ref="tns:tunables" minOccurs="0" />
 				</sequence>
 			</complexType>
 		</element>

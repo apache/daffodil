@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import edu.illinois.ncsa.daffodil.util.Compile
 import edu.illinois.ncsa.daffodil.util.Error
+import edu.illinois.ncsa.daffodil.util.Warning
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -159,6 +160,27 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
     val extVars = ExternalVariablesLoader.getVariables(extVarsFile)
     setExternalDFDLVariables(extVars)
+  }
+
+  def setTunable(tunable: String, value: String): Unit = {
+    tunable.toLowerCase match {
+      case "requirebitorderproperty" => DaffodilTunableParameters.requireBitOrderProperty = java.lang.Boolean.valueOf(value)
+      case "requireencodingerrorpolicyproperty" => DaffodilTunableParameters.requireEncodingErrorPolicyProperty = java.lang.Boolean.valueOf(value)
+      case "maxfieldcontentlengthinbytes" => DaffodilTunableParameters.maxFieldContentLengthInBytes = java.lang.Long.valueOf(value)
+      case "maxoccursbounds" => DaffodilTunableParameters.maxOccursBounds = java.lang.Long.valueOf(value)
+      case "maxskiplength" => DaffodilTunableParameters.maxSkipLength = java.lang.Long.valueOf(value)
+      case "maxbinarydecimalvirtualpoint" => DaffodilTunableParameters.maxBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value)
+      case "minbinarydecimalvirtualpoint" => DaffodilTunableParameters.minBinaryDecimalVirtualPoint = java.lang.Integer.valueOf(value)
+      case "generatednamespaceprefixstem" => DaffodilTunableParameters.generatedNamespacePrefixStem = value
+      case "readerbytebuffersize" => DaffodilTunableParameters.readerByteBufferSize = java.lang.Long.valueOf(value)
+      case "maxlengthforvariablelengthdelimiterdisplay" => DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay = java.lang.Integer.valueOf(value)
+      case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
+      case _ => log(Warning("Ignoring unknown tunable: %s", tunable))
+    }
+  }
+
+  def setTunables(tunables: Map[String, String]): Unit = {
+    tunables.foreach { case (k,v) => setTunable(k, v) }
   }
 
   /**

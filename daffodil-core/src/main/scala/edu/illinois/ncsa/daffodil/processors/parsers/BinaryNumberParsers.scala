@@ -163,7 +163,7 @@ abstract class BinaryNumberBaseParser[T](
   val e: ElementBase)
   extends PrimParser(gram, e) {
   val primName = e.primType.name
-  val bitOrd = e.bitOrder
+  val bitOrd = e.defaultBitOrder
 
   protected def getBitLength(s: PState): (PState, Long)
   protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)

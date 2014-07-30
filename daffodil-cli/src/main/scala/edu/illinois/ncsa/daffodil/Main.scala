@@ -291,6 +291,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       res
     }
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An option namespace may be provided.")
+    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infile = trailArg[String](required = false, descr = "input file to parse. If not specified, or a value of -, reads from stdin.")
 
@@ -334,6 +335,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case Some(mode) => mode
     })
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An option namespace may be provided.")
+    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infile = trailArg[String](required = true, descr = "input file or directory containing files to parse.")
 
@@ -371,6 +373,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case Some(mode) => mode
     })
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when unparsing. An optional namespace may be provided.")
+    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
     val infile = trailArg[String](required = false, descr = "input file to unparse. If not specified, or a value of -, reads from stdin.")
 
@@ -421,6 +424,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case Some(mode) => mode
     })
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
+    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
 
     validateOpt(schemas) {
@@ -540,12 +544,35 @@ object Main extends Logging {
     bindings
   }
 
+  def retrieveTunables(tunables: Map[String, String], configFileNode: Option[Node]) = {
+    val configFileTunables: Map[String, String] = configFileNode match {
+      case None => Map.empty
+      case Some(configNode) => {
+        val tunablesOpt = (configNode \ "tunables").headOption
+        tunablesOpt match {
+          case None => Map.empty
+          case Some(tunableNode) => {
+            tunableNode.child.map { n => (n.label, n.text) }.toMap
+          }
+        }
+      }
+    }
+
+    // Note, ++ on Maps replaces any key/value pair from the left with that on the
+    // right, so key/value pairs defined in tunables overrule those defiend in
+    // the config file
+    val combined = configFileTunables ++ tunables
+    combined
+  }
+
   def createProcessorFromSchemas(schemaFiles: List[File], rootNS: Option[(Option[NS], String)], path: Option[String],
     extVars: Seq[Binding],
+    tunables: Map[String, String],
     mode: ValidationMode.Type) = {
     val compiler = Compiler()
 
     compiler.setExternalDFDLVariables(extVars)
+    compiler.setTunables(tunables)
 
     rootNS match {
       case None => // nothing
@@ -615,13 +642,14 @@ object Main extends Logging {
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
         val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
+        val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
 
         val processor = {
           if (parseOpts.parser.isDefined) {
             createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validate)
           } else {
             val files: List[File] = parseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, validate)
+            createProcessorFromSchemas(files, parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
 
@@ -703,13 +731,14 @@ object Main extends Logging {
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
         val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode)
+        val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
 
         val processor = {
           if (performanceOpts.parser.isDefined) {
             createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.get, validate)
           } else {
             val files: List[File] = performanceOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, validate)
+            createProcessorFromSchemas(files, performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
 
@@ -815,13 +844,14 @@ object Main extends Logging {
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
         val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode)
+        val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
             createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validate)
           } else {
             val files: List[File] = unparseOpts.schemas().map(s => new File(s))
-            createProcessorFromSchemas(files, unparseOpts.rootNS.get, unparseOpts.path.get, extVarsBindings, validate)
+            createProcessorFromSchemas(files, unparseOpts.rootNS.get, unparseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
 
@@ -866,8 +896,9 @@ object Main extends Logging {
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
         val extVarsBindings = retrieveExternalVariables(saveOpts.vars, cfgFileNode)
+        val tunables = retrieveTunables(saveOpts.tunables, cfgFileNode)
 
-        val processor = createProcessorFromSchemas(files, saveOpts.rootNS.get, saveOpts.path.get, extVarsBindings, validate)
+        val processor = createProcessorFromSchemas(files, saveOpts.rootNS.get, saveOpts.path.get, extVarsBindings, tunables, validate)
 
         val output = saveOpts.outfile.get match {
           case Some("-") | None => System.out

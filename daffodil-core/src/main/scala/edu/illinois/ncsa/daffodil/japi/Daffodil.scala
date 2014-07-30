@@ -134,6 +134,13 @@ class Compiler {
 
   def setValidateDFDLSchemas(value: Boolean): Unit = sCompiler.setValidateDFDLSchemas(value)
 
+  def setTunable(tunable: String, value: String): Unit = {
+    sCompiler.setTunable(tunable, value)
+  }
+
+  def setTunables(tunables: Map[String, String]): Unit = {
+    sCompiler.setTunables(tunables)
+  }
 }
 
 class ProcessorFactory(pf: SProcessorFactory)

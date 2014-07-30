@@ -59,7 +59,7 @@ object ConfigurationLoader {
     val enc = determineEncoding(file)
     val input = scala.io.Source.fromURI(file.toURI)(enc)
     val node = ConstructingParser.fromSource(input, true).document.docElem
-    node
+    scala.xml.Utility.trim(node)
   }
 
   def getConfiguration(fileName: String): Node = {

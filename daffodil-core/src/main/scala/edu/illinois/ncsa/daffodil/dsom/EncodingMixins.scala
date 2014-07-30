@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 
 /**
  * Split this out of AnnotatedMixin for separation of
@@ -62,7 +63,7 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     // the error even though the parser won't actually consume
     // that much of the data. 
     //
-    schemaDefinitionUnless(encodingErrorPolicy == EncodingErrorPolicy.Replace,
+    schemaDefinitionUnless(defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace,
       "Property encodingErrorPolicy='error' not supported.")
     val isKnown = encoding.isConstant
     if (isKnown) {
@@ -181,6 +182,14 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
         str.getBytes(knownEncodingName).length * 8
       }
       stringBitLength _
+    }
+  }
+
+  lazy val defaultEncodingErrorPolicy = {
+    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
+      encodingErrorPolicy
+    } else {
+      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
     }
   }
 }
