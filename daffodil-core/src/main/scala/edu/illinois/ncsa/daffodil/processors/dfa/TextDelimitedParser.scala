@@ -1,13 +1,30 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.util.parsing.input.Reader
 import scala.collection.mutable.Queue
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
+import edu.illinois.ncsa.daffodil.processors.EscapeScheme
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlock
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeChar
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.processors.FieldFactoryStatic
+import edu.illinois.ncsa.daffodil.processors.FieldFactoryDynamic
+import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 
-abstract class TextDelimitedParserBase(val justification: TextJustificationType.Type, val padCharOpt: Maybe[Char], knownEncFunc: String => Int)
+abstract class TextDelimitedParserBase(
+  val justification: TextJustificationType.Type,
+  val padCharOpt: Maybe[Char],
+  knownEncFunc: String => Int,
+  delims: Seq[DFADelimiter],
+  field: DFAField)
   extends DelimitedParser {
 
   val leftPadding: DFADelimiter = {
@@ -24,14 +41,14 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
     }
   }
 
-  def delims: Seq[DFADelimiter]
-  def field: DFAField
-
   def removeRightPadding(str: String): String = str.reverse.dropWhile(c => c == padCharOpt.get).reverse
   def removeLeftPadding(str: String): String = str.dropWhile(c => c == padCharOpt.get)
   def removePadding(str: String): String = removeLeftPadding(removeRightPadding(str))
 
   def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
+    Assert.invariant(delims != null)
+    Assert.invariant(field != null)
+
     val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
     val fieldReg: Registers = new Registers
 
@@ -128,21 +145,29 @@ abstract class TextDelimitedParserBase(val justification: TextJustificationType.
  * Assumes that the delims DFAs were constructed with the Esc
  * and EscEsc in mind.
  */
-class TextDelimitedParser(justArg: TextJustificationType.Type, padCharArg: Maybe[Char],
-  var delims: Seq[DFADelimiter],
-  var field: DFAField, knownEncFunc: String => Int)
-  extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc) {
-
+class TextDelimitedParser(
+  justArg: TextJustificationType.Type,
+  padCharArg: Maybe[Char],
+  knownEncFunc: String => Int,
+  delims: Seq[DFADelimiter],
+  field: DFAField)
+  extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc, delims, field) {
 }
 
 /**
  * Assumes that endBlock DFA was constructed with the
  * EscEsc in mind.
  */
-class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type, val padCharArg: Maybe[Char],
-  var startBlock: DFADelimiter, var endBlock: DFADelimiter, var delims: Seq[DFADelimiter], var fieldEsc: DFAField,
-  var field: DFAField, knownEncFunc: String => Int)
-  extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc) {
+class TextDelimitedParserWithEscapeBlock(
+  justArg: TextJustificationType.Type,
+  padCharArg: Maybe[Char],
+  knownEncFunc: String => Int,
+  delims: Seq[DFADelimiter],
+  field: DFAField,
+  fieldEsc: DFAField,
+  startBlock: DFADelimiter,
+  endBlock: DFADelimiter)
+  extends TextDelimitedParserBase(justArg, padCharArg, knownEncFunc, delims, field) {
 
   protected def removeLeftPadding(input: DFDLCharReader): Registers = {
     val leftPaddingRegister = new Registers
@@ -183,6 +208,7 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
   protected def parseRemainder(input: DFDLCharReader, isDelimRequired: Boolean,
     startBlockRegister: Registers, leftPaddingRegister: Registers,
     initialCharPos: Int, numCharsReadAfterLeftPadding: Int): Maybe[ParseResult] = {
+
     val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
     val numCharsReadAfterStartBlock = numCharsReadAfterLeftPadding + startBlockRegister.numCharsRead
 
@@ -325,6 +351,12 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
   }
 
   override def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
+    Assert.invariant(delims != null)
+    Assert.invariant(fieldEsc != null)
+    Assert.invariant(field != null)
+    Assert.invariant(startBlock != null)
+    Assert.invariant(endBlock != null)
+
     val initialCharPos = input.characterPos
     val leftPaddingRegister = removeLeftPadding(input)
     val numCharsReadAfterLeftPadding = leftPaddingRegister.numCharsReadUntilDelim
@@ -332,11 +364,99 @@ class TextDelimitedParserWithEscapeBlock(val justArg: TextJustificationType.Type
     val psb = parseStartBlock(readerAfterPadding)
     if (!psb.isDefined) super.parse(input, isDelimRequired)
     else {
-      val startBlockRegister = psb.get 
+      val startBlockRegister = psb.get
       parseRemainder(input, isDelimRequired,
         startBlockRegister, leftPaddingRegister, initialCharPos,
         numCharsReadAfterLeftPadding)
     }
   }
+
+}
+
+sealed abstract class TextDelimitedParserFactoryBase(
+  justArg: TextJustificationType.Type,
+  padCharArg: Maybe[Char],
+  knownEncFunc: String => Int,
+  fieldFact: FieldFactoryBase,
+  context: ThrowsSDE,
+  elemBase: ElementBase) extends Logging {
+
+  def getParser(state: PState): (PState, TextDelimitedParserBase, List[String])
+
+  protected def constructParser(state: PState) = {
+    val (postEvalState, delims, _, delimsCooked, fieldDFA, escScheme) = fieldFact.getFieldDFA(state)
+    val theParser = if (escScheme.isDefined) {
+      val scheme = escScheme.get
+      scheme match {
+        case s: EscapeSchemeBlock => {
+          val parser =
+            new TextDelimitedParserWithEscapeBlock(justArg, padCharArg,
+              elemBase.knownEncodingStringBitLengthFunction, delims,
+              fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA)
+          parser
+        }
+        case s: EscapeSchemeChar => {
+          val parser = new TextDelimitedParser(justArg, padCharArg,
+            elemBase.knownEncodingStringBitLengthFunction, delims, fieldDFA)
+          parser
+        }
+      }
+    } else {
+      val parser = new TextDelimitedParser(justArg, padCharArg, elemBase.knownEncodingStringBitLengthFunction, delims, fieldDFA)
+      parser
+    }
+    (postEvalState, theParser, delimsCooked)
+  }
+
+}
+
+/**
+ * Parser fields are set at compile-time.
+ */
+case class TextDelimitedParserFactoryStatic(
+  justArg: TextJustificationType.Type,
+  padCharArg: Maybe[Char],
+  knownEncFunc: String => Int,
+  fieldFact: FieldFactoryStatic,
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends TextDelimitedParserFactoryBase(
+    justArg,
+    padCharArg,
+    knownEncFunc,
+    fieldFact,
+    context,
+    elemBase) {
+
+  /**
+   * Parser is instantiated and the fields are set at
+   * compile-time.
+   */
+  protected val (_, parser, delimsCooked) = constructParser(null)
+
+  def getParser(state: PState): (PState, TextDelimitedParserBase, List[String]) = (state, parser, delimsCooked)
+
+}
+
+/**
+ * The parser is instantiated but field setting is deferred until
+ * run-time.
+ */
+case class TextDelimitedParserFactoryDynamic(
+  justArg: TextJustificationType.Type,
+  padCharArg: Maybe[Char],
+  knownEncFunc: String => Int,
+  fieldFact: FieldFactoryDynamic,
+  context: ThrowsSDE,
+  elemBase: ElementBase)
+  extends TextDelimitedParserFactoryBase(
+    justArg,
+    padCharArg,
+    knownEncFunc,
+    fieldFact,
+    context,
+    elemBase) {
+
+  def getParser(state: PState): (PState, TextDelimitedParserBase, List[String]) = constructParser(state)
 
 }

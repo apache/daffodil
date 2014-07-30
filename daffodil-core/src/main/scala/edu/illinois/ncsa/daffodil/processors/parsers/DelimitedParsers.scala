@@ -2,7 +2,6 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
-
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
@@ -28,11 +27,13 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
 
 class StringDelimitedParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
+  pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   gram: Gram,
   contextArg: SchemaComponent)
@@ -74,39 +75,14 @@ class StringDelimitedParser(
     res
   }
 
-  def parseMethod(reader: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean,
-    escScheme: Maybe[EscapeScheme], delimsMatcher: DelimsMatcher, fieldDFA: DFAField): Maybe[dfa.ParseResult] = {
-
-    val result: Maybe[dfa.ParseResult] = {
-      if (escScheme.isDefined) {
-        val scheme = escScheme.get
-        scheme match {
-          case s: EscapeSchemeBlock => {
-            val parser = new TextDelimitedParserWithEscapeBlock(justificationTrim, pad,
-              s.blockStartDFA, s.blockEndDFA, delims, s.fieldEscDFA, fieldDFA, e.knownEncodingStringBitLengthFunction)
-            parser.parse(reader, isDelimRequired)
-          }
-          case s: EscapeSchemeChar => {
-            val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, e.knownEncodingStringBitLengthFunction)
-            parser.parse(reader, isDelimRequired)
-          }
-        }
-      } else {
-        val parser = new TextDelimitedParser(justificationTrim, pad, delims, fieldDFA, e.knownEncodingStringBitLengthFunction)
-        parser.parse(reader, isDelimRequired)
-      }
-    }
-    result
-  }
-
   def parse(start: PState): PState = withParseErrorThrowing(start) {
 
     // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
     //
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
-
-    val (postEvalState, delims, delimsMatcher, delimsCooked, fieldDFA, scheme) = ff.getFieldDFA(start)
+    
+    val (postEvalState, textParser, delimsCooked) = pf.getParser(start)
 
     log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, delimsCooked, delimsCooked.length)
 
@@ -120,7 +96,7 @@ class StringDelimitedParser(
     start.mpstate.clearDelimitedText
 
     val result = try {
-      parseMethod(reader, delims, isDelimRequired, scheme, delimsMatcher, fieldDFA)
+      textParser.parse(reader, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
         throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
@@ -132,13 +108,17 @@ class StringDelimitedParser(
 class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
+  pf: TextDelimitedParserFactoryBase,
   gram: Gram,
-  contextArg: SchemaComponent) extends StringDelimitedParser(justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  ff: FieldFactoryBase,
-  false,
-  gram: Gram,
-  contextArg: SchemaComponent) {
+  contextArg: SchemaComponent)
+  extends StringDelimitedParser(
+    justificationTrim: TextJustificationType.Type,
+    pad: Maybe[Char],
+    ff: FieldFactoryBase,
+    pf: TextDelimitedParserFactoryBase,
+    false,
+    gram: Gram,
+    contextArg: SchemaComponent) {
   val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
   val isEmptyAllowed = e.nilValue.contains("%ES;") // TODO: move outside parser
 
@@ -184,11 +164,13 @@ class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationTyp
 class HexBinaryDelimitedParser(justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
+  pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   gram: Gram,
   contextArg: SchemaComponent) extends StringDelimitedParser(justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
+  pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   gram: Gram,
   contextArg: SchemaComponent) {
@@ -220,12 +202,14 @@ class HexBinaryDelimitedEndOfDataParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
+  pf: TextDelimitedParserFactoryBase,
   gram: Gram,
   contextArg: SchemaComponent)
   extends HexBinaryDelimitedParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     ff: FieldFactoryBase,
+    pf: TextDelimitedParserFactoryBase,
     false,
     gram: Gram,
     contextArg: SchemaComponent)

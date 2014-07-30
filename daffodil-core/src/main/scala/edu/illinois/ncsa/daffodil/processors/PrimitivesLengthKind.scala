@@ -88,6 +88,9 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryStatic
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryDynamic
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -831,10 +834,6 @@ abstract class StringDelimited(e: ElementBase)
   val hasDynamicDelims: Boolean =
     e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
 
-  val escf = escSchemeFactory
-  val df = delimiterFactory
-  val ff = fieldFactory
-
   val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
 
   val leftPaddingOpt: Option[TextPaddingParser] = {
@@ -842,7 +841,12 @@ abstract class StringDelimited(e: ElementBase)
     else Some(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
   }
 
-  def escSchemeFactory: Option[EscapeSchemeFactoryBase] = {
+  val escapeSchemeFactory = createEscSchemeFactory
+  val delimiterFactory = createDelimiterFactory
+  val fieldFactory = createFieldFactory
+  val parserFactory = createParserFactory
+
+  def createEscSchemeFactory: Option[EscapeSchemeFactoryBase] = {
     if (es.isDefined) {
       val scheme = es.get
       val isConstant = scheme.escapeKind match {
@@ -864,7 +868,7 @@ abstract class StringDelimited(e: ElementBase)
     } else None
   }
 
-  def delimiterFactory: DelimiterFactoryBase = {
+  def createDelimiterFactory: DelimiterFactoryBase = {
     val factory =
       if (hasDynamicDelims) {
         new DelimiterFactoryDynamic(e.allTerminatingMarkup, context, elemBase)
@@ -874,16 +878,32 @@ abstract class StringDelimited(e: ElementBase)
     factory
   }
 
-  def fieldFactory: FieldFactoryBase = {
+  def createFieldFactory: FieldFactoryBase = {
     val hasDynamicEscapeScheme =
-      if (escf.isDefined) escf.get.isInstanceOf[EscapeSchemeFactoryDynamic]
-      else false
+      escapeSchemeFactory.getOrElse(false).isInstanceOf[EscapeSchemeFactoryDynamic]
 
     val fieldDFAFact =
       if (!hasDynamicDelims && !hasDynamicEscapeScheme)
-        new FieldFactoryStatic(escf.asInstanceOf[Option[EscapeSchemeFactoryStatic]], df.asInstanceOf[DelimiterFactoryStatic], context, elemBase)
-      else new FieldFactoryDynamic(escf, df, context, elemBase)
+        new FieldFactoryStatic(escapeSchemeFactory.asInstanceOf[Option[EscapeSchemeFactoryStatic]],
+          delimiterFactory.asInstanceOf[DelimiterFactoryStatic], context, elemBase)
+      else new FieldFactoryDynamic(escapeSchemeFactory, delimiterFactory, context, elemBase)
     fieldDFAFact
+  }
+
+  def createParserFactory: TextDelimitedParserFactoryBase = {
+    val theParserFact = fieldFactory match {
+      case ffs: FieldFactoryStatic => {
+        val pStatic = new TextDelimitedParserFactoryStatic(
+          justificationTrim, pad, elemBase.knownEncodingStringBitLengthFunction, ffs, context, elemBase)
+        pStatic
+      }
+      case ffd: FieldFactoryDynamic => {
+        val pDynamic = new TextDelimitedParserFactoryDynamic(
+          justificationTrim, pad, elemBase.knownEncodingStringBitLengthFunction, ffd, context, elemBase)
+        pDynamic
+      }
+    }
+    theParserFact
   }
 
   /**
@@ -902,7 +922,8 @@ abstract class StringDelimited(e: ElementBase)
   def parser: DaffodilParser = new StringDelimitedParser(
     justificationTrim,
     pad,
-    ff,
+    fieldFactory,
+    parserFactory,
     isDelimRequired,
     gram,
     e)
@@ -930,13 +951,15 @@ case class StringDelimitedEndOfData(e: ElementBase)
   val isDelimRequired: Boolean = false
 }
 
-abstract class HexBinaryDelimited(e: ElementBase) extends StringDelimited(e) {
+abstract class HexBinaryDelimited(e: ElementBase)
+  extends StringDelimited(e) {
   override val charset: Charset = Charset.forName("ISO-8859-1")
 
   override def parser: DaffodilParser = new HexBinaryDelimitedParser(
     justificationTrim,
     pad,
-    ff,
+    fieldFactory,
+    parserFactory,
     isDelimRequired,
     gram,
     e)
@@ -958,7 +981,8 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   override def parser: DaffodilParser =
     new LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationType.Type,
       pad: Maybe[Char],
-      ff: FieldFactoryBase,
+      fieldFactory: FieldFactoryBase,
+      parserFactory: TextDelimitedParserFactoryBase,
       gram: Gram,
       eb: SchemaComponent)
 
