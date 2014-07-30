@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
@@ -48,8 +48,7 @@ abstract class TextDelimitedParserBase(
   def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
-
-    val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
+    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val fieldReg: Registers = new Registers
 
     fieldReg.reset(input, 0)
@@ -209,7 +208,7 @@ class TextDelimitedParserWithEscapeBlock(
     startBlockRegister: Registers, leftPaddingRegister: Registers,
     initialCharPos: Int, numCharsReadAfterLeftPadding: Int): Maybe[ParseResult] = {
 
-    val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
+    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val numCharsReadAfterStartBlock = numCharsReadAfterLeftPadding + startBlockRegister.numCharsRead
 
     val fieldRegister = new Registers

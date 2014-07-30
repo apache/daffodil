@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -10,7 +10,7 @@ class TextParser(knownEncFunc: String => Int) extends DelimitedParser {
   var delims: Seq[DFADelimiter] = Seq.empty
 
   def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
-    val successes: Queue[(DFADelimiter, Registers)] = Queue.empty
+    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val initialCharPos = input.characterPos
 
     delims.foreach(d => {
