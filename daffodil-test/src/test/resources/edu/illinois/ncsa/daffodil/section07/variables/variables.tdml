@@ -724,4 +724,97 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="emptyDefault">
+    <dfdl:defineVariable name="v_default" type="xs:string" >test</dfdl:defineVariable>
+    <dfdl:defineVariable name="v_empty_default" type="xs:string"
+      defaultValue="" />
+    <dfdl:defineVariable name="v_empty_default2" type="xs:string" >{ "" }</dfdl:defineVariable>
+
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="r1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default }" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:inputValueCalc="{ $ex:v_default }" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default2 }" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:inputValueCalc="{ $ex:v_default }" dfdl:lengthKind="delimited" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test: emptyDefault
+   Schema: emptyDefault
+     Root: r1
+  Purpose: This test uses empty string as the default value by setting the defaultValue attribute.
+-->
+  
+  <tdml:parserTestCase name="emptyDefault" root="r1"
+    model="emptyDefault" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>
+          <one/>
+	  <two>test</two>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test: emptyDefault2
+   Schema: emptyDefault
+     Root: r2
+  Purpose: This test uses empty string as the default value by using an expression.
+-->
+
+  <tdml:parserTestCase name="emptyDefault2" root="r2"
+    model="emptyDefault" description="Section 7 - setVariable supports both a value attribute and a 'value' - DFDL-7-122R">
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r1>
+          <one/>
+	  <two>test</two>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="emptyDefaultInvalid">
+    <dfdl:defineVariable name="v_empty_default_invalid" type="xs:string"
+      defaultValue="">{ "" }</dfdl:defineVariable>
+
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="r2" type="xs:string" dfdl:inputValueCalc="{ $ex:v_empty_default_invalid }" dfdl:lengthKind="delimited" />
+  </tdml:defineSchema>
+
+<!--
+     Test: doubleEmptyDefault
+   Schema: emptyDefaultInvalid
+     Root: r2 
+  Purpose: This test uses an element that had a default set with an attribute and an element value and should fail.
+-->
+  
+  <tdml:parserTestCase name="doubleEmptyDefault" root="r2"
+    model="emptyDefaultInvalid" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Default value of variable was supplied both as attribute and element value</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

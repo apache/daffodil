@@ -202,4 +202,6 @@ class TestAlignedData {
   @Test def test_AligningSkipBits() { runner2.runOneTest("AligningSkipBits") }
   @Test def test_AligningSkipBits2() { runner2.runOneTest("AligningSkipBits2") }
 
+  @Test def test_alignmentArray() = { runner1.runOneTest("alignmentArray") }
+
 }

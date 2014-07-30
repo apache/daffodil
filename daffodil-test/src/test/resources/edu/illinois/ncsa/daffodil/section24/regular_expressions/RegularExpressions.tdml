@@ -135,6 +135,7 @@
     model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with unix lines (Java 7 feature) - DFDL-24-002R">
     <tdml:document>en-US</tdml:document>
     <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -143,6 +144,7 @@
     model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with UNICODE_CASE (Java 7 feature) - DFDL-24-002R">
     <tdml:document>en-US</tdml:document>
     <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -151,6 +153,7 @@
     model="RegularExpressions-Embedded.dfdl.xsd" description="Section 24 java regular expressions with UNICODE_CHARACTER_CLASS (Java 7 feature) - DFDL-24-002R">
     <tdml:document>en-US</tdml:document>
     <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

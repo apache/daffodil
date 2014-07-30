@@ -159,6 +159,42 @@
       </xs:annotation>
     </xs:element>
 
+    <xs:element name="e14" type="xs:string" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="(?# ... )"
+            message="Assertion failed for pattern '(?# ... )'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e15" type="xs:string" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="\N{AMPERSAND}"
+            message="Assertion failed for pattern '\{NAMPERSAND}'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e16" type="xs:string" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="(?w-w)"
+            message="Assertion failed for pattern '(?w-w)'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e17" type="xs:string" dfdl:lengthKind="delimited">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:assert testKind="pattern" testPattern="\w"
+            message="Assertion failed for pattern '\w'" />
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
     <xs:element name="seq_01" dfdl:terminator="">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -1030,6 +1066,63 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: testPatternFreeFormat
+    Schema: s1
+    Purpose: This uses a schema that contains a regular expression construct that is not common to both ICU and Java 7. A schema definition error is expected.
+  -->
+  <tdml:parserTestCase name="testPatternFreeFormat"
+    root="e14" model="s1" description="Section 7 - assert as a value">
+    <tdml:document>test</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: testPatternUnicode
+    Schema: s1
+    Purpose: This uses a schema that contains a regular expression construct that is not common to both ICU and Java 7. A schema definition error is expected.
+  -->
+  <tdml:parserTestCase name="testPatternUnicode"
+    root="e15" model="s1" description="Section 7 - assert as a value">
+    <tdml:document>test</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: testPatternUregexUword
+    Schema: s1
+    Purpose: This uses a schema that contains a regular expression construct that is not common to both ICU and Java 7. A schema definition error is expected.
+  -->
+  <tdml:parserTestCase name="testPatternUregexUword"
+    root="e16" model="s1" description="Section 7 - assert as a value">
+    <tdml:document>test</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: testPatternWordChar
+    Schema: s1
+    Purpose: This uses a schema that contains a regular expression construct that is not common to both ICU and Java 7. A schema definition error is expected.
+  -->
+  <tdml:parserTestCase name="testPatternWordChar"
+    root="e17" model="s1" description="Section 7 - assert as a value">
+    <tdml:document>test</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e17>test</e17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:warnings>
+      <tdml:warning>Schema Definition Warning</tdml:warning>
+    </tdml:warnings>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

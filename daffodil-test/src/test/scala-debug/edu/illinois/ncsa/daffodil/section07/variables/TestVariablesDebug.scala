@@ -50,4 +50,8 @@ class TestVariablesDebug {
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
 
   @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
+  
+  @Test def test_doubleEmptyDefault() { runner.runOneTest("doubleEmptyDefault") }
+  @Test def test_emptyDefault() { runner.runOneTest("emptyDefault") }
+  @Test def test_emptyDefault2() { runner.runOneTest("emptyDefault2") }
 }

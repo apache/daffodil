@@ -429,6 +429,15 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e32">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="elem" type="xs:unsignedInt" dfdl:lengthKind="explicit"
+            dfdl:length="3" dfdl:lengthUnits="bits" dfdl:alignment="4" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
   </tdml:defineSchema>
   
   <tdml:defineSchema name="implicitAlignmentSchema">
@@ -3379,4 +3388,24 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <!--
+     Test Name: alignmentArray
+        Schema: alignmentSchema
+          Root: e32
+       Purpose: This test demonstrates that the alignment applies to all elements of the array, not just the first one.
+  -->
+
+  <tdml:parserTestCase name="alignmentArray" root="e32"
+    model="alignmentSchema"
+    description="Section 12.1 Aligned Data">
+    <tdml:document>
+      <tdml:documentPart type="bits">101 1 000 1 111</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e32><elem>5</elem><elem>0</elem><elem>7</elem></e32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
 </tdml:testSuite>
