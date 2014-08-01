@@ -126,5 +126,113 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
+
+  <tdml:defineSchema name="s2">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" />
+          <xs:element name="C" type="xs:int" dfdl:length="4" />
+          <xs:element name="D" type="xs:int" dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: leastSignificantBitFirst
+        Schema: s2
+          Root: leastFirst
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst'.
+-->
+ <tdml:parserTestCase name="leastSignificantBitFirst"
+    root="leastFirst" model="s2" description="Tests the bit order of 'leastSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01001|011 01|0101|00</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <leastFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </leastFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: leastSignificantBitFirstRTL
+        Schema: s2
+          Root: leastFirst
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byte order of right to left.
+-->
+ <tdml:parserTestCase name="leastSignificantBitFirstRTL" root="leastFirst" model="s2"
+    description="Tests the bit order of 'leastSignificantBitFirst' with byte order of right to left">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="RTL">01|0101|00 01001|011</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <leastFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </leastFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s3">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" bitOrder='mostSignificantBitFirst' lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="mostFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" />
+          <xs:element name="C" type="xs:int" dfdl:length="4" />
+          <xs:element name="D" type="xs:int" dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: mostSignificantBitFirst
+        Schema: s3
+          Root: mostFirst
+       Purpose: This test shows the bit order of 'mostSignificantBitFirst'.
+-->
+ <tdml:parserTestCase name="mostSignificantBitFirst"
+    root="mostFirst" model="s3" description="Tests the bit order of 'mostSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >011|00010 01|0101|01</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <mostFirst>
+          <A>3</A>
+          <B>9</B>
+          <C>5</C>
+          <D>1</D>
+        </mostFirst>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

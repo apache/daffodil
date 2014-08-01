@@ -464,4 +464,14 @@ class TestSimpleTypes {
   @Test def test_whiteSpaceBeforeStrict() { runner2.runOneTest("whiteSpaceBeforeStrict") }
   @Test def test_whiteSpaceDuringStrict() { runner2.runOneTest("whiteSpaceDuringStrict") }
   @Test def test_whiteSpaceAfterStrict() { runner2.runOneTest("whiteSpaceAfterStrict") }
+
+  val cc = testDir + "BitOrder.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
+
+  @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
+  @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
+  @Test def test_LSBFirstSpan3Bytes() { runner1.runOneTest("TestLSBFirstSpan3Bytes") }
+  @Test def test_leastSignificantBitFirst() { runner1.runOneTest("leastSignificantBitFirst") }
+  @Test def test_leastSignificantBitFirstRTL() { runner1.runOneTest("leastSignificantBitFirstRTL") }
+  @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
 }
