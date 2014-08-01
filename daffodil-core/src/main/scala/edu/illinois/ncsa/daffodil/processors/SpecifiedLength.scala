@@ -111,7 +111,7 @@ abstract class SpecifiedLengthParserBase(combinator: SpecifiedLengthCombinatorBa
   override def toBriefXML(depthLimit: Int) = combinator.toBriefXML(depthLimit: Int)
 
   final def parse(pstate: PState, endBitPos: Long, e: ElementBase) = {
-    log(LogLevel.Info, "Limiting data to %s bits.", endBitPos)
+    log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
     val savedLimit = pstate.bitLimit0b
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = combinator.eParser.parse1(postState1, e)
