@@ -47,6 +47,10 @@ class TestLengthKindPattern {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_invalid_pattern() { runner.runOneTest("invalid_pattern") }
+  @Test def test_invalid_pattern2() { runner.runOneTest("invalid_pattern2") }
+  @Test def test_invalid_pattern3() { runner.runOneTest("invalid_pattern3") }
 
   @Test def test_AI000_rev() { runner.runOneTest("AI000_rev") }
   @Test def test_LengthKindPattern() { runner.runOneTest("LengthKindPattern") }

@@ -628,5 +628,76 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="invalidPattern">
+
+    <dfdl:format ref="ex:daffodilTest1" representation="text"
+      lengthUnits="bytes" encoding="US-ASCII" byteOrder='bigEndian'
+      ignoreCase='no' initiatedContent='no' lengthKind='implicit'
+      occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
+      separatorPosition='infix' textNumberRep='standard' initiator=""
+      terminator="" separator="" />
+
+      <xs:element name="elem1" type="xs:string"
+        dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-z]{1, 2}"/>
+      
+      <xs:element name="elem2" type="xs:string"
+        dfdl:lengthKind="pattern" dfdl:lengthPattern="[a-z]{B}"/>
+      
+      <xs:element name="elem3" type="xs:string"
+        dfdl:lengthKind="pattern" dfdl:lengthPattern="*"/>
+
+  </tdml:defineSchema>
+
+<!--
+      Test Name: invalid_pattern
+         Schema: invalidPattern
+           Root: elem1
+    Description: This test demonstrates that Daffodil will fail gracefully when the regex provided for lengthKind is not valid
+-->
+
+  <tdml:parserTestCase name="invalid_pattern"
+    root="elem1" model="invalidPattern" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>input!</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unclosed counted closure near index 12</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: invalid_pattern2
+         Schema: invalidPattern
+           Root: elem2
+    Description: This test demonstrates that Daffodil will fail gracefully when the regex provided for lengthKind is not valid
+-->
+
+  <tdml:parserTestCase name="invalid_pattern2"
+    root="elem2" model="invalidPattern" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>input!</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Illegal repetition near index 8</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: invalid_pattern3
+         Schema: invalidPattern
+           Root: elem3
+    Description: This test demonstrates that Daffodil will fail gracefully when the regex provided for lengthKind is not valid
+-->
+
+  <tdml:parserTestCase name="invalid_pattern3"
+    root="elem3" model="invalidPattern" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>input!</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Dangling meta character '*' near index 4</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>
