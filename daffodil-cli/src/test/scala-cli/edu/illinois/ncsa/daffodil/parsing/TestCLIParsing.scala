@@ -317,6 +317,15 @@ class TestCLIparsing {
     shell.send("exit\n")
     shell.expectClose()
   }
+  
+  @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt() {
+    val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd --root {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(output6)
+
+    shell.send("exit\n")
+    shell.expectClose()
+  }
 
   @Test def test_1005_CLI_Parsing_SimpleParse_rootPath() {
     val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
