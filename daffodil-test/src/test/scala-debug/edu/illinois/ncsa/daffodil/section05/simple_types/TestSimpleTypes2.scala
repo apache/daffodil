@@ -87,4 +87,8 @@ class TestSimpleTypes2 {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
+  
+  val cc = testDir + "BitOrder.tdml"
+  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
+  @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
 }

@@ -282,4 +282,30 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s5">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes"
+      lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
+
+      <xs:element name="bigLeast" type="xs:hexBinary" dfdl:byteOrder="bigEndian"
+        dfdl:representation="binary" dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="1"/>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: bigEndianLeastFirst
+        Schema: s5
+          Root: bigLeast
+       Purpose: This test has a byteOrder of 'bigEndian' and a bitOrder of 'leastSignificantBitFirst' and should have a Schema Definition Error.
+  -->
+ <tdml:parserTestCase name="bigEndianLeastFirst" root="bigLeast" model="s5"
+    description="Tests that byteOrder of 'bigEndian' with a bitOrder of 'leastSignificantBitFirst' should throw a SDE.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits">01011010</documentPart>
+    </document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
