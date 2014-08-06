@@ -6,42 +6,37 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class LeadingSkipRegionParser(
   alignment: Int,
   leadingSkip: Int,
-  gram: Gram,
-  e: Term)
-  extends PrimParser(gram, e) {
+  e: RuntimeData)
+  extends PrimParser(e) {
   def parse(pstate: PState) = {
     // Is there a reason why we can't do alignment * leadingSkip before this step?
     // Doesn't follow PEMDAS?
     val newBitPos = alignment * leadingSkip + pstate.bitPos
     pstate.withPos(newBitPos, -1, Nope)
   }
-
-  override def toString = "leadingSkip(" + leadingSkip + ")"
 }
 
 class TrailingSkipRegionParser(
   alignment: Int,
   trailingSkip: Int,
-  gram: Gram,
-  e: Term)
-  extends PrimParser(gram, e) {
+  e: RuntimeData)
+  extends PrimParser(e) {
   def parse(pstate: PState) = {
     val newBitPos = alignment * trailingSkip + pstate.bitPos
     pstate.withPos(newBitPos, -1, Nope)
   }
-  override def toString = "trailingSkip(" + trailingSkip + ")"
 }
 
 class AlignmentFillParser(
   alignment: Any,
   alignmentInBits: Int,
-  gram: Gram,
-  e: Term)
-  extends PrimParser(gram, e) {
+  e: RuntimeData)
+  extends PrimParser(e) {
 
   def isAligned(currBitPos: Long): Boolean = {
     if (alignmentInBits == 0 || currBitPos == 0) return true
@@ -58,5 +53,4 @@ class AlignmentFillParser(
     } else
       pstate
   }
-  override def toString = "aligningSkip(" + alignment + ")"
 }

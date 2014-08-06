@@ -119,23 +119,23 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
   with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
 
-  def parser = new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, this, e)
+  def parser = new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, e.length, e.elementRuntimeData)
 }
 
 class UnsignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
   with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
 
-  def parser = new UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
+  def parser = new UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
 }
 
 class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
   with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
-  def parser = new SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, this, e)
+  def parser = new SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, e.length, e.elementRuntimeData)
 }
 
 class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
   with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
-  def parser = new SignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
+  def parser = new SignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
 }
 
 // Not needed. No runtime-determined lengths for binary floats.
@@ -149,7 +149,7 @@ class HexBinaryKnownLengthBinaryNumber(e: ElementBase, val len: Long)
   // get at compile time, not runtime.
   val lUnits = e.lengthUnits
 
-  def parser = new HexBinaryKnownLengthBinaryNumberParser(len, this, e)
+  def parser = new HexBinaryKnownLengthBinaryNumberParser(len, e.elementRuntimeData, e.lengthUnits)
 }
 
 class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
@@ -161,7 +161,7 @@ class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
     (s, java.nio.ByteOrder.BIG_ENDIAN)
   }
 
-  def parser = new HexBinaryRuntimeLengthBinaryNumberParser(lUnits, this, e)
+  def parser = new HexBinaryRuntimeLengthBinaryNumberParser(lUnits, e.length, e.elementRuntimeData)
 }
 
 class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -169,7 +169,7 @@ class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long
   with RuntimeExplicitByteOrderMixin[Float]
   with KnownLengthInBitsMixin[Float] {
 
-  def parser = new FloatKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
+  def parser = new FloatKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
 }
 
 class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -177,7 +177,7 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
   with RuntimeExplicitByteOrderMixin[Double]
   with KnownLengthInBitsMixin[Double] {
 
-  def parser = new DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
+  def parser = new DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
 }
 
 class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -185,6 +185,7 @@ class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lo
   with RuntimeExplicitByteOrderMixin[BigDecimal]
   with KnownLengthInBitsMixin[BigDecimal] {
 
-  def parser = new DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, this, e)
+  def parser = new DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(
+    bo, len, e.elementRuntimeData, e.binaryDecimalVirtualPoint)
 }
 

@@ -29,86 +29,47 @@ object ChoiceElementCombinator {
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move(start: PState) {
-    start.mpstate.moveOverOneGroupIndexOnly
-    start.mpstate.moveOverOneElementChildOnly
-  }
-  def parseElementBegin(pstate: PState): PState = {
-    val currentElement = Infoset.newElement(context, isHidden)
 
-    log(LogLevel.Debug, "currentElement = %s", currentElement)
-    val priorElement = pstate.infoset
-    priorElement.addElement(currentElement)
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = pstate.withParent(currentElement)
-    postState
-  }
-
-  def parseElementEnd(pstate: PState): PState = {
-    val currentElement = pstate.parentElement
-
-    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
-    val postValidate =
-      if (shouldValidate && context.isSimpleType) {
-        // Execute checkConstraints
-        val resultState = validate(pstate)
-        resultState
-      } else pstate
-
-    // Assert.invariant(currentElement.getName() != "_document_" )
-    val priorElement = currentElement.parent
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = postValidate.withParent(priorElement)
-    move(pstate)
-    postState
-  }
+  def parser: Parser = new StatementElementParser(
+    context.elementRuntimeData,
+    context.name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser)
 }
 
 class ElementCombinatorNoRep(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinator(context, eGram, eAfterGram) {
-  // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
-  // but we don't create anything new as far as the group is concerned, and we don't want 
-  // the group 'thinking' that there's a prior sibling inside the group and placing a 
-  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
-  override def move(state: PState) {
-    state.mpstate.moveOverOneElementChildOnly
-  }
+
+  override def parser: Parser = new StatementElementParserNoRep(
+    context.elementRuntimeData,
+    context.name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser)
 }
 
 class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
-  def move(state: PState) = {}
 
-  /**
-   * ElementBegin just adds the element we are constructing to the infoset and changes
-   * the state to be referring to this new element as what we're parsing data into.
-   */
-  def parseElementBegin(pstate: PState): PState = {
-    val currentElement = Infoset.newElement(context, isHidden)
-
-    log(LogLevel.Debug, "currentElement = %s", currentElement)
-    pstate
-  }
-
-  // We don't want to modify the state here except
-  // for validation.
-  def parseElementEnd(pstate: PState): PState = {
-    val currentElement = pstate.parentElement
-
-    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
-    val postValidate =
-      if (shouldValidate && context.isSimpleType) {
-        // Execute checkConstraints
-        val resultState = validate(pstate)
-        resultState
-      } else pstate
-
-    val priorElement = currentElement.parent
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = postValidate
-    move(pstate)
-    postState
-  }
+  def parser: Parser = new ChoiceStatementElementParser(
+    context.elementRuntimeData,
+    context.name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser)
 }
 
 abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAfter: Gram)
@@ -128,18 +89,19 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
   // Note: above not needed as these are ALWAYS evaluated below.
 
-  val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
-  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram)
-  val setVar = context.setVariableStatements.map(_.gram)
-  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
-  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram)
+  val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
+  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
+  val setVar = context.setVariableStatements.map(_.gram.parser)
+  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
+  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
 
-  val eParser = eGram.parser
-  val eAfterParser = eGramAfter.parser
+  val eParser: Option[Parser] = if (eGram.isEmpty) None
+  else Some(eGram.parser)
 
-  val isHidden = context.isHidden
+  val eAfterParser: Option[Parser] = if (eGramAfter.isEmpty) None
+  else Some(eGramAfter.parser)
 
-  def parser: Parser = new StatementElementParser(context, new ElementBeginParser(context), new ElementEndParser(context))
+  def parser: Parser
 
   def unparser: Unparser = new Unparser(context) {
     def unparse(start: UState): UState = {
@@ -149,14 +111,43 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
       postEState
     }
   }
+}
+
+abstract class StatementElementParserBase(
+  rd: RuntimeData,
+  name: String,
+  patDiscrimParser: Seq[Parser],
+  patAssertParser: Seq[Parser],
+  setVarParser: Seq[Parser],
+  testDiscrimParser: Seq[Parser],
+  testAssertParser: Seq[Parser],
+  eParser: Option[Parser],
+  eAfterParser: Option[Parser])
+  extends PrimParser(rd) {
+
+  Assert.invariant(testDiscrimParser.size <= 1)
+  Assert.invariant(patDiscrimParser.size <= 1)
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
-  def parseElementBegin(pstate: PState): PState
-  def parseElementEnd(pstate: PState): PState
+  def parseBegin(pstate: PState): PState
+  def parseEnd(pstate: PState): PState
+
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    if (depthLimit == 0) "..." else
+      "<Element name='" + name + "'>" +
+        patDiscrimParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        patAssertParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        eParser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
+        setVarParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        testDiscrimParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        testAssertParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
+        eAfterParser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
+        "</Element name='" + name + "'>"
+  }
 
   def validate(pstate: PState): PState = {
     val currentElement = pstate.parentElement
-    
+
     if (currentElement.wasCheckConstraintsRun) { return pstate }
 
     val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
@@ -176,132 +167,233 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
     resultState
   }
 
-  class ElementBeginParser(context: ElementBase) extends PrimParser(this, context) {
-    def parse(pstate: PState): PState = parseElementBegin(pstate)
-    override def toBriefXML(depthLimit: Int = -1): String = {
-      "<ElementBegin name='" + context.name + "'/>"
+  def parse(pstate: PState): PState = {
+    //Removed checks now done at compilation
+
+    var afterPatDisc = pstate //we're first so don't do .withPos(pstate.bitPos, pstate.charPos)
+    patDiscrimParser.foreach(d => {
+      afterPatDisc = d.parse1(afterPatDisc, rd)
+      // Pattern fails at the start of the Element
+      if (afterPatDisc.status != Success) { return afterPatDisc }
+    })
+
+    // now here we backup and run the pattern Asserts 
+    // against the data at the start of the element's representation again.
+    var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+    patAssertParser.foreach(d => {
+      afterPatAssrt = d.parse1(afterPatAssrt, rd)
+      // Pattern fails at the start of the Element
+      if (afterPatAssrt.status != Success) { return afterPatAssrt }
+    })
+
+    // backup again. If all pattern discriminators and/or asserts
+    // have passed, now we parse the element. But we backup
+    // as if the pattern matching had not advanced the state.
+    val beforeEState = afterPatAssrt.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+
+    val postElementStartState = parseBegin(beforeEState)
+
+    if (postElementStartState.status != Success) return postElementStartState
+
+    val postEState = eParser.map { eParser =>
+      eParser.parse1(postElementStartState, rd)
+    }.getOrElse(postElementStartState)
+
+    var someSetVarFailed: Maybe[PState] = Nope
+
+    var afterSetVar = postEState
+    if (postEState.status == Success) {
+      setVarParser.foreach(d => {
+        val afterOneSetVar = d.parse1(afterSetVar, rd)
+        if (afterOneSetVar.status == Success) {
+          afterSetVar = afterOneSetVar
+        } else {
+          // a setVariable statement failed. But we want to continue to try 
+          // more of the setVariable statements, as they may be necessary
+          // to evaluate the test discriminator below, and some might 
+          // be successful even if one fails, allowing the discriminator to be true.
+          //
+          // So it's a bit odd, but we're going to just keep parsing using this
+          // failed state as the input to the next setVariable parse step.
+          someSetVarFailed = One(afterOneSetVar)
+          afterSetVar = afterOneSetVar
+        }
+      })
     }
+
+    var afterTestDisc = afterSetVar
+    testDiscrimParser.foreach(d => {
+      afterTestDisc = d.parse1(afterTestDisc, rd)
+      // Tests fail at the end of the Element
+      if (afterTestDisc.status != Success) { return afterTestDisc }
+    })
+
+    // 
+    // We're done with the discriminator, so now we revisit the set variable statements.
+    // If a failure occurred there, then now we can fail out right here.
+    // 
+    someSetVarFailed.exists { return _ }
+
+    // Element evaluation failed, return
+    if (postEState.status != Success) { return postEState }
+
+    var afterTestAssrt = afterTestDisc
+    testAssertParser.foreach(d => {
+      afterTestAssrt = d.parse1(afterTestAssrt, rd)
+      // Tests fail at the end of the Element
+      if (afterTestAssrt.status != Success) { return afterTestAssrt }
+    })
+
+    val postAfterState = eAfterParser.map { eAfterParser =>
+      eAfterParser.parse1(afterTestAssrt, rd)
+    }.getOrElse(afterTestAssrt)
+
+    if (postAfterState.status != Success) return postAfterState
+
+    val postElementEndState = parseEnd(postAfterState)
+
+    postElementEndState //afterTestAssrt
+  }
+}
+
+class StatementElementParser(
+  erd: ElementRuntimeData,
+  name: String,
+  patDiscrim: Seq[Parser],
+  patAssert: Seq[Parser],
+  setVar: Seq[Parser],
+  testDiscrim: Seq[Parser],
+  testAssert: Seq[Parser],
+  eParser: Option[Parser],
+  eAfterParser: Option[Parser])
+  extends StatementElementParserBase(
+    erd,
+    name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser) {
+
+  def move(start: PState) {
+    start.mpstate.moveOverOneGroupIndexOnly
+    start.mpstate.moveOverOneElementChildOnly
   }
 
-  class ElementEndParser(context: ElementBase) extends PrimParser(this, context) {
-    def parse(pstate: PState): PState = parseElementEnd(pstate)
-    override def toBriefXML(depthLimit: Int = -1): String = {
-      "<ElementEnd name='" + context.name + "'/>"
-    }
+  def parseBegin(pstate: PState): PState = {
+    val currentElement = Infoset.newElement(erd)
+
+    log(LogLevel.Debug, "currentElement = %s", currentElement)
+    val priorElement = pstate.infoset
+    priorElement.addElement(currentElement)
+    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    val postState = pstate.withParent(currentElement)
+    postState
   }
 
-  class StatementElementParser(context: ElementBase, beginParser: Parser, endParser: Parser) extends PrimParser(this, context) {
+  def parseEnd(pstate: PState): PState = {
+    val currentElement = pstate.parentElement
 
-    Assert.invariant(testDiscrim.size <= 1)
-    Assert.invariant(patDiscrim.size <= 1)
+    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
+    val postValidate =
+      if (shouldValidate && erd.isSimpleType) {
+        // Execute checkConstraints
+        val resultState = validate(pstate)
+        resultState
+      } else pstate
 
-    override def toBriefXML(depthLimit: Int = -1): String = {
-      if (depthLimit == 0) "..." else
-        "<Element name='" + context.name + "'>" +
-          patDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          patAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          eParser.toBriefXML(depthLimit - 1) +
-          setVar.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          testDiscrim.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          testAssert.map { _.parser.toBriefXML(depthLimit - 1) }.mkString +
-          eAfterParser.toBriefXML(depthLimit - 1) +
-          "</Element name='" + context.name + "'>"
-    }
+    // Assert.invariant(currentElement.getName() != "_document_" )
+    val priorElement = currentElement.parent
+    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    val postState = postValidate.withParent(priorElement)
+    move(pstate)
+    postState
+  }
+}
 
-    val patDiscrimParser = patDiscrim.map(_.parser)
-    val patAssertParser = patAssert.map(_.parser)
-    val setVarParser = setVar.map(_.parser)
-    val testDiscrimParser = testDiscrim.map(_.parser)
-    val testAssertParser = testAssert.map(_.parser)
+class StatementElementParserNoRep(
+  erd: ElementRuntimeData,
+  name: String,
+  patDiscrim: Seq[Parser],
+  patAssert: Seq[Parser],
+  setVar: Seq[Parser],
+  testDiscrim: Seq[Parser],
+  testAssert: Seq[Parser],
+  eParser: Option[Parser],
+  eAfterParser: Option[Parser])
+  extends StatementElementParser(
+    erd,
+    name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser) {
 
-    def parse(pstate: PState): PState = {
-      //Removed checks now done at compilation
+  // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
+  // but we don't create anything new as far as the group is concerned, and we don't want 
+  // the group 'thinking' that there's a prior sibling inside the group and placing a 
+  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
+  override def move(state: PState) {
+    state.mpstate.moveOverOneElementChildOnly
+  }
+}
 
-      var afterPatDisc = pstate //we're first so don't do .withPos(pstate.bitPos, pstate.charPos)
-      patDiscrimParser.foreach(d => {
-        afterPatDisc = d.parse1(afterPatDisc, context)
-        // Pattern fails at the start of the Element
-        if (afterPatDisc.status != Success) { return afterPatDisc }
-      })
+class ChoiceStatementElementParser(
+  erd: ElementRuntimeData,
+  name: String,
+  patDiscrim: Seq[Parser],
+  patAssert: Seq[Parser],
+  setVar: Seq[Parser],
+  testDiscrim: Seq[Parser],
+  testAssert: Seq[Parser],
+  eParser: Option[Parser],
+  eAfterParser: Option[Parser])
+  extends StatementElementParserBase(
+    erd,
+    name,
+    patDiscrim,
+    patAssert,
+    setVar,
+    testDiscrim,
+    testAssert,
+    eParser,
+    eAfterParser) {
 
-      // now here we backup and run the pattern Asserts 
-      // against the data at the start of the element's representation again.
-      var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
-      patAssertParser.foreach(d => {
-        afterPatAssrt = d.parse1(afterPatAssrt, context)
-        // Pattern fails at the start of the Element
-        if (afterPatAssrt.status != Success) { return afterPatAssrt }
-      })
+  def move(state: PState) = {}
 
-      // backup again. If all pattern discriminators and/or asserts
-      // have passed, now we parse the element. But we backup
-      // as if the pattern matching had not advanced the state.
-      val beforeEState = afterPatAssrt.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+  /**
+   * ElementBegin just adds the element we are constructing to the infoset and changes
+   * the state to be referring to this new element as what we're parsing data into.
+   */
+  def parseBegin(pstate: PState): PState = {
+    val currentElement = Infoset.newElement(erd)
 
-      val postElementStartState =
-        if (beginParser.isInstanceOf[EmptyGramParser]) beforeEState
-        else beginParser.parse1(beforeEState, context)
+    log(LogLevel.Debug, "currentElement = %s", currentElement)
+    pstate
+  }
 
-      if (postElementStartState.status != Success) return postElementStartState
+  // We don't want to modify the state here except
+  // for validation.
+  def parseEnd(pstate: PState): PState = {
+    val currentElement = pstate.parentElement
 
-      val postEState =
-        if (eParser.isInstanceOf[EmptyGramParser]) postElementStartState
-        else eParser.parse1(postElementStartState, context)
+    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
+    val postValidate =
+      if (shouldValidate && erd.isSimpleType) {
+        // Execute checkConstraints
+        val resultState = validate(pstate)
+        resultState
+      } else pstate
 
-      var someSetVarFailed: Maybe[PState] = Nope
-
-      var afterSetVar = postEState
-      if (postEState.status == Success) {
-        setVarParser.foreach(d => {
-          val afterOneSetVar = d.parse1(afterSetVar, context)
-          if (afterOneSetVar.status == Success) {
-            afterSetVar = afterOneSetVar
-          } else {
-            // a setVariable statement failed. But we want to continue to try 
-            // more of the setVariable statements, as they may be necessary
-            // to evaluate the test discriminator below, and some might 
-            // be successful even if one fails, allowing the discriminator to be true.
-            //
-            // So it's a bit odd, but we're going to just keep parsing using this
-            // failed state as the input to the next setVariable parse step.
-            someSetVarFailed = One(afterOneSetVar)
-            afterSetVar = afterOneSetVar
-          }
-        })
-      }
-
-      var afterTestDisc = afterSetVar
-      testDiscrimParser.foreach(d => {
-        afterTestDisc = d.parse1(afterTestDisc, context)
-        // Tests fail at the end of the Element
-        if (afterTestDisc.status != Success) { return afterTestDisc }
-      })
-
-      // 
-      // We're done with the discriminator, so now we revisit the set variable statements.
-      // If a failure occurred there, then now we can fail out right here.
-      // 
-      someSetVarFailed.exists { return _ }
-
-      // Element evaluation failed, return
-      if (postEState.status != Success) { return postEState }
-
-      var afterTestAssrt = afterTestDisc
-      testAssertParser.foreach(d => {
-        afterTestAssrt = d.parse1(afterTestAssrt, context)
-        // Tests fail at the end of the Element
-        if (afterTestAssrt.status != Success) { return afterTestAssrt }
-      })
-
-      val postAfterState =
-        if (eAfterParser.isInstanceOf[EmptyGramParser]) afterTestAssrt
-        else eAfterParser.parse1(afterTestAssrt, context)
-
-      if (postAfterState.status != Success) return postAfterState
-
-      val postElementEndState = endParser.parse1(postAfterState, context)
-
-      postElementEndState //afterTestAssrt
-    }
+    val priorElement = currentElement.parent
+    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    val postState = postValidate
+    move(pstate)
+    postState
   }
 }

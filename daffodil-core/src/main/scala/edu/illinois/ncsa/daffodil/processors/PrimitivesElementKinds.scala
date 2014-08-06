@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
-  def parser: DaffodilParser = new ComplexTypeParser(ct, body)
+  def parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
 
   def unparser: Unparser = new Unparser(ct.element) {
     override def toString = "ComplexType"
@@ -68,7 +68,7 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
-  def parser: DaffodilParser = new SequenceCombinatorParser(body, sq)
+  def parser: DaffodilParser = new SequenceCombinatorParser(sq.runtimeData, body.parser)
   
   def unparser: Unparser = new Unparser(sq) {
     override def toString = "Sequence"
@@ -82,7 +82,7 @@ case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !bo
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
-  def parser: DaffodilParser = new ArrayCombinatorParser(body, e)
+  def parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
 
   def unparser: Unparser = new Unparser(e) {
     override def toString = "Array"

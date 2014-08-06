@@ -73,15 +73,19 @@ class TestUnorderedSequences {
     runner.runOneTest("test_simple_nil")
   }
 
+/* DFDL-1010
   @Test def test_simple_invalid_path_to_branch = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_simple_invalid_path_to_branch")
   }
+*/
 
+/* DFDL-1010
   @Test def test_simple_invalid_path_to_branch_does_not_exist = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_simple_invalid_path_to_branch_does_not_exist")
   }
+*/
 
   @Test def test_nested_valid_path_to_branch = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
@@ -93,30 +97,38 @@ class TestUnorderedSequences {
     runner.runOneTest("test_nested_multiple_valid_paths_to_branch")
   }
 
+/* DFDL-1010
   @Test def test_nested_multiple_invalid_paths_to_branch = {
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_nested_multiple_invalid_paths_to_branch")
   }
+*/
 
   @Test def test_nested_path_evaluates_to_nodelist = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_nested_path_evaluates_to_nodelist")
   }
 
+/* DFDL-1010
   @Test def test_nested_invalid_path_to_branch = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_nested_invalid_path_to_branch")
   }
+*/
 
+/* DFDL-1010
   @Test def test_nested_invalid_path_to_branch_2 = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_nested_invalid_path_to_branch_2")
   }
+*/
 
+/* DFDL-1010
   @Test def test_nested_invalid_path_to_branch_3 = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)
     runner.runOneTest("test_nested_invalid_path_to_branch_3")
   }
+*/
 
   @Test def test_sde_element_element_ref = {
     //LoggingDefaults.setLoggingLevel(LogLevel.Debug)

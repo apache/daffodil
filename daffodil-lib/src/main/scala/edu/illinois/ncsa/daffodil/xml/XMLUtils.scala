@@ -1374,7 +1374,7 @@ Differences were (path, expected, actual):
   }
 }
 
-trait GetAttributesMixin { self: SchemaComponentBase =>
+trait GetAttributesMixin extends ThrowsSDE {
   def xml: Node
 
   /**

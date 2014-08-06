@@ -63,6 +63,10 @@ class TestGeneratedProperties {
     with Format_AnnotationMixin
     with SeparatorSuppressionPolicyMixin {
 
+    def columnAttribute: Option[String] = ???
+    def fileAttribute: Option[String] = ???
+    def lineAttribute: Option[String] = ???
+
     override lazy val oolagContext = this
     override val xml = bagOfProps
     lazy val fileName = "file:dummy"

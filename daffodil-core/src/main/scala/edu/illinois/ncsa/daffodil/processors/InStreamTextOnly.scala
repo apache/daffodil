@@ -38,7 +38,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
  * bitLimit is the maximum length. It is equal to the first
  * position past the end. ( i.e., zero based indexing )
  */
-case class FixedWidthTextInfoCBuf(context: SchemaComponent, bitsPerChar: Int, mandatoryAlignment: Int, charset: Charset,
+case class FixedWidthTextInfoCBuf(context: ElementRuntimeData, bitsPerChar: Int, mandatoryAlignment: Int, charset: Charset,
   bitLimit: Long, cBuf: CharBuffer, bBuf: ByteBuffer) {
 
   Assert.usage(bitLimit == -1 || bitLimit % bitsPerChar == 0)
@@ -81,7 +81,7 @@ case class InStreamFixedWidthTextOnly(
 
   override def offset: Int = cPos0b
 
-  def context = info.context
+  override def context = info.context
   override def charLimit0b = info.bitLimit / info.bitsPerChar
   override def bitPos0b = cPos0b * info.bitsPerChar
 

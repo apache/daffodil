@@ -57,7 +57,7 @@ object InStream {
 
   val mandatoryAlignment = 8
 
-  def fromByteChannel(context: ElementBase,
+  def fromByteChannel(context: ElementRuntimeData,
     in: DFDL.Input,
     bitStartPos0b: Long,
     numBitsLimit: Long, // a count, not a position
@@ -71,7 +71,7 @@ object InStream {
    * FixedWidth
    * encodingErrorPolicy='replace'
    */
-  def forTextOnlyFixedWidthErrorReplace(context: ElementBase, file: File,
+  def forTextOnlyFixedWidthErrorReplace(context: ElementRuntimeData, file: File,
     charsetEncodingName: String, lengthLimitInBits: Long): InStream = {
     val charset = CharsetUtils.getCharset(charsetEncodingName)
     val (cBuf, bBuf) = TextOnlyReplaceOnErrorReaderFactory.getCharBuffer(file, charset)
@@ -80,14 +80,14 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) fSizeInBits
       else lengthLimitInBits
-    val bitsPerChar = context.knownEncodingWidthInBits
+    val bitsPerChar = context.knownEncodingWidthInBits.get
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)
     inStream
   }
 
-  def forTextOnlyFixedWidthErrorReplace(context: ElementBase, jis: InputStream,
+  def forTextOnlyFixedWidthErrorReplace(context: ElementRuntimeData, jis: InputStream,
     charsetEncodingName: String,
     lengthLimitInBits: Long): InStream = {
     val charset = CharsetUtils.getCharset(charsetEncodingName)
@@ -97,7 +97,7 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) bytes.length * 8
       else lengthLimitInBits
-    val bitsPerChar = context.knownEncodingWidthInBits
+    val bitsPerChar = context.knownEncodingWidthInBits.get
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)
@@ -197,7 +197,7 @@ trait InStream {
  * Don't use this class directly. Use the factory on InStream object to create.
  */
 case class InStreamFromByteChannel private (
-  var context: SchemaComponent,
+  var context: RuntimeData,
   var byteReader: DFDLByteReader,
   var bitPos0b: Long,
   var bitLimit0b: Long, // the bit position position one past the last valid bit position.
@@ -228,7 +228,7 @@ case class InStreamFromByteChannel private (
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: SchemaComponent, inArg: DFDL.Input, bitStartPos: Long, bitLimit: Long, bitOrder: BitOrder) =
+  def this(context: ElementRuntimeData, inArg: DFDL.Input, bitStartPos: Long, bitLimit: Long, bitOrder: BitOrder) =
     this(context, new DFDLByteReader(inArg, bitOrder), bitStartPos, bitLimit, -1, Nope)
 
   /**

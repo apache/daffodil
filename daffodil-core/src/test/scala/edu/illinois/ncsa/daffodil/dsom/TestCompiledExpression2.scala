@@ -57,7 +57,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
   val example = XMLUtils.EXAMPLE_NAMESPACE
   val dafint = XMLUtils.DAFFODIL_INTERNAL_NAMESPACE
 
-  var context: SchemaComponent = null
+  var context: RuntimeData = null
 
   /**
    * Test the XPath evaluator, but provide namespace information on the XML
@@ -79,7 +79,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:root/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
@@ -129,7 +129,7 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val parser = ivcPrim.parser.asInstanceOf[IVCParser]
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
 
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, Fakes.fakeDP)
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, d, Fakes.fakeDP)
     val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
     val rootns = root.namespace
@@ -165,12 +165,12 @@ class TestCompiledExpression2 extends WithParseErrorThrowing {
     val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
 
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
-    context = edecl
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
+    context = edecl.runtimeData
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /tns:doesntExist/text() }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl, "x", 0, Fakes.fakeDP)
+    val st = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "x", 0, Fakes.fakeDP)
     withParseErrorThrowing(st) {
       val e = intercept[ParseError] {
         val R(res, _) = compiled.evaluate(root, new VariableMap(), dummyState)

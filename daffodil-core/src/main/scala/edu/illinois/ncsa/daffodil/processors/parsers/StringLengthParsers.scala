@@ -3,12 +3,11 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
-
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.PrimParser
@@ -18,19 +17,17 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 abstract class StringLengthParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends PrimParser(gram, contextArg) with TextReader {
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int)
+  extends PrimParser(erd) with TextReader {
   override def toString = String.format("%sParser(%s)", parserName, lengthText)
-
-  val e = contextArg.asInstanceOf[ElementBase]
-  val charset = e.knownEncodingCharset
-  val stringLengthInBitsFnc = e.knownEncodingStringBitLengthFunction
-  val codepointWidth = e.knownEncodingWidthInBits
 
   def lengthText: String
   def parserName: String
@@ -70,7 +67,7 @@ abstract class StringLengthParser(
         return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
       }
       case u: UnsuppressableException => throw u
-      case e: Exception => { return PE(start, "%s - Exception: \n%s", parserName, e.getStackTraceString) }
+      case e: Exception => { return PE(start, "%s - Exception: %s\n%s", parserName, e.getMessage()) }
     }
     pstate
   }
@@ -80,90 +77,101 @@ class StringFixedLengthInVariableWidthCharactersParser(
   numChars: Long,
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val lengthText: String
+  )
   extends StringLengthInCharsParser(numChars, justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent) {
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth) {
 
   lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
 }
 
 class StringVariableLengthInBytesParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val length: CompiledExpression,
+  override val lengthText: String)
   extends StringLengthInBytesParser(justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent)
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInBytes"
-  lazy val lengthText = exprText
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
 }
 
 class StringVariableLengthInBytesVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val length: CompiledExpression,
+  override val lengthText: String)
   extends StringLengthInBytesParser(justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent)
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = exprText
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
 }
 
 class StringVariableLengthInVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val length: CompiledExpression,
+  override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent)
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
-
 }
 
 class StringFixedLengthInBytesVariableWidthCharactersParser(
   nBytes: Long,
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent) {
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth) {
 
   lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = nBytes.toString()
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
@@ -174,16 +182,20 @@ class StringFixedLengthInBytesFixedWidthCharactersParser(
   nBytes: Long,
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int,
+  override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
-    gram: Gram,
-    contextArg: SchemaComponent) {
+    erd,
+    charset,
+    stringLengthInBitsFnc,
+    codepointWidth) {
 
   lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
@@ -194,17 +206,17 @@ abstract class StringLengthInCharsParser(
   nChars: Long,
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends StringLengthParser(justificationTrim, pad, gram, contextArg) {
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int)
+  extends StringLengthParser(justificationTrim, pad, erd, charset, stringLengthInBitsFnc, codepointWidth) {
 
   def getLength(pstate: PState): (Long, PState) = {
     (nChars, pstate)
   }
 
   def parseInput(start: PState, charset: Charset, nChars: Long): PState = start
-
-  String.format("%sParser(%s)", parserName, lengthText)
 
   override def parse(start: PState): PState = withParseErrorThrowing(start) {
 
@@ -224,7 +236,7 @@ abstract class StringLengthInCharsParser(
       return PE(start, "Parse failed to find exactly %s characters.", nChars)
     } else {
       val parsedField = trimByJustification(field)
-      val parsedBits = e.knownEncodingStringBitLengthFunction(field)
+      val parsedBits = stringLengthInBitsFnc(field)
       val endBitPos = start.bitPos + parsedBits
 
       log(LogLevel.Debug, "Parsed: %s", field)
@@ -245,9 +257,11 @@ abstract class StringLengthInCharsParser(
 abstract class StringLengthInBytesParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends StringLengthParser(justificationTrim, pad, gram, contextArg) {
+  erd: ElementRuntimeData,
+  charset: java.nio.charset.Charset,
+  stringLengthInBitsFnc: String => Int,
+  codepointWidth: Int)
+  extends StringLengthParser(justificationTrim, pad, erd, charset, stringLengthInBitsFnc, codepointWidth) {
   def formatValue(value: String): String = {
     value
   }

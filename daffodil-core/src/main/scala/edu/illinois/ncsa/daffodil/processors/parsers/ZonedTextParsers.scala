@@ -5,10 +5,11 @@ import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
-class ZonedTextNumberParser(gram: Gram, e: ElementBase)
-  extends PrimParser(gram, e) {
+class ZonedTextNumberParser(e: ElementRuntimeData)
+  extends PrimParser(e) {
   def parse(start: PState): PState = {
-    Assert.notYetImplemented()
+    e.notYetImplemented("Zoned Numbers")
   }
 }

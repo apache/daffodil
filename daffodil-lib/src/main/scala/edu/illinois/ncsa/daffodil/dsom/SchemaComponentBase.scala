@@ -41,11 +41,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Logging
 
 abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaComponentBase)
-  extends OOLAGHost(parent)
-  with ThrowsSDE
-  with GetAttributesMixin {
-
-  val contextLocatable = parent
+  extends OOLAGHost(parent) {
 
   val xml = xmlArg
   val aaa_xml = xml // for debugging, so we don't have to scroll down.

@@ -133,6 +133,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
     /* keeps track of which parse step we're on for trace output */
     var parseStep = 0
+
+    /* how to display data */
+    var representation: Representation.Value = Representation.Text
   }
 
   var debugState: DebugState.Type = DebugState.Pause
@@ -226,7 +229,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
     try {
       DFDLFunctions.currentPState.set(Some(state))
-      val compiledExpr = XPathUtil.compileExpression(expression, parser.context.namespaces, parser.context)
+      val compiledExpr = XPathUtil.compileExpression(expression, parser.context.namespaces, state)
       val element = state.infoset.asInstanceOf[InfosetElement]
       val res = element.evalExpression(expression, compiledExpr, state.variableMap, XPathConstants.BOOLEAN)
       res match {
@@ -247,11 +250,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     // the prim parser is an instance of ElementBegin. This should be changed
     // if we ever get rid of anonymous parsers.
     //
+    // UPDATE:  ElementBegin parser was removed during update to RuntimeData and ElementRuntimeData
+    //
     // Note: we use strings and getClass.getName here to get late binding. The ElementBegin class isn't defined
     // in the same module this is. (Layering structure issue.)
     //
-    if (!DebuggerConfig.breakOnlyOnCreation ||
-      (parser.isInstanceOf[PrimParser] && parser.asInstanceOf[PrimParser].primitive.getClass.getName.contains("ElementBegin"))) {
+    if (!DebuggerConfig.breakOnlyOnCreation) {
       val foundBreakpoint =
         DebuggerConfig.breakpoints
           .filter(_.enabled)
@@ -861,7 +865,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
             val res = element.map { e =>
               val adjustedExpression =
                 if (e.parent.isInstanceOf[InfosetDocument] && (expression == "..")) "." else expression
-              val compiledExpr = XPathUtil.compileExpression(adjustedExpression, parser.context.namespaces, parser.context)
+              val compiledExpr = XPathUtil.compileExpression(adjustedExpression, parser.context.namespaces, state)
               e.evalExpression(expression, compiledExpr, state.variableMap, evalType)
             }
             res.map {
@@ -1094,14 +1098,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         val desc = "display the input data"
         val longDesc = desc
 
-        def printData(l: Int, prestate: PState, state: PState, parser: Parser) {
+        def printData(rep: Representation.Value, l: Int, prestate: PState, state: PState, parser: Parser) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
 
           val infoset = state.infoset
-          val rep = infoset match {
-            case ie: InfosetElement => ie.schemaComponent(state).impliedRepresentation
-            case id: InfosetDocument => Representation.Text
-          }
 
           rep match {
             case Representation.Text => {
@@ -1148,9 +1148,19 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
         def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s:".format(name))
-          val len = if (args.size == 1) {
+          val rep = if (args.size > 0) {
+            args(0).toLowerCase match {
+              case "t" => Representation.Text
+              case "b" => Representation.Binary
+              case _ => throw new DebugException("uknown representation: %s. Must be one of 't' for text or 'b' for binary".format(args(0)))
+            }
+          } else {
+            DebuggerConfig.representation
+          }
+
+          val len = if (args.size > 1) {
             try {
-              args.head.toInt
+              args(1).toInt
             } catch {
               case _: Throwable => throw new DebugException("data length must be an integer")
             }
@@ -1158,7 +1168,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
             DebuggerConfig.dataLength
           }
 
-          printData(len, prestate, state, parser)
+          printData(rep, len, prestate, state, parser)
           DebugState.Pause
         }
       }
@@ -1344,7 +1354,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
                         |
                         |Example: set breakOnlyOnCreate false
                         |         set dataLength 100""".stripMargin
-      override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetWrapLength)
+      override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetRepresentation, SetWrapLength)
       override lazy val short = "set"
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         args.size match {
@@ -1505,6 +1515,32 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           DebugState.Pause
         }
       }
+
+      object SetRepresentation extends DebugCommand {
+        val name = "representation"
+        val desc = "set the output when displaying data (default: text)"
+        val longDesc = """|Usage: set representation|rp <value>
+                          |
+                          |Set the output when displaying data. <value> must be either
+                          |'text' or 'binary'. Defaults to 'text'.
+                          |Defaults to false.
+                          |
+                          |Example: set representation binary""".stripMargin
+        override lazy val short = "rp"
+        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          if (args.size != 1) {
+            throw new DebugException("a single argument is required")
+          } else {
+            DebuggerConfig.representation = args.head.toLowerCase match {
+              case "text" => Representation.Text
+              case "binary" => Representation.Binary
+              case _ => throw new DebugException("argument must be either 'text' or 'binary'")
+            }
+          }
+          DebugState.Pause
+        }
+      }
+
 
       object SetWrapLength extends DebugCommand {
         val name = "wrapLength"

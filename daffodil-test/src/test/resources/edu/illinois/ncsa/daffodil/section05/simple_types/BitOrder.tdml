@@ -332,7 +332,8 @@
     </document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>bitOrder cannot be changed unless the data is aligned at a byte boundary</tdml:error>
+      <tdml:error>bitOrder</tdml:error>
+      <tdml:error>byte boundary</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

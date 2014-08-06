@@ -42,14 +42,11 @@ import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
+import edu.illinois.ncsa.daffodil.util.Misc
 
-case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: SimpleDateFormat, infosetFormatter: SimpleDateFormat) extends PrimParser(gram, e) {
+case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, prettyType: String, dataFormatter: SimpleDateFormat, infosetFormatter: SimpleDateFormat)
+  extends PrimParser(erd) {
 
-  protected val GramName = e.primType.name
-  protected val GramDescription = { GramName(0).toUpper + GramName.substring(1) }
-
-  override def toString = "to(xs:" + GramName + ")"
-  
   // As per ICU4J documentation, "Date formats are not synchronized. If
   // multiple threads access a format concurrently, it must be synchronized
   // externally."
@@ -79,7 +76,7 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
     // Use pos to verify all characters consumed & check for errors
     if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
       val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
-      return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", GramDescription, GramName, str, errIndex + 1)
+      return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, str, errIndex + 1)
     }
 
     // Unfortunately, there is no publicly available method for validating
@@ -90,7 +87,7 @@ case class ConvertTextCalendarParser(gram: Gram, e: ElementBase, dataFormatter: 
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {
-        return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", GramDescription, GramName, str, e.getMessage)
+        return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage)
       }
     }
 
@@ -109,10 +106,10 @@ object TextCalendarConstants {
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
 
-  protected val GramName = e.primType.name
-  protected val GramDescription = { GramName(0).toUpper + GramName.substring(1) }
+  protected val xsdType = "dateTime"
+  protected val prettyType = "DateTime"
 
-  override def toString = "to(xs:" + GramName + ")"
+  override def toString = "to(xs:" + xsdType + ")"
 
   protected def infosetPattern: String
   protected def implicitPattern: String
@@ -128,11 +125,11 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     val patternNoEscapes = escapedText.replaceAllIn(p, "")
     patternNoEscapes.toSeq.foreach(char =>
       if (!validFormatCharacters.contains(char)) {
-        SDE("Character '%s' not allowed in dfdl:calendarPattern for %s".format(char, GramName))
+        SDE("Character '%s' not allowed in dfdl:calendarPattern for xs:%s".format(char, xsdType))
       })
 
     if (patternNoEscapes.indexOf("S" * (TextCalendarConstants.maxFractionalSeconds + 1)) >= 0) {
-      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for %s".format(TextCalendarConstants.maxFractionalSeconds, GramName))
+      SDE("More than %d fractional seconds unsupported in dfdl:calendarPattern for xs:%s".format(TextCalendarConstants.maxFractionalSeconds, xsdType))
     }
 
     p
@@ -180,7 +177,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     val tz = TimeZone.getTimeZone(tzStr)
     if (tz == TimeZone.UNKNOWN_ZONE) {
       e.schemaDefinitionErrorDueToPropertyValue(
-        "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location,
+        "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
         "Unknown time zone '%s'", e.calendarTimeZone)
     }
     cal.setTimeZone(tz)
@@ -207,24 +204,30 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     formatter
   }
 
-  def parser: Parser = new ConvertTextCalendarParser(this, e, dataFormatter, infosetFormatter)
+  def parser: Parser = new ConvertTextCalendarParser(e.elementRuntimeData, xsdType, prettyType, dataFormatter, infosetFormatter)
 
   def unparser: Unparser = DummyUnparser(e)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
+  protected override val xsdType = "date"
+  protected override val prettyType = "Date"
   protected override val infosetPattern = "uuuu-MM-ddxxx"
   protected override val implicitPattern = "uuuu-MM-dd"
   protected override val validFormatCharacters = "dDeEFGMuwWyXxYzZ".toSeq
 }
 
 case class ConvertTextTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
+  protected override val xsdType = "time"
+  protected override val prettyType = "Time"
   protected override val infosetPattern = "HH:mm:ss.SSSSSSxxx"
   protected override val implicitPattern = "HH:mm:ssZ"
   protected override val validFormatCharacters = "ahHkKmsSvVzXxZ".toSeq
 }
 
 case class ConvertTextDateTimePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {
+  protected override val xsdType = "dateTime"
+  protected override val prettyType = "DateTime"
   protected override val infosetPattern = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx"
   protected override val implicitPattern = "uuuu-MM-dd'T'HH:mm:ss"
   protected override val validFormatCharacters = "adDeEFGhHkKmMsSuwWvVyXxYzZ".toSeq

@@ -100,6 +100,8 @@ class SchemaSet(
   override lazy val enclosingComponent = None
   override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on SchemaSet")
 
+  override lazy val lineAttribute: Option[String] = None
+
   /**
    * Let's use the filename for the first schema document, rather than giving no information at all.
    *
@@ -171,7 +173,9 @@ class SchemaSet(
    * that made them.
    */
 
-  lazy val schemaComponentRegistry = new SchemaComponentRegistry()
+  lazy val schemaFileList = schemas.map(s => s.fileName)
+
+  lazy val schemaComponentRegistry = new SchemaComponentRegistry(schemaFileList)
 
   lazy val isValid = {
     val isV = OOLAG.keepGoing(false) {
@@ -536,8 +540,6 @@ class SchemaSet(
 
     finalVMap
   }
-
-
 
   def getSCIDAugmentedInfoset(origInfoset: Node) = {
     val infoset = XMLUtils.elem2Element(origInfoset)

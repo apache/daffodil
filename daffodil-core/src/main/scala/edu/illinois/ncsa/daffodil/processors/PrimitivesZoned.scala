@@ -37,9 +37,10 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.parsers.ZonedTextNumberParser
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
 
 abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
-  def parser: DaffodilParser = new ZonedTextNumberParser(this, e)
+  def parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)
   def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
       Assert.notYetImplemented()

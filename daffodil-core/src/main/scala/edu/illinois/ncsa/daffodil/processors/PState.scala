@@ -89,7 +89,7 @@ case class MPState(val scr: SchemaComponentRegistry, val dataProc: DFDL.DataProc
     occursBoundsStack.push(ob)
   }
   def occursBounds = occursBoundsStack.top
-  
+
   var foundDelimiter: Maybe[FoundDelimiterText] = Nope
 
   def withDelimitedText(foundText: String, originalRepresentation: String) {
@@ -157,7 +157,7 @@ case class PState(
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos0b, charPos, status)
   }
-  def getContext(): ElementBase = {
+  def getContext(): ElementRuntimeData = {
     // Assumes that a JDOM element was already created
     val currentElement = parentElement
     val res = currentElement.schemaComponent(this)
@@ -167,25 +167,9 @@ case class PState(
   /**
    * Added because ThrowsSDE is a SchemaFileLocatable
    */
-  def contextLocatable: SchemaFileLocatable = {
-    val ctxt = getContext()
-    ctxt.contextLocatable
-  }
-
-  /**
-   * Added because ThrowsSDE is a SchemaFileLocatable
-   */
   def fileName: String = {
     val ctxt = getContext()
     ctxt.fileName
-  }
-
-  /**
-   * Added because ThrowsSDE is a SchemaFileLocatable
-   */
-  def xml: Node = {
-    val ctxt = getContext()
-    ctxt.xml
   }
 
   def SDE(str: String, args: Any*) = {
@@ -199,17 +183,23 @@ case class PState(
   // Had to implement so that we could add ThrowsSDE as a trait to PState
   // Could just make private and Assert.impossible
   def SDEButContinue(id: String, args: Any*): Unit = {
+    ???
+    /*
     ExecutionMode.requireRuntimeMode
-    val ctxt = getContext
+    val ctxt = getContext.runtimeData
     val rsde = new RuntimeSchemaDefinitionError(ctxt, this, id, args: _*)
     ctxt.error(rsde)
+    */
   }
 
   def SDW(id: String, args: Any*): Unit = {
+    ???
+    /*
     ExecutionMode.requireRuntimeMode
-    val ctxt = getContext
+    val ctxt = getContext.runtimeData
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt, this, id, args: _*)
     ctxt.warn(rsdw)
+    */
   }
 
   def discriminator = discriminatorStack.head
@@ -346,7 +336,7 @@ object PState {
    * Initialize the state block given our InStream and a root element declaration.
    */
   def createInitialState(scr: SchemaComponentRegistry,
-    rootElemDecl: GlobalElementDecl,
+    root: ElementRuntimeData,
     in: InStream,
     dataProc: DFDL.DataProcessor): PState = {
 
@@ -366,27 +356,27 @@ object PState {
    * For testing it is convenient to just hand it strings for data.
    */
   def createInitialState(scr: SchemaComponentRegistry,
-    rootElemDecl: GlobalElementDecl,
+    root: ElementRuntimeData,
     data: String,
     bitOffset: Long,
     dataProc: DFDL.DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
-    createInitialState(scr, rootElemDecl, in, dataProc, data.length, bitOffset)
+    createInitialState(scr, root, in, dataProc, data.length, bitOffset)
   }
 
   /**
    * Construct our InStream object and initialize the state block.
    */
   def createInitialState(scr: SchemaComponentRegistry,
-    rootElemDecl: GlobalElementDecl,
+    root: ElementRuntimeData,
     input: DFDL.Input,
     dataProc: DFDL.DataProcessor,
     bitOffset: Long = 0,
     bitLengthLimit: Long = -1): PState = {
-    val bitOrder = rootElemDecl.defaultBitOrder
+    val bitOrder = root.defaultBitOrder
     val inStream =
-      InStream.fromByteChannel(rootElemDecl, input, bitOffset, bitLengthLimit, bitOrder)
-    createInitialState(scr, rootElemDecl, inStream, dataProc)
+      InStream.fromByteChannel(root, input, bitOffset, bitLengthLimit, bitOrder)
+    createInitialState(scr, root, inStream, dataProc)
   }
 
 }

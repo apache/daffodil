@@ -222,7 +222,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
    * shows that the variable has been read (state VariableRead), when the variable hadn't
    * previously been read yet.
    */
-  def readVariable(expandedName: String, referringContext: SchemaComponent): (AnyRef, VariableMap) = {
+  def readVariable(expandedName: String, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
     val lists = variables.get(expandedName)
     lists match {
 
@@ -262,7 +262,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
   /**
    * Assigns a variable, returning a new VariableMap which shows the state of the variable.
    */
-  def setVariable(expandedName: String, newValue: Any, referringContext: SchemaComponent): VariableMap = {
+  def setVariable(expandedName: String, newValue: Any, referringContext: RuntimeData): VariableMap = {
     variables.get(expandedName) match {
 
       case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)

@@ -445,7 +445,8 @@ object UState {
   /**
    * Initialize the state block given our OutStream, a root element declaration, and an infoset.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom2.Document): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, out: OutStream, infoset: org.jdom2.Document): UState = { ???
+/*
     val elem = infoset.getContent()
     // TODO: even needed?
     Assert.invariant(elem.size() == 1)
@@ -463,24 +464,29 @@ object UState {
     val discriminator = false
     val newState = new UState(out, infoset, root, root, rootName, variables, targetNamespace, status, groupIndexStack, childIndexStack, arrayIndexStack, diagnostics, discriminator)
     newState
+*/
   }
 
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom2.Document): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom2.Document): UState = { ???
+/*
     val out = Misc.stringToWritableByteChannel(data)
     createInitialState(rootElemDecl, out, document, data.length)
+*/
   }
 
   /**
    * Construct our OutStream object and initialize the state block.
    */
-  def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom2.Document, sizeHint: Long = -1): UState = {
+  def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom2.Document, sizeHint: Long = -1): UState = { ???
+/*
     val outStream =
       if (sizeHint != -1) new OutStreamFromByteChannel(rootElemDecl, output, sizeHint)
       else new OutStreamFromByteChannel(rootElemDecl, output)
     createInitialState(rootElemDecl, outStream, document)
+*/
   }
 }
 

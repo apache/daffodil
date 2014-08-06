@@ -4,10 +4,11 @@ import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EscapeScheme
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlock
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeChar
@@ -30,34 +31,29 @@ import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
 
 class StringDelimitedParser(
+  erd: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends PrimParser(gram: Gram, contextArg: SchemaComponent)
+  allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  charset: java.nio.charset.Charset,
+  knownEncodingStringBitLengthFunction: String => Int)
+  extends PrimParser(erd)
   with TextReader {
 
-  val e = contextArg.asInstanceOf[ElementBase]
-  val eName = e.toString()
-  val charset = e.knownEncodingCharset
-  val tm = e.allTerminatingMarkup
-  val cname = toString
-  val dp = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-
+  lazy val delimListForPrint = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue.prettyExpr }
   override def toBriefXML(depthLimit: Int = -1): String = {
-    "<" + gram.name + " " + delimListForPrint + "/>"
+    "<" + erd.prettyName + " " + delimListForPrint + "/>"
   }
+  override def toString = erd.prettyName + "(" + delimListForPrint + ")"
 
-  lazy val delimListForPrint = tm.map { case (delimValue, _, _) => delimValue.prettyExpr }
-  //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
-  override def toString = cname + "(" + delimListForPrint + ")"
+  val dp = new DFDLDelimParser(knownEncodingStringBitLengthFunction)
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
       else {
         val result = parseResult.get
         val field = result.field.getOrElse("")
@@ -80,7 +76,7 @@ class StringDelimitedParser(
     //
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
-    
+
     val (postEvalState, textParser, delimsCooked) = pf.getParser(start)
 
     val bytePos = (postEvalState.bitPos >> 3).toInt
@@ -94,34 +90,31 @@ class StringDelimitedParser(
       textParser.parse(reader, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
-        throw new ParseError(e, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
+        throw new ParseError(erd, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
     }
     processResult(result, postEvalState)
   }
 }
 
-class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationType.Type,
+class LiteralNilDelimitedEndOfDataParser(
+  erd: ElementRuntimeData,
+  justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactoryBase,
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends StringDelimitedParser(
-    justificationTrim: TextJustificationType.Type,
-    pad: Maybe[Char],
-    ff: FieldFactoryBase,
-    pf: TextDelimitedParserFactoryBase,
-    false,
-    gram: Gram,
-    contextArg: SchemaComponent) {
-  val nilValuesCooked = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
-  val isEmptyAllowed = e.nilValue.contains("%ES;") // TODO: move outside parser
+  allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  nilValues: Seq[String],
+  charset: java.nio.charset.Charset,
+  knownEncodingStringBitLengthFunction: String => Int)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, charset, knownEncodingStringBitLengthFunction) {
+
+  val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
   val isDelimRequired: Boolean = false
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
       else {
         val result = parseResult.get
         // We have a field, is it empty?
@@ -129,9 +122,9 @@ class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationTyp
         val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
         if (isFieldEmpty && !isEmptyAllowed) {
-          return this.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+          return this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
         } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
-          dp.isFieldDfdlLiteral(field, nilValuesCooked.toSet)) { // Not empty, but matches.
+          dp.isFieldDfdlLiteral(field, nilValues.toSet)) { // Not empty, but matches.
           // Contains a nilValue, Success!
           state.parentElement.makeNil()
 
@@ -144,7 +137,7 @@ class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationTyp
           return stateWithPos
         } else {
           // Fail!
-          return this.PE(state, "%s - Does not contain a nil literal!", eName)
+          return this.PE(state, "%s - Does not contain a nil literal!", erd.prettyName)
         }
       }
     }
@@ -152,28 +145,26 @@ class LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationTyp
   }
 }
 
-class HexBinaryDelimitedParser(justificationTrim: TextJustificationType.Type,
+class HexBinaryDelimitedParser(
+  erd: ElementRuntimeData,
+  justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
-  gram: Gram,
-  contextArg: SchemaComponent) extends StringDelimitedParser(justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactoryBase,
-  isDelimRequired: Boolean,
-  gram: Gram,
-  contextArg: SchemaComponent) {
-  override val charset: Charset = Charset.forName("ISO-8859-1")
+  allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  knownEncodingStringBitLengthFunction: String => Int)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, Charset.forName("ISO-8859-1"), knownEncodingStringBitLengthFunction) {
+
+  // override val charset: Charset = Charset.forName("ISO-8859-1")
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), eName)
+      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
       else {
         val result = parseResult.get
         val field = result.field.getOrElse("")
-        val numBits = e.knownEncodingStringBitLengthFunction(field)
+        val numBits = knownEncodingStringBitLengthFunction(field)
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
         val currentElement = state.parentElement
@@ -187,20 +178,3 @@ class HexBinaryDelimitedParser(justificationTrim: TextJustificationType.Type,
     res
   }
 }
-
-class HexBinaryDelimitedEndOfDataParser(
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactoryBase,
-  gram: Gram,
-  contextArg: SchemaComponent)
-  extends HexBinaryDelimitedParser(
-    justificationTrim: TextJustificationType.Type,
-    pad: Maybe[Char],
-    ff: FieldFactoryBase,
-    pf: TextDelimitedParserFactoryBase,
-    false,
-    gram: Gram,
-    contextArg: SchemaComponent)
-

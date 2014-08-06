@@ -51,6 +51,10 @@ import scala.language.reflectiveCalls
  */
 object Misc {
 
+  def boolToOpt[T](test: Boolean, thing: => T): Option[T] = {
+    if (test) Some(thing) else None
+  }
+
   def getNameFromClass(obj: Object): String = {
     if (obj == null) return "null"
     // val hexHash = obj.hashCode.formatted("%x")

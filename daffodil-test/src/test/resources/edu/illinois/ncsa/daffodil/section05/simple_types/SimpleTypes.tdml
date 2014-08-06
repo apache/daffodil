@@ -3624,7 +3624,7 @@
     <tdml:document><![CDATA[24 03 1988, 03:45:55]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Character 'H' not allowed in dfdl:calendarPattern for date</tdml:error>
+      <tdml:error>Character 'H' not allowed in dfdl:calendarPattern for xs:date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3641,7 +3641,7 @@
     <tdml:document><![CDATA[24 03 1988, 45:55]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Character 'm' not allowed in dfdl:calendarPattern for date</tdml:error>
+      <tdml:error>Character 'm' not allowed in dfdl:calendarPattern for xs:date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3658,7 +3658,7 @@
     <tdml:document><![CDATA[1999-03 12:34]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Character 'y' not allowed in dfdl:calendarPattern for time</tdml:error>
+      <tdml:error>Character 'y' not allowed in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3675,7 +3675,7 @@
     <tdml:document><![CDATA[19 12:34]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Character 'b' not allowed in dfdl:calendarPattern for time</tdml:error>
+      <tdml:error>Character 'b' not allowed in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3710,7 +3710,7 @@
     <tdml:document><![CDATA[Q2 2012]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Character 'Q' not allowed in dfdl:calendarPattern for date</tdml:error>
+      <tdml:error>Character 'Q' not allowed in dfdl:calendarPattern for xs:date</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4979,7 +4979,7 @@
 
     <tdml:document><![CDATA[3:30:38.002345276891000084763]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4995,7 +4995,7 @@
 
     <tdml:document><![CDATA[3:30:38.0023452768910087634837]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -5029,7 +5029,7 @@
 
     <tdml:document><![CDATA[3:30:38.0023452768]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for time</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5045,7 +5045,7 @@
 
     <tdml:document><![CDATA[03-03-2013 3:30:38.0023452768]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for dateTime</tdml:error>
+      <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for xs:dateTime</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

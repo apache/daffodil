@@ -81,30 +81,24 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsParser
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryStatic
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
+import edu.illinois.ncsa.daffodil.processors.parsers.HasPadding
+import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
-  with TextReader
-  with Padded
-  with WithParseErrorThrowing {
-
-  val charset = e.knownEncodingCharset
-  val stringLengthInBitsFnc = e.knownEncodingStringBitLengthFunction
-  val codepointWidth = e.knownEncodingWidthInBits
-  val padCharChar = optPadChar.map(s => s.charAt(0))
+  with Padded {
 
   def lengthText: String
   def parserName: String
+
+  val padCharChar = optPadChar.map(s => s.charAt(0))
 
   def unparser: Unparser = new Unparser(e) {
     override def toString = String.format("%sUnparser(%s)", parserName, lengthText)
@@ -116,51 +110,16 @@ abstract class StringLength(e: ElementBase)
   }
 }
 
-trait HasLengthExpression { self: Terminal =>
-  // Length is an expression
-  private lazy val eb = this.context.asInstanceOf[ElementBase]
-  val expr = eb.length
-  val exprText = expr.prettyExpr
-}
-
-abstract class StringLengthInChars(e: ElementBase, nChars: Long)
-  extends StringLength(e)
-  with WithParseErrorThrowing {
-}
-
-abstract class StringLengthInBytes(e: ElementBase)
-  extends StringLength(e) {
-
-  def formatValue(value: String): String = {
-    value
-  }
-}
-
 abstract class HexBinaryLengthInBytes(e: ElementBase)
-  extends StringLengthInBytes(e) {
-
-  override val charset: Charset = Charset.forName("ISO-8859-1")
-  override val stringLengthInBitsFnc = {
-    def stringBitLength(str: String) = {
-      // variable width encoding, so we have to convert each character 
-      // We assume here that it will be a multiple of bytes
-      // that is, that variable-width encodings are all some number
-      // of bytes.
-      str.getBytes(charset).length * 8
-    }
-    stringBitLength _
-  }
-  override def formatValue(value: String) = {
-    val hexStr = value.map(c => c.toByte.formatted("%02X")).mkString
-    hexStr
-  }
+  extends StringLength(e) {
+    
 }
 
 case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
   extends HexBinaryLengthInBytes(e) {
 
   lazy val parserName = "HexBinaryFixedLengthInBytes"
-  lazy val lengthText = e.length.constantAsString
+  lazy val lengthText = nBytes.toString
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
@@ -168,15 +127,15 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
 
   def parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes, justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    lengthText)
 }
 
 case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
   extends HexBinaryLengthInBytes(e) {
 
   lazy val parserName = "HexBinaryFixedLengthInBits"
-  lazy val lengthText = e.length.constantAsString
+  lazy val lengthText = nBits.toString
 
   def getLength(pstate: PState): (Long, PState) = {
     val nBytes = scala.math.ceil(nBits / 8).toLong
@@ -185,210 +144,143 @@ case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
 
   def parser: DaffodilParser = new HexBinaryFixedLengthInBitsParser(nBits, justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    lengthText)
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
   extends HexBinaryLengthInBytes(e) {
 
-  // Length is an expression
-  private lazy val eb = this.context.asInstanceOf[ElementBase]
-  val expr = eb.length
-  val exprText = expr.prettyExpr
-
   lazy val parserName = "HexBinaryVariableLengthInBytes"
-  lazy val lengthText = exprText
+  lazy val lengthText = e.length.prettyExpr
 
   def parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingWidthInBits,
+    e.length,
+    lengthText)
 }
 
 case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: Long)
-  extends StringLengthInBytes(e) {
+  extends StringLength(e) {
 
   lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
+  lazy val lengthText = nBytes.toString
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
   }
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
 
   override def parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
-    nBytes: Long,
-    justificationTrim: TextJustificationType.Type,
+    nBytes,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    lengthText)
 }
 
 case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long)
-  extends StringLengthInBytes(e) {
+  extends StringLength(e) {
 
   lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = nBytes.toString()
+  lazy val lengthText = nBytes.toString
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
   }
 
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
-
   override def parser: DaffodilParser = new StringFixedLengthInBytesVariableWidthCharactersParser(
-    nBytes: Long,
-    justificationTrim: TextJustificationType.Type,
+    nBytes,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    lengthText)
 }
 
 case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: Long)
-  extends StringLengthInChars(e, numChars) {
+  extends StringLength(e) {
 
   lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
+  lazy val lengthText = numChars.toString
 
   override def parser: DaffodilParser = new StringFixedLengthInVariableWidthCharactersParser(
-    numChars: Long,
-    justificationTrim: TextJustificationType.Type,
+    numChars,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    lengthText)
 }
 
 case class StringVariableLengthInBytes(e: ElementBase)
-  //extends Terminal(e, true)
-  extends StringLengthInBytes(e)
-  with HasLengthExpression {
+  extends StringLength(e) {
 
   lazy val parserName = "StringVariableLengthInBytes"
-  lazy val lengthText = exprText
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
+  lazy val lengthText = e.length.prettyExpr
 
   override def parser: DaffodilParser = new StringVariableLengthInBytesParser(
-    justificationTrim: TextJustificationType.Type,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    e.length,
+    lengthText)
 }
 
 case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
-  //extends Terminal(e, true)
-  extends StringLengthInBytes(e)
-  with HasLengthExpression {
+  extends StringLength(e) {
 
   lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = exprText
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
+  lazy val lengthText = e.length.prettyExpr
 
   override def parser: DaffodilParser = new StringVariableLengthInBytesVariableWidthCharactersParser(
-    justificationTrim: TextJustificationType.Type,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    e.length,
+    lengthText)
 }
 
 case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
-  extends StringLengthInBytes(e)
-  with HasLengthExpression {
+  extends StringLength(e) {
 
   lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
-  lazy val lengthText = e.length.constantAsString
-
-  // val maxBytes = DaffodilTunableParameters.maxFieldContentLengthInBytes
-  //  var cbuf: CharBuffer = CharBuffer.allocate(0) // TODO: Performance: get a char buffer from a pool.
-  //  var cbufSize = 0
+  lazy val lengthText = e.length.prettyExpr
 
   override def parser: DaffodilParser = new StringVariableLengthInVariableWidthCharactersParser(
-    justificationTrim: TextJustificationType.Type,
+    justificationTrim,
     padCharChar,
-    this,
-    e)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingWidthInBits,
+    e.length,
+    lengthText)
 }
 
 case class StringPatternMatched(e: ElementBase)
   extends Terminal(e, true)
-  with WithParseErrorThrowing with TextReader with Padded {
+  with Padded {
 
   val charset = e.knownEncodingCharset
   val pattern = e.lengthPattern
 
-  def parser: DaffodilParser = new PrimParser(this, e) {
-    override def toString = "StringPatternMatched"
-
-    // The pattern will always be defined
-
-    lazy val dp = new ThreadLocal[DFDLDelimParser] {
-      override def initialValue() = {
-        new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
-      }
-    }
-
-    // TODO: Add parameter for changing CharBuffer size
-
-    val eName = e.toString()
-
-    def parse(start: PState): PState = withParseErrorThrowing(start) {
-      // withLoggingLevel(LogLevel.Info) 
-      {
-
-        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3))
-        log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos)
-
-        // some encodings aren't whole bytes.
-        // if (start.bitPos % 8 != 0) { return PE(start, "StringPatternMatched - not byte aligned.") }
-
-        val bytePos = (start.bitPos >> 3).toInt
-
-        log(LogLevel.Debug, "Retrieving reader")
-
-        val reader = getReader(charset, start.bitPos, start)
-
-        val result = dp.get.parseInputPatterned(pattern, reader, start)
-
-        val postState = result match {
-          case _: DelimParseFailure => {
-            // A no match means zero length.  
-            // Because we check for Nil first, this is valid and allowed.
-            // Since it's zero length, the start state is the end state. 
-            val currentElement = start.parentElement
-            currentElement.setDataValue("") // empty string is the value.
-            start
-          }
-          case s: DelimParseSuccess => {
-            val endBitPos = start.bitPos + s.numBits
-            log(LogLevel.Debug, "StringPatternMatched - Parsed: %s", s.field)
-            log(LogLevel.Debug, "StringPatternMatched - Ended at bit position %s", endBitPos)
-
-            val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
-            val currentElement = start.parentElement
-            val field = trimByJustification(s.field)
-            currentElement.setDataValue(field)
-            start.withPos(endBitPos, endCharPos, One(s.next))
-          }
-
-        }
-        postState
-      }
-    }
-  }
+  def parser: DaffodilParser = new StringPatternMatchedParser(charset, pattern, e.elementRuntimeData,
+    e.knownEncodingStringBitLengthFunction, justificationTrim, padChar)
 
   def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
@@ -810,10 +702,8 @@ class EscapeSchemeFactoryDynamic(scheme: DFDLEscapeScheme,
 
 abstract class StringDelimited(e: ElementBase)
   extends DelimParserBase(e, true)
-  with TextReader
   with Padded
-  with HasEscapeScheme
-  with WithParseErrorThrowing {
+  with HasEscapeScheme {
 
   // TODO: DFDL-451 - Has been placed on the backburner until we can figure out the appropriate behavior
   //
@@ -920,13 +810,15 @@ abstract class StringDelimited(e: ElementBase)
   val gram = this
 
   def parser: DaffodilParser = new StringDelimitedParser(
+    e.elementRuntimeData,
     justificationTrim,
     pad,
     fieldFactory,
     parserFactory,
     isDelimRequired,
-    gram,
-    e)
+    e.allTerminatingMarkup,
+    e.knownEncodingCharset,
+    e.knownEncodingStringBitLengthFunction)
 
   def unparser: Unparser = new Unparser(e) {
     //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
@@ -956,13 +848,14 @@ abstract class HexBinaryDelimited(e: ElementBase)
   override val charset: Charset = Charset.forName("ISO-8859-1")
 
   override def parser: DaffodilParser = new HexBinaryDelimitedParser(
+    e.elementRuntimeData,
     justificationTrim,
     pad,
     fieldFactory,
     parserFactory,
     isDelimRequired,
-    gram,
-    e)
+    e.allTerminatingMarkup,
+    e.knownEncodingStringBitLengthFunction)
 
 }
 
@@ -979,12 +872,16 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   val isDelimRequired: Boolean = false
 
   override def parser: DaffodilParser =
-    new LiteralNilDelimitedEndOfDataParser(justificationTrim: TextJustificationType.Type,
-      pad: Maybe[Char],
-      fieldFactory: FieldFactoryBase,
-      parserFactory: TextDelimitedParserFactoryBase,
-      gram: Gram,
-      eb: SchemaComponent)
+    new LiteralNilDelimitedEndOfDataParser(
+      eb.elementRuntimeData,
+      justificationTrim,
+      pad,
+      fieldFactory,
+      parserFactory,
+      eb.allTerminatingMarkup,
+      nilValuesCooked,
+      eb.knownEncodingCharset,
+      eb.knownEncodingStringBitLengthFunction)
 
 }
 
@@ -994,13 +891,13 @@ class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends 
 
   val sepParser = sep.parser
 
-  def parser: DaffodilParser = new PrimParser(this, term) {
+  def parser: DaffodilParser = new PrimParser(term.runtimeData) {
 
     override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
 
     def parse(start: PState): PState = {
-      if (start.mpstate.arrayPos > 1) sepParser.parse1(start, term)
-      else if (start.mpstate.groupPos > 1) sepParser.parse1(start, term)
+      if (start.mpstate.arrayPos > 1) sepParser.parse1(start, term.runtimeData)
+      else if (start.mpstate.groupPos > 1) sepParser.parse1(start, term.runtimeData)
       else start
     }
   }

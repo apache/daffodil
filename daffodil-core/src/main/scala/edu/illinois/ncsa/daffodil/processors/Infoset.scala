@@ -49,14 +49,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 object Infoset {
 
-  type SchemaComponentIDObject = Int
-
-  def addComponent(e: ElementBase): SchemaComponentIDObject = {
-    val id = e.schemaSet.schemaComponentRegistry.addComponent(e)
-    id
-  }
-
-  def newElement(e: ElementBase, isHidden: Boolean) = {
+  def newElement(e: ElementRuntimeData) = {
     Assert.usage(e.name != "")
     val jdomE =
       new org.jdom2.Element(e.name, e.targetNamespacePrefix, e.targetNamespace.toStringOrNullIfNoNS)
@@ -67,7 +60,7 @@ object Infoset {
     Assert.invariant(e.schemaComponentID >= 0)
     jdomE.setAttribute("context", e.schemaComponentID.toString, XMLUtils.INT_NS_OBJECT)
     jdomE.setAttribute("defaulted", "false", XMLUtils.INT_NS_OBJECT)
-    if (isHidden)
+    if (e.isHidden)
       jdomE.setAttribute("hidden", "true", XMLUtils.INT_NS_OBJECT)
     val res = new InfosetElement(jdomE)
     res
@@ -98,9 +91,9 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
 
   def isNil: Boolean = XMLUtils.isNil(elt)
   def makeNil(): Unit = { elt.setAttribute(XMLUtils.nilAttribute()) }
-  
+
   def wasCheckConstraintsRun: Boolean = XMLUtils.wasCheckConstraintsRan(elt)
-  def setCheckConstraintsRan(): Unit = { elt.setAttribute(XMLUtils.checkConstraintsRanAttribute)}
+  def setCheckConstraintsRan(): Unit = { elt.setAttribute(XMLUtils.checkConstraintsRanAttribute) }
 
   def setDataValue(s: String): Unit = {
     elt.setContent(new org.jdom2.Text(XMLUtils.remapXMLIllegalCharactersToPUA(s)))
@@ -134,7 +127,7 @@ class InfosetElement(private val elt: org.jdom2.Element) extends InfosetItem {
    * Retrieve the schema component that gave rise to this infoset
    * item.
    */
-  def schemaComponent(pstate: PState): ElementBase = {
+  def schemaComponent(pstate: PState): ElementRuntimeData = {
     val currentElement = elt
     val attr = currentElement.getAttributeValue("context", XMLUtils.INT_NS_OBJECT)
     val context = attr match {

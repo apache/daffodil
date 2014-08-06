@@ -331,7 +331,7 @@
     <xs:element name="e23" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="e23a" minOccurs="2">
+          <xs:element name="e23a" minOccurs="2" maxOccurs="2">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
@@ -348,7 +348,7 @@
     <xs:element name="e24" dfdl:alignment="4" dfdl:alignmentUnits="bytes" dfdl:leadingSkip="2" dfdl:trailingSkip="2">
       <xs:complexType>
         <xs:sequence>
-          <xs:element name="e24a" minOccurs="2">
+          <xs:element name="e24a" minOccurs="2" maxOccurs="2">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="a1" type="xs:string" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="5" dfdl:encoding="ascii" 
@@ -358,7 +358,7 @@
               </xs:choice>
             </xs:complexType>
           </xs:element>
-          <xs:element name="e24b" minOccurs="2">
+          <xs:element name="e24b" minOccurs="2" maxOccurs="2">
             <xs:complexType>
               <xs:choice>
                 <xs:element name="b1" type="xs:nonNegativeInteger" dfdl:representation="text" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:encoding="ascii" 
@@ -376,7 +376,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="repeat" type="xs:string" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
-            minOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+            minOccurs="5" maxOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -385,7 +385,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="repeat" type="xs:string" dfdl:terminator="|" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
-            minOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+            minOccurs="5" maxOccurs="5" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -393,11 +393,11 @@
     <xs:element name="e27">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="outer" minOccurs="3" dfdl:alignment="2" dfdl:leadingSkip="1" dfdl:alignmentUnits="bytes" dfdl:lengthKind="delimited">
+          <xs:element name="outer" minOccurs="3" maxOccurs="3" dfdl:alignment="2" dfdl:leadingSkip="1" dfdl:alignmentUnits="bytes" dfdl:lengthKind="delimited">
             <xs:complexType>
               <xs:sequence dfdl:separator="|">
                 <xs:element name="inner" type="xs:string" dfdl:initiator="(" dfdl:terminator=")" dfdl:alignmentUnits="bytes" dfdl:alignment="4" dfdl:lengthKind="delimited" 
-                  minOccurs="2" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
+                  minOccurs="2"  maxOccurs="2" dfdl:representation="text" dfdl:leadingSkip="2" dfdl:trailingSkip="4"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>

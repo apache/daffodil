@@ -47,6 +47,9 @@ import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -155,12 +158,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (hasMaxExclusive) maxExclusive
     if (hasTotalDigits) totalDigits
     if (hasFractionDigits) fractionDigits
+    runtimeData
   })
 
   def name: String
 
-  // Forced evaluation
-  val schemaComponentID = Infoset.addComponent(this)
+  lazy val schemaComponentID = elementRuntimeData.schemaComponentID
 
   def inputValueCalcOption: PropertyLookupResult
   def isNillable: Boolean
@@ -178,6 +181,46 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def isScalar: Boolean
 
   def elementRef: Option[ElementRef]
+
+  override lazy val runtimeData: RuntimeData = elementRuntimeData
+
+  lazy val elementRuntimeData = {
+
+    val (minOccurs, maxOccurs) = this match {
+      case loc: LocalElementBase => (Some(loc.minOccurs), Some(loc.maxOccurs))
+      case _ => (None, None)
+    }
+    val erd = new ElementRuntimeData(
+      lineAttribute,
+      columnAttribute,
+      fileAttribute,
+      prettyName,
+      path,
+      namespaces,
+      defaultBitOrder,
+      Misc.boolToOpt(isSimpleType, primType),
+      isSimpleType,
+      Misc.boolToOpt(knownEncodingIsFixedWidth, knownEncodingWidthInBits),
+      targetNamespace,
+      Misc.boolToOpt(hasPattern, patternValues),
+      Misc.boolToOpt(hasEnumeration, enumerationValues),
+      Misc.boolToOpt(hasMinLength, minLength),
+      Misc.boolToOpt(hasMaxLength, maxLength),
+      Misc.boolToOpt(hasMinInclusive, minInclusive),
+      Misc.boolToOpt(hasMaxInclusive, maxInclusive),
+      Misc.boolToOpt(hasMinExclusive, minExclusive),
+      Misc.boolToOpt(hasMaxExclusive, maxExclusive),
+      Misc.boolToOpt(hasTotalDigits, totalDigits),
+      Misc.boolToOpt(hasFractionDigits, fractionDigits),
+      minOccurs,
+      maxOccurs,
+      name,
+      targetNamespacePrefix,
+      isHidden)
+    val id = schemaSet.schemaComponentRegistry.addComponent(erd)
+    erd.schemaComponentID = id
+    erd
+  }
 
   override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 

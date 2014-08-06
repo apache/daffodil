@@ -32,7 +32,7 @@ package edu.illinois.ncsa.daffodil.exceptions
  * SOFTWARE.
  */
 
-trait ThrowsSDE extends SchemaFileLocatable {
+trait ThrowsSDE {
 
   def SDE(str: String, args: Any*): Nothing
   def SDW(str: String, args: Any*): Unit
@@ -86,15 +86,16 @@ trait ThrowsSDE extends SchemaFileLocatable {
   def schemaDefinitionErrorDueToPropertyValue(
     propertyName: String,
     propertyValue: String,
-    propertyLocation: ThrowsSDE,
+    propertyLocation: SchemaFileLocatable,
+    otherPropertyLocation: SchemaFileLocatable,
     str: String, args: Any*): Nothing = {
     //
     // only if there is more than one location to discuss, do we 
     // output that information as well.
     // 
-    if (propertyLocation.locationDescription != this.locationDescription) {
+    if (propertyLocation.locationDescription != otherPropertyLocation.locationDescription) {
       SDEButContinue(str, args: _*)
-      propertyLocation.SDE("Property %s defined as '%s'.", propertyName, propertyValue)
+      SDE("Property %s defined as '%s'.", propertyName, propertyValue)
     } else {
       SDE(str, args: _*)
     }

@@ -37,16 +37,17 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 /**
  * Used to navigate from the Infoset back to schema components relevant
  * to a part of the Infoset.
  */
-class SchemaComponentRegistry {
+class SchemaComponentRegistry(schemaFileList: Seq[String]) {
 
-  private val contextMap: ArrayBuffer[ElementBase] = ArrayBuffer.empty
-    
-  def getComponentByID(uid: Int): Option[ElementBase] = {
+  private val contextMap: ArrayBuffer[ElementRuntimeData] = ArrayBuffer.empty
+
+  def getComponentByID(uid: Int): Option[ElementRuntimeData] = {
     // TODO: why this try/catch??
     Assert.usage(uid >= 0)
     Assert.usage(uid < contextMap.length)
@@ -64,21 +65,22 @@ class SchemaComponentRegistry {
 
   def getIDByName(name: String, ns: org.jdom2.Namespace) = {
     val targetNS = NS(ns)
-    val index = contextMap.indexWhere(eb => eb.targetNamespace == targetNS && eb.name == name)
+    val index = contextMap.indexWhere(erd => {
+      erd.targetNamespace == targetNS &&
+        erd.name == name
+    })
     Assert.invariant(index >= 0)
     index
   }
 
-  def addComponent(sc: ElementBase): Int = {
-    contextMap.append(sc)
+  def addComponent(rd: ElementRuntimeData) = {
+    contextMap.append(rd)
     contextMap.length - 1
   }
 
   def getSchemas(): Option[Seq[String]] = {
     if (contextMap.size > 0) {
-      val e = contextMap(0)
-      val schemas = e.schemaDocument.schemaSet.schemas.map(s => s.fileName)
-      Some(schemas)
+      Some(schemaFileList)
     } else None
   }
 }

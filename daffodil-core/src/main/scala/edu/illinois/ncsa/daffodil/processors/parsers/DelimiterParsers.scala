@@ -115,7 +115,7 @@ abstract class DelimiterTextParser(es: Term,
   kindString: String,
   gram: Gram,
   contextArg: SchemaComponent)
-  extends PrimParser(gram, es)
+  extends PrimParser(es.runtimeData)
   with HasDelimiterText {
   val e = contextArg.asInstanceOf[Term]
   def charset: java.nio.charset.Charset

@@ -52,8 +52,10 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  */
 class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   extends SchemaComponentBase(<dp/>, pf)
-  with ImplementsThrowsSDE
   with DFDL.DataProcessor {
+
+  private val context = pf.sset
+  override def rethrowAsDiagnostic(th: Throwable) = context.rethrowAsDiagnostic(th)
 
   private var validationMode: ValidationMode.Type = ValidationMode.Off
   private var variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
@@ -63,14 +65,14 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
   def setExternalVariables(extVars: Map[String, String]): Unit = {
     val bindings = ExternalVariablesLoader.getVariables(extVars)
-    ExternalVariablesLoader.loadVariables(bindings, this, variables)
-    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
+    ExternalVariablesLoader.loadVariables(bindings, context, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
   }
   def setExternalVariables(extVars: File): Unit = {
-    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
   }
   def setExternalVariables(extVars: Seq[Binding]): Unit = {
-    variables = ExternalVariablesLoader.loadVariables(extVars, this, variables)
+    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
   }
   def getVariables = variables
 
@@ -80,8 +82,8 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     val jVersion = {
       try { System.getProperty("java.version") }
       catch {
-        case se: SecurityException => this.SDE("Attempted to read property 'java.version' failed due to a SecurityException: \n%s".format(se.getMessage()))
-        case _: Throwable => this.SDE("An invalid 'key' was passed to System.getProperty.")
+        case se: SecurityException => context.SDE("Attempted to read property 'java.version' failed due to a SecurityException: \n%s".format(se.getMessage()))
+        case _: Throwable => context.SDE("An invalid 'key' was passed to System.getProperty.")
       }
     }
     val javaVersion = """([0-9])\.([0-9])\.(.*)""".r
@@ -89,14 +91,14 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
       case javaVersion(major, minor, x) => {
 
         if (major.toInt < minMajorJVersion) {
-          this.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
+          context.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
         }
         if (minor.toInt < minMinorJVersion) {
-          this.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
+          context.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
         }
       }
       case _ => {
-        this.SDE("Failed to obtain the Java version.  You must run Java 7 (1.7) or higher.")
+        context.SDE("Failed to obtain the Java version.  You must run Java 7 (1.7) or higher.")
       }
     }
   }
@@ -111,8 +113,6 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   Assert.usage(pf.canProceed)
 
   lazy val processorFactory = pf
-
-  override lazy val fileName = processorFactory.fileName
 
   // just delegate to the PF. It has access to the SchemaSet.
   override def isError = pf.isError
@@ -160,15 +160,15 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
         val charsetEncodingName = rootElem.encoding.constantAsString
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-          rootElem,
+          rootElem.elementRuntimeData,
           jis, charsetEncodingName, lengthLimitInBits)
         PState.createInitialState(scr,
-          rootElem,
+          rootElem.elementRuntimeData,
           inStream,
           this)
       } else {
         PState.createInitialState(scr,
-          rootElem,
+          rootElem.elementRuntimeData,
           input,
           this,
           bitOffset = 0,
@@ -192,15 +192,15 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
         rootElem.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
         val charsetEncodingName = rootElem.encoding.constantAsString
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(rootElem,
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(rootElem.elementRuntimeData,
           file, charsetEncodingName, -1)
         PState.createInitialState(scr,
-          rootElem,
+          rootElem.elementRuntimeData,
           inStream,
           this)
       } else {
         PState.createInitialState(scr,
-          rootElem,
+          rootElem.elementRuntimeData,
           FileChannel.open(file.toPath),
           this,
           bitOffset = 0,
@@ -216,13 +216,12 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
 
   def parse(initialState: PState) = {
 
-    
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = parser
         val postParseState = { // Not lazy. We want to parse right now.
           try {
-            p.parse1(initialState, rootElem)
+            p.parse1(initialState, rootElem.runtimeData)
           } catch {
             // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
             // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 

@@ -43,6 +43,8 @@ import scala.xml.Text
 import scala.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
+import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
  * A factory for model groups.
@@ -85,6 +87,30 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   with OverlapCheckMixin {
 
   requiredEvaluations(groupMembers)
+
+  override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
+
+  lazy val modelGroupRuntimeData = {
+
+    val groupMembers = this match {
+      case mg: ModelGroup => mg.groupMembers.map {
+        _ match {
+          case eb: ElementBase => eb.elementRuntimeData
+          case t: Term => t.runtimeData
+        }
+      }
+      case _ => Nil
+    }
+    new ModelGroupRuntimeData(
+      lineAttribute,
+      columnAttribute,
+      fileAttribute,
+      prettyName,
+      path,
+      namespaces,
+      defaultBitOrder,
+      groupMembers)
+  }
 
   val mgID = UUID.randomUUID()
 

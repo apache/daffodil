@@ -103,7 +103,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
 
       val R(result, newVMap) = compiled.evaluate(root, new VariableMap(), dummyState)
@@ -137,7 +137,7 @@ class TestCompiledExpression {
     val root = null // won't be used.
 
     val edecl = sset.getGlobalElementDecl(example, "root").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
 
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ 42 }"
@@ -178,6 +178,9 @@ class TestCompiledExpression {
     val c = new Compiler()
 
     val (sset, pf) = c.compileInternal(testSchema)
+    assertFalse(pf.isError)
+    val dp = pf.onPath("/")
+    assertFalse(dp.isError)
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
     val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = new InfosetElement(doc.getRootElement())
@@ -188,7 +191,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
@@ -214,7 +217,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ /root/child1/tns:child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     WithParseErrorThrowing.pretendThisIsAParser { // so if we do get an error we'll see it, i.e., it won't be "you are not in parser context".
       val R(result, _) = compiled.evaluate(root, new VariableMap(), dummyState)
 
@@ -243,7 +246,7 @@ class TestCompiledExpression {
     val child2 = child1.getChild("child2", example.toJDOM)
 
     val newRoot = new InfosetElement(child2)
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     val R(result, _) = compiled.evaluate(newRoot, new VariableMap(), dummyState)
 
     assertEquals("19", result)
@@ -265,7 +268,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../../../child1/child2/child3 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
 
     val child1 = infoset.getChild("child1", example.toJDOM)
     val child2 = child1.getChild("child2", example.toJDOM)
@@ -304,7 +307,7 @@ class TestCompiledExpression {
     val ec = new ExpressionCompiler(edecl)
     val xpathString = "{ ../e1 }"
     val compiled = ec.compile(ConvertToType.String, Found(xpathString, edecl)) // as a string
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
 
     val child2 = infoset.getChild("e2", example.toJDOM)
     val newRoot = new InfosetElement(child2)
@@ -336,7 +339,7 @@ class TestCompiledExpression {
     val infoset = sset.getSCIDAugmentedInfoset(origInfoset)
 
     val edecl = sset.getGlobalElementDecl(example, "data").get.forRoot()
-    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl, "", 0, Fakes.fakeDP)
+    val dummyState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, "", 0, Fakes.fakeDP)
     val ct = edecl.typeDef.asInstanceOf[ComplexTypeBase]
     val seq = ct.modelGroup.asInstanceOf[Sequence]
     val Seq(e1, e2) = seq.groupMembers
@@ -379,7 +382,7 @@ class TestCompiledExpression {
     val ivcPrim = InputValueCalc(e2.asInstanceOf[LocalElementDecl])
 
     val d = Misc.stringToReadableByteChannel("xx") // it's not going to read from here.
-    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl, d, Fakes.fakeDP)
+    val initialState = PState.createInitialState(sset.schemaComponentRegistry, edecl.elementRuntimeData, d, Fakes.fakeDP)
     val doc = new org.jdom2.Document(infoset) // root must have a document node
     val root = doc.getRootElement()
     val child2 = root.getChild("e2", example.toJDOM)

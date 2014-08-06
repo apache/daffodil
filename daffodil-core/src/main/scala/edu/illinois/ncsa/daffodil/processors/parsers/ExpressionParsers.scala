@@ -23,26 +23,31 @@ import edu.illinois.ncsa.daffodil.processors.InputValueCalc
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
-abstract class ExpressionEvaluationParser(context: ExpressionEvaluatorBase, e: AnnotatedSchemaComponent)
-  extends Parser(e) with WithParseErrorThrowing {
+abstract class ExpressionEvaluationParser(expr: CompiledExpression, rd: RuntimeData)
+  extends Parser(rd) with WithParseErrorThrowing {
 
-  override def toBriefXML(depthLimit: Int = -1) = context.toBriefXML(depthLimit)
+  override def toBriefXML(depthLimit: Int = -1) = {
+    "<" + rd.prettyName + ">" + expr.prettyExpr + "</" + rd.prettyName + ">"
+  }
 
   def eval(start: PState) = {
     val currentElement = start.parentElement
     val R(res, newVMap) =
-      context.expr.evaluate(currentElement, start.variableMap, start)
+      expr.evaluate(currentElement, start.variableMap, start)
     // val result = res.toString // Everything in JDOM is a string!
     R(res, newVMap)
   }
 }
 
-class IVCParser(context: InputValueCalc, e: ElementBase)
-  extends ExpressionEvaluationParser(context, e) {
+class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
+  extends ExpressionEvaluationParser(expr, e) {
   Assert.invariant(e.isSimpleType)
 
   def parse(start: PState): PState =
@@ -60,8 +65,8 @@ class IVCParser(context: InputValueCalc, e: ElementBase)
     }
 }
 
-class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-  extends ExpressionEvaluationParser(context, decl) {
+class SetVariableParser(expr: CompiledExpression, decl: RuntimeData, name: String)
+  extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): PState =
     // withLoggingLevel(LogLevel.Info) 
@@ -69,40 +74,37 @@ class SetVariableParser(context: ExpressionEvaluatorBase, decl: AnnotatedSchemaC
       withParseErrorThrowing(start) {
         log(LogLevel.Debug, "This is %s", toString)
         val R(res, newVMap) = eval(start)
-        val newVMap2 = newVMap.setVariable(stmt.defv.extName, res, decl)
+        val newVMap2 = newVMap.setVariable(name, res, decl)
         val postState = start.withVariables(newVMap2)
         postState
       }
     }
 }
+
 class NewVariableInstanceStartParser(
-  stmt: DFDLNewVariableInstance,
-  gram: Gram,
-  decl: AnnotatedSchemaComponent)
-  extends PrimParser(gram, decl) {
-  stmt.notYetImplemented("newVariableInstance")
+  decl: RuntimeData)
+  extends PrimParser(decl) {
+  decl.notYetImplemented("newVariableInstance")
   def parse(pstate: PState) = {
-    stmt.notYetImplemented("newVariableInstance")
+    decl.notYetImplemented("newVariableInstance")
   }
 }
 
 class NewVariableInstanceEndParser(
-  stmt: DFDLNewVariableInstance,
-  gram: Gram,
-  decl: AnnotatedSchemaComponent)
-  extends PrimParser(gram, decl) {
-  stmt.notYetImplemented("newVariableInstance")
+  decl: RuntimeData)
+  extends PrimParser(decl) {
+  decl.notYetImplemented("newVariableInstance")
   def parse(pstate: PState) = {
-    stmt.notYetImplemented("newVariableInstance")
+    decl.notYetImplemented("newVariableInstance")
   }
 }
 
 class AssertExpressionEvaluationParser(
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
-  decl: AnnotatedSchemaComponent,
-  context: ExpressionEvaluatorBase)
-  extends ExpressionEvaluationParser(context, decl) {
+  decl: RuntimeData,
+  expr: CompiledExpression)
+  extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): PState =
     // withLoggingLevel(LogLevel.Info) 
@@ -128,10 +130,9 @@ class AssertPatternParser(
   kindString: String,
   charset: Charset,
   d: ThreadLocal[DFDLDelimParser],
-  decl: AnnotatedSchemaComponent,
-  stmt: DFDLAssert,
-  gram: Gram)
-  extends PrimParser(gram, decl)
+  decl: RuntimeData,
+  stmt: DFDLAssert)
+  extends PrimParser(decl)
   with TextReader {
 
   val testPattern = stmt.testTxt
@@ -185,10 +186,10 @@ class DiscriminatorPatternParser(
   kindString: String,
   charset: Charset,
   d: ThreadLocal[DFDLDelimParser],
-  decl: AnnotatedSchemaComponent,
+  decl: RuntimeData,
   stmt: DFDLAssertionBase,
   gram: Gram)
-  extends PrimParser(gram, decl)
+  extends PrimParser(decl)
   with TextReader {
 
   val csName = charset.name()

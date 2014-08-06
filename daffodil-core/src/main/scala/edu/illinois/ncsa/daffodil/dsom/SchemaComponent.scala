@@ -33,12 +33,16 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import scala.xml.Node
+import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.PrimitiveFactoryBase
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -68,6 +72,37 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    */
   lazy val expressionCompiler = new ExpressionCompiler(this)
 
+  override lazy val lineAttribute: Option[String] = {
+    val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
+    if (attrText.isDefined) {
+      attrText
+    } else {
+      parent.lineAttribute
+    }
+  }
+
+  override lazy val columnAttribute = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) map { _.text }
+
+  override lazy val fileAttribute: Option[String] = {
+    val optAttrNode = schemaFile.map { _.node.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) }.flatten
+    val optAttrText = optAttrNode.map { _.text }
+    optAttrText
+  }
+
+  lazy val namespaces = XMLUtils.namespaceBindings(xml.scope)
+
+  lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase
+
+  lazy val nonTermRuntimeData = {
+    new NonTermRuntimeData(
+      lineAttribute,
+      columnAttribute,
+      fileAttribute,
+      prettyName,
+      path,
+      namespaces)
+  }
+
   /*
    * Anything non-annotated always returns property not found
    * 
@@ -86,7 +121,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val schemaDocument: SchemaDocument = parent.schemaDocument
   lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
   lazy val schema: Schema = parent.schema
-  override def schemaComponent: SchemaComponent = this
+  override lazy val schemaComponent: SchemaComponent = this
   override lazy val fileName: String = parent.fileName
 
   override lazy val isHidden: Boolean = isHidden_.value
@@ -162,14 +197,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     //
     val dfdlBinding = new scala.xml.NamespaceBinding("dfdl", XMLUtils.DFDL_NAMESPACE.toString, xml.scope)
     scala.xml.Elem("dfdl", label, emptyXMLMetadata, dfdlBinding, true)
-  }
-
-  /**
-   * Needed by back-end to evaluate expressions.
-   */
-  lazy val namespaces = {
-    val res = XMLUtils.namespaceBindings(xml.scope)
-    res
   }
 
 }

@@ -62,12 +62,11 @@ import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: SchemaComponent) extends Logging with ToBriefXMLImpl {
+abstract class Parser(val context: RuntimeData) extends Logging with ToBriefXMLImpl {
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.failed(new ParseError(context, Some(pstate), s, args: _*))
@@ -78,7 +77,7 @@ abstract class Parser(val context: SchemaComponent) extends Logging with ToBrief
 
   protected def parse(pstate: PState): PState
 
-  final def parse1(pstate: PState, context: SchemaComponent): PState = {
+  final def parse1(pstate: PState, context: RuntimeData): PState = {
     Debugger.before(pstate, this)
     // 
     // Since the pstate is being overwritten (in most case) now,
@@ -106,13 +105,13 @@ abstract class Parser(val context: SchemaComponent) extends Logging with ToBrief
 // No-op, in case an optimization lets one of these sneak thru. 
 // TODO: make this fail, and test optimizer sufficiently to know these 
 // do NOT get through.
-class EmptyGramParser(context: Term = null) extends Parser(context) {
+class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
   def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
   override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
   override def toString = toBriefXML()
 }
 
-class ErrorParser(context: Term = null) extends Parser(context) {
+class ErrorParser(context: RuntimeData = null) extends Parser(context) {
   def parse(pstate: PState): PState = Assert.abort("Error Parser")
   override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Parser"
@@ -144,7 +143,7 @@ trait ToBriefXMLImpl {
   override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
-class SeqCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
+class SeqCompParser(context: RuntimeData, children: Seq[Gram])
   extends Parser(context)
   with ToBriefXMLImpl {
   Assert.invariant(!children.exists { _.isEmpty })
@@ -170,7 +169,7 @@ class SeqCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
 
 }
 
-class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
+class AltCompParser(context: RuntimeData, children: Seq[Gram])
   extends Parser(context)
   with ToBriefXMLImpl {
   Assert.invariant(!children.exists { _.isEmpty })
@@ -233,10 +232,10 @@ class AltCompParser(context: AnnotatedSchemaComponent, children: Seq[Gram])
 
 }
 
-case class DummyParser(sc: SchemaComponent) extends Parser(null) {
-  def parse(pstate: PState): PState = sc.SDE("Parser for " + sc + " is not yet implemented.")
+case class DummyParser(rd: RuntimeData) extends Parser(null) {
+  def parse(pstate: PState): PState = pstate.SDE("Parser for " + rd + " is not yet implemented.")
 
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = if (sc == null) "Dummy[null]" else "Dummy[" + sc + "]"
+  override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
 }
 

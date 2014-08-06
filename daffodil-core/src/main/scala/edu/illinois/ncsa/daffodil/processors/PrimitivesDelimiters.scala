@@ -61,9 +61,7 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: T
 
 abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
   extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
-  with DelimiterText
-  with WithParseErrorThrowing
-  with TextReader {
+  with DelimiterText {
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
@@ -231,9 +229,7 @@ trait DelimiterText {
 
 abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
   extends Text(e, e, guard)
-  with DelimiterText
-  with WithParseErrorThrowing
-  with TextReader {
+  with DelimiterText {
 
   val delimValues = new DynamicTextDelimiterValues(delimExpr, e)
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)

@@ -4,17 +4,15 @@ import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
 trait HasVariableLength { self: PrimParser =>
-  // Length is an expression
-  private lazy val eb = self.context.asInstanceOf[ElementBase]
-  val expr = eb.length
-  val exprText = expr.prettyExpr
+  def length: CompiledExpression
 
   def getLength(pstate: PState): (Long, PState) = {
-    val R(lengthAsAny, newVMap) = expr.evaluate(pstate.parentElement, pstate.variableMap, pstate)
-    val length = lengthAsAny.asInstanceOf[Long]
+    val R(lengthAsAny: Any, newVMap) = length.evaluate(pstate.parentElement, pstate.variableMap, pstate)
+    val l = lengthAsAny.asInstanceOf[Long]
     val start = pstate.withVariables(newVMap)
-    (length, start)
+    (l, start)
   }
 }

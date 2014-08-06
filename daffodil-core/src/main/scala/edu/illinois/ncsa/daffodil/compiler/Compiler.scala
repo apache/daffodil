@@ -58,11 +58,11 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
-  with ImplementsThrowsSDE
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
   requiredEvaluations(rootElem, sset)
+  override def rethrowAsDiagnostic(th: Throwable) = sset.rethrowAsDiagnostic(th)
 
   // println("Creating Processor Factory")
   lazy val rootElem = rootElem_.value
@@ -82,8 +82,6 @@ class ProcessorFactory(val sset: SchemaSet)
   }
 
   override def diagnostics = sset.diagnostics
-
-  override lazy val fileName = sset.fileName
 
   def onPath(xpath: String): DFDL.DataProcessor = {
     ExecutionMode.usingCompilerMode {
@@ -180,7 +178,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   }
 
   def setTunables(tunables: Map[String, String]): Unit = {
-    tunables.foreach { case (k,v) => setTunable(k, v) }
+    tunables.foreach { case (k, v) => setTunable(k, v) }
   }
 
   /**

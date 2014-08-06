@@ -52,15 +52,18 @@ import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 
-case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], gram: Gram, e: SchemaComponent) extends PrimParser(gram, e) {
-  override def toString = "to(xs:" + helper.GramName + ")"
+case class ConvertTextNumberParser[S](
+  helper: ConvertTextNumberParserUnparserHelperBase[S],
+  nff: NumberFormatFactoryBase[S],
+  e: ElementRuntimeData) extends PrimParser(e) {
+  override def toString = "to(xs:" + helper.xsdType + ")"
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val node = start.parentElement
     var str = node.dataValue
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
-    if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.GramDescription, helper.GramName)
+    if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.prettyType, helper.xsdType)
 
     // because of the way the zero rep regular expressions are generated, they
     // will match either all or none of 'str', never part of it. Thus,
@@ -72,19 +75,19 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
         val (newstate, df) = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
         val num = try {
-            df.get.parse(str, pos)
+          df.get.parse(str, pos)
         } catch {
           case u: UnsuppressableException => throw u
           case e: Exception =>
             return PE(newstate, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
-              helper.GramDescription, helper.GramName, str, e)
+              helper.prettyType, helper.xsdType, str, e)
         }
 
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
         if (num == null || pos.getIndex != str.length) {
           return PE(newstate, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
-            helper.GramDescription, helper.GramName, str)
+            helper.prettyType, helper.xsdType, str)
         }
 
         val asString = num match {
@@ -98,7 +101,7 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
           case _ => {
             if (helper.isInvalidRange(num)) {
               return PE(newstate, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-                helper.GramDescription, helper.GramName, str, num)
+                helper.prettyType, helper.xsdType, str, num)
             }
 
             // convert to proper type
@@ -132,14 +135,14 @@ case class ConvertTextNumberParser[S](helper: ConvertTextNumberParserUnparserHel
 /*
 case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], e: AnnotatedSchemaComponent) extends Unparser(e)
 {
-  override def toString = "to(xs:" + helper.GramName + ")"
+  override def toString = "to(xs:" + helper.xsdType + ")"
 
   // Converts data to number format, returns unparse exception if data cannot be converted to given format.
   def unparse(start: UState): UState = {
     // TODO: OK to get from infoset?
     var str = start.currentElement.getText //gets data from element being unparsed
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
-    if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", helper.GramDescription, helper.GramName)
+    if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", helper.prettyType, helper.xsdType)
 
     //make sure data can parse to appropriate type
     val df = helper.numFormat
@@ -150,18 +153,18 @@ case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserH
       case u: UnsuppressableException => throw u
       case e: Exception =>
         return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
-          helper.GramDescription, helper.GramName, str, e)
+          helper.prettyType, helper.xsdType, str, e)
     }
     if (helper.isInvalidRange(num)) {
       return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-        helper.GramDescription, helper.GramName, str, num)
+        helper.prettyType, helper.xsdType, str, num)
     }
 
     // Verify that what was unparsed was what was passed exactly in byte count.  
     // Use pos to verify all characters consumed & check for errors!
     if (pos.getIndex != str.length) {
       return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
-        helper.GramDescription, helper.GramName, str)
+        helper.prettyType, helper.xsdType, str)
     }
 
     // convert to proper type
@@ -171,7 +174,7 @@ case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserH
     if (helper.isInt && asNumber.asInstanceOf[Number] != num) {
       // Transcription error
       return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
-        helper.GramDescription, helper.GramName, str, num, asNumber)
+        helper.prettyType, helper.xsdType, str, num, asNumber)
     }
 
     // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
@@ -183,8 +186,8 @@ case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserH
 */
 
 abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) {
-  val GramName: String
-  val GramDescription: String
+  val xsdType: String
+  val prettyType: String
 
   def getNum(s: Number): S
   def isInt: Boolean
@@ -268,8 +271,8 @@ case class ConvertTextIntegerParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
 
   override def getNum(num: Number) = new BigInteger(num.toString)
-  override val GramName = "integer"
-  override val GramDescription = "Unlimited Size Integer"
+  override val xsdType = "integer"
+  override val prettyType = "Unlimited Size Integer"
   override def isInvalidRange(n: java.lang.Number): Boolean = false
   def min = -1 // ignored
   def max = -1 // ignored
@@ -279,8 +282,8 @@ case class ConvertTextNonNegativeIntegerParserUnparserHelper[S](zeroRep: List[St
   extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
 
   override def getNum(num: Number) = new BigInteger(num.toString)
-  override val GramName = "nonNegativeInteger"
-  override val GramDescription = "Unlimited Size Non Negative Integer"
+  override val xsdType = "nonNegativeInteger"
+  override val prettyType = "Unlimited Size Non Negative Integer"
   override def isInvalidRange(n: java.lang.Number): Boolean = {
     val value = BigDecimal(n.toString)
     val isNegative = value.signum == -1
@@ -295,8 +298,8 @@ case class ConvertTextLongParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep) {
 
   override def getNum(num: Number) = num.longValue
-  override val GramName = "long"
-  override val GramDescription = "Long Integer"
+  override val xsdType = "long"
+  override val prettyType = "Long Integer"
   val min = Long.MinValue
   val max = Long.MaxValue
 }
@@ -305,8 +308,8 @@ case class ConvertTextIntParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep) {
 
   override def getNum(num: Number) = num.intValue
-  override val GramName = "int"
-  override val GramDescription = "Integer"
+  override val xsdType = "int"
+  override val prettyType = "Integer"
   val min = Int.MinValue.toLong
   val max = Int.MaxValue.toLong
 }
@@ -315,8 +318,8 @@ case class ConvertTextShortParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep) {
 
   override def getNum(num: Number) = num.shortValue
-  override val GramName = "short"
-  override val GramDescription = "Short Integer"
+  override val xsdType = "short"
+  override val prettyType = "Short Integer"
   val min = Short.MinValue.toLong
   val max = Short.MaxValue.toLong
 }
@@ -325,8 +328,8 @@ case class ConvertTextByteParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Byte](zeroRep) {
 
   override def getNum(num: Number) = num.byteValue
-  override val GramName = "byte"
-  override val GramDescription = "Byte"
+  override val xsdType = "byte"
+  override val prettyType = "Byte"
   val min = Byte.MinValue.toLong
   val max = Byte.MaxValue.toLong
 }
@@ -335,8 +338,8 @@ case class ConvertTextUnsignedLongParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[BigInteger](zeroRep) {
 
   override def getNum(num: Number) = new BigInteger(num.toString)
-  override val GramName = "unsignedLong"
-  override val GramDescription = "Unsigned Long"
+  override val xsdType = "unsignedLong"
+  override val prettyType = "Unsigned Long"
   override def isInvalidRange(jn: java.lang.Number) = {
     jn match {
       case n: BigInteger => {
@@ -356,8 +359,8 @@ case class ConvertTextUnsignedIntParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Long](zeroRep) {
 
   override def getNum(num: Number) = num.longValue
-  override val GramName = "unsignedInt"
-  override val GramDescription = "Unsigned Integer"
+  override val xsdType = "unsignedInt"
+  override val prettyType = "Unsigned Integer"
   val min = 0L
   val max = (1L << 32) - 1L
 }
@@ -366,8 +369,8 @@ case class ConvertTextUnsignedShortParserUnparserHelper[S](zeroRep: List[String]
   extends ConvertTextIntegerNumberParserUnparserHelper[Int](zeroRep) {
 
   override def getNum(num: Number) = num.intValue
-  override val GramName = "unsignedShort"
-  override val GramDescription = "Unsigned Short"
+  override val xsdType = "unsignedShort"
+  override val prettyType = "Unsigned Short"
   val min = 0L
   val max = (1L << 16) - 1L
 }
@@ -376,8 +379,8 @@ case class ConvertTextUnsignedByteParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextIntegerNumberParserUnparserHelper[Short](zeroRep) {
 
   override def getNum(num: Number) = num.shortValue
-  override val GramName = "unsignedByte"
-  override val GramDescription = "Unsigned Byte"
+  override val xsdType = "unsignedByte"
+  override val prettyType = "Unsigned Byte"
   val min = 0L
   val max = (1L << 8) - 1L
 }
@@ -386,8 +389,8 @@ case class ConvertTextDecimalParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextFloatingPointNumberParserUnparserHelper[BigDecimal](zeroRep) {
 
   override def getNum(num: Number) = new java.math.BigDecimal(num.toString)
-  override val GramName = "decimal"
-  override val GramDescription = "Unlimited Size Decimal"
+  override val xsdType = "decimal"
+  override val prettyType = "Unlimited Size Decimal"
   override def isInvalidRange(n: java.lang.Number): Boolean = false
 
   override def getStringFormat(n: BigDecimal): String = {
@@ -399,8 +402,8 @@ case class ConvertTextDoubleParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextFloatingPointNumberParserUnparserHelper[Double](zeroRep) {
 
   override def getNum(num: Number) = num.doubleValue
-  override val GramName = "double"
-  override val GramDescription = "Double"
+  override val xsdType = "double"
+  override val prettyType = "Double"
   override def allowInfNaN = true
   def isInvalidRange(n: java.lang.Number): Boolean = {
     val d = n.doubleValue()
@@ -412,8 +415,8 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
   extends ConvertTextFloatingPointNumberParserUnparserHelper[Float](zeroRep) {
 
   override def getNum(num: Number) = num.floatValue
-  override val GramName = "float"
-  override val GramDescription = "Float"
+  override val xsdType = "float"
+  override val prettyType = "Float"
   override def allowInfNaN = true
   def isInvalidRange(n: java.lang.Number): Boolean = {
     val f = n.floatValue()
@@ -647,9 +650,9 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
   rounding: TextNumberRounding,
   roundingMode: Maybe[TextNumberRoundingMode],
   roundingIncrement: Maybe[Double])
-  extends NumberFormatFactoryBase[S](parserHelper) 
+  extends NumberFormatFactoryBase[S](parserHelper)
   with Dynamic {
-  
+
   val decimalSepListCached: Maybe[CachedDynamic[List[Char]]] =
     cacheConstantExpression(decimalSepExp) {
       (a: Any) => getDecimalSepList(a.asInstanceOf[String], staticContext)
@@ -822,7 +825,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
     nff
   }
 
-  def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, this, e)
+  def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
 
   def unparser: Unparser = DummyUnparser(e) //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
 }

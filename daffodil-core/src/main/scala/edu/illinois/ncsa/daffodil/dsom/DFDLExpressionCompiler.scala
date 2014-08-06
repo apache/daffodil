@@ -34,15 +34,16 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.DebugRegexParsers
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 
-class DFDLExpressionError(schemaContext: Option[SchemaComponentBase],
+class DFDLExpressionError(schemaContext: Option[SchemaFileLocatable],
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
@@ -55,10 +56,10 @@ class DFDLExpressionError(schemaContext: Option[SchemaComponentBase],
     diagnosticKind: String,
     schContextLocDescription: String,
     annContextLocDescription: String,
-    schemaContext: Option[SchemaComponentBase]): String = {
+    schemaContext: Option[SchemaFileLocatable]): String = {
 
     val res = "DFDLExpressionError " + diagnosticKind + ": " + msg +
-      "\nSchema context: " + Some(schemaContext).getOrElse("top level") + "." +
+      "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
       // TODO: should be one or the other, never(?) both
       schContextLocDescription +
       annContextLocDescription

@@ -70,9 +70,9 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
-class ParseError(sc: SchemaComponent, val pstate: Maybe[PState], kind: String, args: Any*)
+class ParseError(rd: SchemaFileLocatable, val pstate: Maybe[PState], kind: String, args: Any*)
   extends ProcessingError {
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(sc)
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(rd)
   override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
 
   def componentText: String = ""
@@ -91,7 +91,7 @@ class ParseError(sc: SchemaComponent, val pstate: Maybe[PState], kind: String, a
     }
     val res = "Parse Error: " + msg +
       componentText +
-      "\nSchema context: %s %s".format(sc, sc.locationDescription) +
+      "\nSchema context: %s %s".format(rd, rd.locationDescription) +
       pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
@@ -99,8 +99,8 @@ class ParseError(sc: SchemaComponent, val pstate: Maybe[PState], kind: String, a
   override def getMessage = toString
 }
 
-class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: Maybe[String] = Nope)
-  extends ParseError(sc, One(state), "Assertion failed. %s", msg) {
+class AssertionFailed(rd: SchemaFileLocatable, state: PState, msg: String, details: Maybe[String] = Nope)
+  extends ParseError(rd, One(state), "Assertion failed. %s", msg) {
   override def componentText: String = {
     val currentElem = state.infoset
 
@@ -112,21 +112,21 @@ class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: 
             // Complex
             val name = jdomElem.getName()
             "<" + name + ">" +
-            (jdomElem.getChildren.map { c =>
-              if (c.getChildren().size() > 0) {
-                "<" + c.getName() + ">...<" + c.getName() + ">"
-              } else {
-                XMLUtils.removeAttributes(XMLUtils.element2Elem(c)).toString()
-              }
-            }.mkString) +
-            "</" + name + ">"
+              (jdomElem.getChildren.map { c =>
+                if (c.getChildren().size() > 0) {
+                  "<" + c.getName() + ">...<" + c.getName() + ">"
+                } else {
+                  XMLUtils.removeAttributes(XMLUtils.element2Elem(c)).toString()
+                }
+              }.mkString) +
+              "</" + name + ">"
           } else {
             // Simple
             currentElem.toBriefXML.toString
           }
         }
       } else ""
-    
+
     val finalString =
       if (details.isDefined) "\nDetails: " + details.get + parsedValue
       else parsedValue
@@ -134,12 +134,12 @@ class AssertionFailed(sc: SchemaComponent, state: PState, msg: String, details: 
   }
 }
 
-class ParseAlternativeFailed(sc: SchemaComponent, state: PState, val errors: Seq[Diagnostic])
-  extends ParseError(sc, One(state), "Alternative failed. Reason(s): %s", errors)
+class ParseAlternativeFailed(rd: SchemaFileLocatable, state: PState, val errors: Seq[Diagnostic])
+  extends ParseError(rd, One(state), "Alternative failed. Reason(s): %s", errors)
 
-class AltParseFailed(sc: SchemaComponent, state: PState,
+class AltParseFailed(rd: SchemaFileLocatable, state: PState,
   diags: Seq[Diagnostic])
-  extends ParseError(sc, One(state), "All alternatives failed. Reason(s): %s", diags) {
+  extends ParseError(rd, One(state), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
@@ -182,7 +182,7 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  */
 trait WithParseErrorThrowing {
 
-  def context: SchemaComponent
+  def context: SchemaFileLocatable
 
   /**
    * Use to check for parse errors.
@@ -203,7 +203,7 @@ trait WithParseErrorThrowing {
   /**
    * Passing the context explicitly
    */
-  def PECheck(contextArg: SchemaComponent,
+  def PECheck(contextArg: SchemaFileLocatable,
     testTrueMeansOK: => Boolean,
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
@@ -216,7 +216,7 @@ trait WithParseErrorThrowing {
     PE(context, kind, args: _*)
   }
 
-  def PE(context: SchemaComponent, kind: String, args: Any*): Nothing = {
+  def PE(context: SchemaFileLocatable, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     throw new ParseError(context, Nope, kind, args: _*)
   }
@@ -268,7 +268,7 @@ trait WithParseErrorThrowing {
    *
    * No catching for this SDE throw, since SDEs are fatal.
    */
-  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaComponent, pstate: PState, kind: String, args: Any*) = {
+  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaFileLocatable, pstate: PState, kind: String, args: Any*) = {
     if (!testTrueMeansOK) {
       throw new SchemaDefinitionError(Some(context), None, kind, args: _*)
     }

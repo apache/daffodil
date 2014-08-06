@@ -49,8 +49,6 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
   extends OOLAGHost(contextArg) {
 
-  //lazy val prims = context.prims
-
   def rethrowAsDiagnostic(th: Throwable) = contextArg.rethrowAsDiagnostic(th)
 
   val context: AnnotatedSchemaComponent = contextArg
@@ -166,7 +164,7 @@ class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  def parser = new SeqCompParser(context, children)
+  def parser = new SeqCompParser(context.runtimeData, children)
   def unparser = new SeqCompUnparser(context, children)
 }
 
@@ -190,7 +188,7 @@ class AltComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   def open = "["
   def close = "]"
 
-  def parser = new AltCompParser(context, children)
+  def parser = new AltCompParser(context.runtimeData, children)
   def unparser = new AltCompUnparser(context, children)
 }
 

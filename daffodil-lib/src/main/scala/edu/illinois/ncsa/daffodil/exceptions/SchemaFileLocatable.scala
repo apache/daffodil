@@ -40,32 +40,13 @@ import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 trait SchemaFileLocatable extends LocationInSchemaFile {
-  def xml: Node
+  def lineAttribute: Option[String]
+  def columnAttribute: Option[String]
+  def fileAttribute: Option[String]
 
-  /**
-   * The purpose of this abstract member is that sometimes we
-   *  create (out of thin air) a DFDLAnnotation object where the
-   *  schema has only short-form annotations.
-   *
-   *  In that case, there will not be any file/line number information
-   *  So we want to get it off of the part of the schema the user
-   *  did write, which is the component with the short-form
-   *  annotations on it.
-   *
-   *  Hence, we have a contextLocatable for every schema locatable,
-   *  which gives a second choice of where to get file/line
-   *  location info.
-   *
-   */
-  def contextLocatable: SchemaFileLocatable
-
-  lazy val lineNumber: Option[String] = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME) match {
+  lazy val lineNumber: Option[String] = lineAttribute match {
     case Some(seqNodes) => Some(seqNodes.toString)
-    case None => {
-      if (contextLocatable != null) // could be null if errors occur during object initialization.
-        contextLocatable.lineNumber
-      else None
-    }
+    case None => None
   }
 
   lazy val lineDescription = lineNumber match {
@@ -73,7 +54,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
     case None => ""
   }
 
-  lazy val columnNumber = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) match {
+  lazy val columnNumber = columnAttribute match {
     case Some(seqNodes) => Some(seqNodes.toString)
     case None => None
   }
@@ -113,7 +94,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
   def fileName: String
 
   def fileNameFromAttribute() = {
-    xml.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) match {
+    fileAttribute match {
       case Some(seqNodes) => Some(seqNodes.toString)
       case None => None
     }

@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 /**
  * Element references and Group References use this.
  */
-trait HasRefMixin { self: SchemaComponentBase =>
+trait HasRefMixin extends GetAttributesMixin {
   // TODO: Consolidate this and the xsdRef attributes that do QName stuff
   //From GroupRef.
   private lazy val xsdRef = getAttributeRequired("ref")

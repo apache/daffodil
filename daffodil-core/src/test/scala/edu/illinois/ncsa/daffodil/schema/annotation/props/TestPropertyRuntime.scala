@@ -88,6 +88,10 @@ class TestPropertyRuntime {
     override val xml = <foo/>
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
+
+    def columnAttribute: Option[String] = ???
+    def fileAttribute: Option[String] = ???
+    def lineAttribute: Option[String] = ???
   }
 
   @Test

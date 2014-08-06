@@ -9,13 +9,14 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
 
 class FloatKnownLengthRuntimeByteOrderBinaryNumberParser(
   val bo: CompiledExpression,
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[Float](gram, e)
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[Float](e)
   with HasRuntimeExplicitByteOrder[Float]
   with HasKnownLengthInBits[Float] {
 
@@ -34,9 +35,8 @@ class FloatKnownLengthRuntimeByteOrderBinaryNumberParser(
 class DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(
   val bo: CompiledExpression,
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[Double](gram, e)
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[Double](e)
   with HasRuntimeExplicitByteOrder[Double]
   with HasKnownLengthInBits[Double] {
 
@@ -55,14 +55,14 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(
 class DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(
   val bo: CompiledExpression,
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[BigDecimal](gram, e)
+  e: ElementRuntimeData,
+  binaryDecimalVirtualPoint: Int)
+  extends BinaryNumberBaseParser[BigDecimal](e)
   with HasRuntimeExplicitByteOrder[BigDecimal]
   with HasKnownLengthInBits[BigDecimal] {
 
   final def convertValue(n: BigInt, ignored_msb: Int): BigDecimal = {
-    val res = BigDecimal(n, e.binaryDecimalVirtualPoint)
+    val res = BigDecimal(n, binaryDecimalVirtualPoint)
     res
   }
 
@@ -72,9 +72,9 @@ class DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(
 }
 class HexBinaryRuntimeLengthBinaryNumberParser(
   val lUnits: LengthUnits,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[String](gram, e)
+  override val length: CompiledExpression,
+  override val e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[String](e)
   with HasRuntimeExplicitLength[String] {
 
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
@@ -86,15 +86,12 @@ class HexBinaryRuntimeLengthBinaryNumberParser(
 
 class HexBinaryKnownLengthBinaryNumberParser(
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[String](gram, e) {
-
-  // get at compile time, not runtime.
-  val lUnits = e.lengthUnits
+  e: ElementRuntimeData,
+  lUnits: LengthUnits)
+  extends BinaryNumberBaseParser[String](e) {
 
   // binary numbers will use this conversion. Others won't.
-  lazy val toBits = lUnits match {
+  val toBits = lUnits match {
     case LengthUnits.Bits => 1
     case LengthUnits.Bytes => 8
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
@@ -117,9 +114,9 @@ class HexBinaryKnownLengthBinaryNumberParser(
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
   val bo: CompiledExpression,
   val lUnits: LengthUnits,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[T](gram, e)
+  override val length: CompiledExpression,
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[T](e)
   with HasRuntimeExplicitLength[T]
   with HasRuntimeExplicitByteOrder[T]
   with HasUnsignedNumber[T] {
@@ -128,9 +125,8 @@ class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
 class UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
   val bo: CompiledExpression,
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[T](gram, e)
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[T](e)
   with HasRuntimeExplicitByteOrder[T]
   with HasKnownLengthInBits[T]
   with HasUnsignedNumber[T] {
@@ -139,9 +135,9 @@ class UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
 class SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
   val bo: CompiledExpression,
   val lUnits: LengthUnits,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[T](gram, e)
+  override val length: CompiledExpression,
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[T](e)
   with HasRuntimeExplicitLength[T]
   with HasRuntimeExplicitByteOrder[T]
   with HasSignedNumber[T] {
@@ -150,26 +146,24 @@ class SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser[T](
 class SignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
   val bo: CompiledExpression,
   val len: Long,
-  gram: Gram,
-  e: ElementBase)
-  extends BinaryNumberBaseParser[T](gram, e)
+  e: ElementRuntimeData)
+  extends BinaryNumberBaseParser[T](e)
   with HasRuntimeExplicitByteOrder[T]
   with HasKnownLengthInBits[T]
   with HasSignedNumber[T] {
 }
 
 abstract class BinaryNumberBaseParser[T](
-  gram: Gram,
-  val e: ElementBase)
-  extends PrimParser(gram, e) {
-  val primName = e.primType.name
+  val e: ElementRuntimeData)
+  extends PrimParser(e) {
+  val primName = e.primType.get.name
   val bitOrd = e.defaultBitOrder
 
   protected def getBitLength(s: PState): (PState, Long)
   protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)
   protected def convertValue(n: BigInt, msb: Int): T
 
-  override def toString = gram.toString
+  override def toString = Misc.getNameFromClass(this) // e.prettyName
 
   def convertValueToString(n: T): String = {
     n.toString

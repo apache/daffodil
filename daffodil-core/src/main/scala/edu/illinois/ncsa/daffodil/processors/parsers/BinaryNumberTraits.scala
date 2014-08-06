@@ -6,10 +6,12 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
-  def e: ElementBase
+  def e: ElementRuntimeData
   def lUnits: LengthUnits // get at compile time, not runtime.
+  def length: CompiledExpression
 
   // binary numbers will use this conversion. Others won't.
   lazy val toBits = lUnits match {
@@ -19,13 +21,13 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
   }
 
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
+    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
   }
   def getLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
+    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
     val nBytes = nBytesAsAny.asInstanceOf[Long]
     val start = s.withVariables(newVMap)
     (start, nBytes)
@@ -33,7 +35,7 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
 }
 
 trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
-  def e: ElementBase
+  def e: ElementRuntimeData
   def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
 
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {

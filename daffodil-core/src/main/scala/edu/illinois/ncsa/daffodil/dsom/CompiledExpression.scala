@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.xml.Node
 import scala.collection.JavaConversions._
 import scala.collection.immutable.Queue
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -135,12 +136,12 @@ case class ConstantExpression[T](value: T) extends CompiledExpression(value.toSt
 case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
   xpathText: String,
   xpathExprFactory: CompiledExpressionFactory,
-  scArg: SchemaComponent)
+  rd: RuntimeData)
   extends CompiledExpression(xpathText)
   with WithParseErrorThrowing
   with TypeConversions {
 
-  lazy val context = scArg
+  override val context = rd
   def isConstant = false
   def isKnownNonEmpty = true // expressions are not allowed to return empty string
   def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
@@ -160,11 +161,18 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
   val cePathRegex = """\{(.*)\}""".r
 
+/* TODO: Reimplement this code using the new DPath compiler. DFDL-1010
+ * 
+ * This code can't work right. These checks need to be done looking at the 
+ * static context, i.e., the schema components, to determine if a path makes sense.
+ * 
   def checkForUnorderedSeqAndChoiceBranchViolations(
     expr: String, pre: InfosetElement, vmap: VariableMap, pstate: PState): VariableMap = {
 
     // We want to be able to determine if we're in a choice or unordered sequence
     var variables = vmap
+
+
 
     // The element on which the expression is situated.
     val preElementBase = pre.schemaComponent(pstate)
@@ -271,6 +279,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
 
     }
   }
+*/
 
   /**
    * For use in cases where we expect the expression to evaluate
@@ -322,7 +331,7 @@ case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
   def evaluate(pre: InfosetElement, vmap: VariableMap, pstate: PState): R = {
     val xpathResultType = toXPathType(convertTo)
 
-    var variables = checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate)
+    var variables = vmap // checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate) DFDL-1010
 
     val xpathRes = try {
         DFDLFunctions.currentPState.set(Some(pstate))
@@ -577,7 +586,7 @@ class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConver
             case ConvertToType.Boolean => new ConstantExpression(compileTimeConvertToBoolean(s))
           }
         }
-        case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl)
+        case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl.runtimeData)
       }
       compiledExpression
     }

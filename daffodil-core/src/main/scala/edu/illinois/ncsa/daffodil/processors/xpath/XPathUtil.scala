@@ -88,6 +88,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
@@ -110,6 +111,7 @@ import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.math.BigDecimal
 import edu.illinois.ncsa.daffodil.dsom.PrimitiveType
 import org.w3c.dom.NodeList
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunction {
   val qName = new QName(XMLUtils.DFDL_NAMESPACE, name)
@@ -117,14 +119,14 @@ abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunct
 
   DFDLFunctions.functionList +:= this
 
-  def getContext(pstate: PState): ElementBase = {
+  def getContext(pstate: PState): ElementRuntimeData = {
     // Assumes that a JDOM element was already created
     val currentElement = pstate.parentElement
     val res = currentElement.schemaComponent(pstate)
     res
   }
 
-  def getContext(ustate: UState): ElementBase = {
+  def getContext(ustate: UState): ElementRuntimeData = {
     Assert.notYetImplemented()
   }
 
@@ -154,7 +156,7 @@ object DFDLFunctions {
    * the DFDL functions which access the state can work.
    */
   val currentPState = new ThreadLocal[Option[PState]] {
-    override def initialValue () = None
+    override def initialValue() = None
   }
 }
 
@@ -208,7 +210,7 @@ object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
     pstate.SDE("dfdl:contentLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:contentLength for unparsing")
+    Assert.notYetImplemented("dfdl:contentLength for unparsing")
   }
 }
 
@@ -219,7 +221,7 @@ object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
     pstate.SDE("dfdl:valueLength is not valid during parsing.")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:valueLength for unparsing")
+    Assert.notYetImplemented("dfdl:valueLength for unparsing")
   }
 }
 
@@ -230,7 +232,7 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
     testBit(data, bitPos)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:testBit for unparsing")
+    Assert.notYetImplemented("dfdl:testBit for unparsing")
   }
 
   def processArgs(args: java.util.List[_], pstate: PState): (Int, Int) = {
@@ -303,7 +305,7 @@ object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
     setBits(args, pstate)
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:setBits for unparsing")
+    Assert.notYetImplemented("dfdl:setBits for unparsing")
   }
   def processValue(value: Any, pstate: PState): Boolean = {
     value match {
@@ -367,10 +369,10 @@ object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithD
 
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     val context = getContext(pstate)
-    getContext(pstate).notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
+    Assert.notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
+    Assert.notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
   }
 }
 
@@ -398,7 +400,7 @@ object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
     //      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
     //    }
     //    java.lang.Long.valueOf(occursCount)
-    getContext(ustate).notYetImplemented("dfdl:occursCount for unparsing")
+    Assert.notYetImplemented("dfdl:occursCount for unparsing")
   }
 }
 
@@ -448,15 +450,14 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     val currentElement = pstate.parentElement
     val e = pstate.getContext()
     if (!e.isSimpleType) pstate.SDE("dfdl:checkConstraints may only be called on simple types.")
-    
+
     currentElement.setCheckConstraintsRan
-    
+
     val data = currentElement.dataValue
-    val primType = e.primType
+    def primType = e.primType.get
 
     // We have an ElementBase, retrieve the constraints
-    if (e.hasPattern) {
-      val patterns = e.patternValues
+    e.patternValues.foreach { patterns =>
       if (!currentElement.isNil && patterns.size > 0) {
         val check = checkPatterns(data, patterns)
         if (!check) {
@@ -466,8 +467,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       }
     }
 
-    if (e.hasEnumeration) {
-      val enumerations = e.enumerationValues
+    e.enumerationValues.foreach { enumerations =>
       if (!currentElement.isNil && enumerations.size > 0) {
         val check = checkEnumerations(data, enumerations)
         if (!check) {
@@ -477,8 +477,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     }
 
     // Check minLength
-    if (e.hasMinLength) {
-      val minLength = e.minLength
+    e.minLength.foreach { minLength =>
       val isMinLengthGreaterThanEqToZero = minLength.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isMinLengthGreaterThanEqToZero) {
         if (!checkMinLength(data, minLength, e, primType))
@@ -486,8 +485,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       }
     }
     // Check maxLength
-    if (e.hasMaxLength) {
-      val maxLength = e.maxLength
+    e.maxLength.foreach { maxLength =>
       val isMaxLengthGreaterThanEqToZero = maxLength.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isMaxLengthGreaterThanEqToZero) {
         if (!checkMaxLength(data, maxLength, e, primType))
@@ -495,40 +493,35 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       }
     }
     // Check minInclusive
-    if (e.hasMinInclusive) {
-      val minInclusive = e.minInclusive
+    e.minInclusive.foreach { minInclusive =>
       if (!currentElement.isNil) {
         if (!checkMinInc(data, minInclusive, primType, e))
           return Left("facet minInclusive (%s)".format(minInclusive))
       }
     }
     // Check maxInclusive
-    if (e.hasMaxInclusive) {
-      val maxInclusive = e.maxInclusive
+    e.maxInclusive.foreach { maxInclusive =>
       if (!currentElement.isNil) {
         if (!checkMaxInc(data, maxInclusive, primType, e))
           return Left("facet maxInclusive (%s)".format(maxInclusive))
       }
     }
     // Check minExclusive
-    if (e.hasMinExclusive) {
-      val minExclusive = e.minExclusive
+    e.minExclusive.foreach { minExclusive =>
       if (!currentElement.isNil) {
         if (!checkMinExc(data, minExclusive, primType, e))
           return Left("facet minExclusive (%s)".format(minExclusive))
       }
     }
     // Check maxExclusive
-    if (e.hasMaxExclusive) {
-      val maxExclusive = e.maxExclusive
+    e.maxExclusive.foreach { maxExclusive =>
       if (!currentElement.isNil) {
         if (!checkMaxExc(data, maxExclusive, primType, e))
           return Left("facet maxExclusive (%s)".format(maxExclusive))
       }
     }
     // Check totalDigits
-    if (e.hasTotalDigits) {
-      val totalDigits = e.totalDigits
+    e.totalDigits.foreach { totalDigits =>
       val isTotalDigitsGreaterThanEqToZero = totalDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isTotalDigitsGreaterThanEqToZero) {
         if (!checkTotalDigits(data, totalDigits))
@@ -536,8 +529,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
       }
     }
     // Check fractionDigits
-    if (e.hasFractionDigits) {
-      val fractionDigits = e.fractionDigits
+    e.fractionDigits.foreach { fractionDigits =>
       val isFractionDigitsGreaterThanEqToZero = fractionDigits.compareTo(java.math.BigDecimal.ZERO) >= 0
       if (!currentElement.isNil && isFractionDigitsGreaterThanEqToZero) {
         if (!checkFractionDigits(data, fractionDigits))
@@ -550,7 +542,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType.Type): java.lang.Boolean = {
+    e: ElementRuntimeData, primType: PrimType.Type): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -572,7 +564,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-    e: ElementBase, primType: PrimType.Type): java.lang.Boolean = {
+    e: ElementRuntimeData, primType: PrimType.Type): java.lang.Boolean = {
     primType match {
       case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
@@ -595,7 +587,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   // TODO: Duplication of dateToBigDecimal in Types.scala, throw in a library?
-  def dateToBigDecimal(date: String, format: String, eb: ElementBase): java.math.BigDecimal = {
+  def dateToBigDecimal(date: String, format: String, eb: ElementRuntimeData): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
     df.setTimeZone(TimeZone.GMT_ZONE)
@@ -608,7 +600,7 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
   }
 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
-  def convertDataToBigDecimal(data: String, primType: PrimType.Type, e: ElementBase): java.math.BigDecimal = {
+  def convertDataToBigDecimal(data: String, primType: PrimType.Type, e: ElementRuntimeData): java.math.BigDecimal = {
     primType match {
       case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
       case PrimType.Date => dateToBigDecimal(data, "uuuu-MM-ddxxx", e)
@@ -617,26 +609,26 @@ object DFDLCheckConstraintsFunction extends DFDLFunction("checkConstraints", 1) 
     }
   }
 
-  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
+  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementRuntimeData): Boolean = {
     //    val bdData = new java.math.BigDecimal(data)
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
     isDataGreaterThanEqToMinInc
   }
 
-  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
+  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinExc = bdData.compareTo(minValue) > 0
     isDataGreaterThanEqToMinExc
   }
 
-  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
+  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanEqToMaxInc = bdData.compareTo(maxValue) <= 0
     isDataLessThanEqToMaxInc
   }
 
-  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementBase): Boolean = {
+  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType.Type, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanMaxExc = bdData.compareTo(maxValue) < 0
     isDataLessThanMaxExc
@@ -747,7 +739,8 @@ object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFr
     res
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:stringLiteralFromString for unparsing")
+    ???
+    // getContext(ustate).notYetImplemented("dfdl:stringLiteralFromString for unparsing")
   }
 
   def constructLiteral(s: String) = {
@@ -812,7 +805,8 @@ object DFDLContainsEntityFunction extends DFDLFunction("containsEntity", 1) {
     res
   }
   def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    getContext(ustate).notYetImplemented("dfdl:containsEntity for unparsing")
+    ???
+    // getContext(ustate).notYetImplemented("dfdl:containsEntity for unparsing")
   }
 
   def containsEntity(s: String): java.lang.Boolean = {
@@ -862,7 +856,7 @@ object XPathUtil extends Logging {
    */
   def compileExpression(dfdlExpressionRaw: String,
     namespaces: Seq[org.jdom2.Namespace],
-    context: SchemaComponent) =
+    context: ThrowsSDE) =
     // withLoggingLevel(LogLevel.Info) 
     {
       log(LogLevel.Debug, "Compiling expression")

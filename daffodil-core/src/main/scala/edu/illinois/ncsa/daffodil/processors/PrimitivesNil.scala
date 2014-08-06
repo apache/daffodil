@@ -62,8 +62,11 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     d: ThreadLocal[DFDLDelimParser],
-    this,
-    e: ElementBase)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.name,
+    e.length,
+    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
 }
 
@@ -79,8 +82,10 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
     justificationTrim: TextJustificationType.Type,
     lengthInBytes: Long,
     d: ThreadLocal[DFDLDelimParser],
-    this,
-    e: ElementBase)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.name,
+    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
 }
 
@@ -129,8 +134,11 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     d: ThreadLocal[DFDLDelimParser],
-    this,
-    e: ElementBase)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.name,
+    e.length,
+    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
   override def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
@@ -159,8 +167,11 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
     justificationTrim: TextJustificationType.Type,
     nUnits: Long,
     d: ThreadLocal[DFDLDelimParser],
-    this,
-    e: ElementBase)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.name,
+    e.lengthPattern,
+    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
   override def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
@@ -185,8 +196,11 @@ case class LiteralNilPattern(e: ElementBase)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     d: ThreadLocal[DFDLDelimParser],
-    this,
-    e: ElementBase)
+    e.elementRuntimeData,
+    e.knownEncodingCharset,
+    e.lengthPattern,
+    e.name,
+    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
   override def unparser: Unparser = new Unparser(e) {
     def unparse(start: UState): UState = {
