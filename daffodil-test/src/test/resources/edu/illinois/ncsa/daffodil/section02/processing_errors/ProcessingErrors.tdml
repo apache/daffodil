@@ -63,7 +63,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" textBidi="no" floating="no" encoding="utf-8"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
-      fillByte="f" occursCountKind="implicit"
+      fillByte="f" occursCountKind="implicit" lengthUnits="characters"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
@@ -73,8 +73,8 @@
     <xs:element name="seq01">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
-          <xs:element name="e2" dfdl:lengthKind="delimited" type="xs:int"/>
+          <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" minOccurs="1"/>
+          <xs:element name="e2" dfdl:lengthKind="delimited" type="xs:int" minOccurs="1"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
