@@ -2322,4 +2322,54 @@ jonesington,david,frederick,1986-02-19
     <tdml:warning>The xs:appinfo source attribute value 'http://www.ogf.org/dfdl/dfdl-1.0/' should be 'http://www.ogf.org/dfdl/'.</tdml:warning>
     </tdml:warnings-->
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: schemaNoGlobalElems_01
+    Schema: multi_base_20.dfdl.xsd
+    Root: base
+    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+  -->
+
+  <tdml:parserTestCase name="schemaNoGlobalElems_01"
+    root="base" model="multi_base_20.dfdl.xsd" description="">
+    <tdml:document>RED,ORANGE,BLUE</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base>
+          <acolor>RED</acolor>
+          <acolor>ORANGE</acolor>
+          <acolor>BLUE</acolor>
+        </base>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: schemaNoGlobalElems_02
+    Schema: multi_base_20.dfdl.xsd
+    Root: base2
+    Purpose: This test demonstrates that you can have a schema with no global elements (only contains items that are referenced) 
+  -->
+
+  <tdml:parserTestCase name="schemaNoGlobalElems_02"
+    root="base2" model="multi_base_20.dfdl.xsd" description="">
+    <tdml:document>one,two,three/four,five,six</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <base2>
+          <seq>
+            <elem>one</elem>
+            <elem>two</elem>
+            <elem>three</elem>
+          </seq>
+          <seq>
+            <elem>four</elem>
+            <elem>five</elem>
+            <elem>six</elem>
+          </seq>
+        </base2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </testSuite>

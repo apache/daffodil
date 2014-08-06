@@ -53,6 +53,9 @@ class TestNamespaces {
   val aa = testDir + "namespaces.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = false)
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false, validateDFDLSchemas = false)
+  
+  @Test def test_schemaNoGlobalElems_01() { runner.runOneTest("schemaNoGlobalElems_01") }
+  @Test def test_schemaNoGlobalElems_02() { runner.runOneTest("schemaNoGlobalElems_02") }
 
   @Test def test_schemaSameDir_01() { runner.runOneTest("schemaSameDir_01") }
   @Test def test_schemaSameDir_02() { runner.runOneTest("schemaSameDir_02") }
