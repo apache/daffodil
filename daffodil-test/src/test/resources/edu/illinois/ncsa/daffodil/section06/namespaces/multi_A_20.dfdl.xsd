@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:base="http://baseSchema.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://a20.com" xmlns:a20="http://a20.com">
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="base:daffodilTest1" separator="'" alignment="implicit" alignmentUnits="bits" trailingSkip="0" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" ignoreCase="no" representation="text" textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+
+   <xs:complexType name="simpleSeq">
+     <xs:sequence dfdl:separator=",">
+       <xs:element name="elem" type="xs:string" maxOccurs="4" />   
+     </xs:sequence>
+   </xs:complexType>
+ 
+  <xs:simpleType name="color">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RED"/> 
+      <xs:enumeration value="ORANGE"/> 
+      <xs:enumeration value="YELLOW"/> 
+      <xs:enumeration value="GREEN"/> 
+      <xs:enumeration value="BLUE"/> 
+      <xs:enumeration value="VIOLET"/> 
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
