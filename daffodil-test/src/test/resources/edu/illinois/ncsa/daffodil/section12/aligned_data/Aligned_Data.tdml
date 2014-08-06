@@ -515,6 +515,29 @@
 
   </tdml:defineSchema>
   
+  <tdml:defineSchema name="alignmentBitOrder">
+      <dfdl:format ref="ex:daffodilTest1" lengthUnits='bits' representation='binary'
+      binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'/>
+
+    <xs:element name="least" dfdl:lengthKind='implicit' >
+      <xs:complexType >
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="2" dfdl:alignment='8' dfdl:bitOrder='leastSignificantBitFirst'/>
+          <xs:element name="B" type="xs:int" dfdl:length="4" dfdl:alignment='4' dfdl:bitOrder='leastSignificantBitFirst'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="most" dfdl:lengthKind='implicit' >
+      <xs:complexType >
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="2" dfdl:alignment='8' dfdl:bitOrder='mostSignificantBitFirst'/>
+          <xs:element name="B" type="xs:int" dfdl:length="4" dfdl:alignment='4' dfdl:bitOrder='mostSignificantBitFirst'/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
   <!--
      Test Name: impAlignmentHexBinary
         Schema: implicitAlignmentSchema
@@ -3310,6 +3333,50 @@
       <tdml:error>lengthKind</tdml:error>
       <tdml:error>delimited</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: alignmentLSBFirst
+        Schema: alignmentBitOrder
+          Root: least
+       Purpose: This test shows alignment with the bit order of 'leastSignificantBitFirst'.
+  -->
+  <tdml:parserTestCase name="alignmentLSBFirst"
+    root="least" model="alignmentBitOrder" description="Tests alignment with the bit order of 'leastSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01010001</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <least>
+          <A>1</A>
+          <B>5</B>
+        </least>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: alignmentMSBFirst
+        Schema: alignmentBitOrder
+          Root: most
+       Purpose: This test shows alignment with the bit order of 'mostSignificantBitFirst'.
+  -->
+  <tdml:parserTestCase name="alignmentMSBFirst"
+    root="most" model="alignmentBitOrder" description="Tests alignment with the bit order of 'mostSignificantBitFirst'">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01000101</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <most>
+          <A>1</A>
+          <B>5</B>
+        </most>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

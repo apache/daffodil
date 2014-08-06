@@ -235,4 +235,51 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="s4">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes"
+      lengthKind='explicit' alignmentUnits='bytes' alignment='1' binaryNumberRep='binary' />
+
+      <xs:element name="littleLeast" type="xs:hexBinary" dfdl:byteOrder="littleEndian"
+        dfdl:representation="binary" dfdl:bitOrder='leastSignificantBitFirst' dfdl:length="3"/>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: littleEndianLeastFirstLTR
+        Schema: s4
+          Root: littleLeast
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes left to right.
+  -->
+ <tdml:parserTestCase name="littleEndianLeastFirstLTR" root="littleLeast" model="s4"
+    description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes left to right">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="LTR">01011010 10010010 00000000</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <littleLeast>5A9200</littleLeast>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: littleEndianLeastFirstRTL
+        Schema: s4
+          Root: littleLeast
+       Purpose: This test shows the bit order of 'leastSignificantBitFirst' with a byteOrder of 'littleEndian' with bytes right to left.
+  -->
+ <tdml:parserTestCase name="littleEndianLeastFirstRTL" root="littleLeast" model="s4"
+    description="Tests the bit order of 'leastSignificantBitFirst' with byteOrder of 'littleEndian' with bytes right to left">
+    <document bitOrder="LSBFirst" xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" byteOrder="RTL">01011010 10010010 00000000</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <littleLeast>00925A</littleLeast>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

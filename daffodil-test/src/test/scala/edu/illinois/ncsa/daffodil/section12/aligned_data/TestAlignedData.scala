@@ -187,6 +187,9 @@ class TestAlignedData {
   @Test def test_implicitAlignmentDecimal() = { runner1.runOneTest("implicitAlignmentDecimal") }
   @Test def test_implicitAlignmentDecimal2() = { runner1.runOneTest("implicitAlignmentDecimal2") }
 
+  @Test def test_alignmentLSBFirst() = { runner1.runOneTest("alignmentLSBFirst") }
+  @Test def test_alignmentMSBFirst() = { runner1.runOneTest("alignmentMSBFirst") }
+
   val tdml2 = testDir_01 + "BinaryInput_01.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
