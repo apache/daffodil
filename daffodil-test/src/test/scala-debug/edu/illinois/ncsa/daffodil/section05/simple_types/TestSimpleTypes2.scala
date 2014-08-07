@@ -91,4 +91,8 @@ class TestSimpleTypes2 {
   val cc = testDir + "BitOrder.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
   @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
+  
+  val dd = testDir + "BitOrderInvalid.tdml"
+  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(dd))
+  @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
 }

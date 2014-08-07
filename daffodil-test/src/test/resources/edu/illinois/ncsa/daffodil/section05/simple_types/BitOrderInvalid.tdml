@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="BitOrder"
+  description="new property bitOrder='leastSignificantBitFirst'" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  xmlns:tns="http://example.com">
+
+  <tdml:defineSchema name="s2">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" />
+          <xs:element name="C" type="xs:int" dfdl:length="4" />
+          <xs:element name="D" type="xs:int" dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: bitOrderChangeInvalid
+        Schema: s2
+          Root: leastFirst
+       Purpose: This test changes bitOrder when not on a byte boundary and should produce an error.
+-->
+ <tdml:parserTestCase name="bitOrderChangeInvalid"
+    root="leastFirst" model="s2" description="Tests changing bitOrder when not on a byte boundary and should produce an error.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" bitOrder="LSBFirst" >01001</documentPart>
+      <documentPart type="bits" bitOrder="MSBFirst" >011 01010100</documentPart>
+    </document>
+    <tdml:errors>
+      <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
+</tdml:testSuite>
