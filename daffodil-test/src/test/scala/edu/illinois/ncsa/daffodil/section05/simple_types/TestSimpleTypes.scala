@@ -476,4 +476,5 @@ class TestSimpleTypes {
   @Test def test_mostSignificantBitFirst() { runner1.runOneTest("mostSignificantBitFirst") }
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
+  @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
 }

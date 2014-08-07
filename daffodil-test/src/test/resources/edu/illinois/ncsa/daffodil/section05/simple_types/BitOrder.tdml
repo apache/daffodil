@@ -143,6 +143,17 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="switchOrder" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:bitOrder="leastSignificantBitFirst" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" dfdl:bitOrder="mostSignificantBitFirst" />
+          <xs:element name="C" type="xs:int" dfdl:length="4" dfdl:bitOrder="leastSignificantBitFirst" />
+          <xs:element name="D" type="xs:int" dfdl:length="2" dfdl:bitOrder="leastSignificantBitFirst" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -305,6 +316,132 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error></tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderChangeInvalid2
+        Schema: s2
+          Root: switchOrder
+       Purpose: This test changes bitOrder when not on a byte boundary and should produce an error.
+-->
+ <tdml:parserTestCase name="bitOrderChangeInvalid2"
+    root="switchOrder" model="s2" description="Tests changing bitOrder when not on a byte boundary and should produce an error.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" >01001|011 01|0101|00</documentPart>
+    </document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>bitOrder cannot be changed unless the data is aligned at a byte boundary</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:defineSchema name="s6">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary"
+      lengthUnits="bits" lengthKind='explicit'
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+
+    <xs:element name="noBitOrder" dfdl:lengthKind='implicit'>
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:unsignedInt" dfdl:length="3" />
+          <xs:element name="B" type="xs:unsignedInt" dfdl:length="5" />
+          <xs:element name="C" type="xs:unsignedInt" dfdl:length="6" />
+          <xs:element name="D" type="xs:unsignedInt" dfdl:length="2" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: bitOrderDocument
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test specifies the bitOrder in the document.
+-->
+ <tdml:parserTestCase name="bitOrderDocument"
+    root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+      <documentPart type="bits" >01001|011 00|010101</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <noBitOrder>
+          <A>3</A>
+          <B>9</B>
+          <C>21</C>
+          <D>0</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderChange
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test changes bitOrder when on a byte boundary.
+-->
+ <tdml:parserTestCase name="bitOrderChange"
+    root="noBitOrder" model="s6" description="Tests changing bitOrder when on a byte boundary.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+      <documentPart type="bits" bitOrder="LSBFirst" >01001|011</documentPart>
+      <documentPart type="bits" bitOrder="MSBFirst" >010101|00</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <noBitOrder>
+          <A>3</A>
+          <B>9</B>
+          <C>21</C>
+          <D>0</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderTypeByte
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test specifies the bitOrder in the document when the type is 'byte'.
+-->
+ <tdml:parserTestCase name="bitOrderTypeByte"
+    root="noBitOrder" model="s6" description="Tests specifying the bitOrder on the document when the type is 'byte'.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" bitOrder="LSBFirst">
+      <documentPart type="byte" >C6 A2</documentPart>
+    </document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://example.com">
+        <noBitOrder>
+          <A>6</A>
+          <B>24</B>
+          <C>34</C>
+          <D>2</D>
+        </noBitOrder>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: bitOrderChangeInvalid3
+        Schema: s6
+          Root: noBitOrder
+       Purpose: This test changes bitOrder when on a byte boundary but doesn't have bitOrder on the document element.
+-->
+ <tdml:parserTestCase name="bitOrderChangeInvalid3"
+    root="noBitOrder" model="s6" description="Changes bitOrder but doesn't have bitOrder on the document element.">
+    <document xmlns="http://www.ibm.com/xmlns/dfdl/testData" >
+      <documentPart type="bits" bitOrder="LSBFirst">01001|011</documentPart>
+      <documentPart type="bits" bitOrder="MSBFirst">010101|00</documentPart>
+    </document>
+    <tdml:errors>
+      <tdml:error>Error</tdml:error>
+      <tdml:error>Must specify bitOrder on document element when parts have a mixture of bit orders</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
