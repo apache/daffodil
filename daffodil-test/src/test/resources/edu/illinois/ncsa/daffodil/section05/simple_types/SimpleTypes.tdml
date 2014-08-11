@@ -502,37 +502,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidUnsignedInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uI_03
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedInt"
     root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <uI_03>999</uI_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidUnsignedInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uI_03
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedInt"
     root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <uI_03>999</uI_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidUnsignedInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uI_03
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidUnsignedInt"
     root="uI_03" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid unsigned int - DFDL-5-018R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <uI_03>999</uI_03>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- int int05 length 4 -->
@@ -573,37 +588,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: int05
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidInt"
     root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid int - DFDL-5-013R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <int05>999</int05>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: int05
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidInt"
     root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid int - DFDL-5-013R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <int05>999</int05>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidInt
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: int05
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidInt"
     root="int05" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid int - DFDL-5-013R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <int05>999</int05>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- integer integer02 length 4 -->
@@ -644,37 +674,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidInteger
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: integer02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidInteger"
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <integer02>999</integer02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidInteger
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: integer02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidInteger"
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <integer02>999</integer02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidInteger
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: integer02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidInteger"
     root="integer02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid integer - DFDL-5-011R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <integer02>999</integer02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 
@@ -716,37 +761,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: l_4
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidLong"
     root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid long - DFDL-5-012R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <integer02>999</integer02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: l_4
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidLong"
     root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid long - DFDL-5-012R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <l_4>999</l_4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: l_4
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidLong"
     root="l_4" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid long - DFDL-5-012R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <l_4>999</l_4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- short s_1 length 5 -->
@@ -787,37 +847,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: s_1
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidShort"
     root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid short - DFDL-5-014R">
     <tdml:document><![CDATA[9999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <s_1>9999</s_1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: s_1
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidShort"
     root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid short - DFDL-5-014R">
     <tdml:document><![CDATA[ 9999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <s_1>9999</s_1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: s_1
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidShort"
     root="s_1" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid short - DFDL-5-014R">
     <tdml:document><![CDATA[99 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-       <s_1>9999</s_1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!-- byte b_01 length 4 -->
@@ -858,37 +933,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: b_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidByte"
     root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid byte - DFDL-5-015R">
     <tdml:document><![CDATA[127 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <b_01>127</b_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: b_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidByte"
     root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid byte - DFDL-5-015R">
     <tdml:document><![CDATA[ 127]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <b_01>127</b_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: b_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidByte"
     root="b_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid byte - DFDL-5-015R">
     <tdml:document><![CDATA[12 7]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <b_01>127</b_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -945,37 +1035,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidUnsignedLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uL_04
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace if padding is not set up
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedLong"
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uL_04>999</uL_04>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidUnsignedLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uL_04
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace if padding is not set up
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedLong"
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uL_04>999</uL_04>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidUnsignedLong
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uL_04
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidUnsignedLong"
     root="uL_04" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid unsigned long - DFDL-5-017R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uL_04>999</uL_04>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -1032,37 +1137,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidUnsignedShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uS_02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace unless padding is configured
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedShort"
     root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[999 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uS_02>999</uS_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidUnsignedShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uS_02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace unless padding is configured
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedShort"
     root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[ 999]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uS_02>999</uS_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidUnsignedShort
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uS_02
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidUnsignedShort"
     root="uS_02" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid unsigned short - DFDL-5-019R">
     <tdml:document><![CDATA[9 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uS_02>999</uS_02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -1119,37 +1239,52 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+     Test Name: whiteSpaceAfterValidUnsignedByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uB_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with trailing whitespace unless padding is configured
+-->
+
   <tdml:parserTestCase name="whiteSpaceAfterValidUnsignedByte"
     root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character after a valid Unsigned byte - DFDL-5-020R">
     <tdml:document><![CDATA[99 ]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uB_01>99</uB_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceBeforeValidUnsignedByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uB_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with leading whitespace unless padding is configured
+-->
 
   <tdml:parserTestCase name="whiteSpaceBeforeValidUnsignedByte"
     root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character before a valid Unsigned byte - DFDL-5-020R">
     <tdml:document><![CDATA[ 99]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uB_01>99</uB_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: whiteSpaceDuringValidUnsignedByte
+        Schema: SimpleTypes-Embedded.dfdl.xsd
+          Root: uB_01
+       Purpose: This test demonstrates that you should not be able to parse numeric data with whitespace
+-->
 
   <tdml:parserTestCase name="whiteSpaceDuringValidUnsignedByte"
     root="uB_01" model="SimpleTypes-Embedded.dfdl.xsd"
     description="Test parsing when encountering a whitespace character during a valid unsigned byte - DFDL-5-020R">
     <tdml:document><![CDATA[9 9]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <uB_01>99</uB_01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="unsignedShort_01" root="uS_01"
