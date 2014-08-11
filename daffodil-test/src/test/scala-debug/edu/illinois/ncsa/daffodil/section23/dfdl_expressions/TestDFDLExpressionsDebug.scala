@@ -87,8 +87,5 @@ class TestDFDLExpressionsDebug {
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
-  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
-  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
-
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }

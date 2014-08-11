@@ -57,7 +57,7 @@ class TestDFDLExpressions {
   @Test def test_variableRefError { runner4.runOneTest("variableRefError") }
 
   @Test def test_byteOrderExpr1 { runner4.runOneTest("byteOrderExpr1") }
-  //  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
+  @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
   @Test def test_byteOrderExpr2 { runner4.runOneTest("byteOrderExpr2") }
   @Test def test_byteOrderExpr3 { runner4.runOneTest("byteOrderExpr3") }
   @Test def test_byteOrderExpr4 { runner4.runOneTest("byteOrderExpr4") }
@@ -67,7 +67,7 @@ class TestDFDLExpressions {
   @Test def test_byteOrderExpr7b { runner4.runOneTest("byteOrderExpr7b") }
   @Test def test_byteOrderExpr7c { runner4.runOneTest("byteOrderExpr7c") }
   @Test def test_byteOrderExpr8 { runner4.runOneTest("byteOrderExpr8") }
-  //  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
+  @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
 
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
