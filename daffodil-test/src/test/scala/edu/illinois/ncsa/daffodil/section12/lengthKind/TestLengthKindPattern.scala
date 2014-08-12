@@ -54,10 +54,8 @@ class TestLengthKindPattern {
 
   @Test def test_AI000_rev() { runner.runOneTest("AI000_rev") }
   @Test def test_LengthKindPattern() { runner.runOneTest("LengthKindPattern") }
-  //DFDL-744
-  //@Test def testLengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
-  //DFDL-745
-  //@Test def testLengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
+  @Test def test_LengthKindPatternCompound() { runner.runOneTest("LengthKindPatternCompound") }
+  @Test def test_LengthKindPatternCompound2() { runner.runOneTest("LengthKindPatternCompound2") }
   @Test def test_lengthKindPattern_01() { runner.runOneTest("lengthKindPattern_01") }
   @Test def test_lengthKindPattern_02() { runner.runOneTest("lengthKindPattern_02") }
   @Test def test_lengthKindPattern_03() { runner.runOneTest("lengthKindPattern_03") }

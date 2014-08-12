@@ -437,14 +437,14 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <abc>
+        <abc2>
           <nul>0</nul>
           <ab>
             <name>aaa</name>
             <item>bb//</item>
           </ab>
           <c>5</c>
-        </abc>
+        </abc2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
