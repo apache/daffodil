@@ -94,7 +94,8 @@ class TestDFDLExpressions {
   @Test def test_ArrayOptElem_01() { runner.runOneTest("ArrayOptElem_01") }
   @Test def test_lke2_rel() { runner.runOneTest("lke2_rel") }
   @Test def test_expression_type_error1() { runner.runOneTest("expression_type_error1") }
-  @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
+  // DFDL-1044
+  // @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
   @Test def test_expression_type_error3() { runner.runOneTest("expression_type_error3") }
   @Test def test_expression_type_error4() { runner.runOneTest("expression_type_error4") }
   @Test def test_expression_unknown_prefix() { runner.runOneTest("expression_unknown_prefix") }
@@ -111,9 +112,12 @@ class TestDFDLExpressions {
 
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
-  @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
-  @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
-  @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
+  // Tests incorrect see JIRA DFDL-1035
+  // @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  // @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
+
+  // DFDL-1043
+  // @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
 
   @Test def test_nonFunctionIsDetected() = { runner.runOneTest("nonFunctionIsDetected") }
   @Test def test_constantFunction1() { runner.runOneTest("constantFunction1") }
@@ -140,7 +144,10 @@ class TestDFDLExpressions {
   @Test def test_invalid_enum_2() { runner.runOneTest("invalid_enum_2") }
   @Test def test_invalid_enum_3() { runner.runOneTest("invalid_enum_3") }
 
-  @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
+  // Test removed including TDML for it. DPath no longer will even execution expressions that have
+  // type errors, and type errors at runtime cause SDE so you can't if-then-else them into 
+  // some usable thing.
+  // @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
   @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
 
 /////////////////////// FUNCTIONS ///////////////////////////
@@ -425,23 +432,23 @@ class TestDFDLExpressions {
   @Test def test_hexBinary_constructor_04() { runner2.runOneTest("hexBinary_constructor_04") }
 
   // DFDL-827
-  //  @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
+  @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_time_constructor_02() { runner2.runOneTest("time_constructor_02") }
   @Test def test_time_constructor_03() { runner2.runOneTest("time_constructor_03") }
   @Test def test_time_constructor_04() { runner2.runOneTest("time_constructor_04") }
 
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
   // DFDL-827
-  //  @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
+  @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
   @Test def test_date_constructor_03() { runner2.runOneTest("date_constructor_03") }
   // DFDL-827
-  //  @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
+  @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
 
   // DFDL-827
-  //  @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
+  @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
   // DFDL-827
-  //  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
+  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
   @Test def test_xsDateTime_constructor_04() { runner2.runOneTest("xsDateTime_constructor_04") }
   @Test def test_xsDateTime_constructor_05() { runner2.runOneTest("xsDateTime_constructor_05") }
 
@@ -495,10 +502,11 @@ class TestDFDLExpressions {
   @Test def test_int_constructor_04() { runner2.runOneTest("int_constructor_04") }
 
   //  DFDL-727  
-  //  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
-  //  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
+  @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
+  @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
   //  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
   @Test def test_fnDateTime_constructor_04() { runner2.runOneTest("fnDateTime_constructor_04") }
+  @Test def test_fnDateTime_constructor_05() { runner2.runOneTest("fnDateTime_constructor_05") }
 
   @Test def test_integer_constructor_01() { runner2.runOneTest("integer_constructor_01") }
   @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }

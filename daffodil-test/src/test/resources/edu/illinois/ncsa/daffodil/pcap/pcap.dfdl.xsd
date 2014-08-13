@@ -142,7 +142,7 @@ The message root is 'pcap'.
                     <xs:sequence>
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/">
-                          <dfdl:assert message="PCAP version must be 2.4" test="{ (xs:unsignedInt(./pcap:Major) eq 2) and (xs:unsignedInt(./pcap:Minor) eq 4) }" />
+                          <dfdl:assert message="PCAP version must be 2.4" test="{ (xs:unsignedInt(./Major) eq 2) and (xs:unsignedInt(./Minor) eq 4) }" />
                         </xs:appinfo>
                       </xs:annotation>
                     </xs:sequence>
@@ -170,7 +170,7 @@ The message root is 'pcap'.
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
-              <xs:element ref="pcap:LinkLayer" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="{ ../pcap:PacketHeader/pcap:InclLen }"/>
+              <xs:element ref="pcap:LinkLayer" dfdl:lengthUnits="bytes" dfdl:lengthKind="explicit" dfdl:length="{ ../PacketHeader/InclLen }"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -194,7 +194,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Link layer type is not Ethernet" test="{ xs:unsignedInt(../../../pcap:PCAPHeader/pcap:Network) eq 1 }" />
+            <dfdl:discriminator message="Link layer type is not Ethernet" test="{ xs:unsignedInt(../../../PCAPHeader/Network) eq 1 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name="MACDest" type="pcap:hexByte" dfdl:length="6" />
@@ -238,7 +238,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Ethertype is not IPv4" test="{ xs:unsignedInt(../../pcap:Ethertype) eq 2048 }" />
+            <dfdl:discriminator message="Ethertype is not IPv4" test="{ xs:unsignedInt(../../Ethertype) eq 2048 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name='IPv4Header'>
@@ -256,17 +256,17 @@ The message root is 'pcap'.
               <xs:element name="Protocol" type="pcap:bit" dfdl:length="8" />
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
               <xs:sequence dfdl:hiddenGroupRef="pcap:IPSrcGrp"/>
-              <xs:element name="IPSrc" type="xs:string" dfdl:inputValueCalc="{ fn:string-join(../pcap:IPSrcByte/text(), '.') }"/>
+              <xs:element name="IPSrc" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../IPSrcByte[1], '.', ../IPSrcByte[2], '.', ../IPSrcByte[3], '.', ../IPSrcByte[4]) }"/>
               <xs:sequence dfdl:hiddenGroupRef="pcap:IPDestGrp"/>
-              <xs:element name="IPDest" type="xs:string" dfdl:inputValueCalc="{ fn:string-join(../pcap:IPDestByte/text(), '.') }"/>
+              <xs:element name="IPDest" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../IPDestByte[1], '.', ../IPDestByte[2], '.', ../IPDestByte[3], '.', ../IPDestByte[4]) }"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../pcap:IPv4Header/pcap:Length) - 20 }" />
-        <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../pcap:IPv4Header/pcap:Protocol) }" />
+        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Length) - 20 }" />
+        <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Protocol) }" />
         <xs:choice>
-            <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../pcap:PayloadLength }" />
-            <xs:element ref="pcap:ICMPv4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../pcap:PayloadLength }"/>
+            <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }" />
+            <xs:element ref="pcap:ICMPv4" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }"/>
         </xs:choice>
       </xs:sequence>
     </xs:complexType>
@@ -277,7 +277,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Protocol type is not ICMPv4" test="{ xs:unsignedInt(../pcap:Protocol) eq 1 }" />
+            <dfdl:discriminator message="Protocol type is not ICMPv4" test="{ xs:unsignedInt(../Protocol) eq 1 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name="Type" type="pcap:bit" dfdl:length="8" />
@@ -293,7 +293,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Ethertype is not IPv6" test="{ xs:unsignedInt(../../pcap:Ethertype) eq 34525 }" />
+            <dfdl:discriminator message="Ethertype is not IPv6" test="{ xs:unsignedInt(../../Ethertype) eq 34525 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name='IPv6Header'>
@@ -310,9 +310,9 @@ The message root is 'pcap'.
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../pcap:IPv6Header/pcap:PayloadLength) }" />
-        <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../pcap:IPv6Header/pcap:NextHeader) }" />
-        <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../pcap:PayloadLength }" />
+        <xs:element name="PayloadLength" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv6Header/PayloadLength) }" />
+        <xs:element name="Protocol" type="xs:unsignedInt" dfdl:inputValueCalc="{ xs:unsignedInt(../IPv6Header/NextHeader) }" />
+        <xs:element ref="pcap:TransportLayer" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="{ ../PayloadLength }" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -333,7 +333,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Protocol type is not TCP" test="{ xs:unsignedInt(../../pcap:Protocol) eq 6 }" />
+            <dfdl:discriminator message="Protocol type is not TCP" test="{ xs:unsignedInt(../../Protocol) eq 6 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name='TCPHeader'>
@@ -349,11 +349,11 @@ The message root is 'pcap'.
               <xs:element name="WindowSize" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Checksum" type="pcap:bit" dfdl:length="16" />
               <xs:element name="Urgent" type="pcap:bit" dfdl:length="16" />
-              <xs:element name="Options" type="pcap:hexByte" dfdl:length="{ (xs:unsignedInt(../pcap:DataOffset) - 5) * 4 }" />
+              <xs:element name="Options" type="pcap:hexByte" dfdl:length="{ (xs:unsignedInt(../DataOffset) - 5) * 4 }" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{ xs:unsignedInt(../../../pcap:PayloadLength) - (xs:unsignedInt(../pcap:TCPHeader/pcap:DataOffset) * 4) }"/>
+        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{ xs:unsignedInt(../../../PayloadLength) - (xs:unsignedInt(../TCPHeader/DataOffset) * 4) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -363,7 +363,7 @@ The message root is 'pcap'.
       <xs:sequence>
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator message="Protocol type is not UDP" test="{ xs:unsignedInt(../../pcap:Protocol) eq 17 }" />
+            <dfdl:discriminator message="Protocol type is not UDP" test="{ xs:unsignedInt(../../Protocol) eq 17 }" />
           </xs:appinfo>
         </xs:annotation>
         <xs:element name='UDPHeader'>
@@ -376,7 +376,7 @@ The message root is 'pcap'.
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{ xs:unsignedInt(../pcap:UDPHeader/pcap:Length) - 8 }"/>
+        <xs:element name="Data" type="pcap:hexByte" dfdl:length="{ xs:unsignedInt(../UDPHeader/Length) - 8 }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

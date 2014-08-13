@@ -12,6 +12,8 @@
   
   <include schemaLocation="xsd/built-in-formats.xsd"/>    
       
+  <include schemaLocation="mySchema2.dfdl.xsd"/>
+
   <element name="e1">
     <complexType>
       <sequence>

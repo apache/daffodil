@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.xml.test.unit
 
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import junit.framework.Assert._
 import org.junit.Test
@@ -102,10 +103,10 @@ class TestXMLUtils {
   }
 
   @Test def testIsNil() {
-    val d1 = XMLUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
-    val d2 = XMLUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
-    assertTrue(XMLUtils.isNil(d1))
-    assertFalse(XMLUtils.isNil(d2))
+    val d1 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE } xsi:nil="true"/>)
+    val d2 = JDOMUtils.elem2Element(<a xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>foo</a>)
+    assertTrue(JDOMUtils.isNil(d1))
+    assertFalse(JDOMUtils.isNil(d2))
   }
 
   @Test def testIsHidden() {
@@ -156,6 +157,105 @@ class TestXMLUtils {
     val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), NS(XMLUtils.INT_NS)))
     println(res)
     assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
+  }
+
+  @Test def testRemoveAttributes3() {
+    val xml = <foo xsi:nil="true"/>
+
+    val res = XMLUtils.removeAttributes(xml)
+    println(res)
+    assertEquals(<foo xsi:nil="true"/>, Utility.trim(res))
+  }
+
+  /**
+   * These next tests deal with XML and escaping.
+   *
+   * Turns out different ways of acquiring XML result in some
+   * different behaviors.
+   */
+  @Test def testScalaLiteralXMLCoalesceText() {
+    val xml = <foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>
+    assertEquals(5, xml.child.length)
+    assertTrue(xml.child.forall { _.isInstanceOf[Text] })
+    val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
+    assertEquals(1, res.length)
+    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
+    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+  }
+
+  @Test def testConstructingParserCoalesceText() {
+    val xmlRaw = """<foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>"""
+    import scala.xml.parsing.ConstructingParser
+    //
+    // This is the way we load XML for the TDML runner
+    // and it creates PCData nodes where Scala's basic loader
+    // and literal XML in scala program text, converts
+    // PCData to Text nodes (removing the bracket glop)
+    //
+    // We use this in the TDML runner because we can 
+    // preserve whitespace robustly inside CDATA bracketing.
+    // Other ways of loading XML all treat whitespace as
+    // somewhat fungible. 
+    //
+    val parser = ConstructingParser.fromSource(
+      scala.io.Source.fromString(xmlRaw), true)
+    val xml = parser.document.docElem
+    println(xml.text)
+    println(xml.toString)
+    assertEquals(5, xml.child.length)
+    assertFalse(xml.child.forall { _.isInstanceOf[Text] })
+    assertTrue(xml.child(1).isInstanceOf[PCData])
+    val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
+    println(res)
+    assertEquals(1, res.length)
+    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
+    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+  }
+
+  @Test def testStandardLoaderCoalesceText() {
+    val xmlRaw = """<foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>"""
+    // This is the way we load XML for DFDL Schemas
+    val xml = scala.xml.XML.loadString(xmlRaw)
+    println(xml.text)
+    println(xml.toString)
+    //
+    // Scala's scala.xml.XML.loaders do a good job 
+    // coalescing adjacent Texts (of all Atom kinds)
+    //
+    assertEquals(1, xml.child.length)
+    val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
+    assertEquals(1, res.length)
+    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
+    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+  }
+
+  @Test def testOnePCData() {
+    val xmlRaw = """<foo><![CDATA[&&&]]></foo>"""
+    import scala.xml.parsing.ConstructingParser
+    //
+    // This is the way we load XML for the TDML runner
+    // and it creates PCData nodes where Scala's basic loader
+    // and literal XML in scala program text, converts
+    // PCData to Text nodes (removing the bracket glop)
+    //
+    // We use this in the TDML runner because we can 
+    // preserve whitespace robustly inside CDATA bracketing.
+    // Other ways of loading XML all treat whitespace as
+    // somewhat fungible. 
+    //
+    val parser = ConstructingParser.fromSource(
+      scala.io.Source.fromString(xmlRaw), true)
+    val xml = parser.document.docElem
+    println(xml.text)
+    println(xml.toString)
+    assertEquals(1, xml.child.length)
+    assertTrue(xml.child(0).isInstanceOf[PCData])
+    val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
+    println(res)
+    assertEquals(1, res.length)
+    assertTrue(res(0).isInstanceOf[Text])
+    assertEquals("&amp;&amp;&amp;", res(0).toString)
+    assertEquals("&&&", res(0).text)
   }
 
 }

@@ -65,6 +65,7 @@ import edu.illinois.ncsa.daffodil.processors.{ VariableMap => SVariableMap }
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 
 /**
  * API Suitable for Java programmers to use.
@@ -112,8 +113,8 @@ class Compiler {
     new ProcessorFactory(pf)
   }
 
-  def reload(fileNameOfSavedParser: String): DFDL.ProcessorFactory = {
-    sCompiler.reload(fileNameOfSavedParser)
+  def reload(savedParser: File): DFDL.DataProcessor = {
+    sCompiler.reload(savedParser)
   }
 
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
@@ -216,7 +217,7 @@ class DataProcessor(dp: SDataProcessor)
   def setExternalVariables(extVars: Map[String, String]) = dp.setExternalVariables(extVars)
   def getVariables(): SVariableMap = dp.getVariables
 
-  def save(output: WritableByteChannel): Unit = dp.save(output)
+  def save(output: java.io.OutputStream): Unit = dp.save(output)
 
   /**
    * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
@@ -254,7 +255,10 @@ class ParseResult(pr: SParseResult)
    * because in that case there is no result document.
    */
   def result(): org.jdom2.Document = {
-    pr.resultAsJDOMDocument
+    val doc = new org.jdom2.Document()
+    val rootElement = JDOMUtils.elem2Element(pr.result)
+    doc.setRootElement(rootElement)
+    doc
   }
 
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)

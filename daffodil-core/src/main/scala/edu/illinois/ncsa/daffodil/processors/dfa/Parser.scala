@@ -6,7 +6,7 @@ import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
-trait Parser {
+trait Parser extends Serializable {
   def parse(input: DFDLCharReader): Maybe[ParseResult]
 }
 

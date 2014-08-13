@@ -83,6 +83,7 @@ case object LastEmpty extends ProcessorResult
 class Failure(msgArg: => String) extends ProcessorResult {
   lazy val msg = msgArg
   // System.err.println("FAILURE: " + msg)
+  override def toString = "Failure(" + msg + ")"
 }
 case object Empty extends ProcessorResult
 

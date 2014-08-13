@@ -149,27 +149,25 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
    * to the compiler, then only that root element (and things reached from it)
    * is compiled. Otherwise all top level elements are compiled.
    */
-  requiredEvaluations({
-    defaultFormat
-    if (schemaSet.checkAllTopLevel) {
-      globalElementDecls.map { _.forRoot() }
-      defineEscapeSchemes
-      defineFormats
-      defineVariables
-      // TODO: about defineVariables: 
-      // only include these if they have default values or external values. 
-      // Those then have to be evaluated before any processing, 
-      // and may depend on other variables with default values or external values.
-      // Not these, because we'll pick these up when elements reference them.
-      // And we don't compile them independently of that (since they could be very
-      // incomplete and would lead to many errors for missing this or that.)
-      //
-      // Note: don't include these. They get checked if used.
-      //    globalSimpleTypeDefs
-      //    globalComplexTypeDefs 
-      //    globalGroupDefs
-    }
-  })
+  requiredEvaluations(defaultFormat)
+  if (schemaSet.checkAllTopLevel) {
+    requiredEvaluations(globalElementDecls.map { _.forRoot() })
+    requiredEvaluations(defineEscapeSchemes)
+    requiredEvaluations(defineFormats)
+    requiredEvaluations(defineVariables)
+    // TODO: about defineVariables: 
+    // only include these if they have default values or external values. 
+    // Those then have to be evaluated before any processing, 
+    // and may depend on other variables with default values or external values.
+    // Not these, because we'll pick these up when elements reference them.
+    // And we don't compile them independently of that (since they could be very
+    // incomplete and would lead to many errors for missing this or that.)
+    //
+    // Note: don't include these. They get checked if used.
+    //    globalSimpleTypeDefs
+    //    globalComplexTypeDefs 
+    //    globalGroupDefs
+  }
 
   override lazy val schemaDocument = this
 
@@ -200,7 +198,7 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     node match {
       case <dfdl:format>{ content @ _* }</dfdl:format> => new DFDLFormat(node, this)
       case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => new DFDLDefineFormat(node, this)
-      case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => new DFDLDefineEscapeScheme(node, this)
+      case <dfdl:defineEscapeScheme>{ content @ _* }</dfdl:defineEscapeScheme> => new DFDLDefineEscapeSchemeFactory(node, this)
       case <dfdl:defineVariable>{ content @ _* }</dfdl:defineVariable> => new DFDLDefineVariable(node, this)
       case _ => {
         val prefix =
@@ -256,7 +254,7 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   lazy val defaultFormat = formatAnnotation.asInstanceOf[DFDLFormat]
 
   lazy val defineFormats = annotationObjs.collect { case df: DFDLDefineFormat => df }
-  lazy val defineEscapeSchemes = annotationObjs.collect { case des: DFDLDefineEscapeScheme => des }
+  lazy val defineEscapeSchemes = annotationObjs.collect { case des: DFDLDefineEscapeSchemeFactory => des }
   lazy val defineVariables = annotationObjs.collect { case dv: DFDLDefineVariable => dv }
 
   /**

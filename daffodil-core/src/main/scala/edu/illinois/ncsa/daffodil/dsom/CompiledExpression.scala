@@ -33,14 +33,11 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.processors.xpath._
-import javax.xml.xpath._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
-import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil.CompiledExpressionFactory
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.PState
@@ -49,6 +46,14 @@ import scala.xml.Node
 import scala.collection.JavaConversions._
 import scala.collection.immutable.Queue
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.dpath._
+import scala.xml.NamespaceBinding
+import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -70,7 +75,13 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression(val prettyExpr: String) {
+abstract class CompiledExpression(val value: Any) extends Serializable {
+
+  def preSerialization: Unit = {
+    // called before serializing. Default does nothing.
+  }
+
+  def prettyExpr: String
   /**
    * used to determine whether we need a runtime evaluation or
    * we can just use a constant value.
@@ -100,495 +111,348 @@ abstract class CompiledExpression(val prettyExpr: String) {
   def constantAsString = constant.toString
   def constantAsLong = constantAsString.toLong
 
+  def targetType: NodeInfo.Kind
   /**
    * evaluation - the runtime
    *
    * Note that since we can reference variables, and those might never have been read,
-   * the act of evaluating them changes the variableMap state potentially. So an
-   * updated variableMap must be returned as well.
+   * the act of evaluating them changes the variableMap state potentially.
+   *
+   *
    */
+  def evaluate(pstate: PState): (Any, VariableMap)
 
-  def evaluate(rootedAt: InfosetElement, variables: VariableMap, pstate: PState): R
-  def evaluatesToNodes(rootedAt: InfosetElement, variables: VariableMap, pstate: PState): (Option[List[InfosetElement]], VariableMap)
+  final def evaluateTo[T](pstate: PState): (T, VariableMap) = {
+    val (resAny, vmap) = evaluate(pstate)
+    (resAny.asInstanceOf[T], vmap)
+  }
 
-  override def toString(): String = "CompiledExpression(" + prettyExpr + ")"
+  override def toString(): String = "CompiledExpression(" + value.toString + ")"
 }
 
-case class R(res: Any, vmap: VariableMap)
+case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpression(v) {
 
-case class ConstantExpression[T](value: T) extends CompiledExpression(value.toString) {
+  def targetType = kind
 
-  lazy val replacedValue = {
-    val result = value match {
-      case s: String if s.startsWith("{{") => s.tail.asInstanceOf[T] // Replace '{{' with '{'
-      case x => x
-    }
-    result
-  }
+  lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(v)
+
+  override lazy val prettyExpr = v.toString
 
   def isConstant = true
   def isKnownNonEmpty = value != ""
-  def constant: T = replacedValue //value
-  def evaluate(pre: InfosetElement, variables: VariableMap, ignored: PState): R = R(constant, variables)
-  def evaluatesToNodes(pre: InfosetElement, variables: VariableMap, ignored: PState) = (None, variables)
+  def constant: Any = v
+  def evaluate(pstate: PState) = (constant, pstate.variableMap)
 }
 
-case class RuntimeExpression[T <: AnyRef](convertTo: ConvertToType.Type,
-  xpathText: String,
-  xpathExprFactory: CompiledExpressionFactory,
-  rd: RuntimeData)
-  extends CompiledExpression(xpathText)
-  with WithParseErrorThrowing
-  with TypeConversions {
+/**
+ * The purpose of this trait is to abstract over the SchemaComponent
+ * and RuntimeData. These are the things that are needed to compile
+ * expressions.
+ *
+ * This is needed to avoid a circularity problem:
+ * - compiling an expression produces a CompiledExpression object
+ * - those CompiledExpression objects need to be reachable from the RuntimeData
+ * - so we can't depend on the RuntimeData to compile an expression.
+ * Instead we use this, and when compiling expressions in the regular compiler
+ * we pass the SchemaComponent, which mixes this in.
+ *
+ * In summary, the compilation process for expressions doesn't know nor care
+ * whether it is dealing with an ElementRuntimeData or an ElementBase.
+ *
+ * Do not add anything to these classes that exposes anything about RuntimeData
+ * objects. Those methods go on SchemaComponent or RuntimeData directly.
+ */
+trait DPathCompileInfo
+  extends ThrowsSDE with SchemaFileLocatable {
 
-  override val context = rd
-  def isConstant = false
-  def isKnownNonEmpty = true // expressions are not allowed to return empty string
-  def constant: T = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
+  def namespaces: scala.xml.NamespaceBinding
+  def warn(th: Diagnostic): Unit
+  def error(th: Diagnostic): Unit
+  def variableMap: VariableMap
+  def path: String
 
-  def toXPathType(convertTo: ConvertToType.Type) =
-    convertTo match {
-      case ConvertToType.Long => XPathConstants.NUMBER
-      case ConvertToType.Double => XPathConstants.NUMBER
-      case ConvertToType.Int | ConvertToType.UInt | ConvertToType.Integer |
-        ConvertToType.UInteger | ConvertToType.Short | ConvertToType.UShort => XPathConstants.NUMBER
-      case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UByte | ConvertToType.ULong => XPathConstants.NUMBER
-      case ConvertToType.String => XPathConstants.STRING
-      case ConvertToType.Element => XPathConstants.NODE
-      case ConvertToType.Boolean => XPathConstants.BOOLEAN
-      case _ => Assert.invariantFailed("convertTo not valid value: " + convertTo)
-    }
-
-  val cePathRegex = """\{(.*)\}""".r
-
-/* TODO: Reimplement this code using the new DPath compiler. DFDL-1010
- * 
- * This code can't work right. These checks need to be done looking at the 
- * static context, i.e., the schema components, to determine if a path makes sense.
- * 
-  def checkForUnorderedSeqAndChoiceBranchViolations(
-    expr: String, pre: InfosetElement, vmap: VariableMap, pstate: PState): VariableMap = {
-
-    // We want to be able to determine if we're in a choice or unordered sequence
-    var variables = vmap
-
-
-
-    // The element on which the expression is situated.
-    val preElementBase = pre.schemaComponent(pstate)
-    val shouldCheckBranch: Boolean =
-      if (preElementBase.inUnorderedSequence || preElementBase.inChoiceBeforeNearestEnclosingSequence) true
-      else false
-
-    if (shouldCheckBranch) {
-      val dfdlExprCompiler = new DFDLPathExpressionCompiler(preElementBase)
-
-      val result =
-        try {
-          variables.currentPState = Some(pstate) // Provide pstate here to issue runtime errors
-          dfdlExprCompiler.getPathsFromExpressionAsCompiledExpressions(expr, variables)
-        } finally { variables.currentPState = None }
-
-      result match {
-        case Right((paths, newVMap)) => {
-          paths.foreach(p => {
-
-            val path = p.prettyExpr match {
-              // Attempt to extract just the expression without the
-              // curly braces
-              case cePathRegex(pathText) => pathText.trim
-              case _ => p.prettyExpr
-            }
-            val preParent = pre.jdomElt.get.getParentElement()
-            val (optInfosetElems, newerVMap) = p.evaluatesToNodes(pre, variables, pstate)
-
-            val isReferringToSelf: Boolean = path == "."
-
-            if (!isReferringToSelf && optInfosetElems.isDefined) {
-              val elems = optInfosetElems.get
-              elems.foreach(e => {
-                val evalElementBase = e.schemaComponent(pstate)
-                checkElementForBranchViolations(preElementBase, evalElementBase, expr, path, pstate)
-              })
-            }
-            variables = newerVMap
-          })
-          variables = newVMap
-        }
-        case Left((msg, newVMap)) => {
-          // Failed, do we care? Won't the rest of "evaluate" then fail properly?
-          variables = newVMap
-        }
-      }
-    }
-    variables
+  def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = {
+    Assert.invariantFailed("has no element children")
   }
 
-  def checkElementForBranchViolations(preElementBase: ElementBase, evalElementBase: ElementBase,
-    expr: String, path: String, context: ThrowsSDE) = {
-
-    val preNearestEncUOSeq = preElementBase.nearestEnclosingUnorderedSequence
-    val preNearestEncChoice = preElementBase.nearestEnclosingChoiceBeforeSequence
-    val evalNearestEncChoice = evalElementBase.nearestEnclosingChoiceBeforeSequence
-    val evalNearestEncUOSeq = evalElementBase.nearestEnclosingUnorderedSequence
-
-    if (preElementBase.inChoiceBeforeNearestEnclosingSequence) {
-      // rootedElem aka preElementBase was on a choice branch, is the node returned
-      // via evaluation on a different branch?
-
-      if (evalNearestEncChoice.isDefined) {
-        val evalChoice = evalNearestEncChoice.get
-        val preChoice = preNearestEncChoice.get
-
-        // Is this a different choice?
-        if (evalChoice.mgID != preChoice.mgID) {
-          context.SDE("Expression %s contains a path (%s) which navigates to a branch of another choice (%s)",
-            expr, path, evalChoice.path)
-        }
-
-        // Same Choice, but is it the same branch?
-        if (evalElementBase.tID != preElementBase.tID) {
-          context.SDE("Expression %s contains a path (%s) which navigates to another branch (%s) of the same choice.",
-            expr, path, evalElementBase)
+  /**
+   * The immediate containing parent.
+   */
+  def immediateEnclosingCompileInfo: Option[DPathCompileInfo]
+  /**
+   * The contract here supports the semantics of ".." in paths.
+   *
+   * First we establish the invariant of being on an element. If the
+   * schema component is an element we're there. Otherwise we move
+   * outward until we are an element. If there isn't one we return None
+   *
+   * Then we move outward to the enclosing element - and if there
+   * isn't one we return None. (Which most likely will lead to an SDE.)
+   */
+  final def enclosingElementCompileInfo: Option[DPathElementCompileInfo] = {
+    val eci = this.elementCompileInfo
+    eci match {
+      case None => None
+      case Some(eci) => {
+        val eci2 = eci.immediateEnclosingCompileInfo
+        eci2 match {
+          case None => None
+          case Some(ci) => {
+            val res = ci.elementCompileInfo
+            res
+          }
         }
       }
-      if (evalNearestEncUOSeq.isDefined) {
-        context.SDE("Expression %s contains a path (%s) which navigates from a choice (%s) to member (%s) an enclosing unordered group (%s)",
-          expr, path, preElementBase, evalElementBase, evalNearestEncUOSeq.get)
+    }
+  }
+
+  /**
+   * The contract here supports the semantics of "." in paths.
+   *
+   * If this is an element we're done. If not we move outward
+   * until we reach an enclosing element.
+   */
+  final def elementCompileInfo: Option[DPathElementCompileInfo] = this match {
+    case e: DPathElementCompileInfo => Some(e)
+    case d: DPathCompileInfo => {
+      val eci = d.immediateEnclosingCompileInfo
+      eci match {
+        case None => None
+        case Some(ci) => {
+          val res = ci.elementCompileInfo
+          res
+        }
       }
+    }
+  }
+
+  /**
+   * Be careful using this. If you use it at compile time as part of say
+   * a compiled expresion, which.... ends up being part of the runtime data
+   * then you end up chasing your tail/stack overflow/circular, etc.
+   */
+  final def realRuntimeData: RuntimeData = this match {
+    case rd: RuntimeData => rd
+    case sc: SchemaComponent => sc.runtimeData
+  }
+}
+
+trait DPathElementCompileInfo extends DPathCompileInfo {
+
+  def slotIndexInParent: Int
+
+  def name: String
+
+  def elementRuntimeData: ElementRuntimeData
+
+  def optPrimType: Option[RuntimePrimType] = None
+
+  final lazy val rootElement: DPathElementCompileInfo =
+    this.enclosingElementCompileInfo.map { _.rootElement }.getOrElse { this }
+
+  def isArray: Boolean
+  def namedQName: NamedQName
+
+  //  final def realERD: ElementRuntimeData = this match {
+  //    case erd: ElementRuntimeData => erd
+  //    case eb: ElementBase => eb.erd
+  //  }
+
+  final def enclosingElementPath: Seq[DPathElementCompileInfo] = {
+    enclosingElementCompileInfo match {
+      case None => Seq()
+      case Some(e) => e.enclosingElementPath :+ e
+    }
+  }
+
+  /**
+   * Finds a child ERD that matches a StepQName. This is for matching up
+   * path steps (for example) to their corresponding ERD.
+   */
+  final def findNamedChild(step: StepQName): DPathElementCompileInfo = {
+    val optERD: Option[DPathElementCompileInfo] = step.findMatch(elementChildrenCompileInfo)
+    optERD.getOrElse { noMatchError(step) }
+  }
+
+  /**
+   * Issues a good diagnostic with suggestions about near-misses on names
+   * like missing prefixes.
+   */
+  final def noMatchError(step: StepQName) = {
+    //
+    // didn't find a exact match. 
+    // So all the rest of this is about providing a meaningful
+    // and helpful diagnostic message.
+    //
+    // Did the local name match at all?
+    //
+    val localOnlyERDMatches = {
+      val localName = step.local
+      if (step.namespace == NoNamespace) Nil
+      else elementChildrenCompileInfo.map { _.namedQName }.collect {
+        case localMatch if localMatch.local == localName => localMatch
+      }
+    }
+    //
+    // If the local name matched, then perhaps the user just forgot
+    // to put on a prefix.
+    //
+    // We want to suggest use of a prefix that is bound to the 
+    // desired namespace already.. that is from within our current scope
+    //
+    val withStepsQNamePrefixes =
+      localOnlyERDMatches.map { qn =>
+        val stepPrefixForNS = NS.allPrefixes(qn.namespace, this.namespaces)
+        val proposedStep = stepPrefixForNS match {
+          case Nil => qn
+          case Seq(hd, _*) => StepQName(Some(hd), qn.local, qn.namespace)
+        }
+        proposedStep
+      }
+    val interestingCandidates = withStepsQNamePrefixes.map { _.toPrettyString }.mkString(", ")
+    if (interestingCandidates.length > 0) {
+      SDE("No element corresponding to step %s found,\nbut elements with the same local name were found (%s).\nPerhaps a prefix is incorrect or missing on the step name?",
+        step.toPrettyString, interestingCandidates)
     } else {
-      // rootedElem aka preElementBase is in an UnorderedSeq
-
-      // evalElem is in a Choice before an UnorderedSeq, but preElem is in an UnorderedSeq.
-      if (evalNearestEncChoice.isDefined) {
-        context.SDE("Expression %s contains a path (%s) which navigates from a member (%s) of an unordered group to a choice branch (%s)",
-          expr, path, preElementBase, evalElementBase)
-      }
-      // evalElem is in UnorderedSeq before a Choice and so is preElem
-      if (evalNearestEncUOSeq.isDefined) {
-        // Unordered Seq defined for both eval and pre
-        val evalUOSeq = evalNearestEncUOSeq.get
-        val preUOSeq = preNearestEncUOSeq.get
-
-        // Are they the same UnorderedSeq?
-        if (evalUOSeq.mgID != preUOSeq.mgID) {
-          context.SDE("Expression %s contains a path (%s) which navigates to a branch of another unordered group (%s)",
-            expr, path, evalElementBase)
-        }
-      }
-
+      //
+      // There weren't even any local name matches.
+      //
+      val interestingCandidates = elementChildrenCompileInfo.map { _.namedQName }.mkString(", ")
+      if (interestingCandidates != "")
+        SDE("No element corresponding to step %s found. Possibilities for this step include: %s.",
+          step.toPrettyString, interestingCandidates)
+      else
+        SDE("No element corresponding to step %s found.",
+          step.toPrettyString)
     }
-  }
-*/
-
-  /**
-   * For use in cases where we expect the expression to evaluate
-   * to a Node or NodeList.
-   */
-  def evaluatesToNodes(pre: InfosetElement, vmap: VariableMap, pstate: PState): (Option[List[InfosetElement]], VariableMap) = {
-
-    val xpathResultType = toXPathType(ConvertToType.Element) // We want to always evaluate to a Node here.
-
-    var variables = vmap
-
-    val xpathRes = try {
-        DFDLFunctions.currentPState.set(Some(pstate))
-        variables.currentPState = Some(pstate)
-        pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
-      } catch {
-        case e: XPathException => {
-          // runtime processing error in expression evaluation
-          val ex = if (e.getMessage() == null) e.getCause() else e
-          PE("Expression evaluation failed. Details: %s", ex)
-        }
-      } finally {
-        DFDLFunctions.currentPState.set(None) // put it back off
-        variables.currentPState = None
-      }
-
-    val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
-    val result: Option[List[InfosetElement]] = xpathRes match {
-      case NodeResult(n) => {
-        val elem = new InfosetElement(n)
-        Some(List(elem))
-      }
-      case NodeSetResult(ns) => {
-        val numNodes = ns.getLength()
-        val q: Queue[InfosetElement] = Queue.empty
-        for (i <- 0 to numNodes) {
-          val item = ns.item(i).asInstanceOf[org.jdom2.Element]
-
-          val elem = new InfosetElement(item)
-          q.enqueue(elem)
-        }
-        Some(q.toList)
-      }
-      case _ => None
-    }
-    (result, newVariableMap)
-  }
-
-  def evaluate(pre: InfosetElement, vmap: VariableMap, pstate: PState): R = {
-    val xpathResultType = toXPathType(convertTo)
-
-    var variables = vmap // checkForUnorderedSeqAndChoiceBranchViolations(xpathText, pre, vmap, pstate) DFDL-1010
-
-    val xpathRes = try {
-        DFDLFunctions.currentPState.set(Some(pstate))
-        variables.currentPState = Some(pstate)
-        pre.evalExpression(xpathText, xpathExprFactory, variables, xpathResultType)
-      } catch {
-        case e: XPathException => {
-          // runtime processing error in expression evaluation
-          val ex = if (e.getMessage() == null) e.getCause() else e
-          PE("Expression evaluation failed. Details: %s", ex)
-        }
-      } finally {
-        DFDLFunctions.currentPState.set(None) // put it back off
-        variables.currentPState = None
-      }
-
-    val newVariableMap = xpathExprFactory.getVariables() // after evaluation, variables might have updated states.
-    val converted: T = xpathRes match {
-      case NotANumberResult(v) => {
-        PE("Expression %s evaluated to something that is not a number (NaN): %s.", xpathText, v)
-      }
-      case NumberResult(n) => {
-        val convertedResult = try {
-          convertTo match {
-            case ConvertToType.Long => convertToLong(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Double => convertToDouble(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Int => convertToInt(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Byte => convertToByte(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.UByte => convertToUByte(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Short => convertToShort(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.UShort => convertToUShort(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.UInt => convertToUInt(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Boolean => convertToBoolean(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.ULong => convertToULong(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Integer => convertToInteger(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.Decimal => convertToDecimal(n.toString, pstate).asInstanceOf[T]
-            case ConvertToType.UInteger => convertToNonNegativeInteger(n.toString, pstate).asInstanceOf[T]
-            case _ => n.asInstanceOf[T]
-          }
-        } catch {
-          // Note that the converToXXX functions all SDE themselves on conversion errors.
-          // Here we just want to catch the exceptions that are the result of asInstanceOf[T]
-          // or other unforeseen exceptions.
-          case u: UnsuppressableException => throw u
-          case cex: ClassCastException => pstate.SDE("Cannot convert %s to %s. Error %s", n, convertTo, cex)
-        }
-        convertedResult
-      }
-      case StringResult(s) => {
-        Assert.invariant(convertTo == ConvertToType.String)
-        s.asInstanceOf[T]
-      }
-      case BooleanResult(v) => {
-        Assert.invariant(convertTo == ConvertToType.Boolean)
-        v.asInstanceOf[T]
-      }
-      case NodeResult(n) => {
-        n.asInstanceOf[T]
-      }
-      case NodeSetResult(ns) => {
-        throw new Exception("NodeSet should not be returned except when used inside an xpath function.")
-      }
-    }
-    R(converted, newVariableMap)
   }
 }
 
-object ConvertToType extends Enum {
-  sealed abstract trait Type extends EnumValueType
-  case object String extends Type
-  case object Byte extends Type
-  case object Short extends Type
-  case object Int extends Type
-  case object Long extends Type
-  case object UByte extends Type
-  case object UShort extends Type
-  case object UInt extends Type
-  case object ULong extends Type
-  case object Double extends Type
-  case object Integer extends Type
-  case object UInteger extends Type
-  case object Decimal extends Type
-  case object Boolean extends Type
-  case object Element extends Type
-}
-
-class ExpressionCompiler(edecl: SchemaComponent) extends Logging with TypeConversions {
-
-  def expandedName(qname: String) = {
-    val (uri, localTypeName) = XMLUtils.QName(edecl.xml, qname, edecl.schemaDocument)
-    val expName = XMLUtils.expandedQName(uri, localTypeName)
-    expName
-  }
-
-  // TODO FIXME - XPath 1.0 vs 2.0 return types. This is not valid even for XPath 1.0
-  def convertTypeString(expandedTypeName: String) = {
-    Assert.usage(expandedTypeName != null)
-    expandedTypeName match {
-      case XMLUtils.XSD_STRING => ConvertToType.String
-      case XMLUtils.XSD_BYTE => ConvertToType.Byte
-      case XMLUtils.XSD_SHORT => ConvertToType.Short
-      case XMLUtils.XSD_INT => ConvertToType.Int
-      case XMLUtils.XSD_LONG => ConvertToType.Long
-      case XMLUtils.XSD_UNSIGNED_BYTE => ConvertToType.UByte
-      case XMLUtils.XSD_UNSIGNED_SHORT => ConvertToType.UShort
-      case XMLUtils.XSD_UNSIGNED_INT => ConvertToType.UInt
-      case XMLUtils.XSD_DOUBLE => ConvertToType.Double
-      case XMLUtils.XSD_FLOAT => ConvertToType.Double
-      case XMLUtils.XSD_BOOLEAN => ConvertToType.Boolean
-      case XMLUtils.XSD_HEX_BINARY => ConvertToType.String
-      case XMLUtils.XSD_DATE => ConvertToType.String
-      case XMLUtils.XSD_DATE_TIME => ConvertToType.String
-      case XMLUtils.XSD_TIME => ConvertToType.String
-      case XMLUtils.XSD_NON_NEGATIVE_INTEGER => ConvertToType.UInteger
-      case XMLUtils.XSD_INTEGER => ConvertToType.Integer
-      case XMLUtils.XSD_UNSIGNED_LONG => ConvertToType.ULong
-      case XMLUtils.XSD_DECIMAL => ConvertToType.Decimal
-    }
-  }
+class ExpressionCompiler(rd: DPathCompileInfo) {
 
   /**
-   * The only way I know to check if the compiled expression was just a constant
-   * is to evaluate it in an environment where if it touches anything (variables, jdom tree, etc.)
-   * it will throw. No throw means a value came back and it must be a constant.
+   * For expressions that are the values of DFDL properties
+   *
+   * The isEvaluatedAbove argument is used for properties like occursCount
+   * which are evaluated before the element whose declaration carries it, exists.
+   * That is, it is evaluated one Infoset node above where the expression is
+   * written. This doesn't matter unless the expression contains relative
+   * paths. In that case those relative paths will all have to be adjusted
+   * so they work in the context of one node above.
+   *
+   * There are two nodeInfokind args as a hack for dealing with delimiters
+   * where they can be empty string if a literal constant, but cannot be empty
+   * string if returned.
    */
-  def constantValue(xpathExprFactory: CompiledExpressionFactory): Option[Any] =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val dummyVars = EmptyVariableMap
-      val result = try {
-          DFDLFunctions.currentPState.set(None) // no state if we're trying for a constant value.
-          val res = XPathUtil.evalExpression(
-            xpathExprFactory.expression + " (to see if constant)",
-            xpathExprFactory,
-            dummyVars,
-            null, // context node is not needed to see if an expression is a constant.
-            XPathConstants.STRING) // <-- This looks like it always evaluates to StringResult
-          res match {
-            case StringResult(s) => {
-              log(LogLevel.Debug, "%s is constant", xpathExprFactory.expression)
-              Some(s)
-            }
-            case BooleanResult(s) => {
-              log(LogLevel.Debug, "%s is constant", xpathExprFactory.expression)
-              Some(s)
-            }
-            case _ => Assert.invariantFailed("Can't evaluate to " + res + " when testing for isConstant")
-          }
-        } catch {
-          case u: UnsuppressableException => throw u
-          case e: XPathExpressionException => {
-            log(LogLevel.Debug, "%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString)
-            None
-          }
-          case e: SchemaDefinitionError => {
-            // TODO differentiate between the xpath being syntax-invalid (hence, an SDE, not a constant/runtime distinction
-            // and other SDEs like variable not defined, which just indicates (for here), that the expression 
-            // is non-constant.
-            log(LogLevel.Debug, "%s is NOT constant (due to %s)", xpathExprFactory.expression, e.toString)
-            None
-          }
-          //          case e : Exception => {
-          //            Assert.invariantFailed("Didn't get an XPathExpressionException. Got: " + e)
-          //          }
-        } finally {
-          DFDLFunctions.currentPState.set(None)
-        }
+  /*
+   * This form for most properties
+   */
+  def compile(nodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean = false): CompiledExpression =
+    compile(nodeInfoKind, nodeInfoKind, property, isEvaluatedAbove)
 
-      result
-    }
+  /*
+     * This form for delimiters and escapeEscapeCharacter since they 
+     * can have empty string if statically known, but if an evaluated expression,
+     * it must be non-empty string.
+     */
+  def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found): CompiledExpression =
+    compile(staticNodeInfoKind, runtimeNodeInfoKind, property, false)
 
-  def compileTimeConvertToLong(s: Any) = convertToLong(s, edecl)
-  def compileTimeConvertToDouble(s: Any) = convertToDouble(s, edecl)
-  def compileTimeConvertToBoolean(s: Any) = convertToBoolean(s, edecl)
-  def compileTimeConvertToByte(s: Any) = convertToByte(s, edecl)
-  def compileTimeConvertToShort(s: Any) = convertToShort(s, edecl)
-  def compileTimeConvertToInt(s: Any) = convertToInt(s, edecl)
-  def compileTimeConvertToUByte(s: Any) = convertToUByte(s, edecl)
-  def compileTimeConvertToUShort(s: Any) = convertToUShort(s, edecl)
-  def compileTimeConvertToUInt(s: Any) = convertToUInt(s, edecl)
-  def compileTimeConvertToULong(s: Any) = convertToULong(s, edecl)
-  def compileTimeConvertToInteger(s: Any) = convertToInteger(s, edecl)
-  def compileTimeConvertToNonNegativeInteger(s: Any) = convertToNonNegativeInteger(s, edecl)
-  def compileTimeConvertToDecimal(s: Any) = convertToDecimal(s, edecl)
-
-  def compile[T](convertTo: ConvertToType.Type, property: Found): CompiledExpression = {
+  private def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean): CompiledExpression = {
     val expr: String = property.value
     val xmlForNamespaceResolution = property.location.xml
     val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
-    compile[T](convertTo, expr, xmlForNamespaceResolution, scWherePropertyWasLocated)
+
+    val compiled1 = compile(staticNodeInfoKind, expr, xmlForNamespaceResolution.scope, scWherePropertyWasLocated,
+      isEvaluatedAbove)
+    if (compiled1.isConstant) return compiled1
+    if (staticNodeInfoKind == runtimeNodeInfoKind) return compiled1
+    //
+    // TODO: consider passing in a flag or some other way of avoiding this
+    // duplicate compile run.
+    //
+    val compiled2 = compile(runtimeNodeInfoKind, expr, xmlForNamespaceResolution.scope, scWherePropertyWasLocated,
+      isEvaluatedAbove)
+    compiled2
   }
 
-  def compile[T](convertTo: ConvertToType.Type, exprWithBraces: String, xmlForNamespaceResolution: Node,
-    scWherePropertyWasLocated: SchemaComponent) = {
-    val expr = exprWithBraces
-    if (!XPathUtil.isExpression(expr)) {
-      // not an expression. For some properties like delimiters, you can use a literal string 
-      // whitespace separated list of literal strings, or an expression in { .... }
-      if (expr.startsWith("{") && !expr.startsWith("{{")) {
-        val msg = "'%s' is an unterminated expression.  Add missing closing brac, or escape opening brace with another opening brace."
-        edecl.SDE(msg, expr)
+  /**
+   * compiles the expression.
+   *
+   * If it happens to be a literal constant (i.e.,
+   * no braces, then this handles that case directly. Otherwise it calls
+   * the method to actually compile the expression.
+   *
+   */
+  def compile(nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
+    scWherePropertyWasLocated: DPathCompileInfo,
+    isEvaluatedAbove: Boolean) = {
+    val expr = exprWithBracesMaybe
+    //
+    // we want to standardize that the expression has braces, and if it was
+    // a literal string, that it has quotes around it. 
+    //
+    val exprForCompiling =
+      if (DPathUtil.isExpression(expr)) expr
+      else {
+        // not an expression. For some properties like delimiters, you can use a literal string 
+        // whitespace separated list of literal strings, or an expression in { .... }
+        if (expr.startsWith("{") && !expr.startsWith("{{")) {
+          val msg = "'%s' is an unterminated expression.  Add missing closing brac, or escape opening brace with another opening brace."
+          rd.SDE(msg, expr)
+        }
+        val expr1 = if (expr.startsWith("{{")) expr.tail else expr
+        //
+        // Literal strings get surrounded with quotation marks
+        //
+        val withQuotes = {
+          nodeInfoKind match {
+            case _: NodeInfo.String.Kind if (expr1.contains("'")) => "\"" + expr1 + "\""
+            case _: NodeInfo.String.Kind => "'" + expr1 + "'"
+            case _ => expr1
+          }
+        }
+        withQuotes
       }
-      new ConstantExpression(expr)
-    } else {
+    // it's an actual expression, not a literal constant.
+    compileExpression(nodeInfoKind, exprForCompiling, namespaces,
+      scWherePropertyWasLocated, isEvaluatedAbove)
+  }
 
-      // This is important. The namespace bindings we use must be
-      // those from the object where the property carrying the expression 
-      // was written, not those of the edecl object where the property 
-      // value is being used/compiled. JIRA DFDL-407
-      val exprNSBindings = XMLUtils.namespaceBindings(xmlForNamespaceResolution.scope)
-      val xpath = XPathUtil.getExpression(expr)
-      val compiledXPath =
-        try {
-          //
-          // We also want SDEs from expression compilation issued with the 
-          // schema component where the property was found as the file/line information.
-          // (So the user can go there and see the expression.)
-          //
-          // This can happen. The length and occursCount properties CAN be scoped,
-          // or placed on simpleType definitions so their expressions are shared, and
-          // are not on the same lexical object that has that length or occurrances.
-          // 
-          XPathUtil.compileExpression(xpath, exprNSBindings, scWherePropertyWasLocated)
-        } catch {
-          case e: XPathExpressionException => {
-            val exc = e // debugger never seems to show the case variable itself.
-            val realExc = if (e.getCause() != null) e.getCause() else exc
-            // Assert.invariant(realExc != null) // it's always an encapsulation of an underlying error.
-            edecl.SDE("XPath Compilation Error: %s", realExc)
-          }
-        }
-      val cv = constantValue(compiledXPath)
-      val compiledExpression = cv match {
-        case Some(s) => {
-          convertTo match {
-            case ConvertToType.String => new ConstantExpression(s)
-            // Evaluating to an Element when we're a constant makes no sense.
-            // case 'Element => new ConstantExpression(s.asInstanceOf[org.jdom2.Element])
-            case ConvertToType.Element => Assert.usageError("Evaluating to an Element when we're a constant makes no sense.")
-            case ConvertToType.Byte => new ConstantExpression(compileTimeConvertToByte(s))
-            case ConvertToType.UByte => new ConstantExpression(compileTimeConvertToUByte(s))
-            case ConvertToType.Short => new ConstantExpression(compileTimeConvertToShort(s))
-            case ConvertToType.UShort => new ConstantExpression(compileTimeConvertToUShort(s))
-            case ConvertToType.Int => new ConstantExpression(compileTimeConvertToInt(s))
-            case ConvertToType.UInt => new ConstantExpression(compileTimeConvertToUInt(s))
-            case ConvertToType.Long => new ConstantExpression(compileTimeConvertToLong(s))
-            case ConvertToType.ULong => new ConstantExpression(compileTimeConvertToULong(s))
-            case ConvertToType.Double => new ConstantExpression(compileTimeConvertToDouble(s))
-            case ConvertToType.Integer => new ConstantExpression(compileTimeConvertToInteger(s))
-            case ConvertToType.UInteger => new ConstantExpression(compileTimeConvertToNonNegativeInteger(s))
-            case ConvertToType.Decimal => new ConstantExpression(compileTimeConvertToDecimal(s))
-            case ConvertToType.Boolean => new ConstantExpression(compileTimeConvertToBoolean(s))
-          }
-        }
-        case None => new RuntimeExpression(convertTo, expr, compiledXPath, edecl.runtimeData)
-      }
-      compiledExpression
-    }
+  /**
+   * Compile the expression.
+   *
+   * Expression may or may not have braces around it. It could still be a constant as in
+   * { 5 } or { "California" }, and in that case this should return a ConstantExpression
+   * object.
+   */
+  def compileExpression(
+    nodeInfoKind: NodeInfo.Kind,
+    expr: String,
+    // Why this additional namespaceBinding argument?
+    // how is this different from the namespace resolution that the
+    // next argument provides? Ans: Point of use versus point of definition.
+    namespaces: NamespaceBinding,
+    scWherePropertyWasLocated: DPathCompileInfo,
+    isEvaluatedAbove: Boolean = false): CompiledExpression = {
+    // This is important. The namespace bindings we use must be
+    // those from the object where the property carrying the expression 
+    // was written, not those of the edecl object where the property 
+    // value is being used/compiled. JIRA DFDL-407
+    //
+    // We don't want things holding onto SchemaComponent objects
+    // so let's be sure we have a RuntimeData object to hand to the
+    // expression compiler. Arggg. That will stack overflow, as this 
+    // compiled expression ends up being needed to construct the runtime
+    // data object....
+    //
+    val compileInfo = scWherePropertyWasLocated // .realRuntimeData
+
+    // This compiler is a transient object. We shouldn't store it anywhere.
+    val compiler = new DFDLPathExpressionCompiler(
+      nodeInfoKind, namespaces, compileInfo, isEvaluatedAbove)
+    val compiledDPath = compiler.compile(expr)
+    compiledDPath
   }
 }
+

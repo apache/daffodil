@@ -67,11 +67,28 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.runtimeData)
-  val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
+  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.runtimeData)
+  val textParser = new TextParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
 
-  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.knownEncodingStringBitLengthFunction, e.knownEncodingCharset)
+  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.knownEncodingCharset)
 
+//  def unparser: Unparser = new Unparser(e) {
+//    val t = e.asInstanceOf[Term]
+//    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
+//    // setLoggingLevel(LogLevel.Info)
+//    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+//    Assert.invariant(delim != "") //shouldn't be here at all in this case
+//
+//    def unparse(start: UState): UState = {
+//      val encoder = e.knownEncodingCharset.charset.newEncoder()
+//      start.outStream.setEncoder(encoder)
+//      start.outStream.fillCharBuffer(unparserDelim)
+//      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
+//      start
+//    }
+//  }
+
+//  def unparserDelim: String
 }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
@@ -216,10 +233,10 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   extends Text(e, e, guard)
   with DelimiterText {
 
-  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.runtimeData)
-  val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
+  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.runtimeData)
+  val textParser = new TextParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
 
-  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.knownEncodingCharset)
+  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.knownEncodingCharset)
 
   /*
   def unparser: Unparser = new Unparser(e) {
@@ -233,7 +250,7 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
       // We really want to do something similar to the below to evaluate the expression
       // for a delimiter.
       //      val localDelimsRaw = {
-      //        val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
+      //        val (res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
       //        vars = newVMap
       //        res
       //      }
@@ -279,7 +296,7 @@ case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep"
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
-  val dp = new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+  val dp = new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
 
   private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
     string.startsWith(possiblePrefix)

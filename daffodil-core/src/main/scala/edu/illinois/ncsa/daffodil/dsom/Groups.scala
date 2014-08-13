@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import java.util.UUID
-
 import scala.Option.option2Iterable
 import scala.xml.Attribute
 import scala.xml.Elem
@@ -42,7 +41,6 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Null
 import scala.xml.Text
 import scala.xml._
-
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.AlignmentType
@@ -55,6 +53,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -67,6 +66,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin {
+
+  def termRuntimeData: TermRuntimeData
 
   /**
    * An integer which is the alignment of this term. This takes into account the
@@ -349,6 +350,12 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case Some(_) => enclosingTerm.get.nearestEnclosingElement
   }
 
+  lazy val nearestEnclosingElementNotRef: Option[ElementBase] = nearestEnclosingElement match {
+    case None => None
+    case Some(er: ElementRef) => er.nearestEnclosingElement // can't be an element ref again
+    case x => x
+  }
+
   lazy val thisTermNoRefs: Term = thisTermNoRefs_.value
   private val thisTermNoRefs_ = LV('thisTermNoRefs) {
     val es = nearestEnclosingSequence
@@ -604,6 +611,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
   lazy val group = groupDef.modelGroup
+
+  override lazy val termRuntimeData = group.termRuntimeData
 
   override lazy val couldHaveText = group.couldHaveText
 

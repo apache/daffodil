@@ -61,24 +61,46 @@ object NS {
     }
   }
 
-  def apply (ns: org.jdom2.Namespace): NS = apply(ns.getURI().toString())
-  
+  def apply(uri: URI): NS = NS(uri.toString)
+  def apply(prefix: String, uri: URI): NS = NS(uri)
+  def apply(prefix: String, nsString: String): NS = NS(nsString) // ignore prefix
+
+  // def apply (ns: org.jdom2.Namespace): NS = apply(ns.getURI().toString())
+
   nsCache.put("", NoNamespace)
+
+  /**
+   * Finds all prefixes for a given namespace. Used to suggest
+   * possible missing prefix in diagnostic error messages.
+   */
+  def allPrefixes(ns: NS, nsb: scala.xml.NamespaceBinding): Seq[String] = {
+    if (ns == NoNamespace) return Nil
+    if (nsb == null) return Nil
+    if (nsb == scala.xml.TopScope) return Nil
+    val uri = ns.uri
+    Assert.invariant(uri != null && uri != "")
+    Assert.invariant(nsb.uri != null && nsb.uri != "")
+    val moreMatches = allPrefixes(ns, nsb.parent)
+    if (uri == nsb.uri) nsb.prefix +: moreMatches
+    else moreMatches
+  }
 }
 
 object NoNamespace extends NS("") {
   override def isNoNamespace = true
   override def toString = "No_Namespace"
+  override lazy val uri = Assert.usageError("No-namespace has no URI.")
   override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
 }
 
-class NS protected (s: String) { // protected constructor. Must use factory.
+class NS protected (s: String) extends Serializable { // protected constructor. Must use factory.
   override def toString = s
   def toStringOrNullIfNoNS = s
   lazy val uri = new URI(s)
   def isNoNamespace = false
   override def hashCode() = s.hashCode()
-  lazy val toJDOM = org.jdom2.Namespace.getNamespace(s)
+  @deprecated("remove calls to this method", "2014-08-21")
+  lazy val toJDOM = NS(s)
 }
 
 /**

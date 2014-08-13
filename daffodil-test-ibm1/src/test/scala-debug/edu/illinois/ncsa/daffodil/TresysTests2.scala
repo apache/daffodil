@@ -101,6 +101,16 @@ class TresysTests2 {
   lazy val runnerBD = new DFDLTestSuite(Misc.getRequiredResource(bd))
   @Test def test_BD000() { runnerBD.runOneTest("BD000") } // binary boolean type
 
+  val be = testDir + "BE.tdml"
+  lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
+  @Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
+  @Test def test_BE001() { runnerBE.runOneTest("BE001") }
+
+  val bf = testDir + "BF.tdml"
+  lazy val runnerBF1 = new DFDLTestSuite(Misc.getRequiredResource(bf))
+  @Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
+  @Test def test_BF001() { runnerBF1.runOneTest("BF001") }
+
   val bg = testDir + "BG.tdml"
   lazy val runnerBG = new DFDLTestSuite(Misc.getRequiredResource(bg))
   @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452)

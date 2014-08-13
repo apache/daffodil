@@ -52,6 +52,7 @@ import scala.xml.Text
 import scala.language.reflectiveCalls
 import java.net.URI
 import java.net.URL
+import edu.illinois.ncsa.daffodil.xml.NS
 
 object Implicits {
   /**
@@ -552,10 +553,10 @@ object XMLUtil {
   val DAFFODIL_INTERNAL_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int"
   val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE
   val EXT_PREFIX = "daf"
-  val EXT_NS_OBJECT = org.jdom2.Namespace.getNamespace(EXT_PREFIX, EXT_NS)
+  val EXT_NS_OBJECT = NS(EXT_PREFIX, EXT_NS)
   val INT_NS = DAFFODIL_INTERNAL_NAMESPACE
   val INT_PREFIX = "dafint"
-  val INT_NS_OBJECT = org.jdom2.Namespace.getNamespace(INT_PREFIX, INT_NS)
+  val INT_NS_OBJECT = NS(INT_PREFIX, INT_NS)
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"

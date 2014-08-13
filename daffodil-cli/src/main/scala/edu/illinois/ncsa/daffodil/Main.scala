@@ -71,6 +71,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.Await
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.compiler._
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -275,7 +276,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
     val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An option namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
     val validate: ScallopOption[ValidationMode.Type] = {
       val converter = optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map { x =>
@@ -329,7 +330,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "The total number of files to parse.")
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
       case Some(mode) => mode
@@ -366,7 +367,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val schemas = opt[List[String]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")(singleListArgConverter[String](a => a))
     val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An option namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
-    val parser = opt[String](short = 'P', argName = "file", descr = "use a previously saved parser.")
+    val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
       case None => ValidationMode.Full
@@ -403,10 +404,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   // Save Subcommand Options
   val save = new scallop.Subcommand("save-parser") {
     banner("""|Usage: daffodil save-parser -s <schema>... [-r [{namespace}]<root>]
-              |                            [-p <path>] [outfile]
+              |                            [-p <path>]
               |                            [--validate [mode]] 
               |                            [-D[{namespace}]<variable>=<value>...]
-              |                            [-c <file>]
+              |                            [-c <file>] [outfile]
               |
               |Create and save a parser using a DFDL schema
               |
@@ -478,16 +479,6 @@ object Main extends Logging {
     indented.mkString("\n")
   }
 
-  def createProcessorFromParser(parseFile: String, path: Option[String], mode: ValidationMode.Type) = {
-    val compiler = Compiler()
-    val processorFactory = Timer.getResult("reloading", compiler.reload(parseFile))
-    if (processorFactory.canProceed) {
-      val processor = processorFactory.onPath(path.getOrElse("/"))
-      processor.setValidationMode(mode)
-      Some(processor)
-    } else None
-  }
-
   /**
    * Loads and validates the configuration file.
    *
@@ -518,6 +509,14 @@ object Main extends Logging {
     bindingsWithUpdates
   }
 
+  def displayDiagnostics(pr: WithDiagnostics) {
+    pr.getDiagnostics.foreach { d =>
+      //log(lvl, "%s", d.getMessage())
+      val lvl = if (d.isError) LogLevel.Error else LogLevel.Warning
+      log(lvl, d.getMessage())
+    }
+  }
+
   /**
    * Retrieves all external variables specified via the command line interface.
    *
@@ -542,6 +541,16 @@ object Main extends Logging {
 
     val bindings = overrideBindings(individualVars, configFileVars)
     bindings
+  }
+
+  def createProcessorFromParser(savedParser: File, path: Option[String], mode: ValidationMode.Type) = {
+    val compiler = Compiler()
+    val processor = Timer.getResult("reloading", compiler.reload(savedParser))
+    displayDiagnostics(processor)
+    if (processor.canProceed) {
+      processor.setValidationMode(mode)
+      Some(processor)
+    } else None
   }
 
   def retrieveTunables(tunables: Map[String, String], configFileNode: Option[Node]) = {
@@ -590,11 +599,14 @@ object Main extends Logging {
       val processorFactory = compiler.compile(schemaFiles: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
+        displayDiagnostics(processor)
         processor.setValidationMode(mode)
         Some(processor) // note: processor could still be isError == true
         // but we do definitely get a processor.
-      } else
+      } else {
+        displayDiagnostics(processorFactory)
         None
+      }
     })
     pf
   }
@@ -653,12 +665,6 @@ object Main extends Logging {
           }
         }
 
-        def displayDiagnostics(lvl: LogLevel.Type, pr: WithDiagnostics) {
-          pr.getDiagnostics.foreach { d =>
-            log(lvl, "%s", d.getMessage())
-          }
-        }
-
         val rc = processor match {
           case Some(processor) if (processor.canProceed) => {
             val (input, optDataSize) = parseOpts.infile.get match {
@@ -678,11 +684,10 @@ object Main extends Logging {
                 case Some(szInBytes) => processor.parse(inChannel, szInBytes * 8)
               })
             val loc = parseResult.resultState.currentLocation
+            displayDiagnostics(parseResult)
             if (parseResult.isError) {
-              displayDiagnostics(LogLevel.Error, parseResult)
               1
             } else {
-              displayDiagnostics(LogLevel.Warning, parseResult) // displays any warnings (should be no errors)
               val output = parseOpts.output.get match {
                 case Some("-") | None => System.out
                 case Some(file) => new FileOutputStream(file)
@@ -739,12 +744,6 @@ object Main extends Logging {
           } else {
             val files: List[File] = performanceOpts.schemas().map(s => new File(s))
             createProcessorFromSchemas(files, performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, tunables, validate)
-          }
-        }
-
-        def displayDiagnostics(lvl: LogLevel.Type, pr: WithDiagnostics) {
-          pr.getDiagnostics.foreach { d =>
-            log(lvl, "%s", d.getMessage())
           }
         }
 
@@ -905,10 +904,9 @@ object Main extends Logging {
           case Some(file) => new FileOutputStream(file)
         }
 
-        val outChannel = java.nio.channels.Channels.newChannel(output)
         val rc = processor match {
           case Some(processor) => {
-            Timer.getResult("saving", processor.save(outChannel))
+            Timer.getResult("saving", processor.save(output))
             0
           }
           case None => 1
@@ -1075,6 +1073,10 @@ object Main extends Logging {
       run(arguments)
     } catch {
       case e: java.io.FileNotFoundException => {
+        log(LogLevel.Error, "%s", e.getMessage)
+        1
+      }
+      case e: DaffodilTunableParameters.TunableLimitExceededError => {
         log(LogLevel.Error, "%s", e.getMessage)
         1
       }

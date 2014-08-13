@@ -7,6 +7,7 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 
 abstract class HexBinaryLengthInBytesParser(justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
@@ -15,9 +16,10 @@ abstract class HexBinaryLengthInBytesParser(justificationTrim: TextJustification
     justificationTrim,
     pad,
     erd,
-    Charset.forName("ISO-8859-1"),
-    (s: String) => { s.length * 8 },
-    8) {
+    new DFDLCharset("ISO-8859-1"),
+    true,
+    8,
+    "ISO-8859-1") {
   
   override def formatValue(value: String) = {
     val hexStr = value.map(c => c.toByte.formatted("%02X")).mkString

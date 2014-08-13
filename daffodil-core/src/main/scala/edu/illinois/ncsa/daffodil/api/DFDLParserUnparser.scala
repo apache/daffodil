@@ -124,7 +124,7 @@ object DFDL {
 
     def compile(schemaFiles: File*): ProcessorFactory
 
-    def reload(fileName: String): ProcessorFactory
+    def reload(savedParser: File): DataProcessor
   }
 
   /**
@@ -153,10 +153,10 @@ object DFDL {
     def onPath(xpath: String): DataProcessor
   }
 
-  trait DataProcessor extends WithDiagnostics {
+  trait DataProcessor extends WithDiagnostics with Serializable {
     def setValidationMode(mode: ValidationMode.Type): Unit
     def getValidationMode(): ValidationMode.Type
-    def save(output: Output): Unit
+    def save(output: java.io.OutputStream): Unit
     def setExternalVariables(extVars: Map[String, String]): Unit
     def setExternalVariables(extVars: File): Unit
     def setExternalVariables(extVars: Seq[Binding]): Unit

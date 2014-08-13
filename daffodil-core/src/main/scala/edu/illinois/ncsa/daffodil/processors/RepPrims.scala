@@ -62,15 +62,15 @@ object RepPrims {
   abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram)
     extends UnaryGram(context, r) {
     Assert.invariant(n > 0)
-    val rd = context.elementRuntimeData
-    val intN = n.toInt
-    val rParser = r.parser
+    lazy val rd = context.elementRuntimeData
+    lazy val intN = n.toInt
+    lazy val rParser = r.parser
 
   }
 
   abstract class Rep3Arg(f: (LocalElementBase, Long, => Gram) => Gram) {
     def apply(context: LocalElementBase, n: Long, rr: => Gram) = {
-      val r = rr
+      lazy val r = rr
       if (n == 0 || r.isEmpty) EmptyGram
       else f(context, n, r)
     }
@@ -78,7 +78,7 @@ object RepPrims {
 
   abstract class Rep2Arg(f: (LocalElementBase, => Gram) => Gram) {
     def apply(context: LocalElementBase, r: => Gram) = {
-      val rr = r
+      lazy val rr = r
       if (rr.isEmpty) EmptyGram
       else f(context, r)
     }

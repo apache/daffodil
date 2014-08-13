@@ -69,12 +69,15 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   }
 
   lazy val isScannable: Boolean = {
-    val parentElem: ElementBase = enclosingComponent.get.asInstanceOf[ElementBase]
-    modelGroup.group.isScannable
-    val unScannableChildren = modelGroup.group.groupMembers.filterNot { child =>
-      (child.knownEncodingCharset == parentElem.knownEncodingCharset) && child.isScannable
+    val selfOK = modelGroup.group.isScannable
+    if (!selfOK) false
+    else {
+      val parentElem: ElementBase = enclosingComponent.get.asInstanceOf[ElementBase]
+      val unScannableChildren = modelGroup.group.groupMembers.filterNot { child =>
+        (child.knownEncodingCharset == parentElem.knownEncodingCharset) && child.isScannable
+      }
+      unScannableChildren.length == 0
     }
-    unScannableChildren.length == 0
   }
 
   lazy val alignmentValueInBits: Int = {

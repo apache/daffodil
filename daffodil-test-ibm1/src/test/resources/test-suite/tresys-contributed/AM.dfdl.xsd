@@ -42,12 +42,12 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[2]='71' and
-                      ../../tns:array[1]='73' and
-                      ../../tns:array[4]='70' and
-                      ../../tns:array[3]='56' and
-                      ../../tns:array[6]='57' and
-                      ../../tns:array[5]='97'
+                      ../../array[2]=71 and
+                      ../../array[1]=73 and
+                      ../../array[4]=70 and
+                      ../../array[3]=56 and
+                      ../../array[6]=57 and
+                      ../../array[5]=97
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -58,10 +58,10 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[8] = '74' and
-                      ../../tns:array[7] = '70' and
-                      ../../tns:array[10] = '73' and
-                      ../../tns:array[9] = '70'
+                      ../../array[8] = 74 and
+                      ../../array[7] = 70 and
+                      ../../array[10] = 73 and
+                      ../../array[9] = 70
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -72,19 +72,19 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '73' and
-                      ../../tns:array[2] = '83' and
-                      ../../tns:array[3] = '79' and
-                      ../../tns:array[4] = '45' and
-                      ../../tns:array[5] = '49' and
-                      ../../tns:array[6] = '48' and
-                      ../../tns:array[7] = '51' and
-                      ../../tns:array[8] = '48' and
-                      ../../tns:array[9] = '51' and
-                      ../../tns:array[10] = '45' and
-                      ../../tns:array[11] = '50' and
-                      ../../tns:array[12] = '49' and
-                      ../../tns:array[13] = '59'
+                      ../../array[1] = 73 and
+                      ../../array[2] = 83 and
+                      ../../array[3] = 79 and
+                      ../../array[4] = 45 and
+                      ../../array[5] = 49 and
+                      ../../array[6] = 48 and
+                      ../../array[7] = 51 and
+                      ../../array[8] = 48 and
+                      ../../array[9] = 51 and
+                      ../../array[10] = 45 and
+                      ../../array[11] = 50 and
+                      ../../array[12] = 49 and
+                      ../../array[13] = 59
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -95,14 +95,14 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '137' and
-                      ../../tns:array[2] = '80' and
-                      ../../tns:array[3] = '78' and
-                      ../../tns:array[4] = '71' and
-                      ../../tns:array[5] = '13' and
-                      ../../tns:array[6] = '10' and
-                      ../../tns:array[7] = '26' and
-                      ../../tns:array[8] = '10'
+                      ../../array[1] = 137 and
+                      ../../array[2] = 80 and
+                      ../../array[3] = 78 and
+                      ../../array[4] = 71 and
+                      ../../array[5] = 13 and
+                      ../../array[6] = 10 and
+                      ../../array[7] = 26 and
+                      ../../array[8] = 10
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -113,10 +113,10 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '202' and
-                      ../../tns:array[2] = '254' and
-                      ../../tns:array[3] = '186' and
-                      ../../tns:array[4] = '190'
+                      ../../array[1] = 202 and
+                      ../../array[2] = 254 and
+                      ../../array[3] = 186 and
+                      ../../array[4] = 190
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -127,10 +127,10 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '77' and
-                      ../../tns:array[2] = '84' and
-                      ../../tns:array[3] = '104' and
-                      ../../tns:array[4] = '100'
+                      ../../array[1] = 77 and
+                      ../../array[2] = 84 and
+                      ../../array[3] = 104 and
+                      ../../array[4] = 100
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -141,8 +141,8 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '35' and
-                      ../../tns:array[2] = '33'
+                      ../../array[1] = 35 and
+                      ../../array[2] = 33
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -153,8 +153,8 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '37' and
-                      ../../tns:array[2] = '33'
+                      ../../array[1] = 37 and
+                      ../../array[2] = 33
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -165,10 +165,10 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '37' and
-                      ../../tns:array[2] = '80' and
-                      ../../tns:array[3] = '68' and
-                      ../../tns:array[4] = '70'
+                      ../../array[1] = 37 and
+                      ../../array[2] = 80 and
+                      ../../array[3] = 68 and
+                      ../../array[4] = 70
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -179,8 +179,8 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '80' and
-                      ../../tns:array[2] = '75'
+                      ../../array[1] = 80 and
+                      ../../array[2] = 75
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -191,18 +191,18 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '0' and
-                      ../../tns:array[2] = '0' and
-                      ../../tns:array[3] = '0' and
-                      ../../tns:array[4] = '24' and
-                      ../../tns:array[5] = '102' and
-                      ../../tns:array[6] = '116' and
-                      ../../tns:array[7] = '121' and
-                      ../../tns:array[8] = '112' and
-                      ../../tns:array[9] = '51' and
-                      ../../tns:array[10] = '103' and
-                      ../../tns:array[11] = '112' and
-                      ../../tns:array[12] = '53'
+                      ../../array[1] = 0 and
+                      ../../array[2] = 0 and
+                      ../../array[3] = 0 and
+                      ../../array[4] = 24 and
+                      ../../array[5] = 102 and
+                      ../../array[6] = 116 and
+                      ../../array[7] = 121 and
+                      ../../array[8] = 112 and
+                      ../../array[9] = 51 and
+                      ../../array[10] = 103 and
+                      ../../array[11] = 112 and
+                      ../../array[12] = 53
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>
@@ -213,9 +213,9 @@
                 <annotation>
                   <appinfo source="http://www.ogf.org/dfdl/">
                     <dfdl:discriminator>{
-                      ../../tns:array[1] = '31' and
-                      ../../tns:array[2] = '140' and
-                      ../../tns:array[3] = '8'
+                      ../../array[1] = 31 and
+                      ../../array[2] = 140 and
+                      ../../array[3] = 8
                       }</dfdl:discriminator>
                   </appinfo>
                 </annotation>

@@ -80,7 +80,7 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) fSizeInBits
       else lengthLimitInBits
-    val bitsPerChar = context.knownEncodingWidthInBits.get
+    val bitsPerChar = context.knownEncodingWidthInBits
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)
@@ -97,7 +97,7 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) bytes.length * 8
       else lengthLimitInBits
-    val bitsPerChar = context.knownEncodingWidthInBits.get
+    val bitsPerChar = context.knownEncodingWidthInBits
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)
@@ -603,7 +603,7 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStream: InStream) extends 
   }
 
   def dump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
-    bytes2Hex(byteDump(numBytes))
+    "0x" + bytes2Hex(byteDump(numBytes))
   }
 
   /*

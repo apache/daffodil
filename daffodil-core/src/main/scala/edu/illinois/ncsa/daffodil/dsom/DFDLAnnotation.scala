@@ -37,7 +37,7 @@ import scala.xml.Node
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors._
@@ -49,6 +49,9 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.dpath._
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.QName
 
 /**
  * Base class for any DFDL annotation
@@ -159,7 +162,7 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
 
   override lazy val path = formatAnnotation.path + "::" + prettyName
 
-  override lazy val schemaComponent = formatAnnotation.annotatedSC
+  override lazy val schemaComponent: SchemaFileLocatable = formatAnnotation.annotatedSC // .runtimeData
 
   override lazy val schemaDocument = formatAnnotation.schemaDocument
   override lazy val fileName = xmlSchemaDocument.fileName
@@ -281,7 +284,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   def getFormatChain(): ChainPropProvider = {
     val formatAnnotations = formatRefMap.map { case ((_, _), fa) => fa }.toSeq
     val withMe = (this +: formatAnnotations).distinct
-    val res = new ChainPropProvider(withMe, this)
+    val res = new ChainPropProvider(withMe, this.prettyName)
     res
   }
 
@@ -418,7 +421,8 @@ class DFDLChoice(node: Node, decl: Choice)
   extends DFDLModelGroup(node, decl)
 
 class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
-  extends DFDLNonDefaultFormatAnnotation(node, decl)
+  extends DFDLNonDefaultFormatAnnotation(node, decl) {
+}
 // Leave the below comments in place. These are not reproduced (currently)
 // on SimpleTypeDefBase. It appears these properties are only accessed
 // indirectly by way of an ElementDecl that uses this type.
@@ -440,8 +444,10 @@ abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSch
   // DFDLAnnotation class
   lazy val asAnnotation = self
 
+  @deprecated("use globalQName", "2014-09-18")
   lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, name)
 
+  lazy val globalQName: GlobalQName = QName.createGlobal(name, context.targetNamespace)
 }
 
 class DFDLDefineFormat(node: Node, sd: SchemaDocument)
@@ -466,10 +472,16 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 
 }
 
-class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
+class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
+
+  override def enclosingComponent = Some(defES)
+
+  lazy val referringComponent: Option[SchemaComponent] = Some(defES)
+
+  override lazy val schemaComponent: DPathCompileInfo = defES
 
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
@@ -494,17 +506,23 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
     }
   }
 
-  lazy val optionEscapeCharacter = {
+  lazy val optionEscapeCharacter = _optionEscapeCharacter.value
+  private val _optionEscapeCharacter = LV('optionEscapeCharacter) {
     escapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => Some(decl.expressionCompiler.compile(ConvertToType.String, escapeCharacterRaw))
+      case Found(v, loc) => Some(decl.expressionCompiler.compile(NodeInfo.NonEmptyString, escapeCharacterRaw))
     }
   }
 
-  lazy val optionEscapeEscapeCharacter = {
+  lazy val optionEscapeEscapeCharacter = _optionEscapeEscapeCharacter.value
+  private val _optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
     escapeEscapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => Some(decl.expressionCompiler.compile(ConvertToType.String, escapeEscapeCharacterRaw))
+      case Found(v, loc) => {
+        val typeIfStaticallyKnown = NodeInfo.String
+        val typeIfRuntimeKnown = NodeInfo.NonEmptyString
+        Some(decl.expressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, escapeEscapeCharacterRaw))
+      }
     }
   }
 
@@ -531,17 +549,36 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent)
 
 }
 
-class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument)
+class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
+  extends DFDLDefiningAnnotation(node, decl) {
+  def forComponent(pointOfUse: SchemaComponent) = new DFDLDefineEscapeScheme(node, decl, pointOfUse)
+}
+
+class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse: SchemaComponent)
   extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
   // with DefineEscapeScheme_AnnotationMixin 
   {
+
+  override def enclosingComponent = Some(pointOfUse)
+  override lazy val schemaComponent: DPathCompileInfo = pointOfUse
+
+  /*
+   * For diagnostic messages, we need the decl - because that's where the 
+   * escapescheme definition is written.
+   * 
+   * But for purposes of compilation of expressions, we need the 
+   * nearest enclosing element. That will be made to happen by way of 
+   * the ExpressionCompiler - every schema component potentially has one.
+   */
   requiredEvaluations(escapeScheme)
+
+  lazy val referringComponent: Option[SchemaComponent] = Some(pointOfUse)
 
   lazy val escapeScheme = {
     val des = Utility.trim(node)
     val res = des match {
       case <dfdl:defineEscapeScheme>{ e @ <dfdl:escapeScheme>{ contents @ _* }</dfdl:escapeScheme> }</dfdl:defineEscapeScheme> =>
-        new DFDLEscapeScheme(e, decl)
+        new DFDLEscapeScheme(e, decl, this)
       case _ => SDE("The content of %s is not complete.", des.label)
     }
     res
@@ -634,7 +671,7 @@ class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
   lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
-  lazy val typeQName = getAttributeOption("type").getOrElse("xs:string")
+  lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")
   lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
   lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
   lazy val defaultValueAsElement = node.child.text.trim
@@ -647,15 +684,34 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   lazy val extName = expandedNCNameToQName
 
-  lazy val (typeURI, typeLocalName) = XMLUtils.QName(node, typeQName, this)
+  lazy val (typeURI, typeLocalName) = XMLUtils.QName(node.scope, typeQNameString, this)
   lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
+  lazy val typeQName = QName.resolveRef(typeQNameString, namespaces).getOrElse(
+    SDE("Variables must have primitive types. Type is '%s'.", typeQNameString))
+
+  lazy val primType = RuntimePrimType(typeQName.local, this)
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
 
   // So that we can display the namespace information associated with
   // the variable when toString is called.
   override def prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"
 
+  override lazy val runtimeData = variableRuntimeData
+
+  lazy val variableRuntimeData = new VariableRuntimeData(
+    this.lineAttribute,
+    this.columnAttribute,
+    this.fileAttribute,
+    this.prettyName,
+    this.path,
+    this.namespaces,
+    this.external,
+    this.defaultValue,
+    this.extName,
+    this.extType,
+    this.globalQName,
+    this.primType)
 }
 
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
@@ -668,7 +724,7 @@ class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   lazy val gram: Gram = NewVariableInstanceStart(decl, this)
   lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
 
-  lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
+  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument)
   lazy val expName = XMLUtils.expandedQName(uri, localName)
   lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
     this.schemaDefinitionError("Variable not found: %s", ref))
@@ -691,7 +747,7 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  lazy val (uri, localName) = XMLUtils.QName(decl.xml, ref, decl.schemaDocument)
+  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument)
   lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
     schemaDefinitionError("Unknown variable: %s", ref))
 

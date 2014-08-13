@@ -162,7 +162,7 @@
 		<tdml:document />
 
 		<tdml:errors>
-			<tdml:error>Runtime Schema Definition Error</tdml:error>
+			<tdml:error>Schema Definition Error</tdml:error>
 			<tdml:error>v_no_default has no value.</tdml:error>
 			<tdml:error>It was not set, and has</tdml:error>
 			<tdml:error>no default value.</tdml:error>

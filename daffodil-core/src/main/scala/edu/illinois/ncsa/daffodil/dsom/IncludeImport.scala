@@ -159,7 +159,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
 
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
 
-  val orElseURL: String = "file:???"
+  val orElseURL: String = "file:??"
 
   /**
    * Used in diagnostic messages; hence, valueOrElse to avoid
@@ -176,7 +176,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
  * Mixin for SchemaSet
  */
 
-trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
+trait SchemaSetIncludesAndImportsMixin extends Serializable{ self: SchemaSet =>
 
   /**
    * Let's take the list of file names given, and make a fake schema
@@ -229,7 +229,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 /**
  * Mixin for SchemaDocument
  */
-trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
+trait SchemaDocIncludesAndImportsMixin extends Serializable{ self: XMLSchemaDocument =>
 
   /**
    * For include, if the included schema doesn't have a

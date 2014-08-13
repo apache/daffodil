@@ -35,30 +35,20 @@ package edu.illinois.ncsa.daffodil.debugger
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
-import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.Success
-import edu.illinois.ncsa.daffodil.processors.Parser
-import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.xpath.XPathUtil
-import edu.illinois.ncsa.daffodil.processors.xpath.{ NumberResult, StringResult, BooleanResult, NodeResult, DFDLFunctions }
-import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import edu.illinois.ncsa.daffodil.processors.InfosetDocument
-import edu.illinois.ncsa.daffodil.processors.InfosetItem
+import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.ExecutionMode
-import javax.xml.xpath.{ XPathConstants, XPathException }
 import java.io.File
 import jline.console.completer.Completer
 import jline.console.completer.StringsCompleter
 import jline.console.completer.AggregateCompleter
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.xpath.NotANumberResult
-import edu.illinois.ncsa.daffodil.processors.PrimParser
-import edu.illinois.ncsa.daffodil.processors.xpath.NodeSetResult
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import javax.xml.xpath.XPathException
+import edu.illinois.ncsa.daffodil.dpath._
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -191,23 +181,24 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     }
   }
 
-  private def isInteresting(parser: Parser): Boolean = {
-    parser.toString match {
-      case "Sequence" => false
-      case "ComplexType" => false
-      case _ => {
-        if (parser.toString.startsWith("<seq>")) {
-          false
-        } else if (parser.toString.startsWith("RepExactlyN")) {
-          false
-        } else if (parser.toString.startsWith("RepAtMostTotalN")) {
-          false
-        } else {
-          true
-        }
-      }
-    }
-  }
+  private def isInteresting(parser: Parser): Boolean = true
+  //  {
+  //    parser.toString match {
+  //      case "Sequence" => false
+  //      case "ComplexType" => false
+  //      case _ => {
+  //        if (parser.toString.startsWith("<seq>")) {
+  //          false
+  //        } else if (parser.toString.startsWith("RepExactlyN")) {
+  //          false
+  //        } else if (parser.toString.startsWith("RepAtMostTotalN")) {
+  //          false
+  //        } else {
+  //          true
+  //        }
+  //      }
+  //    }
+  //  }
 
   private def readCmd(): Seq[String] = {
     val input = runner.getCommand.trim
@@ -227,19 +218,18 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
   }
 
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
+    val context = state.getContext()
+    val ec = new ExpressionCompiler(context)
+    val namespaces = context.namespaces
+    val compiledExpr = ec.compileExpression(NodeInfo.Boolean, expression, parser.context.namespaces, context)
     try {
-      DFDLFunctions.currentPState.set(Some(state))
-      val compiledExpr = XPathUtil.compileExpression(expression, parser.context.namespaces, state)
-      val element = state.infoset.asInstanceOf[InfosetElement]
-      val res = element.evalExpression(expression, compiledExpr, state.variableMap, XPathConstants.BOOLEAN)
+      val (res, vars) = compiledExpr.evaluate(state)
       res match {
-        case BooleanResult(b) => b
+        case b: Boolean => b
         case _ => false
       }
     } catch {
-      case e: Throwable => false
-    } finally {
-      DFDLFunctions.currentPState.set(None)
+      case e: XPathException => false
     }
   }
 
@@ -294,6 +284,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
         runner.lineOutput(out)
       }
     }
+  }
+
+  private def debugPrettyPrintXML(ie: InfosetElement) {
+    val xml = if (DebuggerConfig.removeHidden) {
+      ie.removeHiddenElements().toXML
+    } else {
+      ie.toXML
+    }
+    if (xml.length == 0) debugPrintln("Nil"); return
+    Assert.invariant(xml.length == 1)
+    val elem = xml(0)
+    val xmlClean = XMLUtils.removeAttributes(elem) // strip them all , Seq(XMLUtils.INT_NS_OBJECT))
+    val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
+    val pp = new scala.xml.PrettyPrinter(wrap, 2)
+    val xmlString = pp.format(xmlClean)
+    debugPrintln(xmlString)
   }
 
   /**********************************/
@@ -831,94 +837,54 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
       val name = "eval"
       val desc = "evaluate a DFDL expression"
       override lazy val short = "ev"
-      val longDesc = """|Usage: ev[al] [type] <dfdl_expression>
+      val longDesc = """|Usage: ev[al] <dfdl_expression>
                         |
-                        |Evaluate a DFDL expression. The [type] argument determines how to
-                        |display the result of the dfdl_expression. The value of [type] may
-                        |be "string", "number", "boolean", or "node". If [type] is not given,
-                        |then "node" is assumed."
+                        |Evaluate a DFDL expression. 
                         |
-                        |Example: eval number dfdl:occursIndex()""".stripMargin
+                        |Example: eval dfdl:occursIndex()""".stripMargin
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         if (args.size == 0) {
-          throw new DebugException("eval requires an optional type (string, number, node, boolean) and a DFDL expression")
-        } else {
-          val (evalType, expressionList) = args.head match {
-            case "string" => (XPathConstants.STRING, args.tail)
-            case "number" => (XPathConstants.NUMBER, args.tail)
-            case "boolean" => (XPathConstants.BOOLEAN, args.tail)
-            case "node" => (XPathConstants.NODE, args.tail)
-            case _ => (XPathConstants.NODE, args) // assume node and all args are the expressoin
-          }
+          throw new DebugException("eval requires a DFDL expression")
+        }
+        val expressionList = args
+        val ec = new ExpressionCompiler(state.getContext())
+        val expression = expressionList.mkString(" ")
 
-          if (expressionList.size == 0) {
-            throw new DebugException("DFDL expression required")
-          }
+        val element = state.infoset match {
+          case e: InfosetElement => e
+          case d: InfosetDocument => d.getRootElement()
+        }
+        // this adjustment is so that automatic display of ".." doesn't fail
+        // for the root element.
+        val adjustedExpression =
+          if (!element.parent.isDefined && (expression == "..")) "."
+          else expression
+        val context = state.getContext()
+        val namespaces = context.namespaces
+        val expressionWithBraces =
+          if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
+          else adjustedExpression
+        val isEvaluatedAbove = false
+        val compiledExpression = ec.compile(
+          NodeInfo.AnyType, expressionWithBraces, namespaces, context,
+          isEvaluatedAbove)
+        try {
 
-          try {
-            DFDLFunctions.currentPState.set(Some(state))
-            val expression = expressionList.mkString(" ")
-            val element = state.infoset match {
-              case e: InfosetElement => One(e)
-              case d: InfosetDocument => d.getRootElement()
-            }
-            val res = element.map { e =>
-              val adjustedExpression =
-                if (e.parent.isInstanceOf[InfosetDocument] && (expression == "..")) "." else expression
-              val compiledExpr = XPathUtil.compileExpression(adjustedExpression, parser.context.namespaces, state)
-              e.evalExpression(expression, compiledExpr, state.variableMap, evalType)
-            }
-            res.map {
-              case NotANumberResult(v) => debugPrintln(v)
-              case NumberResult(n) => debugPrintln(n)
-              case StringResult(s) => debugPrintln(s)
-              case BooleanResult(b) => debugPrintln(b)
-              case NodeResult(n) => {
-                val xmlNode = XMLUtils.element2Elem(n)
-                val xmlNoHidden =
-                  if (DebuggerConfig.removeHidden) {
-                    XMLUtils.removeHiddenElements(xmlNode)
-                  } else {
-                    xmlNode
-                  }
-                if (xmlNoHidden.length > 0) {
-                  val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
-                  val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-                  val pp = new scala.xml.PrettyPrinter(wrap, 2)
-                  val xml = pp.format(xmlClean)
-                  debugPrintln(xml)
-                }
-              }
-              case NodeSetResult(ns) => {
-                val numNodes = ns.getLength()
-                for (i <- 0 to numNodes) {
-                  val item = ns.item(i).asInstanceOf[org.jdom2.Element]
-
-                  val xmlNode = XMLUtils.element2Elem(item)
-                  val xmlNoHidden =
-                    if (DebuggerConfig.removeHidden) {
-                      XMLUtils.removeHiddenElements(xmlNode)
-                    } else {
-                      xmlNode
-                    }
-                  if (xmlNoHidden.length > 0) {
-                    val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
-                    val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-                    val pp = new scala.xml.PrettyPrinter(wrap, 2)
-                    val xml = pp.format(xmlClean)
-                    debugPrintln(xml)
-                  }
-
-                }
+          val (res, vmap) = compiledExpression.evaluate(state)
+          res match {
+            case ie: InfosetElement => debugPrettyPrintXML(ie)
+            case nodeSeq: Seq[Any] => nodeSeq.foreach { a =>
+              a match {
+                case ie: InfosetElement => debugPrettyPrintXML(ie)
+                case _ => debugPrintln(a)
               }
             }
-          } catch {
-            case e: XPathException => {
-              val ex = if (e.getMessage() == null) e.getCause() else e
-              throw new DebugException("expression evaluation failed: %s".format(ex))
-            }
-          } finally {
-            DFDLFunctions.currentPState.set(None)
+            case _ => debugPrintln(res)
+          }
+        } catch {
+          case e: XPathException => {
+            val ex = if (e.getMessage() == null) e.getCause() else e
+            throw new DebugException("expression evaluation failed: %s".format(ex))
           }
         }
         DebugState.Pause
@@ -1252,11 +1218,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           val rootNode =
             if (currentNode.isInstanceOf[InfosetElement]) {
 
-              var tmpNode = currentNode.asInstanceOf[InfosetElement]
-              if (tmpNode.parent != null) {
-                while (tmpNode.parent.isInstanceOf[InfosetElement]) {
-                  tmpNode = tmpNode.parent.asInstanceOf[InfosetElement]
-                }
+              var tmpNode = currentNode.asInstanceOf[DIElement]
+              var parent = tmpNode.diParent
+              while (parent.isDefined) {
+                tmpNode = parent.get
+                parent = tmpNode.diParent
               }
               tmpNode
             } else {
@@ -1269,7 +1235,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           } else {
             xmlNode
           }
-          val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0), Seq(NS(XMLUtils.INT_NS)))
+          val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0)) //, Seq(XMLUtils.INT_NS_OBJECT))
           xmlClean
         }
 
@@ -1540,7 +1506,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           DebugState.Pause
         }
       }
-
 
       object SetWrapLength extends DebugCommand {
         val name = "wrapLength"

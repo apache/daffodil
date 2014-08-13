@@ -79,7 +79,9 @@ object Maybe {
     //
     // def unapply[T](value: Maybe[T]) = if (value.isDefined) scala.Some(value.get) else scala.None
   }
-  private object NopeValue
+  private object NopeValue extends Serializable {
+    override def toString = "Nope"
+  }
 }
 
 /**

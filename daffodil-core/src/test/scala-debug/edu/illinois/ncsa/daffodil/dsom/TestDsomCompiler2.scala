@@ -365,7 +365,7 @@ class TestDsomCompiler2 extends Logging {
     //        assertTrue(actualString.endsWith(">15</data>"))
 
     val infoset = <data xmlns={ example }>15</data>
-    val bytes = Array[Byte](0, 0, 0, 15)
+    val bytes = List[Byte](0, 0, 0, 15).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
@@ -379,7 +379,7 @@ class TestDsomCompiler2 extends Logging {
     //        assertTrue(actualString.endsWith(">15</data>"))
 
     val infoset = <data xmlns={ example }>15</data>
-    val bytes = Array[Byte](15, 0, 0, 0)
+    val bytes = List[Byte](15, 0, 0, 0).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
 
@@ -425,7 +425,7 @@ class TestDsomCompiler2 extends Logging {
       </xs:complexType>)
 
     val infoset = <list xmlns={ example }><byte>31</byte><short>-112</short><long>1030</long></list>
-    val bytes = Array[Byte](31, -1, -112, 0, 0, 0, 0, 0, 0, 4, 6)
+    val bytes = List[Byte](31, -1, -112, 0, 0, 0, 0, 0, 0, 4, 6).toArray
     TestUtils.testUnparsingBinary(testSchema, infoset, bytes)
   }
 }

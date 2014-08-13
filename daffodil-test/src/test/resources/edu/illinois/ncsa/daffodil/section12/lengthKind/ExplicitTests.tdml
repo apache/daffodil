@@ -548,10 +548,13 @@
 			<tdml:documentPart type="text"><![CDATA[000118Ridgewood Circle    Rochester           NY123]]></tdml:documentPart>
 		</tdml:document>
 		<tdml:errors>
-			<tdml:error>Parse Error: StringFixedLengthInBytesFixedWidthCharacters - Insufficient Bits in field: IndexOutOfBounds</tdml:error>
-		</tdml:errors>
-	</tdml:parserTestCase>
-
+			<tdml:error>Number of bytes</tdml:error>
+            <tdml:error>808464433</tdml:error>
+            <tdml:error>exceeds</tdml:error>
+            <tdml:error>limit</tdml:error>
+        </tdml:errors>
+    </tdml:parserTestCase>
+        
 	<tdml:defineSchema name="test_ExplicitLengthChars">
 
 		<dfdl:format ref="ex:daffodilTest1" />

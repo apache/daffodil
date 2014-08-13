@@ -51,7 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Enum
 
 object ValidationMode extends Enum {
   import edu.illinois.ncsa.daffodil.japi.{ ValidationMode => JValidationMode }
-  sealed abstract class Type protected (val jVMode: JValidationMode) extends EnumValueType with Ordered[Type] {
+  sealed abstract class Type protected (val jVMode: JValidationMode) extends EnumValueType with Ordered[Type] with Serializable {
     val id = jVMode.id
     def compare(that: ValidationMode.Type) = this.id - that.id
   }

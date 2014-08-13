@@ -13,7 +13,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 // This is the block of mutable things
 // including the source of characters.
-class Registers {
+class Registers extends Serializable {
 
   var numCharsRead: Int = 0
   var numCharsReadUntilDelim: Int = 0
@@ -128,7 +128,7 @@ class Registers {
  * This object itself will exist and be a member of the states ArrayBuffer as well as the other
  * states before any access to the lazy val members.
  */
-abstract class State(states: => ArrayBuffer[State]) {
+abstract class State(states: => ArrayBuffer[State]) extends Serializable {
 
   def stateNum: Int
   def stateName: String
@@ -432,7 +432,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], 
 
 }
 
-trait DelimsMatcher {
+trait DelimsMatcher extends Serializable {
   def r: Registers
   def delims: Seq[DFADelimiter]
 

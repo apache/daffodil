@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -66,9 +65,11 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Stack
+import edu.illinois.ncsa.daffodil.dpath.DState
 
-case class MPState(val scr: SchemaComponentRegistry, val dataProc: DFDL.DataProcessor) {
+case class MPState(val dataProc: DFDL.DataProcessor) {
 
+  val dstate: DState = new DState
   val arrayIndexStack = Stack[Long](1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
@@ -122,6 +123,7 @@ case class PState(
   val mpstate: MPState)
   extends DFDL.State with ThrowsSDE {
 
+  def dstate = mpstate.dstate
   // TODO: many off-by-one errors due to not keeping strong separation of 
   // one-based and zero-based indexes.
   // 
@@ -159,8 +161,8 @@ case class PState(
   }
   def getContext(): ElementRuntimeData = {
     // Assumes that a JDOM element was already created
-    val currentElement = parentElement
-    val res = currentElement.schemaComponent(this)
+    val currentElement = thisElement
+    val res = currentElement.runtimeData
     res
   }
 
@@ -209,7 +211,24 @@ case class PState(
   def bitLimit0b = inStream.bitLimit0b
   def charPos = inStream.charPos0b
   def charLimit = inStream.charLimit0b
-  def parentElement = infoset.asInstanceOf[InfosetElement]
+
+  def thisElement = infoset.asInstanceOf[InfosetElement]
+
+  def simpleElement: InfosetSimpleElement = {
+    val res = infoset match {
+      case s: DISimple => s
+      case _ => Assert.usageError("not a simple element")
+    }
+    res
+  }
+
+  def complexElement: InfosetComplexElement = {
+    val res = infoset match {
+      case c: DIComplex => c
+      case _ => Assert.usageError("not a complex element.")
+    }
+    res
+  }
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
   def textReader = inStream.reader
 
@@ -268,6 +287,11 @@ case class PState(
       diagnostics = failureDiagnostic :: diagnostics)
   }
 
+  def setFailed(failureDiagnostic: Diagnostic) {
+    status = new Failure(failureDiagnostic.getMessage)
+    diagnostics = failureDiagnostic :: diagnostics
+  }
+
   def withNewPointOfUncertainty = {
     copy(discriminatorStack = false +: discriminatorStack)
   }
@@ -307,9 +331,9 @@ case class PState(
     this
   }
 
-  def captureInfosetElementState = parentElement.captureState()
+  def captureInfosetElementState = thisElement.captureState()
 
-  def restoreInfosetElementState(st: Infoset.ElementState) = parentElement.restoreState(st)
+  def restoreInfosetElementState(st: InfosetElementState) = thisElement.restoreState(st)
 
   /**
    * calling this forces the entire input into memory
@@ -335,18 +359,38 @@ object PState {
   /**
    * Initialize the state block given our InStream and a root element declaration.
    */
-  def createInitialState(scr: SchemaComponentRegistry,
+  def createInitialState(
     root: ElementRuntimeData,
     in: InStream,
     dataProc: DFDL.DataProcessor): PState = {
 
-    val doc = Infoset.newDocument()
+    val doc = Infoset.newDocument(root)
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
     val discriminator = false
     val textReader: Maybe[DFDLCharReader] = Nope
-    val mutablePState = MPState(scr, dataProc)
+    val mutablePState = MPState(dataProc)
+
+    val newState = PState(in, doc, variables, status, diagnostics, List(false), mutablePState)
+    newState
+  }
+
+  /**
+   * For testing, we can pass in the Infoset pre-constructed.
+   */
+  def createInitialState(
+    doc: InfosetDocument,
+    root: ElementRuntimeData,
+    in: InStream,
+    dataProc: DFDL.DataProcessor): PState = {
+
+    val variables = dataProc.getVariables
+    val status = Success
+    val diagnostics = Nil
+    val discriminator = false
+    val textReader: Maybe[DFDLCharReader] = Nope
+    val mutablePState = MPState(dataProc)
 
     val newState = PState(in, doc, variables, status, diagnostics, List(false), mutablePState)
     newState
@@ -355,19 +399,19 @@ object PState {
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(scr: SchemaComponentRegistry,
+  def createInitialState(
     root: ElementRuntimeData,
     data: String,
     bitOffset: Long,
     dataProc: DFDL.DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
-    createInitialState(scr, root, in, dataProc, data.length, bitOffset)
+    createInitialState(root, in, dataProc, data.length, bitOffset)
   }
 
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(scr: SchemaComponentRegistry,
+  def createInitialState(
     root: ElementRuntimeData,
     input: DFDL.Input,
     dataProc: DFDL.DataProcessor,
@@ -376,7 +420,7 @@ object PState {
     val bitOrder = root.defaultBitOrder
     val inStream =
       InStream.fromByteChannel(root, input, bitOffset, bitLengthLimit, bitOrder)
-    createInitialState(scr, root, inStream, dataProc)
+    createInitialState(root, inStream, dataProc)
   }
 
 }

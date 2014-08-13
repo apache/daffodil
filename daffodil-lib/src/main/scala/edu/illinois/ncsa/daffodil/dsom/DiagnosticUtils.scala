@@ -36,6 +36,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
+import edu.illinois.ncsa.daffodil.util.Misc
 
 object DiagnosticUtils {
   /**
@@ -55,12 +56,13 @@ object DiagnosticUtils {
     val m = th.getMessage()
     val c = th.getCause()
     val res = (m, c) match {
-      case (null, null) => th.getClass.getName
+      case (null, null) => Misc.getNameFromClass(th)
+      case ("", null) => Misc.getNameFromClass(th)
       case (m, null) => m
       case (null, c) => getSomeMessage(c).get
       case (m, c) => {
         val Some(cmsg) = getSomeMessage(c)
-        cmsg + "(within " + m + ")"
+        cmsg + " (within " + m + ")"
       }
     }
     Some(res)

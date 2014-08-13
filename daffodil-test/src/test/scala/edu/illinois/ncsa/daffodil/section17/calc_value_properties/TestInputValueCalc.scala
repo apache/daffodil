@@ -77,8 +77,9 @@ class TestInputValueCalc {
   @Test def test_InputValueCalc_05() { runner.runOneTest("InputValueCalc_05") }
   @Test def test_InputValueCalc_06() { runner.runOneTest("InputValueCalc_06") }
 
-  @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
-  @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
+  // moved to debug - parent:: and such advanced axis notations in DPath are not implemented. 
+  //  @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
+  //  @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
   @Test def test_InputValueCalc_10() { runner.runOneTest("InputValueCalc_10") }
   @Test def test_InputValueCalc_11() { runner.runOneTest("InputValueCalc_11") }
 

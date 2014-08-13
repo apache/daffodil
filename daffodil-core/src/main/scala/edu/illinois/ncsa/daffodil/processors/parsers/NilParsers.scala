@@ -12,24 +12,24 @@ import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.DelimParseFailure
 import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 
 class LiteralNilPatternParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
   d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   pattern: String,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, charset, eName, nilValues)
+  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, dcharset, eName, nilValues)
   with HasPadding
   with TextReader {
 
@@ -48,7 +48,7 @@ class LiteralNilPatternParser(
       if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(charset, start.bitPos, start)
+      val reader = getReader(dcharset.charset, start.bitPos, start)
 
       val result = d.get.parseInputPatterned(pattern, reader, start)
 
@@ -62,14 +62,14 @@ class LiteralNilPatternParser(
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
 
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
 
@@ -99,11 +99,11 @@ class LiteralNilExplicitParser(
   nUnits: Long,
   d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   pattern: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, charset, eName, nilValues)
+  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, dcharset, eName, nilValues)
   with HasPadding
   with TextReader {
 
@@ -122,7 +122,7 @@ class LiteralNilExplicitParser(
       if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(charset, start.bitPos, start)
+      val reader = getReader(dcharset.charset, start.bitPos, start)
 
       //        val byteReader = in.byteReader.atPos(bytePos)
       //        val reader = byteReader.charReader(decoder.charset().name())
@@ -139,14 +139,14 @@ class LiteralNilExplicitParser(
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
 
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
@@ -176,11 +176,11 @@ class LiteralNilExplicitLengthInCharsParser(
   val justificationTrim: TextJustificationType.Type,
   d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, charset, eName, nilValues)
+  extends LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser], erd, dcharset, eName, nilValues)
   with TextReader
   with HasPadding {
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -195,8 +195,8 @@ class LiteralNilExplicitLengthInCharsParser(
 
       //val postEvalState = start //start.withVariables(vars)
 
-      val R(nCharsAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
-      val nChars = nCharsAsAny.asInstanceOf[String] //nBytesAsAny.asInstanceOf[Long]
+      val (nCharsAsAny, newVMap) = expr.evaluate(start)
+      val nChars = asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
       val postEvalState = start.withVariables(newVMap)
       log(LogLevel.Debug, "Explicit length %s", nChars)
 
@@ -212,11 +212,11 @@ class LiteralNilExplicitLengthInCharsParser(
       //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(charset, start.bitPos, start)
+      val reader = getReader(dcharset.charset, start.bitPos, start)
 
       if (nChars == 0 && isEmptyAllowed) {
         log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
-        postEvalState.parentElement.makeNil()
+        postEvalState.thisElement.setNilled()
         return postEvalState // Empty, no need to advance
       }
 
@@ -232,14 +232,14 @@ class LiteralNilExplicitLengthInCharsParser(
 
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
             return postEvalState // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
             return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
-            start.parentElement.makeNil()
+            start.thisElement.setNilled()
 
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
             val endCharPos =
@@ -268,10 +268,10 @@ class LiteralNilKnownLengthInBytesParser(
   lengthInBytes: Long,
   d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser], erd, charset, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser], erd, dcharset, eName, nilValues) {
   final def computeLength(start: PState) = {
     (lengthInBytes, start.variableMap)
   }
@@ -282,23 +282,23 @@ class LiteralNilExplicitLengthInBytesParser(
   val justificationTrim: TextJustificationType.Type,
   d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser], erd, charset, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser], erd, dcharset, eName, nilValues) {
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
-    val R(nBytesAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
-    val nBytes = nBytesAsAny.toString().toLong //nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = expr.evaluate(start)
+    val nBytes = asLong(nBytesAsAny) //nBytesAsAny.asInstanceOf[Long]
     (nBytes, newVMap)
   }
 }
 
 abstract class LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
   extends PrimParser(erd) {
@@ -309,15 +309,14 @@ abstract class LiteralNilParserBase(d: ThreadLocal[DFDLDelimParser],
   }
 
   val isEmptyAllowed = nilValues.contains("%ES;")
-  val charsetName = charset.name()
 }
 
 abstract class LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser],
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(d, erd, charset, eName, nilValues)
+  extends LiteralNilParserBase(d, erd, dcharset, eName, nilValues)
   with HasPadding {
 
   protected def computeLength(start: PState): (Long, VariableMap)
@@ -344,10 +343,10 @@ abstract class LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser],
       // some encodings aren't whole bytes
       // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
-      val decoder = charset.newDecoder()
+      val decoder = dcharset.charset.newDecoder()
 
       try {
-        val reader = in.getCharReader(charset, postEvalState.bitPos)
+        val reader = in.getCharReader(dcharset.charset, postEvalState.bitPos)
         val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
         val cb = decoder.decode(ByteBuffer.wrap(bytes))
         val result = cb.toString
@@ -360,14 +359,14 @@ abstract class LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser],
 
         if (isFieldEmpty && isEmptyAllowed) {
           // Valid!
-          postEvalState.parentElement.makeNil()
+          postEvalState.thisElement.setNilled()
           return postEvalState // Empty, no need to advance
         } else if (isFieldEmpty && !isEmptyAllowed) {
           // Fail!
           return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
         } else if (d.get.isFieldDfdlLiteral(trimmedResult, nilValues.toSet)) {
           // Contains a nilValue, Success!
-          postEvalState.parentElement.makeNil()
+          postEvalState.thisElement.setNilled()
 
           log(LogLevel.Debug, "%s - Found %s", eName, trimmedResult)
           log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
@@ -383,7 +382,7 @@ abstract class LiteralNilInBytesParserBase(d: ThreadLocal[DFDLDelimParser],
           // In this case, we failed to get the bytes
           if (isEmptyAllowed) {
             // Valid!
-            postEvalState.parentElement.makeNil()
+            postEvalState.thisElement.setNilled()
             return postEvalState // Empty, no need to advance
           } else {
             return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)

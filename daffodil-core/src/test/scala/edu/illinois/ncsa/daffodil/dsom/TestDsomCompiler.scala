@@ -77,6 +77,9 @@ class TestDsomCompiler extends Logging {
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
+  // FIXME: convert this test to TDML or discard. It is testing internal APIs
+  // and not defending itself from thrown exceptions the way the real APIs do (or
+  // are supposed to anyway.
   @Test def testTypeReferentialError() {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -88,6 +91,7 @@ class TestDsomCompiler extends Logging {
     if (!hasErrorText) fail("Didn't get expected error. Got: " + msg)
   }
 
+  // FIXME - convert this test to TDML or drop if there is coverage other places.
   @Test def testTypeReferentialError2() {
     val sch: Node = <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com">
                       <element name="foo" type="bar"/><!-- Illegal: no prefix on name of the type. -->
@@ -259,7 +263,7 @@ class TestDsomCompiler extends Logging {
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
-    val es = desc1.escapeScheme.escapeCharacterRaw.value
+    val es = desc1.forComponent(e1a).escapeScheme.escapeCharacterRaw.value
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs

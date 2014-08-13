@@ -43,6 +43,10 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.processors.NonTermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import scala.xml.NamespaceBinding
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.VariableMap
 
 /**
  * The core root class of the DFDL Schema object model.
@@ -57,7 +61,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   with ResolvesQNames
   with FindPropertyMixin
   with LookupLocation
-  with PropTypes {
+  with PropTypes
+  with DPathCompileInfo {
 
   lazy val primitiveFactory: PrimitiveFactoryBase = schemaSet.primitiveFactory
   lazy val prims = primitiveFactory
@@ -70,7 +75,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * We need our own instance so that the expression compiler has this schema
    * component as its context.
    */
-  lazy val expressionCompiler = new ExpressionCompiler(this)
+  lazy val expressionCompiler = _expressionCompiler.value
+  private val _expressionCompiler = LV('expressionCompiler) { new ExpressionCompiler(this) }
 
   override lazy val lineAttribute: Option[String] = {
     val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
@@ -89,19 +95,56 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     optAttrText
   }
 
-  lazy val namespaces = XMLUtils.namespaceBindings(xml.scope)
+  /**
+   * Namespace scope for resolving QNames.
+   *
+   * We insist that the prefix "xsi" is properly defined for use
+   * in xsi:nil attributes, which is how we represent nilled elements
+   * when we convert to XML.
+   */
+  lazy val namespaces = {
+    val scope = xml.scope // XMLUtils.namespaceBindings(xml.scope)
+    val foundXsiURI = scope.getURI("xsi")
+    val xsiURI = XMLUtils.xsiURI.toString
+    val newScope =
+      (foundXsiURI, this) match {
+        case (null, e: ElementBase) if (e.isNillable) => new NamespaceBinding("xsi", xsiURI, scope)
+        case (`xsiURI`, _) => scope
+        case (s: String, _) => schemaDefinitionError("Prefix 'xsi' must be bound to the namespace '%s', but was bound to the namespace '%s'.", xsiURI, s)
+        case (null, _) => scope
+      }
+    newScope
+  }
 
+  /**
+   * ALl non-terms get runtimeData from this definition. All Terms
+   * which are elements and model-groups) override this.
+   *
+   * The Term class has a generic termRuntimeData => TermRuntimeData
+   * function (useful since all Terms share things like having charset encoding)
+   * The Element classes all inherit an elementRuntimeData => ElementRuntimeData
+   * and the model groups all have modelGroupRuntimeData => ModelGroupRuntimeData.
+   *
+   * There is also VariableRuntimeData and SchemaSetRuntimeData.
+   */
   lazy val runtimeData: RuntimeData = nonTermRuntimeData // overrides in ModelGroup, ElementBase
 
-  lazy val nonTermRuntimeData = {
+  lazy val isArray = false // overridden in local elements
+
+  lazy val nonTermRuntimeData = _nonTermRuntimeData.value
+  private val _nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
       lineAttribute,
       columnAttribute,
       fileAttribute,
       prettyName,
       path,
-      namespaces)
+      namespaces,
+      enclosingElement.map { _.erd },
+      variableMap)
   }
+
+  override lazy val variableMap: VariableMap = schemaSet.variableMap
 
   /*
    * Anything non-annotated always returns property not found
@@ -112,16 +155,19 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     ExecutionMode.requireCompilerMode
     NotFound(Nil, Nil)
   }
-  // FIXME: not sure why non-annotated schema components need to have findProperty
+  // Q: not sure why non-annotated schema components need to have findProperty
   // on them at all. Who would call it polymorphically, not knowing whether they 
   // have an annotated schema component or not?
+  // A: DFDLAnnotation - the annotation objects themselves - aren't annotated
+  // schema components - they have a relationship to an annotated schema component
+  // but clearly they carry properties.
 
   lazy val schemaFile: Option[DFDLSchemaFile] = parent.schemaFile
   lazy val schemaSet: SchemaSet = parent.schemaSet
   lazy val schemaDocument: SchemaDocument = parent.schemaDocument
   lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
   lazy val schema: Schema = parent.schema
-  override lazy val schemaComponent: SchemaComponent = this
+  override lazy val schemaComponent: SchemaFileLocatable = this
   override lazy val fileName: String = parent.fileName
 
   override lazy val isHidden: Boolean = isHidden_.value
@@ -134,7 +180,38 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   override def enclosingComponent = super.enclosingComponent.asInstanceOf[Option[SchemaComponent]]
 
-  lazy val enclosingTerm: Option[Term] = {
+  /**
+   * All schema components except the root have an enclosing element.
+   */
+  final lazy val enclosingElement: Option[ElementBase] =
+    enclosingElementCompileInfo.asInstanceOf[Option[ElementBase]]
+  //  {
+  //    val et = enclosingTerm
+  //    et match {
+  //      case None => None
+  //      case Some(eb: ElementBase) => Some(eb)
+  //      case Some(sc: SchemaComponent) =>
+  //        val ec = sc.enclosingComponent
+  //        val ee = ec.flatMap {
+  //          _.enclosingElement
+  //        }
+  //        ee
+  //    }
+  //  }
+
+  final override lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = {
+    val ec = this.enclosingComponent
+    ec match {
+      // we need to walk back past element references since they will
+      // fool things looking for an enclosing element into thinking they've
+      // moved outward to one, when they're just on the element ref to the
+      // element they were originally on.
+      case Some(er: ElementRef) => er.immediateEnclosingCompileInfo
+      case _ => ec
+    }
+  }
+
+  final lazy val enclosingTerm: Option[Term] = {
     enclosingComponent match {
       case None => None
       case Some(t: Term) => Some(t)
@@ -162,7 +239,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * Used in diagnostic messages and code debug messages
    */
 
-  lazy val scPath: Seq[SchemaComponent] = {
+  final lazy val scPath: Seq[SchemaComponent] = {
     val ec = enclosingComponent
     val scpOpt = ec.map {
       sc =>

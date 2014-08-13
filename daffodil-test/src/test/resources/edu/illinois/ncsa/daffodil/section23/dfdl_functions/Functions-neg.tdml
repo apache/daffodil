@@ -8,6 +8,7 @@
     <dfdl:format ref="ex:daffodilTest1"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
+    <xs:element name="foo" type="xs:int" dfdl:inputValueCalc="{ ex:foo(-9) }"/>
 
   </tdml:defineSchema>
 
@@ -15,7 +16,7 @@
     Test Name: fn_not_declared
        Schema: Functions.dfdl.xsd
          Root: abs
-      Purpose: This test demonstrates that tdml-embedded schemas include default namespaces.
+      Purpose: This test demonstrates that tdml-embedded schemas don't include default namespaces. You have to put fn in them explicitly.
 -->
 
 	<tdml:parserTestCase name="fn_not_declared" root="abs"
@@ -24,11 +25,11 @@
 		<tdml:document>
 			<tdml:documentPart type="text"></tdml:documentPart>
 		</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <abs>9</abs>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>prefix</tdml:error>
+      <tdml:error>fn:abs</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
 <!--
@@ -39,15 +40,16 @@
                an SDE occurs.
 -->
 
-	<tdml:parserTestCase name="fn_not_declared_2" root="abs"
-		model="Functions-neg.dfdl.xsd" description="">
+	<tdml:parserTestCase name="fn_not_declared_2" root="foo"
+		model="XPathFunctions" description="">
 
 		<tdml:document>
 			<tdml:documentPart type="text"></tdml:documentPart>
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Prefix fn has not been declared</tdml:error>
+      <tdml:error>function</tdml:error>
+      <tdml:error>ex:foo</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

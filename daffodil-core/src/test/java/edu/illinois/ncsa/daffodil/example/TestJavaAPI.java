@@ -142,11 +142,9 @@ public class TestJavaAPI {
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc);
 		try {
+			@SuppressWarnings("unused")
 			org.jdom2.Document doc = res.result();
 			fail("did not throw");
-			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
-			xo.setFormat(Format.getPrettyFormat());
-			xo.output(doc, System.out);
 		} catch (Exception e) {
 			assertTrue(e.getMessage().contains("no result"));
 		}

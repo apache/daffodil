@@ -124,9 +124,16 @@ object Validator extends NoBindingFactoryAdapter {
   }
 
   def validateXMLSources(schemaFileNames: Seq[String], document: Node) = {
-    val schemaSources: Array[javax.xml.transform.Source] = schemaFileNames.map { fn => new StreamSource(new File(fn)) }.toArray
+    val schemaSources: Seq[javax.xml.transform.Source] = schemaFileNames.map { fn =>
+      {
+        val uri = new URI(fn)
+        val f = new File(uri)
+        val stream = new StreamSource(f)
+        stream
+      }
+    }
     val documentSource = new InputSource(new StringReader(document.toString()))
-    val schema = sf.newSchema(schemaSources)
+    val schema = sf.newSchema(schemaSources.toArray)
 
     val parser = makeParser(Some(schema))
 

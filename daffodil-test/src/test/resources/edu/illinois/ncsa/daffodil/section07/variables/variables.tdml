@@ -479,7 +479,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:simpleType name="reffed" dfdl:separator="{ /ex:elem/ex:header/ex:sep/text() }" dfdl:terminator="{ /ex:elem/ex:header/ex:term/text() }">
+    <xs:simpleType name="reffed" dfdl:separator="{ /ex:elem/ex:header/ex:sep }" dfdl:terminator="{ /ex:elem/ex:header/ex:term }">
       <xs:restriction base="xs:string"/>
     </xs:simpleType>
 
@@ -558,7 +558,10 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Cannot convert BEEEP to Int</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>BEEEP</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -595,7 +598,10 @@
     <tdml:document>boat</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression { (.) } evaluated to something that is not a number (NaN): boat.</tdml:error>
+      <tdml:error>cannot convert</tdml:error>
+      <tdml:error>boat</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -667,7 +673,7 @@
     model="setVarSchema" description="Section 7 - setVariable - variable scope - DFDL-7-128R">
     <tdml:document>6</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Variable map (runtime): variable {http://example.com}v_no_default has no value</tdml:error>
       <tdml:error>It was not set, and has no default value.</tdml:error>
     </tdml:errors>

@@ -327,7 +327,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
           if (n < 0) { // got 0 more bytes
             eof = true // so we're at EOF.
             if ((cb.position() == 0) && (!bb.hasRemaining())) { break } // no characters and no room to get more data into bb, then breakout.
-            decoder.reset() // TODO ??? why reset. Can we actually discard any decoder state (such as mid-character)?
+            decoder.reset() // TODO ? why reset. Can we actually discard any decoder state (such as mid-character)?
           }
           continue = true // No continue exists in Scala
         }

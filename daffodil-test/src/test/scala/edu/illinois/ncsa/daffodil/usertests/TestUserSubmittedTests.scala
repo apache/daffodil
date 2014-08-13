@@ -57,6 +57,7 @@ class TestUserSubmittedTests {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
 
+/*
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner
     tr.init
@@ -72,6 +73,7 @@ class TestUserSubmittedTests {
     Debugger.setDebugging(false)
     Debugger.setDebugger(null)
   }
+*/
 
 }
 

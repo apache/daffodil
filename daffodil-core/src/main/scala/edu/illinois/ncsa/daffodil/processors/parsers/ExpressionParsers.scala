@@ -2,30 +2,21 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
-import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors.charset._
 import edu.illinois.ncsa.daffodil.dsom.DFDLAssert
 import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.processors.ExpressionEvaluatorBase
-import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.dsom.DFDLAssertionBase
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
-import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
-import edu.illinois.ncsa.daffodil.processors.DelimParseFailure
-import edu.illinois.ncsa.daffodil.processors.AssertionFailed
-import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
-import edu.illinois.ncsa.daffodil.processors.InputValueCalc
-import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util.Debug
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -37,12 +28,11 @@ abstract class ExpressionEvaluationParser(expr: CompiledExpression, rd: RuntimeD
     "<" + rd.prettyName + ">" + expr.prettyExpr + "</" + rd.prettyName + ">"
   }
 
-  def eval(start: PState) = {
-    val currentElement = start.parentElement
-    val R(res, newVMap) =
-      expr.evaluate(currentElement, start.variableMap, start)
-    // val result = res.toString // Everything in JDOM is a string!
-    R(res, newVMap)
+  /**
+   * Returns a pair. Modifies the PState
+   */
+  protected def eval(start: PState): (Any, VariableMap) = {
+    expr.evaluate(start)
   }
 }
 
@@ -55,10 +45,10 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
     {
       withParseErrorThrowing(start) {
         log(LogLevel.Debug, "This is %s", toString)
-        val currentElement = start.parentElement
-        val R(res, newVMap) = eval(start)
-
-        currentElement.setDataValue(res.toString)
+        val currentElement: InfosetSimpleElement = start.simpleElement
+        val (res, newVMap) = eval(start)
+        if (start.status != Success) return start
+        currentElement.setDataValue(res)
         val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
         postState
       }
@@ -72,8 +62,12 @@ class SetVariableParser(expr: CompiledExpression, decl: RuntimeData, name: Strin
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
-        log(LogLevel.Debug, "This is %s", toString)
-        val R(res, newVMap) = eval(start)
+        log(Debug("This is %s", toString)) // important. Don't toString unless we have to log. 
+        val (res, newVMap) = eval(start)
+        res match {
+          case ps: PState => return ps;
+          case _ => /*fall through*/ }
+        if (start.status.isInstanceOf[Failure]) return start
         val newVMap2 = newVMap.setVariable(name, res, decl)
         val postState = start.withVariables(newVMap2)
         postState
@@ -111,7 +105,16 @@ class AssertExpressionEvaluationParser(
     {
       withParseErrorThrowing(start) {
         log(LogLevel.Debug, "This is %s", toString)
-        val R(res, newVMap) = eval(start)
+        //
+        // This now informs us of the success/failure of the expression
+        // evaluation via side-effect on the start state passed here.
+        //
+        val (res, newVMap) = eval(start)
+        //
+        // a PE during evaluation of an assertion is a PE
+        //
+        Assert.invariant(!start.status.isInstanceOf[Failure])
+        Assert.invariant(res != null)
         val testResult = res.asInstanceOf[Boolean]
         val postState = start.withVariables(newVMap)
         if (testResult) {
@@ -128,7 +131,7 @@ class AssertExpressionEvaluationParser(
 class AssertPatternParser(
   eName: String,
   kindString: String,
-  charset: Charset,
+  dcharset: DFDLCharset,
   d: ThreadLocal[DFDLDelimParser],
   decl: RuntimeData,
   stmt: DFDLAssert)
@@ -136,7 +139,6 @@ class AssertPatternParser(
   with TextReader {
 
   val testPattern = stmt.testTxt
-  val csName = charset.name()
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -159,7 +161,7 @@ class AssertPatternParser(
 
         log(LogLevel.Debug, "Retrieving reader")
 
-        val reader = getReader(charset, start.bitPos, lastState)
+        val reader = getReader(dcharset.charset, start.bitPos, lastState)
 
         val result = d.get.parseInputPatterned(testPattern, reader, start)
 
@@ -184,15 +186,13 @@ class DiscriminatorPatternParser(
   testPattern: String,
   eName: String,
   kindString: String,
-  charset: Charset,
+  dcharset: DFDLCharset,
   d: ThreadLocal[DFDLDelimParser],
   decl: RuntimeData,
   stmt: DFDLAssertionBase,
   gram: Gram)
   extends PrimParser(decl)
   with TextReader {
-
-  val csName = charset.name()
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -215,7 +215,7 @@ class DiscriminatorPatternParser(
 
         log(LogLevel.Debug, "Retrieving reader")
 
-        val reader = getReader(charset, start.bitPos, lastState)
+        val reader = getReader(dcharset.charset, start.bitPos, lastState)
 
         val result = d.get.parseInputPatterned(testPattern, reader, start)
 

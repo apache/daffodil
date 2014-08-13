@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:a="ns_a" xmlns:b="ns_b" xmlns:d="ns_d"
+    targetNamespace="ns_d"
+    elementFormDefault="unqualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<xs:include schemaLocation="C.xsd"/>
+
+<!-- Via the include, we get in this target namespace the elements defined in C.xsd
+However, that schema's element's form are respected so when C.xsd specifies elementFormDefault qualified,
+that takes precedence over the elementFormDefault here. Similarly when C.xsd specifies a local element
+declaration with form="qualified" that is interpreted as if that element decl were within this schema,
+which means it will have this target namespace qualifying its name.  -->
+</xs:schema>

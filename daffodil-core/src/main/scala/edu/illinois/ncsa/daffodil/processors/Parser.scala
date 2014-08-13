@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -54,22 +53,26 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.util._
+import Maybe._
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.dsom.TypeConversions
 
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: RuntimeData) extends Logging with ToBriefXMLImpl {
+abstract class Parser(val context: RuntimeData)
+  extends Logging
+  with ToBriefXMLImpl
+  with TypeConversions
+  with Serializable {
 
   def PE(pstate: PState, s: String, args: Any*) = {
-    pstate.failed(new ParseError(context, Some(pstate), s, args: _*))
+    pstate.failed(new ParseError(One(context), One(pstate), s, args: _*))
   }
 
   def processingError(state: PState, str: String, args: Any*) =
@@ -143,14 +146,14 @@ trait ToBriefXMLImpl {
   override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
-class SeqCompParser(context: RuntimeData, children: Seq[Gram])
+class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
   extends Parser(context)
   with ToBriefXMLImpl {
-  Assert.invariant(!children.exists { _.isEmpty })
+  //Assert.invariant(!childParsers.exists { _.isEmpty })
 
   override val nom = "seq"
 
-  override val childParsers = children.map { _.parser }
+  //override val childParsers = children.map { _.parser }
 
   def parse(pstate: PState): PState = {
     var pResult = pstate
@@ -169,14 +172,14 @@ class SeqCompParser(context: RuntimeData, children: Seq[Gram])
 
 }
 
-class AltCompParser(context: RuntimeData, children: Seq[Gram])
+class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
   extends Parser(context)
   with ToBriefXMLImpl {
-  Assert.invariant(!children.exists { _.isEmpty })
+  //Assert.invariant(!children.exists { _.isEmpty })
 
   override val nom = "alt"
 
-  override val childParsers = children.map { _.parser }
+  //override val childParsers = children.map { _.parser }
 
   def parse(pInitial: PState): PState = {
     val pStart = pInitial.withNewPointOfUncertainty
@@ -192,7 +195,9 @@ class AltCompParser(context: RuntimeData, children: Seq[Gram])
         } catch {
           case u: UnsuppressableException => throw u
           case rsde: RuntimeSchemaDefinitionError => throw rsde
-          case e: Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
+          // Don't catch this. Just let it propagate. Otherwise it makes it 
+          // hard to debug whatever caused the exception (e.g., class casts)
+          // case e: Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
         }
         if (pResult.status == Success) {
           log(LogLevel.Debug, "Choice alternative success: %s", parser)

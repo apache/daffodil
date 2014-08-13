@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Element references and Group References use this.
@@ -48,6 +49,12 @@ trait HasRefMixin extends GetAttributesMixin {
   //From GroupRef.
   private lazy val xsdRef = getAttributeRequired("ref")
   lazy val ref = xsdRef
+
+  lazy val (refPrefix, refLocalName) = xsdRef.split(":").toSeq match {
+    case Seq(pre, local) => (pre, local)
+    case Seq(local) => (null, local)
+    case _ => Assert.impossible("split has to produce one or two things")
+  }
 }
 
 trait ResolvesQNames

@@ -489,7 +489,7 @@
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:discriminator testKind="expression"
-            test='{. eq "123"}' message="Discriminator failed for expression '{. eq '123'}'" />
+            test='{. eq 123 }' message="Discriminator failed for expression '{. eq 123 }'" />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>

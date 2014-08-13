@@ -553,7 +553,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // TODO: Fix so we can validate here.
     //
 
-    // Something about the way XML is constructed is different between our jdom-converted 
+    // Something about the way XML is constructed is different between our infoset
     // results and the ones created by scala directly parsing the TDML test files.
     //
     // This has something to do with values being lists of text nodes and entities
@@ -563,9 +563,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     //
     // so we run the expected stuff through the same converters that were used to
     // convert the actual.
-    val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
+    // val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
+    val expected = infoset.contents
     // infoset.contents already has attributes removed.
-    val trimmedExpected = Utility.trim(expected)
+    // however, we call removeAttributes anyway because of the way it collapses
+    // multiple strings within a text node.
+    val trimmedExpected = XMLUtils.removeAttributes(Utility.trim(expected))
 
     XMLUtils.compareAndReport(trimmedExpected, actualNoAttrs)
   }
@@ -1011,6 +1014,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       // assemble the input from the various pieces, having lowered
       // everything to bits.
       val bytes = documentBytes.toArray
+      println("data size is " + bytes.length)
       val inputStream = new java.io.ByteArrayInputStream(bytes);
       val rbc = java.nio.channels.Channels.newChannel(inputStream);
       rbc.asInstanceOf[DFDL.Input]
@@ -1041,7 +1045,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
 
   lazy val textContentWithoutEntities = {
     if (replaceDFDLEntities) {
-      try { EntityReplacer.replaceAll(partRawContent) }
+      try { EntityReplacer { _.replaceAll(partRawContent) } }
       catch { case (e: Exception) => Assert.abort(e.getMessage()) }
     } else partRawContent
   }
@@ -1157,6 +1161,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
   lazy val fileDataInput = {
     val maybeFile = parent.parent.parent.findTDMLResource(partRawContent.trim())
     val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
+    println("file size is " + file.length())
     val fis = new FileInputStream(file)
     val rbc = fis.getChannel()
     rbc.asInstanceOf[DFDL.Input]

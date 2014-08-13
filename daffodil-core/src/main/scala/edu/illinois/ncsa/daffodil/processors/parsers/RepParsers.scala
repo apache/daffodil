@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.Infoset
+import edu.illinois.ncsa.daffodil.processors.InfosetElement
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends Parser(context) {
@@ -232,7 +233,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
           pResult.bytePos, erd.prettyName)
       }
       priorResult = pNext.duplicate()
-      pstate.mpstate.moveOverOneArrayIndexOnly
+      pNext.mpstate.moveOverOneArrayIndexOnly // was pstate, not pNext....why?
       pResult = pNext.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
 
     }
@@ -244,19 +245,18 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
   extends Parser(erd) with WithParseErrorThrowing {
 
   def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-    //
-    // Because the occurs count expression will be written as if we were already in a child node
-    // (e.g., ../countField where countField is a peer) we have to make a fake node, and attach it
-    // just for purposes of having the right relative path stuff here.
 
-    val pseudoElement = Infoset.newElement(erd)
-    val priorElement = pstate.parentElement
-    priorElement.addElement(pseudoElement)
     val res = try {
-      val R(oc, newVMap) = occursCount.evaluate(pseudoElement, pstate.variableMap, pstate)
+      val (oc, newVMap) = occursCount.evaluate(pstate)
       val postEvalState = pstate.withVariables(newVMap)
-      priorElement.removeContent(pseudoElement) // TODO: faster way? This might involve searching. We should keep the index.
-      val ocLong = oc.asInstanceOf[Long]
+      val ocLong = oc match {
+        case s: String => s.toInt.toLong
+        case i: Int => i.toLong
+        case l: Long => l
+        case bi: BigInt => bi.toLong
+        case bi: java.math.BigInteger => BigInt(bi).toLong
+        case _ => Assert.invariantFailed("not an integer-type number: " + oc + " of type " + oc.getClass().getName())
+      }
       if (ocLong < 0 ||
         ocLong > DaffodilTunableParameters.maxOccursBounds) {
         return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", occursCount.prettyExpr, ocLong)
@@ -265,7 +265,12 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
       postEvalState
     } catch {
       case u: UnsuppressableException => throw u
+      case r: RuntimeException => throw r
       case e: Exception =>
+        // TODO: get rid of this. Really we shouldn't have this general catch.
+        // parsers or the expression subsystem should be catching the narrow
+        // set of things that are "real" and allowing anything else to ripple to
+        // the top as a bug.
         PE(pstate, "Evaluation of occursCount expression %s threw exception %s", occursCount.prettyExpr, e)
     }
     res

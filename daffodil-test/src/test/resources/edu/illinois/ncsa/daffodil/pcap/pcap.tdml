@@ -19,7 +19,7 @@
     <tdml:errors>
       <tdml:error>Parse Error: Assertion failed</tdml:error>
       <tdml:error>Magic number was not 0xA1B2C3D4 (for bigEndian) or 0xD4C3B2A1 (for littleEndian)</tdml:error>
-      <tdml:error><![CDATA[Parsed value was: <MagicNumber>11111111</MagicNumber>]]></tdml:error>
+      <tdml:error>11111111</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

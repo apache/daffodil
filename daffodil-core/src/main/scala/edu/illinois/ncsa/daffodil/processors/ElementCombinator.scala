@@ -7,61 +7,45 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
+import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-
-object ElementCombinator {
-  def apply(context: ElementBase, eGram: Gram, eAfterGram: Gram) = {
-    if (context.isRepresented)
-      new ElementCombinator(context, eGram, eAfterGram)
-    else
-      new ElementCombinatorNoRep(context, eGram, eAfterGram)
-  }
-}
-
-object ChoiceElementCombinator {
-  def apply(context: ElementBase, eGram: Gram, eAfterGram: Gram) = {
-    new ChoiceElementCombinator(context, eGram, eAfterGram)
-  }
-}
+import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
 
-  def parser: Parser = new StatementElementParser(
-    context.elementRuntimeData,
-    context.name,
-    patDiscrim,
-    patAssert,
-    setVar,
-    testDiscrim,
-    testAssert,
-    eParser,
-    eAfterParser)
+  def parser: Parser =
+    if (context.isRepresented)
+      new StatementElementParser(
+        context.erd,
+        context.name,
+        patDiscrim,
+        patAssert,
+        setVar,
+        testDiscrim,
+        testAssert,
+        eParser,
+        eAfterParser)
+    else
+      new StatementElementParserNoRep(
+        context.erd,
+        context.name,
+        patDiscrim,
+        patAssert,
+        setVar,
+        testDiscrim,
+        testAssert,
+        eParser,
+        eAfterParser)
 }
 
-class ElementCombinatorNoRep(context: ElementBase, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinator(context, eGram, eAfterGram) {
-
-  override def parser: Parser = new StatementElementParserNoRep(
-    context.elementRuntimeData,
-    context.name,
-    patDiscrim,
-    patAssert,
-    setVar,
-    testDiscrim,
-    testAssert,
-    eParser,
-    eAfterParser)
-}
-
-class ChoiceElementCombinator private (context: ElementBase, eGram: Gram, eAfterGram: Gram)
+class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram: Gram) {
 
   def parser: Parser = new ChoiceStatementElementParser(
-    context.elementRuntimeData,
+    context.erd,
     context.name,
     patDiscrim,
     patAssert,
@@ -89,17 +73,18 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
   // requiredEvaluations(patDiscrim, patAssert, eGram, setVar, testDiscrim, testAssert)
   // Note: above not needed as these are ALWAYS evaluated below.
 
-  val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
-  val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
-  val setVar = context.setVariableStatements.map(_.gram.parser)
-  val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
-  val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
+  lazy val patDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
+  lazy val patAssert = context.assertStatements.filter(_.testKind == TestKind.Pattern).map(_.gram.parser)
+  lazy val setVar = context.setVariableStatements.map(_.gram.parser)
+  lazy val testDiscrim = context.discriminatorStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
+  lazy val testAssert = context.assertStatements.filter(_.testKind == TestKind.Expression).map(_.gram.parser)
 
-  val eParser: Option[Parser] = if (eGram.isEmpty) None
+  lazy val eParser: Option[Parser] = if (eGram.isEmpty) None
   else Some(eGram.parser)
 
-  val eAfterParser: Option[Parser] = if (eGramAfter.isEmpty) None
-  else Some(eGramAfter.parser)
+  lazy val eAfterParser: Option[Parser] =
+    if (eGramAfter.isEmpty) None
+    else Some(eGramAfter.parser)
 
   def parser: Parser
 
@@ -138,24 +123,26 @@ abstract class StatementElementParserBase(
   }
 
   def validate(pstate: PState): PState = {
-    val currentElement = pstate.parentElement
+    val currentElement = pstate.thisElement
 
-    if (currentElement.wasCheckConstraintsRun) { return pstate }
+    if (currentElement.valid.isDefined) { return pstate }
 
     val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
       case Right(boolVal) => {
-        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toBriefXML)
+        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML)
+        currentElement.setValid(true)
         pstate // Success, do not mutate state.
       }
       case Left(failureMessage) => {
         log(LogLevel.Debug,
           "Validation failed for %s due to %s. The element value was %s.",
-          context.toString, failureMessage, currentElement.toBriefXML)
+          context.toString, failureMessage, currentElement.toXML)
         pstate.withValidationError("%s failed dfdl:checkConstraints due to %s",
           context.toString, failureMessage)
+        currentElement.setValid(false)
+        pstate
       }
     }
-
     resultState
   }
 
@@ -279,14 +266,21 @@ class StatementElementParser(
 
     log(LogLevel.Debug, "currentElement = %s", currentElement)
     val priorElement = pstate.infoset
-    priorElement.addElement(currentElement)
+    priorElement match {
+      case ct: DIComplex => ct.addChild(currentElement)
+      case st: DISimple => {
+        // don't add as a child. This corner case
+        // is just about tests where the root node is 
+        // a simple element. 
+      }
+    }
     log(LogLevel.Debug, "priorElement = %s", priorElement)
     val postState = pstate.withParent(currentElement)
     postState
   }
 
   def parseEnd(pstate: PState): PState = {
-    val currentElement = pstate.parentElement
+    val currentElement = pstate.thisElement
 
     val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =
@@ -299,7 +293,9 @@ class StatementElementParser(
     // Assert.invariant(currentElement.getName() != "_document_" )
     val priorElement = currentElement.parent
     log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = postValidate.withParent(priorElement)
+    val postState =
+      if (priorElement.isDefined) postValidate.withParent(priorElement.get)
+      else postValidate
     move(pstate)
     postState
   }
@@ -334,6 +330,103 @@ class StatementElementParserNoRep(
     state.mpstate.moveOverOneElementChildOnly
   }
 }
+
+//class StatementElementArrayParser(
+//  erd: ElementRuntimeData,
+//  name: String,
+//  patDiscrim: Seq[Parser],
+//  patAssert: Seq[Parser],
+//  setVar: Seq[Parser],
+//  testDiscrim: Seq[Parser],
+//  testAssert: Seq[Parser],
+//  eParser: Option[Parser],
+//  eAfterParser: Option[Parser])
+//  extends StatementElementParserBase(
+//    erd,
+//    name,
+//    patDiscrim,
+//    patAssert,
+//    setVar,
+//    testDiscrim,
+//    testAssert,
+//    eParser,
+//    eAfterParser) {
+//  Assert.usage(erd.isArray)
+//
+//  def move(start: PState) {
+//    start.mpstate.moveOverOneGroupIndexOnly
+//    start.mpstate.moveOverOneElementChildOnly
+//  }
+//
+//  def parseBegin(pstate: PState): PState = {
+//    Assert.invariant(erd.isArray)
+//    val priorElement = pstate.complexElement
+//    val maybeChild = priorElement.getChildMaybe(erd)
+//    val currentElement =
+//      if (maybeChild.isDefined) {
+//        maybeChild.get
+//      } else {
+//        // no array exists into which to store the values
+//        val arr = Infoset.newElement(erd)
+//        priorElement.addChild(arr)
+//        arr
+//      }
+//    log(LogLevel.Debug, "currentElement = %s", currentElement)
+//    log(LogLevel.Debug, "priorElement = %s", priorElement)
+//    val postState = pstate.withParent(currentElement)
+//    postState
+//  }
+//
+//  def parseEnd(pstate: PState): PState = {
+//    val currentElement = pstate.thisElement
+//
+//    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
+//    val postValidate =
+//      if (shouldValidate && erd.isSimpleType) {
+//        // Execute checkConstraints
+//        val resultState = validate(pstate)
+//        resultState
+//      } else pstate
+//
+//    val priorElement = currentElement.parent
+//    log(LogLevel.Debug, "priorElement = %s", priorElement)
+//    val postState =
+//      if (priorElement.isDefined) postValidate.withParent(priorElement.get)
+//      else postValidate
+//    move(pstate)
+//    postState
+//  }
+//}
+//
+//class StatementElementArrayParserNoRep(
+//  erd: ElementRuntimeData,
+//  name: String,
+//  patDiscrim: Seq[Parser],
+//  patAssert: Seq[Parser],
+//  setVar: Seq[Parser],
+//  testDiscrim: Seq[Parser],
+//  testAssert: Seq[Parser],
+//  eParser: Option[Parser],
+//  eAfterParser: Option[Parser])
+//  extends StatementElementArrayParser(
+//    erd,
+//    name,
+//    patDiscrim,
+//    patAssert,
+//    setVar,
+//    testDiscrim,
+//    testAssert,
+//    eParser,
+//    eAfterParser) {
+//
+//  // if there is no rep (inputValueCalc), then we do create a new child so that index must advance,
+//  // but we don't create anything new as far as the group is concerned, and we don't want 
+//  // the group 'thinking' that there's a prior sibling inside the group and placing a 
+//  // separator after it. So in the case of NoRep, we don't advance group child, just element child.
+//  override def move(state: PState) {
+//    state.mpstate.moveOverOneElementChildOnly
+//  }
+//}
 
 class ChoiceStatementElementParser(
   erd: ElementRuntimeData,
@@ -372,7 +465,7 @@ class ChoiceStatementElementParser(
   // We don't want to modify the state here except
   // for validation.
   def parseEnd(pstate: PState): PState = {
-    val currentElement = pstate.parentElement
+    val currentElement = pstate.thisElement
 
     val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =

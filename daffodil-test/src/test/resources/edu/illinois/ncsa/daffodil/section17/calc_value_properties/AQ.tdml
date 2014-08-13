@@ -23,9 +23,9 @@
             dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
           <xs:element name="Add" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
-          <xs:element name="Substract" type="xsd:float"
+          <xs:element name="Subtract" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
-          <xs:element name="SubstractLiteral" type="xsd:float"
+          <xs:element name="SubtractLiteral" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - 2 }" />
         </xs:sequence>
       </xs:complexType>
@@ -48,11 +48,10 @@
           <x>10.5</x>
           <y>12.01</y>
           <Multiply type="xsd:float">126.105</Multiply>
-          <Add type="xsd:float">22.509999999999998</Add>
-          <Substract type="xsd:float">-1.5099999999999998</Substract>
-          <SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
+          <Add type="xsd:float">22.51</Add>
+          <Subtract type="xsd:float">-1.5100002</Subtract>
+          <SubtractLiteral type="xsd:float">8.5</SubtractLiteral>
         </ROOT>
-
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -75,9 +74,9 @@
             dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
           <xs:element name="Add" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
-          <xs:element name="Substract" type="xsd:float"
+          <xs:element name="Subtract" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
-          <xs:element name="SubstractLiteral" type="xsd:float"
+          <xs:element name="SubtractLiteral" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - 2 }" />
         </xs:sequence>
       </xs:complexType>
@@ -94,7 +93,7 @@
     </tdml:document>
 
     <tdml:errors>
-      <tdml:error>Schemadefinitionerror</tdml:error>
+      <tdml:error>Schema definition error</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

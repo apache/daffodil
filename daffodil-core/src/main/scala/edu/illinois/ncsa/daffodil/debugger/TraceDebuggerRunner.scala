@@ -36,8 +36,8 @@ class TraceDebuggerRunner extends InteractiveDebuggerRunner {
   val traceIter = Seq("display info parser",
     "display info bitPosition",
     "display info data",
-    // "display info infoset", // entire infoset
-    "display eval node ..", // by default, just this node's parent on down.
+    "display info infoset", // entire infoset
+    // "display eval ..", // by default, just this node's parent on down.
     "display info diff",
     "trace").iterator
 

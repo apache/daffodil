@@ -1,17 +1,14 @@
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.dpath
 
 import junit.framework.Assert._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.Infoset
-import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import scala.xml.Utility
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 
 class TestDFDLExpressionCompiler {
 
   @Test def test_single_path_expression() = {
     val expr = "{ /bookstore/book/title }"
-    val dfdl = new DFDLPathExpressionCompiler(null)
+    val dfdl = new DFDLPathExpressionCompiler(NodeInfo.AnyType, null, null)
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
 
     assertTrue(result.isRight) // Success
@@ -28,7 +25,7 @@ class TestDFDLExpressionCompiler {
 
   @Test def test_single_path_and_fnc_expression() = {
     val expr = "{ fn:nlled(/bookstore/book/title) }"
-    val dfdl = new DFDLPathExpressionCompiler(null)
+    val dfdl = new DFDLPathExpressionCompiler(NodeInfo.AnyType, null, null)
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success
 
@@ -44,7 +41,7 @@ class TestDFDLExpressionCompiler {
 
   @Test def test_multiple_path_and_predicate_expression() = {
     val expr = "{ fn:concat(/bookstore/book[1]/title,/bookstore/book[2]/title) }"
-    val dfdl = new DFDLPathExpressionCompiler(null)
+    val dfdl = new DFDLPathExpressionCompiler(NodeInfo.AnyType, null, null)
 
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success
@@ -65,7 +62,7 @@ class TestDFDLExpressionCompiler {
 
   @Test def test_multiple_path_and_predicate_expressions_nested() = {
     val expr = "{ fn:concat(/bookstore/book[number(../something/blah)]/title/text,/bookstore/book[2]/title) }"
-    val dfdl = new DFDLPathExpressionCompiler(null)
+    val dfdl = new DFDLPathExpressionCompiler(NodeInfo.AnyType, null, null)
 
     val result = dfdl.getPathsFromExpression(expr, EmptyVariableMap)
     assertTrue(result.isRight) // Success

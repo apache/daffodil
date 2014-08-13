@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
+//import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -70,9 +70,9 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
-class ParseError(rd: SchemaFileLocatable, val pstate: Maybe[PState], kind: String, args: Any*)
+class ParseError(rd: Maybe[SchemaFileLocatable], val pstate: Maybe[PState], kind: String, args: Any*)
   extends ProcessingError {
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = List(rd)
+  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
   override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
 
   def componentText: String = ""
@@ -91,7 +91,7 @@ class ParseError(rd: SchemaFileLocatable, val pstate: Maybe[PState], kind: Strin
     }
     val res = "Parse Error: " + msg +
       componentText +
-      "\nSchema context: %s %s".format(rd, rd.locationDescription) +
+      "\nSchema context: %s %s".format(rd, getLocationsInSchemaFiles) +
       pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
@@ -100,32 +100,12 @@ class ParseError(rd: SchemaFileLocatable, val pstate: Maybe[PState], kind: Strin
 }
 
 class AssertionFailed(rd: SchemaFileLocatable, state: PState, msg: String, details: Maybe[String] = Nope)
-  extends ParseError(rd, One(state), "Assertion failed. %s", msg) {
+  extends ParseError(One(rd), One(state), "Assertion failed. %s", msg) {
   override def componentText: String = {
     val currentElem = state.infoset
 
     val parsedValue =
-      if (currentElem.jdomElt.isDefined) {
-        val jdomElem = currentElem.jdomElt.get
-        "\nParsed value was: " + {
-          if (jdomElem.getChildren().size() > 0) {
-            // Complex
-            val name = jdomElem.getName()
-            "<" + name + ">" +
-              (jdomElem.getChildren.map { c =>
-                if (c.getChildren().size() > 0) {
-                  "<" + c.getName() + ">...<" + c.getName() + ">"
-                } else {
-                  XMLUtils.removeAttributes(XMLUtils.element2Elem(c)).toString()
-                }
-              }.mkString) +
-              "</" + name + ">"
-          } else {
-            // Simple
-            currentElem.toBriefXML.toString
-          }
-        }
-      } else ""
+      "\nParsed value was: " + currentElem.toXML.toString
 
     val finalString =
       if (details.isDefined) "\nDetails: " + details.get + parsedValue
@@ -135,11 +115,11 @@ class AssertionFailed(rd: SchemaFileLocatable, state: PState, msg: String, detai
 }
 
 class ParseAlternativeFailed(rd: SchemaFileLocatable, state: PState, val errors: Seq[Diagnostic])
-  extends ParseError(rd, One(state), "Alternative failed. Reason(s): %s", errors)
+  extends ParseError(One(rd), One(state), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(rd: SchemaFileLocatable, state: PState,
   diags: Seq[Diagnostic])
-  extends ParseError(rd, One(state), "All alternatives failed. Reason(s): %s", diags) {
+  extends ParseError(One(rd), One(state), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
@@ -196,7 +176,7 @@ trait WithParseErrorThrowing {
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(context, Nope, kind, args: _*)
+      throw new ParseError(One(context), Nope, kind, args: _*)
     }
   }
 
@@ -208,7 +188,7 @@ trait WithParseErrorThrowing {
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(contextArg, Nope, kind, args: _*)
+      throw new ParseError(One(contextArg), Nope, kind, args: _*)
     }
   }
 
@@ -218,7 +198,7 @@ trait WithParseErrorThrowing {
 
   def PE(context: SchemaFileLocatable, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
-    throw new ParseError(context, Nope, kind, args: _*)
+    throw new ParseError(One(context), Nope, kind, args: _*)
   }
 
   /**
@@ -248,6 +228,15 @@ trait WithParseErrorThrowing {
         //          res
         //        }
         //
+        case e: NumberFormatException => {
+          val ie = pstate.infoset.asInstanceOf[InfosetElement]
+          val msg =
+            if (e.getMessage() != null && e.getMessage() != "")
+              e.getMessage()
+            else Misc.getNameFromClass(e)
+          val pe = new ParseError(One(ie.runtimeData), One(pstate), msg)
+          pstate.failed(pe)
+        }
         // Note: We specifically do not catch other exceptions here
         // On purpose. If those exist, then there's someplace that should have already caught them
         // and turned them into a thrown parse error, or a schema definition error.

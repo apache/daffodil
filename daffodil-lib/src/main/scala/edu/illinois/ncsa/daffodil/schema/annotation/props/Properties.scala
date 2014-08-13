@@ -100,7 +100,7 @@ import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
  * (This is part of the DFDL spec. Implementations are not to provide default values for properties.)
  */
 abstract class EnumBase
-abstract class EnumValueBase
+abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase {
   class Value extends EnumValueBase { self: A => {
       val theVal = this

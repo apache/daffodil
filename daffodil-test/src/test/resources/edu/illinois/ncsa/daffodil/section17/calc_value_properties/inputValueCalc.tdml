@@ -771,7 +771,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -2147483649 to Int.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-2147483649</tdml:error><tdml:error>Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -780,7 +780,7 @@
 
     <tdml:document>-2147483649</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -2147483649 to Int.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-2147483649</tdml:error><tdml:error>Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -803,7 +803,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 2147483648 to Int.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>2147483648</tdml:error><tdml:error>Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -812,7 +812,7 @@
 
     <tdml:document>2147483648</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 2147483648 to Int.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>2147483648</tdml:error><tdml:error>Int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -835,7 +835,7 @@
 
     <tdml:document>-32769</tdml:document>
     <tdml:errors>
-      <tdml:error>Cannot convert -32769 to Short</tdml:error>
+      <tdml:error>Schema Definition error</tdml:error><tdml:error>-32769</tdml:error><tdml:error>Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -844,7 +844,7 @@
 
     <tdml:document>-32769</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -32769 to Short</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-32769</tdml:error><tdml:error>Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -867,7 +867,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 32768 to Short.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>32768</tdml:error><tdml:error>Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -876,7 +876,7 @@
 
     <tdml:document>32768</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 32768 to Short.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>32768</tdml:error><tdml:error>Short</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -899,7 +899,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedInt.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -908,7 +908,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedInt.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -917,7 +917,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 4294967297 to UnsignedInt.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>4294967297</tdml:error><tdml:error>UnsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -926,7 +926,7 @@
 
     <tdml:document>4294967296</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 4294967296 to UnsignedInt.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>4294967296</tdml:error><tdml:error>UnsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -949,7 +949,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedShort.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -958,7 +958,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedShort.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -967,7 +967,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 65537 to UnsignedShort.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>65537</tdml:error><tdml:error>UnsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -976,7 +976,7 @@
 
     <tdml:document>65537</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 65537 to UnsignedShort.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>65537</tdml:error><tdml:error>UnsignedShort</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -999,7 +999,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -9223372036854775809 to Long.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-9223372036854775809</tdml:error><tdml:error>Long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1008,7 +1008,7 @@
 
     <tdml:document>-9223372036854775809</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -9223372036854775809 to Long.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-9223372036854775809</tdml:error><tdml:error>Long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1031,7 +1031,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 9223372036854775808 to Long.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>9223372036854775808</tdml:error><tdml:error>Long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1040,7 +1040,7 @@
 
     <tdml:document>9223372036854775808</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 9223372036854775808 to Long.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>9223372036854775808</tdml:error><tdml:error>Long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1063,7 +1063,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedLong.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1072,7 +1072,7 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedLong.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-1</tdml:error><tdml:error>UnsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1081,7 +1081,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 18446744073709551616 to UnsignedLong.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>18446744073709551616</tdml:error><tdml:error>UnsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1090,7 +1090,7 @@
 
     <tdml:document>18446744073709551616</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 18446744073709551616 to UnsignedLong.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>18446744073709551616</tdml:error><tdml:error>UnsignedLong</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1113,7 +1113,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -129 to Byte.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>-129</tdml:error><tdml:error>Byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1122,7 +1122,7 @@
 
     <tdml:document>-129</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -129 to Byte.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>-129</tdml:error><tdml:error>Byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1145,7 +1145,7 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 128 to Byte.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>128</tdml:error><tdml:error>Byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1154,7 +1154,7 @@
 
     <tdml:document>128</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 128 to Byte.</tdml:error>
+      <tdml:error>Parse Error</tdml:error><tdml:error>128</tdml:error><tdml:error>Byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1176,9 +1176,11 @@
     root="ivc_19_1_a" model="inputValueCalc-Embedded.dfdl.xsd" description="Syntax error - DFDL-17-007R">
 
     <tdml:document>7</tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert -1 to UnsignedByte.</tdml:error>
-    </tdml:errors>
+   <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>-1</tdml:error>
+      <tdml:error>UnsignedByte</tdml:error>
+     </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Min_Fail_RunTime"
@@ -1186,8 +1188,10 @@
 
     <tdml:document>-1</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert -1 to UnsignedByte.</tdml:error>
-    </tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>-1</tdml:error>
+      <tdml:error>UnsignedByte</tdml:error>
+     </tdml:errors>
   </tdml:parserTestCase>
   
   <tdml:parserTestCase name="InputValueCalc_UnsignedByte_Range_Max_Fail_CompileTime"
@@ -1195,7 +1199,9 @@
 
     <tdml:document>7</tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert 257 to UnsignedByte.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>257</tdml:error>
+      <tdml:error>UnsignedByte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1204,7 +1210,9 @@
 
     <tdml:document>257</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error: Cannot convert 257 to UnsignedByte.</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>257</tdml:error>
+      <tdml:error>UnsignedByte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1219,7 +1227,7 @@
 
     <tdml:document/>
     <tdml:errors>
-      <tdml:error>Schema Definition Error: Cannot convert nan to Double.</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error><tdml:error>nan</tdml:error><tdml:error>Double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.xml
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -41,23 +41,17 @@ import scala.xml._
 import java.io.{ OutputStream, PrintWriter, StringWriter }
 import java.lang.management._
 import java.util.regex.Pattern
-import org.jdom2.Attribute
-import org.jdom2.Element
-import org.jdom2.Parent
-import org.jdom2.Document
-import org.jdom2.Namespace
-import org.jdom2.output.XMLOutputter
-import org.jdom2.output.Format
 import scala.collection.mutable.LinkedList
 import scala.xml.MetaData
 import edu.illinois.ncsa.daffodil.exceptions._
 import java.io.StringReader
 import edu.illinois.ncsa.daffodil.util.Misc
-import javax.xml.namespace.QName
+import javax.xml.namespace.{ QName => JQName }
 import javax.xml.XMLConstants
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuilder
 
 /**
  * Utilities for handling XML
@@ -67,9 +61,15 @@ import scala.collection.JavaConversions._
  */
 object XMLUtils {
 
-  val PositiveInfinity = "INF"
-  val NegativeInfinity = "-INF"
-  val NaN = "NaN"
+  /**
+   * We must have xsi prefix bound to the right namespace.
+   * That gets enforced elsewhere.
+   */
+  val xmlNilAttribute = new PrefixedAttribute("xsi", "nil", "true", scala.xml.Null)
+
+  val PositiveInfinity = Double.PositiveInfinity
+  val NegativeInfinity = Double.NegativeInfinity
+  val NaN = Double.NaN
 
   /**
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
@@ -196,33 +196,110 @@ object XMLUtils {
     sb.toString
   }
 
+  def coalesceAdjacentTextNodes(seq: Seq[Node]): Seq[Node] = {
+    type Atom = scala.xml.Atom[String]
+    if (seq.length == 0) return seq
+    if (seq.length == 1) {
+      seq(0) match {
+        case p: PCData => {
+          val txt = new Text(p.text)
+          return Seq(txt)
+        }
+        case t: Text => return seq
+        case u: Unparsed => return seq // TODO: are these needed or possible?
+        case _ => // fall through to code below. (We need to process children)
+      }
+    }
+    val ab = ArrayBuilder.make[Node]
+    var i = 0
+    // 
+    // invariant: either the tn node is null
+    // or the stringbuilder is null or empty
+    //
+    // They never both have content.
+    // 
+    var tn: Node = null
+    var sb: StringBuilder = null
+    def processText = {
+      if (tn == null) {
+        if (sb != null && sb.length > 0) {
+          // we have accumulated text
+          // let's output a text node
+          // Note that a Text constructor
+          // will escapify the text again.
+          // We unescaped it
+          // when we used .text to get data
+          // out of the nodes.
+          ab += new Text(sb.toString)
+          sb.clear()
+        }
+      } else {
+        // tn not null
+        Assert.invariant(sb == null || sb.length == 0)
+        ab += tn
+        tn = null
+      }
+    }
+    while (i < seq.length) {
+      val current = seq(i)
+      i = i + 1
+      if (current.isInstanceOf[Atom]) {
+        if (tn == null) {
+          if (sb == null || sb.length == 0) {
+            // hold onto this text node. It might be isolated
+            tn = current
+          } else {
+            // accumulate this text
+            sb.append(current.text)
+          }
+        } else {
+          if (sb == null) sb = new StringBuilder
+          // accumulate both the pending tn text node
+          // and this new one we just encountered.
+          //
+          // Note we use .text here - that unescapifies
+          // Which is important since we're putting together
+          // things that might be PCData (aka <![CDATA[...]]>
+          // We want that stuff gone.
+          //
+          sb.append(tn.text)
+          sb.append(current.text)
+          //
+          // set tn to null to indicate we're accumulating
+          // into the string buffer
+          //
+          tn = null
+        }
+      } else {
+        // not an atom
+        processText // if there is pending text output that first
+        ab += current // then the current non-atom node.
+      }
+    }
+    // we fell out of the loop. So
+    processText // in case there is text left pending when we hit the end
+    ab.result
+  }
+
   val XSD_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema") // removed trailing slash (namespaces care)
   val XSI_NAMESPACE = NS("http://www.w3.org/2001/XMLSchema-instance")
   val XPATH_FUNCTION_NAMESPACE = NS("http://www.w3.org/2005/xpath-functions")
-  val xsiNS = Namespace.getNamespace("xsi", XSI_NAMESPACE.toString)
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
 
   // must manufacture these because in JDOM, attributes have parent pointers up
   // to their enclosing elements.
-  def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
-  def checkConstraintsRanAttribute() = new org.jdom2.Attribute("checkConstraintsRan", "true", XMLUtils.INT_NS_OBJECT)
+  // JDOM def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
 
-  def isNil(e: Element) = {
-    val nilAttr = e.getAttribute("nil", xsiNS)
-    val res =
-      if (nilAttr == null) false
-      else nilAttr.getValue() == "true"
-    res
-  }
-  def wasCheckConstraintsRan(e: Element) = {
-    val checkAttr = e.getAttribute("checkConstraintsRan", XMLUtils.INT_NS_OBJECT)
-    val res =
-      if (checkAttr == null) false
-      else checkAttr.getValue() == "true"
-    res
-  }
+  //  def wasCheckConstraintsRan(e: Element) = {
+  //    ???
+  //    //    val checkAttr = e.getAttribute("checkConstraintsRan", XMLUtils.INT_NS_OBJECT)
+  //    //    val res =
+  //    //      if (checkAttr == null) false
+  //    //      else checkAttr.getValue() == "true"
+  //    //    res
+  //  }
 
   /**
    * Added to support extensions and proposed future features as part of daffodil.
@@ -235,14 +312,14 @@ object XMLUtils {
    * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
   private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
-  val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext"
-  val DAFFODIL_INTERNAL_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int"
-  val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE
+  val DAFFODIL_EXTENSION_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext")
+  val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int")
+  val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE.toString
   val EXT_PREFIX = "daf"
-  val EXT_NS_OBJECT = org.jdom2.Namespace.getNamespace(EXT_PREFIX, EXT_NS)
-  val INT_NS = DAFFODIL_INTERNAL_NAMESPACE
+  val EXT_NS_OBJECT = NS(EXT_PREFIX, EXT_NS)
+  val INT_NS = DAFFODIL_INTERNAL_NAMESPACE.toString
   val INT_PREFIX = "dafint"
-  val INT_NS_OBJECT = org.jdom2.Namespace.getNamespace(INT_PREFIX, INT_NS)
+  val INT_NS_OBJECT = NS(INT_PREFIX, INT_NS)
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -613,20 +690,21 @@ object XMLUtils {
   //      case e:StringIndexOutOfBoundsException => "Unknown"
   //    }
   //  }
-
-  def expandedQName(qName: QName): String = {
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
+  def expandedQName(qName: JQName): String = {
     val uri = NS(qName.getNamespaceURI)
     val localName = qName.getLocalPart
     expandedQName(uri, localName)
   }
 
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
   def expandedQName(uri: NS, localName: String): String = {
     Assert.usage(uri != null)
     Assert.usage(localName != null)
-    val prefix =
+    val nsPart =
       if (uri == NoNamespace) ""
       else "{" + uri + "}"
-    val expName = prefix + localName
+    val expName = nsPart + localName
     expName
   }
 
@@ -634,6 +712,7 @@ object XMLUtils {
    * returns null to indicate no prefix mapping that
    * we can use to qualify this name
    */
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
   def expandNCNameToQName(qName: String, xml: Node): String = {
     val pair @ (ns, local) = getQName(qName, xml)
     if (ns != null) expandedQName(ns, local)
@@ -647,14 +726,17 @@ object XMLUtils {
    * which indicates that the prefix was unmapped. (Caller will likely issue a error.)
    * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
    */
-  def getQName(qName: String, xml: Node): (NS, String) = {
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
+  def getQName(qName: String, xml: Node): (NS, String) = getQName(qName, xml.scope)
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
+  def getQName(qName: String, scope: NamespaceBinding): (NS, String) = {
     val parts = qName.split(":").toList
     val (prefix, localName) = parts match {
       case List(local) => (null, local)
       case List(pre, local) => (pre, local)
       case _ => Assert.impossibleCase()
     }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+    val nsURI = scope.getURI(prefix) // should work even when there is no namespace prefix.
 
     if (nsURI == null && prefix == null)
       (NoNamespace, localName)
@@ -676,6 +758,7 @@ object XMLUtils {
    * 2. {}varName=value
    * 3. varName=value
    */
+  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
   def getQName(name: String): (Option[NS], String) = {
     name match {
       case NSFormat(nsURI, varName) => (Some(NS(nsURI)), varName)
@@ -686,335 +769,126 @@ object XMLUtils {
   /**
    * super inefficient, but useful for unit tests
    */
-  def element2Elem(jElem: Element): scala.xml.Node = {
-    return XML.loadString(new org.jdom2.output.XMLOutputter().outputString(jElem))
-  }
-
-  def element2ElemTDML(jElem: Element): scala.xml.Node = {
-    val format = org.jdom2.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
-    val w = new java.io.StringWriter
-    val out = new org.jdom2.output.XMLOutputter(format)
-    out.output(jElem, w)
-    val res = XML.loadString(w.toString())
-    return res
-  }
-
-  def elem2Element(nodes: scala.xml.NodeSeq): Seq[Element] = nodes.map { elem => elem2Element(elem) }
+  //  def element2Elem(jElem: Element): scala.xml.Node = {
+  //    return XML.loadString(new org.jdom2.output.XMLOutputter().outputString(jElem))
+  //  }
+  //
+  //  def element2ElemTDML(jElem: Element): scala.xml.Node = {
+  //    val format = org.jdom2.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
+  //    val w = new java.io.StringWriter
+  //    val out = new org.jdom2.output.XMLOutputter(format)
+  //    out.output(jElem, w)
+  //    val res = XML.loadString(w.toString())
+  //    return res
+  //  }
 
   /**
    * Annoying, but namespace bindings are never a collection you can process like a normal collection.
    * Instead they are linked by these parent chains.
-   *
-   * We need them as JDOM namespace bindings, so create a list of those.
    */
-  def namespaceBindings(nsBinding: NamespaceBinding): Seq[org.jdom2.Namespace] = {
+  def namespaceBindings(nsBinding: NamespaceBinding): Seq[NamespaceBinding] = {
     if (nsBinding == null) Nil
     else {
       val thisOne =
-        if (nsBinding.uri != null) List(org.jdom2.Namespace.getNamespace(nsBinding.prefix, nsBinding.uri))
+        if (nsBinding.uri != null) List(nsBinding)
         else Nil
       val others = namespaceBindings(nsBinding.parent)
       thisOne ++ others
     }
   }
 
-  def namespaceBindings(element: org.jdom2.Element): Seq[org.jdom2.Namespace] = {
-    if (element == null) Nil
-    else {
-      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom2.Namespace]]
-      val thisOne = element.getNamespace()
-      val parentContribution = element.getParent match {
-        case parentElem: org.jdom2.Element => namespaceBindings(parentElem)
-        case _ => Nil
-      }
-      val res = thisOne +: (ans ++ parentContribution)
-      res
-    }
-  }
+  //
+  //  def namespaceBindings(element: org.jdom2.Element): Seq[org.jdom2.Namespace] = {
+  //    if (element == null) Nil
+  //    else {
+  //      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom2.Namespace]]
+  //      val thisOne = element.getNamespace()
+  //      val parentContribution = element.getParent match {
+  //        case parentElem: org.jdom2.Element => namespaceBindings(parentElem)
+  //        case _ => Nil
+  //      }
+  //      val res = thisOne +: (ans ++ parentContribution)
+  //      res
+  //    }
+  //  }
 
   val CDATAPattern = {
     """(?s)^<!\[CDATA\[(.*?)\]\]>$""".r
   }
 
-  def elem2ElementTDML(node: scala.xml.Node): Element = {
-    // val jdomNode = new CompressableElement(node label,node namespace)
-    val jdomNode = new Element(node.label, node.prefix, node.namespace)
-    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
-
-    namespaceBindings(nsBinding).foreach { ns =>
-      {
-        val prefix = ns.getPrefix()
-        if (prefix != null & prefix != ""
-          && jdomNode.getNamespace(prefix) == null)
-          jdomNode.addNamespaceDeclaration(ns)
-      }
-    }
-
-    val attribsList = if (node.attributes == null) Nil else node.attributes
-
-    val attribs = attribsList.map { (attribute: MetaData) =>
-      {
-        // for(attribute <- attribs) {
-        val attrNS = attribute.getNamespace(node)
-        val name = attribute.key
-        val value = attribute.value.text
-        val prefixedKey = attribute.prefixedKey
-        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val ns = (prefix, attrNS) match {
-          //
-          // to make our test cases less cluttered and more compact visually, we're 
-          // going to specifically allow for an attribute named xsi:nil where xsi prefix
-          // is NOT defined.
-          //
-          case ("xsi", null) | ("xsi", "") => xsiNS
-          case (_, null) | (_, "") => {
-            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
-          }
-          case ("", uri) => Namespace.getNamespace(uri)
-          case (pre, uri) => Namespace.getNamespace(pre, uri)
-        }
-
-        if (attribute.isPrefixed && attrNS != "") {
-          //          println("THE ATTRIBUTE IS: " + name)
-          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
-          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
-
-          // jdomNode setAttribute (name, value, ns)
-          new Attribute(name, value, ns)
-        } else
-          // jdomNode setAttribute (name, value)
-          new Attribute(name, value)
-      }
-    }
-    jdomNode.setAttributes(attribs)
-    for (child <- node.child) {
-      child.toString match {
-        case CDATAPattern(text) => {
-          jdomNode.addContent(new org.jdom2.CDATA(text))
-        }
-        case _ => child.label match {
-          case "#PCDATA" => jdomNode.addContent(child.toString)
-          case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
-          case "#REM" =>
-          case _ => jdomNode.addContent(elem2ElementTDML(child))
-        }
-      }
-
-    }
-    jdomNode
-  }
-
-  def elem2Element(node: scala.xml.Node): Element = {
-    // val jdomNode = new CompressableElement(node label,node namespace)
-    val jdomNode = new Element(node.label, node.prefix, node.namespace)
-    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
-
-    namespaceBindings(nsBinding).foreach { ns =>
-      {
-        val prefix = ns.getPrefix()
-        if (prefix != null & prefix != ""
-          && jdomNode.getNamespace(prefix) == null)
-          jdomNode.addNamespaceDeclaration(ns)
-      }
-    }
-
-    val attribsList = if (node.attributes == null) Nil else node.attributes
-
-    val attribs = attribsList.map { (attribute: MetaData) =>
-      {
-        // for(attribute <- attribs) {
-        val attrNS = attribute.getNamespace(node)
-        val name = attribute.key
-        val value = attribute.value.text
-        val prefixedKey = attribute.prefixedKey
-        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val ns = (prefix, attrNS) match {
-          //
-          // to make our test cases less cluttered and more compact visually, we're 
-          // going to specifically allow for an attribute named xsi:nil where xsi prefix
-          // is NOT defined.
-          //
-          case ("xsi", null) | ("xsi", "") => xsiNS
-          case (_, null) | (_, "") => {
-            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
-          }
-          case ("", uri) => Namespace.getNamespace(uri)
-          case (pre, uri) => Namespace.getNamespace(pre, uri)
-        }
-
-        if (attribute.isPrefixed && attrNS != "") {
-          //          println("THE ATTRIBUTE IS: " + name)
-          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
-          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
-
-          // jdomNode setAttribute (name, value, ns)
-          new Attribute(name, value, ns)
-        } else
-          // jdomNode setAttribute (name, value)
-          new Attribute(name, value)
-      }
-    }
-    jdomNode.setAttributes(attribs)
-
-    for (child <- node.child) {
-      child.label match {
-        case "#PCDATA" => jdomNode.addContent(child.toString)
-        case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
-        case "#REM" =>
-        case _ => jdomNode.addContent(elem2Element(child))
-      }
-    }
-    jdomNode
-  }
-
-  //  private def map(c:Char) = c match {
-  //    case 's' => ' '
-  //    case 't' => '\t'
-  //    case 'b' => '\b'
-  //    case 'n' => '\n'
-  //    case 'r' => '\r'
-  //    case 'f' => '\f'
-  //    case '\'' => '\''
-  //    case '"' => '\"'
-  //    case '\\' => '\\'
-  //  }
-
-  //  def getTargetNamespace(name:String,target:String,namespaces:Namespaces):Namespace = {
-  //    if (name contains(":")){
-  //      val parts = name split(":")
-  //      namespaces getNamespaceByPrefix(parts(0)) match {
-  //        case Some(n) => n
-  //        case None => throw new DFDLSchemaDefinitionException("undefined prefix "+parts(0))
+  /**
+   * Specially interprets text that matches the CDATAPattern so as to preserve
+   * it
+   *
+   * TODO: refactor this and elem2Element(node) since they are only different
+   * in a few lines.
+   */
+  //  def elem2ElementTDML(node: scala.xml.Node): Element = {
+  //    val jdomNode = new Element(node.label, node.prefix, node.namespace)
+  //    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
+  //
+  //    namespaceBindings(nsBinding).foreach { ns =>
+  //      {
+  //        val prefix = ns.prefix
+  //        if (prefix != null & prefix != ""
+  //          && jdomNode.getNamespace(prefix) == null)
+  //          jdomNode.addNamespaceDeclaration(org.jdom2.Namespace.getNamespace(ns.prefix, ns.uri))
   //      }
-  //    }else{
-  //      namespaces addNamespace(target,"")
-  //      namespaces.getNamespaceByPrefix("").get
   //    }
-  //  }
-
-  //  def getNamespaces(node : Element) = {
-  //    val namespaces = new Namespaces
-  //    namespaces addNamespaces (node)
-  //    namespaces
-  //  }
   //
-  //  def getNamespaces(node : Element, targetNamespace : String) = {
-  //    val namespaces = new Namespaces
-  //    namespaces addNamespaces (node)
-  //    namespaces addNamespace (targetNamespace, null)
-  //    namespaces
-  //  }
-
-  //  def getListFromValue(value:String):AttributeValue =
-  //    if (XPathUtil isExpression(value))
-  //      new ExpressionValue(value)
-  //    else
-  //      new ListLiteralValue(AnnotationParser.separate(value).map { AnnotationParser.unescape(_)})
+  //    val attribsList = if (node.attributes == null) Nil else node.attributes
   //
-  //  def getListFromExpression(expression:ExpressionValue,variables:VariableMap,
-  //                            element:Parent,namespaces:Namespaces):List[Regex] =
-  //    expression match {
-  //      case ExpressionValue(e) =>
-  //        XPathUtil.evalExpression(XPathUtil.getExpression(e),variables,element,namespaces) match {
-  //          case StringResult(s) => AnnotationParser.separate(s).filter { _.length > 0 }. map { AnnotationParser unescape(_) }
-  //          case NodeResult(n) => AnnotationParser.separate(n toString) .filter { _.length > 0 } map { AnnotationParser unescape(_) }
+  //    val attribs = attribsList.map { (attribute: MetaData) =>
+  //      {
+  //        // for(attribute <- attribs) {
+  //        val attrNS = attribute.getNamespace(node)
+  //        val name = attribute.key
+  //        val value = attribute.value.text
+  //        val prefixedKey = attribute.prefixedKey
+  //        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+  //        val ns = (prefix, attrNS) match {
+  //          //
+  //          // to make our test cases less cluttered and more compact visually, we're 
+  //          // going to specifically allow for an attribute named xsi:nil where xsi prefix
+  //          // is NOT defined.
+  //          //
+  //          case ("xsi", null) | ("xsi", "") => xsiNS
+  //          case (_, null) | (_, "") => {
+  //            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
+  //          }
+  //          case ("", uri) => Namespace.getNamespace(uri)
+  //          case (pre, uri) => Namespace.getNamespace(pre, uri)
   //        }
-  //    }
   //
-
-  //  private def getCompressablePath(node:Parent,path:List[CompressableNode]):List[CompressableNode] = {
-  //    node getParent match {
-  //      case e:CompressableNode => getCompressablePath(e,e::path)
-  //      case _ => path
-  //    }
-  //  }
+  //        if (attribute.isPrefixed && attrNS != "") {
+  //          //          println("THE ATTRIBUTE IS: " + name)
+  //          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
+  //          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
   //
-  //  private def getCompressableRoot(parent:Parent):CompressableNode =
-  //    parent getParent match {
-  //      case e:CompressableNode => getCompressableRoot(e)
-  //      case _ => parent match {
-  //        case e:CompressableNode => e
-  //        case _ => throw new IllegalArgumentException("No compressable root for this node")
+  //          // jdomNode setAttribute (name, value, ns)
+  //          new Attribute(name, value, ns)
+  //        } else
+  //          // jdomNode setAttribute (name, value)
+  //          new Attribute(name, value)
   //      }
   //    }
-  //
-  //
-  //  private def compress(path:List[CompressableNode]) = {
-  //    for(node <- path)
-  //      node match {
-  //        case p:CompressableElement =>
-  //          if (! p.isCompressed)
-  //            for(child <- p.getChildren)
-  //               if (! path.contains(child))
-  //                 child.asInstanceOf[CompressableNode].compress
-  //        case _ => 
-  //      }
-  //  }
-
-  //  def checkMemory(parent:Parent) = {
-  //    if (nodeCount%100000 == 0 )
-  //      DebugUtil log("Node count = "+nodeCount)
-  //
-  //    if(shouldCompress){
-  //      DebugUtil time ("Compressing",{
-  //        val path = getCompressablePath(parent,Nil)
-  //        compress(path)
-  //        if (path.length == 0){
-  //	        DebugUtil.log("Empty path "+path)
-  //        }else{
-  //          shouldCompress = false
-  //          hasCompressed = true
+  //    jdomNode.setAttributes(attribs)
+  //    for (child <- node.child) {
+  //      child.toString match {
+  //        case CDATAPattern(text) => {
+  //          jdomNode.addContent(new org.jdom2.CDATA(text))
   //        }
-  //      })
-  //
-  //      MemoryWarningSystem gc
-  //      
-  //      val mem = MemoryWarningSystem getMemoryUsage
-  //
-  //      DebugUtil log("Serialization completed ("+MemoryWarningSystem.toMb(mem.getUsed)+"/"+
-  //              MemoryWarningSystem.toMb(mem.getMax)+")")
-  //
-  //      WARNING_MEMORY_PERCENTAGE += 0.025
-  //      if (WARNING_MEMORY_PERCENTAGE>MAX_MEMORY_PERCENTAGE)
-  //      	WARNING_MEMORY_PERCENTAGE = MAX_MEMORY_PERCENTAGE
-  //      MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
-  //    }
-  //  }
-  //
-  //  MemoryWarningSystem setPercentageUsageThreshold(WARNING_MEMORY_PERCENTAGE)
-  //  MemoryWarningSystem addListener { (used:Long,max:Long) =>
-  //    shouldCompress = true;
-  //   	DebugUtil log("Low memory condititon dectected ("+MemoryWarningSystem.toMb(used)+"/"+
-  //             MemoryWarningSystem.toMb(max)+").") }
-
-  //  def getListFromExpression(expression:String,variables:VariableMap,
-  //                            element:Parent,namespaces:Namespaces):List[String] =
-  //    if (expression!=null)
-  //      if (XPathUtil isExpression(expression))
-  //        XPathUtil.evalExpression(expression,variables,element,namespaces) match {
-  //          case StringResult(s) => separate(s) filter { _.length > 0 }
-  //          case NodeResult(n) => separate(n toString) .filter { _.length > 0 }
+  //        case _ => child.label match {
+  //          case "#PCDATA" => jdomNode.addContent(child.toString)
+  //          case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
+  //          case "#REM" =>
+  //          case _ => jdomNode.addContent(elem2ElementTDML(child))
   //        }
-  //      else
-  //        separate(expression)
-  //    else
-  //      List()
-
-  // import xml.transform.{ RuleTransformer, RewriteRule }
-
-  //  private class RemoveAttributes extends RewriteRule {
-  //    override def transform(n : Node) = n match {
-  //      case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
-  //        val childrenWithoutAttributes : NodeSeq = children.map { removeAttributes(_) }
-  //        val noNamespaces = xml.TopScope // empty scope
-  //        Elem(null, label, noAttributes, noNamespaces, childrenWithoutAttributes : _*)
   //      }
-  //      case other => other
-  //    }
-  //  }
   //
-  //  private val noAttributes = Null
-  //  private val myRule = new RuleTransformer(new RemoveAttributes)
+  //    }
+  //    jdomNode
+  //  }
 
   /**
    * We don't want to be sensitive to which prefix people bind
@@ -1052,17 +926,17 @@ object XMLUtils {
     res
   }
 
-  private lazy val hiddenNS = Namespace.getNamespace(INT_NS)
-
-  def isHiddenElement(e: Element): Boolean = {
-    e.getAttribute("hidden", hiddenNS) match {
-      case null => false
-      case attr: Attribute => {
-        Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
-        true
-      }
-    }
-  }
+  // private lazy val hiddenNS = org.jdom2.Namespace.getNamespace(INT_NS)
+  //
+  //  def isHiddenElement(e: org.jdom2.Element): Boolean = {
+  //    e.getAttribute("hidden", hiddenNS) match {
+  //      case null => false
+  //      case attr: Attribute => {
+  //        Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
+  //        true
+  //      }
+  //    }
+  //  }
 
   /**
    * Copies a JDOM Element and removes all hidden
@@ -1071,11 +945,11 @@ object XMLUtils {
    * @param e the Element to copy and remove hidden elements from.
    * @return a copy of Element without hidden elements.
    */
-  def copyWithoutHiddenElements(e: Element): Element = {
-    val newNode: Element = e.clone.asInstanceOf[Element]
-    removeHiddenElements(newNode)
-    newNode
-  }
+  //  def copyWithoutHiddenElements(e: org.jdom2.Element): org.jdom2.Element = {
+  //    val newNode: org.jdom2.Element = e.clone.asInstanceOf[org.jdom2.Element]
+  //    removeHiddenElements(newNode)
+  //    newNode
+  //  }
 
   /**
    * Removes hidden elements from a JDOM Element and
@@ -1083,14 +957,90 @@ object XMLUtils {
    *
    * @param e the Element to remove hidden elements from.
    */
-  def removeHiddenElements(e: Element): Unit = {
-    val children = e.getChildren().toList.asInstanceOf[List[Element]]
-    for (child <- children) {
-      if (isHiddenElement(child)) {
-        if (!e.removeContent(child)) Assert.abort("removeHiddenElements - JDOM failed to remove hidden element.")
+  //  def removeHiddenElements(e: Element): Unit = {
+  //    val children = e.getChildren().toList.asInstanceOf[List[Element]]
+  //    for (child <- children) {
+  //      if (isHiddenElement(child)) {
+  //        if (!e.removeContent(child)) Assert.abort("removeHiddenElements - JDOM failed to remove hidden element.")
+  //      } else {
+  //        removeHiddenElements(child)
+  //      }
+  //    }
+  //  }
+
+  /**
+   * Used to collapse the excessive xmlns proliferation.
+   *
+   * If a local scope has bindings in it that are not in the outer scope
+   * then a new local scope is created which extends the outer scope.
+   *
+   * This algorithm is n^2 (or worse) in the length of the outer binding chain (worst case).
+   */
+  def combineScopes(local: NamespaceBinding, outer: NamespaceBinding): NamespaceBinding = {
+    if (local == TopScope) outer
+    else {
+      val NamespaceBinding(pre, uri, moreBindings) = local
+      val outerURI = outer.getURI(pre)
+      if (outerURI == uri) {
+        // same binding for this prefix in the outer, so we don't need 
+        // this binding from the local scope.
+        combineScopes(moreBindings, outer)
+      } else if (outerURI == null) {
+        // outer lacks a binding for this prefix
+        NamespaceBinding(pre, uri, combineScopes(moreBindings, outer))
       } else {
-        removeHiddenElements(child)
+        // outer has a different binding for this prefix.
+        // one would hope that we can just put our superceding binding on the
+        // front, but you end up with two bindings for the same prefix
+        // in the chain ... and things fail
+        //
+        // The problem this creates is that it un-shares all the sub-structure
+        // of the scopes, and so we no longer have contained elements 
+        // that share scopes with enclosing parents. That may mean that 
+        // lots of xmlns:pre="ns" proliferate again even though they're 
+        // unnecessary.
+        //
+        val outerWithoutDuplicate = removeBindings(NamespaceBinding(pre, uri, TopScope), outer)
+        NamespaceBinding(pre, uri, combineScopes(moreBindings, outerWithoutDuplicate))
       }
+    }
+  }
+
+  /**
+   * remove all the binding s
+   */
+  def removeBindings(nb: NamespaceBinding, scope: NamespaceBinding): NamespaceBinding = {
+    if (nb == TopScope) scope
+    else if (scope == TopScope) scope
+    else {
+      val NamespaceBinding(pre, uri, more) = scope
+      if (nb.getURI(pre) != null) {
+        // the scope has a binding for this prefix
+        // so irrespective of the uri, we remove it.
+        removeBindings(nb, more)
+      } else {
+        // no binding, so keep it
+        scope.copy(parent = removeBindings(nb, more))
+      }
+    }
+  }
+
+  def combineScopes(prefix: String, ns: NS, outer: NamespaceBinding): NamespaceBinding = {
+    if (ns == NoNamespace) {
+      outer
+    } else {
+      val inner = NamespaceBinding(prefix, ns.uri.toString, TopScope)
+      combineScopes(inner, outer)
+    }
+  }
+
+  def collapseScopes(x: Node, outer: NamespaceBinding): Node = {
+    x match {
+      case Elem(pre, lab, md, scp, child @ _*) => {
+        val newScope = combineScopes(scp, outer)
+        Elem(pre, lab, md, newScope, true, (child flatMap { ch => collapseScopes(ch, newScope) }): _*)
+      }
+      case _ => x
     }
   }
 
@@ -1152,9 +1102,15 @@ object XMLUtils {
    *
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
+   *
+   * Also strips out comments.
    */
-  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
-    n match {
+  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node =
+    removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
+
+  private def removeAttributes1(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): NodeSeq = {
+    Utility.escape("")
+    val res = n match {
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
 
         val filteredScope = if (ns.length > 0) filterScope(scope, ns) else xml.TopScope
@@ -1171,13 +1127,30 @@ object XMLUtils {
           case None => filteredScope
         }
 
-        val newChildren: NodeSeq = children.map { removeAttributes(_, ns, Some(newScope)) }
+        val newChildren: NodeSeq = children.flatMap { removeAttributes1(_, ns, Some(newScope)) }
+
+        // Important to merge adjacent text. Otherwise when comparing 
+        // two structuers that print out the same, they might not be equal
+        // because they have different length lists of text nodes 
+        //
+        // Ex: <foo>A&#xE000;</foo> creates an element containing TWO
+        // text nodes. But coming from the Daffodil Infoset, a string like
+        // that would be just one text node. 
+        // Similarly <foo>abc<![CDATA[def]]>ghi</foo> has 3 child nodes.
+        // The middle one is PCData. The two around it are Text.
+        // Both Text and PCData are Atom[String].
+        val textMergedChildren = coalesceAdjacentTextNodes(newChildren)
 
         val newPrefix = if (prefixInScope(prefix, newScope)) prefix else null
 
         val newAttributes = attributes.filter { m =>
           m match {
             case xsiNilAttr @ PrefixedAttribute(_, "nil", Text("true"), _) if (NS(xsiNilAttr.getNamespace(e)) == XMLUtils.XSI_NAMESPACE) => {
+              true
+            }
+            //
+            // This tolerates xsi:nil='true' when xsi has no definition at all.
+            case xsiNilAttr @ PrefixedAttribute("xsi", "nil", Text("true"), _) if (xsiNilAttr.getNamespace(e) == null) => {
               true
             }
             case attr => {
@@ -1190,38 +1163,12 @@ object XMLUtils {
           }
         }
 
-        Elem(newPrefix, label, newAttributes, newScope, true, newChildren: _*)
+        Elem(newPrefix, label, newAttributes, newScope, true, textMergedChildren: _*)
       }
-      case c: scala.xml.Comment => new scala.xml.Comment("")
+      case c: scala.xml.Comment => NodeSeq.Empty // remove comments
       case other => other
     }
-  }
-
-  /**
-   * Removes attributes associated xmlns quasi-attributes.
-   *
-   * If a sequence of namespaces are given, only those attributes and scopes in
-   * those namepsaces are removed. Otherwise, all attributes and scopes (aside
-   * from special ones like xsi:nil) are removed. Additionally, if a scope is
-   * filtered, the prefixes of elements prefixed with filtered scopes are also
-   * removed.
-   *
-   * If a scope is given, it will be used for a child element if the
-   * childs filtered scope is the same as the scope.
-   */
-  def removeAttributesJDOM(c: org.jdom2.Content, ns: Seq[Namespace] = Seq[Namespace](), parentScope: Option[Namespace] = None): Unit = {
-    c match {
-      case e: Element => {
-        val attrs = e.getAttributes().map(x => x.asInstanceOf[Attribute])
-        attrs.foreach(attr =>
-          ns.find(n => n.getURI() == attr.getNamespaceURI()) match {
-            case Some(_) => e.removeAttribute(attr)
-            case None => // Don't remove
-          })
-        e.getChildren.foreach(child => removeAttributesJDOM(child.asInstanceOf[org.jdom2.Content], ns))
-      }
-      case other => // do nothing 
-    }
+    res
   }
 
   def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node) = {
@@ -1341,14 +1288,15 @@ Differences were (path, expected, actual):
    *
    * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
    */
-  def QName(xml: Node, nom: String, loc: SchemaFileLocatable): (NS, String) = {
+  @deprecated("use daffodil.xml.QName object", "2014-08-28")
+  def QName(nsBindings: NamespaceBinding, nom: String, loc: SchemaFileLocatable): (NS, String) = {
     val parts = nom.split(":").toList
     val (prefix, localName) = parts match {
       case List(local) => (null, local) // use null not "" for no prefix
       case List(pre, local) => (pre, local)
       case _ => Assert.impossibleCase()
     }
-    val nsURI = xml.getNamespace(prefix) // should work even when there is no namespace prefix.
+    val nsURI = nsBindings.getURI(prefix) // should work even when there is no namespace prefix.
     if (nsURI == null && prefix != null) {
       // no resolution to this non-null prefix
       throw new QNamePrefixNotInScopeException(prefix, loc)

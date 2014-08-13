@@ -65,7 +65,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
  * format annotations together.
  */
 trait LeafPropProvider
-  extends LookupLocation with PropTypes with Logging { self: SchemaComponentBase =>
+  extends LookupLocation with PropTypes with Logging {
 
   /**
    * for debug/test only
@@ -104,7 +104,7 @@ trait LeafPropProvider
  * Could be the nonDefault formats being chained together, or could
  * be the default formats being chained together.
  */
-class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: DFDLAnnotation)
+class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
   extends Logging with PropTypes {
 
   /**
@@ -114,7 +114,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
 
   lazy val leafProviders = leafProvidersArg
 
-  def prettyName: String = "ChainPropProvider(" + forAnnotation.prettyName + ")"
+  def prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
     log(LogLevel.Debug, "%s chainFindProperty %s.", prettyName, pname)

@@ -81,7 +81,7 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
     members.map(t => {
       val erd = t.runtimeData.asInstanceOf[ElementRuntimeData]
       val name = erd.name
-      val ns = erd.targetNamespace.toJDOM
+      val ns = erd.targetNamespace
       (name, ns)
     })
   }
@@ -92,10 +92,10 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
     }.map {
       case eb: ElementBase => {
         val erd = eb.runtimeData.asInstanceOf[ElementRuntimeData]
-        (erd.name, erd.path, erd.targetNamespace.toJDOM)
+        (erd.name, erd.path, erd.targetNamespace)
       }
     }
 
-  def parser: Parser = new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
+  def parser: Parser = ??? // new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
 
 }

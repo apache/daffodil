@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestSequenceGroupsDebug {
 
@@ -57,5 +58,35 @@ class TestSequenceGroupsDebug {
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
   @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
+
+  val tdml_01 = testDir_01 + "SequenceGroupInitiatedContent.tdml"
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+
+  /**
+   * JIRA ticket DFDL-1038
+   *
+   * The test_baseline() below fails if you have dbg on it as here.
+   * It passes if you don't have dbg on it.
+   *
+   * The problem is some interaction of the try/catch surrounding expression
+   * evaluation at compile time and the InteractiveDebugger/Trace
+   *
+   * We run the expression and catch errors if it
+   * ISNT constant, as a way of determining whether it is a constant. The
+   * expression is { .. } which is NOT constant, and a throw of IllegalStateException
+   * occurs which is caught (supposed to be anyway) very nearby where it is
+   * thrown. But somehow, we end up exiting as if the exception was not caught.
+   *
+   * This happens on the final, 26th such throw. All earlier throws/catch work
+   * fine. (If you set a breakpoint on IllegalStateException caught and uncaught
+   * you can set the hit count to 26 and watch what happens here.
+   *
+   * I am mystified by this. -mikeb 2014-09-26
+   */
+  def dbg = {
+    Debugger.withTracing(false)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
+  @Test def test_baseline() { dbg; runner_01.runOneTest("initiatedContentSeqBaseline") }
 }
 

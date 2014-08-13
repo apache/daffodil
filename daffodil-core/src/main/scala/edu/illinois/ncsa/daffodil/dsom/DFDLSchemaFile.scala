@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import java.net.URI
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * represents one schema document file
@@ -140,7 +141,11 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   lazy val loadedURI = loadedURI_.value
   private val loadedURI_ = LV('loadedURI) {
-    val node = loader.load(uri)
+    val node = try {
+      loader.load(uri)
+    } catch {
+      case e: Exception => SDE("Loading XML failed due to %s.", DiagnosticUtils.getSomeMessage(e))
+    }
     node
   }
 

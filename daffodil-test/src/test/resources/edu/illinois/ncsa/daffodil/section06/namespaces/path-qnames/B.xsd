@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:a="ns_a" xmlns:b="ns_b" targetNamespace="ns_b"
+	elementFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<xs:element name="sally"> <!-- root is always qualified -->
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="bqjane" type="xs:int" form="qualified"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

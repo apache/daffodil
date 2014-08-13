@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testSuite suiteName="Namespaces" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+<tdml:testSuite suiteName="Namespaces" 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:gpf="http://www.ibm.com/dfdl/GeneralPurposeFormat" 
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:a01="http://a01.com" xmlns:b01="http://b01.com">
 
@@ -1730,7 +1730,8 @@
 ]]></tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Prefix fn has not been declared</tdml:error>
+      <tdml:error>Prefix</tdml:error>
+      <tdml:error>fn</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1958,15 +1959,15 @@
     if the default namespace is the same as the target namespace.
   -->
 
-  <parserTestCase name="defaultNamespaceInExpression"
+  <tdml:parserTestCase name="defaultNamespaceInExpression"
     root="file" model="charClassEntities.dfdl.xsd"
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
 
-    <document><![CDATA[last,first,middle,DOB
+    <tdml:document><![CDATA[last,first,middle,DOB
 jones,robert,brandon,1988-03-24
 johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
-]]></document>
+]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <file>
@@ -1997,7 +1998,7 @@ jonesington,david,frederick,1986-02-19
         </file>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </parserTestCase>
+  </tdml:parserTestCase>
 
   <!--
     Test Name: defaultNamespaceInExpression2
@@ -2011,15 +2012,15 @@ jonesington,david,frederick,1986-02-19
     expression was written, not where it is evaluated
   -->
 
-  <parserTestCase name="defaultNamespaceInExpression2"
+  <tdml:parserTestCase name="defaultNamespaceInExpression2"
     root="file2" model="charClassEntities.dfdl.xsd"
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
 
-    <document><![CDATA[last,first,middle,DOB
+    <tdml:document><![CDATA[last,first,middle,DOB
 jones,robert,brandon,1988-03-24
 johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
-]]></document>
+]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <file2>
@@ -2050,7 +2051,7 @@ jonesington,david,frederick,1986-02-19
         </file2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-  </parserTestCase>
+  </tdml:parserTestCase>
 
   <!-- schema has a mistake in it. User wrote <xs:format... when they
     should have written <dfdl:format...
@@ -2337,4 +2338,4 @@ jonesington,david,frederick,1986-02-19
     </tdml:infoset>
   </tdml:parserTestCase>
 
-</testSuite>
+</tdml:testSuite>

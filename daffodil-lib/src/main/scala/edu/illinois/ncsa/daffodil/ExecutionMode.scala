@@ -93,8 +93,18 @@ object ExecutionMode {
   }
 
   final def requireCompilerMode = {
-    if (notUnknown && !isUnrestrictedMode)
-      Assert.invariant(isCompilerMode)
+    //
+    // Removed this as it was causing errors when the infoset code wanted
+    // to issue an SDE. That code doesn't have a PState around to issue 
+    // a runtime SDE, and it isn't clear whether it wants to issue a 
+    // regular SDE or a runtime one, because expression evaluation occurs
+    // both at compile time and runtime. The ERD object available as a Throws
+    // SDE object in the infoset throws regular SDE regardless of when
+    //
+    // TODO: consider removing this entire mechanism as no longer necessary.
+    // 
+    //    if (notUnknown && !isUnrestrictedMode)
+    //      Assert.invariant(isCompilerMode)
     // if (!isCompilerMode) System.err.println("Doing a compile time thing at runtime!")
   }
 

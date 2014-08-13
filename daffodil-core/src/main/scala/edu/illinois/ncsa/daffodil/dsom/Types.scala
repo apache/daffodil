@@ -198,14 +198,13 @@ trait TypeChecks {
       val dt = df.parse(date)
       new java.math.BigDecimal(dt.getTime())
     } catch {
-      case e: Exception => {
+      case e1: Exception => {
         try {
           // Could already be a BigDecimal
           new java.math.BigDecimal(date)
         } catch {
-          case e: Exception => context.SDE("Failed to parse (%s) to %s (%s)", date, dateType, format)
+          case e2: Exception => context.SDE("Failed to parse (%s) to %s (%s) due to %s (after %s).", date, dateType, format, e2.getMessage(), e1.getMessage())
         }
-
       }
     }
     bd

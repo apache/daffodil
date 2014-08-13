@@ -125,10 +125,10 @@ trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent
       case Found("", _) => None // empty string means no escape scheme
       case Found(qName, loc) => {
         val (nsURI, name) = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
-        val defES = schemaSet.getDefineEscapeScheme(nsURI, name)
-        defES match {
+        val defESFactory = schemaSet.getDefineEscapeScheme(nsURI, name)
+        defESFactory match {
           case None => SDE("Define Escape Scheme %s Not Found", qName)
-          case Some(es) => Some(es.escapeScheme)
+          case Some(desf) => Some(desf.forComponent(this).escapeScheme)
         }
       }
     }
@@ -273,7 +273,7 @@ trait ElementBaseGrammarMixin
       //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
       case (LengthUnits.Bytes, false) => {
         // StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
-        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
+        subsetError("The lengthUnits for encoding '%s' (which is, or could be, variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
       }
       case (LengthUnits.Characters, true) => {
         //
@@ -914,10 +914,10 @@ trait ElementBaseGrammarMixin
 
   lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
     if (this.isParentUnorderedSequence)
-      ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
       scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd)
     else
-      ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
         scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd))
 
   //  def scalarDefaultable: Prod
@@ -943,15 +943,15 @@ trait ElementBaseGrammarMixin
   lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
     isSimpleType && inputValueCalcOption.isInstanceOf[Found],
     // No framing surrounding inputValueCalc elements.
-    ElementCombinator(this, dfdlScopeBegin ~
+    new ElementCombinator(this, dfdlScopeBegin ~
       InputValueCalc(self), dfdlScopeEnd))
 
   lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
     if (this.isParentUnorderedSequence)
-      ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
       scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
     else
-      ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
+      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
         scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd))
 
 }

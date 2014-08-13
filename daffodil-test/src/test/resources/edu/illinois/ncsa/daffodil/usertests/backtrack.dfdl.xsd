@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved. Developed 
+  by: Tresys Technology, LLC http://www.tresys.com Permission is hereby granted, free 
+  of charge, to any person obtaining a copy of this software and associated documentation 
+  files (the "Software"), to deal with the Software without restriction, including 
+  without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+  and/or sell copies of the Software, and to permit persons to whom the Software is 
+  furnished to do so, subject to the following conditions: 1. Redistributions of source 
+  code must retain the above copyright notice, this list of conditions and the following 
+  disclaimers. 2. Redistributions in binary form must reproduce the above copyright 
+  notice, this list of conditions and the following disclaimers in the documentation 
+  and/or other materials provided with the distribution. 3. Neither the names of Tresys 
+  Technology, nor the names of its contributors may be used to endorse or promote products 
+  derived from this Software without specific prior written permission. THE SOFTWARE 
+  IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+  BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE 
+  AND NONINFRINGEMENT. IN NO EVENT SHALL THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE 
+  FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT 
+  OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE 
+  OR OTHER DEALINGS WITH THE SOFTWARE. -->
+
+
+<!-- Version 1.1 pcap.dfdl.xsd Change History 1.1: Support parsing link layer (ethernet), 
+  network layer (ipv4, ipv6, icmpv4) and transport layer (tcp, udp) This DFDL schema 
+  provides a DFDL model for PCAP v2.4 binary data, which contains network packet capture 
+  data. The message root is 'PCAP'. -->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:pcap="urn:pcap:2.4"
+  targetNamespace="urn:pcap:2.4">
+
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+
+      <dfdl:defineFormat name="defaults">
+        <dfdl:format alignment="1" alignmentUnits="bits"
+          binaryBooleanFalseRep="0" binaryBooleanTrueRep="1"
+          binaryCalendarEpoch="1970-01-01T00:00:00+00:00" binaryCalendarRep="bcd"
+          binaryDecimalVirtualPoint="0" binaryFloatRep="ieee"
+          binaryNumberCheckPolicy="lax" binaryNumberRep="binary"
+          binaryPackedSignCodes="C D F C" calendarCenturyStart="53"
+          calendarCheckPolicy="lax" calendarDaysInFirstWeek="4"
+          calendarFirstDayOfWeek="Monday" calendarLanguage="en-US"
+          calendarObserveDST="yes" calendarPatternKind="implicit"
+          calendarPattern="yyyy-MM-dd'T'HH:mm:ss" calendarTimeZone="UTC"
+          choiceLengthKind="implicit" decimalSigned="yes"
+          documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="none"
+          encoding="UTF-8" encodingErrorPolicy="replace" escapeSchemeRef=""
+          fillByte="0" floating="no" ignoreCase="no" initiatedContent="no"
+          initiator="" leadingSkip="0" lengthKind="implicit" lengthUnits="bits"
+          nilKind="literalValue" nilValueDelimiterPolicy="none" nilValue="NIL"
+          occursCountKind="implicit" outputNewLine="%CR;%LF;"
+          prefixIncludesPrefixLength="no" representation="binary" separator=""
+          separatorPosition="infix" sequenceKind="ordered" terminator=""
+          textBidi="no" textBooleanFalseRep="false" textBooleanJustification="left"
+          textBooleanPadCharacter="%SP;" textBooleanTrueRep="true"
+          textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+          textNumberCheckPolicy="lax" textNumberJustification="right"
+          textNumberPadCharacter="0" textNumberPattern="#0" textNumberRep="standard"
+          textNumberRoundingIncrement="0.0" textNumberRoundingMode="roundUp"
+          textNumberRounding="pattern" textOutputMinLength="0" textPadKind="none"
+          textStandardBase="10" textStandardDecimalSeparator="."
+          textStandardGroupingSeparator="," textStandardInfinityRep="Inf"
+          textStandardNaNRep="NaN" textStandardZeroRep=""
+          textStringJustification="left" textStringPadCharacter="%SP;"
+          textTrimKind="none" textZonedSignStyle="asciiStandard" trailingSkip="0"
+          truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed"
+          bitOrder="mostSignificantBitFirst" />
+      </dfdl:defineFormat>
+
+      <dfdl:format ref="pcap:defaults" byteOrder="littleEndian" />
+
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:simpleType name="uint16" dfdl:lengthKind="explicit"
+    dfdl:length="16">
+    <xs:restriction base="xs:unsignedInt" />
+  </xs:simpleType>
+
+  <xs:simpleType name="uint32" dfdl:lengthKind="explicit"
+    dfdl:length="32">
+    <xs:restriction base="xs:unsignedInt" />
+  </xs:simpleType>
+
+  <xs:simpleType name="int32" dfdl:lengthKind="explicit"
+    dfdl:length="4" dfdl:lengthUnits="bytes">
+    <xs:restriction base="xs:int" />
+  </xs:simpleType>
+
+  <xs:simpleType name="bit" dfdl:lengthKind="explicit"
+    dfdl:byteOrder="bigEndian" dfdl:lengthUnits="bits">
+    <xs:restriction base="xs:unsignedInt" />
+  </xs:simpleType>
+
+  <xs:simpleType name="hexByte" dfdl:lengthKind="explicit"
+    dfdl:byteOrder="bigEndian" dfdl:lengthUnits="bytes">
+    <xs:restriction base="xs:hexBinary" />
+  </xs:simpleType>
+
+  <xs:element name="PCAP">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Packet" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="PacketHeader">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="InclLen" type="pcap:uint32" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="LinkLayer" dfdl:lengthUnits="bytes"
+                dfdl:lengthKind="explicit" dfdl:length="{ ../PacketHeader/InclLen }">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Ethernet">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:annotation>
+                            <xs:appinfo source="http://www.ogf.org/dfdl/">
+                              <dfdl:discriminator
+                                message="Link layer type is not Ethernet" test="{ fn:true() }" />
+                            </xs:appinfo>
+                          </xs:annotation>
+                          <xs:element name="MACDest" type="pcap:hexByte"
+                            dfdl:length="6" />
+                          <xs:element name="MACSrc" type="pcap:hexByte"
+                            dfdl:length="6" />
+                          <xs:element name="Ethertype" type="pcap:bit"
+                            dfdl:length="16" />
+                          <xs:element name="NetworkLayer">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="IPv4">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name='IPv4Header'>
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="Version"
+                                              type="pcap:bit" dfdl:length="4" />
+                                            <xs:element name="IHL"
+                                              type="pcap:bit" dfdl:length="4" />
+                                            <xs:element name="DSCP"
+                                              type="pcap:bit" dfdl:length="6" />
+                                            <xs:element name="ECN"
+                                              type="pcap:bit" dfdl:length="2" />
+                                            <xs:element name="Length"
+                                              type="pcap:bit" dfdl:length="16" />
+                                            <xs:element name="Identification"
+                                              type="pcap:bit" dfdl:length="16" />
+                                            <xs:element name="Flags"
+                                              type="pcap:bit" dfdl:length="3" />
+                                            <xs:element name="FragmentOffset"
+                                              type="pcap:bit" dfdl:length="13" />
+                                            <xs:element name="TTL"
+                                              type="pcap:bit" dfdl:length="8" />
+                                            <xs:element name="Protocol"
+                                              type="pcap:bit" dfdl:length="8" />
+                                            <xs:element name="Checksum"
+                                              type="pcap:bit" dfdl:length="16" />
+                                            <xs:sequence
+                                              dfdl:hiddenGroupRef="pcap:IPSrcGrp" />
+                                            <xs:element name="IPSrc"
+                                              type="xs:string"
+                                              dfdl:inputValueCalc="{ fn:concat(../IPSrcByte[1], '.', ../IPSrcByte[2], '.', ../IPSrcByte[3], '.', ../IPSrcByte[4]) }" />
+                                            <xs:sequence
+                                              dfdl:hiddenGroupRef="pcap:IPDestGrp" />
+                                            <xs:element name="IPDest"
+                                              type="xs:string"
+                                              dfdl:inputValueCalc="{ fn:concat(../IPDestByte[1], '.', ../IPDestByte[2], '.', ../IPDestByte[3], '.', ../IPDestByte[4]) }" />
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                      <xs:element name="PayloadLength"
+                                        type="xs:unsignedInt"
+                                        dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Length) - 20 }" />
+                                      <xs:element name="Protocol"
+                                        type="xs:unsignedInt"
+                                        dfdl:inputValueCalc="{ xs:unsignedInt(../IPv4Header/Protocol) }" />
+                                      <xs:sequence>
+                                        <xs:element name="ICMPv4"
+                                          dfdl:lengthKind="explicit"
+                                          dfdl:lengthUnits="bytes"
+                                          dfdl:length="{ ../PayloadLength }">
+                                          <xs:complexType>
+                                            <xs:sequence>
+                                              <xs:element name="Type"
+                                                type="pcap:bit" dfdl:length="8" />
+                                              <xs:element name="Code"
+                                                type="pcap:bit" dfdl:length="8" />
+                                              <xs:element name="Checksum"
+                                                type="pcap:bit" dfdl:length="16" />
+                                              <xs:element name="Data"
+                                                type="pcap:hexByte" dfdl:length="4" />
+                                            </xs:sequence>
+                                          </xs:complexType>
+                                        </xs:element>
+
+                                      </xs:sequence>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+  <!-- NETWORK LAYER -->
+
+
+
+  <xs:simpleType name="IPSeg" dfdl:lengthKind="explicit"
+    dfdl:lengthUnits="bytes" dfdl:length="1">
+    <xs:restriction base="xs:unsignedInt" />
+  </xs:simpleType>
+
+  <xs:group name="IPSrcGrp">
+    <xs:sequence>
+      <xs:element name="IPSrcByte" type="pcap:IPSeg" minOccurs="4"
+        maxOccurs="4" />
+    </xs:sequence>
+  </xs:group>
+
+  <xs:group name="IPDestGrp">
+    <xs:sequence>
+      <xs:element name="IPDestByte" type="pcap:IPSeg" minOccurs="4"
+        maxOccurs="4" />
+    </xs:sequence>
+  </xs:group>
+
+
+
+
+</xs:schema>

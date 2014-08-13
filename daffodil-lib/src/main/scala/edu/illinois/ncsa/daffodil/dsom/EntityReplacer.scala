@@ -55,53 +55,53 @@ class EntityReplacer {
   val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
   val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
 
-  val entityCharacterUnicode: List[(String, String, Pattern)] =
+  val entityCharacterUnicode: List[(String, String, Matcher)] =
     List(
-      ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE)),
-      ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE)),
-      ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE)),
-      ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE)),
-      ("EOT", "\u0004", Pattern.compile("%" + "EOT" + ";", Pattern.MULTILINE)),
-      ("ENQ", "\u0005", Pattern.compile("%" + "ENQ" + ";", Pattern.MULTILINE)),
-      ("ACK", "\u0006", Pattern.compile("%" + "ACK" + ";", Pattern.MULTILINE)),
-      ("BEL", "\u0007", Pattern.compile("%" + "BEL" + ";", Pattern.MULTILINE)),
-      ("BS", "\u0008", Pattern.compile("%" + "BS" + ";", Pattern.MULTILINE)),
-      ("HT", "\u0009", Pattern.compile("%" + "HT" + ";", Pattern.MULTILINE)),
-      ("LF", "\u000A", Pattern.compile("%" + "LF" + ";", Pattern.MULTILINE)),
-      ("VT", "\u000B", Pattern.compile("%" + "VT" + ";", Pattern.MULTILINE)),
-      ("FF", "\u000C", Pattern.compile("%" + "FF" + ";", Pattern.MULTILINE)),
-      ("CR", "\u000D", Pattern.compile("%" + "CR" + ";", Pattern.MULTILINE)),
-      ("SO", "\u000E", Pattern.compile("%" + "SO" + ";", Pattern.MULTILINE)),
-      ("SI", "\u000F", Pattern.compile("%" + "SI" + ";", Pattern.MULTILINE)),
-      ("DLE", "\u0010", Pattern.compile("%" + "DLE" + ";", Pattern.MULTILINE)),
-      ("DC1", "\u0011", Pattern.compile("%" + "DC1" + ";", Pattern.MULTILINE)),
-      ("DC2", "\u0012", Pattern.compile("%" + "DC2" + ";", Pattern.MULTILINE)),
-      ("DC3", "\u0013", Pattern.compile("%" + "DC3" + ";", Pattern.MULTILINE)),
-      ("DC4", "\u0014", Pattern.compile("%" + "DC4" + ";", Pattern.MULTILINE)),
-      ("NAK", "\u0015", Pattern.compile("%" + "NAK" + ";", Pattern.MULTILINE)),
-      ("SYN", "\u0016", Pattern.compile("%" + "SYN" + ";", Pattern.MULTILINE)),
-      ("ETB", "\u0017", Pattern.compile("%" + "ETB" + ";", Pattern.MULTILINE)),
-      ("CAN", "\u0018", Pattern.compile("%" + "CAN" + ";", Pattern.MULTILINE)),
-      ("EM", "\u0019", Pattern.compile("%" + "EM" + ";", Pattern.MULTILINE)),
-      ("SUB", "\u001A", Pattern.compile("%" + "SUB" + ";", Pattern.MULTILINE)),
-      ("ESC", "\u001B", Pattern.compile("%" + "ESC" + ";", Pattern.MULTILINE)),
-      ("FS", "\u001C", Pattern.compile("%" + "FS" + ";", Pattern.MULTILINE)),
-      ("GS", "\u001D", Pattern.compile("%" + "GS" + ";", Pattern.MULTILINE)),
-      ("RS", "\u001E", Pattern.compile("%" + "RS" + ";", Pattern.MULTILINE)),
-      ("US", "\u001F", Pattern.compile("%" + "US" + ";", Pattern.MULTILINE)),
-      ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE)),
-      ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE)),
-      ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE)),
-      ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE)),
-      ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE)))
+      ("NUL", "\u0000", Pattern.compile("%" + "NUL" + ";", Pattern.MULTILINE).matcher("")),
+      ("SOH", "\u0001", Pattern.compile("%" + "SOH" + ";", Pattern.MULTILINE).matcher("")),
+      ("STX", "\u0002", Pattern.compile("%" + "STX" + ";", Pattern.MULTILINE).matcher("")),
+      ("ETX", "\u0003", Pattern.compile("%" + "ETX" + ";", Pattern.MULTILINE).matcher("")),
+      ("EOT", "\u0004", Pattern.compile("%" + "EOT" + ";", Pattern.MULTILINE).matcher("")),
+      ("ENQ", "\u0005", Pattern.compile("%" + "ENQ" + ";", Pattern.MULTILINE).matcher("")),
+      ("ACK", "\u0006", Pattern.compile("%" + "ACK" + ";", Pattern.MULTILINE).matcher("")),
+      ("BEL", "\u0007", Pattern.compile("%" + "BEL" + ";", Pattern.MULTILINE).matcher("")),
+      ("BS", "\u0008", Pattern.compile("%" + "BS" + ";", Pattern.MULTILINE).matcher("")),
+      ("HT", "\u0009", Pattern.compile("%" + "HT" + ";", Pattern.MULTILINE).matcher("")),
+      ("LF", "\u000A", Pattern.compile("%" + "LF" + ";", Pattern.MULTILINE).matcher("")),
+      ("VT", "\u000B", Pattern.compile("%" + "VT" + ";", Pattern.MULTILINE).matcher("")),
+      ("FF", "\u000C", Pattern.compile("%" + "FF" + ";", Pattern.MULTILINE).matcher("")),
+      ("CR", "\u000D", Pattern.compile("%" + "CR" + ";", Pattern.MULTILINE).matcher("")),
+      ("SO", "\u000E", Pattern.compile("%" + "SO" + ";", Pattern.MULTILINE).matcher("")),
+      ("SI", "\u000F", Pattern.compile("%" + "SI" + ";", Pattern.MULTILINE).matcher("")),
+      ("DLE", "\u0010", Pattern.compile("%" + "DLE" + ";", Pattern.MULTILINE).matcher("")),
+      ("DC1", "\u0011", Pattern.compile("%" + "DC1" + ";", Pattern.MULTILINE).matcher("")),
+      ("DC2", "\u0012", Pattern.compile("%" + "DC2" + ";", Pattern.MULTILINE).matcher("")),
+      ("DC3", "\u0013", Pattern.compile("%" + "DC3" + ";", Pattern.MULTILINE).matcher("")),
+      ("DC4", "\u0014", Pattern.compile("%" + "DC4" + ";", Pattern.MULTILINE).matcher("")),
+      ("NAK", "\u0015", Pattern.compile("%" + "NAK" + ";", Pattern.MULTILINE).matcher("")),
+      ("SYN", "\u0016", Pattern.compile("%" + "SYN" + ";", Pattern.MULTILINE).matcher("")),
+      ("ETB", "\u0017", Pattern.compile("%" + "ETB" + ";", Pattern.MULTILINE).matcher("")),
+      ("CAN", "\u0018", Pattern.compile("%" + "CAN" + ";", Pattern.MULTILINE).matcher("")),
+      ("EM", "\u0019", Pattern.compile("%" + "EM" + ";", Pattern.MULTILINE).matcher("")),
+      ("SUB", "\u001A", Pattern.compile("%" + "SUB" + ";", Pattern.MULTILINE).matcher("")),
+      ("ESC", "\u001B", Pattern.compile("%" + "ESC" + ";", Pattern.MULTILINE).matcher("")),
+      ("FS", "\u001C", Pattern.compile("%" + "FS" + ";", Pattern.MULTILINE).matcher("")),
+      ("GS", "\u001D", Pattern.compile("%" + "GS" + ";", Pattern.MULTILINE).matcher("")),
+      ("RS", "\u001E", Pattern.compile("%" + "RS" + ";", Pattern.MULTILINE).matcher("")),
+      ("US", "\u001F", Pattern.compile("%" + "US" + ";", Pattern.MULTILINE).matcher("")),
+      ("SP", "\u0020", Pattern.compile("%" + "SP" + ";", Pattern.MULTILINE).matcher("")),
+      ("DEL", "\u007F", Pattern.compile("%" + "DEL" + ";", Pattern.MULTILINE).matcher("")),
+      ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE).matcher("")),
+      ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE).matcher("")),
+      ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE).matcher("")))
 
-  val escapeReplacements: List[(String, String, Pattern)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE)))
+  val escapeReplacements: List[(String, String, Matcher)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE).matcher("")))
 
-  val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE)
-  val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE)
-  val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE)
-  val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE)
-  val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE)
+  val charEntityPattern = Pattern.compile("%(" + dfdlEntityName + ");", Pattern.MULTILINE).matcher("")
+  val hexPattern = Pattern.compile("%#x[0-9a-fA-F]+;", Pattern.MULTILINE).matcher("")
+  val decPattern = Pattern.compile("%#[0-9]+;", Pattern.MULTILINE).matcher("")
+  val bytePattern = Pattern.compile("%#r[0-9a-fA-F]{2};", Pattern.MULTILINE).matcher("")
+  val charClassEntityPattern = Pattern.compile("%(" + dfdlCharClassEntityName + ");", Pattern.MULTILINE).matcher("")
 
   val charEntityRegex = ("(%(?:" + dfdlEntityName + ");)(.*)").r
   val hexRegex = "(%#x[0-9a-fA-F]+;)(.*)".r
@@ -121,7 +121,10 @@ class EntityReplacer {
     false
   }
 
-  private def isMatched(input: String, p: Pattern): Boolean = p.matcher(input).find()
+  private def isMatched(input: String, m: Matcher): Boolean = {
+    m.reset(input)
+    m.find()
+  }
 
   def hasDfdlCharClassEntity(input: String): Boolean = isMatched(input, charClassEntityPattern)
   def hasDfdlCharEntity(input: String): Boolean = isMatched(input, charEntityPattern)
@@ -135,8 +138,8 @@ class EntityReplacer {
     // While we have Hex Code Points in the string
     // Find and replace with their character equivalents.
     while (hasHexCodePoint(res)) {
-      val p: Pattern = hexPattern
-      var m: Matcher = p.matcher(res)
+      val m = hexPattern
+      m.reset(res)
 
       if (m.find()) {
         val rawStr = m.group().toString()
@@ -148,10 +151,8 @@ class EntityReplacer {
         // so $ must be escaped into \$
         val newCharNotDollar = if (newChar == "$") """\$""" else newChar
         res = res.replaceAll(rawStr, newCharNotDollar)
-        m = p.matcher(res) // update Matcher
       }
     }
-
     res
   }
 
@@ -161,8 +162,8 @@ class EntityReplacer {
     // While we have Decimal Code Points in the string
     // Find and replace with their character equivalents.
     while (hasDecimalCodePoint(res)) {
-      val p: Pattern = decPattern
-      var m: Matcher = p.matcher(res)
+      val m = decPattern
+      m.reset(res)
 
       if (m.find()) {
         val rawStr = m.group().toString()
@@ -170,7 +171,6 @@ class EntityReplacer {
         val intStr = Integer.parseInt(trimmedStr, 10)
 
         res = res.replaceAll(rawStr, intStr.asInstanceOf[Char].toString())
-        m = p.matcher(res) // update Matcher
       }
     }
 
@@ -183,8 +183,8 @@ class EntityReplacer {
     // While we have Raw Byte entities in the string
     // Find and replace with their character equivalents.
     while (hasByteCodePoint(res)) {
-      val p: Pattern = bytePattern
-      var m: Matcher = p.matcher(res)
+      val m = bytePattern
+      m.reset(res)
 
       if (m.find()) {
         val rawStr = m.group().toString()
@@ -194,7 +194,6 @@ class EntityReplacer {
         val byteStr: Int = upperNibble | lowerNibble //Byte.parseByte(trimmedStr, 16)
 
         res = res.replaceAll(rawStr, byteStr.toChar.toString)
-        m = p.matcher(res) // update Matcher
       }
     }
 
@@ -252,12 +251,13 @@ class EntityReplacer {
    *  	3. Within it it has '%#' but is not terminated by ';'. Ex: %#foo
    *  	3. Has a '%' immediately followed by ';'. Ex: %;
    */
-  private val malformedEntityFormat = Pattern.compile("((?:%[^%#;]*?%)|(?:%[^%#;]*?$)|(?:%#[^%;]*?$)|(?:%;))", Pattern.MULTILINE)
+  private val malformedEntityFormat = Pattern.compile("((?:%[^%#;]*?%)|(?:%[^%#;]*?$)|(?:%#[^%;]*?$)|(?:%;))", Pattern.MULTILINE).matcher("")
   private def checkForMalformedEntityFormat(input: String, orig: String, context: Option[ThrowsSDE]) = {
     // At this point, we're assuming the escaped percent literals have already been removed.
     // So we want to look for malformed entities just as a preliminary check.
 
-    val m = malformedEntityFormat.matcher(input)
+    val m = malformedEntityFormat
+    m.reset(input)
     if (m.find()) {
       val invalidEntity = m.group(1)
       context match {
@@ -343,11 +343,11 @@ class EntityReplacer {
   // 	entity = what you are replacing (informational only)
   // 	unicode = what you are replacing it with
   // 	pattern = what you are replacing via RegEx match on this pattern
-  private def replace(input: String, chars: List[(String, String, Pattern)]): String = {
+  private def replace(input: String, chars: List[(String, String, Matcher)]): String = {
     var res: String = input
     chars.foreach {
-      case (entity, unicode, pattern) => {
-        val m: Matcher = pattern.matcher(res)
+      case (entity, unicode, m) => {
+        m.reset(res)
         res = m.replaceAll(unicode)
       }
     }
@@ -356,7 +356,8 @@ class EntityReplacer {
 
 }
 
-object EntityReplacer extends EntityReplacer
+import edu.illinois.ncsa.daffodil.util.OnStack
+object EntityReplacer extends OnStack(new EntityReplacer)
 
 abstract class StringLiteralBase(rawArg: String) {
   val xmlEntityPattern = new Regex("""&(quot|amp|apos|lt|gt);""", "entity")
@@ -381,7 +382,7 @@ abstract class StringLiteralBase(rawArg: String) {
  */
 class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer.replaceAll(raw, Some(context))
+  def cooked = EntityReplacer { e => e.replaceAll(raw, Some(context)) }
 
   val whitespaceMatcher = """.*(\s+).*""".r
   val hasWhitespace: Boolean = rawArg match {
@@ -403,7 +404,7 @@ class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
 
 class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer.replaceAll(raw, Some(context))
+  def cooked = EntityReplacer { _.replaceAll(raw, Some(context)) }
   // deal with raw bytes entities
   // deal with character class entities
 

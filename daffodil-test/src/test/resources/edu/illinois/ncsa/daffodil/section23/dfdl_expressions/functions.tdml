@@ -19,12 +19,12 @@
         <xs:sequence dfdl:separator=":">
           <xs:element name="bulkDateTime" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"
                       dfdl:lengthKind="explicit" dfdl:length="19" />
-          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:bulkDateTime) }"/>
-          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:bulkDateTime) }"/>
-          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:bulkDateTime) }"/>
-          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:bulkDateTime) }"/>
-          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:bulkDateTime) }"/>
-          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:bulkDateTime) }"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:year-from-dateTime(../ex:bulkDateTime)) }"/>
+          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:month-from-dateTime(../ex:bulkDateTime)) }"/>
+          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:day-from-dateTime(../ex:bulkDateTime)) }"/>
+          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:hours-from-dateTime(../ex:bulkDateTime)) }"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:minutes-from-dateTime(../ex:bulkDateTime)) }"/>
+          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:seconds-from-dateTime(../ex:bulkDateTime)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -33,9 +33,9 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=":">
           <xs:element name="bulkDate" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:lengthKind="delimited"/>
-          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkDate) }"/>
-          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ fn:month-from-date(../ex:bulkDate) }"/>
-          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ fn:day-from-date(../ex:bulkDate) }"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:year-from-date(../ex:bulkDate)) }"/>
+          <xs:element name="month" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:month-from-date(../ex:bulkDate)) }"/>
+          <xs:element name="day" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:day-from-date(../ex:bulkDate)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -44,9 +44,9 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=".">
           <xs:element name="bulkTime" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
-          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:bulkTime) }"/>
-          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:bulkTime) }"/>
-          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:bulkTime) }"/>
+          <xs:element name="hours" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:hours-from-time(../ex:bulkTime)) }"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:minutes-from-time(../ex:bulkTime)) }"/>
+          <xs:element name="seconds" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:seconds-from-time(../ex:bulkTime)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -56,7 +56,7 @@
         <xs:sequence dfdl:separator=":">
           <xs:element name="bulkDateTime" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"
                       dfdl:lengthKind="explicit" dfdl:length="19" />
-          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkDateTime) }"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:year-from-date(../ex:bulkDateTime)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -65,7 +65,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=".">
           <xs:element name="bulkTime" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
-          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ fn:year-from-date(../ex:bulkTime) }"/>
+          <xs:element name="year" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:year-from-date(../ex:bulkTime)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -74,7 +74,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator=".">
           <xs:element name="bulkDate" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited"/>
-          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:bulkDate) }"/>
+          <xs:element name="minutes" type="xs:string" dfdl:inputValueCalc="{ xs:string(fn:minutes-from-time(../ex:bulkDate)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -237,8 +237,16 @@
 
     <tdml:document><![CDATA[05-33-1999 03:20:22]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Invalid date</tdml:error>
+      <!-- The issue here is that we are providing a DateTime to a function that expects a Date object.  
+      XPath fails this and so should our DPath implementation -->
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DateTime</tdml:error>
+      <tdml:error>cannot be converted</tdml:error>
+      <tdml:error>Date</tdml:error>
+      <!-- <tdml:error>Parse Error: Convert to DateTime</tdml:error>
+      <tdml:error>Failed</tdml:error>
+      <tdml:error>valid range</tdml:error>
+      <tdml:error>1..31</tdml:error>-->
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -254,8 +262,15 @@
 
     <tdml:document><![CDATA[03:20:22GMT]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Invalid date</tdml:error>
+
+    <!-- The issue here is that we are providing a Time to a function that expects a Date object.  
+      XPath fails this and so should our DPath implementation -->
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Time</tdml:error>
+      <tdml:error>cannot be converted</tdml:error>
+      <tdml:error>Date</tdml:error>
+      <!-- <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
+      <tdml:error>Invalid date</tdml:error> -->
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -271,8 +286,14 @@
 
     <tdml:document><![CDATA[2012-07-30]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
-      <tdml:error>Invalid time</tdml:error>
+    <!-- The issue here is that we are providing a Date to a function that expects a Time object.  
+      XPath fails this and so should our DPath implementation -->
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Date</tdml:error>
+      <tdml:error>cannot be converted</tdml:error>
+      <tdml:error>Time</tdml:error>
+      <!-- <tdml:error>Parse Error: Expression evaluation failed.</tdml:error>
+      <tdml:error>Invalid time</tdml:error>-->
     </tdml:errors>
   </tdml:parserTestCase>
 

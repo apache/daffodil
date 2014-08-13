@@ -53,12 +53,14 @@ import scala.util.control.Breaks._
 import java.nio.charset.CoderResult
 import sun.nio.cs.HistoricallyNamedCharset
 import java.nio.channels.Channels
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions._
 import scala.util.parsing.input.Reader
 import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-
+import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import Maybe._
 //
 // Convention: name index fields like bytePos or bitPos or charPos with suffixes to indicate
 // zero based or 1 based. Suffixes are ...0b and ...1b respectively.
@@ -119,10 +121,19 @@ class DFDLByteReader private (psb: PagedSeq[Byte], bitOrder: BitOrder, val byteP
     // a stored length value. We don't want to allocate 
     // a giant thing (and perhaps fail when doing so), if 
     // the number is just noise.
-    //
+    val max = DaffodilTunableParameters.maxFieldContentLengthInBytes
+    if (numBytes > max) {
+      throw new DaffodilTunableParameters.TunableLimitExceededError(
+        "maxFieldContentLengthInBytes",
+        "Number of bytes %s exceeds tunable limit %s.", numBytes, max)
+    }
+    if (numBytes < 0) {
+      throw new ParseError(Nope, Nope, "Number of bytes is negative: %s.".format(numBytes))
+    }
+    val requestedEndBytePos = bytePosition0b + numBytes
+
     // first let's check if the data is defined at this offset
     // 
-    val requestedEndBytePos = bytePosition0b + numBytes
     val realNumBytes =
       if (psb.isDefinedAt(requestedEndBytePos)) numBytes
       else {
@@ -132,12 +143,33 @@ class DFDLByteReader private (psb: PagedSeq[Byte], bitOrder: BitOrder, val byteP
         //
         lengthInBytes - bytePosition0b
       }
+    if (realNumBytes < 0) {
+      throw new ParseError(Nope, Nope, "Number of bytes is negative: %s.".format(realNumBytes))
+    }
     val arr = new Array[Byte](realNumBytes.toInt)
     for (i <- 0 to (numBytes - 1)) {
       arr(i) = getByte(bytePosition0b + i)
     }
     arr
   }
+  //
+  // Note: code below doesn't work right
+  // the PSB delivers bytes that aren't actually in the data.
+  //
+  // slice does the right thing in that it gives you the requested amount
+  // or up to the amount available.
+  //  val newPSB = psb.slice(bytePosition0b, requestedEndBytePos)
+  // Just calling .toArray on the newPSB fails with "negative array size" ??? 
+  // So we create our own array and use the PSB copy methods.
+  //
+  // FIXME: PSB needs to go away. It isn't designed for the way we
+  // are using it. E.g, this psb.size call is linear in the size of the 
+  // data.... it literally calls next on itself repeatedly until it hits 
+  // the end. We want something where size is constant-time access.
+  //
+  //    val arr = new Array[Byte](scala.math.min(numBytes, psb.size))
+  //    newPSB.copyToArray(arr)
+  //    arr
 
   /**
    * Factory for a Reader[Char] that constructs characters by decoding them from this

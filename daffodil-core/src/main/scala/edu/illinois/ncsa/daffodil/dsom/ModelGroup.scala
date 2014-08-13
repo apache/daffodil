@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 /**
  * A factory for model groups.
@@ -88,14 +89,24 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   requiredEvaluations(groupMembers)
 
+  lazy val elementChildren: Seq[ElementBase] =
+    groupMembers.flatMap {
+      case eb: ElementBase => Seq(eb)
+      case gb: GroupBase => gb.group.elementChildren
+    }
+
+  override lazy val elementChildrenCompileInfo = elementChildren
+
   override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
+
+  override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
   lazy val modelGroupRuntimeData = {
 
     val groupMembers = this match {
       case mg: ModelGroup => mg.groupMembers.map {
         _ match {
-          case eb: ElementBase => eb.elementRuntimeData
+          case eb: ElementBase => eb.erd
           case t: Term => t.runtimeData
         }
       }
@@ -109,7 +120,14 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       path,
       namespaces,
       defaultBitOrder,
-      groupMembers)
+      groupMembers,
+      elementCompileInfo.map { _.elementRuntimeData }.get,
+      schemaSet.variableMap,
+      elementChildrenCompileInfo.map { _.elementRuntimeData },
+      encoding,
+      optionUTF16Width,
+      isScannable,
+      encodingErrorPolicy)
   }
 
   val mgID = UUID.randomUUID()

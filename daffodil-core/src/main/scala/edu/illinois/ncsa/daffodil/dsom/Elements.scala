@@ -38,18 +38,15 @@ import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
-import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors._
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -61,7 +58,55 @@ trait ParticleMixin { self: ElementBase =>
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
 
-  lazy val isOptional = minOccurs == 0
+  override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
+  override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
+
+  /**
+   * Determines if the element is optional, as in has zero or one instance.
+   */
+  lazy val isOptional = {
+    // minOccurs == 0
+    (optMinOccurs, optMaxOccurs) match {
+      case (Some(1), Some(1)) => false
+      case (Some(0), max) => {
+        // now we must check on occursCountKind.
+        // if parsed or stopValue then we consider it an array
+        if (occursCountKind == OccursCountKind.Parsed |
+          occursCountKind == OccursCountKind.StopValue) {
+          // we disregard the min/max occurs
+          false
+        } else {
+          max match {
+            case Some(1) => true
+            case None => true
+            case Some(_) => false
+          }
+        }
+      }
+      case _ => false
+    }
+  }
+
+  override lazy val isArray = {
+    // maxOccurs > 1 || maxOccurs == -1
+    /**
+     * Determines if the element is an array, as in can have more than one
+     * instance.
+     */
+    if (isOptional) false
+    else {
+      val UNBOUNDED = -1
+      (optMinOccurs, optMaxOccurs) match {
+        case (None, None) => false
+        case (Some(1), Some(1)) => false
+        case (_, Some(n)) if n > 1 => true
+        case (_, Some(UNBOUNDED)) => true
+        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed |
+          occursCountKind == OccursCountKind.StopValue) => true
+        case _ => false
+      }
+    }
+  }
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
@@ -143,27 +188,24 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
-  with TextNumberFormatMixin {
+  with TextNumberFormatMixin
+  with DPathElementCompileInfo {
 
-  requiredEvaluations({
-    typeDef
-    isSimpleType
-    if (hasPattern) patternValues
-    if (hasEnumeration) enumerationValues
-    if (hasMinLength) minLength
-    if (hasMaxLength) maxLength
-    if (hasMinInclusive) minInclusive
-    if (hasMaxInclusive) maxInclusive
-    if (hasMinExclusive) minExclusive
-    if (hasMaxExclusive) maxExclusive
-    if (hasTotalDigits) totalDigits
-    if (hasFractionDigits) fractionDigits
-    runtimeData
-  })
+  requiredEvaluations(typeDef)
+  requiredEvaluations(isSimpleType)
+  requiredEvaluations(if (hasPattern) patternValues)
+  requiredEvaluations(if (hasEnumeration) enumerationValues)
+  requiredEvaluations(if (hasMinLength) minLength)
+  requiredEvaluations(if (hasMaxLength) maxLength)
+  requiredEvaluations(if (hasMinInclusive) minInclusive)
+  requiredEvaluations(if (hasMaxInclusive) maxInclusive)
+  requiredEvaluations(if (hasMinExclusive) minExclusive)
+  requiredEvaluations(if (hasMaxExclusive) maxExclusive)
+  requiredEvaluations(if (hasTotalDigits) totalDigits)
+  requiredEvaluations(if (hasFractionDigits) fractionDigits)
+  requiredEvaluations(runtimeData)
 
   def name: String
-
-  lazy val schemaComponentID = elementRuntimeData.schemaComponentID
 
   def inputValueCalcOption: PropertyLookupResult
   def isNillable: Boolean
@@ -178,19 +220,50 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
 
+  override lazy val optPrimType: Option[RuntimePrimType] = Misc.boolToOpt(isSimpleType, primType.typeRuntimeData)
+
   def isScalar: Boolean
+  def isOptional: Boolean
+
+  // override in Particle
+  lazy val optMinOccurs: Option[Int] = None
+  lazy val optMaxOccurs: Option[Int] = None
 
   def elementRef: Option[ElementRef]
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
+  override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
-  lazy val elementRuntimeData = {
+  lazy val defaultValue =
+    if (isDefaultable) {
+      val value = Infoset.convertToInfosetRepType(primType.typeRuntimeData, defaultValueAsString, this)
+      Some(value)
+    } else None
 
-    val (minOccurs, maxOccurs) = this match {
-      case loc: LocalElementBase => (Some(loc.minOccurs), Some(loc.maxOccurs))
-      case _ => (None, None)
-    }
-    val erd = new ElementRuntimeData(
+  final lazy val elementRuntimeData: ElementRuntimeData = {
+    val ee = enclosingElement
+    val optERD = ee.map { _.elementRuntimeData }
+    createElementRuntimeData(optERD)
+  }
+
+  final lazy val erd = elementRuntimeData
+
+  /**
+   * Everything needed at runtime about the element
+   * in order to compile expressions using it, (for debug)
+   * and issue proper diagnostics in error situations.
+   */
+  private def createElementRuntimeData(parent: => Option[ElementRuntimeData]): ElementRuntimeData = {
+
+    //
+    // I got sick of initialization time problems, so this mutual recursion
+    // defines the tree of ERDs. 
+    //
+    // This works because of deferred arguments and lazy evaluation
+    //
+    lazy val childrenERDs: Seq[ElementRuntimeData] =
+      elementChildren.map { _.elementRuntimeData }
+    lazy val newERD: ElementRuntimeData = new ElementRuntimeData(
       lineAttribute,
       columnAttribute,
       fileAttribute,
@@ -198,9 +271,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       path,
       namespaces,
       defaultBitOrder,
-      Misc.boolToOpt(isSimpleType, primType),
-      isSimpleType,
-      Misc.boolToOpt(knownEncodingIsFixedWidth, knownEncodingWidthInBits),
+      optPrimType,
       targetNamespace,
       Misc.boolToOpt(hasPattern, patternValues),
       Misc.boolToOpt(hasEnumeration, enumerationValues),
@@ -212,15 +283,72 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       Misc.boolToOpt(hasMaxExclusive, maxExclusive),
       Misc.boolToOpt(hasTotalDigits, totalDigits),
       Misc.boolToOpt(hasFractionDigits, fractionDigits),
-      minOccurs,
-      maxOccurs,
+      optMinOccurs,
+      optMaxOccurs,
       name,
       targetNamespacePrefix,
-      isHidden)
-    val id = schemaSet.schemaComponentRegistry.addComponent(erd)
-    erd.schemaComponentID = id
-    erd
+      isHidden,
+      nChildSlots,
+      slotIndexInParent,
+      isNillable,
+      defaultValue,
+      childrenERDs,
+      isArray,
+      isOptional,
+      namedQName,
+      schemaSet.variableMap,
+      parent,
+      encoding,
+      optionUTF16Width,
+      isScannable,
+      defaultEncodingErrorPolicy)
+    newERD
   }
+
+  /**
+   *  This QName should contain the prefix from the element reference
+   */
+  def namedQName: NamedQName
+
+  /**
+   * Each distinctly named child gets a slot.
+   *
+   * In the case where you have several elements with the same name and type,
+   * but separated by other non-optional elements, then those are considered
+   * to be different slots.
+   */
+  lazy val nChildSlots: Int = {
+    if (isSimpleType) 0
+    else elementChildren.length
+  }
+
+  lazy val slotIndexInParent: Int = {
+    if (!nearestEnclosingElement.isDefined) 0
+    else {
+      val elemParent = nearestEnclosingElementNotRef.get
+      val realElement = this.referredToComponent // because we might be an ElementRef
+      val realChildren = elemParent.elementChildren.map { _.referredToComponent }
+      val pos = realChildren.indexOf(realElement)
+      Assert.invariant(pos >= 0)
+      pos
+    }
+  }
+
+  /**
+   * Direct element children of a complex element.
+   *
+   * Include both represented and non-represented elements.
+   */
+  lazy val elementChildren: Seq[ElementBase] = {
+    this.typeDef match {
+      case ct: ComplexTypeBase => {
+        ct.modelGroup.group.elementChildren.asInstanceOf[Seq[ElementBase]]
+      }
+      case _ => Nil
+    }
+  }
+
+  final override lazy val elementChildrenCompileInfo = elementChildren
 
   override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 
@@ -710,6 +838,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * Does the element have a default value?
    */
   def isDefaultable: Boolean
+  def defaultValueAsString: String
 
   /**
    * Combine our statements with those of the ref that is referencing us (if there is one), and
@@ -1037,6 +1166,8 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   override lazy val referredToComponent = referencedElement
 
+  override lazy val namedQName = referencedElement.namedQName
+
   // Need to go get the Element we are referencing
   private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   private val referencedElement_ = LV('referencedElement) {
@@ -1055,9 +1186,13 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val elementComplexType = referencedElement.elementComplexType
   lazy val elementSimpleType = referencedElement.elementSimpleType
   lazy val isDefaultable: Boolean = referencedElement.isDefaultable
+  lazy val defaultValueAsString = referencedElement.defaultValueAsString
 
-  lazy val qname = resolveQName(ref)
-  lazy val (ns, localName) = qname
+  lazy val (ns, localName) = {
+    val qname = resolveQName(ref)
+    qname
+  }
+
   override lazy val namespace = ns
 
   /**
@@ -1160,7 +1295,7 @@ trait ElementDeclMixin
   lazy val namedTypeQName = namedTypeQName_.value
   private val namedTypeQName_ = LV('namedTypeQName) {
     typeName match {
-      case Some(tname) => Some(XMLUtils.QName(xml, tname, schemaDocument))
+      case Some(tname) => QName.resolveRef(tname, namespaces)
       case None => None
     }
   }
@@ -1169,7 +1304,7 @@ trait ElementDeclMixin
   private val namedTypeDef_ = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
-      case Some((ns, localpart)) => {
+      case Some(RefQName(_, localpart, ns)) => {
 
         val ss = schemaSet
         val prim = ss.getPrimitiveType(ns, localpart)
@@ -1259,6 +1394,10 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
 
   requiredEvaluations(minOccurs, maxOccurs)
 
+  override def namedQName = {
+    val isQualified = elementFormDefault == "qualified"
+    QName.createLocal(name, targetNamespace, isQualified, namespaces)
+  }
 }
 
 /**

@@ -81,15 +81,13 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsParser
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryStatic
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
 import edu.illinois.ncsa.daffodil.processors.parsers.HasPadding
 import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -170,8 +168,9 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     lengthText)
 }
 
@@ -191,8 +190,9 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     lengthText)
 }
 
@@ -208,8 +208,9 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: 
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     lengthText)
 }
 
@@ -224,8 +225,9 @@ case class StringVariableLengthInBytes(e: ElementBase)
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.length,
     lengthText)
 }
@@ -241,8 +243,9 @@ case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.length,
     lengthText)
 }
@@ -258,8 +261,9 @@ case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
     padCharChar,
     e.elementRuntimeData,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction,
+    e.knownEncodingIsFixedWidth,
     e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.length,
     lengthText)
 }
@@ -272,7 +276,7 @@ case class StringPatternMatched(e: ElementBase)
   val pattern = e.lengthPattern
 
   def parser: DaffodilParser = new StringPatternMatchedParser(charset, pattern, e.elementRuntimeData,
-    e.knownEncodingStringBitLengthFunction, justificationTrim, padChar)
+    e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, justificationTrim, padChar)
 
 }
 
@@ -282,7 +286,7 @@ class Delimiters(delimDFAs: DFADelimiter, delims: List[String])
  * Here allTerminatingMarkup is a List[(CompiledExpression, ElementName, ElementPath)]
  */
 sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE) extends Logging {
+  context: ThrowsSDE) extends Logging with Serializable {
 
   // These static delims are used whether we're static or dynamic
   // because even a dynamic can have some static from enclosing scopes.
@@ -404,7 +408,7 @@ trait HasEscapeScheme { self: StringDelimited =>
     val (finalOptEsc, afterEscEval) =
       if (!optEsc.isDefined) (Nope, state)
       else {
-        val R(res, newVMap) = optEsc.get.evaluate(state.parentElement, state.variableMap, state)
+        val (res, newVMap) = optEsc.get.evaluate(state)
         val l = new SingleCharacterLiteralES(res.toString, context)
         val resultEsc = l.cooked
         val newState = state.withVariables(newVMap)
@@ -456,7 +460,7 @@ case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
  */
 sealed abstract class FieldFactoryBase(ef: Option[EscapeSchemeFactoryBase],
   df: DelimiterFactoryBase,
-  context: ThrowsSDE) {
+  context: ThrowsSDE) extends Serializable {
 
   def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme])
 }
@@ -694,28 +698,28 @@ abstract class StringDelimited(e: ElementBase)
 
   def isDelimRequired: Boolean
 
-  val es = e.optionEscapeScheme
+  lazy val es = e.optionEscapeScheme
 
-  val tm = e.allTerminatingMarkup
-  val cname = toString
+  lazy val tm = e.allTerminatingMarkup
+  lazy val cname = toString
 
-  val eName = e.toString()
-  val charset = e.knownEncodingCharset
+  lazy val eName = e.toString()
+  lazy val charset = e.knownEncodingCharset
 
-  val hasDynamicDelims: Boolean =
+  lazy val hasDynamicDelims: Boolean =
     e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
 
-  val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
+  lazy val pad: Maybe[Char] = if (padChar.isEmpty()) Nope else One(padChar.charAt(0))
 
-  val leftPaddingOpt: Option[TextPaddingParser] = {
+  lazy val leftPaddingOpt: Option[TextPaddingParser] = {
     if (!pad.isDefined) None
-    else Some(new TextPaddingParser(pad.get, e.knownEncodingStringBitLengthFunction))
+    else Some(new TextPaddingParser(pad.get, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName))
   }
 
-  val escapeSchemeFactory = createEscSchemeFactory
-  val delimiterFactory = createDelimiterFactory
-  val fieldFactory = createFieldFactory
-  val parserFactory = createParserFactory
+  lazy val escapeSchemeFactory = createEscSchemeFactory
+  lazy val delimiterFactory = createDelimiterFactory
+  lazy val fieldFactory = createFieldFactory
+  lazy val parserFactory = createParserFactory
 
   def createEscSchemeFactory: Option[EscapeSchemeFactoryBase] = {
     if (es.isDefined) {
@@ -765,12 +769,12 @@ abstract class StringDelimited(e: ElementBase)
     val theParserFact = fieldFactory match {
       case ffs: FieldFactoryStatic => {
         val pStatic = new TextDelimitedParserFactoryStatic(
-          justificationTrim, pad, e.knownEncodingStringBitLengthFunction, ffs, context.runtimeData)
+          justificationTrim, pad, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, ffs, context.runtimeData)
         pStatic
       }
       case ffd: FieldFactoryDynamic => {
         val pDynamic = new TextDelimitedParserFactoryDynamic(
-          justificationTrim, pad, e.knownEncodingStringBitLengthFunction, ffd, context.runtimeData)
+          justificationTrim, pad, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, ffd, context.runtimeData)
         pDynamic
       }
     }
@@ -788,7 +792,7 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  val gram = this
+  lazy val gram = this
 
   def parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
@@ -799,7 +803,11 @@ abstract class StringDelimited(e: ElementBase)
     isDelimRequired,
     e.allTerminatingMarkup,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction)
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName)
+
+  //def unparser: Unparser = new DummyUnparser(e)
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
@@ -809,7 +817,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
 abstract class HexBinaryDelimited(e: ElementBase)
   extends StringDelimited(e) {
-  override val charset: Charset = Charset.forName("ISO-8859-1")
+  override lazy val charset = new DFDLCharset("ISO-8859-1")
 
   override def parser: DaffodilParser = new HexBinaryDelimitedParser(
     e.elementRuntimeData,
@@ -819,7 +827,9 @@ abstract class HexBinaryDelimited(e: ElementBase)
     parserFactory,
     isDelimRequired,
     e.allTerminatingMarkup,
-    e.knownEncodingStringBitLengthFunction)
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName)
 
 }
 
@@ -830,10 +840,10 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase)
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
-  val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
-  val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
+  lazy val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
+  lazy val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
 
-  val isDelimRequired: Boolean = false
+  lazy val isDelimRequired: Boolean = false
 
   override def parser: DaffodilParser =
     new LiteralNilDelimitedEndOfDataParser(
@@ -845,7 +855,9 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.allTerminatingMarkup,
       nilValuesCooked,
       eb.knownEncodingCharset,
-      eb.knownEncodingStringBitLengthFunction)
+      eb.knownEncodingIsFixedWidth,
+      eb.knownEncodingWidthInBits,
+      eb.knownEncodingName)
 
 }
 
@@ -853,18 +865,6 @@ case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == Len
 
 class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
 
-  val sepParser = sep.parser
-
-  def parser: DaffodilParser = new PrimParser(term.runtimeData) {
-
-    override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
-
-    def parse(start: PState): PState = {
-      if (start.mpstate.arrayPos > 1) sepParser.parse1(start, term.runtimeData)
-      else if (start.mpstate.groupPos > 1) sepParser.parse1(start, term.runtimeData)
-      else start
-    }
-  }
-
+  def parser: DaffodilParser = new OptionalInfixSepParser(term.runtimeData, sep.parser)
 }
 

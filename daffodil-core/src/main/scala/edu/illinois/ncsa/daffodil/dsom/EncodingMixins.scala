@@ -36,6 +36,11 @@ import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.PState
 
 /**
  * Split this out of AnnotatedMixin for separation of
@@ -45,7 +50,7 @@ import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
  * of these sorts of traits that are mixed onto the
  * schema components.
  */
-trait EncodingMixin { self: AnnotatedSchemaComponent =>
+trait EncodingMixin extends ThrowsSDE {
   /**
    * Character encoding common attributes
    *
@@ -53,6 +58,11 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    * create values to tell us if the encoding is known or not
    * so that we can decide things at compile time when possible.
    */
+
+  def encoding: CompiledExpression
+  def defaultEncodingErrorPolicy: EncodingErrorPolicy
+  def utf16Width: UTF16Width
+  def optionUTF16Width: Option[UTF16Width]
 
   lazy val isKnownEncoding = {
     //
@@ -82,13 +92,16 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    * Note that the canonical form for encoding names is all upper case.
    */
   lazy val knownEncodingName = {
-    Assert.invariant(isKnownEncoding)
-    val res = encoding.constantAsString.toUpperCase()
-    res
+    if (!isKnownEncoding) "(computed at runtime)"
+    else {
+      val res = encoding.constantAsString.toUpperCase()
+      res
+    }
   }
 
   lazy val knownEncodingCharset = {
-    CharsetUtils.getCharset(knownEncodingName)
+    Assert.invariant(isKnownEncoding)
+    new DFDLCharset(knownEncodingName)
   }
 
   // Really bad idea. Don't save these. Decoders and Encoders are stateful
@@ -112,10 +125,12 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    * are some 5, 6, and 9 bit encodings out there.
    */
   lazy val knownEncodingAlignmentInBits = {
-    knownEncodingName match {
-      case "US-ASCII-7-BIT-PACKED" => 1 // canonical form of encoding names is all upper case
-      case _ => 8
-    }
+    if (isKnownEncoding) {
+      knownEncodingName match {
+        case "US-ASCII-7-BIT-PACKED" => 1 // canonical form of encoding names is all upper case
+        case _ => 8
+      }
+    } else 8 // unknown encodings always assumed to be 8-bit aligned.
   }
 
   /**
@@ -125,20 +140,22 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
    * their end.
    */
   lazy val knownEncodingIsFixedWidth = {
-    // val res = knownEncodingCharset.isFixedWidth
-    val res = knownEncodingName match {
-      case "US-ASCII" | "ASCII" => true
-      case "US-ASCII-7-BIT-PACKED" => true
-      case "UTF-8" => false
-      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
-        if (utf16Width == UTF16Width.Fixed) true
-        else false
+    if (!isKnownEncoding) false
+    else {
+      val res = knownEncodingName.toUpperCase match {
+        case "US-ASCII" | "ASCII" => true
+        case "US-ASCII-7-BIT-PACKED" => true
+        case "UTF-8" => false
+        case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
+          if (utf16Width == UTF16Width.Fixed) true
+          else false
+        }
+        case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+        case "ISO-8859-1" => true
+        case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
       }
-      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-      case "ISO-8859-1" => true
-      case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
+      res
     }
-    res
   }
 
   lazy val mustBeAnEncodingWith8BitAlignment = {
@@ -164,32 +181,51 @@ trait EncodingMixin { self: AnnotatedSchemaComponent =>
     res
   }
 
-  lazy val knownEncodingStringBitLengthFunction = {
+}
+
+trait RuntimeEncodingMixin extends Serializable {
+
+  //  def rd: TermRuntimeData
+  //
+  //  def SDE(str: String, args: Any*): Nothing = rd.SDE(str, args: _*)
+  //  def SDEButContinue(str: String, args: Any*): Unit = rd.SDEButContinue(str, args: _*)
+  //  def SDW(str: String, args: Any*): Unit = rd.SDW(str, args: _*)
+  //
+  //  final def encoding: CompiledExpression = rd.encoding
+  //  final def defaultEncodingErrorPolicy: EncodingErrorPolicy = rd.defaultEncodingErrorPolicy
+  //  final def utf16Width: UTF16Width = rd.utf16Width
+  //  final def optionUTF16Width: Option[UTF16Width] = rd.optionUTF16Width
+  //
+  //  /*
+  //     * TODO: find a way to avoid repeating this 'find a charset' work for every call to parse.
+  //     * We would need to know that the encoding evaluation isn't changing. 
+  //     */
+  //  def getCharset(pstate: PState) = {
+  //    val (encNameAsAny, vmap) = encoding.evaluate(pstate)
+  //    val encodingName = encNameAsAny.asInstanceOf[String]
+  //    val charset = CharsetUtils.getCharset(encodingName)
+  //    pstate.withVariables(vmap) // mutates the vmap within the pstate
+  //    charset
+  //  }
+
+  val knownEncodingIsFixedWidth: Boolean
+  val knownEncodingWidthInBits: Int
+  val knownEncodingName: String
+
+  def knownEncodingStringBitLength(str: String) = {
     //
     // This will be called at runtime, so let's decide
     // what we can, and return an optimized function that 
     // has characteristics of the encoding wired down.
     //
     if (knownEncodingIsFixedWidth) {
-      def stringBitLength(str: String) = str.length * knownEncodingWidthInBits
-      stringBitLength _
+      str.length * knownEncodingWidthInBits
     } else {
-      def stringBitLength(str: String) = {
-        // variable width encoding, so we have to convert each character 
-        // We assume here that it will be a multiple of bytes
-        // that is, that variable-width encodings are all some number
-        // of bytes.
-        str.getBytes(knownEncodingName).length * 8
-      }
-      stringBitLength _
-    }
-  }
-
-  lazy val defaultEncodingErrorPolicy = {
-    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
-      encodingErrorPolicy
-    } else {
-      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
+      // variable width encoding, so we have to convert each character 
+      // We assume here that it will be a multiple of bytes
+      // that is, that variable-width encodings are all some number
+      // of bytes.
+      str.getBytes(knownEncodingName).length * 8
     }
   }
 }

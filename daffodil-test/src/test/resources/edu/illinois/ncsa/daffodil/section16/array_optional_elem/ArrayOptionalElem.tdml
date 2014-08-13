@@ -3,7 +3,9 @@
   description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
-  xmlns:ex="http://example.com">
+  xmlns:ex="http://example.com"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  >
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
 
@@ -236,7 +238,7 @@
           <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:assert testKind="expression" test="{xs:int(.) eq dfdl:position()}" message="Assertion failed for expression 'xs:int(.) eq dfdl:position()'" />
+                <dfdl:assert testKind="expression" test="{xs:int(.) eq dfdl:occursIndex()}" message="Assertion failed for expression 'xs:int(.) eq dfdl:occursIndex()'" />
               </xs:appinfo>
             </xs:annotation>
           </xs:element>
@@ -250,7 +252,7 @@
           <xs:element name="separatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
           <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
             <xs:complexType>
-              <xs:sequence dfdl:separator="{ fn:trace(xs:string(/ex:e2/ex:separatorArray[fn:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }">
+              <xs:sequence dfdl:separator="{ daf:trace(xs:string(/ex:e2/ex:separatorArray[daf:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }">
                 <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
               </xs:sequence>
             </xs:complexType>
@@ -293,7 +295,7 @@
       <xs:complexType>
         <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
           <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
-          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:initiator="{ fn:trace(xs:string(/ex:e2d/ex:initiatorArray[fn:trace(xs:int(dfdl:occursIndex()), 'index')]), 'separator') }" >
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:initiator="{ xs:string(/ex:e2d/ex:initiatorArray[xs:int(dfdl:occursIndex())]) }" >
             <xs:complexType>
               <xs:sequence dfdl:separator=",">
                 <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
@@ -326,7 +328,7 @@
           <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="explicit" dfdl:length="1">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:assert testKind="expression" test="{ dfdl:position()+2 }"/>
+                <dfdl:assert testKind="expression" test="{ . = (dfdl:occursIndex()+2) }"/>
               </xs:appinfo>
             </xs:annotation>
           </xs:element>

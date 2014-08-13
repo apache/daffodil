@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
@@ -76,6 +77,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   override lazy val exprText = exprWithBraces
   override lazy val exprXMLForNamespace = xmlForNamespaceResolution
   override lazy val exprComponent = scWherePropertyWasLocated
+  override def nodeKind = NodeInfo.Boolean
 
   def parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
 
@@ -109,7 +111,8 @@ case class InitiatedContent(
     // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
-    "initiatedContent")
+    "initiatedContent") {
+}
 
 case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluatorBase(decl) {
@@ -122,12 +125,14 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 
   lazy val expandedTypeName = stmt.defv.extType
 
+  override lazy val nodeKind = DPathUtil.convertTypeString(expandedTypeName)
+
   def parser: DaffodilParser = new SetVariableParser(expr, decl.runtimeData, stmt.defv.extName)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends Terminal(decl, true) {
-  val (uri, localName) = XMLUtils.QName(decl.xml, stmt.ref, decl.schemaDocument)
+  val (uri, localName) = XMLUtils.QName(decl.namespaces, stmt.ref, decl.schemaDocument)
   val expName = XMLUtils.expandedQName(uri, localName)
 }
 
@@ -165,12 +170,13 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   def expandedTypeName: String
   def exprText: String
 
-  lazy val expressionTypeSymbol = {
-    // println(expandedTypeName)
-    e.expressionCompiler.convertTypeString(expandedTypeName)
-  }
+  def nodeKind: NodeInfo.Kind
 
-  lazy val expr = e.expressionCompiler.compile(expressionTypeSymbol, exprText, exprXMLForNamespace, exprComponent)
+  lazy val expr = _expr.value
+  private val _expr = LV('expr) {
+    e.expressionCompiler.compile(
+      nodeKind, exprText, exprXMLForNamespace.scope, exprComponent, false)
+  }
 }
 
 case class InputValueCalc(e: ElementBase)
@@ -186,7 +192,8 @@ case class InputValueCalc(e: ElementBase)
   override lazy val exprXMLForNamespace = exprProp.location.xml
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
-  lazy val pt = e.primType
+  lazy val pt = e.primType.typeRuntimeData
+  override lazy val nodeKind = NodeInfo.fromPrimType(pt)
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
@@ -198,7 +205,7 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
 
   lazy val eName = decl.prettyName
   lazy val testPattern = stmt.testTxt
-  lazy val csName = decl.knownEncodingCharset.name()
+  lazy val csName = charset.charsetName
   lazy val charset = decl.knownEncodingCharset
 
   def parser: DaffodilParser
@@ -211,7 +218,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName)
     }
   }
 
@@ -226,7 +233,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(decl.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName)
     }
   }
 

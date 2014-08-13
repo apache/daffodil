@@ -45,14 +45,17 @@ class TestAssertionsDebug {
 
   @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
   @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }
-  
+
   @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
   @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
-  
+
   @Test def test_testPatternFreeFormat() { runner.runOneTest("testPatternFreeFormat") }
   @Test def test_testPatternUnicode() { runner.runOneTest("testPatternUnicode") }
   @Test def test_testPatternUregexUword() { runner.runOneTest("testPatternUregexUword") }
 
   //This test passes but it's not actually checking for the warning - see DFDL-831
   @Test def test_testPatternWordChar() { runner.runOneTest("testPatternWordChar") }
+
+  // DFDL-1043
+  @Test def test_assertFailShowsValue2() { runner.runOneTest("assertFailShowsValue2") }
 }

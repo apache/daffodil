@@ -3,16 +3,6 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="src" path="src/main/scala-debug"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1.jar" sourcepath="lib_managed/srcs/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.saxon/Saxon-HE/Saxon-HE-9.5.1-1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1.jar" sourcepath="lib_managed/srcs/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/net.sf.saxon/Saxon-HE-jdom2/Saxon-HE-jdom2-9.5.1-1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.5-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.5-javadoc.jar!/"/>

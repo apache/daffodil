@@ -24,7 +24,7 @@ object DFA {
   def EndOfData = -3
 }
 
-trait DFA {
+trait DFA extends Serializable{
 
   /**
    * The state machine is an array of states.
@@ -140,7 +140,7 @@ trait DFADelimiter extends DFA {
  * we Succeeded, Failed, reached EndOfData, or need to Pause
  * to gather further information.
  */
-trait Rule {
+trait Rule extends Serializable {
   def test(r: Registers): Boolean // take this action?
   def act(r: Registers): Either[StateKind, Int] // modifies the registers and returns next state's index.
 }

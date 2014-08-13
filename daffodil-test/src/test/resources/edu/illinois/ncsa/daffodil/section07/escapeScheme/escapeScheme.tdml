@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="escapeScheme" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
-  xmlns:tns="http://example.com" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:tns="http://example.com" 
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <defineSchema name="es1">
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
@@ -281,7 +282,7 @@
     
     <dfdl:defineEscapeScheme name="fromData3">
       <dfdl:escapeScheme escapeCharacter="{ xs:int(../tns:escapeChar) - 3 }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="{ fn:ceiling(xs:float(../tns:escapeEscapeChar)) }" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar))) }" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="e1">

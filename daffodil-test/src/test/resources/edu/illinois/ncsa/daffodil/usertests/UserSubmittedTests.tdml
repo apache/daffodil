@@ -3,7 +3,8 @@
 	description="Section 2.3 - Processing Errors" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com">
+	xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  >
 
 	<!-- ===================================================================== 
 		Schemas ======================================================================= -->
@@ -28,13 +29,13 @@
 					<!-- use asserts to make sure each header appears the correct number 
 						of times -->
 					<dfdl:assert message="Date must appear 1 time."
-						test="{ (fn:count(RootArray/Date) eq 1) }" />
+						test="{ (fn:count(ex:RootArray/ex:Date) eq 1) }" />
 					<dfdl:assert message="From must appear 1 time."
-						test="{ (fn:count(RootArray/From) eq 1) }" />
+						test="{ (fn:count(ex:RootArray/ex:From) eq 1) }" />
 					<dfdl:assert message="To must appear 0 or 1 times."
-						test="{ (fn:count(RootArray/To) lt 2) }" />
+						test="{ (fn:count(ex:RootArray/ex:To) lt 2) }" />
 					<dfdl:assert message="Subject must appear 1 time."
-						test="{ (fn:count(RootArray/Subject) eq 1) }" />
+						test="{ (fn:count(ex:RootArray/ex:Subject) eq 1) }" />
 				</xsd:appinfo>
 			</xsd:annotation>
 			<xsd:complexType>

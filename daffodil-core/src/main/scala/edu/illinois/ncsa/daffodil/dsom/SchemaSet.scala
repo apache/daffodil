@@ -86,14 +86,12 @@ class SchemaSet(
 
   override lazy val primitiveFactory = primFactory
 
-  requiredEvaluations({
-    isValid
-    if (checkAllTopLevel) {
-      checkForDuplicateTopLevels()
-      this.allTopLevels
-    }
-    validateSchemaFiles
-  })
+  requiredEvaluations(isValid)
+  if (checkAllTopLevel) {
+    requiredEvaluations(checkForDuplicateTopLevels())
+    requiredEvaluations(this.allTopLevels)
+  }
+  requiredEvaluations(validateSchemaFiles)
 
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.
@@ -122,23 +120,24 @@ class SchemaSet(
    * Issues SchemaDefinitionWarnings for DFDLSchemaValidationWarnings.
    * Issues SchemaDefinitionErrors for DFDLSchemaValidationErrors.
    */
-  private def validateSchemaFiles = {
+  private lazy val validateSchemaFiles = _validateSchemaFiles.value
+  private val _validateSchemaFiles = LV('validateSchemaFiles) {
     // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
     if (validateDFDLSchemas) {
-      val diags: scala.collection.mutable.Queue[(DFDLSchemaValidationException, String)] = scala.collection.mutable.Queue.empty
-
+      // val diags: scala.collection.mutable.Queue[(DFDLSchemaValidationException, String)] = scala.collection.mutable.Queue.empty
+      //
       schemaFilesArg.foreach(f =>
         try {
           loader.validateDFDLSchema(f)
         } catch {
-          case e: DFDLSchemaValidationException => diags.enqueue((e, f.getAbsolutePath()))
+          case e: DFDLSchemaValidationException => SDE(DiagnosticUtils.getSomeMessage(e).get)
         })
-
-      val warn = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationWarning] }.map { case (d, f) => d.getMessage() + " File: " + f }
-      val errs = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationError] }.map { case (d, f) => d.getMessage() + " File: " + f }
-
-      if (warn.length > 0) SDW("DFDL Schema Validation warned due to the following:\n%s", warn.mkString("\n"))
-      if (errs.length > 0) SDE("DFDL Schema Validation failed due to the following:\n%s", errs.mkString("\n"))
+      //
+      //      val warn = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationWarning] }.map { case (d, f) => d.getMessage() + " File: " + f }
+      //      val errs = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationError] }.map { case (d, f) => d.getMessage() + " File: " + f }
+      //
+      //      if (warn.length > 0) SDW("DFDL Schema Validation warned due to the following:\n%s", warn.mkString("\n"))
+      //      if (errs.length > 0) SDE("DFDL Schema Validation failed due to the following:\n%s", errs.mkString("\n"))
     }
   }
 
@@ -175,7 +174,7 @@ class SchemaSet(
 
   lazy val schemaFileList = schemas.map(s => s.fileName)
 
-  lazy val schemaComponentRegistry = new SchemaComponentRegistry(schemaFileList)
+  //  lazy val schemaComponentRegistry = new SchemaComponentRegistry(schemaFileList)
 
   lazy val isValid = {
     val isV = OOLAG.keepGoing(false) {
@@ -526,7 +525,8 @@ class SchemaSet(
     finalExternalVariables
   }
 
-  lazy val variableMap = {
+  override lazy val variableMap = _variableMap.value
+  private val _variableMap = LV('variableMap) {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val alldvs = dvs.union(predefinedVars)
     val vmap = VariableMap.create(alldvs)
@@ -541,23 +541,4 @@ class SchemaSet(
     finalVMap
   }
 
-  def getSCIDAugmentedInfoset(origInfoset: Node) = {
-    val infoset = XMLUtils.elem2Element(origInfoset)
-
-    val rootMatch = this.schemaComponentRegistry.getIDByName(infoset.getName(), infoset.getNamespace())
-    Assert.invariant(rootMatch >= 0)
-    infoset.setAttribute("context", rootMatch.toString(), XMLUtils.INT_NS_OBJECT)
-
-    val it = infoset.getDescendants(new org.jdom2.filter.ElementFilter).asInstanceOf[java.util.Iterator[org.jdom2.Element]]
-
-    for (e <- it) {
-      val name = e.getName()
-      val ns = e.getNamespace()
-
-      val theMatch = this.schemaComponentRegistry.getIDByName(name, ns)
-      e.setAttribute("context", theMatch.toString(), XMLUtils.INT_NS_OBJECT)
-    }
-
-    infoset
-  }
 }

@@ -74,20 +74,17 @@ import scala.collection.mutable.Set
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import javax.xml.namespace.QName
-import edu.illinois.ncsa.daffodil.dsom.SchemaDocument
-import edu.illinois.ncsa.daffodil.dsom.DFDLDefineVariable
-import edu.illinois.ncsa.daffodil.dsom.DFDLSetVariable
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
-import edu.illinois.ncsa.daffodil.dsom.Found
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import util.control.Breaks._
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.xml.RefQName
 
-sealed abstract class VariableState
+sealed abstract class VariableState extends Serializable
 
 case object VariableUndefined extends VariableState
 case object VariableDefined extends VariableState
@@ -97,7 +94,7 @@ case object VariableRead extends VariableState
 /**
  * Core tuple of a pure functional "state" for variables.
  */
-case class Variable(state: VariableState, value: Maybe[AnyRef], defv: DFDLDefineVariable)
+case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression]) extends Serializable
 
 object VariableUtil {
 
@@ -106,8 +103,8 @@ object VariableUtil {
    * everything is a string, so the only way to add, is to implicitly convert into the specified
    * type of the variable.
    */
-  def convert(v: String, defv: DFDLDefineVariable) = {
-    val extType = defv.extType
+  def convert(v: String, rd: VariableRuntimeData) = {
+    val extType = rd.extType
     extType match {
       case XMLUtils.XSD_STRING => v
       case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
@@ -118,7 +115,7 @@ object VariableUtil {
       case XMLUtils.XSD_BYTE => Predef byte2Byte (v.toByte)
       case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean (v.toBoolean)
       case XMLUtils.XSD_DATE | XMLUtils.XSD_DATE_TIME | XMLUtils.XSD_TIME =>
-        defv.notYetImplemented("Variable default values for date,dateTime,time variable types")
+        rd.notYetImplemented("Variable default values for date,dateTime,time variable types")
       case _ => Assert.invariantFailed("unknown variable type: " + extType)
     }
   }
@@ -153,13 +150,18 @@ object VariableFactory {
       if (!defaultValue.isDefined) VariableUndefined
       else VariableDefined
 
-    val typeSym = doc.expressionCompiler.convertTypeString(extType)
-
+    val compilationTargetType = DPathUtil.convertTypeString(extType)
     val defaultValExpr = defaultValue.map { e =>
-      doc.expressionCompiler.compile(typeSym, Found(e, defv))
+      doc.expressionCompiler.compile(compilationTargetType, Found(e, defv))
     }
 
-    val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, defv) }
+    /**
+     * FIXME: should not assume the default value expressions are constants.
+     * They should be compiled and left as CompiledExpression and when
+     * needed at runtime because the variable is being read, that's when they
+     * get evaluated.
+     */
+    // val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, defv.variableRuntimeData) }
 
     val defaultValIsConstant = {
       val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)
@@ -167,7 +169,13 @@ object VariableFactory {
       isConst
     }
 
-    val var_ = Variable(state, defaultVal, defv)
+    val var_ = Variable(state,
+      if (defaultValIsConstant)
+        defaultValExpr.map { _.constant.asInstanceOf[AnyRef] }
+      else
+        None,
+      defv.runtimeData,
+      defaultValExpr)
     var_
 
   }
@@ -193,10 +201,25 @@ object EmptyVariableMap extends VariableMap()
  * Our "pure functional" desire lives in tension with this.
  */
 class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
-  extends WithParseErrorThrowing {
+  extends WithParseErrorThrowing
+  with Serializable {
 
   override def toString(): String = {
     "VariableMap(" + variables.mkString(" | ") + ")"
+  }
+
+  def getVariableRuntimeData(qName: RefQName): Option[VariableRuntimeData] = {
+    val extName = qName.toExpandedName
+    val optLists = variables.get(extName)
+    optLists match {
+      case None => None // no such variable.
+      case Some(lists) => {
+        val flatLists = lists.flatten
+        Assert.invariant(flatLists.length > 0)
+        val varObj = flatLists.head
+        Some(varObj.rd)
+      }
+    }
   }
 
   var currentPState: Maybe[PState] = Nope
@@ -204,7 +227,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
   lazy val context = Assert.invariantFailed("unused.")
 
   private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val newMap = variables + ((newVar.defv.extName, (newVar :: firstTier) :: enclosingScopes))
+    val newMap = variables + ((newVar.rd.extName, (newVar :: firstTier) :: enclosingScopes))
     new VariableMap(newMap)
   }
 
@@ -229,10 +252,10 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
       case Some(firstTier :: enclosingScopes) =>
         firstTier match {
 
-          case Variable(VariableRead, v, ctxt) :: rest if (v.isDefined) => (v.get, this)
+          case Variable(VariableRead, v, ctxt, _) :: rest if (v.isDefined) => (v.get, this)
 
-          case Variable(st, v, ctxt) :: rest if ((v.isDefined) && (st == VariableDefined || st == VariableSet)) => {
-            val newVar = Variable(VariableRead, One(v.get), ctxt)
+          case Variable(st, v, ctxt, defExpr) :: rest if ((v.isDefined) && (st == VariableDefined || st == VariableSet)) => {
+            val newVar = Variable(VariableRead, One(v.get), ctxt, defExpr)
             val vmap = mkVMap(newVar, firstTier, enclosingScopes)
             val converted = v.get // already converted
             (converted, vmap)
@@ -241,19 +264,19 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
           case _ => {
             // Fix DFDL-766
             val msg = "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
-              // Runtime error:
-              if (currentPState.isDefined) currentPState.get.SDE(msg, expandedName)
-              // Compile time error:
-              else referringContext.SDE(msg, expandedName)
+            // Runtime error:
+            if (currentPState.isDefined) currentPState.get.SDE(msg, expandedName)
+            // Compile time error:
+            else referringContext.SDE(msg, expandedName)
           }
         }
 
       case Some(Nil) => Assert.invariantFailed()
 
       case None => {
-          // Runtime error:
+        // Runtime error:
         if (currentPState.isDefined) currentPState.get.SDE("Variable map (runtime): unknown variable %s", expandedName)
-          // Compile time error:
+        // Compile time error:
         else referringContext.SDE("Variable map (compilation): unknown variable %s", expandedName)
       }
     }
@@ -271,21 +294,21 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
       case x @ Some(firstTier :: enclosingScopes) => {
         firstTier match {
 
-          case Variable(VariableDefined, v, ctxt) :: rest if (v.isDefined) => {
-            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
+            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
-          case Variable(VariableUndefined, Nope, ctxt) :: rest => {
-            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
+            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
-          case Variable(VariableSet, v, ctxt) :: rest if (v.isDefined) => {
+          case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             PE(referringContext, "Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
           }
 
-          case Variable(VariableRead, v, ctxt) :: rest if (v.isDefined) => {
+          case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             PE(referringContext, "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
           }
 
@@ -308,35 +331,35 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
       case x @ Some(firstTier :: enclosingScopes) => {
         firstTier match {
 
-          case Variable(VariableDefined, v, ctxt) :: rest if (v.isDefined && ctxt.external) => {
-            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined && ctxt.external) => {
+            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(expandedName, newFirstTier, enclosingScopes)
           }
-          case Variable(VariableDefined, v, ctxt) :: rest if (v.isDefined) => {
+          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.extName, VariableDefined, v.get)
             this // Unaltered VMap
           }
 
-          case Variable(VariableUndefined, Nope, ctxt) :: rest if ctxt.external => {
-            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt)
+          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest if ctxt.external => {
+            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(expandedName, newFirstTier, enclosingScopes)
           }
 
-          case Variable(VariableUndefined, Nope, ctxt) :: rest => {
+          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
             referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s.", ctxt.extName, VariableUndefined)
             this // Unaltered VMap
           }
 
-          case Variable(VariableSet, v, ctxt) :: rest if (v.isDefined) => {
+          case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             // Shouldn't this be an impossible case? External variables should be defined before parsing.
             // Parsing is the only point at which Set can be called?
             referringContext.SDEButContinue("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
             this // Unaltered VMap
           }
 
-          case Variable(VariableRead, v, ctxt) :: rest if (v.isDefined) => {
+          case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             referringContext.SDEButContinue("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
             this // Unaltered VMap
           }

@@ -1633,9 +1633,9 @@
       <tdml:documentPart type="text">5:00|:</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
-      <tdml:error>no node for path { ../ex:decsep }</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>decsep</tdml:error>
+      <tdml:error>does not exist</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
@@ -1783,9 +1783,9 @@
       <tdml:documentPart type="text">5,000|,</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
-      <tdml:error>no node for path</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>grpsep</tdml:error>
+      <tdml:error>does not exist</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1828,7 +1828,7 @@
       <tdml:documentPart type="text">decimal|1decimal234</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Length of string must be exactly 1 character</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -3502,7 +3502,7 @@
     </tdml:document>
 	
 	<tdml:errors>
-		<tdml:error>Runtime Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
+		<tdml:error>Schema Definition Error: textStandardDecimalSeparator cannot contain NL</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
   
@@ -3523,7 +3523,7 @@
     </tdml:document>
 	
 	<tdml:errors>
-		<tdml:error>Runtime Schema Definition Error: textStandardGroupingSeparator cannot contain WSP+</tdml:error>
+		<tdml:error>Schema Definition Error: textStandardGroupingSeparator cannot contain WSP+</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
 
@@ -3598,7 +3598,7 @@
     </tdml:document>
 
 	<tdml:errors>
-		<tdml:error>Runtime Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
+		<tdml:error>Schema Definition Error: textStandardExponentRep cannot contain ES</tdml:error>
 	</tdml:errors>
   </tdml:parserTestCase>
   
@@ -3610,8 +3610,9 @@
       <tdml:documentPart type="text"><![CDATA[_|1234567_89@2|@]]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression evaluation failed. Details: javax.xml.xpath.XPathExpressionException: no node for path { ../ex:exponentRep }</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>exponentRep</tdml:error>
+      <tdml:error>does not exist</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -3854,7 +3855,7 @@
       <tdml:dfdlInfoset>
         <infnanCaseInsensitive xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
           xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
-          <posinf>inf</posinf>
+          <posinf>INF</posinf>
           <neginf>-INF</neginf>
           <nan>NaN</nan>
         </infnanCaseInsensitive>

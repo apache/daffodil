@@ -57,6 +57,12 @@ class TestDFDLExpressionsDebug {
   // lengthUnits bytes with variable-width charater set and specified lengthKind
   @Test def test_lke3_rel() { runner.runOneTest("lke3_rel") } // uses lengthUnits bytes with utf-8 
 
+  // DFDL-1043
+  @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
+
+  // DFDL-1044
+  @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))

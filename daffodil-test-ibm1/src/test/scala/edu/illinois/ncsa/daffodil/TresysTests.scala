@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import org.junit.Test
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TresysTests {
 
@@ -75,7 +76,7 @@ class TresysTests {
 
   val av2 = testDir + "AV002.tdml"
   lazy val runnerAV002 = new DFDLTestSuite(Misc.getRequiredResource(av2))
-  @Test def test_AV002() { runnerAV002.runOneTest("AV002") } // needs date
+  @Test def test_AV002() { runnerAV002.runOneTest("AV002") }
 
   val av3 = testDir + "AV003.tdml"
   lazy val runnerAV003 = new DFDLTestSuite(Misc.getRequiredResource(av3))
@@ -163,16 +164,6 @@ class TresysTests {
   //  val ay = testDir + "AY.tdml"
   //  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
   //  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
-
-  val be = testDir + "BE.tdml"
-  lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
-  @Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
-  @Test def test_BE001() { runnerBE.runOneTest("BE001") }
-
-  val bf = testDir + "BF.tdml"
-  lazy val runnerBF1 = new DFDLTestSuite(Misc.getRequiredResource(bf))
-  @Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
-  @Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
   val az = testDir + "AZ.tdml"
   lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))

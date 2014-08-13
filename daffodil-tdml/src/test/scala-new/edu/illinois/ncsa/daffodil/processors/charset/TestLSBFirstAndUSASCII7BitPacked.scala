@@ -93,7 +93,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD70", hex)
+    assertEquals("31D98C56B3DD70", hex)
   }
 
   @Test def testEncode7Bit123456789() {
@@ -103,7 +103,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="text" encoding="us-ascii-7-bit-packed"><![CDATA[123456789]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD7039", hex)
+    assertEquals("31D98C56B3DD7039", hex)
   }
 
   @Test def testEncode7Bit1234567899() {
@@ -113,7 +113,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[1234567899]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD70B91C", hex)
+    assertEquals("31D98C56B3DD70B91C", hex)
   }
 
   @Test def testEncode7Bit1234567899RTL() {
@@ -125,7 +125,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
       ]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD70B91C", hex)
+    assertEquals("31D98C56B3DD70B91C", hex)
   }
 
   @Test def testEncode7Bit1234567899RTLHex() {
@@ -137,7 +137,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
       ]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD70B91C", hex)
+    assertEquals("31D98C56B3DD70B91C", hex)
   }
 
   @Test def test7Bit42LSBFirst() {
@@ -177,7 +177,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[12345678]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD70", hex)
+    assertEquals("31D98C56B3DD70", hex)
   }
 
   @Test def testEncode7Bit123456789LSBFirst() {
@@ -187,7 +187,7 @@ class TestLSBFirstAndUSASCII7BitPacked {
         <documentPart type="text" encoding="us-ascii-7-bit-packed" bitOrder="LSBFirst"><![CDATA[123456789]]></documentPart>
       </document>, null)
     val hex = Misc.bytes2Hex(doc.documentBytes)
-    assertEquals("0x31D98C56B3DD7039", hex)
+    assertEquals("31D98C56B3DD7039", hex)
   }
 
   @Test def testMix1() {

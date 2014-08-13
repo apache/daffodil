@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://www.example.org/example1/" xmlns="http://www.example.org/example1/"
+  targetNamespace="http://www.example.org/example1/" 
+  xmlns="http://www.example.org/example1/"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
 
@@ -34,7 +36,7 @@
           <xs:complexType>
             <xs:sequence dfdl:separator=",">
               <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
-                dfdl:occursCount="{ dfdl:occursCount(../../header/*) }" dfdl:occursCountKind="expression"/>
+                dfdl:occursCount="{ fn:count(../../header/title) }" dfdl:occursCountKind="expression"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -56,7 +58,7 @@
           <xs:complexType>
             <xs:sequence dfdl:separator=",">
               <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
-                dfdl:occursCount="{ dfdl:occursCount(../../header/*) }" dfdl:occursCountKind="expression"/>
+                dfdl:occursCount="{ fn:count(../../header/title) }" dfdl:occursCountKind="expression"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

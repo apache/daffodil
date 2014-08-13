@@ -33,8 +33,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
 SOFTWARE.
 -->
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ex="http://example.com"
-  targetNamespace="http://example.com">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"  
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:ex="http://example.com"
+  targetNamespace="http://example.com"
+  elementFormDefault="unqualified">
   
   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
 
@@ -43,7 +47,7 @@ SOFTWARE.
 			<dfdl:format ref="ex:daffodilTest1" separator=""
 				initiator="" terminator="" leadingSkip='0' textTrimKind="none"
 				initiatedContent="no" alignment="implicit" alignmentUnits="bits"
-				trailingSkip="0" ignoreCase="no" separatorPolicy="suppressed"
+				trailingSkip="0" ignoreCase="no" 
 				separatorPosition="infix" occursCountKind="parsed"
 				emptyValueDelimiterPolicy="both" representation="text"
 				textNumberRep="standard" lengthKind="delimited" encoding="ASCII" />
@@ -64,7 +68,7 @@ SOFTWARE.
           <xs:complexType>
             <xs:sequence dfdl:separator=",">
               <xs:element name="item" type="xs:string" maxOccurs="unbounded" 
-                dfdl:occursCount="{ dfdl:occursCount(../../ex:header/*) }" dfdl:occursCountKind="expression"/>
+                dfdl:occursCount="{ fn:count(../../header/title) }" dfdl:occursCountKind="expression"/>
             </xs:sequence>
           </xs:complexType>
         </xs:element>

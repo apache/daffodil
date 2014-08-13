@@ -37,6 +37,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Text
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 
 /**
  * Shared characteristics of any annotated schema component.
@@ -47,12 +49,10 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   extends SchemaComponent(xml, sc)
   with AnnotatedMixin {
 
-  requiredEvaluations({
-    annotationObjs
-    shortFormPropertiesCorrect
-    nonDefaultPropertySources
-    defaultPropertySources
-  })
+  requiredEvaluations(annotationObjs)
+  requiredEvaluations(shortFormPropertiesCorrect)
+  requiredEvaluations(nonDefaultPropertySources)
+  requiredEvaluations(defaultPropertySources)
 
   //  /**
   //   * only used for debugging
@@ -174,7 +174,8 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
 trait AnnotatedMixin
   extends CommonRuntimeValuedPropertiesMixin
   with EncodingMixin
-  with EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
+  with EscapeSchemeRefMixin
+  with Serializable { self: AnnotatedSchemaComponent =>
 
   def xml: Node
   def prettyName: String
@@ -268,4 +269,11 @@ trait AnnotatedMixin
 
   lazy val justThisOneProperties = formatAnnotation.justThisOneProperties
 
+  lazy val defaultEncodingErrorPolicy = {
+    if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
+      encodingErrorPolicy
+    } else {
+      optionEncodingErrorPolicy.getOrElse(EncodingErrorPolicy.Replace)
+    }
+  }
 }

@@ -38,6 +38,9 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.schema.annotation.props.Enum
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
 sealed trait SimpleTypeBase
   extends TypeBase
@@ -46,7 +49,9 @@ sealed trait SimpleTypeBase
   def primitiveType: PrimitiveType
 }
 
-class SimpleTypeNode(name: String, parent: SimpleTypeNode, childrenArg: => List[SimpleTypeNode]) {
+abstract class SimpleTypeNode(parent: SimpleTypeNode, childrenArg: => List[SimpleTypeNode]) extends Serializable {
+  def name: String
+
   // Eliminated a var here. Doing functional graph construction now below.
   lazy val children = childrenArg
   lazy val isHead: Boolean = parent == null
@@ -55,17 +60,20 @@ class SimpleTypeNode(name: String, parent: SimpleTypeNode, childrenArg: => List[
   // names in lower case
   lazy val parentList: List[String] = {
     if (isHead) {
-      List.empty
+      List(this.lcaseName)
     } else {
       lcaseName :: parent.parentList
     }
   }
 
   def doesParentListContain(typeName: String): Boolean = {
-    val list = parentList.filter(n => n == typeName.toLowerCase())
+    val list = parentList.filter(n =>
+      n.toLowerCase() == typeName.toLowerCase())
     list.size > 0
   }
 }
+
+object SimpleTypeGraph extends SimpleTypeDerivation
 
 trait SimpleTypeDerivation {
   lazy val simpleTypes = buildStructure
@@ -75,37 +83,21 @@ trait SimpleTypeDerivation {
   }
 
   def isXDerivedFromY(nameX: String, nameY: String): Boolean = {
-    getSimpleTypeNode(nameX) match {
-      case Some(stn) => {
-        stn.doesParentListContain(nameY)
+    if (nameX == nameY) true
+    else {
+      getSimpleTypeNode(nameX) match {
+        case Some(stn) => {
+          stn.doesParentListContain(nameY)
+        }
+        case None => false
       }
-      case None => false
     }
   }
 
   private def buildStructure = {
+    NodeInfo.allTypes
     // This is how you construct a graph in functional programming.
     // These structures are recursive, but it all works out in the end. 
-    lazy val anySimpleType: SimpleTypeNode = new SimpleTypeNode("anySimpleType", null, List(string, float, double, decimal, boolean, hexBinary))
-    lazy val string = new SimpleTypeNode("string", anySimpleType, Nil)
-    lazy val float = new SimpleTypeNode("float", anySimpleType, Nil)
-    lazy val double = new SimpleTypeNode("double", anySimpleType, Nil)
-    lazy val decimal = new SimpleTypeNode("decimal", anySimpleType, List(integer))
-    lazy val boolean = new SimpleTypeNode("boolean", anySimpleType, Nil)
-    lazy val hexBinary = new SimpleTypeNode("hexBinary", anySimpleType, Nil)
-    lazy val integer: SimpleTypeNode = new SimpleTypeNode("integer", decimal, List(long, nonNegativeInteger))
-    lazy val long = new SimpleTypeNode("long", integer, List(int))
-    lazy val nonNegativeInteger = new SimpleTypeNode("nonNegativeInteger", integer, List(unsignedLong))
-    lazy val int: SimpleTypeNode = new SimpleTypeNode("int", long, List(short))
-    lazy val short: SimpleTypeNode = new SimpleTypeNode("short", int, List(byte))
-    lazy val byte = new SimpleTypeNode("byte", short, Nil)
-    lazy val unsignedLong: SimpleTypeNode = new SimpleTypeNode("unsignedLong", nonNegativeInteger, List(unsignedInt))
-    lazy val unsignedInt = new SimpleTypeNode("unsignedInt", unsignedLong, List(unsignedShort))
-    lazy val unsignedShort: SimpleTypeNode = new SimpleTypeNode("unsignedShort", unsignedInt, List(unsignedByte))
-    lazy val unsignedByte = new SimpleTypeNode("unsignedByte", unsignedShort, Nil)
-
-    List(anySimpleType, string, float, double, decimal, boolean, hexBinary, integer, long,
-      nonNegativeInteger, int, short, byte, unsignedLong, unsignedInt, unsignedShort, unsignedByte)
   }
 }
 
@@ -114,9 +106,10 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   with SimpleTypeBase
   with DFDLStatementMixin
   with Facets
-  with TypeChecks
   with SimpleTypeDerivation
   with OverlapCheckMixin {
+
+  def element: ElementBase
 
   requiredEvaluations(myBaseTypeList)
 
@@ -201,7 +194,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     myBaseType.primitiveType
   }
 
-  lazy val baseTypeQName = XMLUtils.QName(xml, restrictionBase, schemaDocument)
+  lazy val baseTypeQName = XMLUtils.QName(this.namespaces, restrictionBase, schemaDocument)
 
   lazy val myBaseType: SimpleTypeBase = {
     optPrimitiveType match {
@@ -325,6 +318,8 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
+  override lazy val element = parent
+
   lazy val baseName = (xml \ "restriction" \ "@base").text
   lazy val baseType = {
     val res = if (baseName == "") None
@@ -332,7 +327,6 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   }
 
 }
-
 
 /**
  * The factory is sharable even though the global object it creates cannot
@@ -361,27 +355,28 @@ class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument
  * The instance type for global simple type definitions.
  */
 
-class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: Option[ElementBase])
+class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val referringElement: Option[ElementBase])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
-  override lazy val referringComponent = (derivedType, element) match {
-    case (Some(dt), None) => derivedType
-    case (None, Some(elem)) => element
-    case _ => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
+  override lazy val referringComponent: Option[SchemaComponent] =
+    (derivedType, referringElement) match {
+      case (Some(dt), None) => derivedType
+      case (None, Some(elem)) => referringElement
+      case _ => Assert.impossible("SimpleType must either have a derivedType or an element. Not both.")
+    }
+
+  override lazy val element: ElementBase = referringComponent match {
+    case Some(dt: SimpleTypeDefBase) => dt.element
+    case Some(e: ElementBase) => e
+    case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 
   override def prettyName = "simpleType." + name
 
 }
 
-
-// Primitives are not "global" because they don't appear in any schema document
-sealed abstract class PrimitiveType
-  extends SchemaComponent(<primitive/>, null)
-  with SimpleTypeBase
-  with NamedMixin {
-
+trait PrimitiveName {
   /**
    * When class name is isomorphic to the type name, compute automatically.
    */
@@ -391,6 +386,15 @@ sealed abstract class PrimitiveType
     val rest = cname.substring(1)
     first + rest
   }
+}
+
+// Primitives are not "global" because they don't appear in any schema document
+sealed abstract class PrimitiveType
+  extends SchemaComponent(<primitive/>, null)
+  with SimpleTypeBase
+  with NamedMixin
+  with PrimitiveName {
+
   override lazy val namespace = XMLUtils.XSD_NAMESPACE
   override lazy val prefix = "xsd"
 
@@ -409,29 +413,36 @@ sealed abstract class PrimitiveType
   // override val xml = Assert.invariantFailed("Primitives don't have xml definitions.")
 
   override lazy val schemaDocument = Assert.usageError("should not evaluate schemaDocument on a primitive type")
+
+  def typeRuntimeData: RuntimePrimType
+
 }
 
+// TODO: If this is becoming non-schema-components so they are usable as
+// runtime types, then this enum should be collapsed with NodeInfo.Value.Kind
+// in DPath since they are basically the same.
+//
 object PrimType {
   type Type = PrimitiveType
-  case object String extends Type
-  case object Int extends Type
-  case object Byte extends Type
-  case object Short extends Type
-  case object Long extends Type
-  case object Integer extends Type
-  case object Decimal extends Type
-  case object UInt extends Type { override lazy val pname = "unsignedInt" }
-  case object UByte extends Type { override lazy val pname = "unsignedByte" }
-  case object UShort extends Type { override lazy val pname = "unsignedShort" }
-  case object ULong extends Type { override lazy val pname = "unsignedLong" }
-  case object NonNegativeInteger extends Type
-  case object Double extends Type
-  case object Float extends Type
-  case object HexBinary extends Type
-  case object Boolean extends Type
-  case object DateTime extends Type
-  case object Date extends Type
-  case object Time extends Type
+  case object String extends Type { override val typeRuntimeData = RuntimePrimType.String }
+  case object Int extends Type { override val typeRuntimeData = RuntimePrimType.Int }
+  case object Byte extends Type { override val typeRuntimeData = RuntimePrimType.Byte }
+  case object Short extends Type { override val typeRuntimeData = RuntimePrimType.Short }
+  case object Long extends Type { override val typeRuntimeData = RuntimePrimType.Long }
+  case object Integer extends Type { override val typeRuntimeData = RuntimePrimType.Integer }
+  case object Decimal extends Type { override val typeRuntimeData = RuntimePrimType.Decimal }
+  case object UInt extends Type { override lazy val pname = "unsignedInt"; override val typeRuntimeData = RuntimePrimType.UInt }
+  case object UByte extends Type { override lazy val pname = "unsignedByte"; override val typeRuntimeData = RuntimePrimType.UByte }
+  case object UShort extends Type { override lazy val pname = "unsignedShort"; override val typeRuntimeData = RuntimePrimType.UShort }
+  case object ULong extends Type { override lazy val pname = "unsignedLong"; override val typeRuntimeData = RuntimePrimType.ULong }
+  case object NonNegativeInteger extends Type { override val typeRuntimeData = RuntimePrimType.NonNegativeInteger }
+  case object Double extends Type { override val typeRuntimeData = RuntimePrimType.Double }
+  case object Float extends Type { override val typeRuntimeData = RuntimePrimType.Float }
+  case object HexBinary extends Type { override val typeRuntimeData = RuntimePrimType.HexBinary }
+  case object Boolean extends Type { override val typeRuntimeData = RuntimePrimType.Boolean }
+  case object DateTime extends Type { override val typeRuntimeData = RuntimePrimType.DateTime }
+  case object Date extends Type { override val typeRuntimeData = RuntimePrimType.Date }
+  case object Time extends Type { override val typeRuntimeData = RuntimePrimType.Time }
   lazy val allPrimitiveTypes: Seq[PrimitiveType] = List(
     String,
     Int,
@@ -452,4 +463,32 @@ object PrimType {
     DateTime,
     Date,
     Time)
+}
+
+sealed trait RuntimePrimType extends RuntimePrimType.Value with PrimitiveName {
+  lazy val name = pname
+}
+
+object RuntimePrimType extends Enum[RuntimePrimType] {
+  case object String extends RuntimePrimType; forceConstruction(String)
+  case object Int extends RuntimePrimType; forceConstruction(Int)
+  case object Byte extends RuntimePrimType; forceConstruction(Byte)
+  case object Short extends RuntimePrimType; forceConstruction(Short)
+  case object Long extends RuntimePrimType; forceConstruction(Long)
+  case object Integer extends RuntimePrimType; forceConstruction(Integer)
+  case object Decimal extends RuntimePrimType; forceConstruction(Decimal)
+  case object UInt extends RuntimePrimType { override lazy val pname = "unsignedInt" }; forceConstruction(UInt)
+  case object UByte extends RuntimePrimType { override lazy val pname = "unsignedByte" }; forceConstruction(UByte)
+  case object UShort extends RuntimePrimType { override lazy val pname = "unsignedShort" }; forceConstruction(UShort)
+  case object ULong extends RuntimePrimType { override lazy val pname = "unsignedLong" }; forceConstruction(ULong)
+  case object NonNegativeInteger extends RuntimePrimType; forceConstruction(NonNegativeInteger)
+  case object Double extends RuntimePrimType; forceConstruction(Double)
+  case object Float extends RuntimePrimType; forceConstruction(Float)
+  case object HexBinary extends RuntimePrimType; forceConstruction(HexBinary)
+  case object Boolean extends RuntimePrimType; forceConstruction(Boolean)
+  case object DateTime extends RuntimePrimType; forceConstruction(DateTime)
+  case object Date extends RuntimePrimType; forceConstruction(Date)
+  case object Time extends RuntimePrimType; forceConstruction(Time)
+
+  def apply(name: String, context: ThrowsSDE): RuntimePrimType = stringToEnum("runtimePrimType", name, context)
 }

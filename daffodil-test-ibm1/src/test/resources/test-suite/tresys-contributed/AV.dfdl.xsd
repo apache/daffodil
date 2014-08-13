@@ -2,7 +2,9 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema"
   targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:tns="http://example.com">
 
 <include schemaLocation="xsd/built-in-formats.xsd"/>
 
@@ -52,7 +54,7 @@
               dfdl:inputValueCalc="{ 'Another page coming' }">
               <annotation>
                 <appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator test="{ ../../tns:theNextByte = 10 }" />
+                  <dfdl:discriminator test="{ ../../theNextByte = 10 }" />
                 </appinfo>
               </annotation>
             </element>
@@ -75,7 +77,7 @@
       <sequence dfdl:hiddenGroupRef="tns:theNextByte" />
       <sequence dfdl:hiddenGroupRef="tns:theChoice" />
       <element name="GT" type="xs:int" default="0"
-        dfdl:inputValueCalc="{ if (../tns:theChoice/tns:GrandTotal/tns:value) then ../tns:theChoice/tns:GrandTotal/tns:value else 0 }" />
+        dfdl:inputValueCalc="{ if (fn:exists(../theChoice/GrandTotal/value)) then ../theChoice/GrandTotal/value else 0 }" />
     </sequence>
   </complexType>
 

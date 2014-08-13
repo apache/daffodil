@@ -27,9 +27,9 @@
             dfdl:inputValueCalc="{ ../tns:x * ../tns:y }" />
           <element name="Add" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x + ../tns:y }" />
-          <element name="Substract" type="xsd:float"
+          <element name="Subtract" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - ../tns:y }" />
-          <element name="SubstractLiteral" type="xsd:float"
+          <element name="SubtractLiteral" type="xsd:float"
             dfdl:inputValueCalc="{ ../tns:x - 2 }" />
         </sequence>
       </complexType>
@@ -49,9 +49,9 @@
           <x type="xsd:float">10.5</x>
           <y type="xsd:float">12.01</y>
           <Multiply type="xsd:float">126.105</Multiply>
-          <Add type="xsd:float">22.509999999999998</Add>
-          <Substract type="xsd:float">-1.5099999999999998</Substract>
-          <SubstractLiteral type="xsd:float">8.5</SubstractLiteral>
+          <Add type="xsd:float">22.51</Add>
+          <Subtract type="xsd:float">-1.5100002</Subtract>
+          <SubtractLiteral type="xsd:float">8.5</SubtractLiteral>
         </DFDL>
       </tdml:dfdlInfoset>
     </tdml:infoset>

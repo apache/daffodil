@@ -29,6 +29,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -38,10 +40,13 @@ class StringDelimitedParser(
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  charset: java.nio.charset.Charset,
-  knownEncodingStringBitLengthFunction: String => Int)
+  dcharset: DFDLCharset,
+  val knownEncodingIsFixedWidth: Boolean,
+  val knownEncodingWidthInBits: Int,
+  val knownEncodingName: String)
   extends PrimParser(erd)
-  with TextReader {
+  with TextReader
+  with RuntimeEncodingMixin {
 
   lazy val delimListForPrint = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue.prettyExpr }
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -49,7 +54,7 @@ class StringDelimitedParser(
   }
   override def toString = erd.prettyName + "(" + delimListForPrint + ")"
 
-  val dp = new DFDLDelimParser(knownEncodingStringBitLengthFunction)
+  val dp = new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
@@ -60,8 +65,7 @@ class StringDelimitedParser(
         val numBits = result.numBits
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
-        val currentElement = state.parentElement
-        currentElement.setDataValue(field)
+        state.simpleElement.setDataValue(field)
         val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
         if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         return stateWithPos
@@ -81,7 +85,7 @@ class StringDelimitedParser(
 
     val bytePos = (postEvalState.bitPos >> 3).toInt
 
-    val reader = getReader(charset, postEvalState.bitPos, postEvalState)
+    val reader = getReader(dcharset.charset, postEvalState.bitPos, postEvalState)
     val hasDelim = delimsCooked.length > 0
 
     start.mpstate.clearDelimitedText
@@ -90,7 +94,7 @@ class StringDelimitedParser(
       textParser.parse(reader, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
-        throw new ParseError(erd, Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
+        throw new ParseError(One(erd), Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
     }
     processResult(result, postEvalState)
   }
@@ -104,9 +108,11 @@ class LiteralNilDelimitedEndOfDataParser(
   pf: TextDelimitedParserFactoryBase,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
   nilValues: Seq[String],
-  charset: java.nio.charset.Charset,
-  knownEncodingStringBitLengthFunction: String => Int)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, charset, knownEncodingStringBitLengthFunction) {
+  dcharset: DFDLCharset,
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, dcharset, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
 
   val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
@@ -126,7 +132,7 @@ class LiteralNilDelimitedEndOfDataParser(
         } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
           dp.isFieldDfdlLiteral(field, nilValues.toSet)) { // Not empty, but matches.
           // Contains a nilValue, Success!
-          state.parentElement.makeNil()
+          state.thisElement.setNilled()
 
           val numBits = result.numBits
           val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
@@ -153,8 +159,10 @@ class HexBinaryDelimitedParser(
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingStringBitLengthFunction: String => Int)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, Charset.forName("ISO-8859-1"), knownEncodingStringBitLengthFunction) {
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, new DFDLCharset("ISO-8859-1"), knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
 
   // override val charset: Charset = Charset.forName("ISO-8859-1")
 
@@ -164,12 +172,11 @@ class HexBinaryDelimitedParser(
       else {
         val result = parseResult.get
         val field = result.field.getOrElse("")
-        val numBits = knownEncodingStringBitLengthFunction(field)
+        val numBits = knownEncodingStringBitLength(field)
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
-        val currentElement = state.parentElement
         val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
-        currentElement.setDataValue(hexStr)
+        state.simpleElement.setDataValue(hexStr)
         val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
         if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         return stateWithPos

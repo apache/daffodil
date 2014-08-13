@@ -148,7 +148,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     val hasInvalidChildren = invalidChildren.length > 0
     if (hasInvalidChildren)
       this.SDE("Members of an unordered sequence (%s) that are optional or array elements must have dfdl:occursCountKind='parsed'." +
-        "\nThe offending members: %s.", this.nameAndPath._2, invalidChildren.mkString(","))
+        "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
   private def checkMembersAreAllElementOrElementRef: Unit = {
     val invalidChildren = groupMembers.filterNot(child =>
@@ -156,11 +156,11 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     val hasInvalidChildren = invalidChildren.length > 0
     if (hasInvalidChildren)
       this.SDE("Members of an unordered sequence (%s) must be Element or ElementRef." +
-        "\nThe offending members: %s.", this.nameAndPath._2, invalidChildren.mkString(","))
+        "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
   private def checkMembersHaveUniqueNamesInNamespaces: Unit = {
     val childrenGroupedByNamespace =
-      groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace.toJDOM)
+      groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace)
 
     childrenGroupedByNamespace.foreach {
       case (ns, children) => {
@@ -173,7 +173,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
             if (children.length > 1)
               this.SDE("Two or more members of the unordered sequence (%s) have the same name and the same namespace." +
                 "\nNamespace: %s\tName: %s.",
-                this.nameAndPath._2, ns, name)
+                this.path, ns, name)
         }
       }
     }

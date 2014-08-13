@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Misc.getNameFromClass
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Compile
@@ -47,7 +48,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.util.Logging
 
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
-  extends OOLAGHost(contextArg) {
+  extends OOLAGHost(contextArg) with AsIntMixin {
 
   def rethrowAsDiagnostic(th: Throwable) = contextArg.rethrowAsDiagnostic(th)
 
@@ -164,7 +165,7 @@ class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  def parser = new SeqCompParser(context.runtimeData, children)
+  def parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
 }
 
 object AltComp {
@@ -187,7 +188,7 @@ class AltComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   def open = "["
   def close = "]"
 
-  def parser = new AltCompParser(context.runtimeData, children)
+  def parser = new AltCompParser(context.runtimeData, children.map { _.parser })
 }
 
 object EmptyGram extends Gram(null) {
@@ -259,11 +260,18 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
     guardArg
   }
 
-  lazy val gram = gram_.value
+  lazy val gram: Gram = gram_.value
   private val gram_ = LV('gram) {
     guard match {
       case true => {
-        gramArg
+        val g = gramArg
+        g match {
+          case p: Prod => {
+            p.gram // recursively force this
+          }
+          case _ => //ok
+        }
+        g
       }
       case false => {
         log(Compile("Prod %s removed.", name))
@@ -286,6 +294,10 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
     gram.parser
   }
 
+  //  lazy val unparser = unparser_.value
+  //  private val unparser_ = LV('unparser) {
+  //    gram.unparser
+  //  }
 }
 
 object Prod {

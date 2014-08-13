@@ -1,5 +1,7 @@
 package edu.illinois.ncsa.daffodil.compiler
 
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
+
 /**
  * Size and length limit constants used by the code, some of which will be tunable
  * by the user. Turning them to lower sizes/lengths may improve performance and
@@ -11,6 +13,19 @@ package edu.illinois.ncsa.daffodil.compiler
  */
 object DaffodilTunableParameters {
 
+  /**
+   * Exceeding these limits is not a back-trackable parse error. It's more severe
+   * than that. But it is not a schema-definition error really either.
+   */
+  class TunableLimitExceededError(limitName: String, cause: Option[Throwable], msg: String, args: Any*)
+    extends Exception("Exceeded " + limitName + ": " + msg.format(args: _*), cause.getOrElse(null))
+    with DiagnosticImplMixin {
+
+    def this(limitName: String, msg: String, args: Any*) = this(limitName, None, msg, args: _*)
+
+    def this(limitName: String, cause: Throwable) = this(limitName, Some(cause), "")
+  }
+
   //FIXME: These tunables need to be changable per compilation hence
   //stored on the ProcessorFactory, not global like this. 
 
@@ -20,7 +35,7 @@ object DaffodilTunableParameters {
   // A few of these seem like runtime limits, but they get compiled into regular expressions
   // that we generate.
 
-  var maxFieldContentLengthInBytes: Long = 1024 // Can be as large as Int.MaxValue
+  var maxFieldContentLengthInBytes: Long = 1024 * 1024 // Can be as large as Int.MaxValue
   var maxOccursBounds: Long = 1024 // Can be as large as Int.MaxValue
   var maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
   var maxBinaryDecimalVirtualPoint: Int = 200 // Can be as large as Int.MaxValue
@@ -67,4 +82,9 @@ object DaffodilTunableParameters {
    * false, use a default value not defined in a schema
    */
   var requireEncodingErrorPolicyProperty: Boolean = false
+
+  /**
+   * Initial array buffer size allocated for recurring elements (aka arrays)
+   */
+  var initialElementOccurrencesHint: Long = 10
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testSuite suiteName="Newlines" description="Different representations of newline"
-  xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset">
 
   <parserTestCase name="LineFeed" root="matrix"

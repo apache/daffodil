@@ -246,7 +246,7 @@ class TestTDMLRunner {
 
   val testSchema = SchemaUtils.dfdlTestSchema(
     <dfdl:format ref="tns:daffodilTest1"/>,
-    <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>)
+    <xs:element name="data" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>)
 
   @Test def testTDMLParseSuccess() {
 
@@ -444,10 +444,10 @@ class TestTDMLRunner {
   }
 
   val tdmlWithEmbeddedSchema =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:daffodilTest1"/>
-        <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ 2 }"/>
+        <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
       </tdml:defineSchema>
       <parserTestCase xmlns={ tdml } name="testEmbeddedSchemaWorks" root="data" model="mySchema">
         <document>37</document>
@@ -466,7 +466,7 @@ class TestTDMLRunner {
   }
 
   val tdmlWithEmbeddedSchemaInvalid =
-    <tdml:testSuite suiteName="testEmbeddedSchemaValidates" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="testEmbeddedSchemaValidates" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:daffodilTest1"/>
         <xsd:element name="data" type="xsd:int" dfdl:lengthKind="notAllowed" dfdl:notAProp="{ 2 }"/>
@@ -528,7 +528,7 @@ class TestTDMLRunner {
   }
 
   val tdmlWithUnicode2028 =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:daffodilTest1"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
@@ -550,7 +550,7 @@ class TestTDMLRunner {
   }
 
   val tdmlWithUnicode5E74AndCDATA =
-    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
       <tdml:defineSchema name="mySchema">
         <dfdl:format ref="tns:daffodilTest1"/>
         <xsd:element name="data" type="xsd:string" dfdl:encoding="utf-8" dfdl:lengthKind="delimited" dfdl:terminator=""/>
@@ -581,7 +581,7 @@ class TestTDMLRunner {
 
   @Test def testNilCompare() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
@@ -602,7 +602,7 @@ class TestTDMLRunner {
 
   @Test def testNilCompare2() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <dfdl:format ref="tns:daffodilTest1" nilKind="literalValue" nilValueDelimiterPolicy="terminator"/>
           <xsd:element name="data" type="xsd:int" nillable="true" dfdl:lengthKind="delimited" dfdl:nilValue="nil" dfdl:terminator=";"/>
@@ -631,7 +631,7 @@ class TestTDMLRunner {
    */
   @Test def testAllBytesISO8859() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:daffodilTest1"/>
@@ -680,7 +680,7 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
    */
   @Test def testISO8859_FF_Byte() = {
     val testSuite =
-      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xsi={ xsi }>
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:daffodilTest1"/>

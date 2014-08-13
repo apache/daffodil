@@ -18,7 +18,7 @@ import edu.illinois.ncsa.daffodil.dsom.Term
  * which typically implement simple types or framing objects, and there
  * are combinators which combine various grammar clauses in some way.
  */
-trait PrimitiveFactoryBase {
+trait PrimitiveFactoryBase extends Serializable {
 
   //  def prod(nameArg: String, sc: Term, guardArg: Boolean, gramArg: => Gram): Gram
   //

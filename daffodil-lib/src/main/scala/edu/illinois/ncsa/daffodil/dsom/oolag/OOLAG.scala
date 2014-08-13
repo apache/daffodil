@@ -129,6 +129,9 @@ object OOLAG extends Logging {
     }
   }
 
+  /**
+   * this is for unit testing only
+   */
   trait OOLAGDiagnosticMixin extends DiagnosticImplMixin {
     override def isError = true
   }
@@ -188,9 +191,19 @@ object OOLAG extends Logging {
 
     def setOOLAGContext(oolagContextArg: OOLAGHost) {
       Assert.usage(nArgs == ZeroArgs, "Cannot set oolag context if it was provided as a constructor arg.")
-      Assert.usage(oolagContextArg != null)
-      Assert.usage(oolagContextViaSet == None, "Cannot set oolag context more than once.")
+      if (oolagContextViaSet != None)
+        Assert.usageError("Cannot set oolag context more than once.")
       oolagContextViaSet = Some(oolagContextArg)
+      if (oolagContextArg != OOLAGRoot) {
+        oolagRoot.requiredEvalFunctions ++= this.requiredEvalFunctions
+      }
+    }
+
+    def hasOOLAGRootSetup: Boolean = {
+      if (nArgs == OneArg) true
+      else if (oolagContextViaSet.isDefined) true
+      else
+        false
     }
 
     def this(oolagContextArg: OOLAGHost) = this(oolagContextArg, OneArg)
@@ -299,18 +312,26 @@ object OOLAG extends Logging {
      */
 
     def requiredEvaluations(arg: => Any) {
-      oolagRoot.requiredEvalFunctions :+= (() => arg)
+      val funcList =
+        if (this.hasOOLAGRootSetup) oolagRoot
+        else this
+      funcList.requiredEvalFunctions :+= (() => arg)
     }
 
     var requiredEvalFunctions: List[() => Any] = Nil
 
     def checkErrors: Unit = ExecutionMode.usingCompilerMode {
-      OOLAG.keepGoing { () } {
-        Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
-        while (oolagRoot.requiredEvalFunctions != Nil) {
-          val evFuncs = oolagRoot.requiredEvalFunctions
-          oolagRoot.requiredEvalFunctions = Nil
-          evFuncs.foreach { f => LV('f) { OOLAG.keepGoing { () } { f() } }.value }
+      Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
+      while (oolagRoot.requiredEvalFunctions != Nil) {
+        val evFuncs = oolagRoot.requiredEvalFunctions
+        oolagRoot.requiredEvalFunctions = Nil
+        evFuncs.foreach { f =>
+          OOLAG.keepGoing { () } {
+            lazy val requiredValue = LV('requiredValue) {
+              f() // useful place for a breakpoint
+            }
+            requiredValue.value
+          }
         }
       }
     }
@@ -478,13 +499,18 @@ object OOLAG extends Logging {
           log(Error(catchMsg, descrip, le)) // tell us which lazy attribute it was
           throw le
         }
-        case ex: java.lang.RuntimeException => {
-          val re = ex // debugger won't let you see the exception without this.
-          log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
-          error(new Exception(re) with OOLAGDiagnosticMixin)
-          val ab = new Abort(re.toString)
-          throw ab
-        }
+        // 
+        // Don't catch RuntimeException as this makes using the debugger
+        // to isolate bugs harder. This just converts them into unsuppressible,
+        // but with loss of context.
+        //
+        //        case ex: RuntimeException => {
+        //          val re = ex // debugger won't let you see the exception without this.
+        //          log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
+        //          error(new Exception(re) with OOLAGDiagnosticMixin)
+        //          val ab = new Abort(re.toString)
+        //          throw ab
+        //        }
         case ue: UnsuppressableException => {
           val ex = ue
           log(OOLAGDebug(catchMsg, this.getClass.getName, ue)) // tell us which lazy attribute it was            
@@ -524,14 +550,29 @@ object OOLAG extends Logging {
           //
           oolagDiagnosticAction(e, this)
         }
-        case unknown: Throwable => {
-          val unknownException = unknown
-          log(OOLAGDebug(catchMsg, descrip, unknownException))
-          oolagContext.rethrowAsDiagnostic(unknown)
-        }
+        // Don't catch Throwable. Always wrong to catch things like this
+        // because it will convert things like scala.MatchError into 
+        // a compile-time diagnostic message and that will hide compiler bugs.
+        // 
+        // Instead, pick off the exceptions we need to capture as compilation 
+        // errors individually.
+        // 
+        // Note that these should be captured closer to where they may occur
+        // otherwise we mask compiler bugs if these should occur outside
+        // of the scope where we're expecting them.
+        case ex: ArithmeticException => yikes(ex)
+        case ex: IllegalArgumentException => yikes(ex)
       } finally {
         // nothing for now
       }
+    }
+
+    private def yikes(th: Throwable) = {
+      val re = th // debugger won't let you see the exception without this.
+      log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
+      error(new Exception(re) with OOLAGDiagnosticMixin)
+      val ab = new Abort(re.toString)
+      throw ab
     }
 
     protected final def valueAsAny: Any = {

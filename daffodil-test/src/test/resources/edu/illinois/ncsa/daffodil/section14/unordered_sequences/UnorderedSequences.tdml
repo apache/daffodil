@@ -292,7 +292,7 @@
 		root="USG_01">
 		<tdml:document><![CDATA[b2,a1,a4,c3,ruh-oh!]]></tdml:document>
 		<tdml:errors>
-			<tdml:error>Runtime Schema Definition Error</tdml:error>
+			<tdml:error>Schema Definition Error</tdml:error>
 			<tdml:error>Expression</tdml:error>
 			<tdml:error>../e3</tdml:error>
 			<tdml:error>navigates to another branch</tdml:error>
@@ -577,8 +577,8 @@
 									dfdl:lengthKind="delimited" dfdl:initiator="z">
 									<xs:annotation>
 										<xs:appinfo source="http://www.ogf.org/dfdl/">
-											<dfdl:assert test="{ dfdl:occursCount( ../../e1/* ) eq 3 }"
-												message="Assertion failed for dfdl:occursCount( ../../e1/* ) eq 3" />
+											<dfdl:assert test="{ fn:count( ../../e1 ) eq 3 }"
+												message="Assertion failed for fn:count( ../../e1 ) eq 3" />
 										</xs:appinfo>
 									</xs:annotation>
 								</xs:element>

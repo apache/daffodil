@@ -71,7 +71,7 @@ class TestSimpleTypes2 {
   @Test def test_whiteSpaceAfterValidByte() { runner.runOneTest("whiteSpaceAfterValidByte") }
   @Test def test_whiteSpaceAfterValidUnsignedLong() { runner.runOneTest("whiteSpaceAfterValidUnsignedLong") }
   @Test def test_whiteSpaceAfterValidInteger() { runner.runOneTest("whiteSpaceAfterValidInteger") }
-  
+
   @Test def test_whiteSpaceDuringValidShort() { runner.runOneTest("whiteSpaceDuringValidShort") }
   @Test def test_whiteSpaceDuringValidInteger() { runner.runOneTest("whiteSpaceDuringValidInteger") }
   @Test def test_whiteSpaceDuringValidUnsignedLong() { runner.runOneTest("whiteSpaceDuringValidUnsignedLong") }
@@ -81,7 +81,15 @@ class TestSimpleTypes2 {
   @Test def test_whiteSpaceDuringValidInt() { runner.runOneTest("whiteSpaceDuringValidInt") }
   @Test def test_whiteSpaceDuringValidLong() { runner.runOneTest("whiteSpaceDuringValidLong") }
   @Test def test_whiteSpaceDuringValidByte() { runner.runOneTest("whiteSpaceDuringValidByte") }
-  ////////////////////////////////////////////////////////////////////
+
+  /////////////////////// DFDL-1042 /////////////////////////////////////////////
+
+  @Test def test_dateStrictCheckPolicy01() { runner.runOneTest("dateStrictCheckPolicy01") }
+  @Test def test_timeStrictCheckPolicy01() { runner.runOneTest("timeStrictCheckPolicy01") }
+  @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
+  @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
+
+  ///////////////////////////////////////////////////////////////////////////////////
 
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
@@ -89,7 +97,7 @@ class TestSimpleTypes2 {
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
-  
+
   val cc = testDir + "BitOrder.tdml"
   lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
   @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
@@ -97,7 +105,7 @@ class TestSimpleTypes2 {
   @Test def test_bitOrderDocument() { runner1.runOneTest("bitOrderDocument") }
   @Test def test_bitOrderTypeByte() { runner1.runOneTest("bitOrderTypeByte") }
   @Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
-  
+
   val dd = testDir + "BitOrderInvalid.tdml"
   lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(dd))
   @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }

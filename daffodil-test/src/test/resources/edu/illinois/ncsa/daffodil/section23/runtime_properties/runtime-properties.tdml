@@ -3,7 +3,9 @@
 	description="properties that can have expressions to compute their values from data"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+	xmlns:ex="http://example.com" 
+    xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="s1">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
@@ -23,9 +25,11 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
-          else if (fn:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
-          else fn:error()
+          if (daf:trace(daf:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          else (
+                 if (daf:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
+                 else daf:error()
+               )
       }]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
@@ -44,9 +48,9 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
                   <dfdl:property name="byteOrder"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedShort(../ex:bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
-          else if (fn:trace(xs:unsignedShort(../ex:bom) eq 65534, 'pred2')) then 'littleEndian'
-          else fn:error()
+          if (daf:trace(daf:trace(xs:unsignedShort(../ex:bom), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
+          else if (daf:trace(xs:unsignedShort(../ex:bom) eq 65534, 'pred2')) then 'littleEndian'
+          else daf:error()
       }]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
@@ -66,9 +70,9 @@
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- hoist calculation so we do it only once -->
                 <dfdl:setVariable ref="ex:bom"><![CDATA[{
-          if (fn:trace(fn:trace(xs:unsignedShort(.), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
-          else if (fn:trace(xs:unsignedShort(.) eq 65534, 'pred2')) then 'littleEndian'
-          else fn:error()
+          if (daf:trace(daf:trace(xs:unsignedShort(.), 'bom') eq 65279, 'pred1')) then 'bigEndian' 
+          else if (daf:trace(xs:unsignedShort(.) eq 65534, 'pred2')) then 'littleEndian'
+          else daf:error()
       }]]></dfdl:setVariable>
               </xs:appinfo>
             </xs:annotation>
@@ -455,7 +459,7 @@
       <tdml:documentPart type="byte">00 01 00 01</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unknown property value</tdml:error>
     </tdml:errors>
 
@@ -471,7 +475,7 @@
     </tdml:document>
 
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>myVar</tdml:error>
       <tdml:error>no value</tdml:error>
       <tdml:error>variable</tdml:error>

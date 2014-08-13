@@ -33,6 +33,8 @@ package edu.illinois.ncsa.daffodil.compiler
  */
 
 import java.io.File
+import java.io.FileInputStream
+import java.io.ObjectInputStream
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -55,16 +57,33 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
+import edu.illinois.ncsa.daffodil.util.CheckJavaVersion
+import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.processors.VariableMap
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  requiredEvaluations(rootElem, sset)
+  //
+  // breaking this into these lines causes the order things are
+  // evaluated in to be more rational than if pure demand-driven
+  // lazy evaluation was followed.
+  //
+  // We want pretty much nothing to be done by the data processor
+  //
+  requiredEvaluations(sset)
+  requiredEvaluations(rootElem)
+  requiredEvaluations(rootElem.document)
+  requiredEvaluations(rootElem.documentElement)
+  requiredEvaluations(rootElem.documentElement.gram)
+  requiredEvaluations(rootElem.document.parser)
+  requiredEvaluations(rootElem.runtimeData)
+
   override def rethrowAsDiagnostic(th: Throwable) = sset.rethrowAsDiagnostic(th)
 
-  // println("Creating Processor Factory")
   lazy val rootElem = rootElem_.value
   private val rootElem_ = LV('rootElem) {
     sset.rootElement(rootSpec)
@@ -74,9 +93,18 @@ class ProcessorFactory(val sset: SchemaSet)
     ExecutionMode.usingCompilerMode {
       OOLAG.keepGoing(true) {
         val valid = sset.isValid
-        val res = if (valid) sset.isError
-        else true
-        res
+        if (valid) {
+          // no point in going forward with more
+          // checks if the schema isn't valid
+          // The code base is written assuming valid
+          // schema input. It's just going to hit 
+          // assertion failures and such if we 
+          // try to compile invalid schemas.
+          val requiredErr = super.isError
+          val ssetErr = sset.isError
+          val res = requiredErr || ssetErr
+          res
+        } else true
       }
     }
   }
@@ -87,19 +115,29 @@ class ProcessorFactory(val sset: SchemaSet)
     ExecutionMode.usingCompilerMode {
       Assert.usage(canProceed)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
-      val dataProc = new DataProcessor(this, rootElem)
+      val validationMode = ValidationMode.Off
+      val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
+      val p = rootElem.document.parser
+      val d = this.diagnostics
+      val ssrd = new SchemaSetRuntimeData(
+        rootElem.document.parser,
+        this.diagnostics,
+        rootElem.elementRuntimeData,
+        variables,
+        validationMode)
+      CheckJavaVersion.checkJavaVersion(ssrd)
+      val dataProc = new DataProcessor(ssrd)
       if (dataProc.isError) {
         val diags = dataProc.getDiagnostics
         log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
         diags.foreach { diag => log(Error(diag.toString())) }
       } else {
-        log(Compile("Parser = %s.", dataProc.parser.toString))
+        log(Compile("Parser = %s.", ssrd.parser.toString))
         log(Compile("Compilation (DataProcesor) completed with no errors."))
       }
       dataProc
     }
   }
-
 }
 
 /**
@@ -125,11 +163,12 @@ trait HavingRootSpec extends Logging {
 class Compiler(var validateDFDLSchemas: Boolean = true)
   extends DFDL.Compiler
   with Logging
-  with HavingRootSpec {
+  with HavingRootSpec
+  with Serializable {
 
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
-  private val externalDFDLVariables: Queue[Binding] = Queue.empty
+  @transient private val externalDFDLVariables: Queue[Binding] = Queue.empty
 
   /**
    * Sets externally defined variables.
@@ -172,6 +211,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       case "readerbytebuffersize" => DaffodilTunableParameters.readerByteBufferSize = java.lang.Long.valueOf(value)
       case "maxlengthforvariablelengthdelimiterdisplay" => DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay = java.lang.Integer.valueOf(value)
       case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
+      case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
       case _ => log(Warning("Ignoring unknown tunable: %s", tunable))
     }
   }
@@ -202,8 +242,14 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     (sset, ge)
   }
 
-  def reload(fileNameOfSavedParser: String): DFDL.ProcessorFactory = {
-    Assert.notYetImplemented()
+  def reload(savedParser: File): DFDL.DataProcessor = {
+    val fis = new FileInputStream(savedParser)
+    val objInput = new ObjectInputStream(fis)
+    val dpObj = objInput.readObject()
+    objInput.close()
+    val dp = dpObj.asInstanceOf[DataProcessor]
+    CheckJavaVersion.checkJavaVersion(dp.ssrd)
+    dp
   }
 
   /**
@@ -224,10 +270,6 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError
-      def printDiags = diags.foreach { diag =>
-        val msg = diag.toString()
-        log(Error(msg))
-      }
       if (err) {
         Assert.invariant(diags.length > 0)
         log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
@@ -239,7 +281,6 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
           log(Compile("ProcessorFactory completed with no errors."))
         }
       }
-      printDiags
       (sset, pf)
     }
   }

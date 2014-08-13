@@ -55,7 +55,7 @@ object Misc {
     if (test) Some(thing) else None
   }
 
-  def getNameFromClass(obj: Object): String = {
+  def getNameFromClass(obj: Any): String = {
     if (obj == null) return "null"
     // val hexHash = obj.hashCode.formatted("%x")
     val nonPackageClassName = obj.getClass.getName.split("""\.""").toList.reverse.head
@@ -130,9 +130,7 @@ object Misc {
    * Requires an even number of nibbles.
    */
   def hex2Bytes(hex: String): Array[Byte] = {
-    (for { i <- 0 to hex.length - 1 by 2 if i > 0 || !hex.startsWith("0x") }
-      yield hex.substring(i, i + 2))
-      .map(Integer.parseInt(_, 16).toByte).toArray
+    hex.sliding(2, 2).toArray.map { Integer.parseInt(_, 16).toByte }
   }
 
   def hex2Bits(hex: String): String = {
@@ -148,7 +146,7 @@ object Misc {
   }
 
   def bytes2Hex(bytes: Array[Byte]): String = {
-    "0x" + bytes.map(cvtByte(_)).mkString.toUpperCase
+    bytes.map(cvtByte(_)).mkString.toUpperCase
   }
 
   def bits2Bytes(bits: String): Array[Byte] =

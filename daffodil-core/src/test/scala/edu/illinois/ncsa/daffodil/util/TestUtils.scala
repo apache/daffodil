@@ -162,6 +162,7 @@ object TestUtils {
     val p = pf.onPath("/")
     val pIsError = p.isError
     if (pIsError) {
+      val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     val d = data
@@ -219,7 +220,7 @@ class Fakes private () {
   class FakeDataProcessor extends DataProcessor {
     def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
-    def save(output: Output): Unit = {}
+    def save(output: java.io.OutputStream): Unit = {}
     def setExternalVariables(extVars: Map[String, String]): Unit = {}
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}

@@ -54,7 +54,7 @@ class TestInputValueCalc extends Logging {
   // @Test
   @Test def testInputValueCalcString2() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>
           <xs:sequence>
@@ -73,7 +73,7 @@ class TestInputValueCalc extends Logging {
   // @Test
   @Test def testInputValueCalcInt3() {
     val testSchema = SchemaUtils.dfdlTestSchema(
-      <dfdl:format ref="tns:daffodilTest1"/>,
+      <dfdl:format ref="tns:daffodilTest1" encoding="ascii"/>,
       <xs:element name="data">
         <xs:complexType>
           <xs:sequence>

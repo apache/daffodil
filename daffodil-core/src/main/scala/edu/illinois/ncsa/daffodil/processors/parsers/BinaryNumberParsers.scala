@@ -156,7 +156,7 @@ class SignedKnownLengthRuntimeByteOrderBinaryNumberParser[T](
 abstract class BinaryNumberBaseParser[T](
   val e: ElementRuntimeData)
   extends PrimParser(e) {
-  val primName = e.primType.get.name
+  val primName = e.optPrimType.get.name
   val bitOrd = e.defaultBitOrder
 
   protected def getBitLength(s: PState): (PState, Long)
@@ -179,14 +179,14 @@ abstract class BinaryNumberBaseParser[T](
       val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
       val newPos = start.bitPos + nBits
       val convertedValue: T = convertValue(value, nBits.toInt)
-      start.parentElement.setDataValue(convertValueToString(convertedValue))
+      start.simpleElement.setDataValue(convertedValue)
       start.withPos(newPos, -1, Nope)
     } catch {
       case e: IndexOutOfBoundsException => {
         return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
       }
       case u: UnsuppressableException => throw u
-      case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
+      // case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
     }
   }
 

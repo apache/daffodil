@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -41,7 +40,7 @@ trait Dynamic {
     e match {
       case Right(r) => (s, r)
       case Left(l) => {
-        val R(aAsAny, newVMap) = l.evaluate(s.parentElement, s.variableMap, s)
+        val (aAsAny, newVMap) = l.evaluate(s)
         val a: A = conv(s, aAsAny)
         (s.withVariables(newVMap), a)
       }

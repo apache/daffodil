@@ -12,7 +12,7 @@
       <xsd:sequence dfdl:separator="">
         <xsd:element dfdl:terminator="|" dfdl:textNumberPattern="#0"
           ibmDfdlExtn:sampleValue="18446744073709551615" name="Count" type="xsd:unsignedLong"/>
-        <xsd:element dfdl:occursCount="{/tns:RNAChain/tns:Count}" dfdl:occursCountKind="expression"
+        <xsd:element dfdl:occursCount="{/tns:RNAChain/Count}" dfdl:occursCountKind="expression"
           ibmDfdlExtn:sampleValue="1" maxOccurs="unbounded" name="RNABase" type="tns:RNABase"/>
       </xsd:sequence>
     </xsd:complexType>

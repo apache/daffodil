@@ -350,6 +350,22 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
+  @Test def testParseSequenceInt3Operands() {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:initiator="[[" dfdl:terminator="]]">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=",," dfdl:initiator="{{{" dfdl:terminator="}}">
+            <xs:element name="s1" type="xs:int" dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit" dfdl:length="{ 1 + 0 + 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val actual = TestUtils.testString(sch, "[[{{((55)),,((66)),,((77))}}]]").result
+    val actualString = actual.toString
+    val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
+    TestUtils.assertEqualsXMLElements(expected, actual)
+  }
+
   @Test def testBadInt() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,

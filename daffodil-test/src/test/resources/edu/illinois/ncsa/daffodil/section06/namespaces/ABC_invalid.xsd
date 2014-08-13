@@ -46,7 +46,9 @@
                 fixed="d" minOccurs="1" name="d" type="xsd:string">
                 <xsd:annotation>
                   <xsd:appinfo source="http://www.ogf.org/dfdl/">
-                    <dfdl:discriminator >{if (. eq 'd') then true() else false()}</dfdl:discriminator>
+                    <dfdl:discriminator xmlns:fn="http://www.w3.org/2005/xpath-functions">{
+                    if (. eq 'd') then fn:true() else fn:false()
+                    }</dfdl:discriminator>
                   </xsd:appinfo>
                 </xsd:annotation>
               </xsd:element>

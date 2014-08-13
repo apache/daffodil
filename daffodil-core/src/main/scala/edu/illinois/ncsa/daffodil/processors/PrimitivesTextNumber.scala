@@ -59,8 +59,8 @@ case class ConvertTextNumberParser[S](
   override def toString = "to(xs:" + helper.xsdType + ")"
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
-    val node = start.parentElement
-    var str = node.dataValue
+    val node: InfosetSimpleElement = start.simpleElement
+    var str = node.dataValueAsString
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
     if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.prettyType, helper.xsdType)
@@ -69,8 +69,8 @@ case class ConvertTextNumberParser[S](
     // will match either all or none of 'str', never part of it. Thus,
     // findFirstIn() either matches and it's a zero rep, or it doesn't and it's
     // not a zero
-    val (resultState, numAsString) = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
-      case Some(_) => (start, helper.getStringFormat(helper.getNum(0)))
+    val (resultState, numValue) = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
+      case Some(_) => (start, helper.getNum(0))
       case None => {
         val (newstate, df) = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
@@ -90,7 +90,7 @@ case class ConvertTextNumberParser[S](
             helper.prettyType, helper.xsdType, str)
         }
 
-        val asString = num match {
+        val numValue = num match {
           // if num is infRep, -infRep, or nanRep, then parse() returns
           // Double.{POSINF, NEGINF, NAN}. otherwise, it returns some kind
           // of boxed number that can hold the full contents of the number,
@@ -106,21 +106,25 @@ case class ConvertTextNumberParser[S](
 
             // convert to proper type
             val asNumber = helper.getNum(num)
+            Assert.invariant(!asNumber.isInstanceOf[String])
 
             // The following change was made because of the issues with the float
             // adding a position of precision to the Number object.  At some point we
             // will want to revert this back to the actual type but this is a quick fix
             // for the issues we were having with the 0.003 vs 0.0030 error in test_DelimProp_05
             //
-            //asNumber.toString
-            helper.getStringFormat(asNumber)
+            //helper.getStringFormat(asNumber)
+            //
+            // Above was changed back into the actual number object.
+            asNumber
           }
         }
-        (newstate, asString)
+        (newstate, numValue)
       }
     }
 
-    node.setDataValue(numAsString)
+    Assert.invariant(!numValue.isInstanceOf[String])
+    node.setDataValue(numValue)
 
     resultState
   }
@@ -827,7 +831,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 
   def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
 
- //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
+  //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {

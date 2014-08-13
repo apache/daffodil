@@ -38,19 +38,21 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.xml.QName
 
 /**
  * Common Mixin for things that have a name attribute.
  */
 trait NamedMixin
-  extends GetAttributesMixin { self: SchemaComponentBase =>
+  extends GetAttributesMixin
+  with Serializable { self: SchemaComponentBase =>
   override def prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
 
   requiredEvaluations(name)
 
   lazy val name = nameFromNameAttribute
   private lazy val nameFromNameAttribute = nameFromNameAttribute_.valueOrElse("??name??")
-  private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
+  @transient private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
 
   def xml: Node
   def schemaDocument: SchemaDocument
@@ -63,7 +65,6 @@ trait NamedMixin
   }
 }
 
-
 /**
  * All global components share these characteristics.
  * The difference between this and the not-Global flavor
@@ -72,6 +73,8 @@ trait NamedMixin
  */
 trait GlobalComponentMixin
   extends NamedMixin { self: SchemaComponent =>
+
+  lazy val namedQName = QName.createGlobal(name, targetNamespace)
 
   /**
    * polymorphic way to get back to what is referring to this global
@@ -144,6 +147,8 @@ trait GlobalComponentMixin
  */
 trait ElementFormDefaultMixin
   extends NamedMixin { self: SchemaComponent =>
+
+  lazy val elementFormDefault = xmlSchemaDocument.elementFormDefault
 
   /**
    * handle elementFormDefault to qualify

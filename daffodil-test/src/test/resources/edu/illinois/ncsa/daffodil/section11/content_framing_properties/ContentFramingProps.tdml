@@ -167,7 +167,7 @@
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[^\x00]{0,3}\x00|[^\x00]{4}"
             dfdl:outputValueCalc="{ 
             if (fn:string-length(../ex:s) lt 4) 
-            then fn:concat(../ex:s, dfdl:string('%NUL;')) 
+            then fn:concat(../ex:s, dfdl:decodeDFDLEntities('%NUL;')) 
             else ../ex:s 
             }" />
         </xs:sequence>
@@ -175,7 +175,7 @@
         <xs:element name="s" type="xs:string"
           dfdl:inputValueCalc="{ 
                if ((fn:string-length(../ex:rep) eq 4) 
-                    and fn:not(fn:ends-with(../ex:rep, dfdl:string('%NUL;'))))
+                    and fn:not(fn:ends-with(../ex:rep, dfdl:decodeDFDLEntities('%NUL;'))))
                     then ../ex:rep
                else fn:substring(../ex:rep, 1, fn:string-length(../ex:rep) - 1)
              }" />
@@ -194,7 +194,7 @@
             dfdl:lengthKind="pattern" dfdl:lengthPattern="[^\x7F]{0,3}\x7F|[^\x7F]{4}"
             dfdl:outputValueCalc="{ 
             if (fn:string-length(../ex:s) lt 4) 
-            then fn:concat(../ex:s, dfdl:string('%DEL;')) 
+            then fn:concat(../ex:s, dfdl:decodeDFDLEntities('%DEL;')) 
             else ../ex:s 
             }" />
         </xs:sequence>
@@ -202,7 +202,7 @@
         <xs:element name="s" type="xs:string"
           dfdl:inputValueCalc="{ 
                if ((fn:string-length(../ex:rep) eq 4) 
-                    and fn:not(fn:ends-with(../ex:rep, dfdl:string('%DEL;'))))
+                    and fn:not(fn:ends-with(../ex:rep, dfdl:decodeDFDLEntities('%DEL;'))))
                     then ../ex:rep
                else fn:substring(../ex:rep, 1, fn:string-length(../ex:rep) - 1)
              }" />

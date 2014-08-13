@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:a="ns_a" xmlns:b="ns_b"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	elementFormDefault="qualified"> <!-- applies to local element decls in this file EVEN if this schema is INCLUDED -->
+
+	<xs:element name="sally"> <!-- no namespace, so not qualified -->
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ntnqjane" type="xs:int" />
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

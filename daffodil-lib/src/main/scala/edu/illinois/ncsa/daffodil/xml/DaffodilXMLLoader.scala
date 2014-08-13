@@ -629,9 +629,9 @@ object BasicStderrErrorHandler extends org.xml.sax.ErrorHandler {
   }
 }
 
-abstract class DFDLSchemaValidationException(msg: String) extends Exception(msg)
-case class DFDLSchemaValidationWarning(msg: String) extends DFDLSchemaValidationException(msg)
-case class DFDLSchemaValidationError(msg: String) extends DFDLSchemaValidationException(msg)
+abstract class DFDLSchemaValidationException(cause: Throwable) extends Exception(cause)
+case class DFDLSchemaValidationWarning(cause: Throwable) extends DFDLSchemaValidationException(cause)
+case class DFDLSchemaValidationError(cause: Throwable) extends DFDLSchemaValidationException(cause)
 
 /**
  * DFDLSchemaErrorHandler exists so that we can throw DFDLSchemaValidation specific
@@ -644,11 +644,9 @@ object DFDLSchemaErrorHandler extends org.xml.sax.ErrorHandler {
   def warning(exception: SAXParseException) = error(exception)
 
   def error(exception: SAXParseException) = {
-    val msg = "DFDL Schema Validation Error due to %s".format(exception)
-    throw new DFDLSchemaValidationError(msg)
+    throw new DFDLSchemaValidationError(exception)
   }
   def fatalError(exception: SAXParseException) = {
-    val msg = "DFDL Schema Validation Fatal Error due to %s".format(exception)
-    throw new DFDLSchemaValidationError(msg)
+    throw new DFDLSchemaValidationError(exception)
   }
 }

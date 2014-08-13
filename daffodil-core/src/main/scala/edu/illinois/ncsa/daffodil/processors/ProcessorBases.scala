@@ -6,10 +6,11 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.dpath.AsIntMixin
 
 abstract class PrimParser(contextArg: RuntimeData)
   extends DaffodilParser(contextArg)
-  with WithParseErrorThrowing {
+  with WithParseErrorThrowing with AsIntMixin {
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + Misc.getNameFromClass(this) + "/>"

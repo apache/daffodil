@@ -43,6 +43,18 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 import edu.illinois.ncsa.daffodil.util.Misc
+import com.ibm.icu.util.Calendar
+import com.ibm.icu.util.DFDLCalendar
+
+//  class DFDLCalendar(calendar: Calendar, formattedStr: String) extends Calendar {
+//  /** As seen from class DFDLCalendar, the missing signatures are as follows. * For convenience, these are usable as stub 
+// implementations. */ 
+//   protected[package util] def handleComputeMonthStart(x$1: Int,x$2: Int,x$3: Boolean): Int = calendar.handleComputeMonthStart(x$1, x$2, x$3)
+//   protected[package util] def handleGetExtendedYear(): Int = calendar.handleGetExtendedYear()
+//   protected[package util] def handleGetLimit(x$1: Int,x$2: Int): Int = calendar.handleGetLimit(x$1, x$2)
+////  def get(fieldIndex: Int): Int = calendar.get(fieldIndex)
+//  override def toString(): String = formattedStr
+//}
 
 case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, prettyType: String, dataFormatter: SimpleDateFormat, infosetFormatter: SimpleDateFormat)
   extends PrimParser(erd) {
@@ -52,19 +64,23 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, p
   // externally."
   lazy val tlDataFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      dataFormatter.clone.asInstanceOf[SimpleDateFormat]
+      val x = dataFormatter.clone.asInstanceOf[SimpleDateFormat]
+      x.setLenient(true)
+      x
     }
   }
 
   lazy val tlInfosetFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      infosetFormatter.clone.asInstanceOf[SimpleDateFormat]
+      val x = infosetFormatter.clone.asInstanceOf[SimpleDateFormat]
+      x.setLenient(true)
+      x
     }
   }
 
   def parse(start: PState): PState = {
-    val node = start.parentElement
-    var str = node.dataValue
+    val node: InfosetSimpleElement = start.simpleElement
+    var str = node.dataValueAsString
 
     Assert.invariant(str != null)
 
@@ -93,7 +109,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, p
 
     // Convert to the infoset format
     val result = tlInfosetFormatter.get.format(cal)
-    node.setDataValue(result)
+    val newCal = new DFDLCalendar(cal, result)
+    node.setDataValue(newCal)
 
     start
   }
@@ -205,7 +222,6 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   }
 
   def parser: Parser = new ConvertTextCalendarParser(e.elementRuntimeData, xsdType, prettyType, dataFormatter, infosetFormatter)
-
 
 }
 

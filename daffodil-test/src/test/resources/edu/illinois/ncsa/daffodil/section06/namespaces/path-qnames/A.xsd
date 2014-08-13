@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:a="ns_a" xmlns:b="ns_b" xmlns:d="ns_d"
+    comment:note="there is also C.xsd which explicitly has no target namespace" xmlns:comment="comments"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" targetNamespace="ns_a"
+	elementFormDefault="unqualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:import namespace="ns_b" schemaLocation="B.xsd" />
+	<xs:import  schemaLocation="C.xsd" />
+	<xs:import namespace="ns_d" schemaLocation="D.xsd" />
+
+	<xs:element name="rootA">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="sally" xmlns="ns_b" /> <!-- xmlns IS RESPECTED for ref -->
+				<xs:element name="sally1" form="unqualified" >
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="aujane" type="xs:int" form="unqualified"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="sally" form="qualified" >
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="aqjane" type="xs:int" form="unqualified"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element ref="sally"/> <!-- reference to C.xsd's definition of sally which is in no namespace -->
+				<xs:element ref="d:sally"/>
+			</xs:sequence>
+		</xs:complexType>
+		<!-- These keys below illustrate how xpath named steps match against 
+		  element declarations of an XML schema.
+		   -->
+		
+		<!-- This key fails because bqjane needs a b: prefix. The xmlns is being ignored.
+		
+		<xs:key name="key1">
+			<xs:selector xpath="./b:sally" />
+			<xs:field xpath="bqjane" xmlns="ns_b" /> 
+		</xs:key>
+		
+		-->
+		
+		<!-- works as sally1 is local unqualified element name as is aujane within it. -->
+		
+		<xs:key name="key2">
+			<xs:selector xpath="./sally1"  />
+			<xs:field xpath="aujane" />
+		</xs:key>
+		
+		<!-- fails because sally needs b: qualifier. The xmlns is ignored. 
+		
+	    <xs:key name="key3">
+			<xs:selector xpath="./sally" xmlns="ns_b" /> 
+			<xs:field xpath="b:bqjane" />
+		</xs:key>
+		
+		-->
+		
+	    <xs:key name="key4">
+			<xs:selector xpath="./a:sally" />
+			<xs:field xpath="aqjane" />
+		</xs:key>
+		
+		<xs:key name="key5">
+			<xs:selector xpath="./sally" xmlns="ns_a"/> 
+			<!-- xmlns is being ignored. 
+			Works anyway because there is ALSO a sally element that is unqualified. -->
+			<xs:field xpath="ntnqjane" />
+		</xs:key>
+		
+		<xs:key name="key6">
+			<xs:selector xpath="./d:sally"/>
+			<xs:field xpath="d:ntnqjane" />  <!-- xmlns would be ignored. d:sally must be qualified even though its
+			definition is included into a schema which has elementFormDefault="unqualified" (D.xsd), because C.xsd itself has
+			elementFormDefault="qualified" -->
+		</xs:key>
+	</xs:element>
+	
+	<!-- Summary: In xpath expressions, xmlns is not considered. An identifier
+	that has no prefix is always interpreted as a local (unqualified) child of whatever it's parent is. It is never
+	augmented by an xmlns default namespace.
+	
+	This is not entirely consistent with the way the ref attribute works. There, an xmlns declaration is utilized.
+	
+	However, the scenarios aren't quite the same. In a ref attribute, we are only referencing global objects
+	so we only need a prefix, or a default namespace to make clear what global object we are referencing.
+	
+	In an xpath the names are relative path children of whatever is 
+	above them. Those children are either qualified or unqualified. If they were unqualified, and the xpath were to a 
+	context where there is a default xmlns definition, then there would be no way to reference the unqualified
+	child element AT ALL. But, if the default xmlns definition is ignored, one can use a prefix to make clear what 
+	qualified name one is referencing, and no prefix to refer to local elements that are unqualified.
+	
+	Hence, the name of a local element declaration is a bit different from the name of a global element, 
+	and a named path step in an XPath is a bit different from a ref to a global element. 
+	
+	The system for dealing with all this:
+	
+	QNameBase - common to all varieties - contains a prefix (optional), a local name, and a namespace(optional)
+	
+	NamedQName - QNames that name things
+	There are global object names (for group defs, type defs, element decls, ...) - GlobalQName
+	There are local element names (for child elements within a model group) - LocalDeclQName
+	
+	RefQNameBase - QNames that refer to named things
+	There are reference to global names - RefQName - refers to a GlobalQName
+	There are references to local names - StepQName - refers to a child element. 
+	
+	A StepQName can be a reference to a global name if the 
+	child element was created using an element reference. 
+	A StepQName is a reference to a local name if the child element was created 
+	using a local element declaration. 
+	
+	QName - Factory for QNames
+	createGlobal - creates a GlobalQName - requires a local name part, and a target namespace
+	
+	createLocal - creates a LocalDeclQName 
+	- requires a local namespace, whether the name is qualfied or not, a targetNamespace
+	(used if the name is qualified, ignored otherwise), and a scope - which can be used to warn
+	1) if the target namespace has no prefix associated with it
+	2) if there is no target namespace, but qualified is requested
+	3) if there is an xmlns default namespace definition, the name is unqualified, and the target namespace
+	doesn't match the default namespace
+		
+	resolveRef - creates a RefQName - used for element ref, group ref, type ref (the type="..." syntax)
+	resolveStep - creates a StepQName - used for steps of path expressions.
+	
+	In both cases you need a QName and a scope for resolving prefixes. However, the scope is used differently for
+	resolveStep. In this case if the QName has no prefix then any default namespace is not used. (A warning in this case
+	is sensible, as an author may think they are referencing a qualified name based on xmlns default namespace.)
+	For resolveRef, if the QName has no prefix then xmlns WILL be used if defined, and if it is not defined, 
+	then the referenced global object must be in a schema that has no target namespace.
+	
+	The elementFormDefault behaves as if you took every local element decl and added a form="..." attribute to it.
+	For every local element decl lexically enclosed in this schema. If that schema is subsequently included into 
+	another, the element names are still qualified or unqualified based on the schema where they lexically appeared.
+	
+	 -->
+</xs:schema>

@@ -53,8 +53,8 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
-    val R(nBytesAsAny, newVMap) = expr.evaluate(start.parentElement, start.variableMap, start)
-    val nBytes = nBytesAsAny.toString().toLong //nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = expr.evaluate(start)
+    val nBytes = asLong(nBytesAsAny)
     (nBytes, newVMap)
   }
 
@@ -103,7 +103,7 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
   lazy val unparserDelim = Assert.notYetImplemented()
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
     }
   }
 
@@ -121,7 +121,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
     }
   }
 
@@ -147,7 +147,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
 
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
     }
   }
 
@@ -172,7 +172,7 @@ case class LiteralNilPattern(e: ElementBase)
   //val stParser = super.parser
   lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
     }
   }
 

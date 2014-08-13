@@ -134,7 +134,7 @@ abstract class SchemaDefinitionDiagnosticBase(
           isArgsSame && isDiagnosticKindSame && isCLSame
         res
       }
-      case _ => Assert.usageError("why are you comparing two things that aren't the same type even?")
+      case _ => false
     }
   }
 

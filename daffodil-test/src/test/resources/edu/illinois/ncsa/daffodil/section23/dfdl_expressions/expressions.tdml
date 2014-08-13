@@ -3,7 +3,9 @@
   description="lengthKind explicit and occursCountKind expression"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ex="http://example.com" xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  xmlns:ex="http://example.com" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="newRegex">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -790,15 +792,17 @@ c' } "  />
 
     <tdml:document />
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>convert</tdml:error>
-      <tdml:error>double</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>+</tdml:error>
+      <tdml:error>operator</tdml:error>
+      <tdml:error>numeric</tdml:error>
+      <tdml:error>string</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="expression_type_error2"
     root="f" model="expression-type-errors.dfdl.xsd"
-    description="get a type error from an expression at runtime - DFDL-23-006R">
+    description="get a type error from an expression at compile time - DFDL-23-006R">
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -812,7 +816,9 @@ c' } "  />
     <tdml:document />
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>NaN</tdml:error>
+      <tdml:error>notAnInt</tdml:error>
+      <tdml:error>String</tdml:error>
+      <tdml:error>Long</tdml:error>
     </tdml:errors>
     <!-- <tdml:infoset> <tdml:dfdlInfoset xmlns="http://example.com"> <g>
       <e1>notAnInt</e1>
@@ -825,9 +831,9 @@ c' } "  />
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>      
-      <tdml:error>defined</tdml:error>      
-      <tdml:error>decimal</tdml:error>      
+      <tdml:error>operator</tdml:error>  
+      <tdml:error>+</tdml:error>    
+      <tdml:error>numeric</tdml:error>      
       <tdml:error>string</tdml:error>      
     </tdml:errors>
   </tdml:parserTestCase>
@@ -950,7 +956,7 @@ c' } "  />
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ dfdl:position() }" />
+                  dfdl:inputValueCalc="{ dfdl:occursIndex() }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -968,7 +974,7 @@ c' } "  />
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ dfdl:position() }" />
+                  dfdl:inputValueCalc="{ dfdl:occursIndex() }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -979,7 +985,7 @@ c' } "  />
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ dfdl:position() }" />
+                  dfdl:inputValueCalc="{ dfdl:occursIndex() }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -997,7 +1003,7 @@ c' } "  />
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ dfdl:position() }" />
+                  dfdl:inputValueCalc="{ dfdl:occursIndex() }" />
                 <xs:element name="cnt2" type="xs:int"
                   dfdl:lengthKind="delimited" dfdl:terminator=";" />
                 <xs:element name="b" minOccurs="0" maxOccurs="unbounded"
@@ -1005,7 +1011,7 @@ c' } "  />
                   <xs:complexType>
                     <xs:sequence>
                       <xs:element name="w" type="xs:int"
-                        dfdl:inputValueCalc="{ dfdl:position() }" />
+                        dfdl:inputValueCalc="{ dfdl:occursIndex() }" />
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
@@ -1027,7 +1033,7 @@ c' } "  />
             <xs:complexType>
               <xs:sequence>
                 <xs:element name="v" type="xs:int"
-                  dfdl:inputValueCalc="{ if (dfdl:position() mod 2 eq 1) then 0 else dfdl:position() }" />
+                  dfdl:inputValueCalc="{ if (dfdl:occursIndex() mod 2 eq 1) then 0 else dfdl:occursIndex() }" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -1063,8 +1069,9 @@ c' } "  />
     <tdml:document />
 
     <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>notAFunction</tdml:error>
-      <tdml:error>arity 3</tdml:error>
+      <tdml:error>unsupported</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1085,7 +1092,7 @@ c' } "  />
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition1" root="e"
-    model="v" description="Use of dfdl:position() - DFDL-23-134R">
+    model="v" description="Use of dfdl:occursIndex() - DFDL-23-134R">
 
     <tdml:document>1</tdml:document>
 
@@ -1102,7 +1109,7 @@ c' } "  />
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition2" root="e"
-    model="v" description="Use of dfdl:position() - DFDL-23-134R">
+    model="v" description="Use of dfdl:occursIndex() - DFDL-23-134R">
 
     <tdml:document>2</tdml:document>
 
@@ -1122,7 +1129,7 @@ c' } "  />
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="dfdlPosition3" root="f"
-    model="v" description="Use of dfdl:position() - DFDL-23-134R">
+    model="v" description="Use of dfdl:occursIndex() - DFDL-23-134R">
 
     <tdml:document>2;2</tdml:document>
 
@@ -1311,6 +1318,10 @@ c' } "  />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
+    
+    <!--  This test is incorrect. An element of simple type cannot use "." 
+    in any inputValueCalc, as "." means "the value of this element", so 
+    we're chasing our tail here. -->
     <xs:element name="e8" type="xs:int"
       dfdl:inputValueCalc="{ dfdl:checkConstraints(.) }" />
     <xs:simpleType name="st1">
@@ -1374,8 +1385,9 @@ c' } "  />
     root="e7" model="checkConstraints" description="DFDL-23-135R">
     <tdml:document>s1s2</tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:checkConstraints may only be called on simple types</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>checkConstraints</tdml:error>
+      <tdml:error>AnyAtomic</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1409,9 +1421,9 @@ c' } "  />
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ 
-                                    dfdl:position() = 1 
-                                    or 
-                                    fn:trace(../ex:r,"r")[dfdl:position() - 1]/ex:more = 1 
+                                    if(dfdl:occursIndex() = 1 ) then fn:true()
+                                    else
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more = 1 
                           }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -1592,9 +1604,10 @@ c' } "  />
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator><![CDATA[{ 
-                                    dfdl:position() = 1 
-                                    or 
-                                    ../ex:r[dfdl:position() - 1]/ex:more = 1 
+                                    if (dfdl:occursIndex() = 1 )
+                                    then fn:true()
+                                    else 
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more = 1 
                           }]]></dfdl:discriminator>
           </xs:appinfo>
         </xs:annotation>
@@ -2206,31 +2219,6 @@ c' } "  />
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  <tdml:defineSchema name="trueFalseTypeError">
-  
-     <dfdl:format ref="ex:daffodilTest1"/>
-     
-     <xs:element name="e">
-     <xs:complexType>
-     <xs:sequence>
-     <xs:element name="x" type="xs:int" dfdl:inputValueCalc="{ 0 }"/>
-     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(fn:trace((if (xs:int(../ex:x) eq 0) then true else false), 'predicate'))) then 2 else 3 }"/>
-     </xs:sequence>
-     </xs:complexType>
-     </xs:element>
-  </tdml:defineSchema>
-  
-  <tdml:parserTestCase name="trueFalseTypeError" model="trueFalseTypeError" root="e"
-    description="Test for JIRA DFDL-433 which is an expression with a specific type error.">
-    <tdml:document/>
-    <tdml:infoset>
-    <tdml:dfdlInfoset>
-    <ex:e><ex:x>0</ex:x><ex:f>3</ex:f></ex:e>
-    </tdml:dfdlInfoset>
-    </tdml:infoset>
-    
-  </tdml:parserTestCase>
 
   <tdml:defineSchema name="trueFalseTypeCorrect">
   
@@ -2240,7 +2228,7 @@ c' } "  />
      <xs:complexType>
      <xs:sequence>
      <xs:element name="x" type="xs:int" dfdl:inputValueCalc="{ 0 }"/>
-     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(fn:trace((if (xs:int(../ex:x) eq 0) then true() else false()), 'predicate'))) then 2 else 3 }"/>
+     <xs:element name="f" type="xs:int" dfdl:inputValueCalc="{ if (xs:boolean(daf:trace((if (xs:int(../ex:x) eq 0) then fn:true() else fn:false()), 'predicate'))) then 2 else 3 }"/>
      </xs:sequence>
      </xs:complexType>
      </xs:element>

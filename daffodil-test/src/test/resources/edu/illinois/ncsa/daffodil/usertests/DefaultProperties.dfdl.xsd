@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/"
+    xmlns:fn="http://www.w3.org/2005/xpath-functions"
+>
 
 	<annotation>
 		<appinfo source="http://www.ogf.org/dfdl/">

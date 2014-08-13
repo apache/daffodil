@@ -36,7 +36,7 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
-import edu.illinois.ncsa.daffodil.processors.xpath.DFDLCheckConstraintsFunction
+import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.grammar.Gram

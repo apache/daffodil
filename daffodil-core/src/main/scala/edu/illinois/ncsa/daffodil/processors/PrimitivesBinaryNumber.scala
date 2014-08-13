@@ -50,12 +50,12 @@ import edu.illinois.ncsa.daffodil.processors.parsers.FloatKnownLengthRuntimeByte
 import edu.illinois.ncsa.daffodil.processors.parsers.DecimalKnownLengthRuntimeByteOrderBinaryNumberParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DoubleKnownLengthRuntimeByteOrderBinaryNumberParser
 
-trait RuntimeExplicitLengthMixin[T] {
+trait RuntimeExplicitLengthMixin[T] extends Serializable {
   self: Terminal =>
   def e: ElementBase
 
   // get at compile time, not runtime.
-  val lUnits = e.lengthUnits
+  lazy val lUnits = e.lengthUnits
 
   // binary numbers will use this conversion. Others won't.
   lazy val toBits = lUnits match {
@@ -65,14 +65,14 @@ trait RuntimeExplicitLengthMixin[T] {
   }
 
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = e.length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
   }
   def getLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = e.length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = e.length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }
@@ -84,18 +84,18 @@ trait KnownLengthInBitsMixin[T] {
   def getBitLength(s: PState) = (s, len) // already in bits, so no multiply by 8 for this one.
 }
 
-trait RuntimeExplicitByteOrderMixin[T] {
+trait RuntimeExplicitByteOrderMixin[T] extends Serializable {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
-  val bo = e.byteOrder // ensure byteOrder compiled expression is computed non lazily at compile time
+  lazy val bo = e.byteOrder // ensure byteOrder compiled expression is computed non lazily at compile time
 }
 
 // TODO: Double Conversion as a Sign-Trait
 
 abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true) {
-  val primName = e.primType.name
+  lazy val primName = e.primType.name
 
-  val (staticJByteOrder, label) = {
+  lazy val staticJByteOrder, label = {
     if (e.byteOrder.isConstant) {
       val staticByteOrderString = e.byteOrder.constantAsString
       val staticByteOrder = ByteOrder(staticByteOrderString, context)
@@ -108,11 +108,10 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
 
   //def getNum(t: Number): BigInt
   override def toString = "binary(xs:" + primName + ", " + label + ")"
-  val gram = this
+  lazy val gram = this
 
-  protected val GramName = e.primType.name
-  protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
-
+  protected lazy val GramName = e.primType.name
+  protected lazy val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
 
 }
 
@@ -147,7 +146,7 @@ class HexBinaryKnownLengthBinaryNumber(e: ElementBase, val len: Long)
   extends BinaryNumberBase[String](e) {
   override def toString = "hexBinary(xs:" + primName + ", " + label + ")"
   // get at compile time, not runtime.
-  val lUnits = e.lengthUnits
+  lazy val lUnits = e.lengthUnits
 
   def parser = new HexBinaryKnownLengthBinaryNumberParser(len, e.elementRuntimeData, e.lengthUnits)
 }

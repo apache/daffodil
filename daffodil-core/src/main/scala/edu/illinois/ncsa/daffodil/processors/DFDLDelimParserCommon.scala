@@ -47,13 +47,11 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.Array.canBuildFrom
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-
 import scala.language.reflectiveCalls
-
 import scala.language.reflectiveCalls
-
 import edu.illinois.ncsa.daffodil.dsom.AnnotatedSchemaComponent
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 object TextJustificationType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -88,7 +86,11 @@ case class DelimParseFailure(msgArg: String, nextArg: Reader[Char])
   def msg = msgArg
 }
 
-class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends RegexParsers with DebugRegexParsers {
+class DFDLDelimParserCommon(
+    val knownEncodingIsFixedWidth: Boolean,
+    val knownEncodingWidthInBits: Int,
+    val knownEncodingName: String)
+    extends RegexParsers with DebugRegexParsers with RuntimeEncodingMixin with Serializable {
   /**
    * Thisobject has to be nested because it has as an argument type Success[String]
    * and that type is only availble to things that implement the scala...Parsers trait.
@@ -107,7 +109,7 @@ class DFDLDelimParserCommon(stringBitLengthFunction: String => Int) extends Rege
       val Success(fieldResult, next) = res
       val content = contentOpt.getOrElse(res.get)
       val charLength = content.length
-      val fieldResultBits = stringBitLengthFunction(content)
+      val fieldResultBits = knownEncodingStringBitLength(content)
       val result = new DelimParseSuccess(delimiter, delimiterType,
         dLoc, fieldResultBits, fieldResult, next, charLength)
       result

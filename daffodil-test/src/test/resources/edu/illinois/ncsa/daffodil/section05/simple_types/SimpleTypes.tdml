@@ -1804,8 +1804,10 @@
 
     <tdml:document><tdml:documentPart type="byte"></tdml:documentPart></tdml:document>
     <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Cannot convert -30 to NonNegativeInteger</tdml:error>
+      <tdml:error>Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>-30</tdml:error>
+      <tdml:error>NonNegativeInteger</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -1979,7 +1981,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_03>12345678900000</dec_03>
+        <dec_03 xsi:type="xs:double">1.23456789E+13</dec_03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1991,7 +1993,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_04>0.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001</dec_04>
+        <dec_04 xsi:type="xs:double">1E-200</dec_04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2003,7 +2005,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dec_05>100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</dec_05>
+        <dec_05 xsi:type="xs:double">1E+200</dec_05>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -5844,7 +5846,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>PPPDABAIAB</tdml:error>
       <tdml:error>Invalid hexadecimal digit</tdml:error>
     </tdml:errors>        
   </tdml:parserTestCase>

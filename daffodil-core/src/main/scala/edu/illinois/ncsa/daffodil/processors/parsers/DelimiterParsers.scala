@@ -15,11 +15,11 @@ import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.R
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import java.nio.charset.Charset
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 
 trait HasDelimiterText {
 
@@ -52,21 +52,21 @@ trait HasDelimiterText {
   }
 }
 
-abstract class DelimiterValues extends HasDelimiterText
-  
-  
+abstract class DelimiterValues extends HasDelimiterText with Serializable
 
 class StaticTextDelimiterValues(
   val delim: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingStringBitLengthFunction: String => Int,
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String,
   context: ThrowsSDE)
   extends DelimiterValues {
 
   val staticTexts = delim.split("\\s").toList
   val staticTextsCooked: Queue[String] = new Queue
 
-  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer.replaceAll(x, Some(context))))
+  staticTexts.foreach(x => staticTextsCooked.enqueue(EntityReplacer { _.replaceAll(x, Some(context)) }))
 
   val delimsRaw = allTerminatingMarkup.map {
     case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)
@@ -87,13 +87,15 @@ class StaticTextDelimiterValues(
 
   // here we define the parsers so that they are pre-compiled/generated
   val delims = CreateDelimiterDFA(allDelims.toSeq)
-  val textParser = new TextParser(knownEncodingStringBitLengthFunction)
+  val textParser = new TextParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
 }
 
 class DynamicTextDelimiterValues(
   val delimExpr: CompiledExpression,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingStringBitLengthFunction: String => Int,
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String,
   context: ThrowsSDE)
   extends DelimiterValues {
 
@@ -184,10 +186,13 @@ class StaticTextParser(
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,
-  knownEncodingStringBitLengthFunction: String => Int,
-  charset: Charset)
+  val knownEncodingIsFixedWidth: Boolean,
+  val knownEncodingWidthInBits: Int,
+  val knownEncodingName: String,
+  dcharset: DFDLCharset)
   extends DelimiterTextParser(rd)
-  with TextReader {
+  with TextReader
+  with RuntimeEncodingMixin {
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + delimValues.delim + " " + delimValues.delimsRaw + "</" + kindString + ">"
@@ -205,7 +210,7 @@ class StaticTextParser(
 
     val bytePos = (start.bitPos >> 3).toInt
 
-    val reader = getReader(charset, start.bitPos, start)
+    val reader = getReader(dcharset.charset, start.bitPos, start)
 
     if (!start.mpstate.foundDelimiter.isDefined) {
       textParser.delims = delimValues.delims
@@ -247,7 +252,7 @@ class StaticTextParser(
         return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
           this.toString(), rd.prettyName, delimValues.allDelims.mkString(", "), foundInstead)
       } else {
-        val numBits = knownEncodingStringBitLengthFunction(found.foundText)
+        val numBits = knownEncodingStringBitLength(found.foundText)
         val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
         val endBitPosDelim = numBits + start.bitPos
 
@@ -267,10 +272,13 @@ class DynamicTextParser(
   textParser: TextParser,
   positionalInfo: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingStringBitLengthFunction: String => Int,
-  charset: Charset)
+  val knownEncodingIsFixedWidth: Boolean,
+  val knownEncodingWidthInBits: Int,
+  val knownEncodingName: String,
+  dcharset: DFDLCharset)
   extends DelimiterTextParser(rd)
-  with TextReader {
+  with TextReader
+  with RuntimeEncodingMixin {
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + delimExpr + " " + delimExpr + "</" + kindString + ">"
   }
@@ -281,13 +289,13 @@ class DynamicTextParser(
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
-    var vars = start.variableMap
+    var pstate = start
 
     val dynamicDelimsRaw = allTerminatingMarkup.filter { case (delimValue, elemName, elemPath) => !delimValue.isConstant }.map {
       case (delimValue, elemName, elemPath) =>
         {
-          val R(res, newVMap) = delimValue.evaluate(start.parentElement, vars, start)
-          vars = newVMap
+          val (res, newVMap) = delimValue.evaluate(pstate)
+          pstate = pstate.withVariables(newVMap)
           (res, elemName, elemPath)
         }
     }
@@ -301,8 +309,8 @@ class DynamicTextParser(
     val localDelimsCookedWithPosition = {
       if (delimValues.constantLocalDelimsCooked.isDefined) { delimValues.constantLocalDelimsCooked.get }
       else {
-        val R(res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
-        vars = newVMap
+        val (res, newVMap) = delimExpr.evaluate(pstate)
+        pstate = pstate.withVariables(newVMap)
         val cookedResult = new ListOfStringValueAsLiteral(res.toString(), rd).cooked
         cookedResult
       }
@@ -318,11 +326,11 @@ class DynamicTextParser(
     def isLocalText(originalRepresentation: String): Boolean =
       localDelimsCooked.find(remote => remote == originalRepresentation).isDefined
 
-    val postEvalState = start.withVariables(vars)
+    val postEvalState = pstate
 
     val bytePos = (postEvalState.bitPos >> 3).toInt
 
-    val reader = getReader(charset, start.bitPos, postEvalState)
+    val reader = getReader(dcharset.charset, start.bitPos, postEvalState)
 
     if (!start.mpstate.foundDelimiter.isDefined) {
       val allDynamicDelims = {
@@ -374,7 +382,7 @@ class DynamicTextParser(
         return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
           this.toString(), rd.prettyName, allDelims.mkString(", "), foundInstead)
       } else {
-        val numBits = knownEncodingStringBitLengthFunction(found.foundText)
+        val numBits = knownEncodingStringBitLength(found.foundText)
         val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
         val endBitPosDelim = numBits + start.bitPos
 

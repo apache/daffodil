@@ -1,7 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
@@ -21,14 +20,14 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
   }
 
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
   }
   def getLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }
@@ -39,7 +38,7 @@ trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
   def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
 
   def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    val R(byteOrderAsAny, newVMap) = bo.evaluate(s.parentElement, s.variableMap, s)
+    val (byteOrderAsAny, newVMap) = bo.evaluate(s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN

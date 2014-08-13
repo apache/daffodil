@@ -11,8 +11,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.R
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.dpath.AsIntMixin
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
   extends Terminal(e, true) {
@@ -41,7 +43,9 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.lengthPattern,
-    e.knownEncodingStringBitLengthFunction)
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName)
 
 }
 
@@ -114,7 +118,9 @@ class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nCh
     e.elementRuntimeData,
     nChars,
     e.knownEncodingCharset,
-    e.knownEncodingStringBitLengthFunction)
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName)
 
 }
 
@@ -128,22 +134,29 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.length,
-    e.knownEncodingStringBitLengthFunction)
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName)
 
 }
 
 abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
   extends PrimParser(erd)
-  with WithParseErrorThrowing {
+  with WithParseErrorThrowing
+  with AsIntMixin {
 
   override def toBriefXML(depthLimit: Int) = eParser.toBriefXML(depthLimit)
 
   final def parse(pstate: PState, endBitPos: Long) = {
     log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
     val savedLimit = pstate.bitLimit0b
+    val startPos0b = pstate.bitPos0b
     val postState1 = pstate.withEndBitLimit(endBitPos)
     val postState2 = eParser.parse1(postState1, erd)
+    val limitedLength = endBitPos - startPos0b
+    val endOfChildrenPos0b = postState2.bitPos0b
+    val childrenLength = endOfChildrenPos0b - startPos0b
 
     log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit0b)
 
@@ -152,7 +165,7 @@ abstract class SpecifiedLengthParserBase(eParser: Parser,
       case Success => {
         // Check that the parsed length is less than or equal to the length of the parent
         //Assert.invariant(postState2.bitPos <= endBitPos)
-        this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children (%s bits) was greater than that of the parent (%s bits).", postState2.bitPos, endBitPos)
+        this.PECheck(postState2.bitPos <= endBitPos, "The parsed length of the children (%s bits) was greater than that of the parent (%s bits).", childrenLength, limitedLength)
         postState3.withPos(endBitPos, -1, Nope)
       }
       case _ => postState3
@@ -165,21 +178,23 @@ abstract class SpecifiedLengthParserBase(eParser: Parser,
 class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   pattern: String,
-  knownEncodingStringBitLengthFunction: String => Int)
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingStringBitLengthFunction)
+      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
     }
   }
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val in = start.inStream
 
-    val reader = in.getCharReader(charset, start.bitPos)
+    val reader = in.getCharReader(dcharset.charset, start.bitPos)
 
     val result = d.get.parseInputPatterned(pattern, reader, start)
 
@@ -196,7 +211,7 @@ class SpecifiedLengthPatternParser(
 class SpecifiedLengthExplicitBitsParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   length: CompiledExpression,
   toBits: Int)
   extends SpecifiedLengthParserBase(eParser, erd) {
@@ -205,8 +220,8 @@ class SpecifiedLengthExplicitBitsParser(
   // function and getLength are all copied in numerous places 
 
   def getBitLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
 
     (start, nBytes * toBits)
@@ -241,7 +256,7 @@ class SpecifiedLengthExplicitBitsFixedParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nBits: Long,
-  charset: Charset)
+  dcharset: DFDLCharset)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
@@ -271,38 +286,42 @@ class SpecifiedLengthExplicitBitsFixedParser(
 class SpecifiedLengthExplicitBytesParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   length: CompiledExpression)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   def getLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
-
+    val limit = start.bitLimit0b
+    val lenAvailable = start.bitLimit0b - start.bitPos0b
     val (pState, nBytes) = getLength(start)
     val in = pState.inStream
-
-    try {
-      val bytes = in.getBytes(pState.bitPos, nBytes)
-      val endBitPos = pState.bitPos + (nBytes * 8)
-      val postEState = parse(pState, endBitPos)
-      return postEState
+    val bytes = try {
+      in.getBytes(pState.bitPos, nBytes)
     } catch {
       case ex: IndexOutOfBoundsException => {
+        PE("Insufficient data. Required %s bytes.%s", nBytes,
+          {
+
+            if (limit != -1) " Only %s bytes were available.".format(scala.math.ceil(lenAvailable / 8.0).toLong)
+            else ""
+          })
         // Insufficient bytes in field, but we need to still allow processing
         // to test for Nils
-        val endBitPos = start.bitPos + 0
-        val postEState = parse(start, endBitPos)
-        return postEState
+        //        val endBitPos = start.bitPos + 0
+        //        val postEState = parse(start, endBitPos)
+        //        return postEState
       }
-      case u: UnsuppressableException => throw u
-      case ex: Exception => { return PE(pState, "SpecifiedLengthExplicitBytesParser - Exception: \n%s", ex.getStackTraceString) }
     }
+    val endBitPos = pState.bitPos + (nBytes * 8)
+    val postEState = parse(pState, endBitPos)
+    return postEState
   }
 }
 
@@ -310,7 +329,7 @@ class SpecifiedLengthExplicitBytesFixedParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nBytes: Long,
-  charset: Charset)
+  dcharset: DFDLCharset)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
@@ -339,20 +358,22 @@ class SpecifiedLengthExplicitCharactersFixedParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nChars: Long,
-  charset: Charset,
-  knownEncodingStringBitLengthFunction: String => Int)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  dcharset: DFDLCharset,
+  val knownEncodingIsFixedWidth: Boolean,
+  val knownEncodingWidthInBits: Int,
+  val knownEncodingName: String)
+  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
 
     val in = start.inStream
-    val rdr = in.getCharReader(charset, start.bitPos)
+    val rdr = in.getCharReader(dcharset.charset, start.bitPos)
     val field = rdr.getStringInChars(nChars.toInt).toString() // TODO: Don't we want getStringInChars to accept Long?!
     val fieldLength = field.length
     val endBitPos =
       if (fieldLength != nChars.toInt) start.bitPos + 0 // no match == length is zero!
       else {
-        val numBits = knownEncodingStringBitLengthFunction(field)
+        val numBits = knownEncodingStringBitLength(field)
         start.bitPos + numBits
       }
     val postEState = parse(start, endBitPos)
@@ -363,14 +384,16 @@ class SpecifiedLengthExplicitCharactersFixedParser(
 class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  charset: Charset,
+  dcharset: DFDLCharset,
   length: CompiledExpression,
-  knownEncodingStringBitLengthFunction: String => Int)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  val knownEncodingIsFixedWidth: Boolean,
+  val knownEncodingWidthInBits: Int,
+  val knownEncodingName: String)
+  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin with AsIntMixin {
 
   def getLength(s: PState): (PState, Long) = {
-    val R(nBytesAsAny, newVMap) = length.evaluate(s.parentElement, s.variableMap, s)
-    val nBytes = nBytesAsAny.asInstanceOf[Long]
+    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytes = asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }
@@ -379,14 +402,14 @@ class SpecifiedLengthExplicitCharactersParser(
 
     val (pState, nChars) = getLength(start)
     val in = pState.inStream
-    val rdr = in.getCharReader(charset, pState.bitPos)
+    val rdr = in.getCharReader(dcharset.charset, pState.bitPos)
 
     val field = rdr.getStringInChars(nChars.toInt).toString()
     val fieldLength = field.length
     val endBitPos =
       if (fieldLength != nChars.toInt) pState.bitPos + 0 // no match == length is zero!
       else {
-        val numBits = knownEncodingStringBitLengthFunction(field)
+        val numBits = knownEncodingStringBitLength(field)
         pState.bitPos + numBits
       }
 

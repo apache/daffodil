@@ -87,4 +87,7 @@ object Tak {
     println("Done calibrating")
   }
 
+  def main(args: Array[String]) {
+    testTak
+  }
 }

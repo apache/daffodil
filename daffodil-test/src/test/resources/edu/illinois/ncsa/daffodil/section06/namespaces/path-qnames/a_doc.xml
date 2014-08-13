@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a:rootA xmlns:a="ns_a" xmlns:b="ns_b" xmlns:d="ns_d"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="ns_a ./A.xsd ns_b ./B.xsd ns_d ./D.xsd">
+	<b:sally>
+		<bqjane xmlns="ns_b">6</bqjane>
+	</b:sally>
+	<sally1>
+		<aujane>8</aujane>
+	</sally1>
+	<a:sally>
+	    <aqjane>9</aqjane>
+	</a:sally>
+	<sally>
+	     <ntnqjane>10</ntnqjane>
+	</sally>
+	<d:sally>
+		<d:ntnqjane>11</d:ntnqjane>
+	</d:sally>
+</a:rootA>

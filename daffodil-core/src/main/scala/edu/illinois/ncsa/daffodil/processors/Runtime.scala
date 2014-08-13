@@ -2,6 +2,7 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
@@ -9,6 +10,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
@@ -35,6 +37,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolic
 import java.nio.channels.FileChannel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import java.io.ObjectOutputStream
+import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -50,88 +55,32 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
-class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
-  extends SchemaComponentBase(<dp/>, pf)
-  with DFDL.DataProcessor {
+class DataProcessor(val ssrd: SchemaSetRuntimeData)
+  extends DFDL.DataProcessor with HasIsError with Logging {
 
-  private val context = pf.sset
-  override def rethrowAsDiagnostic(th: Throwable) = context.rethrowAsDiagnostic(th)
-
-  private var validationMode: ValidationMode.Type = ValidationMode.Off
-  private var variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
-
-  def setValidationMode(mode: ValidationMode.Type): Unit = { validationMode = mode }
-  def getValidationMode() = validationMode
+  def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
+  def getValidationMode() = ssrd.validationMode
+  def getVariables = ssrd.variables
 
   def setExternalVariables(extVars: Map[String, String]): Unit = {
     val bindings = ExternalVariablesLoader.getVariables(extVars)
-    ExternalVariablesLoader.loadVariables(bindings, context, variables)
-    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
+    ExternalVariablesLoader.loadVariables(bindings, ssrd, ssrd.variables)
+    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
   def setExternalVariables(extVars: File): Unit = {
-    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
+    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
   def setExternalVariables(extVars: Seq[Binding]): Unit = {
-    variables = ExternalVariablesLoader.loadVariables(extVars, context, variables)
-  }
-  def getVariables = variables
-
-  def minMajorJVersion = 1
-  def minMinorJVersion = 7
-  def checkJavaVersion = {
-    val jVersion = {
-      try { System.getProperty("java.version") }
-      catch {
-        case se: SecurityException => context.SDE("Attempted to read property 'java.version' failed due to a SecurityException: \n%s".format(se.getMessage()))
-        case _: Throwable => context.SDE("An invalid 'key' was passed to System.getProperty.")
-      }
-    }
-    val javaVersion = """([0-9])\.([0-9])\.(.*)""".r
-    jVersion match {
-      case javaVersion(major, minor, x) => {
-
-        if (major.toInt < minMajorJVersion) {
-          context.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
-        }
-        if (minor.toInt < minMinorJVersion) {
-          context.SDE("You must run Java 7 (1.7) or higher. You are currently running %s".format(jVersion))
-        }
-      }
-      case _ => {
-        context.SDE("Failed to obtain the Java version.  You must run Java 7 (1.7) or higher.")
-      }
-    }
+    ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
 
-  requiredEvaluations({
-    parser
-    // force creation of the parser value so that all errors are issued
-    // this is in case some compilation happens in the constructors of parsers.
-    rootElem
-  })
+  override def isError = false
 
-  Assert.usage(pf.canProceed)
+  override def getDiagnostics = ssrd.diagnostics
 
-  lazy val processorFactory = pf
-
-  // just delegate to the PF. It has access to the SchemaSet.
-  override def isError = pf.isError
-  override def diagnostics = pf.diagnostics
-
-  //
-  // Last tidbits of compilation. Really this is just accessing the 
-  // result of compilation
-  // 
-  lazy val parser = parser_.value
-  private val parser_ = LV('parser) {
-    ExecutionMode.usingCompilerMode {
-      checkJavaVersion
-      rootElem.document.parser
-    }
-  }
-
-  def save(output: DFDL.Output): Unit = {
-    Assert.notYetImplemented()
+  def save(output: java.io.OutputStream): Unit = {
+    val oos = new ObjectOutputStream(output)
+    oos.writeObject(this)
   }
 
   /**
@@ -141,79 +90,74 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
   def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val scr = this.processorFactory.sset.schemaComponentRegistry
+    val rootERD = ssrd.elementRuntimeData
+
     val initialState =
-      if (rootElem.isScannable &&
-        rootElem.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        rootElem.knownEncodingIsFixedWidth &&
-        rootElem.knownEncodingAlignmentInBits == 8 // byte-aligned characters
+      if (ssrd.isScannable &&
+        ssrd.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        ssrd.knownEncodingIsFixedWidth &&
+        ssrd.knownEncodingAlignmentInBits == 8 // byte-aligned characters
         ) {
         // use simpler text only I/O layer
-        val charsetEncodingName = rootElem.encoding.constantAsString
+        //val charsetEncodingName = rootElem.encoding.constantAsString
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-          rootElem.elementRuntimeData,
-          jis, charsetEncodingName, lengthLimitInBits)
-        PState.createInitialState(scr,
-          rootElem.elementRuntimeData,
+          ssrd.elementRuntimeData,
+          jis, ssrd.charsetEncodingName, lengthLimitInBits)
+        PState.createInitialState(rootERD,
           inStream,
           this)
       } else {
-        PState.createInitialState(scr,
-          rootElem.elementRuntimeData,
+        PState.createInitialState(rootERD,
           input,
           this,
           bitOffset = 0,
           bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
       }
     try {
-      Debugger.init(parser)
+      Debugger.init(ssrd.parser)
       parse(initialState)
     } finally {
-      Debugger.fini(parser)
+      Debugger.fini(ssrd.parser)
     }
   }
 
   def parse(file: File): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
-    val scr = this.processorFactory.sset.schemaComponentRegistry
     val initialState =
-      if (rootElem.isScannable &&
-        rootElem.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        rootElem.knownEncodingIsFixedWidth) {
+      if (ssrd.isScannable &&
+        ssrd.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
+        ssrd.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
-        val charsetEncodingName = rootElem.encoding.constantAsString
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(rootElem.elementRuntimeData,
-          file, charsetEncodingName, -1)
-        PState.createInitialState(scr,
-          rootElem.elementRuntimeData,
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(ssrd.elementRuntimeData,
+          file, ssrd.charsetEncodingName, -1)
+        PState.createInitialState(ssrd.elementRuntimeData,
           inStream,
           this)
       } else {
-        PState.createInitialState(scr,
-          rootElem.elementRuntimeData,
+        PState.createInitialState(ssrd.elementRuntimeData,
           FileChannel.open(file.toPath),
           this,
           bitOffset = 0,
           bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
       }
     try {
-      Debugger.init(parser)
+      Debugger.init(ssrd.parser)
       parse(initialState)
     } finally {
-      Debugger.fini(parser)
+      Debugger.fini(ssrd.parser)
     }
   }
 
-  def parse(initialState: PState) = {
+  def parse(initialState: PState): ParseResult = {
 
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
-        val p = parser
+        val p = ssrd.parser
         val postParseState = { // Not lazy. We want to parse right now.
           try {
-            p.parse1(initialState, rootElem.runtimeData)
+            p.parse1(initialState, ssrd.elementRuntimeData)
           } catch {
             // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
             // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
@@ -241,6 +185,15 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
               initialState.failed(e.th)
               // Assert.invariantFailed("OOLAGException at runtime (should not happen). Caught at DataProcessor level: " + e)
             }
+            case e: TunableLimitExceededError => {
+              initialState.failed(e)
+            }
+            case e: IllegalArgumentException => // if we get one here, then someone threw instead of returning a status. 
+              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
+            case e: IllegalStateException => // if we get one here, then someone threw instead of returning a status. 
+              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
+            case e: NumberFormatException => // if we get one here, then someone threw instead of returning a status. 
+              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
           }
         }
 
@@ -284,8 +237,8 @@ abstract class ParseResult(dp: DataProcessor)
    */
   private def validateWithXerces(state: PState): Unit = {
     if (state.status == Success) {
-      val schemaFileNames = state.mpstate.scr.getSchemas
-      Validator.validateXMLSources(schemaFileNames.get, result)
+      val schemaFileNames = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaFileNames
+      Validator.validateXMLSources(schemaFileNames, result)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
@@ -323,21 +276,19 @@ abstract class ParseResult(dp: DataProcessor)
 
   lazy val result =
     if (postParseState.status == Success) {
-      if (resultAsJDOMDocument.hasRootElement()) XMLUtils.element2Elem(resultAsJDOMDocument.getRootElement())
-      else <dafint:document xmlns:dafint={ XMLUtils.INT_NS }/>
+      resultAsScalaXMLElement
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 
-  lazy val resultAsJDOMDocument =
+  lazy val resultAsScalaXMLElement =
     if (postParseState.status == Success) {
-      val xmlClean =
-        if (postParseState.infoset.jdomElt.isDefined) {
-          val e = postParseState.infoset.jdomElt.get
-          XMLUtils.removeHiddenElements(e)
-          XMLUtils.removeAttributesJDOM(e, Seq(Namespace.getNamespace(XMLUtils.INT_PREFIX, XMLUtils.INT_NS)))
-          e.getDocument()
-        } else Assert.impossibleCase() // Shouldn't happen, success means there IS a result.
+      val xmlClean = {
+        val nodeSeq = postParseState.infoset.toXML
+        val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
+        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden, Seq(XMLUtils.INT_NS_OBJECT))
+        eNoAttribs
+      }
       xmlClean
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))

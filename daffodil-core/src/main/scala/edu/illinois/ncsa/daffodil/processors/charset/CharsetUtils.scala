@@ -38,6 +38,11 @@ import com.ibm.icu.charset.CharsetICU
 import java.nio.charset.IllegalCharsetNameException
 import java.io.UnsupportedEncodingException
 
+class DFDLCharset(val charsetName: String) extends Serializable {
+  charset // Force charset to be evaluted to ensure it's valid at compile time.  It's a lazy val so it will be evaluated when de-serialized
+  @transient lazy val charset = CharsetUtils.getCharset(charsetName)
+}
+
 object CharsetUtils {
 
   def getCharset(charsetName: String): Charset = {

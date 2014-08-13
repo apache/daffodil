@@ -46,7 +46,7 @@ abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaCompone
   val xml = xmlArg
   val aaa_xml = xml // for debugging, so we don't have to scroll down.
 
-  def schemaComponent = this
+  //def schemaComponent = this
   /**
    * override in derived class to narrow the result type.
    *

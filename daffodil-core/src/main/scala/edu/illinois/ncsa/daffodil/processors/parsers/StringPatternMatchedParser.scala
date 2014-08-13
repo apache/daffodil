@@ -13,10 +13,13 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Padded
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 
-class StringPatternMatchedParser(charset: Charset, pattern: String,
+class StringPatternMatchedParser(dcharset: DFDLCharset, pattern: String,
   erd: ElementRuntimeData,
-  stringBitLengthFunction: String => Int,
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String,
   override val justificationTrim: TextJustificationType.Type,
   override val padChar: String)
   extends PrimParser(erd) with TextReader with HasPadding {
@@ -25,7 +28,7 @@ class StringPatternMatchedParser(charset: Charset, pattern: String,
 
   lazy val dp = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(stringBitLengthFunction)
+      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
     }
   }
 
@@ -45,7 +48,7 @@ class StringPatternMatchedParser(charset: Charset, pattern: String,
 
     log(LogLevel.Debug, "Retrieving reader")
 
-    val reader = getReader(charset, start.bitPos, start)
+    val reader = getReader(dcharset.charset, start.bitPos, start)
 
     val result = dp.get.parseInputPatterned(pattern, reader, start)
 
@@ -54,8 +57,7 @@ class StringPatternMatchedParser(charset: Charset, pattern: String,
         // A no match means zero length.  
         // Because we check for Nil first, this is valid and allowed.
         // Since it's zero length, the start state is the end state. 
-        val currentElement = start.parentElement
-        currentElement.setDataValue("") // empty string is the value.
+        start.simpleElement.setDataValue("") // empty string is the value.
         start
       }
       case s: DelimParseSuccess => {
@@ -64,9 +66,8 @@ class StringPatternMatchedParser(charset: Charset, pattern: String,
         log(LogLevel.Debug, "StringPatternMatched - Ended at bit position %s", endBitPos)
 
         val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
-        val currentElement = start.parentElement
         val field = trimByJustification(s.field)
-        currentElement.setDataValue(field)
+        start.simpleElement.setDataValue(field)
         start.withPos(endBitPos, endCharPos, One(s.next))
       }
 
