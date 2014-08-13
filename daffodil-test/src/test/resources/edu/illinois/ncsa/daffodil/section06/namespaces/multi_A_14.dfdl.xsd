@@ -15,7 +15,7 @@
   <xs:element name="nestSequence">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="nestSeq" ref="b14:nest"/>
+        <xs:element ref="b14:nest"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
