@@ -295,7 +295,7 @@ class Delimiters(delimDFAs: DFADelimiter, delims: List[String])
  * Here allTerminatingMarkup is a List[(CompiledExpression, ElementName, ElementPath)]
  */
 sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE, elemBase: ElementBase) extends Logging {
+  context: ThrowsSDE) extends Logging {
 
   // These static delims are used whether we're static or dynamic
   // because even a dynamic can have some static from enclosing scopes.
@@ -307,7 +307,7 @@ sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledE
 
   val dynamicDelimsRaw = allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }
 
-  val staticDelimsCooked = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, elemBase).cooked }).flatten
+  val staticDelimsCooked = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, context).cooked }).flatten
   val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
 
   /**
@@ -316,7 +316,7 @@ sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledE
   def errorIfDelimsHaveWSPStar(delims: List[String], ctxt: ThrowsSDE): Unit = {
     if (delims.filter(x => x == "%WSP*;").length > 0) {
       // We cannot detect this error until expressions have been evaluated!
-      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", elemBase.toString())
+      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", context.toString())
       ctxt.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
     }
   }
@@ -327,28 +327,26 @@ sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledE
     constValue
   }
 
-  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap])
+  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap])
 
 }
 
 case class DelimiterFactoryStatic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE,
-  elemBase: ElementBase)
-  extends DelimiterFactoryBase(allTerminatingMarkup, context, elemBase) {
+  context: ThrowsSDE)
+  extends DelimiterFactoryBase(allTerminatingMarkup, context) {
 
-  errorIfDelimsHaveWSPStar(staticDelimsCooked, elemBase)
+  errorIfDelimsHaveWSPStar(staticDelimsCooked, context)
 
   val delimsMatcher = CreateDelimiterMatcher(staticDelimsDFAs)
 
-  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
+  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
     (staticDelimsDFAs, delimsMatcher, staticDelimsCooked, Some(pstate.variableMap))
   }
 }
 
 case class DelimiterFactoryDynamic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE,
-  elemBase: ElementBase)
-  extends DelimiterFactoryBase(allTerminatingMarkup, context, elemBase)
+  context: ThrowsSDE)
+  extends DelimiterFactoryBase(allTerminatingMarkup, context)
   with Dynamic {
 
   val tmCE = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue }
@@ -361,7 +359,7 @@ case class DelimiterFactoryDynamic(allTerminatingMarkup: List[(CompiledExpressio
     l.cooked
   }
 
-  def getDelims(pstate: PState, elemBase: ElementBase): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
+  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
 
     // Evaluate dynamic delimiters if they exist
     val (afterDelimEval, dynamicDelimsCooked) = evalWithConversion(pstate, dynamicDelimsCached) {
@@ -471,16 +469,14 @@ case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
  */
 sealed abstract class FieldFactoryBase(ef: Option[EscapeSchemeFactoryBase],
   df: DelimiterFactoryBase,
-  context: ThrowsSDE,
-  elemBase: ElementBase) {
+  context: ThrowsSDE) {
 
   def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme])
 }
 case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryStatic],
   df: DelimiterFactoryStatic,
-  context: ThrowsSDE,
-  elemBase: ElementBase)
-  extends FieldFactoryBase(ef, df, context, elemBase) {
+  context: ThrowsSDE)
+  extends FieldFactoryBase(ef, df, context) {
 
   val fieldDFA = {
     val dfa =
@@ -506,9 +502,8 @@ case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryStatic],
 }
 case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
   df: DelimiterFactoryBase,
-  context: ThrowsSDE,
-  elemBase: ElementBase)
-  extends FieldFactoryBase(ef, df, context, elemBase) {
+  context: ThrowsSDE)
+  extends FieldFactoryBase(ef, df, context) {
 
   def getFieldDFA(start: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme]) = {
     val (postEscapeSchemeEvalState, scheme) = {
@@ -519,7 +514,7 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
       } else (start, None)
     }
 
-    val (delims, delimsMatcher, delimsCooked, vars) = df.getDelims(postEscapeSchemeEvalState, elemBase)
+    val (delims, delimsMatcher, delimsCooked, vars) = df.getDelims(postEscapeSchemeEvalState)
 
     // We must feed variable context out of one evaluation and into the next.
     // So that the resulting variable map has the updated status of all evaluated variables.
@@ -719,7 +714,6 @@ abstract class StringDelimited(e: ElementBase)
 
   val eName = e.toString()
   val charset = e.knownEncodingCharset
-  val elemBase = e
 
   val hasDynamicDelims: Boolean =
     e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
@@ -752,8 +746,8 @@ abstract class StringDelimited(e: ElementBase)
         }
       }
       val theScheme =
-        if (isConstant) new EscapeSchemeFactoryStatic(scheme, context)
-        else new EscapeSchemeFactoryDynamic(scheme, context)
+        if (isConstant) new EscapeSchemeFactoryStatic(scheme, context.runtimeData)
+        else new EscapeSchemeFactoryDynamic(scheme, context.runtimeData)
       Some(theScheme)
     } else None
   }
@@ -761,9 +755,9 @@ abstract class StringDelimited(e: ElementBase)
   def createDelimiterFactory: DelimiterFactoryBase = {
     val factory =
       if (hasDynamicDelims) {
-        new DelimiterFactoryDynamic(e.allTerminatingMarkup, context, elemBase)
+        new DelimiterFactoryDynamic(e.allTerminatingMarkup, context.runtimeData)
       } else {
-        new DelimiterFactoryStatic(e.allTerminatingMarkup, context, elemBase)
+        new DelimiterFactoryStatic(e.allTerminatingMarkup, context.runtimeData)
       }
     factory
   }
@@ -775,8 +769,8 @@ abstract class StringDelimited(e: ElementBase)
     val fieldDFAFact =
       if (!hasDynamicDelims && !hasDynamicEscapeScheme)
         new FieldFactoryStatic(escapeSchemeFactory.asInstanceOf[Option[EscapeSchemeFactoryStatic]],
-          delimiterFactory.asInstanceOf[DelimiterFactoryStatic], context, elemBase)
-      else new FieldFactoryDynamic(escapeSchemeFactory, delimiterFactory, context, elemBase)
+          delimiterFactory.asInstanceOf[DelimiterFactoryStatic], context.runtimeData)
+      else new FieldFactoryDynamic(escapeSchemeFactory, delimiterFactory, context.runtimeData)
     fieldDFAFact
   }
 
@@ -784,12 +778,12 @@ abstract class StringDelimited(e: ElementBase)
     val theParserFact = fieldFactory match {
       case ffs: FieldFactoryStatic => {
         val pStatic = new TextDelimitedParserFactoryStatic(
-          justificationTrim, pad, elemBase.knownEncodingStringBitLengthFunction, ffs, context, elemBase)
+          justificationTrim, pad, e.knownEncodingStringBitLengthFunction, ffs, context.runtimeData)
         pStatic
       }
       case ffd: FieldFactoryDynamic => {
         val pDynamic = new TextDelimitedParserFactoryDynamic(
-          justificationTrim, pad, elemBase.knownEncodingStringBitLengthFunction, ffd, context, elemBase)
+          justificationTrim, pad, e.knownEncodingStringBitLengthFunction, ffd, context.runtimeData)
         pDynamic
       }
     }
@@ -803,7 +797,7 @@ abstract class StringDelimited(e: ElementBase)
     if (delims.filter(x => x == "%WSP*;").length > 0) {
       // We cannot detect this error until expressions have been evaluated!
       log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", eName)
-      elemBase.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
+      context.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
     }
   }
 

@@ -798,7 +798,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       e.textStandardExponentRep.isConstant)
 
     val nff = if (isConstant) {
-      new NumberFormatFactoryStatic[S](e, h,
+      new NumberFormatFactoryStatic[S](e.runtimeData, h,
         decSep,
         groupSep,
         e.textStandardExponentRep,
@@ -810,7 +810,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
         roundingMode,
         roundingIncrement)
     } else {
-      new NumberFormatFactoryDynamic[S](e, h,
+      new NumberFormatFactoryDynamic[S](e.runtimeData, h,
         decSep,
         groupSep,
         e.textStandardExponentRep,

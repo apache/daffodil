@@ -377,8 +377,7 @@ sealed abstract class TextDelimitedParserFactoryBase(
   padCharArg: Maybe[Char],
   knownEncFunc: String => Int,
   fieldFact: FieldFactoryBase,
-  context: ThrowsSDE,
-  elemBase: ElementBase) extends Logging {
+  context: ThrowsSDE) extends Logging {
 
   def getParser(state: PState): (PState, TextDelimitedParserBase, List[String])
 
@@ -390,18 +389,18 @@ sealed abstract class TextDelimitedParserFactoryBase(
         case s: EscapeSchemeBlock => {
           val parser =
             new TextDelimitedParserWithEscapeBlock(justArg, padCharArg,
-              elemBase.knownEncodingStringBitLengthFunction, delims,
+              knownEncFunc, delims,
               fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA)
           parser
         }
         case s: EscapeSchemeChar => {
           val parser = new TextDelimitedParser(justArg, padCharArg,
-            elemBase.knownEncodingStringBitLengthFunction, delims, fieldDFA)
+            knownEncFunc, delims, fieldDFA)
           parser
         }
       }
     } else {
-      val parser = new TextDelimitedParser(justArg, padCharArg, elemBase.knownEncodingStringBitLengthFunction, delims, fieldDFA)
+      val parser = new TextDelimitedParser(justArg, padCharArg, knownEncFunc, delims, fieldDFA)
       parser
     }
     (postEvalState, theParser, delimsCooked)
@@ -417,15 +416,13 @@ case class TextDelimitedParserFactoryStatic(
   padCharArg: Maybe[Char],
   knownEncFunc: String => Int,
   fieldFact: FieldFactoryStatic,
-  context: ThrowsSDE,
-  elemBase: ElementBase)
+  context: ThrowsSDE)
   extends TextDelimitedParserFactoryBase(
     justArg,
     padCharArg,
     knownEncFunc,
     fieldFact,
-    context,
-    elemBase) {
+    context) {
 
   /**
    * Parser is instantiated and the fields are set at
@@ -446,15 +443,13 @@ case class TextDelimitedParserFactoryDynamic(
   padCharArg: Maybe[Char],
   knownEncFunc: String => Int,
   fieldFact: FieldFactoryDynamic,
-  context: ThrowsSDE,
-  elemBase: ElementBase)
+  context: ThrowsSDE)
   extends TextDelimitedParserFactoryBase(
     justArg,
     padCharArg,
     knownEncFunc,
     fieldFact,
-    context,
-    elemBase) {
+    context) {
 
   def getParser(state: PState): (PState, TextDelimitedParserBase, List[String]) = constructParser(state)
 

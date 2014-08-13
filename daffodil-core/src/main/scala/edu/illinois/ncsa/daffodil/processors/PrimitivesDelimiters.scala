@@ -66,11 +66,11 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
-
-  val delimValues = new StaticTextDelimiterValues(delim, e)
+  
+  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.runtimeData)
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
-  def parser: DaffodilParser = new StaticTextParser(e, delimValues, kindString, textParser, this, eb)
+  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.knownEncodingStringBitLengthFunction, e.knownEncodingCharset)
 
   def unparser: Unparser = new Unparser(e) {
     val t = e.asInstanceOf[Term]
@@ -142,6 +142,8 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
         }
         case None => ""
       }
+    } else {
+      ""
     }
   }
 
@@ -231,10 +233,10 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   extends Text(e, e, guard)
   with DelimiterText {
 
-  val delimValues = new DynamicTextDelimiterValues(delimExpr, e)
+  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.runtimeData)
   val textParser = new TextParser(e.knownEncodingStringBitLengthFunction)
 
-  def parser: DaffodilParser = new DynamicTextParser(e, delimExpr, delimValues, kindString, textParser, this, e)
+  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.knownEncodingStringBitLengthFunction, e.knownEncodingCharset)
 
   /*
   def unparser: Unparser = new Unparser(e) {
