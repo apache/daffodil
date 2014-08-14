@@ -13,6 +13,7 @@
   <xs:element name="nestSequence" dfdl:terminator="">
     <xs:complexType>
       <xs:sequence dfdl:separator="|" dfdl:terminator="">
+        <!-- The error below (no dfdl prefix for textStringJustification) is intentional! Please do not fix. -->
         <xs:element ref="b12:nest" textStringJustification="left" dfdl:lengthKind="delimited" dfdl:occursCountKind="parsed" maxOccurs="unbounded"/>
       </xs:sequence>
     </xs:complexType>
