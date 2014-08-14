@@ -222,7 +222,8 @@
     <tdml:document />
 
     <tdml:errors>
-      <tdml:error>variable</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>variajble</tdml:error>
       <tdml:error>twice</tdml:error>
       <tdml:error>v_no_default</tdml:error>
     </tdml:errors>

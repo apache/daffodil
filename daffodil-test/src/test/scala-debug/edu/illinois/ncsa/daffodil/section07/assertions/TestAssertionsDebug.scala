@@ -45,4 +45,7 @@ class TestAssertionsDebug {
 
   @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
   @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }
+  
+  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
+  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
 }

@@ -2180,11 +2180,11 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <dateTime01>
+        <dateTime02>
           <date>1996-03-31+00:00</date>
           <time>04:55:30.000000-08:00</time>
           <dateTime>1996-03-30T04:55:30.000000-08:00</dateTime>
-        </dateTime01>
+        </dateTime02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

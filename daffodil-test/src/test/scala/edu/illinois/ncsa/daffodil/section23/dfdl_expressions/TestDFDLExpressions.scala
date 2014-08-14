@@ -267,7 +267,7 @@ class TestDFDLExpressions {
   @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }
   @Test def test_integer_constructor_03() { runner2.runOneTest("integer_constructor_03") }
   @Test def test_integer_constructor_04() { runner2.runOneTest("integer_constructor_04") }
-  //  DFDL-818
+  //  DFDL-819
   //  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   //  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
   @Test def test_integer_constructor_07() { runner2.runOneTest("integer_constructor_07") }
