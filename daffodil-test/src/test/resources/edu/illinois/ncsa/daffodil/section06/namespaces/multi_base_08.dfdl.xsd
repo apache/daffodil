@@ -3,6 +3,8 @@
    targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:c08="http://c08.com" xmlns:a08="http://a08.com" xmlns:b08="http://b08.com">
 
   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+  <xs:import namespace="http://a08.com" schemaLocation="multi_A_08.dfdl.xsd" />
+  <xs:import namespace="http://b08.com" schemaLocation="multi_B_08_classpath.dfdl.xsd" />
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -22,8 +24,8 @@
   <xs:element name="base2">
     <xs:complexType>
       <xs:sequence dfdl:separator=",">
-        <xs:element ref="b08:bElem"/>   
-        <xs:element name="baseString" type="xs:string" dfdl:lengthKind="delimited"/>   
+        <xs:element ref="b08:bElem"/>
+        <xs:element name="baseString" maxOccurs="unbounded" type="xs:string" dfdl:lengthKind="delimited"/>   
       </xs:sequence>
     </xs:complexType>
   </xs:element>
