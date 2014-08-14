@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:foo="http://foo.com">
+
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+ 
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="daffodilTest1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        ignoreCase="no" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" occursCountKind="parsed" lengthKind="delimited" representation="text" textNumberRep="standard" encoding="ASCII"/>
+    </xs:appinfo>
+  </xs:annotation>
+  
+  <xs:import namespace="http://foo.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_11.dfdl.xsd"/>
+ 
+  <!-- notAString is of type foo:string, which is a simpleType with an xs:int restriction base -->
+  <xs:element name="notAString" type="foo:string"/>
+  
+  <!-- notAString is of type foo:stringy, which is a simpleType with an xs:int restriction base -->
+  <xs:element name="notAStringy" type="foo:string"/>
+  
+  <!-- notAString2 uses an overridden definition of foo, which has no stringy type -->
+  <xs:element name="notAStringy2" type="foo:stringy"/>
+  
+  <foo:element xmlns:foo="http://www.w3.org/2001/XMLSchema" xmlns:bar="http://foo.com" name="notAStringy3" type="bar:stringy">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+  </foo:element>
+    
+
+</xs:schema>

@@ -61,23 +61,6 @@ class TestNamespacesDebug {
   // They will need to be updated to import only the schemas necessary to properly test each case
   // and not include those schemas that they do not use but are causing parser errors.
 
-  @Test def test_combinations_02() {
-    try {
-      // Must turn off the Info logging messages, because those will have the filename in them
-      // which would create a false positive in this test.
-      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-      runner.runOneTest("combinations_02")
-    } finally {
-      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-    }
-  }
-
-  @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
-  @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
-  @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
-  @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
-  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-  @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
 }
