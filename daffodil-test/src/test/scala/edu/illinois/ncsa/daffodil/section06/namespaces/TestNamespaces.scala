@@ -68,17 +68,16 @@ class TestNamespaces {
   // which is the file with the content responsible for the error, not the file
   // of the object where the error was detected.
 
-  // Moved to debug.  See comment in TestNamespacesDebug.scala
-  //  @Test def test_combinations_02() {
-  //    try {
-  //      // Must turn off the Info logging messages, because those will have the filename in them
-  //      // which would create a false positive in this test.
-  //      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
-  //      runner.runOneTest("combinations_02")
-  //    } finally {
-  //      LoggingDefaults.setLoggingLevel(LogLevel.Info)
-  //    }
-  //  }
+  @Test def test_combinations_02() {
+    try {
+      // Must turn off the Info logging messages, because those will have the filename in them
+      // which would create a false positive in this test.
+      LoggingDefaults.setLoggingLevel(LogLevel.Warning)
+      runner.runOneTest("combinations_02")
+    } finally {
+      LoggingDefaults.setLoggingLevel(LogLevel.Info)
+    }
+  }
 
   @Test def test_errorLocations_01() {
     try {
@@ -150,9 +149,8 @@ class TestNamespaces {
 
   @Test def test_namespace_conflict_01() { runner.runOneTest("namespace_conflict_01") }
 
-  // Moved to debug.  See comment in TestNamespacesDebug.scala  
-  //  @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
-  //  @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
+  @Test def test_combinations_03() { runner.runOneTest("combinations_03") }
+  @Test def test_combinations_04() { runner.runOneTest("combinations_04") }
 
   @Test def test_negative_import_01() { runner.runOneTest("negative_import_01") }
 
@@ -180,11 +178,10 @@ class TestNamespaces {
   @Test def test_lion_eater_ambiguity_04() { runner.runOneTest("lion_eater_ambiguity_04") }
   @Test def test_lion_eater_ambiguity_05() { runner.runOneTest("lion_eater_ambiguity_05") }
 
-  // Moved to debug.  See comment in TestNamespacesDebug.scala  
-  //  @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
-  //  @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
-  //  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
-  //  @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
+  @Test def test_namespace_ultra_uniqueness_01() { runner.runOneTest("namespace_ultra_uniqueness_01") }
+  @Test def test_namespace_ultra_uniqueness_02() { runner.runOneTest("namespace_ultra_uniqueness_02") }
+  @Test def test_namespace_ultra_uniqueness_03() { runner.runOneTest("namespace_ultra_uniqueness_03") }
+  @Test def test_namespace_ultra_uniqueness_04() { runner.runOneTest("namespace_ultra_uniqueness_04") }
 
   @Test def test_primTypesPrefixes01() { runner.runOneTest("primTypesPrefixes01") }
   @Test def test_typeNameOverlap_01() { runner.runOneTest("typeNameOverlap_01") }

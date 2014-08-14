@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+   targetNamespace="http://baseSchema.com" xmlns:base="http://baseSchema.com" xmlns:b06="http://b06.com">
+  
+  <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+      
+  <xs:annotation>
+    <xs:appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="daffodilTest1" separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+        separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
+        textNumberRep="standard" lengthKind="delimited" encoding="US-ASCII"
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef=""/>
+    </xs:appinfo>
+  </xs:annotation>
+   
+  <xs:include schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/subfolder/multi_A_06_nons_valid.dfdl.xsd"/>
+  <xs:import namespace="http://b06.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_06_valid.dfdl.xsd"/>
+  <xs:import namespace="http://b06.com" schemaLocation="edu/illinois/ncsa/daffodil/section06/namespaces/multi_B_06_valid.dfdl.xsd"/>
+
+  <xs:element name="baseSeq">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:sequence dfdl:hiddenGroupRef="base:aGroup"/>
+        <xs:element ref="b06:date"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="baseSeq2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:sequence dfdl:hiddenGroupRef="base:aGroup"/>
+        <xs:element ref="b06:date2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="baseSeq3">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:sequence dfdl:hiddenGroupRef="base:aGroup"/>
+        <xs:element ref="b06:date3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="baseSeq4">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element ref="base:cElem" maxOccurs="1" dfdl:terminator="{{" dfdl:occursCountKind="parsed"/>
+        <xs:element ref="b06:cElem" maxOccurs="1" dfdl:terminator="}" dfdl:occursCountKind="parsed"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+ 
+</xs:schema>
