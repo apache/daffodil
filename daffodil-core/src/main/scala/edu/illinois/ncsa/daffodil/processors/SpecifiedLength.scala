@@ -42,7 +42,6 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
     e.knownEncodingCharset,
     e.lengthPattern,
     e.knownEncodingStringBitLengthFunction)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -56,7 +55,6 @@ class SpecifiedLengthExplicitBitsFixed(e: ElementBase, eGram: => Gram, nBits: Lo
     e.elementRuntimeData,
     nBits,
     e.knownEncodingCharset)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -77,7 +75,6 @@ class SpecifiedLengthExplicitBits(e: ElementBase, eGram: => Gram)
     e.knownEncodingCharset,
     e.length,
     toBits)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -91,7 +88,6 @@ class SpecifiedLengthExplicitBytesFixed(e: ElementBase, eGram: => Gram, nBytes: 
     e.elementRuntimeData,
     nBytes,
     e.knownEncodingCharset)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -105,7 +101,6 @@ class SpecifiedLengthExplicitBytes(e: ElementBase, eGram: => Gram)
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.length)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -120,7 +115,6 @@ class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nCh
     nChars,
     e.knownEncodingCharset,
     e.knownEncodingStringBitLengthFunction)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 
@@ -135,7 +129,6 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
     e.knownEncodingCharset,
     e.length,
     e.knownEncodingStringBitLengthFunction)
-  def unparser: Unparser = new DummyUnparser(e)
 
 }
 

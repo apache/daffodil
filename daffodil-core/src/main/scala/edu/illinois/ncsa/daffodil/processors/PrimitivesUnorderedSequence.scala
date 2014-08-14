@@ -98,13 +98,4 @@ class UnorderedSequence private (context: Sequence, eGram: Gram) // private to f
 
   def parser: Parser = new UnorderedSequenceParser(context.modelGroupRuntimeData, sortOrder, scalarMembers, uoSeqParser)
 
-
-  def unparser: Unparser = new Unparser(context) {
-    def unparse(start: UState): UState = {
-      val eUnParser = eGram.unparser
-      val postEState = eUnParser.unparse(start)
-      postEState
-    }
-  }
-
 }

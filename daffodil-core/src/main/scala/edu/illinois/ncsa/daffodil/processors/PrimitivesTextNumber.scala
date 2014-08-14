@@ -827,7 +827,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 
   def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
 
-  def unparser: Unparser = DummyUnparser(e) //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
+ //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {

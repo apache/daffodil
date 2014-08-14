@@ -31,10 +31,4 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
   // with the intention of "find this and this, or find nothing"
 
   def parser = new NadaParser(sc.runtimeData)
-
-  def unparser: Unparser = new Unparser(sc) {
-    override def toString = "Nada"
-
-    def unparse(start: UState): UState = start
-  }
 }

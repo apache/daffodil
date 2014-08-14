@@ -100,7 +100,7 @@ abstract class Gram(contextArg: AnnotatedSchemaComponent)
    */
   def parser: Parser
 
-  def unparser: Unparser
+  final def unparser: Unparser = ???
 }
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
@@ -165,7 +165,6 @@ class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
   def parser = new SeqCompParser(context.runtimeData, children)
-  def unparser = new SeqCompUnparser(context, children)
 }
 
 object AltComp {
@@ -189,7 +188,6 @@ class AltComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   def close = "]"
 
   def parser = new AltCompParser(context.runtimeData, children)
-  def unparser = new AltCompUnparser(context, children)
 }
 
 object EmptyGram extends Gram(null) {
@@ -197,7 +195,6 @@ object EmptyGram extends Gram(null) {
   override def toString = "Empty"
 
   def parser = new EmptyGramParser
-  def unparser = new EmptyGramUnparser
 }
 
 object ErrorGram extends Gram(null) {
@@ -205,7 +202,6 @@ object ErrorGram extends Gram(null) {
   override def toString = "Error"
 
   def parser = new ErrorParser
-  def unparser = new ErrorUnparser
 }
 
 abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context) {
@@ -290,10 +286,6 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
     gram.parser
   }
 
-  lazy val unparser = unparser_.value
-  private val unparser_ = LV('unparser) {
-    gram.unparser
-  }
 }
 
 object Prod {

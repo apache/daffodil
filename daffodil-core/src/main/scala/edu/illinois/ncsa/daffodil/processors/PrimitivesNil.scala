@@ -107,11 +107,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
     }
   }
 
-  override def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 case class LiteralNilExplicitLengthInChars(e: ElementBase)
@@ -140,12 +135,6 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
     e.length,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
-  override def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
-
 }
 
 case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
@@ -173,11 +162,6 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
     e.lengthPattern,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
-  override def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 case class LiteralNilPattern(e: ElementBase)
@@ -202,11 +186,6 @@ case class LiteralNilPattern(e: ElementBase)
     e.name,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
-  override def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)

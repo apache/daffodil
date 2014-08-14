@@ -66,7 +66,6 @@ object RepPrims {
     val intN = n.toInt
     val rParser = r.parser
 
-    final def unparser = new DummyUnparser(context)
   }
 
   abstract class Rep3Arg(f: (LocalElementBase, Long, => Gram) => Gram) {
@@ -141,5 +140,4 @@ case class OccursCountExpression(e: ElementBase)
 
   def parser = new OccursCountExpressionParser(e.occursCount, e.elementRuntimeData)
 
-  def unparser = new DummyUnparser(e)
 }

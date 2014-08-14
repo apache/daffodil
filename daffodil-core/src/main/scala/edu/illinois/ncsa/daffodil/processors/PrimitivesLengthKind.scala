@@ -100,19 +100,11 @@ abstract class StringLength(e: ElementBase)
 
   val padCharChar = optPadChar.map(s => s.charAt(0))
 
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = String.format("%sUnparser(%s)", parserName, lengthText)
-    //    val encoder = e.knownEncodingEncoder
-
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends StringLength(e) {
-    
+
 }
 
 case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
@@ -282,11 +274,6 @@ case class StringPatternMatched(e: ElementBase)
   def parser: DaffodilParser = new StringPatternMatchedParser(charset, pattern, e.elementRuntimeData,
     e.knownEncodingStringBitLengthFunction, justificationTrim, padChar)
 
-  def unparser: Unparser = new Unparser(e) {
-    def unparse(start: UState): UState = {
-      Assert.notYetImplemented()
-    }
-  }
 }
 
 class Delimiters(delimDFAs: DFADelimiter, delims: List[String])
@@ -813,23 +800,6 @@ abstract class StringDelimited(e: ElementBase)
     e.allTerminatingMarkup,
     e.knownEncodingCharset,
     e.knownEncodingStringBitLengthFunction)
-
-  def unparser: Unparser = new Unparser(e) {
-    //    override def toString = cname + "(" + tm.map { _.prettyExpr } + ")"
-    override def toString = cname + "(" + tm.map { case (delimValue, _, _) => delimValue.prettyExpr } + ")"
-
-    def unparse(start: UState): UState =
-      // withLoggingLevel(LogLevel.Info) 
-      {
-        val data = start.currentElement.getText
-
-        val encoder = charset.newEncoder()
-        start.outStream.setEncoder(encoder)
-        start.outStream.fillCharBuffer(data)
-        log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
-        start
-      }
-  }
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
@@ -896,6 +866,5 @@ class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends 
     }
   }
 
-  def unparser = DummyUnparser(term)
 }
 

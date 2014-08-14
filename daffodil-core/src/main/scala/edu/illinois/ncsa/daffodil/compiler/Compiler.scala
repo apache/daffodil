@@ -94,7 +94,6 @@ class ProcessorFactory(val sset: SchemaSet)
         diags.foreach { diag => log(Error(diag.toString())) }
       } else {
         log(Compile("Parser = %s.", dataProc.parser.toString))
-        log(Compile("Unparser = %s.", dataProc.unparser.toString))
         log(Compile("Compilation (DataProcesor) completed with no errors."))
       }
       dataProc

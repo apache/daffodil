@@ -103,14 +103,6 @@ abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAft
 
   def parser: Parser
 
-  def unparser: Unparser = new Unparser(context) {
-    def unparse(start: UState): UState = {
-      // FIXME: setVariables have to execute. We don't do asserts and discriminators when unparsing however.
-      val eUnParser = eGram.unparser
-      val postEState = eUnParser.unparse(start)
-      postEState
-    }
-  }
 }
 
 abstract class StatementElementParserBase(

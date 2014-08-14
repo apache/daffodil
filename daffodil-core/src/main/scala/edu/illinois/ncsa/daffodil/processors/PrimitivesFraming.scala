@@ -55,8 +55,6 @@ case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   }
 
   def parser: DaffodilParser = new LeadingSkipRegionParser(alignment, e.leadingSkip, e.runtimeData)
-
-  def unparser: Unparser = new DummyUnparser(e)
 }
 
 case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
@@ -80,8 +78,6 @@ case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
   }
 
   def parser: Parser = new TrailingSkipRegionParser(alignment, e.trailingSkip, e.runtimeData)
-
-  def unparser: Unparser = new DummyUnparser(e)
 }
 
 case class AlignmentFill(e: Term) extends Terminal(e, true) {
@@ -96,8 +92,6 @@ case class AlignmentFill(e: Term) extends Terminal(e, true) {
   }
 
   def parser: Parser = new AlignmentFillParser(e.alignment, alignment, e.runtimeData)
-
-  def unparser: Unparser = new DummyUnparser(e)
 }
 
 case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)

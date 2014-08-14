@@ -130,14 +130,6 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
     }
   }
 
-  lazy val unparser = unparser_.value
-  private val unparser_ = LV('unparser) {
-    ExecutionMode.usingCompilerMode {
-      checkJavaVersion
-      rootElem.document.unparser
-    }
-  }
-
   def save(output: DFDL.Output): Unit = {
     Assert.notYetImplemented()
   }
@@ -277,54 +269,6 @@ class DataProcessor(pf: ProcessorFactory, val rootElem: GlobalElementDecl)
       pr
     }
   }
-
-  /**
-   * Unparser runtime begins here. Compiler-oriented mechanisms (OOLAG etc.) aren't used in the
-   * runtime. Instead we deal with success and failure statuses.
-   */
-  def unparse(output: DFDL.Output, infoset: scala.xml.Node): DFDL.UnparseResult = {
-    Assert.usage(!this.isError)
-
-    ExecutionMode.usingRuntimeMode {
-      val jdomElem = XMLUtils.elem2Element(infoset)
-      val jdomDoc = new org.jdom2.Document(jdomElem)
-      val initialState = UState.createInitialState(rootElem, output, jdomDoc) // also want to pass here the externally set variables, other flags/settings.
-
-      val uRes = new UnparseResult(this) {
-        val resultState = { // Not lazy. We want to unparse right now.
-
-          try {
-            unparser.unparse(initialState)
-          } catch {
-            // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
-            // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
-            // exception handling construct.
-            //
-            // But we might not catch everything inside...
-            //
-            case pe: UnparseError => {
-              // if we get one here, then someone threw instead of returning a status. 
-              Assert.invariantFailed("UnparseError caught. UnparseErrors should be returned as failed status, not thrown. Fix please.")
-            }
-            case procErr: ProcessingError => {
-              Assert.invariantFailed("got a processing error that was not an unparse error. This is the unparser!")
-            }
-            case sde: SchemaDefinitionError => {
-              // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-              // These are fatal, and there's no notion of backtracking them, so they propagate to top level here.
-              initialState.failed(sde)
-            }
-            case e: OOLAGException => {
-              Assert.invariantFailed("OOLAGExceptions like " + e.toString() + " are compiler stuff. This is runtime.")
-            }
-          }
-        }
-        //write unparsed result to outputStream
-        resultState.outStream.write()
-      }
-      uRes
-    }
-  }
 }
 
 abstract class ParseResult(dp: DataProcessor)
@@ -399,11 +343,3 @@ abstract class ParseResult(dp: DataProcessor)
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 }
-
-abstract class UnparseResult(dp: DataProcessor)
-  extends DFDL.UnparseResult
-  with WithDiagnosticsImpl {
-
-  override def resultState: UState
-}
-

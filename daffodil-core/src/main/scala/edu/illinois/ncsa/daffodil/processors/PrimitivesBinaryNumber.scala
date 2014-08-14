@@ -113,7 +113,7 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
   protected val GramName = e.primType.name
   protected val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }
 
-  def unparser = DummyUnparser
+
 }
 
 class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)

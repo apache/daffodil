@@ -54,7 +54,6 @@ import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParse
 import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
 import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 
-
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
   xmlForNamespaceResolution: Node,
@@ -77,8 +76,6 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   override lazy val exprText = exprWithBraces
   override lazy val exprXMLForNamespace = xmlForNamespaceResolution
   override lazy val exprComponent = scWherePropertyWasLocated
-
-  def unparser = DummyUnparser
 
   def parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
 
@@ -126,7 +123,6 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   lazy val expandedTypeName = stmt.defv.extType
 
   def parser: DaffodilParser = new SetVariableParser(expr, decl.runtimeData, stmt.defv.extName)
-  def unparser = DummyUnparser
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
@@ -139,17 +135,12 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
-
-  def unparser: Unparser = Assert.notYetImplemented()
-
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
-
-  def unparser: Unparser = Assert.notYetImplemented()
 }
 
 /**
@@ -200,7 +191,6 @@ case class InputValueCalc(e: ElementBase)
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
-  def unparser = DummyUnparser
 }
 
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
@@ -212,8 +202,6 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
   lazy val charset = decl.knownEncodingCharset
 
   def parser: DaffodilParser
-  def unparser: Unparser
-
 }
 
 case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
@@ -229,12 +217,6 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   def parser: DaffodilParser = new AssertPatternParser(eName, kindString, charset, d, decl.runtimeData, stmt)
 
-  def unparser: Unparser = new Unparser(decl) {
-
-    def unparse(start: UState): UState = {
-      start
-    }
-  }
 }
 
 case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
@@ -249,13 +231,6 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
   }
 
   def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, charset, d, decl.runtimeData, stmt, this)
-
-  def unparser: Unparser = new Unparser(decl) {
-
-    def unparse(start: UState): UState = {
-      start
-    }
-  }
 }
 
 trait TextReader extends Logging {

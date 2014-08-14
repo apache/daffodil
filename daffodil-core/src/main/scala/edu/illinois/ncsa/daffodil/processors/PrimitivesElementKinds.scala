@@ -47,58 +47,19 @@ import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
 
-
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
   def parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
-
-  def unparser: Unparser = new Unparser(ct.element) {
-    override def toString = "ComplexType"
-
-    val bodyUnparser = body.unparser
-
-    def unparse(start: UState): UState = {
-      //start.mpstate.childIndexStack.push(1L)
-      //val parseState = bodyUnparser.unparse(start)
-      //start.mpstate.childIndexStack.pop()
-      start
-    }
-  }
 }
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
   def parser: DaffodilParser = new SequenceCombinatorParser(sq.runtimeData, body.parser)
-  
-  def unparser: Unparser = new Unparser(sq) {
-    override def toString = "Sequence"
-
-    def unparse(start: UState): UState = {
-      val postState = start.withGroupIndexStack(1L :: start.groupIndexStack)
-      postState
-    }
-  }
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
   def parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
 
-  def unparser: Unparser = new Unparser(e) {
-    override def toString = "Array"
-
-    val bodyUnparser = body.unparser
-
-    def unparse(start: UState): UState = {
-      val preState = start.withArrayIndexStack(1L :: start.arrayIndexStack)
-
-      val unparseState = bodyUnparser.unparse(preState)
-      if (unparseState.status != Success) return unparseState
-
-      val postState = unparseState.withArrayIndexStack(unparseState.arrayIndexStack.tail)
-      postState
-    }
-  }
 }
-
 

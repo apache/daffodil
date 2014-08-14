@@ -206,7 +206,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
 
   def parser: Parser = new ConvertTextCalendarParser(e.elementRuntimeData, xsdType, prettyType, dataFormatter, infosetFormatter)
 
-  def unparser: Unparser = DummyUnparser(e)
+
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

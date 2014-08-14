@@ -47,7 +47,6 @@ class TestGrammar {
   val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.fakeSD).forRoot()
   case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = Assert.notYetImplemented()
-    def unparser: Unparser = Assert.notYetImplemented()
   }
   //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)
   //  case class Primitive3(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)

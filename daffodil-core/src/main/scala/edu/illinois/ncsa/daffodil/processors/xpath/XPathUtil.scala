@@ -105,7 +105,6 @@ import com.ibm.icu.text.DateFormat
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.GregorianCalendar
-import edu.illinois.ncsa.daffodil.processors.UState
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import scala.math.BigDecimal
@@ -124,10 +123,6 @@ abstract class DFDLFunction(val name: String, val arity: Int) extends XPathFunct
     val currentElement = pstate.parentElement
     val res = currentElement.schemaComponent(pstate)
     res
-  }
-
-  def getContext(ustate: UState): ElementRuntimeData = {
-    Assert.notYetImplemented()
   }
 
   // TODO: Do we want to use a List here? Direct access takes time to traverse.
@@ -209,9 +204,6 @@ object DFDLContentLengthFunction extends DFDLFunction("contentLength", 2) {
     //getContext(pstate).schemaDefinitionError("dfdl:contentLength is not valid during parsing.")
     pstate.SDE("dfdl:contentLength is not valid during parsing.")
   }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:contentLength for unparsing")
-  }
 }
 
 object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
@@ -220,9 +212,6 @@ object DFDLValueLengthFunction extends DFDLFunction("valueLength", 2) {
     //getContext(pstate).schemaDefinitionError("dfdl:valueLength is not valid during parsing.")
     pstate.SDE("dfdl:valueLength is not valid during parsing.")
   }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:valueLength for unparsing")
-  }
 }
 
 object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
@@ -230,9 +219,6 @@ object DFDLTestBitFunction extends DFDLFunction("testBit", 2) {
   def evaluate1(args: java.util.List[_], pstate: PState): Object = {
     val (data, bitPos) = processArgs(args, pstate)
     testBit(data, bitPos)
-  }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:testBit for unparsing")
   }
 
   def processArgs(args: java.util.List[_], pstate: PState): (Int, Int) = {
@@ -304,9 +290,7 @@ object DFDLSetBitsFunction extends DFDLFunction("setBits", 8) {
     val context = getContext(pstate)
     setBits(args, pstate)
   }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:setBits for unparsing")
-  }
+
   def processValue(value: Any, pstate: PState): Boolean = {
     value match {
       case i: Integer => {
@@ -371,9 +355,6 @@ object DFDLOccursCountWithDefaultFunction extends DFDLFunction("occursCountWithD
     val context = getContext(pstate)
     Assert.notYetImplemented("dfdl:occursCountWithDefault, defaults aren't implemented")
   }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    Assert.notYetImplemented("dfdl:occursCountWithDefault for unparsing, defaults aren't implemented")
-  }
 }
 
 object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
@@ -387,20 +368,6 @@ object DFDLOccursCountFunction extends DFDLFunction("occursCount", 1) {
       case _ => pstate.SDE("dfdl:occursCount did not receive any nodes, check your path.")
     }
     java.lang.Long.valueOf(occursCount)
-  }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    // TODO: context unable to be retrieved for ustate
-    //    val context = getContext(ustate)
-    //    val x = args.get(0)
-    //    val occursCount = args.get(0) match {
-    //      case ns: NodeSeq => ns.length
-    //      case se: net.sf.saxon.value.SequenceExtent => {
-    //        se.getLength()
-    //      }
-    //      case _ => context.SDE("dfdl:occursCount did not receive a NodeSeq back, check your path.")
-    //    }
-    //    java.lang.Long.valueOf(occursCount)
-    Assert.notYetImplemented("dfdl:occursCount for unparsing")
   }
 }
 
@@ -738,10 +705,6 @@ object DFDLStringLiteralFromStringFunction extends DFDLFunction("stringLiteralFr
     }
     res
   }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    ???
-    // getContext(ustate).notYetImplemented("dfdl:stringLiteralFromString for unparsing")
-  }
 
   def constructLiteral(s: String) = {
     val sb = new StringBuilder
@@ -803,10 +766,6 @@ object DFDLContainsEntityFunction extends DFDLFunction("containsEntity", 1) {
       case _ => pstate.SDE("dfdl:containsEntity%s was not a String.", x)
     }
     res
-  }
-  def evaluate1(args: java.util.List[_], ustate: UState): Object = {
-    ???
-    // getContext(ustate).notYetImplemented("dfdl:containsEntity for unparsing")
   }
 
   def containsEntity(s: String): java.lang.Boolean = {

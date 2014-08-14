@@ -56,7 +56,6 @@ class Fakes private () {
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}
     def getVariables(): VariableMap = EmptyVariableMap
-    def unparse(output: Output, node: scala.xml.Node): UnparseResult = null
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
     def parse(file: File): ParseResult = null
 

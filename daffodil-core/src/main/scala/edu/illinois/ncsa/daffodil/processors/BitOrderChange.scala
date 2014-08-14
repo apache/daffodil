@@ -13,7 +13,7 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 class BitOrderChange(t: Term) extends Terminal(t, true) {
   val bitOrder = t.defaultBitOrder
   def parser = new BitOrderChangeParser(t.runtimeData, bitOrder)
-  def unparser = DummyUnparser
+
 }
 
 class BitOrderChangeParser(t: RuntimeData, bitOrder: BitOrder) extends PrimParser(t) {

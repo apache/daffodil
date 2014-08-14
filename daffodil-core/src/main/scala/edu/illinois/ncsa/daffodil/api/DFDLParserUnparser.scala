@@ -165,7 +165,7 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    def unparse(output: Output, node: scala.xml.Node): UnparseResult
+    final def unparse(output: Output, node: scala.xml.Node): UnparseResult = ???
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.
