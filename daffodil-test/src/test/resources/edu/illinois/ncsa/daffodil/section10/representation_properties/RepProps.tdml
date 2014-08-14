@@ -48,6 +48,46 @@
       </xs:complexType>
     </xs:element>
   </tdml:defineSchema>
+  
+  <!--
+    Test name: temporaryDefaultProps_01
+    Schema: PropertiesNotDefined.dfdl.xsd
+    Purpose: This test demonstrates that there are default values for bitOrder and encodingErrorPolicy (temporarily, see DFDL-994)
+  -->
+
+  <tdml:parserTestCase name="temporaryDefaultProps_01" root="one"
+    model="PropertiesDefined.dfdl.xsd" description="">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">01100010</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <one>b</one>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: temporaryDefaultProps_02
+    Schema: PropertiesNotDefined.dfdl.xsd
+    Purpose: This test demonstrates that there are default values for bitOrder and encodingErrorPolicy (temporarily, see DFDL-994)
+  -->
+
+  <tdml:parserTestCase name="temporaryDefaultProps_02" root="two"
+    model="PropertiesNotDefined.dfdl.xsd" description="">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">64ff67</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <two>d�g</two>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
   <!--
     Test name: repPropMissing

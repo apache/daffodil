@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:format alignment="1"
+          alignmentUnits="bytes" binaryFloatRep="ieee" binaryNumberRep="binary"
+          byteOrder="bigEndian" 
+          documentFinalTerminatorCanBeMissing="no" emptyValueDelimiterPolicy="both"
+          encoding="US-ASCII" escapeSchemeRef="" ignoreCase="no"
+          initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+          lengthUnits="bytes" occursCountKind="parsed" representation="text"
+          separator="" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty"
+          sequenceKind="ordered" terminator="" textNumberCheckPolicy="lax"
+          textNumberRep="standard" textStandardBase="10"
+          textStringJustification="left" textTrimKind="none" trailingSkip="0"
+          utf16Width="fixed" textStandardDecimalSeparator="."
+          textStandardGroupingSeparator="," textStandardExponentRep="E"
+          textStandardZeroRep="0" textStandardInfinityRep="Inf"
+          textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###"
+          textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary"
+          textNumberRoundingIncrement="0"
+          calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
+          calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
+          calendarCheckPolicy='strict' calendarLanguage='en'/> 
+      </appinfo>
+    </annotation>
+
+    <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" dfdl:representation="binary" />
+    <xs:element name="two" type="xs:string" dfdl:encoding="ASCII"/>
+    
+    <xs:element name="leastFirst" dfdl:lengthKind='implicit' dfdl:alignmentUnits="bits" dfdl:representation="binary">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="A" type="xs:int" dfdl:length="3" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits" />
+          <xs:element name="B" type="xs:int" dfdl:length="7" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"/>
+          <xs:element name="C" type="xs:int" dfdl:length="4" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"/>
+          <xs:element name="D" type="xs:int" dfdl:length="2" dfdl:alignmentUnits="bits" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bits"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</schema>
