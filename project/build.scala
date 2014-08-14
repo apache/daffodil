@@ -20,7 +20,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, core, runtime1, tdml, testIBM1, cli, test, examples)
+                    .aggregate(propgen, lib, io, core, tdml, testIBM1, cli, test, examples)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
@@ -42,16 +42,21 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(io) 
 
-  lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
-                             .configs(DebugTest)
-                             .configs(NewTest)
-                             .dependsOn(core % "compile->compile;test->test") // test in core has utilities that test in runtime1 needs.
+//
+// Keep as illustration of how to make test code depend on another module's
+// test code. Use case is test utility libraries in one module that want
+// to be shared, but are only used for testing. 
+//
+//   lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
+//                              .configs(DebugTest)
+//                             .configs(NewTest)
+//                             .dependsOn(core % "compile->compile;test->test") // //  test in core has utilities that test in runtime1 needs.
+//
 
-                             
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(runtime1)
+                             .dependsOn(core)
                              
   lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings ++ stageTaskSettings)
                              .configs(DebugTest)
