@@ -61,7 +61,7 @@ class TestDFDLExpressionsDebug {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  //  DFDL-818
+  //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
 
@@ -75,11 +75,14 @@ class TestDFDLExpressionsDebug {
   @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
   @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
 
+  // DFDL-710
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
+  // DFDL-581
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
 
+  // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 

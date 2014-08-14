@@ -49,4 +49,5 @@ class TestVariablesDebug {
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
 
+  @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
 }
