@@ -44,7 +44,7 @@ Change History
 This DFDL schema provides a DFDL model for PCAP v2.4 binary data, which
 contains network packet capture data.
 
-The message root is 'pcap'.
+The message root is 'PCAP'.
 -->
 
 
