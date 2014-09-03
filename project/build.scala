@@ -319,9 +319,9 @@ object DaffodilBuild extends Build {
         // not on a tag
 
         // get the current branch
-        val branch = exec("git rev-parse --abbrev-ref HEAD")
+        val branch = exec("git rev-parse --symbolic-full-name HEAD")
         assert(branch.length == 1)
-        val VersionBranchRegex = """^(\d+\.\d+\.\d+)$""".r
+        val VersionBranchRegex = """^refs/heads/(\d+\.\d+\.\d+)$""".r
         branch(0) match {
           case "HEAD" => {
             // not on the tip of a branch
@@ -331,10 +331,10 @@ object DaffodilBuild extends Build {
             // we are developing on a version branch, create a snapshot
             versionBranch + "-SNAPSHOT"
           }
-          case _ => {
+          case branch => {
             // not on a version branch (e.g. a review branch), try to figure
             // out the tracking branch
-            val trackingBranch = exec("git for-each-ref --format=%(upstream:short) refs/heads/" + branch(0))
+            val trackingBranch = exec("git for-each-ref --format=%(upstream:short) " + branch)
             assert(trackingBranch.length == 1)
             val TrackingBranchRegex = """^[^/]+/(\d+\.\d+\.\d+)$""".r
             trackingBranch(0) match {
