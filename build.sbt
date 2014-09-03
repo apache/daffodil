@@ -58,19 +58,22 @@ publishTo in ThisBuild <<= version { (v: String) =>
 pomIncludeRepository in ThisBuild := { _ => false }
 
 pomExtra in ThisBuild := (
-  <scm>
-    <url>https://opensource.ncsa.illinois.edu/fisheye/changelog/dfdl</url>
-    <connection>scm:git:https://opensource.ncsa.illinois.edu/fisheye/git/dfdl.git</connection>
-  </scm>
   <developers>
     <developer>
-      <id>Tresys</id>
-      <name>Tresys</name>
+      <id>Tresys Technology</id>
+      <name>Tresys Technology</name>
       <url>http://www.tresys.com</url>
     </developer>
   </developers>
 )
 
-licenses := Seq("University of Illinois/NCSA Open Source License" -> url("http://opensource.org/licenses/UoI-NCSA.php"))
+scmInfo := Some(
+  ScmInfo(
+    browseUrl = url("https://opensource.ncsa.illinois.edu/stash/projects/DFDL/repos/daffodil/browse"),
+    connection = "scm:git:https://opensource.ncsa.illinois.edu/stash/scm/dfdl/daffodil.git"
+  )
+)
 
-homepage := Some(url("https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Home"))
+licenses in ThisBuild := Seq("University of Illinois/NCSA Open Source License" -> url("http://opensource.org/licenses/UoI-NCSA.php"))
+
+homepage in ThisBuild := Some(url("https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Home"))

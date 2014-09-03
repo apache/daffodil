@@ -9,18 +9,34 @@ import org.apache.commons.compress.archivers.ArchiveOutputStream
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
+import com.typesafe.sbt.SbtLicenseReport.autoImportImpl._
+import com.typesafe.sbt.license.LicenseInfo
+import com.typesafe.sbt.license.DepModuleInfo
 
 
 object DaffodilBuild extends Build {
 
   var s = Defaults.defaultSettings
 
-  lazy val example = Project(id = "daffodil-example", base = file("."), settings = s)
+  val licenseSettings = Seq(
+    licenseReportTitle := "Daffodil Licenses",
+    licenseSelection := Seq(LicenseCategory("NCSA"), LicenseCategory("ICU")) ++ LicenseCategory.all,
+    licenseOverrides := {
+      case DepModuleInfo("commons-io", "commons-io", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("net.sf.expectit", "expectit-core", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("xml-resolver", "xml-resolver", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("org.scala-tools.testing", "test-interface", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/sbt/test-interface/blob/master/LICENSE")
+      case DepModuleInfo("org.hamcrest", "hamcrest-core", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/hamcrest/JavaHamcrest/blob/master/LICENSE.txt")
+    }
+  )
+
+  lazy val example = Project(id = "daffodil-example", base = file("."), settings = s ++ licenseSettings)
 
   val packFileList = Seq(
     "bin" -> "/bin",
     "README" -> "/README",
-    "../daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/" -> "/examples"
+    "../daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/" -> "/examples",
+    "target/license-reports/Daffodil Licenses.html" -> "/LICENSES.html"
   )
 
   lazy val packTask = TaskKey[Unit]("pack", "Generate distributable pack files", KeyRanks.APlusTask)
@@ -28,13 +44,13 @@ object DaffodilBuild extends Build {
   s ++= packTaskSettings
 
   lazy val tarTask = TaskKey[Unit]("pack-tar", "Generate a distributable tar file", KeyRanks.APlusTask)
-  lazy val tarTaskSettings = tarTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
+  lazy val tarTaskSettings = tarTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget, dumpLicenseReport) map { (cp, n, v, t, d) =>
     packFiles(t / "pack", n, v, packFileList, cp.files, "tar.bz2", createTarBZ2Archiver)
   }
   s ++= tarTaskSettings
 
   lazy val zipTask = TaskKey[Unit]("pack-zip", "Generate a distributable zip file", KeyRanks.APlusTask)
-  lazy val zipTaskSettings = zipTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget) map { (cp, n, v, t) =>
+  lazy val zipTaskSettings = zipTask <<= (Keys.fullClasspath in Runtime, Keys.name, Keys.version, Keys.crossTarget, dumpLicenseReport) map { (cp, n, v, t, d) =>
     packFiles(t / "pack", n, v, packFileList, cp.files, "zip", createZipArchiver)
   }
   s ++= zipTaskSettings
