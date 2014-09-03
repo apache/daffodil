@@ -50,6 +50,13 @@ class TestInputValueCalcDebug {
   val tdml = testDir + "inputValueCalc.tdml"
 
   lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
+  @Test def test_InputValueCalc_refers_self() { runner.runOneTest("InputValueCalc_refers_self") }
+  @Test def test_InputValueCalc_circular_ref() { runner.runOneTest("InputValueCalc_circular_ref") }
+  @Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
+  @Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
+  @Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
+  @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
+  @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 
   val aq = testDir + "AQ.tdml"
   lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))

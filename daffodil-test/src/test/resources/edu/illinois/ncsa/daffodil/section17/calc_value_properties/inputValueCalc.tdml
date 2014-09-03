@@ -546,6 +546,78 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="ivc_20">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:double" dfdl:inputValueCalc="{ 'nan' }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ivc_21">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:int" dfdl:representation="binary" dfdl:inputValueCalc="{ 123 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ivc_22">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int" />
+          <xs:element name="invalid" type="xs:string" dfdl:inputValueCalc="{ ../ex:invalid }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ivc_23">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int" />
+          <xs:element name="invalid" type="xs:int" dfdl:inputValueCalc="{ ../../ex:ivc_23 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ivc_24">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="num" type="xs:int" />
+          <xs:element name="invalid" type="xs:int" dfdl:minOccurs="0" dfdl:inputValueCalc="{ ../ex:num }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ivc_25">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:int" dfdl:minOccurs="2" dfdl:maxOccurs="5" dfdl:inputValueCalc="{ 5 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ivc_26" type="xs:double" dfdl:inputValueCalc="{ 5 }" />
+
+    <xs:element name="ivc_27">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a" type="xs:double" dfdl:inputValueCalc="{ 3 }" dfdl:outputValueCalc="{ 4 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="inputValueCalc-invalid.dfdl.xsd">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      occursCountKind="parsed" ignoreCase="no" inputValueCalc="{ 5 }"
+      textNumberRep="standard" representation="text" />
+
+    <xs:element name="e1" type="xs:int" />
+
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="InputValueCalc_01"
@@ -1133,6 +1205,146 @@
     <tdml:document>257</tdml:document>
     <tdml:errors>
       <tdml:error>Runtime Schema Definition Error: Cannot convert 257 to UnsignedByte.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_nonmatching_types
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_20
+	Purpose: This test calculates a type that does not conform to the base type of the element and should result in a schema definition error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_nonmatching_types"
+    root="ivc_20" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error: Cannot convert nan to Double.</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_no_representation
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_21
+	Purpose: This test shows that elements that use inputValueCalc do not have a representation in the datastream and representation properties are ignored.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_no_representation"
+    root="ivc_21" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ivc_21>
+	  <a>123</a>
+	</ivc_21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_refers_self
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_22
+	Purpose: This test has an inputValueCalc that refers to itself and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_refers_self"
+    root="ivc_22" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R">
+
+    <tdml:document>5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_circular_ref
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_23
+	Purpose: This test has an inputValueCalc with a circular reference and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_circular_ref"
+    root="ivc_23" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R">
+
+    <tdml:document>5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_optional_elem
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_24
+	Purpose: This test has an inputValueCalc on an optional element and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_optional_elem"
+    root="ivc_24" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R6">
+
+    <tdml:document>5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_array_elem
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_25
+	Purpose: This test has an inputValueCalc on an array element and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_array_elem"
+    root="ivc_25" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R6">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_global_elem
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_26
+	Purpose: This test has an inputValueCalc on a global element and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_global_elem"
+    root="ivc_26" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R6">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_with_outputValueCalc
+         Schema: inputValueCalc-Embedded.dfdl.xsd
+	   Root: ivc_27
+	Purpose: This test has inputValueCalc and outputValueCalc defined on the same element and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_with_outputValueCalc"
+    root="ivc_27" model="inputValueCalc-Embedded.dfdl.xsd" description="DFDL-17-007R6">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+      Test Name: InputValueCalc_in_format
+         Schema: inputValueCalc-invalid.dfdl.xsd
+	   Root: e1
+	Purpose: This test has inputValueCalc in the format and should have an error.
+  -->
+  <tdml:parserTestCase name="InputValueCalc_in_format"
+    root="e1" model="inputValueCalc-invalid.dfdl.xsd" description="DFDL-17-007R6">
+
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
