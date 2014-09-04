@@ -34,7 +34,6 @@
 
 package edu.illinois.ncsa.daffodil
 
-import junit.framework.Assert._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._

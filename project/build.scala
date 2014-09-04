@@ -1,7 +1,5 @@
 import sbt._
 import Keys._
-import de.johoop.jacoco4sbt._
-import JacocoPlugin._
 import com.typesafe.sbt.SbtStartScript
 import scala.language.existentials
 
@@ -201,7 +199,7 @@ object DaffodilBuild extends Build {
   s ++= Seq(resourceManaged <<= baseDirectory(_ / "resource_managed"))
 
   // creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
-  lazy val DebugTest = config("debug") extend(Runtime)
+  lazy val DebugTest = config("debug") extend(Test)
   lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-debug"),
@@ -222,7 +220,7 @@ object DaffodilBuild extends Build {
   s ++= Seq(debugTaskSettings)
 
   // creates 'sbt new:*' tasks, using src/test/scala-new as the source directory
-  lazy val NewTest = config("new") extend(Runtime)
+  lazy val NewTest = config("new") extend(Test)
   lazy val newSettings: Seq[Setting[_]] = inConfig(NewTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-new"),
@@ -250,7 +248,7 @@ object DaffodilBuild extends Build {
   s ++= Seq(buildNewWithTestSettings)
   
   // creates 'sbt cli:*' tasks, using src/test/scala-cli as the source directory
-  lazy val CliTest = config("cli") extend(Runtime)
+  lazy val CliTest = config("cli") extend(Test)
   lazy val cliSettings: Seq[Setting[_]] = inConfig(CliTest)(Defaults.testSettings ++ Seq(
     sourceDirectory <<= baseDirectory(_ / "src" / "test"),
     scalaSource <<= sourceDirectory(_ / "scala-cli"),
@@ -270,9 +268,6 @@ object DaffodilBuild extends Build {
     }
   }
   s ++= Seq(cliTaskSettings)
-
-  // jacoco configuration
-  s ++= Seq(jacoco.settings : _*)
 
   // start-script configuration
   lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++

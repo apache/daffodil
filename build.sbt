@@ -19,8 +19,9 @@ transitiveClassifiers := Seq("sources", "javadoc")
 resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.illinois.edu/nexus/content/repositories/releases"
 
 libraryDependencies in ThisBuild := Seq(
-  "junit" % "junit" % "4.11",
-  "com.novocode" % "junit-interface" % "0.10",
+  "junit" % "junit" % "4.11" % "test",
+  "com.novocode" % "junit-interface" % "0.10" % "test",
+  "net.sf.expectit" % "expectit-core" % "0.3.1" % "test",
   "org.jdom" % "jdom2" % "2.0.5",
   "net.sf.saxon" % "Saxon-HE" % "9.5.1-1",
   "net.sf.saxon" % "Saxon-HE-jdom2" % "9.5.1-1",
@@ -29,7 +30,6 @@ libraryDependencies in ThisBuild := Seq(
   "xml-resolver" % "xml-resolver" % "1.2",
   "jline" % "jline" % "2.9",
   "org.rogach" %% "scallop" % "0.9.5",
-  "net.sf.expectit" % "expectit-core" % "0.3.1",
   "commons-io" % "commons-io" % "2.4"
 )
 
