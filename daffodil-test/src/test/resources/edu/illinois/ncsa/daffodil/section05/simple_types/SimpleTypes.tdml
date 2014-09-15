@@ -2916,6 +2916,8 @@
       </xs:complexType>
     </xs:element>    
 
+    <xs:element name="string11" dfdl:textStringPadCharacter="" dfdl:lengthKind="delimited" type="xs:string" />
+
   </tdml:defineSchema>
   
   <!--
@@ -3242,6 +3244,24 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: padding_empty
+    Schema: SimpleTypes-padding
+    Purpose: This document demonstrates that padding cannot be the empty string
+  -->
+
+  <tdml:parserTestCase name="padding_empty" root="string11"
+      model="SimpleTypes-padding" description="DFDL-13-042R">
+    <tdml:document>
+      <tdml:documentPart type="text">word</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStringPadCharacter cannot be empty!</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+
   <!--
     Test name: justification_1
     Schema: SimpleTypes-padding
