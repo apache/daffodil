@@ -51,6 +51,9 @@ class TestPropertyScopingDebug {
   //DFDL-1036
   @Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
 
+  //DFDL-1037
+  @Test def test_defaultForm_04() { runner.runOneTest("defaultForm_04") }
+
   val tdml = testDir + "PropertyScoping_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 

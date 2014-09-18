@@ -389,7 +389,7 @@
   -->
 
   <tdml:parserTestCase name="localAnnotation_01"
-    description="DFDL Representation Properties - DFDL-8-010R"
+    description="DFDL Property Scoping Rules - DFDL-8-010R"
     model="localAnnotationSchema" root="e1">
     <tdml:document>
       <tdml:documentPart type="text">123/456</tdml:documentPart>
@@ -412,7 +412,7 @@
   -->
 
   <tdml:parserTestCase name="localAnnotation_02"
-    description="DFDL Representation Properties - DFDL-8-010R"
+    description="DFDL Property Scoping Rules - DFDL-8-010R"
     model="localAnnotationSchema" root="e2">
     <tdml:document>
       <tdml:documentPart type="text">123456</tdml:documentPart>
@@ -439,7 +439,7 @@
   -->
 
   <tdml:parserTestCase name="localAnnotation_03"
-    description="DFDL Representation Properties - DFDL-8-010R"
+    description="DFDL Property Scoping Rules - DFDL-8-010R"
     model="localAnnotationSchema" root="e3">
     <tdml:document>
       <tdml:documentPart type="text">123456[one][two][three]</tdml:documentPart>
@@ -469,7 +469,7 @@
   -->
 
   <tdml:parserTestCase name="localAnnotation_04"
-    description="DFDL Representation Properties - DFDL-8-010R"
+    description="DFDL Property Scoping Rules - DFDL-8-010R"
     model="localAnnotationSchema" root="e4">
     <tdml:document>
       <tdml:documentPart type="byte">31</tdml:documentPart>
@@ -489,7 +489,7 @@
   -->
 
   <tdml:parserTestCase name="localAnnotation_05"
-    description="DFDL Representation Properties - DFDL-8-010R"
+    description="DFDL Property Scoping Rules - DFDL-8-010R"
     model="localAnnotationSchema" root="e5">
     <tdml:document>
       <tdml:documentPart type="text">C:catastrophe,B:bologna,A:applesauce</tdml:documentPart>
@@ -501,6 +501,100 @@
           <B>bologna</B>
           <A>applesauce</A>
         </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: defaultForm_01
+    Schema: defaultForm.dfdl.xsd
+    Purpose: This test demonstrates that default properties can be specified in short, attribute
+             or element form
+  -->
+
+  <tdml:parserTestCase name="defaultForm_01"
+    description="DFDL Property Scoping Rules - DFDL-8-014R"
+    model="defaultForm.dfdl.xsd" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">1.2.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>1</inty>
+          <inty>2</inty>
+          <inty>3</inty>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: defaultForm_02
+    Schema: defaultForm_02.dfdl.xsd
+    Purpose: This test demonstrates that default properties can be specified in short, attribute
+             or element form
+  -->
+
+  <tdml:parserTestCase name="defaultForm_02"
+    description="DFDL Property Scoping Rules - DFDL-8-014R"
+    model="defaultForm_02.dfdl.xsd" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">1.2.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>1</inty>
+          <inty>2</inty>
+          <inty>3</inty>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: defaultForm_03
+    Schema: defaultForm_03.dfdl.xsd
+    Purpose: This test demonstrates that default properties can be specified in short, attribute
+             or element form
+  -->
+
+  <tdml:parserTestCase name="defaultForm_03"
+    description="DFDL Property Scoping Rules - DFDL-8-014R"
+    model="defaultForm_03.dfdl.xsd" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">1.2.3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>1</inty>
+          <inty>2</inty>
+          <inty>3</inty>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: defaultForm_04
+    Schema: defaultForm_04.dfdl.xsd
+    Purpose: This test demonstrates that default properties can be specified in short, attribute
+             or element form. This test demonstrates that there is no way to specify an empty initiator when using element form
+  -->
+
+  <tdml:parserTestCase name="defaultForm_04"
+    description="DFDL Property Scoping Rules - DFDL-8-014R"
+    model="defaultForm_04.dfdl.xsd" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">123</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>123</inty>
+        </e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
