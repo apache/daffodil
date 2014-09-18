@@ -1033,4 +1033,44 @@ C</MessageHeaders>
 		</tdml:errors>
 	</tdml:parserTestCase>
   
+  <tdml:defineSchema name="delimitedBinary">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" encoding="utf-8" byteOrder="bigEndian"
+      occursCountKind="parsed" ignoreCase="no" representation="binary"
+      lengthKind="delimited" binaryNumberRep="binary" separatorSuppressionPolicy="anyEmpty"
+      initiatedContent="no" />
+
+    <xs:element name="ints">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="int" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
+<!--
+     Test Name: delimited_binary_int_seqSep
+        Schema: delimitedBinary
+          Root: ints
+       Purpose: This test demonstrates that you can not use lengthKind "delimited" for binary number
+                types if the binaryNumberRep is "binary". You can only specify lengthKind delimited
+                if the type is packed or bcd. In this case, we should receive a Schema Definition Error
+-->
+
+  <tdml:parserTestCase name="delimited_binary_int_seqSep"
+    root="ints" model="delimitedBinary"
+    description="DFDL-12-047R - lengthKind 'delimited' for binary data">
+    <tdml:document>
+      <tdml:documentPart type="byte">7B 2E 1C8 2E 315</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Binary data elements cannot have lengthKind='delimited'</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

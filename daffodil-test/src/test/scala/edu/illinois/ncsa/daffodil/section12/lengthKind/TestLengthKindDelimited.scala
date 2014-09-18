@@ -55,6 +55,8 @@ class TestLengthKindDelimited {
   // runner.runOneTest("test_name") 
   // }
 
+  @Test def test_delimited_binary_int_seqSep() = { runner.runOneTest("delimited_binary_int_seqSep") }
+
   @Test def test_DoubleNewLineTerminator() = { runner.runOneTest("TestDoubleNewLineTerminator") }
   @Test def test_DoubleNewLineSeparator() = { runner.runOneTest("TestDoubleNewLineSeparator") }
   @Test def test_DoubleNewLineSeparatorBasic() = { runner.runOneTest("TestDoubleNewLineSeparatorBasic") }
