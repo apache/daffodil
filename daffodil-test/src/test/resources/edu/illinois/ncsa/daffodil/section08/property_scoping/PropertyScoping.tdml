@@ -306,4 +306,203 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="localAnnotationSchema">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
+      lengthUnits="bytes" encoding="UTF-8" separator="" initiator=""
+      terminator="" occursCountKind="parsed" ignoreCase="no"
+      textNumberRep="standard" representation="text" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:sequence separator="/"/>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="inty" type="xs:int" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="inty" type="xs:int" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element lengthUnits="characters" lengthKind="explicit" length="1"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="inty" type="xs:int" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element lengthUnits="characters" lengthKind="explicit" length="1"/>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="stringy" type="xs:string" dfdl:initiator="[" dfdl:terminator="]" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4" type="xs:int">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element representation="binary" lengthKind="explicit" length="1" lengthUnits="bytes"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:sequence sequenceKind="unordered"/>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="A" type="xs:string" dfdl:initiator="A:" maxOccurs="unbounded"/>
+          <xs:element name="B" type="xs:string" dfdl:initiator="B:" maxOccurs="unbounded"/>
+          <xs:element name="C" type="xs:string" dfdl:initiator="C:" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+ 
+  <!--
+    Test name: localAnnotation_01
+    Schema: localAnnotationSchema
+    Purpose: This test demonstrates that DFDL representation properties explicitly defined on 
+             annotations apply locally to that component only
+  -->
+
+  <tdml:parserTestCase name="localAnnotation_01"
+    description="DFDL Representation Properties - DFDL-8-010R"
+    model="localAnnotationSchema" root="e1">
+    <tdml:document>
+      <tdml:documentPart type="text">123/456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <inty>123</inty>
+          <inty>456</inty>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: localAnnotation_02
+    Schema: localAnnotationSchema
+    Purpose: This test demonstrates that DFDL representation properties explicitly defined on 
+             annotations apply locally to that component only
+  -->
+
+  <tdml:parserTestCase name="localAnnotation_02"
+    description="DFDL Representation Properties - DFDL-8-010R"
+    model="localAnnotationSchema" root="e2">
+    <tdml:document>
+      <tdml:documentPart type="text">123456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <inty>1</inty>
+          <inty>2</inty>
+          <inty>3</inty>
+          <inty>4</inty>
+          <inty>5</inty>
+          <inty>6</inty>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: localAnnotation_03
+    Schema: localAnnotationSchema
+    Purpose: This test demonstrates that DFDL representation properties explicitly defined on 
+             annotations apply locally to that component only
+  -->
+
+  <tdml:parserTestCase name="localAnnotation_03"
+    description="DFDL Representation Properties - DFDL-8-010R"
+    model="localAnnotationSchema" root="e3">
+    <tdml:document>
+      <tdml:documentPart type="text">123456[one][two][three]</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <inty>1</inty>
+          <inty>2</inty>
+          <inty>3</inty>
+          <inty>4</inty>
+          <inty>5</inty>
+          <inty>6</inty>
+          <stringy>one</stringy>
+          <stringy>two</stringy>
+          <stringy>three</stringy>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: localAnnotation_04
+    Schema: localAnnotationSchema
+    Purpose: This test demonstrates that DFDL representation properties explicitly defined on 
+             annotations apply locally to that component only
+  -->
+
+  <tdml:parserTestCase name="localAnnotation_04"
+    description="DFDL Representation Properties - DFDL-8-010R"
+    model="localAnnotationSchema" root="e4">
+    <tdml:document>
+      <tdml:documentPart type="byte">31</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>49</e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: localAnnotation_05
+    Schema: localAnnotationSchema
+    Purpose: This test demonstrates that DFDL representation properties explicitly defined on 
+             annotations apply locally to that component only
+  -->
+
+  <tdml:parserTestCase name="localAnnotation_05"
+    description="DFDL Representation Properties - DFDL-8-010R"
+    model="localAnnotationSchema" root="e5">
+    <tdml:document>
+      <tdml:documentPart type="text">C:catastrophe,B:bologna,A:applesauce</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <C>catastrophe</C>
+          <B>bologna</B>
+          <A>applesauce</A>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
