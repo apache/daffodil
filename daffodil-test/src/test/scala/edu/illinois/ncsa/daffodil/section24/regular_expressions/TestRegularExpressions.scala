@@ -47,6 +47,11 @@ class TestRegularExpressions {
   val tdml = testDir + "RegularExpressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  @Test def test_entity_in_regex_fail() { runner.runOneTest("entity_in_regex_fail") }
+  @Test def test_entity_in_regex_fail_2() { runner.runOneTest("entity_in_regex_fail_2") }
+  @Test def test_entity_in_regex_fail_3() { runner.runOneTest("entity_in_regex_fail_3") }
+  @Test def test_entity_in_regex_fail_4() { runner.runOneTest("entity_in_regex_fail_4") }
+
   @Test def test_testRegEx_01() { runner.runOneTest("testRegEx_01") }
   @Test def test_testRegEx_02() { runner.runOneTest("testRegEx_02") }
   @Test def test_testRegEx_03() { runner.runOneTest("testRegEx_03") }

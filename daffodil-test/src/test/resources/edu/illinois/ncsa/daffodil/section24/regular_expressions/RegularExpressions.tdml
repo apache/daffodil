@@ -64,9 +64,109 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+    
+  <xs:element name="regExpr_10" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="(%NUL;){2}"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+
+  <xs:element name="regExpr_11" dfdl:lengthKind="delimited">
+    <xs:annotation>
+      <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:assert test="{ dfdl:checkConstraints(.) }"
+          message="Assertion failed for dfdl:checkConstraints(.)" />
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string">
+        <xs:pattern value="(%SP;){3}"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
 
   </tdml:defineSchema>
   
+  <!--
+    Test name: entity_in_regex_fail
+    Schema: RegularExpressions-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that DFDL regular expressions do not interpret DFDL entities 
+  -->
+
+  <tdml:parserTestCase name="entity_in_regex_fail" root="regExpr_10"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="DFDL-24-004R:DFDLregular expressions do not interpret DFDL entities">
+    <tdml:document>
+      <tdml:documentPart type="byte">0000</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion Failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: entity_in_regex_fail_2
+    Schema: RegularExpressions-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that DFDL regular expressions do not interpret DFDL entities 
+  -->
+
+  <tdml:parserTestCase name="entity_in_regex_fail_2" root="regExpr_10"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="DFDL-24-004R:DFDLregular expressions do not interpret DFDL entities">
+    <tdml:document>
+      <tdml:documentPart type="text">%NUL;%NUL;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <regExpr_10>%NUL;%NUL;</regExpr_10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: entity_in_regex_fail_3
+    Schema: RegularExpressions-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that DFDL regular expressions do not interpret DFDL entities 
+  -->
+
+  <tdml:parserTestCase name="entity_in_regex_fail_3" root="regExpr_11"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="DFDL-24-004R:DFDLregular expressions do not interpret DFDL entities">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[   ]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Assertion failed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+    Test name: entity_in_regex_fail_4
+    Schema: RegularExpressions-Embedded.dfdl.xsd
+    Purpose: This test demonstrates that DFDL regular expressions do not interpret DFDL entities
+  -->
+
+  <tdml:parserTestCase name="entity_in_regex_fail_4" root="regExpr_11"
+    model="RegularExpressions-Embedded.dfdl.xsd" 
+    description="DFDL-24-004R:DFDLregular expressions do not interpret DFDL entities">
+    <tdml:document>
+      <tdml:documentPart type="text">%SP;%SP;%SP;</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <regExpr_11>%SP;%SP;%SP;</regExpr_11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <tdml:parserTestCase name="testDFDL-922" root="regExpr_08"
     model="RegularExpressions-Embedded.dfdl.xsd" 
     description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
@@ -77,7 +177,7 @@
     <tdml:error>closure</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
   <tdml:parserTestCase name="testDFDL-922_2" root="regExpr_09"
     model="RegularExpressions-Embedded.dfdl.xsd" 
     description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
@@ -87,7 +187,7 @@
     <tdml:error>group</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
-  
+
    <tdml:parserTestCase name="testAssertWithPattern1" root="a1"
     model="RegularExpressions-Embedded.dfdl.xsd" 
     description="Test shows that inside a choice, an assert with pattern expressed on the element definition is not executed.">
