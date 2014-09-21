@@ -1,0 +1,134 @@
+(
+ :root-dir "/home/mbeckerle/Documents/dataiti/git/daffodil"
+ :cache-dir "/home/mbeckerle/Documents/dataiti/git/daffodil/.ensime_cache"
+ :name "daffodil"
+ :java-home "/usr/lib/jvm/java-1.7.0-openjdk-amd64"
+ :java-flags ("-Dsun.io.serialization.extendedDebugInfo=true" "-Xmx3G" "-XX:MaxPermSize=512m" "-Xms20m" "-Xss20m" "-Xms1024m" "-Xmx1024m" "-XX:ReservedCodeCacheSize=128m" "-XX:MaxPermSize=256m")
+ :reference-source-roots nil
+ :scala-version "2.10.4"
+ :compiler-args ("-unchecked" "-deprecation" "-Yinline-warnings")
+ 
+ :subprojects ((
+   :name "daffodil-tdml"
+   :module-name "daffodil-tdml"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/src/main/java")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-tdml/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-core")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-cli"
+   :module-name "daffodil-cli"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/src/main/scala")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-cli/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-tdml")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-propgen"
+   :module-name "daffodil-propgen"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/src/main/java")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-propgen/target/scala-2.10/test-classes"
+   :depends-on-modules nil
+   :compile-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar" "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
+   :runtime-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar" "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
+   :test-deps ("/home/mbeckerle/.ivy2/cache/junit/junit-dep/jars/junit-dep-4.10.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/jars/junit-interface-0.10.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/jars/junit-4.11.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar" "/home/mbeckerle/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/jars/expectit-core-0.3.1.jar")
+   :reference-source-roots ("/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/srcs/scallop_2.10-0.9.5-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/srcs/xml-apis-1.4.01-sources.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/srcs/icu4j-51.1-sources.jar" "/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/srcs/xercesImpl-2.10.0-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/srcs/junit-4.11-sources.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/srcs/jdom2-2.0.5-sources.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/srcs/expectit-core-0.3.1-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit-dep/srcs/junit-dep-4.10-sources.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/srcs/junit-interface-0.10-sources.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/srcs/hamcrest-core-1.3-sources.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/srcs/commons-io-2.4-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/srcs/xml-resolver-1.2-sources.jar" "/home/mbeckerle/.ivy2/cache/jline/jline/srcs/jline-2.9-sources.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.10.3-sources.jar")) (
+   :name "daffodil"
+   :module-name "daffodil"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/src/main/scala")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/target/scala-2.10/test-classes"
+   :depends-on-modules nil
+   :compile-deps ("/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.scala-lang/scala-reflect/scala-reflect-2.10.3.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.rogach/scallop_2.10/scallop_2.10-0.9.5.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/commons-io/commons-io/commons-io-2.4.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/jline/jline/jline-2.9.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xml-apis/xml-apis/xml-apis-1.4.01.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar")
+   :runtime-deps ("/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.scala-lang/scala-reflect/scala-reflect-2.10.3.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.rogach/scallop_2.10/scallop_2.10-0.9.5.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/commons-io/commons-io/commons-io-2.4.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/jline/jline/jline-2.9.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xml-apis/xml-apis/xml-apis-1.4.01.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar")
+   :test-deps ("/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.scala-tools.testing/test-interface/test-interface-0.5.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/junit/junit-dep/junit-dep-4.10.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/junit/junit/junit-4.11.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.3.1.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/com.novocode/junit-interface/junit-interface-0.10.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/jars/org.hamcrest/hamcrest-core/hamcrest-core-1.3.jar")
+   :reference-source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/org.scala-lang/scala-library/scala-library-2.10.4-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/org.rogach/scallop_2.10/scallop_2.10-0.9.5-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/net.sf.expectit/expectit-core/expectit-core-0.3.1-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.5-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/junit/junit-dep/junit-dep-4.10-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/com.novocode/junit-interface/junit-interface-0.10-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/org.scala-lang/scala-reflect/scala-reflect-2.10.3-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/commons-io/commons-io/commons-io-2.4-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/com.ibm.icu/icu4j/icu4j-51.1-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/xml-apis/xml-apis/xml-apis-1.4.01-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/jline/jline/jline-2.9-sources.jar" "/home/mbeckerle/Documents/dataiti/git/daffodil/lib_managed/srcs/junit/junit/junit-4.11-sources.jar")) (
+   :name "daffodil-test-ibm1"
+   :module-name "daffodil-test-ibm1"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/src/test/scala-new")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test-ibm1/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-tdml")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-test"
+   :module-name "daffodil-test"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/src/main/java")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-test/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-tdml" "daffodil-core")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-io"
+   :module-name "daffodil-io"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/src/main/java")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-io/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-lib")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-core"
+   :module-name "daffodil-core"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/src/test/scala-new")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-core/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-io")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil) (
+   :name "daffodil-lib"
+   :module-name "daffodil-lib"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src_managed/main" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src/main/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/src/test/scala-new")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-lib/target/scala-2.10/test-classes"
+   :depends-on-modules nil
+   :compile-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar"
+
+;; added by hand these ICU libraries
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1.jar"
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1.jar"
+;; those aren't auto-downloaded. We maintain them by hand
+
+ "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
+   :runtime-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar"
+
+;; added by hand these ICU libraries
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1.jar"
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1.jar"
+;; those aren't auto-downloaded. We maintain them by hand
+
+ "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
+   :test-deps ("/home/mbeckerle/.ivy2/cache/junit/junit-dep/jars/junit-dep-4.10.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/jars/junit-interface-0.10.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/jars/junit-4.11.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar" "/home/mbeckerle/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/jars/expectit-core-0.3.1.jar")
+   :reference-source-roots ("/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/srcs/scallop_2.10-0.9.5-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/srcs/xml-apis-1.4.01-sources.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/srcs/icu4j-51.1-sources.jar"
+
+;; added by hand these ICU libraries (for src)
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1-src.jar"
+ "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1-src.jar"
+;; those aren't auto-downloaded. We maintain them by hand
+
+ "/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/srcs/xercesImpl-2.10.0-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/srcs/junit-4.11-sources.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/srcs/jdom2-2.0.5-sources.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/srcs/expectit-core-0.3.1-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit-dep/srcs/junit-dep-4.10-sources.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/srcs/junit-interface-0.10-sources.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/srcs/hamcrest-core-1.3-sources.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/srcs/commons-io-2.4-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/srcs/xml-resolver-1.2-sources.jar" "/home/mbeckerle/.ivy2/cache/jline/jline/srcs/jline-2.9-sources.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.10.3-sources.jar")) (
+   :name "daffodil-examples"
+   :module-name "daffodil-examples"
+   :source-roots ("/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/src/test/scala-new" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/src/test/scala" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/src/main/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/src/test/java" "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/src/main/scala")
+   :target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/target/scala-2.10/classes"
+   :test-target "/home/mbeckerle/Documents/dataiti/git/daffodil/daffodil-examples/target/scala-2.10/test-classes"
+   :depends-on-modules ("daffodil-tdml")
+   :compile-deps nil
+   :runtime-deps nil
+   :test-deps nil
+   :reference-source-roots nil))
+ 
+)

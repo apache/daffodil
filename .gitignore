@@ -46,4 +46,9 @@ daffodil-extra/*
 eclipse-projects/*/src/
 eclipse-projects/*/bin/
 
-
+#
+# FOR EMACS ENSIME
+#
+.ensime_cache
+# these are autosave emacs files
+\#*#
