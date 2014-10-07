@@ -33,20 +33,13 @@ package edu.illinois.ncsa.daffodil.general
  */
 
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.CLI.Util
-import net.sf.expectit.Expect
-import net.sf.expectit.matcher.Matchers.contains
-import net.sf.expectit.matcher.Matchers.anyString
-import net.sf.expectit.matcher.Matchers.regexp
+import junit.framework.Assert._
 
 class TestGeneralReqs {
 
   @Test def test_1530_scala_version() {
-    val cmd = "sbt about\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("The current project is built against Scala 2.10."))
-    shell.send("exit\n")
-    shell.close()
+    val versionStr = scala.util.Properties.versionNumberString
+    assertTrue(versionStr.contains("2.10."))
   }
 
 }
