@@ -82,4 +82,8 @@ class TestGeneral {
 
   @Test def test_no_namespace_02() { runner_ns.runOneTest("no_namespace_02") }
 
+  @Test def test_1530_scala_version() {
+    val versionStr = scala.util.Properties.versionNumberString
+    assertTrue(versionStr.contains("2.10."))
+  }
 }
