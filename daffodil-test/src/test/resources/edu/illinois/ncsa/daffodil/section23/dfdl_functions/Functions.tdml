@@ -715,6 +715,54 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: stringLiteralFromString_3
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates the use of the stringLiteralFromString function
+-->
+
+	<tdml:parserTestCase name="stringLiteralFromString_3"
+		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[ThisIsATest!]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<stringLiteralFromString>
+					<str>ThisIsATest!</str>
+					<literal>ThisIsATest!</literal>
+				</stringLiteralFromString>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringLiteralFromString_4
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates the use of the stringLiteralFromString function
+-->
+
+	<tdml:parserTestCase name="stringLiteralFromString_4"
+		root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[  %  ]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+				xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+				<stringLiteralFromString>
+					<str>  %  </str>
+					<literal>%SP;%SP;%%%SP;%SP;</literal>
+				</stringLiteralFromString>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
     Test Name: containsEntity_0
        Schema: Functions.dfdl.xsd
          Root: containsEntity
