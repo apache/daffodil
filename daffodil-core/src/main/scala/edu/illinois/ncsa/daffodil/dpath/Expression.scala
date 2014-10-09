@@ -1230,6 +1230,10 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "hexBinary", XSD), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.HexBinary, NodeInfo.AnyAtomic, XSHexBinary(_, _))
+          
+          case (RefQName(_, "hexBinary", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.HexBinary, NodeInfo.AnyAtomic, DFDLHexBinary(_, _))
 
       case (RefQName(_, "nilled", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,

@@ -22,6 +22,7 @@ import java.text.ParsePosition
 import com.ibm.icu.util.DFDLCalendar
 import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
+import java.nio.ByteBuffer
 
 class DPathRecipe(val ops: RecipeOp*) extends Serializable {
 
@@ -1316,6 +1317,142 @@ case class XSHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
+/**
+ * The argument can
+ * also be a long, unsignedLong, or any subtype
+ * thereof, and in that case a xs:hexBinary value
+ * containing a number of hex digits is produced.
+ * The ordering and number of the digits
+ * correspond to a binary big-endian twos-
+ * complement implementation of the type of the
+ * argument. Digits 0-9, A-F are used.
+ * The number of digits produced depends on the
+ * type of $arg, being 2, 4, 8 or 16. If $arg is a
+ * literal number then the type is the smallest
+ * signed type (long, int, short, byte) that can
+ * contain the value.
+ * If a literal number is not able to be represented
+ * by a long, it is a schema definition error.
+ *
+ * • dfdl:hexBinary(xs:short(208)) is the hexBinary value "00D0".
+ * • dfdl:hexBinary(208) is the hexBinary value "D0".
+ * • dfdl:hexBinary(-2084) is the hexBinary value "F7FF".
+ *
+ */
+case class DFDLHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) with HexBinaryKind {
+  val name = "DFDLHexBinary"
+  private val conversionErrMsg: String = "%s could not be represented as a long."
+
+  private def getNBytesFromArray(a: Array[Byte], n: Int): Array[Byte] = {
+    val newArray = new Array[Byte](n)
+
+    var i: Int = n
+    val aLen = a.length
+    val idxNewArray: Int = 0
+    val offset: Int = if (aLen < n) { Math.abs(aLen - n) } else 0
+
+    for (idxNewArray <- 0 + offset to n - 1) {
+      newArray(idxNewArray) = a(aLen - i + offset)
+      i -= 1
+    }
+
+    newArray
+  }
+  private def reduce(bi: BigInt): Either[String, Array[Byte]] = {
+
+    val arr = bi.toByteArray
+
+    val res: Either[String, Array[Byte]] = {
+      if (bi.isValidByte) Right(getNBytesFromArray(arr, 1))
+      else if (bi.isValidShort) Right(getNBytesFromArray(arr, 2))
+      else if (bi.isValidInt) Right(getNBytesFromArray(arr, 4))
+      else if (bi.isValidLong) Right(getNBytesFromArray(arr, 8))
+      else Left(conversionErrMsg.format(bi.toString))
+    }
+    res
+  }
+
+  /**
+   * Convo w/ Mike:
+   *
+   * (02:35:13 PM) Mike Beckerle: If the argument is of some fixed-width type like Byte, Int, Short, Long or the unsigned thereof, then you get hex digits corresponding to 1, 2, 4, or 8 bytes of a binary twos-complement integer value of that type. If the argument is anything else (including is a literal number), then you get the smallest number of hex digit pairs that can represent the value.  If you get xs:integer (aka BigInt/Java BigInteger), then I'd say - smallest number of digits that can represent the value.
+   * (02:35:34 PM) Taylor: ok
+   * (02:35:50 PM) Mike Beckerle: So dfdl:hexBinary(208) is D0, dfdl:hexBinary(xs:integer(208)) is also D0 dfdl:hexBinary(xs:short(208)) is 00D0
+   * (02:36:13 PM) Taylor: ah ok
+   * (02:36:56 PM) Taylor: I also think the resultant value for -2084 is incorrect
+   * (02:37:25 PM) Taylor: Think it should be F7DC unless I'm doing something wrong.
+   * (02:38:48 PM) Mike Beckerle: Probably just typo.
+   * (02:39:40 PM) Mike Beckerle: F7DC is definitely right.
+   * (02:41:27 PM) Taylor: Ok thanks.  So Integer is really going to be the exception here. It will always be the smallest value that can be represented vs the other types.
+   * (02:42:23 PM) Taylor: It seems like regardless of whether or not I use xs:integer(208) or just 208 we get an Integer back.
+   * (02:42:41 PM) Taylor: There's no BigInt/BigInteger distinction.
+   * (02:44:17 PM) Mike Beckerle: Yeah I think scala does a BigInt conversion implicitly perhaps? They may be just type synonyms also. I'm not sure.
+   * (02:45:03 PM) Mike Beckerle: The code that creates literal numeral constants does not downsize them. It should be producing xs:int, I believe, for all literal numbers that fit in that range.
+   */
+  override def computeValue(a: Any, dstate: DState): Any = {
+    val arr = a match {
+      case s: String => {
+        // Literal number
+
+        val result = reduce(BigInt(s)) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
+          case Right(hb) => hb
+        }
+        result
+      }
+      case b: Byte => {
+        val arr = new Array[Byte](1)
+        arr(0) = b
+        arr
+      }
+      case s: Short => {
+        val hexString: String = "%04X".format(s)
+        hexStringToByteArray(hexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
+          case Right(hb) => hb
+        }
+      }
+      case bi: BigInt => {
+        // Literal number
+
+        val result = reduce(bi) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", bi.toString)
+          case Right(hb) => hb
+        }
+        result
+      }
+      case i: Integer => {
+        // Possibly a Literal Number, try to fit it into the smallest
+        // value anyway.
+        val result = reduce(BigInt(i)) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", i)
+          case Right(hb) => hb
+        }
+        result
+      }
+      case l: Long => {
+        val hexString = "%016X".format(l)
+        hexStringToByteArray(hexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", l)
+          case Right(hb) => hb
+        }
+      }
+      case ul: BigDecimal => {
+        val hexString = "%032X".format(ul)
+        hexStringToByteArray(hexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", ul)
+          case Right(hb) => hb
+        }
+      }
+      case hb: Array[Byte] => hb
+      case x => dstate.pstate.SDE("Unrecognized type! Must be String or Array[Byte] The value was '%s'.", x)
+    }
+
+    arr
+  }
+}
+
 case class NumericOperator(nop: NumericOp, left: DPathRecipe, right: DPathRecipe)
   extends RecipeOp with BinaryOpMixin {
 
@@ -1825,6 +1962,77 @@ case object XSHexBinary extends Converter with HexBinaryKind {
     arr
   }
 }
+
+/**
+ * The argument can
+ * also be a long, unsignedLong, or any subtype
+ * thereof, and in that case a xs:hexBinary value
+ * containing a number of hex digits is produced.
+ * The ordering and number of the digits
+ * correspond to a binary big-endian twos-
+ * complement implementation of the type of the
+ * argument. Digits 0-9, A-F are used.
+ * The number of digits produced depends on the
+ * type of $arg, being 2, 4, 8 or 16. If $arg is a
+ * literal number then the type is the smallest
+ * signed type (long, int, short, byte) that can
+ * contain the value.
+ * If a literal number is not able to be represented
+ * by a long, it is a schema definition error.
+ */
+case object DFDLHexBinary extends Converter with HexBinaryKind {
+  val name = "DFDLHexBinary"
+
+  override def computeValue(a: Any, dstate: DState): Any = {
+    // Apparently an invariant at DPath.scala 156 wants this to be
+    // Array[Byte]
+    //
+    // Check for:
+    // 1. Even number of characters
+    // 2. Valid hex (0-9 A-F)
+    val arr = a match {
+      case s: String =>
+        hexStringToByteArray(s) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
+          case Right(hb) => hb
+        }
+      case b: Byte => {
+        val arr = new Array[Byte](1)
+        arr(0) = b
+        arr
+      }
+      case s: Short => {
+        hexStringToByteArray(s.toInt.toHexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
+          case Right(hb) => hb
+        }
+      }
+      case i: Integer => {
+        hexStringToByteArray(i.toInt.toHexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", i)
+          case Right(hb) => hb
+        }
+      }
+      case l: Long => {
+        hexStringToByteArray(l.toHexString) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", l)
+          case Right(hb) => hb
+        }
+      }
+      case ul: BigDecimal => {
+        hexStringToByteArray(ul.toBigInt.toString(16)) match {
+          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", ul)
+          case Right(hb) => hb
+        }
+      }
+      case hb: Array[Byte] => hb
+      case x => dstate.pstate.SDE("Unrecognized type! Must be String or Array[Byte] The value was '%s'.", x)
+    }
+
+    arr
+  }
+}
+
 case object XSTime extends Converter with XSDateTimeKind with TimeFormatters {
   val name = "XSTime"
 

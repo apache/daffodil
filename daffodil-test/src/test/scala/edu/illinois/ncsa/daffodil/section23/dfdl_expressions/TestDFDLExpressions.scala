@@ -430,6 +430,11 @@ class TestDFDLExpressions {
   @Test def test_hexBinary_constructor_02() { runner2.runOneTest("hexBinary_constructor_02") }
   @Test def test_hexBinary_constructor_03() { runner2.runOneTest("hexBinary_constructor_03") }
   @Test def test_hexBinary_constructor_04() { runner2.runOneTest("hexBinary_constructor_04") }
+  
+  @Test def test_dfdlHexBinary_constructor_01() { runner2.runOneTest("dfdlHexBinary_constructor_01") }
+  @Test def test_dfdlHexBinary_constructor_02() { runner2.runOneTest("dfdlHexBinary_constructor_02") }
+  @Test def test_dfdlHexBinary_constructor_03() { runner2.runOneTest("dfdlHexBinary_constructor_03") }
+  @Test def test_dfdlHexBinary_constructor_04() { runner2.runOneTest("dfdlHexBinary_constructor_04") }
 
   // DFDL-827
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }

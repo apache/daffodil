@@ -4386,6 +4386,11 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="dfdlHexBinary01" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
+    <xs:element name="dfdlHexBinary02" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary('208') }"/>
+    <xs:element name="dfdlHexBinary03" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(-2084) }"/>
+    <xs:element name="dfdlHexBinary04" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(200000000000000000000) }"/>
+    
     <xs:element name="byte01">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -6091,6 +6096,89 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Invalid hexadecimal digit</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <!--
+    Test name: dfdlHexBinary_constructor_01
+       Schema: constructorSchema
+         Root: dfdlHexBinary01
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_01" root="dfdlHexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary01>00D0</tdml:dfdlHexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_02
+       Schema: constructorSchema
+         Root: dfdlHexBinary02
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_02" root="dfdlHexBinary02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary02>00D0</tdml:dfdlHexBinary02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_03
+       Schema: constructorSchema
+         Root: dfdlHexBinary03
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_03" root="dfdlHexBinary03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary03>F7DC</tdml:dfdlHexBinary03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_04
+       Schema: constructorSchema
+         Root: dfdlHexBinary04
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_04" root="dfdlHexBinary04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Runtime Schema Definition Error</tdml:error>
+    	<tdml:error>could not be represented as a long</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
