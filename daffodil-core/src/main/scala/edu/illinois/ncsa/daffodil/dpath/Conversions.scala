@@ -34,14 +34,15 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.lang.NumberFormatException
-
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-
 import com.ibm.icu.util.DFDLCalendar
 import java.text.ParsePosition
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.DFDLDateTime
+import com.ibm.icu.util.DFDLTime
+import com.ibm.icu.util.DFDLDate
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
@@ -148,9 +149,9 @@ object Conversion {
       case (String, Byte) => List(StringToLong, LongToByte)
       case (String, UnsignedByte) => List(StringToLong, LongToUnsignedByte)
       case (String, HexBinary) => List(XSHexBinary)
-      case (String, Date) => List(XSDate)
-      case (String, Time) => List(XSTime)
-      case (String, DateTime) => List(XSDateTime)
+      case (String, Date) => List(ToDate)
+      case (String, Time) => List(ToTime)
+      case (String, DateTime) => List(ToDateTime)
       case (String, Boolean) =>
         List(StringToBoolean)
       case (Time, DateTime) => List(TimeToDateTime)
@@ -287,56 +288,45 @@ object Conversion {
     ops
   }
 
-  def stringToDFDLCalendar(value: String, inFormat: SimpleDateFormat, outFormat: SimpleDateFormat, fncName: String, toType: String): Either[String, DFDLCalendar] = {
+  protected def constructCalendar(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): Calendar = {
     val calendar = inFormat.getCalendar()
+
     val pos = new ParsePosition(0)
 
     inFormat.setLenient(false)
     inFormat.parse(value.toString, calendar, pos)
 
-    var formattedString: String = null
     try {
       calendar.getTime()
-      formattedString = outFormat.format(calendar)
     } catch {
       case ex: java.lang.IllegalArgumentException => {
-        //dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage())
-        return Left(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage()))
-      }
-      case ex: Exception => {
-        // dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage())
-        return Left(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage()))
+        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage()))
       }
     }
 
     if (pos.getIndex() == 0) {
-      //dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s.", fncName, value.toString, toType) 
-      return Left(String.format("Conversion Error: %s failed to convert \"%s\" to %s due to a parse error.", fncName, value.toString, toType))
+      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s due to a parse error.", fncName, value.toString, toType))
     }
     if (pos.getIndex() != (value.length())) {
-      //dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s.", fncName, value.toString, toType) 
-      return Left(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Failed to use up all characters in the parse.  Stopped at %s.",
+      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Failed to use up all characters in the parse.  Stopped at %s.",
         fncName, value.toString, toType, pos.getIndex().toString))
     }
-
-    val cal = new DFDLCalendar(inFormat.getCalendar(), formattedString)
-    Right(cal)
+    calendar
   }
 
-  def calendarToDFDLCalendar(calendar: Calendar, formatString: String, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
-    val format = new SimpleDateFormat(formatString)
-    format.setCalendar(calendar)
+  def stringToDFDLDateTime(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLDateTime = {
+    val calendar = constructCalendar(value, inFormat, fncName, toType)
+    new DFDLDateTime(calendar)
+  }
 
-    var formattedString: String = null
-    try {
-      formattedString = format.format(calendar)
-    } catch {
-      case ex: java.lang.IllegalArgumentException => dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
-      case ex: Exception => dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
-    }
+  def stringToDFDLDate(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLDate = {
+    val calendar = constructCalendar(value, inFormat, fncName, toType)
+    new DFDLDate(calendar)
+  }
 
-    val cal = new DFDLCalendar(format.getCalendar(), formattedString)
-    cal
+  def stringToDFDLTime(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLTime = {
+    val calendar  = constructCalendar(value, inFormat, fncName, toType)
+    new DFDLTime(calendar)
   }
 
   /**

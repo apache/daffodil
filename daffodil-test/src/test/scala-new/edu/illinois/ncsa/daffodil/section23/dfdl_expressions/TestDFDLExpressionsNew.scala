@@ -52,5 +52,118 @@ class TestDFDLExpressionsNew {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_dfdlHexBinary_constructor_01() { runner2.runOneTest("dfdlHexBinary_constructor_01") }
+  @Test def test_dfdlHexBinary_constructor_02() { runner2.runOneTest("dfdlHexBinary_constructor_02") }
+  @Test def test_dfdlHexBinary_constructor_03() { runner2.runOneTest("dfdlHexBinary_constructor_03") }
+  @Test def test_dfdlHexBinary_constructor_04() { runner2.runOneTest("dfdlHexBinary_constructor_04") }
+  
+  @Test def test_dfdlByte_constructor_01() { runner2.runOneTest("dfdlByte_constructor_01") }
+   @Test def test_dfdlByte_constructor_02() { runner2.runOneTest("dfdlByte_constructor_02") }
+   @Test def test_dfdlByte_constructor_03() { runner2.runOneTest("dfdlByte_constructor_03") }
+   @Test def test_dfdlByte_constructor_04() { runner2.runOneTest("dfdlByte_constructor_04") }
+   @Test def test_dfdlByte_constructor_05() { runner2.runOneTest("dfdlByte_constructor_05") }
+   @Test def test_dfdlByte_constructor_06() { runner2.runOneTest("dfdlByte_constructor_06") }
+   @Test def test_dfdlByte_constructor_07() { runner2.runOneTest("dfdlByte_constructor_07") }
+   @Test def test_dfdlByte_constructor_08() { runner2.runOneTest("dfdlByte_constructor_08") }
+   @Test def test_dfdlByte_constructor_09() { runner2.runOneTest("dfdlByte_constructor_09") }
+   @Test def test_dfdlByte_constructor_10() { runner2.runOneTest("dfdlByte_constructor_10") }
+   
+   @Test def test_dfdlUByte_constructor_01() { runner2.runOneTest("dfdlUByte_constructor_01") }
+   @Test def test_dfdlUByte_constructor_02() { runner2.runOneTest("dfdlUByte_constructor_02") }
+   @Test def test_dfdlUByte_constructor_03() { runner2.runOneTest("dfdlUByte_constructor_03") }
+   @Test def test_dfdlUByte_constructor_04() { runner2.runOneTest("dfdlUByte_constructor_04") }
+   @Test def test_dfdlUByte_constructor_05() { runner2.runOneTest("dfdlUByte_constructor_05") }
+   @Test def test_dfdlUByte_constructor_06() { runner2.runOneTest("dfdlUByte_constructor_06") }
+   @Test def test_dfdlUByte_constructor_07() { runner2.runOneTest("dfdlUByte_constructor_07") }
+   @Test def test_dfdlUByte_constructor_08() { runner2.runOneTest("dfdlUByte_constructor_08") }
+   @Test def test_dfdlUByte_constructor_09() { runner2.runOneTest("dfdlUByte_constructor_09") }
+   @Test def test_dfdlUByte_constructor_11() { runner2.runOneTest("dfdlUByte_constructor_11") }
+   
+   @Test def test_dfdlShort_constructor_01() { runner2.runOneTest("dfdlShort_constructor_01") }
+   @Test def test_dfdlShort_constructor_02() { runner2.runOneTest("dfdlShort_constructor_02") }
+   @Test def test_dfdlShort_constructor_03() { runner2.runOneTest("dfdlShort_constructor_03") }
+   @Test def test_dfdlShort_constructor_04() { runner2.runOneTest("dfdlShort_constructor_04") }
+   @Test def test_dfdlShort_constructor_05() { runner2.runOneTest("dfdlShort_constructor_05") }
+   @Test def test_dfdlShort_constructor_06() { runner2.runOneTest("dfdlShort_constructor_06") }
+   @Test def test_dfdlShort_constructor_07() { runner2.runOneTest("dfdlShort_constructor_07") }
+   @Test def test_dfdlShort_constructor_08() { runner2.runOneTest("dfdlShort_constructor_08") }
+   @Test def test_dfdlShort_constructor_09() { runner2.runOneTest("dfdlShort_constructor_09") }
+   @Test def test_dfdlShort_constructor_11() { runner2.runOneTest("dfdlShort_constructor_11") }
+   
+   @Test def test_dfdlUShort_constructor_01() { runner2.runOneTest("dfdlUShort_constructor_01") }
+   @Test def test_dfdlUShort_constructor_02() { runner2.runOneTest("dfdlUShort_constructor_02") }
+   @Test def test_dfdlUShort_constructor_03() { runner2.runOneTest("dfdlUShort_constructor_03") }
+   @Test def test_dfdlUShort_constructor_04() { runner2.runOneTest("dfdlUShort_constructor_04") }
+   @Test def test_dfdlUShort_constructor_05() { runner2.runOneTest("dfdlUShort_constructor_05") }
+   @Test def test_dfdlUShort_constructor_06() { runner2.runOneTest("dfdlUShort_constructor_06") }
+   @Test def test_dfdlUShort_constructor_07() { runner2.runOneTest("dfdlUShort_constructor_07") }
+   @Test def test_dfdlUShort_constructor_08() { runner2.runOneTest("dfdlUShort_constructor_08") }
+   @Test def test_dfdlUShort_constructor_09() { runner2.runOneTest("dfdlUShort_constructor_09") }
+   @Test def test_dfdlUShort_constructor_11() { runner2.runOneTest("dfdlUShort_constructor_11") }
+   
+   @Test def test_dfdlInt_constructor_01() { runner2.runOneTest("dfdlInt_constructor_01") }
+   @Test def test_dfdlInt_constructor_02() { runner2.runOneTest("dfdlInt_constructor_02") }
+   @Test def test_dfdlInt_constructor_03() { runner2.runOneTest("dfdlInt_constructor_03") }
+   @Test def test_dfdlInt_constructor_04() { runner2.runOneTest("dfdlInt_constructor_04") }
+   @Test def test_dfdlInt_constructor_05() { runner2.runOneTest("dfdlInt_constructor_05") }
+   @Test def test_dfdlInt_constructor_06() { runner2.runOneTest("dfdlInt_constructor_06") }
+   @Test def test_dfdlInt_constructor_07() { runner2.runOneTest("dfdlInt_constructor_07") }
+   @Test def test_dfdlInt_constructor_08() { runner2.runOneTest("dfdlInt_constructor_08") }
+   @Test def test_dfdlInt_constructor_09() { runner2.runOneTest("dfdlInt_constructor_09") }
+   @Test def test_dfdlInt_constructor_11() { runner2.runOneTest("dfdlInt_constructor_11") }
+   @Test def test_dfdlInt_constructor_12() { runner2.runOneTest("dfdlInt_constructor_12") }
+   @Test def test_dfdlInt_constructor_13() { runner2.runOneTest("dfdlInt_constructor_13") }
+   @Test def test_dfdlInt_constructor_14() { runner2.runOneTest("dfdlInt_constructor_14") }
+   
+   @Test def test_dfdlUInt_constructor_01() { runner2.runOneTest("dfdlUInt_constructor_01") }
+   @Test def test_dfdlUInt_constructor_02() { runner2.runOneTest("dfdlUInt_constructor_02") }
+   @Test def test_dfdlUInt_constructor_03() { runner2.runOneTest("dfdlUInt_constructor_03") }
+   @Test def test_dfdlUInt_constructor_04() { runner2.runOneTest("dfdlUInt_constructor_04") }
+   @Test def test_dfdlUInt_constructor_05() { runner2.runOneTest("dfdlUInt_constructor_05") }
+   @Test def test_dfdlUInt_constructor_06() { runner2.runOneTest("dfdlUInt_constructor_06") }
+   @Test def test_dfdlUInt_constructor_07() { runner2.runOneTest("dfdlUInt_constructor_07") }
+   @Test def test_dfdlUInt_constructor_08() { runner2.runOneTest("dfdlUInt_constructor_08") }
+   @Test def test_dfdlUInt_constructor_09() { runner2.runOneTest("dfdlUInt_constructor_09") }
+   @Test def test_dfdlUInt_constructor_11() { runner2.runOneTest("dfdlUInt_constructor_11") }
+   @Test def test_dfdlUInt_constructor_12() { runner2.runOneTest("dfdlUInt_constructor_12") }
+   
+   @Test def test_dfdlLong_constructor_01() { runner2.runOneTest("dfdlLong_constructor_01") }
+   @Test def test_dfdlLong_constructor_02() { runner2.runOneTest("dfdlLong_constructor_02") }
+   @Test def test_dfdlLong_constructor_03() { runner2.runOneTest("dfdlLong_constructor_03") }
+   @Test def test_dfdlLong_constructor_04() { runner2.runOneTest("dfdlLong_constructor_04") }
+   @Test def test_dfdlLong_constructor_05() { runner2.runOneTest("dfdlLong_constructor_05") }
+   @Test def test_dfdlLong_constructor_06() { runner2.runOneTest("dfdlLong_constructor_06") }
+   @Test def test_dfdlLong_constructor_07() { runner2.runOneTest("dfdlLong_constructor_07") }
+   @Test def test_dfdlLong_constructor_08() { runner2.runOneTest("dfdlLong_constructor_08") }
+   @Test def test_dfdlLong_constructor_09() { runner2.runOneTest("dfdlLong_constructor_09") }
+   @Test def test_dfdlLong_constructor_11() { runner2.runOneTest("dfdlLong_constructor_11") }
+   @Test def test_dfdlLong_constructor_12() { runner2.runOneTest("dfdlLong_constructor_12") }
+   
+   @Test def test_dfdlULong_constructor_01() { runner2.runOneTest("dfdlULong_constructor_01") }
+   @Test def test_dfdlULong_constructor_02() { runner2.runOneTest("dfdlULong_constructor_02") }
+   @Test def test_dfdlULong_constructor_03() { runner2.runOneTest("dfdlULong_constructor_03") }
+   @Test def test_dfdlULong_constructor_04() { runner2.runOneTest("dfdlULong_constructor_04") }
+   @Test def test_dfdlULong_constructor_05() { runner2.runOneTest("dfdlULong_constructor_05") }
+   @Test def test_dfdlULong_constructor_06() { runner2.runOneTest("dfdlULong_constructor_06") }
+   @Test def test_dfdlULong_constructor_07() { runner2.runOneTest("dfdlULong_constructor_07") }
+   @Test def test_dfdlULong_constructor_08() { runner2.runOneTest("dfdlULong_constructor_08") }
+   @Test def test_dfdlULong_constructor_09() { runner2.runOneTest("dfdlULong_constructor_09") }
+   @Test def test_dfdlULong_constructor_11() { runner2.runOneTest("dfdlULong_constructor_11") }
+   @Test def test_dfdlULong_constructor_12() { runner2.runOneTest("dfdlULong_constructor_12") }
+   
+   @Test def test_xsDateTime_constructor_06() { runner2.runOneTest("xsDateTime_constructor_06") }
+   @Test def test_xsDateTime_constructor_07() { runner2.runOneTest("xsDateTime_constructor_07") }
+   @Test def test_xsDateTime_constructor_08() { runner2.runOneTest("xsDateTime_constructor_08") }
+   @Test def test_xsDateTime_constructor_09() { runner2.runOneTest("xsDateTime_constructor_09") }
+   @Test def test_xsDateTime_constructor_10() { runner2.runOneTest("xsDateTime_constructor_10") }
+   @Test def test_date_constructor_05() { runner2.runOneTest("date_constructor_05") }
+   @Test def test_date_constructor_06() { runner2.runOneTest("date_constructor_06") }
+   @Test def test_date_constructor_07() { runner2.runOneTest("date_constructor_07") }
+   @Test def test_date_constructor_08() { runner2.runOneTest("date_constructor_08") }
+   @Test def test_time_constructor_05() { runner2.runOneTest("time_constructor_05") }
+   @Test def test_time_constructor_06() { runner2.runOneTest("time_constructor_06") }
+   @Test def test_time_constructor_07() { runner2.runOneTest("time_constructor_07") }
+   @Test def test_time_constructor_08() { runner2.runOneTest("time_constructor_08") }
 
 }

@@ -22,6 +22,9 @@ import com.ibm.icu.util.DFDLCalendar
 import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
+import com.ibm.icu.util.DFDLDateTime
+import com.ibm.icu.util.DFDLDate
+import com.ibm.icu.util.DFDLTime
 
 class DPathRecipe(val ops: RecipeOp*) extends Serializable {
 
@@ -780,6 +783,16 @@ case class NegateOp(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) 
 
 case class FNDateTime(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
   val name = "FNDateTime"
+
+  private def calendarToDFDLDateTime(calendar: Calendar, formatString: String, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
+    try {
+      val cal = new DFDLDateTime(calendar)
+      return cal
+    } catch {
+      case ex: java.lang.IllegalArgumentException =>
+        dstate.pstate.SDE("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, calendar.toString, toType, ex.getMessage())
+    }
+  }
   override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
 
     val dateCal = arg1.asInstanceOf[DFDLCalendar].getCalendar
@@ -817,7 +830,7 @@ case class FNDateTime(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
       case (tz0, tz1) => newCal.setTimeZone(tz0)
     }
 
-    val finalCal = Conversion.calendarToDFDLCalendar(newCal, "yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxxxx", dstate, name, "DateTime")
+    val finalCal = calendarToDFDLDateTime(newCal, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx", dstate, name, "DateTime")
     finalCal
   }
 }
@@ -1054,42 +1067,106 @@ abstract class FNThreeArgs(recipes: List[DPathRecipe]) extends RecipeOpWithSubRe
   override def toXML = toXML(recipes.map { _.toXML })
 }
 
-case class FNYearFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.YEAR)
-}
-case class FNMonthFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.MONTH) + 1 // JAN 0
-}
-case class FNDayFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.DAY_OF_MONTH)
-}
-case class FNHoursFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.HOUR_OF_DAY)
-}
-case class FNMinutesFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.MINUTE)
-}
-case class FNSecondsFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.SECOND)
+trait FNFromDateTimeKind {
+  def fieldName: String
+  def field: Int
 }
 
-case class FNYearFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.YEAR)
+abstract class FNFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case dt: DFDLDateTime => dt.getField(field)
+      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+    }
+  }
 }
-case class FNMonthFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.MONTH) + 1 // JAN 0
+
+abstract class FNFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case d: DFDLDate => d.getField(field)
+      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-date only accepts xs:date.")
+    }
+  }
 }
-case class FNDayFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.DAY_OF_MONTH)
+
+abstract class FNFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType)
+  with FNFromDateTimeKind {
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case t: DFDLTime => t.getField(field)
+      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-time only accepts xs:time.")
+    }
+  }
 }
-case class FNHoursFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.HOUR_OF_DAY)
+
+case class FNYearFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "year"
+  val field = Calendar.YEAR
 }
-case class FNMinutesFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.MINUTE)
+case class FNMonthFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "month"
+  val field = Calendar.MONTH
+  override def computeValue(a: Any, dstate: DState) = super.computeValue(a, dstate).asInstanceOf[Int] + 1 // JAN 0
 }
-case class FNSecondsFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[DFDLCalendar].getField(Calendar.SECOND)
+case class FNDayFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "day"
+  val field = Calendar.DAY_OF_MONTH
+}
+case class FNHoursFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "hours"
+  val field = Calendar.HOUR_OF_DAY
+}
+case class FNMinutesFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "minutes"
+  val field = Calendar.MINUTE
+}
+case class FNSecondsFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDateTime(recipe, argType) {
+  val fieldName = "seconds"
+  val field = Calendar.SECOND
+}
+
+case class FNYearFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDate(recipe, argType) {
+  val fieldName = "year"
+  val field = Calendar.YEAR
+}
+case class FNMonthFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDate(recipe, argType) {
+  val fieldName = "month"
+  val field = Calendar.MONTH
+  override def computeValue(a: Any, dstate: DState) = super.computeValue(a, dstate).asInstanceOf[Int] + 1 // JAN 0
+}
+case class FNDayFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromDate(recipe, argType) {
+  val fieldName = "day"
+  val field = Calendar.DAY_OF_MONTH
+}
+case class FNHoursFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromTime(recipe, argType) {
+  val fieldName = "hours"
+  val field = Calendar.HOUR_OF_DAY
+}
+case class FNMinutesFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromTime(recipe, argType) {
+  val fieldName = "minutes"
+  val field = Calendar.MINUTE
+}
+case class FNSecondsFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+  extends FNFromTime(recipe, argType) {
+  val fieldName = "seconds"
+  val field = Calendar.SECOND
 }
 
 abstract class FNArgsList(recipes: List[DPathRecipe]) extends RecipeOpWithSubRecipes(recipes) {
@@ -1127,145 +1204,111 @@ case class XSInt(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) {
 }
 
 case class XSString(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
-  override def computeValue(value: Any, dstate: DState) = value.toString
+  override def computeValue(value: Any, dstate: DState) = {
+    val res: Any = value match {
+      case hb: Array[Byte] => HexBinaryToString.computeValue(hb, dstate)
+      case _ => value.toString
+    }
+    res
+  }
 }
 
 case class XSDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with XSDateTimeKind with DateTimeFormatters {
-
+  extends FNOneArg(recipe, argType) {
   val name = "XSDateTime"
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "DateTime") match {
-      case Left(failure1) => {
-        val dateTimeWithFractNoTimeZone = withFractNoTimeZoneFormatter.get
-        dateTimeWithFractNoTimeZone.setCalendar(getNewCalendar)
-        Conversion.stringToDFDLCalendar(a.toString, dateTimeWithFractNoTimeZone, defaultFormat, name, "DateTime") match {
-          case Left(failure2) => {
-            val dateTimeWithTimeZoneNoFract = withTimeZoneNoFractFormatter.get
-            dateTimeWithTimeZoneNoFract.setCalendar(getNewCalendar)
-            Conversion.stringToDFDLCalendar(a.toString, dateTimeWithTimeZoneNoFract, defaultFormat, name, "DateTime") match {
-              case Left(failure3) => {
-                val dateTimeNoTimeZoneNoFract = noTimeZoneNoFractFormatter.get
-                dateTimeNoTimeZoneNoFract.setCalendar(getNewCalendar)
-                Conversion.stringToDFDLCalendar(a.toString, dateTimeNoTimeZoneNoFract, defaultFormat, name, "DateTime") match {
-                  case Left(failure4) => {
-                    val dateWithTimeZoneFormat = withTimeZoneFormatter.get
-                    dateWithTimeZoneFormat.setCalendar(getNewCalendar)
-                    Conversion.stringToDFDLCalendar(a.toString, dateWithTimeZoneFormat, defaultFormat, name, "DateTime") match {
-                      case Left(failure5) => {
-                        val dateOnlyFormat = dateOnlyFormatter.get
-                        dateOnlyFormat.setCalendar(getNewCalendar)
-                        Conversion.stringToDFDLCalendar(a.toString, dateOnlyFormat, defaultFormat, name, "DateTime") match {
-                          case Left(failure6) => {
-                            dstate.pstate.SDE("XSDate failed due to: " + failure1 + "\n" + failure2 +
-                              "\n" + failure3 + "\n" + failure4 + "\n" + failure5 + "\n" + failure6)
-                          }
-                          case Right(cal) => return cal
-                        }
-                      }
-                      case Right(cal) => return cal
-                    }
-                  }
-                  case Right(cal) => return cal
-                }
-              }
-              case Right(cal) => return cal
-            }
-          }
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
+    val result = a match {
+      case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:dateTime can never succeed.")
+      case _ => ToDateTime.computeValue(a, dstate)
     }
+    result
   }
 }
 
 case class XSDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with XSDateTimeKind with DateFormatters {
+  extends FNOneArg(recipe, argType) {
   val name = "XSDate"
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "Date") match {
-      case Left(failure1) => {
-        val formatWithoutTimezone = withoutTimezoneFormatter.get
-        formatWithoutTimezone.setCalendar(getNewCalendar)
-
-        Conversion.stringToDFDLCalendar(a.toString, formatWithoutTimezone, defaultFormat, name, "Date") match {
-          case Left(failure2) => dstate.pstate.SDE("XSDate failed due to: " + failure1 + " and " + failure2)
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
+    val result = a match {
+      case _: DFDLTime => throw new NumberFormatException("Casting from xs:time to xs:date can never succeed.")
+      case _ => ToDate.computeValue(a, dstate)
     }
+    result
   }
 }
 
 case class XSTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with XSDateTimeKind with TimeFormatters {
+  extends FNOneArg(recipe, argType) {
   val name = "XSTime"
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "Time") match {
-      case Left(failure1) => {
-        val formatNoTimeZone = noTimeZoneFormatter.get
-        formatNoTimeZone.setCalendar(getNewCalendar)
-        Conversion.stringToDFDLCalendar(a.toString, formatNoTimeZone, defaultFormat, name, "Time") match {
-          case Left(failure2) => {
-            val formatNoTimeZoneNoFractional = noTimeZoneNoFractFormatter.get
-            formatNoTimeZoneNoFractional.setCalendar(getNewCalendar)
-            Conversion.stringToDFDLCalendar(a.toString, formatNoTimeZoneNoFractional, defaultFormat, name, "Time") match {
-              case Left(failure3) => {
-                val formatWithTimeZoneNoFractional = withTimeZoneNoFractFormatter.get
-                formatWithTimeZoneNoFractional.setCalendar(getNewCalendar)
-                Conversion.stringToDFDLCalendar(a.toString, formatWithTimeZoneNoFractional, defaultFormat, name, "Time") match {
-                  case Left(failure4) => dstate.pstate.SDE("XSTime failed due to " + failure1 + ", " + failure2 + ", " + failure3 + " and " + failure4)
-                  case Right(cal) => return cal
-                }
-              }
-              case Right(cal) => return cal
-            }
-          }
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
+    val result = a match {
+      case _: DFDLDate => throw new NumberFormatException("Casting from xs:date to xs:time can never succeed")
+      case _ => ToTime.computeValue(a, dstate)
     }
+    result
   }
 }
 
 trait HexBinaryKind {
-  val hexPattern = """([0-9A-Fa-f]+)""".r
+
+  private val conversionErrMsg: String = "%s could not be represented as a long."
 
   /**
    * http://travisdazell.blogspot.com/2012/11/converting-hex-string-to-byte-array-in.html
    */
-  def hexStringToByteArray(str: String): Either[String, Array[Byte]] = {
+  protected def hexStringToByteArray(str: String): Array[Byte] = {
     val len = str.length
 
     if ((len % 2) != 0)
-      return Left("Failed to evaluate expression: A hexBinary value must contain an even number of characters.")
-
-    str match {
-      case hexPattern(value) => // Correct, continue
-      case _ => return Left("Failed to evaluate expression: Invalid hexadecimal digit.")
-    }
+      throw new NumberFormatException("Failed to evaluate expression: A hexBinary value must contain an even number of characters.")
 
     val arr = new Array[Byte](len / 2)
     var i = 0
     while (i < len) {
-      val byte = (Character.digit(str.charAt(i), 16) << 4) + (Character.digit(str.charAt(i + 1), 16))
+      val upper = Character.digit(str.charAt(i), 16)
+      val lower = Character.digit(str.charAt(i + 1), 16)
+
+      if (upper == -1)
+        throw new NumberFormatException("Failed to evaluate expression: Invalid hexadecimal digit '%c' at index %d of '%s'".format(str.charAt(i), i, str))
+      if (lower == -1)
+        throw new NumberFormatException("Failed to evaluate expression: Invalid hexadecimal digit '%c' at index %d of '%s'".format(str.charAt(i + 1), i + 1, str))
+
+      val byte = (upper << 4) + (lower)
       arr(i / 2) = byte.asInstanceOf[Byte]
       i += 2
     }
-    return Right(arr)
+    return arr
+  }
+
+  protected def reduce(numeric: Any): Array[Byte] = {
+    val res: Array[Byte] = numeric match {
+      case b: Byte => HexBinaryConversions.toByteArray(b)
+      case s: Short if (s <= Byte.MaxValue && s >= Byte.MinValue) => reduce(s.toByte)
+      case s: Short => HexBinaryConversions.toByteArray(s)
+      case i: Int if (i <= Short.MaxValue && i >= Short.MinValue) => reduce(i.toShort)
+      case i: Int => HexBinaryConversions.toByteArray(i)
+      case l: Long if (l <= Int.MaxValue && l >= Int.MinValue) => reduce(l.toInt)
+      case l: Long => HexBinaryConversions.toByteArray(l)
+      case bi: BigInt if (bi.isValidLong) => reduce(bi.toLong)
+      case bd: BigDecimal if (bd.isValidLong) => reduce(bd.toLong)
+      case str: String => reduce(BigInt(str))
+      case _ => throw new NumberFormatException("%s could not fit into a long".format(numeric.toString))
+    }
+    res
+  }
+
+  /**
+   * http://javarevisited.blogspot.com/2013/03/convert-and-print-byte-array-to-hex-string-java-example-tutorial.html
+   */
+  protected def bytesToHexString(bytes: Array[Byte]): String = {
+    val sb = new StringBuilder
+    for (b <- bytes) {
+      sb.append("%02X".format(b & 0xFF))
+    }
+    return sb.toString
   }
 }
 
@@ -1278,150 +1321,11 @@ case class XSHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
     // 1. Even number of characters
     // 2. Valid hex (0-9 A-F)
     val array = a match {
-      case s: String => hexStringToByteArray(s) match {
-        case Left(err) => throw new NumberFormatException(err + " The value was '%s'.".format(s))
-        case Right(hb) => hb
-      }
+      case s: String => hexStringToByteArray(s)
       case hb: Array[Byte] => hb
-      case x => dstate.pstate.SDE("XSHexBinary received a value other than String or Array[Byte]. The value is class %s.", Misc.getNameFromClass(x))
+      case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
     }
     array
-  }
-}
-
-/**
- * The argument can
- * also be a long, unsignedLong, or any subtype
- * thereof, and in that case a xs:hexBinary value
- * containing a number of hex digits is produced.
- * The ordering and number of the digits
- * correspond to a binary big-endian twos-
- * complement implementation of the type of the
- * argument. Digits 0-9, A-F are used.
- * The number of digits produced depends on the
- * type of $arg, being 2, 4, 8 or 16. If $arg is a
- * literal number then the type is the smallest
- * signed type (long, int, short, byte) that can
- * contain the value.
- * If a literal number is not able to be represented
- * by a long, it is a schema definition error.
- *
- * • dfdl:hexBinary(xs:short(208)) is the hexBinary value "00D0".
- * • dfdl:hexBinary(208) is the hexBinary value "D0".
- * • dfdl:hexBinary(-2084) is the hexBinary value "F7FF".
- *
- */
-case class DFDLHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with HexBinaryKind {
-  val name = "DFDLHexBinary"
-  private val conversionErrMsg: String = "%s could not be represented as a long."
-
-  private def getNBytesFromArray(a: Array[Byte], n: Int): Array[Byte] = {
-    val newArray = new Array[Byte](n)
-
-    var i: Int = n
-    val aLen = a.length
-    val idxNewArray: Int = 0
-    val offset: Int = if (aLen < n) { Math.abs(aLen - n) } else 0
-
-    for (idxNewArray <- 0 + offset to n - 1) {
-      newArray(idxNewArray) = a(aLen - i + offset)
-      i -= 1
-    }
-
-    newArray
-  }
-  private def reduce(bi: BigInt): Either[String, Array[Byte]] = {
-
-    val arr = bi.toByteArray
-
-    val res: Either[String, Array[Byte]] = {
-      if (bi.isValidByte) Right(getNBytesFromArray(arr, 1))
-      else if (bi.isValidShort) Right(getNBytesFromArray(arr, 2))
-      else if (bi.isValidInt) Right(getNBytesFromArray(arr, 4))
-      else if (bi.isValidLong) Right(getNBytesFromArray(arr, 8))
-      else Left(conversionErrMsg.format(bi.toString))
-    }
-    res
-  }
-
-  /**
-   * Convo w/ Mike:
-   *
-   * (02:35:13 PM) Mike Beckerle: If the argument is of some fixed-width type like Byte, Int, Short, Long or the unsigned thereof, then you get hex digits corresponding to 1, 2, 4, or 8 bytes of a binary twos-complement integer value of that type. If the argument is anything else (including is a literal number), then you get the smallest number of hex digit pairs that can represent the value.  If you get xs:integer (aka BigInt/Java BigInteger), then I'd say - smallest number of digits that can represent the value.
-   * (02:35:34 PM) Taylor: ok
-   * (02:35:50 PM) Mike Beckerle: So dfdl:hexBinary(208) is D0, dfdl:hexBinary(xs:integer(208)) is also D0 dfdl:hexBinary(xs:short(208)) is 00D0
-   * (02:36:13 PM) Taylor: ah ok
-   * (02:36:56 PM) Taylor: I also think the resultant value for -2084 is incorrect
-   * (02:37:25 PM) Taylor: Think it should be F7DC unless I'm doing something wrong.
-   * (02:38:48 PM) Mike Beckerle: Probably just typo.
-   * (02:39:40 PM) Mike Beckerle: F7DC is definitely right.
-   * (02:41:27 PM) Taylor: Ok thanks.  So Integer is really going to be the exception here. It will always be the smallest value that can be represented vs the other types.
-   * (02:42:23 PM) Taylor: It seems like regardless of whether or not I use xs:integer(208) or just 208 we get an Integer back.
-   * (02:42:41 PM) Taylor: There's no BigInt/BigInteger distinction.
-   * (02:44:17 PM) Mike Beckerle: Yeah I think scala does a BigInt conversion implicitly perhaps? They may be just type synonyms also. I'm not sure.
-   * (02:45:03 PM) Mike Beckerle: The code that creates literal numeral constants does not downsize them. It should be producing xs:int, I believe, for all literal numbers that fit in that range.
-   */
-  override def computeValue(a: Any, dstate: DState): Any = {
-    val arr = a match {
-      case s: String => {
-        // Literal number
-
-        val result = reduce(BigInt(s)) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
-          case Right(hb) => hb
-        }
-        result
-      }
-      case b: Byte => {
-        val arr = new Array[Byte](1)
-        arr(0) = b
-        arr
-      }
-      case s: Short => {
-        val hexString: String = "%04X".format(s)
-        hexStringToByteArray(hexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
-          case Right(hb) => hb
-        }
-      }
-      case bi: BigInt => {
-        // Literal number
-
-        val result = reduce(bi) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", bi.toString)
-          case Right(hb) => hb
-        }
-        result
-      }
-      case i: Integer => {
-        // Possibly a Literal Number, try to fit it into the smallest
-        // value anyway.
-        val result = reduce(BigInt(i)) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", i)
-          case Right(hb) => hb
-        }
-        result
-      }
-      case l: Long => {
-        val hexString = "%016X".format(l)
-        hexStringToByteArray(hexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", l)
-          case Right(hb) => hb
-        }
-      }
-      case ul: BigDecimal => {
-        val hexString = "%032X".format(ul)
-        hexStringToByteArray(hexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", ul)
-          case Right(hb) => hb
-        }
-      }
-      case hb: Array[Byte] => hb
-      case x => dstate.pstate.SDE("Unrecognized type! Must be String or Array[Byte] The value was '%s'.", x)
-    }
-
-    arr
   }
 }
 
@@ -1545,13 +1449,28 @@ case object BooleanToString extends Converter {
 }
 
 case object DateTimeToDate extends Converter {
-  override def computeValue(a: Any, dstate: DState) = a.asInstanceOf[DFDLCalendar].toDate
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case dt: DFDLDateTime => dt.toDate
+      case _ => throw new NumberFormatException("xs:dateTime expected but an invalid type was received.")
+    }
+  }
 }
 case object DateTimeToTime extends Converter {
-  override def computeValue(a: Any, dstate: DState) = a.asInstanceOf[DFDLCalendar].toTime
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case dt: DFDLDateTime => dt.toTime
+      case _ => throw new NumberFormatException("xs:dateTime expected but an invalid type was received.")
+    }
+  }
 }
 case object DateToDateTime extends Converter {
-  override def computeValue(a: Any, dstate: DState) = a.asInstanceOf[DFDLCalendar].toDateTime
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case d: DFDLDate => d.toDateTime
+      case _ => throw new NumberFormatException("xs:date expected but an invalid type was received.")
+    }
+  }
 }
 case object DecimalToInteger extends Converter {
   override def computeValue(a: Any, dstate: DState) = asBigDecimal(a).toBigInt()
@@ -1611,6 +1530,14 @@ case object FloatToDouble extends Converter {
 }
 case object IntegerToDecimal extends Converter {
   override def computeValue(a: Any, dstate: DState) = BigDecimal(asBigInt(a))
+}
+case object IntegerToUnsignedLong extends Converter {
+  override def computeValue(a: Any, dstate: DState) = {
+    val res = asBigInt(a)
+    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
+    if (res > this.maxUnsignedLong) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    else res
+  }
 }
 case object LongToBoolean extends Converter {
   override def computeValue(a: Any, dstate: DState) = if (asLong(a) == 0) false else true
@@ -1748,48 +1675,73 @@ trait XSDateTimeKind {
     }
   }
 
+  def defaultFormatter: ThreadLocal[SimpleDateFormat]
+  def acceptableFormats: Seq[SimpleDateFormat]
+
   def getNewCalendar: Calendar = calendar.get.clone().asInstanceOf[Calendar]
+
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat,
+    fncName: String, toType: String): DFDLCalendar
+
+  def matchFormat(str: String, fncName: String, toType: String): DFDLCalendar = {
+
+    acceptableFormats.foreach(f => {
+      val inFormat = f
+      inFormat.setCalendar(getNewCalendar)
+      try {
+        val cal = createCalendar(str, inFormat, fncName, toType)
+        // Here we've successfully created a calendar using the expected format
+        // denoted by 'inFormat'. Return the calendar.
+        return cal
+      } catch {
+        case e: IllegalArgumentException => /* Format failed, continue trying to match other formats */
+      }
+
+    })
+    // All acceptable formats failed
+    throw new NumberFormatException("Failed to convert \"%s\" to %s.".format(str, toType))
+  }
 }
 
 trait DateTimeFormatters {
   lazy val defaultFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
+      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
       format
     }
   }
 
   lazy val withFractNoTimeZoneFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss.SSSSSS")
       format
     }
   }
 
   lazy val withTimeZoneNoFractFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssxxxxx")
+      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssxxxxx")
       format
     }
   }
 
   lazy val noTimeZoneNoFractFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss")
       format
     }
   }
 
   lazy val withTimeZoneFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-ddxxxxx")
+      val format = new SimpleDateFormat("uuuu-MM-ddxxxxx")
       format
     }
   }
 
   lazy val dateOnlyFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd")
+      val format = new SimpleDateFormat("uuuu-MM-dd")
       format
     }
   }
@@ -1798,13 +1750,13 @@ trait DateTimeFormatters {
 trait DateFormatters {
   lazy val defaultFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-ddxxxxx")
+      val format = new SimpleDateFormat("uuuu-MM-ddxxxxx")
       format
     }
   }
   lazy val withoutTimezoneFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val format = new SimpleDateFormat("yyyy-MM-dd")
+      val format = new SimpleDateFormat("uuuu-MM-dd")
       format
     }
   }
@@ -1840,76 +1792,48 @@ trait TimeFormatters {
   }
 }
 
-case object XSDate extends Converter with XSDateTimeKind with DateFormatters {
-  val name = "XSDate"
+case object ToDate extends Converter with XSDateTimeKind with DateFormatters {
+  val name = "ToDate"
+
+  def acceptableFormats = Seq(defaultFormatter.get, withoutTimezoneFormatter.get)
+
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLDate(str, inFormat, fncName, toType)
+  }
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "Date") match {
-      case Left(failure1) => {
-        val formatWithoutTimezone = withoutTimezoneFormatter.get
-        formatWithoutTimezone.setCalendar(getNewCalendar)
-
-        Conversion.stringToDFDLCalendar(a.toString, formatWithoutTimezone, defaultFormat, name, "Date") match {
-          case Left(failure2) => dstate.pstate.SDE("XSDate failed due to: " + failure1 + " and " + failure2)
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
+    val result = a match {
+      case cal: DFDLDateTime => cal.toDate
+      case cal: DFDLDate => cal
+      case str: String => matchFormat(str, name, "xs:date")
+      case _ => throw new NumberFormatException("xs:date only accepts String, Date or DateTime objects.")
     }
+    result
   }
 }
-case object XSDateTime extends Converter with XSDateTimeKind with DateTimeFormatters {
-  val name = "XSDateTime"
+case object ToDateTime extends Converter
+  with XSDateTimeKind with DateTimeFormatters {
+  val name = "ToDateTime"
+
+  def acceptableFormats = Seq(defaultFormatter.get, withFractNoTimeZoneFormatter.get,
+    noTimeZoneNoFractFormatter.get, withTimeZoneFormatter.get,
+    withTimeZoneNoFractFormatter.get, dateOnlyFormatter.get)
+
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat,
+    fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLDateTime(str, inFormat, fncName, toType)
+  }
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "DateTime") match {
-      case Left(failure1) => {
-        val dateTimeWithFractNoTimeZone = withFractNoTimeZoneFormatter.get
-        dateTimeWithFractNoTimeZone.setCalendar(getNewCalendar)
-        Conversion.stringToDFDLCalendar(a.toString, dateTimeWithFractNoTimeZone, defaultFormat, name, "DateTime") match {
-          case Left(failure2) => {
-            val dateTimeWithTimeZoneNoFract = withTimeZoneNoFractFormatter.get
-            dateTimeWithTimeZoneNoFract.setCalendar(getNewCalendar)
-            Conversion.stringToDFDLCalendar(a.toString, dateTimeWithTimeZoneNoFract, defaultFormat, name, "DateTime") match {
-              case Left(failure3) => {
-                val dateTimeNoTimeZoneNoFract = noTimeZoneNoFractFormatter.get
-                dateTimeNoTimeZoneNoFract.setCalendar(getNewCalendar)
-                Conversion.stringToDFDLCalendar(a.toString, dateTimeNoTimeZoneNoFract, defaultFormat, name, "DateTime") match {
-                  case Left(failure4) => {
-                    val dateWithTimeZoneFormat = withTimeZoneFormatter.get
-                    dateWithTimeZoneFormat.setCalendar(getNewCalendar)
-                    Conversion.stringToDFDLCalendar(a.toString, dateWithTimeZoneFormat, defaultFormat, name, "DateTime") match {
-                      case Left(failure5) => {
-                        val dateOnlyFormat = dateOnlyFormatter.get
-                        dateOnlyFormat.setCalendar(getNewCalendar)
-                        Conversion.stringToDFDLCalendar(a.toString, dateOnlyFormat, defaultFormat, name, "DateTime") match {
-                          case Left(failure6) => {
-                            dstate.pstate.SDE("XSDate failed due to: " + failure1 + "\n" + failure2 +
-                              "\n" + failure3 + "\n" + failure4 + "\n" + failure5 + "\n" + failure6)
-                          }
-                          case Right(cal) => return cal
-                        }
-                      }
-                      case Right(cal) => return cal
-                    }
-                  }
-                  case Right(cal) => return cal
-                }
-              }
-              case Right(cal) => return cal
-            }
-          }
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
+    val result = a match {
+      case cal: DFDLDateTime => cal
+      case cal: DFDLDate => cal.toDateTime
+      case str: String => matchFormat(str, name, "xs:dateTime")
+      case _ => throw new NumberFormatException("xs:dateTime only accepts String, Date or DateTime objects.")
     }
+    result
   }
+
 }
 case object XSHexBinary extends Converter with HexBinaryKind {
   val name = "XSHexBinary"
@@ -1922,121 +1846,36 @@ case object XSHexBinary extends Converter with HexBinaryKind {
     // 1. Even number of characters
     // 2. Valid hex (0-9 A-F)
     val arr = a match {
-      case s: String =>
-        hexStringToByteArray(s) match {
-          case Left(err) => throw new NumberFormatException(err + " The value was '%s'.".format(s))
-          case Right(hb) => hb
-        }
+      case s: String => hexStringToByteArray(s)
       case hb: Array[Byte] => hb
-      case x => dstate.pstate.SDE("Unrecognized type! Must be String or Array[Byte] The value was '%s'.", x)
+      case x => throw new NumberFormatException("%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String or HexBinary.".format(x.toString))
     }
 
     arr
   }
 }
 
-/**
- * The argument can
- * also be a long, unsignedLong, or any subtype
- * thereof, and in that case a xs:hexBinary value
- * containing a number of hex digits is produced.
- * The ordering and number of the digits
- * correspond to a binary big-endian twos-
- * complement implementation of the type of the
- * argument. Digits 0-9, A-F are used.
- * The number of digits produced depends on the
- * type of $arg, being 2, 4, 8 or 16. If $arg is a
- * literal number then the type is the smallest
- * signed type (long, int, short, byte) that can
- * contain the value.
- * If a literal number is not able to be represented
- * by a long, it is a schema definition error.
- */
-case object DFDLHexBinary extends Converter with HexBinaryKind {
-  val name = "DFDLHexBinary"
+case object ToTime extends Converter with XSDateTimeKind with TimeFormatters {
+  val name = "ToTime"
+
+  def acceptableFormats = Seq(defaultFormatter.get, noTimeZoneFormatter.get,
+    noTimeZoneNoFractFormatter.get, withTimeZoneNoFractFormatter.get)
+
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat,
+    fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLTime(str, inFormat, fncName, toType)
+  }
 
   override def computeValue(a: Any, dstate: DState): Any = {
-    // Apparently an invariant at DPath.scala 156 wants this to be
-    // Array[Byte]
-    //
-    // Check for:
-    // 1. Even number of characters
-    // 2. Valid hex (0-9 A-F)
-    val arr = a match {
-      case s: String =>
-        hexStringToByteArray(s) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
-          case Right(hb) => hb
-        }
-      case b: Byte => {
-        val arr = new Array[Byte](1)
-        arr(0) = b
-        arr
-      }
-      case s: Short => {
-        hexStringToByteArray(s.toInt.toHexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", s)
-          case Right(hb) => hb
-        }
-      }
-      case i: Integer => {
-        hexStringToByteArray(i.toInt.toHexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", i)
-          case Right(hb) => hb
-        }
-      }
-      case l: Long => {
-        hexStringToByteArray(l.toHexString) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", l)
-          case Right(hb) => hb
-        }
-      }
-      case ul: BigDecimal => {
-        hexStringToByteArray(ul.toBigInt.toString(16)) match {
-          case Left(err) => dstate.pstate.SDE(err + " The value was '%s'.", ul)
-          case Right(hb) => hb
-        }
-      }
-      case hb: Array[Byte] => hb
-      case x => dstate.pstate.SDE("Unrecognized type! Must be String or Array[Byte] The value was '%s'.", x)
+    val result = a match {
+      case cal: DFDLDateTime => cal.toTime
+      case cal: DFDLTime => cal
+      case str: String => matchFormat(str, name, "xs:time")
+      case _ => throw new NumberFormatException("xs:time only accepts String, DateTime or Time objects.")
     }
-
-    arr
+    result
   }
-}
 
-case object XSTime extends Converter with XSDateTimeKind with TimeFormatters {
-  val name = "XSTime"
-
-  override def computeValue(a: Any, dstate: DState): Any = {
-    val defaultFormat = defaultFormatter.get
-    defaultFormat.setCalendar(getNewCalendar)
-    Conversion.stringToDFDLCalendar(a.toString, defaultFormat, defaultFormat, name, "Time") match {
-      case Left(failure1) => {
-        val formatNoTimeZone = noTimeZoneFormatter.get
-        formatNoTimeZone.setCalendar(getNewCalendar)
-        Conversion.stringToDFDLCalendar(a.toString, formatNoTimeZone, defaultFormat, name, "Time") match {
-          case Left(failure2) => {
-            val formatNoTimeZoneNoFractional = noTimeZoneNoFractFormatter.get
-            formatNoTimeZoneNoFractional.setCalendar(getNewCalendar)
-            Conversion.stringToDFDLCalendar(a.toString, formatNoTimeZoneNoFractional, defaultFormat, name, "Time") match {
-              case Left(failure3) => {
-                val formatWithTimeZoneNoFractional = withTimeZoneNoFractFormatter.get
-                formatWithTimeZoneNoFractional.setCalendar(getNewCalendar)
-                Conversion.stringToDFDLCalendar(a.toString, formatWithTimeZoneNoFractional, defaultFormat, name, "Time") match {
-                  case Left(failure4) => dstate.pstate.SDE("XSTime failed due to " + failure1 + ", " + failure2 + ", " + failure3 + " and " + failure4)
-                  case Right(cal) => return cal
-                }
-              }
-              case Right(cal) => return cal
-            }
-          }
-          case Right(cal) => return cal
-        }
-      }
-      case Right(cal) => return cal
-    }
-  }
 }
 trait ToString extends Converter {
   override def computeValue(a: Any, dstate: DState) = a.toString
@@ -2050,7 +1889,43 @@ case object HexBinaryToString extends Converter {
     hex
   }
 }
-
+case object HexStringToLong extends Converter {
+  override def computeValue(a: Any, dstate: DState) = {
+    val res =
+      try {
+        val str = a.asInstanceOf[String]
+        java.lang.Long.parseLong(str, 16)
+      } catch {
+        case nfe: NumberFormatException => {
+          val e = new NumberFormatException("Cannot convert to type long: " + nfe.getMessage())
+          throw e
+        }
+      }
+    res
+  }
+}
+case object HexStringToUnsignedLong extends Converter {
+  override def computeValue(a: Any, dstate: DState) = {
+    val res =
+      try {
+        val str = a.asInstanceOf[String]
+        BigInt(str, 16)
+      } catch {
+        case nfe: NumberFormatException => {
+          val e = new NumberFormatException("Cannot convert to type unsignedLong: " + nfe.getMessage())
+          throw e
+        }
+      }
+    res
+  }
+}
+case object BigIntToLong extends Converter {
+  override def computeValue(a: Any, dstate: DState) = {
+    val res = asBigInt(a)
+    if (res < Long.MinValue || res > Long.MaxValue) throw new NumberFormatException("Value %s out of range for Long type.".format(res))
+    res.toLong
+  }
+}
 case object IntToLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = asInt(a).toLong
 }

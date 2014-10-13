@@ -1234,6 +1234,38 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.HexBinary, NodeInfo.AnyAtomic, DFDLHexBinary(_, _))
 
+      case (RefQName(_, "byte", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Byte, NodeInfo.AnyAtomic, DFDLByte(_, _))
+
+      case (RefQName(_, "unsignedByte", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.UnsignedByte, NodeInfo.AnyAtomic, DFDLUnsignedByte(_, _))
+
+      case (RefQName(_, "short", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Short, NodeInfo.AnyAtomic, DFDLShort(_, _))
+
+      case (RefQName(_, "unsignedShort", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.UnsignedShort, NodeInfo.AnyAtomic, DFDLUnsignedShort(_, _))
+
+      case (RefQName(_, "int", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Int, NodeInfo.AnyAtomic, DFDLInt(_, _))
+
+      case (RefQName(_, "unsignedInt", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.UnsignedInt, NodeInfo.AnyAtomic, DFDLUnsignedInt(_, _))
+
+      case (RefQName(_, "long", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Long, NodeInfo.AnyAtomic, DFDLLong(_, _))
+
+      case (RefQName(_, "unsignedLong", DFDL), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.UnsignedLong, NodeInfo.AnyAtomic, DFDLUnsignedLong(_, _))
+
       case (RefQName(_, "nilled", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.Boolean, NodeInfo.Nillable, FNNilled(_, _))

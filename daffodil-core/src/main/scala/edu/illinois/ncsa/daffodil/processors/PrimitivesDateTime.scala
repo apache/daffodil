@@ -46,16 +46,10 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.DFDLCalendar
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import com.ibm.icu.util.DFDLDateTime
+import com.ibm.icu.util.DFDLTime
+import com.ibm.icu.util.DFDLDate
 
-//  class DFDLCalendar(calendar: Calendar, formattedStr: String) extends Calendar {
-//  /** As seen from class DFDLCalendar, the missing signatures are as follows. * For convenience, these are usable as stub 
-// implementations. */ 
-//   protected[package util] def handleComputeMonthStart(x$1: Int,x$2: Int,x$3: Boolean): Int = calendar.handleComputeMonthStart(x$1, x$2, x$3)
-//   protected[package util] def handleGetExtendedYear(): Int = calendar.handleGetExtendedYear()
-//   protected[package util] def handleGetLimit(x$1: Int,x$2: Int): Int = calendar.handleGetLimit(x$1, x$2)
-////  def get(fieldIndex: Int): Int = calendar.get(fieldIndex)
-//  override def toString(): String = formattedStr
-//}
 
 case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     xsdType: String,
@@ -136,7 +130,14 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
 
     // Convert to the infoset format
     val result = tlInfosetFormatter.get.format(cal)
-    val newCal = new DFDLCalendar(cal, result)
+
+    val newCal = xsdType.toLowerCase() match {
+      case "time" => new DFDLTime(cal)
+      case "date" => new DFDLDate(cal)
+      case "datetime" => new DFDLDateTime(cal)
+      case _ => Assert.impossibleCase
+    }
+
     node.setDataValue(newCal)
 
     start

@@ -607,13 +607,13 @@ object Infoset {
       case DateTime => {
         val cal = new GregorianCalendar()
         val pos = new java.text.ParsePosition(0)
-        new com.ibm.icu.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
+        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssZZZZZ").parse(value, cal, pos)
         cal
       }
       case Date => {
         val cal = new GregorianCalendar()
         val pos = new java.text.ParsePosition(0)
-        new com.ibm.icu.text.SimpleDateFormat("yyyy-MM-dd").parse(value, cal, pos)
+        new com.ibm.icu.text.SimpleDateFormat("uuuu-MM-dd").parse(value, cal, pos)
         cal
       }
     }
