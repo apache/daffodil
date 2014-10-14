@@ -40,19 +40,20 @@ import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
-class SchemaDefinitionError(schemaContext: Option[SchemaFileLocatable],
-  annotationContext: Option[SchemaFileLocatable],
+class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
+  annotationContext: Option[SchemaFileLocation],
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
-  def this(sc: SchemaFileLocatable, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
+  def this(sc: SchemaFileLocation, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
   val diagnosticKind = "Error"
 
 }
 
-class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocatable,
+class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
   runtimeContext: PState,
   kind: String,
   args: Any*)
@@ -61,7 +62,7 @@ class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocatable,
   val diagnosticKind = "Error"
 }
 
-class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocatable,
+class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocation,
   runtimeContext: PState,
   kind: String,
   args: Any*)
@@ -72,19 +73,19 @@ class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocatable,
   val diagnosticKind = "Warning"
 }
 
-class SchemaDefinitionWarning(schemaContext: Option[SchemaFileLocatable],
-  annotationContext: Option[SchemaFileLocatable],
+class SchemaDefinitionWarning(schemaContext: Option[SchemaFileLocation],
+  annotationContext: Option[SchemaFileLocation],
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(schemaContext, None, annotationContext, kind, args: _*) {
 
-  def this(sc: SchemaFileLocatable, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
+  def this(sc: SchemaFileLocation, kind: String, args: Any*) = this(Some(sc), None, kind, args: _*)
 
   override def isError = false
   val diagnosticKind = "Warning"
 }
 
-class ValidationError(schemaContext: Option[SchemaFileLocatable],
+class ValidationError(schemaContext: Option[SchemaFileLocation],
   runtimeContext: PState,
   kind: String,
   args: Any*)
@@ -98,7 +99,7 @@ class ValidationError(schemaContext: Option[SchemaFileLocatable],
     diagnosticKind: String,
     schContextLocDescription: String,
     annContextLocDescription: String,
-    schemaContext: Option[SchemaFileLocatable]): String = {
+    schemaContext: Option[SchemaFileLocation]): String = {
     val dataLocDescription = currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
     val res = "Validation " + diagnosticKind + ": " + msg +
       "\nSchema context: " + Some(schemaContext).getOrElse("top level") + "." +
@@ -112,9 +113,9 @@ class ValidationError(schemaContext: Option[SchemaFileLocatable],
 }
 
 abstract class SchemaDefinitionDiagnosticBase(
-  val schemaContext: Option[SchemaFileLocatable],
+  val schemaContext: Option[SchemaFileLocation],
   runtimeContext: Option[PState],
-  val annotationContext: Option[SchemaFileLocatable],
+  val annotationContext: Option[SchemaFileLocation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {
 
@@ -154,7 +155,7 @@ abstract class SchemaDefinitionDiagnosticBase(
     diagnosticKind: String,
     schContextLocDescription: String,
     annContextLocDescription: String,
-    schemaContext: Option[SchemaFileLocatable]): String = {
+    schemaContext: Option[SchemaFileLocation]): String = {
     val runtime = if (currentLocation.isDefined) "Runtime " else ""
     val dataLocDescription =
       currentLocation.map { " Data Context: " + _.toString + "." }.getOrElse("")
@@ -212,7 +213,7 @@ abstract class SchemaDefinitionDiagnosticBase(
 trait ImplementsThrowsSDE
   extends ThrowsSDE { self: SchemaFileLocatable =>
 
-  val NoAnnotationContext: Option[SchemaFileLocatable] = None
+  val NoAnnotationContext: Option[SchemaFileLocation] = None
 
   /**
    * Centralize throwing for debug convenience
@@ -227,19 +228,19 @@ trait ImplementsThrowsSDE
 
   def SDE(id: String, args: Any*): Nothing = {
     ExecutionMode.requireCompilerMode
-    val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
+    val sde = new SchemaDefinitionError(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
     toss(sde)
   }
 
   def SDEButContinue(id: String, args: Any*): Unit = {
     ExecutionMode.requireCompilerMode
-    val sde = new SchemaDefinitionError(Some(schemaComponent), NoAnnotationContext, id, args: _*)
+    val sde = new SchemaDefinitionError(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
     error(sde) // calls the error routine which records the error, but doesn't throw/toss it.
   }
 
   def SDW(id: String, args: Any*): Unit = {
     ExecutionMode.requireCompilerMode
-    val sdw = new SchemaDefinitionWarning(Some(schemaComponent), NoAnnotationContext, id, args: _*)
+    val sdw = new SchemaDefinitionWarning(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
     warn(sdw)
   }
 

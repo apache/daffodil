@@ -217,7 +217,7 @@ class DataProcessor(dp: SDataProcessor)
   def setExternalVariables(extVars: Map[String, String]) = dp.setExternalVariables(extVars)
   def getVariables(): SVariableMap = dp.getVariables
 
-  def save(output: java.io.OutputStream): Unit = dp.save(output)
+  def save(output: DFDL.Output): Unit = dp.save(output)
 
   /**
    * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.

@@ -529,8 +529,11 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
   }
 }
 
-abstract class EscapeSchemeFactoryBase(scheme: DFDLEscapeScheme,
-  context: ThrowsSDE) {
+abstract class EscapeSchemeFactoryBase(@transient scheme: DFDLEscapeScheme,
+  context: ThrowsSDE) extends Serializable {
+  
+  protected val escapeKind = scheme.escapeKind
+
   protected def constEval(knownValue: Option[String]) = {
     val optConstValue = knownValue match {
       case None => None
@@ -602,7 +605,7 @@ abstract class EscapeSchemeFactoryBase(scheme: DFDLEscapeScheme,
   def getEscapeScheme(state: PState): (PState, EscapeScheme)
 
 }
-class EscapeSchemeFactoryStatic(scheme: DFDLEscapeScheme,
+class EscapeSchemeFactoryStatic(@transient scheme: DFDLEscapeScheme,
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(scheme, context) {
 
@@ -626,7 +629,7 @@ class EscapeSchemeFactoryStatic(scheme: DFDLEscapeScheme,
   }
 }
 
-class EscapeSchemeFactoryDynamic(scheme: DFDLEscapeScheme,
+class EscapeSchemeFactoryDynamic(@transient scheme: DFDLEscapeScheme,
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(scheme, context) with Dynamic {
 
@@ -656,7 +659,7 @@ class EscapeSchemeFactoryDynamic(scheme: DFDLEscapeScheme,
   val blockEnd = getBlockEnd
 
   def getEscapeScheme(state: PState) = {
-    val (finalState, theScheme) = scheme.escapeKind match {
+    val (finalState, theScheme) = escapeKind match {
       case EscapeKind.EscapeCharacter => {
         val (afterEscCharEval, finalOptEscChar) = evalWithConversion(state, escapeCharacterCached) {
           (s: PState, c: Any) =>

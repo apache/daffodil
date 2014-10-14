@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.compiler
 import java.io.File
 import java.io.FileInputStream
 import java.io.ObjectInputStream
+import java.nio.channels.Channels
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -242,16 +243,28 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     (sset, ge)
   }
 
-  def reload(savedParser: File): DFDL.DataProcessor = {
-    val fis = new FileInputStream(savedParser)
-    val objInput = new ObjectInputStream(fis)
+  def reload(savedParser: File) = reload (new FileInputStream(savedParser).getChannel())
+
+  def reload(savedParser: DFDL.Input): DFDL.DataProcessor = {
+    val objInput = new ObjectInputStream(Channels.newInputStream(savedParser)) {
+      
+      ///
+      /// This override is here because of a bug in sbt where the wrong class loader is being
+      /// used when deserializing an object.
+      //  For more information, see https://github.com/sbt/sbt/issues/163
+      ///
+      override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        try { Class.forName(desc.getName, false, getClass.getClassLoader) }
+        catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
+      }
+    }
+    
     val dpObj = objInput.readObject()
     objInput.close()
     val dp = dpObj.asInstanceOf[DataProcessor]
     CheckJavaVersion.checkJavaVersion(dp.ssrd)
     dp
   }
-
   /**
    * Compilation works entirely off of schema files because that allows XMLCatalogs
    * to work for Xerces without (much) pain.

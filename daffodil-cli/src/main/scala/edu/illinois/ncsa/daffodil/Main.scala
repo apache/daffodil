@@ -38,6 +38,7 @@ import java.io.OutputStreamWriter
 import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.nio.channels.Channels
 import scala.xml.SAXParseException
 import org.rogach.scallop
 import edu.illinois.ncsa.daffodil.debugger.{ Debugger, InteractiveDebugger, TraceDebuggerRunner, CLIDebuggerRunner }
@@ -900,8 +901,8 @@ object Main extends Logging {
         val processor = createProcessorFromSchemas(files, saveOpts.rootNS.get, saveOpts.path.get, extVarsBindings, tunables, validate)
 
         val output = saveOpts.outfile.get match {
-          case Some("-") | None => System.out
-          case Some(file) => new FileOutputStream(file)
+          case Some("-") | None => Channels.newChannel(System.out)
+          case Some(file) => new FileOutputStream(file).getChannel()
         }
 
         val rc = processor match {

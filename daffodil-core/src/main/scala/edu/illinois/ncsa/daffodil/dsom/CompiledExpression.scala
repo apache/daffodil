@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.xml.NamedQName
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -75,10 +76,16 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression(val value: Any) extends Serializable {
+abstract class CompiledExpression(val value: Any) extends PreSerialization with Serializable {
 
-  def preSerialization: Unit = {
+  override def preSerialization: Unit = {
     // called before serializing. Default does nothing.
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
   }
 
   def prettyExpr: String

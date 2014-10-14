@@ -75,6 +75,7 @@ import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
+import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.io.InputStream
 import edu.illinois.ncsa.daffodil.processors.charset.NonByteSizeCharsetEncoderDecoder
@@ -402,6 +403,15 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type): Unit
 
+  protected def runProcessor(processor: DFDL.DataProcessor,
+    data: Option[DFDL.Input],
+    lengthLimitInBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings],
+    validationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type): Unit
+    
   private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
       case None => Seq.empty
@@ -454,20 +464,23 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
       case None => Seq.empty
       case Some(definedConfig) => retrieveBindings(definedConfig)
     }
+
     val compiler = Compiler(parent.validateDFDLSchemas)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
+
     val pf = sch match {
       case node: Node => compiler.compile(node)
       case theFile: File => compiler.compile(theFile)
       case _ => Assert.invariantFailed("can only be Node or File")
     }
+
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
 
     runProcessor(pf, data, nBits, infoset, errors, warnings, validationErrors, validationMode)
-
+    
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
     log(LogLevel.Debug, "Bytes processed: " + bytesProcessed)
@@ -515,6 +528,39 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
+
+  def runProcessor(processor: DFDL.DataProcessor,
+    data: Option[DFDL.Input],
+    lengthLimitInBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings],
+    validationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type) = {
+  
+    val nBits = lengthLimitInBits.get
+    val dataToParse = data.get
+    (optInfoset, optErrors) match {
+      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)  
+      case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
+      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
+    }
+  }
+  
+  def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedParser: Boolean): DFDL.DataProcessor = {
+    val p = pf.onPath("/")
+    if (useSerializedParser) {
+      val os = new java.io.ByteArrayOutputStream()
+      val output = Channels.newChannel(os)
+      p.save(output)
+
+      val is = new java.io.ByteArrayInputStream(os.toByteArray)
+      val input = Channels.newChannel(is)
+      val compiler_ = Compiler()
+      compiler_.reload(input)
+    } else p
+  }
+
   def runProcessor(pf: DFDL.ProcessorFactory,
     data: Option[DFDL.Input],
     lengthLimitInBits: Option[Long],
@@ -524,14 +570,31 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) = {
 
+    val useSerializedParser = true
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
+    
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(pf, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
-      case (None, Some(errors)) => runParseExpectErrors(pf, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
+      case (Some(infoset), None) =>  {
+        val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+        if (pf.isError) {
+          throw new Exception(diags)
+        }
+        
+        val processor = this.generateProcessor(pf, useSerializedParser)        
+        runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
+      }
+
+      case (None, Some(errors)) => {
+        if (pf.isError) verifyAllDiagnosticsFound(pf, Some(errors))
+        else {
+          val processor = this.generateProcessor(pf, useSerializedParser)        
+          runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
+        }
+      }
+      
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
-
   }
 
   def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
@@ -573,7 +636,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     XMLUtils.compareAndReport(trimmedExpected, actualNoAttrs)
   }
 
-  def runParseExpectErrors(pf: DFDL.ProcessorFactory,
+  def runParseExpectErrors(processor: DFDL.DataProcessor,
     dataToParse: DFDL.Input,
     lengthLimitInBits: Long,
     errors: ExpectedErrors,
@@ -581,29 +644,26 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) {
 
-    val objectToDiagnose =
-      if (pf.isError) pf
+    val objectToDiagnose = {
+      if (processor.isError) processor
       else {
-        val processor = pf.onPath("/")
-        if (processor.isError) processor
+        val actual = processor.parse(dataToParse, lengthLimitInBits)
+        if (actual.isError) actual
         else {
-          val actual = processor.parse(dataToParse, lengthLimitInBits)
-          if (actual.isError) actual
-          else {
-            val loc: DataLocation = actual.resultState.currentLocation
+          val loc: DataLocation = actual.resultState.currentLocation
 
-            if (!loc.isAtEnd) {
-              actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
-              actual
-            } else {
-              // We did not get an error!!
-              // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-              throw new Exception("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
-            }
+          if (!loc.isAtEnd) {
+            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
+            actual
+          } else {
+            // We did not get an error!!
+            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+            throw new Exception("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
           }
-          actual
         }
+        actual
       }
+    }
 
     // check for any test-specified errors
     verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
@@ -613,8 +673,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // verifyAllDiagnosticsFound(objectToDiagnose, warnings)
 
   }
-
-  def runParseExpectSuccess(pf: DFDL.ProcessorFactory,
+  
+  def runParseExpectSuccess(processor: DFDL.DataProcessor,
     dataToParse: DFDL.Input,
     lengthLimitInBits: Long,
     infoset: Infoset,
@@ -622,70 +682,72 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) {
 
-    val isError = pf.isError
-    val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-    if (pf.isError) {
+    if (processor.isError) {
+      val diagObjs = processor.getDiagnostics
+      if (diagObjs.length == 1) throw diagObjs(0)
+      val diags = diagObjs.map(_.getMessage).mkString("\n")
       throw new Exception(diags)
-    } else {
-      val processor = pf.onPath("/")
-      if (processor.isError) {
-        val diagObjs = processor.getDiagnostics
-        if (diagObjs.length == 1) throw diagObjs(0)
-        val diags = diagObjs.map(_.getMessage).mkString("\n")
-        throw new Exception(diags)
-      }
-      processor.setValidationMode(validationMode)
-      val actual = processor.parse(dataToParse, lengthLimitInBits)
+    }
+    processor.setValidationMode(validationMode)
+    val actual = processor.parse(dataToParse, lengthLimitInBits)
 
-      if (!actual.canProceed) {
-        // Means there was an error, not just warnings.
-        val diagObjs = actual.getDiagnostics
-        if (diagObjs.length == 1) throw diagObjs(0)
-        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-        throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
-      }
+    if (!actual.canProceed) {
+      // Means there was an error, not just warnings.
+      val diagObjs = actual.getDiagnostics
+      if (diagObjs.length == 1) throw diagObjs(0)
+      val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+    }
 
-      validationMode match {
-        case ValidationMode.Off => // Don't Validate
-        case mode => {
-          if (actual.isValidationSuccess) {
-            // println("Validation Succeeded!") 
-          }
+    validationMode match {
+      case ValidationMode.Off => // Don't Validate
+      case mode => {
+        if (actual.isValidationSuccess) {
+          // println("Validation Succeeded!") 
         }
       }
-
-      val loc: DataLocation = actual.resultState.currentLocation
-
-      val leftOverException = if (!loc.isAtEnd) {
-        val leftOverMsg = "Left over data: " + loc.toString
-        println(leftOverMsg)
-        Some(new Exception(leftOverMsg))
-      } else None
-
-      verifyParseInfoset(actual, infoset)
-
-      (shouldValidate, expectsValidationError) match {
-        case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
-        case (true, false) => verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
-        case (false, true) => throw new Exception("Test case invalid. Validation is off but the test expects an error.")
-        case (false, false) => // Nothing to do here.
-      }
-
-      leftOverException.map { throw _ } // if we get here, throw the left over data exception.
-
-      // TODO: Implement Warnings
-      // check for any test-specified warnings
-      // verifyAllDiagnosticsFound(actual, warnings)
-
-      // if we get here, the test passed. If we don't get here then some exception was
-      // thrown either during the run of the test or during the comparison.
     }
+
+    val loc: DataLocation = actual.resultState.currentLocation
+
+    val leftOverException = if (!loc.isAtEnd) {
+      val leftOverMsg = "Left over data: " + loc.toString
+      println(leftOverMsg)
+      Some(new Exception(leftOverMsg))
+    } else None
+
+    verifyParseInfoset(actual, infoset)
+
+    (shouldValidate, expectsValidationError) match {
+      case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
+      case (true, false) => verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+      case (false, true) => throw new Exception("Test case invalid. Validation is off but the test expects an error.")
+      case (false, false) => // Nothing to do here.
+    }
+
+    leftOverException.map { throw _ } // if we get here, throw the left over data exception.
+
+    // TODO: Implement Warnings
+    // check for any test-specified warnings
+    // verifyAllDiagnosticsFound(actual, warnings)
+
+    // if we get here, the test passed. If we don't get here then some exception was
+    // thrown either during the run of the test or during the comparison.
   }
 }
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
+  def runProcessor(processor: DFDL.DataProcessor,
+    data: Option[DFDL.Input],
+    lengthLimitInBits: Option[Long],
+    optInfoset: Option[Infoset],
+    optErrors: Option[ExpectedErrors],
+    warnings: Option[ExpectedWarnings],
+    validationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type): Unit = ???
+    
   def runProcessor(pf: DFDL.ProcessorFactory,
     optData: Option[DFDL.Input],
     optNBits: Option[Long],

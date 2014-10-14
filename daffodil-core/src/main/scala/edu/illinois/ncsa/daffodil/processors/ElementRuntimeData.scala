@@ -84,6 +84,19 @@ class ElementRuntimeData(
 
   final lazy val elementRuntimeData = this
 
+  override def preSerialization : Unit = {
+    super.preSerialization
+    children
+    parent
+    elementRuntimeData
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
+
   /**
    * This parent pointer has to be done imperatively because otherwise we
    * end up in a stack-overflow where the parent ElementRuntimeData has

@@ -39,6 +39,20 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
+class SchemaFileLocation (@transient context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
+  
+  val lineNumber = context.lineNumber
+  val lineDescription: String = context.lineDescription
+  
+  val columnNumber = context.columnNumber
+  val columnDescription: String = context.columnDescription
+  
+  val fileDescription: String = context.fileDescription
+  val locationDescription: String = context.locationDescription
+  
+  override val toString = context.toString()
+}
+
 trait SchemaFileLocatable extends LocationInSchemaFile {
   def lineAttribute: Option[String]
   def columnAttribute: Option[String]
@@ -101,5 +115,6 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
 
   }
 
+  def schemaFileLocation = new SchemaFileLocation(this)
 }
 

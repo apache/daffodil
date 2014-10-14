@@ -61,7 +61,9 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   override def parser: PrimParser = new LiteralNilExplicitLengthInBytesParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    d: ThreadLocal[DFDLDelimParser],
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.name,
@@ -81,7 +83,9 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     lengthInBytes: Long,
-    d: ThreadLocal[DFDLDelimParser],
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.name,
@@ -101,11 +105,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
   // a failure to read nBytes is a failure period.
 
   lazy val unparserDelim = Assert.notYetImplemented()
-  lazy val d = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
-    }
-  }
 
 }
 
@@ -119,16 +118,13 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
   // TODO: LiteralNilExplicitLengthInChars really is a variation of LiteralNilPattern
   lazy val unparserDelim = Assert.notYetImplemented()
-  lazy val d = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
-    }
-  }
 
   override def parser = new LiteralNilExplicitLengthInCharsParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    d: ThreadLocal[DFDLDelimParser],
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.name,
@@ -145,17 +141,13 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
-  lazy val d = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
-    }
-  }
-
   override def parser = new LiteralNilExplicitParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     nUnits: Long,
-    d: ThreadLocal[DFDLDelimParser],
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.name,
@@ -170,16 +162,13 @@ case class LiteralNilPattern(e: ElementBase)
   val charset = e.knownEncodingCharset
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
-  lazy val d = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
-    }
-  }
 
   override def parser = new LiteralNilPatternParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    d: ThreadLocal[DFDLDelimParser],
+    e.knownEncodingIsFixedWidth,
+    e.knownEncodingWidthInBits,
+    e.knownEncodingName,
     e.elementRuntimeData,
     e.knownEncodingCharset,
     e.lengthPattern,

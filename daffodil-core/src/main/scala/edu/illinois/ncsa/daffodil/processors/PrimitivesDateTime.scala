@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolic
 import edu.illinois.ncsa.daffodil.util.Misc
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.DFDLCalendar
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 
 //  class DFDLCalendar(calendar: Calendar, formattedStr: String) extends Calendar {
 //  /** As seen from class DFDLCalendar, the missing signatures are as follows. * For convenience, these are usable as stub 
@@ -56,25 +57,51 @@ import com.ibm.icu.util.DFDLCalendar
 //  override def toString(): String = formattedStr
 //}
 
-case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, prettyType: String, dataFormatter: SimpleDateFormat, infosetFormatter: SimpleDateFormat)
+case class ConvertTextCalendarParser(erd: ElementRuntimeData,
+    xsdType: String,
+    prettyType: String,
+    pattern: String,
+    locale: ULocale,
+    infosetPattern: String,
+    firstDay: Int,
+    calendarDaysInFirstWeek: Int,
+    calendarCheckPolicy: Boolean,
+    calendarTz: TimeZone,
+    tz: TimeZone)
   extends PrimParser(erd) {
 
+  // Used to configure the dataFormatter
+  lazy val calendar: Calendar = {
+    val cal = Calendar.getInstance(locale)
+    cal.setFirstDayOfWeek(firstDay)
+    cal.setMinimalDaysInFirstWeek(calendarDaysInFirstWeek)
+    cal.setLenient(calendarCheckPolicy)
+    cal.setTimeZone(calendarTz)
+    cal.clear
+    cal
+  }
+  
   // As per ICU4J documentation, "Date formats are not synchronized. If
   // multiple threads access a format concurrently, it must be synchronized
   // externally."
   lazy val tlDataFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val x = dataFormatter.clone.asInstanceOf[SimpleDateFormat]
-      x.setLenient(true)
-      x
+      val formatter = new SimpleDateFormat(pattern, locale)
+      formatter.setCalendar(calendar)
+      formatter.setLenient(true)
+      formatter
     }
   }
 
   lazy val tlInfosetFormatter = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {
-      val x = infosetFormatter.clone.asInstanceOf[SimpleDateFormat]
-      x.setLenient(true)
-      x
+      val formatter = new SimpleDateFormat(infosetPattern)
+      val cal = new GregorianCalendar()
+      cal.clear
+      formatter.setCalendar(cal)
+      formatter.setTimeZone(tz)
+      formatter.setLenient(true)
+      formatter
     }
   }
 
@@ -99,7 +126,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData, xsdType: String, p
     // Calendar values are correct with respect to leniency. So instead, just
     // try to calculate the time, which forces validation. This causes an
     // exception to be thrown if a Calendar is not valid.
-    try {
+    val t = try {
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {
@@ -158,71 +185,52 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     l
   }
 
-  // Used to configure the dataFormatter
-  lazy val calendar: Calendar = {
-    val cal = Calendar.getInstance(locale)
-
-    val firstDay = e.calendarFirstDayOfWeek match {
-      case CalendarFirstDayOfWeek.Sunday => Calendar.SUNDAY
-      case CalendarFirstDayOfWeek.Monday => Calendar.MONDAY
-      case CalendarFirstDayOfWeek.Tuesday => Calendar.TUESDAY
-      case CalendarFirstDayOfWeek.Wednesday => Calendar.WEDNESDAY
-      case CalendarFirstDayOfWeek.Thursday => Calendar.THURSDAY
-      case CalendarFirstDayOfWeek.Friday => Calendar.FRIDAY
-      case CalendarFirstDayOfWeek.Saturday => Calendar.SATURDAY
-    }
-    cal.setFirstDayOfWeek(firstDay)
-
-    cal.setMinimalDaysInFirstWeek(e.calendarDaysInFirstWeek.toInt)
-
-    val lax = e.calendarCheckPolicy match {
-      case CalendarCheckPolicy.Strict => false
-      case CalendarCheckPolicy.Lax => true
-    }
-    cal.setLenient(lax)
-
-    val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
-    val tzStr = e.calendarTimeZone match {
-      case TimeZoneRegex(_, plusOrMinus, hour, _, minute) => {
-        val pomStr = if (plusOrMinus == null) "+" else plusOrMinus
-        val minStr = if (minute == null) "" else minute
-        "GMT%s%s%s".format(pomStr, hour, minStr)
-      }
-      case _ => e.calendarTimeZone
-    }
-
-    val tz = TimeZone.getTimeZone(tzStr)
-    if (tz == TimeZone.UNKNOWN_ZONE) {
-      e.schemaDefinitionErrorDueToPropertyValue(
-        "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
-        "Unknown time zone '%s'", e.calendarTimeZone)
-    }
-    cal.setTimeZone(tz)
-
-    cal.clear
-
-    cal
+  val firstDay = e.calendarFirstDayOfWeek match {
+    case CalendarFirstDayOfWeek.Sunday => Calendar.SUNDAY
+    case CalendarFirstDayOfWeek.Monday => Calendar.MONDAY
+    case CalendarFirstDayOfWeek.Tuesday => Calendar.TUESDAY
+    case CalendarFirstDayOfWeek.Wednesday => Calendar.WEDNESDAY
+    case CalendarFirstDayOfWeek.Thursday => Calendar.THURSDAY
+    case CalendarFirstDayOfWeek.Friday => Calendar.FRIDAY
+    case CalendarFirstDayOfWeek.Saturday => Calendar.SATURDAY
   }
 
-  // Used for parsing/unparsing
-  lazy val dataFormatter: SimpleDateFormat = {
-    val formatter = new SimpleDateFormat(pattern, locale)
-    formatter.setCalendar(calendar)
-    formatter
+  val calendarDaysInFirstWeek = e.calendarDaysInFirstWeek.toInt
+
+  val calendarCheckPolicy = e.calendarCheckPolicy match {
+    case CalendarCheckPolicy.Strict => false
+    case CalendarCheckPolicy.Lax => true
+  }
+    
+  val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
+  val tzStr = e.calendarTimeZone match {
+    case TimeZoneRegex(_, plusOrMinus, hour, _, minute) => {
+      val pomStr = if (plusOrMinus == null) "+" else plusOrMinus
+      val minStr = if (minute == null) "" else minute
+      "GMT%s%s%s".format(pomStr, hour, minStr)
+    }
+    case _ => e.calendarTimeZone
+  }
+    
+  val calendarTz = TimeZone.getTimeZone(tzStr)
+  if (calendarTz == TimeZone.UNKNOWN_ZONE) {
+    e.schemaDefinitionErrorDueToPropertyValue(
+      "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
+      "Unknown time zone '%s'", e.calendarTimeZone)
   }
 
-  // Used for writing to/reading from the infoset
-  lazy val infosetFormatter: SimpleDateFormat = {
-    val formatter = new SimpleDateFormat(infosetPattern)
-    val cal = new GregorianCalendar()
-    cal.clear
-    formatter.setCalendar(cal)
-    formatter.setTimeZone(TimeZone.GMT_ZONE)
-    formatter
-  }
-
-  def parser: Parser = new ConvertTextCalendarParser(e.elementRuntimeData, xsdType, prettyType, dataFormatter, infosetFormatter)
-
+  def parser: Parser = new ConvertTextCalendarParser(
+      e.elementRuntimeData,
+      xsdType,
+      prettyType,
+      pattern,
+      locale,
+      infosetPattern,
+      firstDay,
+      calendarDaysInFirstWeek,
+      calendarCheckPolicy,
+      calendarTz,
+      TimeZone.GMT_ZONE)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

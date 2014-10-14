@@ -12,7 +12,8 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.OnStack
 import edu.illinois.ncsa.daffodil.dsom.TypeConversions
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError 
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
 import scala.math.BigDecimal.RoundingMode
@@ -24,7 +25,7 @@ import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
 
-class DPathRecipe(val ops: RecipeOp*) extends Serializable {
+class DPathRecipe(val ops: RecipeOp*) extends Serializable with PreSerialization {
 
   def this(ops: List[RecipeOp]) = this(ops.toArray: _*)
 
@@ -45,7 +46,13 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable {
    * Must be called before serialization, and before evaluating
    * the expression on a real infoset.
    */
-  def preSerialization: Seq[ElementRuntimeData] = preSerializedERDs
+  override def preSerialization: Seq[ElementRuntimeData] = preSerializedERDs
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
 
   private lazy val preSerializedERDs = {
     ops.flatMap { _.preSerialization }
@@ -86,11 +93,11 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable {
       } catch {
         case e: java.lang.IllegalStateException =>
           false // useful place for breakpoint
-        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(context, None, e.getMessage)
+        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
-        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(context, None, e.getMessage)
-        case e: ProcessingError => throw new SchemaDefinitionError(context, None, e.getMessage)
+        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
+        case e: ProcessingError => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
         case th: Throwable =>
           throw th
       }
@@ -319,14 +326,20 @@ trait AsIntMixin {
   }
 }
 
-sealed abstract class RecipeOp extends AsIntMixin { // extends TypeConversions {
+sealed abstract class RecipeOp extends AsIntMixin with Serializable with PreSerialization { // extends TypeConversions {
 
   def run(dstate: DState): Unit
 
   protected def subRecipes: Seq[DPathRecipe] = Nil
 
-  def preSerialization: Seq[ElementRuntimeData] = {
+  override def preSerialization: Seq[ElementRuntimeData] = {
     subRecipes.flatMap { _.preSerialization }
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
   }
 
   def toXML(s: String): scala.xml.Node = toXML(new scala.xml.Text(s))
@@ -400,13 +413,13 @@ case object UpMove extends RecipeOp {
  * that one, not the schema component from which it was derived.
  */
 trait RecipeOpWithERD
-  extends RecipeOp with Serializable {
+  extends RecipeOp {
 
   protected def info: DPathElementCompileInfo
 
   private var _erd: ElementRuntimeData = null
 
-  final override def preSerialization = {
+  final override lazy val preSerialization = {
     _erd = info.elementRuntimeData
     _erd +: super.preSerialization
   }
@@ -419,7 +432,7 @@ trait RecipeOpWithERD
 /**
  * Down to a non-array element. Can be optional or scalar.
  */
-case class DownElement(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD {
+case class DownElement(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD with Serializable with PreSerialization  {
   @transient final override val info = infoArg
 
   override def run(dstate: DState) {
@@ -429,7 +442,17 @@ case class DownElement(@transient infoArg: DPathElementCompileInfo) extends Reci
     dstate.setCurrentNode(now.getChild(erd).asInstanceOf[DIElement])
   }
 
-  override def toXML = toXML(info.name)
+  override def toXML = {
+    preSerialization
+    toXML(erd.name)
+  }
+  
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
+
 }
 
 /**
@@ -452,13 +475,22 @@ case class DownArrayOccurrence(@transient infoArg: DPathElementCompileInfo, inde
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
-  override def toXML = toXML(new scala.xml.Text(info.name) ++ indexRecipe.toXML)
+  override def toXML = {
+    preSerialization
+    toXML(new scala.xml.Text(info.name) ++ indexRecipe.toXML)
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
 }
 
 /*
  * down to an array object containing all occurrences
  */
-case class DownArray(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD {
+case class DownArray(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD with Serializable with PreSerialization {
 
   @transient final override val info = infoArg
 
@@ -469,7 +501,17 @@ case class DownArray(@transient infoArg: DPathElementCompileInfo) extends Recipe
     dstate.setCurrentNode(arr.get.asInstanceOf[DIArray])
   }
 
-  override def toXML = toXML(erd.name)
+  override def toXML = {
+    preSerialization
+    toXML(erd.name)
+  }
+  
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
+
 }
 
 case object FNCount extends RecipeOp {
@@ -2371,7 +2413,7 @@ case object StringToNonEmptyString extends RecipeOp {
 case object DAFError extends RecipeOp {
   override def run(dstate: DState) {
     val ie = dstate.pstate.infoset.asInstanceOf[DIElement]
-    val pe = new ParseError(One(ie.runtimeData), One(dstate.pstate), "The error function was called.")
+    val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(dstate.pstate), "The error function was called.")
     throw pe
   }
 }

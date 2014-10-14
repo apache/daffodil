@@ -16,6 +16,7 @@ import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 
 trait RuntimeData extends SchemaFileLocatable
   with ImplementsThrowsSDE
@@ -52,11 +53,24 @@ abstract class TermRuntimeData(
   val defaultEncodingErrorPolicy: EncodingErrorPolicy,
   @transient immedEnclosingRD: => Option[RuntimeData])
   extends RuntimeData
-  with Serializable {
+  with Serializable
+  with PreSerialization {
 
   lazy val immediateEnclosingRuntimeData = immedEnclosingRD
   val defaultBitOrder: BitOrder
   lazy val utf16Width = optionUTF16Width.get
+  
+  def preSerialization: Unit = {
+    immediateEnclosingRuntimeData
+    //utf16Width
+  }
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
+
 }
 
 class NonTermRuntimeData(
@@ -96,6 +110,12 @@ class ModelGroupRuntimeData(
   isScannable: Boolean,
   defaultEncodingErrorPolicy: EncodingErrorPolicy)
   extends TermRuntimeData(encoding, optUTF16Width, isScannable, defaultEncodingErrorPolicy, Some(erd)) {
+
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+    preSerialization
+    out.defaultWriteObject()
+  }
 
   override def warn(th: Diagnostic) = erd.warn(th)
   override def error(th: Diagnostic) = erd.error(th)

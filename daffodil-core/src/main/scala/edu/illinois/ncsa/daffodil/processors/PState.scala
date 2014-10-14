@@ -177,7 +177,7 @@ case class PState(
   def SDE(str: String, args: Any*) = {
     ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt, this, str, args: _*)
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
   }
 
@@ -269,7 +269,7 @@ case class PState(
 
   def withValidationError(msg: String, args: Any*) = {
     val ctxt = getContext()
-    val vde = new ValidationError(Some(ctxt), this, msg, args: _*)
+    val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
     // copy(diagnostics = vde :: diagnostics)
     diagnostics = vde :: diagnostics
     this

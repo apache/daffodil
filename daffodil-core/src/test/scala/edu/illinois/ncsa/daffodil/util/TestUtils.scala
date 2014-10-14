@@ -220,7 +220,7 @@ class Fakes private () {
   class FakeDataProcessor extends DataProcessor {
     def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
-    def save(output: java.io.OutputStream): Unit = {}
+    def save(output: DFDL.Output): Unit = {}
     def setExternalVariables(extVars: Map[String, String]): Unit = {}
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}

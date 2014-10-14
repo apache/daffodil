@@ -17,6 +17,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -121,7 +122,7 @@ class AssertExpressionEvaluationParser(
           postState.withDiscriminator(discrim)
         } else {
           // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
-          val diag = new AssertionFailed(decl, postState, msg)
+          val diag = new AssertionFailed(decl.schemaFileLocation, postState, msg)
           postState.failed(diag)
         }
       }
@@ -132,16 +133,25 @@ class AssertPatternParser(
   eName: String,
   kindString: String,
   dcharset: DFDLCharset,
-  d: ThreadLocal[DFDLDelimParser],
-  decl: RuntimeData,
-  stmt: DFDLAssert)
-  extends PrimParser(decl)
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String,
+  rd: RuntimeData,
+  @transient stmt: DFDLAssert)
+  extends PrimParser(rd)
   with TextReader {
 
   val testPattern = stmt.testTxt
+  val stmtMessage = stmt.message
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
+  }
+
+  @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+    }
   }
 
   def parse(start: PState): PState =
@@ -173,7 +183,7 @@ class AssertPatternParser(
           }
           case f: DelimParseFailure => {
             log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
-            val diag = new AssertionFailed(decl, start, stmt.message, One(f.msg))
+            val diag = new AssertionFailed(rd.schemaFileLocation, start, stmtMessage, One(f.msg))
             start.failed(diag)
           }
         }
@@ -187,15 +197,25 @@ class DiscriminatorPatternParser(
   eName: String,
   kindString: String,
   dcharset: DFDLCharset,
-  d: ThreadLocal[DFDLDelimParser],
-  decl: RuntimeData,
-  stmt: DFDLAssertionBase,
+  knownEncodingIsFixedWidth: Boolean,
+  knownEncodingWidthInBits: Int,
+  knownEncodingName: String,
+  rd: RuntimeData,
+  @transient stmt: DFDLAssertionBase,
   gram: Gram)
-  extends PrimParser(decl)
+  extends PrimParser(rd)
   with TextReader {
+
+  val stmtMessage = stmt.message
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
+  }
+
+  @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
+    override def initialValue() = {
+      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+    }
   }
 
   def parse(start: PState): PState =
@@ -224,7 +244,7 @@ class DiscriminatorPatternParser(
         val finalState = result match {
           case s: DelimParseSuccess => start.withDiscriminator(true)
           case f: DelimParseFailure => {
-            val diag = new AssertionFailed(decl, start, stmt.message, One(f.msg))
+            val diag = new AssertionFailed(rd.schemaFileLocation, start, stmtMessage, One(f.msg))
             start.failed(diag)
           }
         }

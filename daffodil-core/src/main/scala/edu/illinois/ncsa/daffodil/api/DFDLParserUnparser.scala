@@ -156,7 +156,7 @@ object DFDL {
   trait DataProcessor extends WithDiagnostics with Serializable {
     def setValidationMode(mode: ValidationMode.Type): Unit
     def getValidationMode(): ValidationMode.Type
-    def save(output: java.io.OutputStream): Unit
+    def save(output: DFDL.Output): Unit
     def setExternalVariables(extVars: Map[String, String]): Unit
     def setExternalVariables(extVars: File): Unit
     def setExternalVariables(extVars: Seq[Binding]): Unit

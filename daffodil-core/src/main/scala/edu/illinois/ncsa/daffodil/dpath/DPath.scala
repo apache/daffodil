@@ -51,11 +51,12 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
   dpathText: String,
-  rdArg: DPathCompileInfo,
+  @transient rdArg: DPathCompileInfo,
   isEvaluatedAbove: Boolean)
   extends CompiledExpression(dpathText) {
 
   final override def preSerialization = {
+    rd
     recipe.preSerialization
   }
 
@@ -78,7 +79,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
   def constant: Any = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
   private def doPE(e: Exception, pstate: PState) = {
-    val pe = new ParseError(One(rd), One(pstate), "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
+    val pe = new ParseError(One(rd.schemaFileLocation), One(pstate), "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
     pstate.setFailed(pe)
     (null, null)
   }

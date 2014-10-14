@@ -1070,7 +1070,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
         if (!isSame) {
           this.SDW("%s is an optional element or a variable-occurrence array and its alignment (%s) is not the same as %s's alignment (%s).",
-            this, this.alignmentValueInBits, that, that.alignmentValueInBits)
+            this.toString, this.alignmentValueInBits, that.toString, that.alignmentValueInBits)
         }
       }
     }

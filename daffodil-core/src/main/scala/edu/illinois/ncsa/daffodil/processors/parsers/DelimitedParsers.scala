@@ -94,7 +94,7 @@ class StringDelimitedParser(
       textParser.parse(reader, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
-        throw new ParseError(One(erd), Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
+        throw new ParseError(One(erd.schemaFileLocation), Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
     }
     processResult(result, postEvalState)
   }

@@ -72,7 +72,7 @@ abstract class Parser(val context: RuntimeData)
   with Serializable {
 
   def PE(pstate: PState, s: String, args: Any*) = {
-    pstate.failed(new ParseError(One(context), One(pstate), s, args: _*))
+    pstate.failed(new ParseError(One(context.schemaFileLocation), One(pstate), s, args: _*))
   }
 
   def processingError(state: PState, str: String, args: Any*) =
@@ -209,7 +209,7 @@ class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
         // Unwind any side effects on the Infoset 
         // The infoset is the primary non-functional data structure. We have to un-side-effect it.
         pStart.restoreInfosetElementState(cloneNode)
-        val diag = new ParseAlternativeFailed(context, pStart, pResult.diagnostics)
+        val diag = new ParseAlternativeFailed(context.schemaFileLocation, pStart, pResult.diagnostics)
         diagnostics = diag +: diagnostics
         // check for discriminator evaluated to true.
         if (pResult.discriminator == true) {
@@ -218,7 +218,7 @@ class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
           // consume this discriminator status result (so it doesn't ripple upward)
           // and return the failed state withall the diagnostics.
           //
-          val allDiags = new AltParseFailed(context, pResult, diagnostics.reverse)
+          val allDiags = new AltParseFailed(context.schemaFileLocation, pResult, diagnostics.reverse)
           val res = pResult.failed(allDiags).withRestoredPointOfUncertainty
           return res
         }
@@ -228,7 +228,7 @@ class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
       }
     }
     // Out of alternatives. All of them failed. 
-    val allDiags = new AltParseFailed(context, pStart, diagnostics.reverse)
+    val allDiags = new AltParseFailed(context.schemaFileLocation, pStart, diagnostics.reverse)
     val allFailedResult = pStart.failed(allDiags)
     log(LogLevel.Debug, "All AltParser alternatives failed.")
     val result = allFailedResult.withRestoredPointOfUncertainty

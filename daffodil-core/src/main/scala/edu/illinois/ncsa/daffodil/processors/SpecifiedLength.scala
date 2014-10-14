@@ -185,7 +185,7 @@ class SpecifiedLengthPatternParser(
   knownEncodingName: String)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  val d = new ThreadLocal[DFDLDelimParser] {
+  @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
       new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
     }

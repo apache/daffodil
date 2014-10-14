@@ -305,11 +305,11 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
           }
 
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            PE(referringContext, "Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
+            PE(referringContext.schemaFileLocation, "Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            PE(referringContext, "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
+            PE(referringContext.schemaFileLocation, "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
           }
 
           case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)

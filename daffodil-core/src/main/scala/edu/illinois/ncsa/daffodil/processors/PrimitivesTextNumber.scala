@@ -189,7 +189,7 @@ case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserH
 }
 */
 
-abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) {
+abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) extends Serializable {
   val xsdType: String
   val prettyType: String
 
@@ -428,7 +428,7 @@ case class ConvertTextFloatParserUnparserHelper[S](zeroRep: List[String])
   }
 }
 
-abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) {
+abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserUnparserHelperBase[S]) extends Serializable {
   protected def checkUnique(decimalSepList: Maybe[List[Char]],
     groupingSep: Maybe[Char],
     exponentRep: Maybe[String],
@@ -621,8 +621,7 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     parserHelper.zeroRepListRaw,
     context)
 
-  val numFormat = new ThreadLocal[NumberFormat] {
-    override def initialValue() = {
+   lazy val generatedNumFormat = 
       generateNumFormat(
         decSep,
         groupSep,
@@ -634,6 +633,10 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
         rounding,
         roundingMode,
         roundingInc)
+     
+   @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+    override def initialValue() = {
+      generatedNumFormat
     }
   }
 
@@ -714,8 +717,7 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       parserHelper.zeroRepListRaw,
       state)
 
-    val numFormat = new ThreadLocal[NumberFormat] {
-      override def initialValue() = {
+    lazy val generatedNumFormat = 
         generateNumFormat(
           decimalSepList,
           groupingSep,
@@ -726,7 +728,11 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
           pattern,
           rounding,
           roundingMode,
-          roundingInc)
+          roundingInc)   
+      
+    @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+      override def initialValue() = {
+        generatedNumFormat
       }
     }
 

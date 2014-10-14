@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Gram
@@ -70,7 +71,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
-class ParseError(rd: Maybe[SchemaFileLocatable], val pstate: Maybe[PState], kind: String, args: Any*)
+class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind: String, args: Any*)
   extends ProcessingError {
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
   override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
@@ -99,7 +100,7 @@ class ParseError(rd: Maybe[SchemaFileLocatable], val pstate: Maybe[PState], kind
   override def getMessage = toString
 }
 
-class AssertionFailed(rd: SchemaFileLocatable, state: PState, msg: String, details: Maybe[String] = Nope)
+class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state), "Assertion failed. %s", msg) {
   override def componentText: String = {
     val currentElem = state.infoset
@@ -114,10 +115,10 @@ class AssertionFailed(rd: SchemaFileLocatable, state: PState, msg: String, detai
   }
 }
 
-class ParseAlternativeFailed(rd: SchemaFileLocatable, state: PState, val errors: Seq[Diagnostic])
+class ParseAlternativeFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
   extends ParseError(One(rd), One(state), "Alternative failed. Reason(s): %s", errors)
 
-class AltParseFailed(rd: SchemaFileLocatable, state: PState,
+class AltParseFailed(rd: SchemaFileLocation, state: PState,
   diags: Seq[Diagnostic])
   extends ParseError(One(rd), One(state), "All alternatives failed. Reason(s): %s", diags) {
 
@@ -176,14 +177,14 @@ trait WithParseErrorThrowing {
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     if (!testTrueMeansOK) {
-      throw new ParseError(One(context), Nope, kind, args: _*)
+      throw new ParseError(One(context.schemaFileLocation), Nope, kind, args: _*)
     }
   }
 
   /**
    * Passing the context explicitly
    */
-  def PECheck(contextArg: SchemaFileLocatable,
+  def PECheck(contextArg: SchemaFileLocation,
     testTrueMeansOK: => Boolean,
     kind: String, args: Any*) {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
@@ -193,10 +194,10 @@ trait WithParseErrorThrowing {
   }
 
   def PE(kind: String, args: Any*): Nothing = {
-    PE(context, kind, args: _*)
+    PE(context.schemaFileLocation, kind, args: _*)
   }
 
-  def PE(context: SchemaFileLocatable, kind: String, args: Any*): Nothing = {
+  def PE(context: SchemaFileLocation, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     throw new ParseError(One(context), Nope, kind, args: _*)
   }
@@ -234,7 +235,7 @@ trait WithParseErrorThrowing {
             if (e.getMessage() != null && e.getMessage() != "")
               e.getMessage()
             else Misc.getNameFromClass(e)
-          val pe = new ParseError(One(ie.runtimeData), One(pstate), msg)
+          val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate), msg)
           pstate.failed(pe)
         }
         // Note: We specifically do not catch other exceptions here
@@ -257,7 +258,7 @@ trait WithParseErrorThrowing {
    *
    * No catching for this SDE throw, since SDEs are fatal.
    */
-  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaFileLocatable, pstate: PState, kind: String, args: Any*) = {
+  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaFileLocation, pstate: PState, kind: String, args: Any*) = {
     if (!testTrueMeansOK) {
       throw new SchemaDefinitionError(Some(context), None, kind, args: _*)
     }

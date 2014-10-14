@@ -116,21 +116,21 @@ class DFDLSchemaFile(val sset: SchemaSet,
   }
 
   def warning(exception: SAXParseException) = {
-    val sdw = new SchemaDefinitionWarning(this, "Warning loading schema due to %s", exception)
+    val sdw = new SchemaDefinitionWarning(this.schemaFileLocation, "Warning loading schema due to %s", exception)
     warn(sdw)
     validationDiagnostics_ :+= sdw
   }
 
   def error(exception: SAXParseException) = {
     val ex = exception
-    val sde = new SchemaDefinitionError(this, "Error loading schema due to %s", exception)
+    val sde = new SchemaDefinitionError(this.schemaFileLocation, "Error loading schema due to %s", exception)
     // println(sde)
     error(sde)
     validationDiagnostics_ :+= sde
   }
 
   def fatalError(exception: SAXParseException) = {
-    val sde = new SchemaDefinitionError(this, "Fatal error loading schema due to %s", exception)
+    val sde = new SchemaDefinitionError(this.schemaFileLocation, "Fatal error loading schema due to %s", exception)
     // error(sde) // will get picked up when parser throws after this returns
     validationDiagnostics_ :+= sde
     // parser throws out of fatalErrors.
