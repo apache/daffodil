@@ -183,7 +183,7 @@ trait EncodingMixin extends ThrowsSDE {
 
 }
 
-trait RuntimeEncodingMixin extends Serializable {
+trait RuntimeEncodingMixin {
 
   //  def rd: TermRuntimeData
   //

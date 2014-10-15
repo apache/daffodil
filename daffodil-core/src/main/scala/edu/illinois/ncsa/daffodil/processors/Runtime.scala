@@ -56,7 +56,7 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
  * back-end runtime.
  */
 class DataProcessor(val ssrd: SchemaSetRuntimeData)
-  extends DFDL.DataProcessor with HasIsError with Logging {
+  extends DFDL.DataProcessor with HasIsError with Logging with Serializable {
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode

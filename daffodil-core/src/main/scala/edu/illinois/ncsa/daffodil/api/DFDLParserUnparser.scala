@@ -153,7 +153,7 @@ object DFDL {
     def onPath(xpath: String): DataProcessor
   }
 
-  trait DataProcessor extends WithDiagnostics with Serializable {
+  trait DataProcessor extends WithDiagnostics {
     def setValidationMode(mode: ValidationMode.Type): Unit
     def getValidationMode(): ValidationMode.Type
     def save(output: DFDL.Output): Unit

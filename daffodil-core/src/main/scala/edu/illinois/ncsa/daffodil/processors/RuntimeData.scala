@@ -20,8 +20,7 @@ import edu.illinois.ncsa.daffodil.util.PreSerialization
 
 trait RuntimeData extends SchemaFileLocatable
   with ImplementsThrowsSDE
-  with DPathCompileInfo
-  with Serializable {
+  with DPathCompileInfo {
   val lineAttribute: Option[String]
   val columnAttribute: Option[String]
   val fileAttribute: Option[String]
@@ -82,7 +81,8 @@ class NonTermRuntimeData(
   override val namespaces: NamespaceBinding,
   override val immediateEnclosingRuntimeData: Option[RuntimeData],
   override val variableMap: VariableMap)
-  extends RuntimeData {
+  extends RuntimeData
+  with Serializable {
 
   private def erd = this.enclosingElementCompileInfo
 
@@ -142,7 +142,8 @@ class VariableRuntimeData(
     path,
     namespaces,
     None,
-    null) {
+    null)
+  with Serializable {
 
   override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
 }

@@ -28,7 +28,7 @@ abstract class TextDelimitedParserBase(
   val knownEncodingName: String,
   delims: Seq[DFADelimiter],
   field: DFAField)
-  extends DelimitedParser with RuntimeEncodingMixin {
+  extends DelimitedParser with RuntimeEncodingMixin with Serializable {
 
   val leftPadding: DFADelimiter = {
     justification match {

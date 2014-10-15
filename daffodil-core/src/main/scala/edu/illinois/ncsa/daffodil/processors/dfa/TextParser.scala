@@ -9,7 +9,7 @@ import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 class TextParser(
   val knownEncodingIsFixedWidth: Boolean,
   val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String) extends DelimitedParser with RuntimeEncodingMixin {
+  val knownEncodingName: String) extends DelimitedParser with RuntimeEncodingMixin with Serializable {
 
   var delims: Seq[DFADelimiter] = Seq.empty
 

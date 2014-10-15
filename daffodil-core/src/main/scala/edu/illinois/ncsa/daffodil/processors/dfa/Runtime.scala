@@ -24,7 +24,7 @@ object DFA {
   def EndOfData = -3
 }
 
-trait DFA extends Serializable{
+trait DFA {
 
   /**
    * The state machine is an array of states.
@@ -58,12 +58,14 @@ trait DFA extends Serializable{
 }
 
 class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
-  extends DFADelimiter {
+  extends DFADelimiter
+  with Serializable {
 
 }
 
 class DFAFieldImpl(val states: Array[State])
-  extends DFAField {
+  extends DFAField
+  with Serializable {
 
 }
 

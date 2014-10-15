@@ -45,7 +45,7 @@ package edu.illinois.ncsa.daffodil.util
  * For more info, this is used in the IncludeImport stuff in DSOM.
  */
 
-class Delay[T] private (v: => T) extends Serializable {
+class Delay[T] private (v: => T) {
   lazy val value = v
   private val hasValue: Boolean = false
   override def toString = {

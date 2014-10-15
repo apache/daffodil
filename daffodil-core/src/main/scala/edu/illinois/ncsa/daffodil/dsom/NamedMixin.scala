@@ -44,15 +44,14 @@ import edu.illinois.ncsa.daffodil.xml.QName
  * Common Mixin for things that have a name attribute.
  */
 trait NamedMixin
-  extends GetAttributesMixin
-  with Serializable { self: SchemaComponentBase =>
+  extends GetAttributesMixin { self: SchemaComponentBase =>
   override def prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
 
   requiredEvaluations(name)
 
   lazy val name = nameFromNameAttribute
   private lazy val nameFromNameAttribute = nameFromNameAttribute_.valueOrElse("??name??")
-  @transient private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
+  private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
 
   def xml: Node
   def schemaDocument: SchemaDocument

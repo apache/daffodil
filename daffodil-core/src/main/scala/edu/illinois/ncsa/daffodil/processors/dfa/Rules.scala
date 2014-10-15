@@ -432,7 +432,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], 
 
 }
 
-trait DelimsMatcher extends Serializable {
+trait DelimsMatcher {
   def r: Registers
   def delims: Seq[DFADelimiter]
 
@@ -446,7 +446,7 @@ trait DelimsMatcher extends Serializable {
   }
 }
 
-class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher {
+class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher with Serializable {
   val r: Registers = new Registers()
 }
 

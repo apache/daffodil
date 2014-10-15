@@ -164,12 +164,11 @@ trait HavingRootSpec extends Logging {
 class Compiler(var validateDFDLSchemas: Boolean = true)
   extends DFDL.Compiler
   with Logging
-  with HavingRootSpec
-  with Serializable {
+  with HavingRootSpec {
 
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
-  @transient private val externalDFDLVariables: Queue[Binding] = Queue.empty
+  private val externalDFDLVariables: Queue[Binding] = Queue.empty
 
   /**
    * Sets externally defined variables.

@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.FloatKnownLengthRuntimeByte
 import edu.illinois.ncsa.daffodil.processors.parsers.DecimalKnownLengthRuntimeByteOrderBinaryNumberParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DoubleKnownLengthRuntimeByteOrderBinaryNumberParser
 
-trait RuntimeExplicitLengthMixin[T] extends Serializable {
+trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
   def e: ElementBase
 
@@ -84,7 +84,7 @@ trait KnownLengthInBitsMixin[T] {
   def getBitLength(s: PState) = (s, len) // already in bits, so no multiply by 8 for this one.
 }
 
-trait RuntimeExplicitByteOrderMixin[T] extends Serializable {
+trait RuntimeExplicitByteOrderMixin[T] {
   self: BinaryNumberBase[T] =>
   def e: ElementBase
   lazy val bo = e.byteOrder // ensure byteOrder compiled expression is computed non lazily at compile time

@@ -176,7 +176,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
  * Mixin for SchemaSet
  */
 
-trait SchemaSetIncludesAndImportsMixin extends Serializable{ self: SchemaSet =>
+trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 
   /**
    * Let's take the list of file names given, and make a fake schema
@@ -229,7 +229,7 @@ trait SchemaSetIncludesAndImportsMixin extends Serializable{ self: SchemaSet =>
 /**
  * Mixin for SchemaDocument
  */
-trait SchemaDocIncludesAndImportsMixin extends Serializable{ self: XMLSchemaDocument =>
+trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
 
   /**
    * For include, if the included schema doesn't have a
