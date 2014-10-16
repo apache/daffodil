@@ -83,8 +83,6 @@ class ProcessorFactory(val sset: SchemaSet)
   requiredEvaluations(rootElem.document.parser)
   requiredEvaluations(rootElem.runtimeData)
 
-  override def rethrowAsDiagnostic(th: Throwable) = sset.rethrowAsDiagnostic(th)
-
   lazy val rootElem = rootElem_.value
   private val rootElem_ = LV('rootElem) {
     sset.rootElement(rootSpec)
@@ -118,12 +116,13 @@ class ProcessorFactory(val sset: SchemaSet)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
-      val p = rootElem.document.parser
+      val p = if (rootElem.canProceed) rootElem.document.parser else null
       val d = this.diagnostics
       val ssrd = new SchemaSetRuntimeData(
-        rootElem.document.parser,
+        p,
         this.diagnostics,
         rootElem.elementRuntimeData,
+        rootElem.encodingInfo,
         variables,
         validationMode)
       CheckJavaVersion.checkJavaVersion(ssrd)
@@ -242,11 +241,11 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     (sset, ge)
   }
 
-  def reload(savedParser: File) = reload (new FileInputStream(savedParser).getChannel())
+  def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
 
   def reload(savedParser: DFDL.Input): DFDL.DataProcessor = {
     val objInput = new ObjectInputStream(Channels.newInputStream(savedParser)) {
-      
+
       ///
       /// This override is here because of a bug in sbt where the wrong class loader is being
       /// used when deserializing an object.
@@ -257,7 +256,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
         catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
       }
     }
-    
+
     val dpObj = objInput.readObject()
     objInput.close()
     val dp = dpObj.asInstanceOf[DataProcessor]

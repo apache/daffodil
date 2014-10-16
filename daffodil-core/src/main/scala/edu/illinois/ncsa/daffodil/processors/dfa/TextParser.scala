@@ -5,11 +5,13 @@ import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class TextParser(
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String) extends DelimitedParser with RuntimeEncodingMixin with Serializable {
+  override val context: RuntimeData,
+  override val encodingInfo: EncodingInfo)
+  extends DelimitedParser with RuntimeEncodingMixin with Serializable {
 
   var delims: Seq[DFADelimiter] = Seq.empty
 

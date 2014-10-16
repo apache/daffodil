@@ -17,20 +17,29 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EncodingMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
 }
 
 class ElementRuntimeData(
-  override val lineAttribute: Option[String],
-  override val columnAttribute: Option[String],
-  override val fileAttribute: Option[String],
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
+  @transient parentArg: => Option[ElementRuntimeData],
+  @transient childrenArg: => Seq[ElementRuntimeData],
+  @transient variableMapArg: => VariableMap,
+  val dpathElementCompileInfo: DPathElementCompileInfo,
+  override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
-  override val optPrimType: Option[RuntimePrimType],
+  val optPrimType: Option[RuntimePrimType],
   val targetNamespace: NS,
   val patternValues: Option[Seq[FacetTypes.FacetValueR]],
   val enumerationValues: Option[String],
@@ -51,8 +60,7 @@ class ElementRuntimeData(
   override val slotIndexInParent: Int,
   val isNillable: Boolean,
   val defaultValue: Option[Any],
-  @transient childrenArg: => Seq[ElementRuntimeData],
-  override val isArray: Boolean,
+  val isArray: Boolean,
   val isOptional: Boolean,
   /**
    * This is the properly qualified name for recognizing this
@@ -63,73 +71,33 @@ class ElementRuntimeData(
    * If 'unqualified' the the namespace component will be No_Namespace.
    */
   val namedQName: NamedQName,
-  override val variableMap: VariableMap,
-  @transient parentArg: => Option[ElementRuntimeData],
-  encoding: CompiledExpression,
-  optionUTF16Width: Option[UTF16Width],
-  isScannable: Boolean,
-  defaultEncodingErrorPolicy: EncodingErrorPolicy)
-  extends TermRuntimeData(encoding, optionUTF16Width, isScannable, defaultEncodingErrorPolicy, parentArg)
-  with EncodingMixin
-  with DPathElementCompileInfo
+  isRepresented: Boolean,
+  couldHaveText: Boolean,
+  alignmentValueInBits: Int,
+  hasNoSkipRegions: Boolean,
+  val impliedRepresentation: Representation)
+  extends TermRuntimeData(parentArg, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions)
   with HasSlotIndexInParent {
 
   lazy val children = childrenArg
   lazy val parent = parentArg
+  override lazy val variableMap = variableMapArg
 
-  final def childERDs = children
-  @transient final override lazy val elementChildrenCompileInfo = children.asInstanceOf[Seq[DPathElementCompileInfo]]
-
-  def isSimpleType = optPrimType.isDefined
-
-  final lazy val elementRuntimeData = this
-
-  override def preSerialization : Unit = {
+  override def preSerialization: Unit = {
     super.preSerialization
     children
     parent
-    elementRuntimeData
+    variableMap
   }
 
   @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  /**
-   * This parent pointer has to be done imperatively because otherwise we
-   * end up in a stack-overflow where the parent ElementRuntimeData has
-   * childERDs, but those can't be created without the parent.
-   */
-  //  private var _parentERD: Option[ElementRuntimeData] = null
-  //  override def parentERD = {
-  //    Assert.usage(_parentERD != null, "must be initialized before use.")
-  //    _parentERD
-  //  }
-  //  def init() {
-  //    childERDs.foreach { _._parentERD = Some(this) }
-  //  }
-  //
-  //  def isRootERD = _parentERD == None
+  final def childERDs = children
 
-  def isRootElement = parent == None
+  def isSimpleType = optPrimType.isDefined
 
-  private var _diagnostics: List[Diagnostic] = Nil
-
-  def getDiagnostics = _diagnostics
-
-  override def warn(th: Diagnostic) {
-    if (isRootElement) _diagnostics :+= th
-    else rootElement.warn(th)
-  }
-
-  override def error(th: Diagnostic) {
-    if (isRootElement) _diagnostics :+= th
-    else rootElement.error(th)
-  }
-
-  def schemaFileNames: Seq[String] = (fileAttribute.toList ++ childERDs.flatMap { _.schemaFileNames }).distinct
+  def schemaFileNames: Seq[String] = (schemaFileLocation.fileName +: childERDs.flatMap { _.schemaFileNames }).distinct
 
   def isDefaultable = defaultValue.isDefined
 

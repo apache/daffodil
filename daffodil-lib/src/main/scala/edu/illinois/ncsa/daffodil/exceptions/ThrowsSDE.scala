@@ -1,5 +1,7 @@
 package edu.illinois.ncsa.daffodil.exceptions
 
+import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,18 +33,40 @@ package edu.illinois.ncsa.daffodil.exceptions
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+//
 
+/**
+ * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This
+ * makes it independent of context, i.e., we don't have to pass or otherwise
+ * arrange for things that throw SDE to use the right compile-time or
+ * runtime context to do their SDE throwing. Rather, we use the appropriate
+ * compile-time or runtime mechanism for dealing with these thrown SDEs at the
+ * place where they are caught. I.e., the context is on the catch-side
+ * only.
+ *
+ * This turns out to be important for avoiding big modularity problems where
+ * everything would end up parameterized by what kind of context is to be used in case
+ * there is some sort of error. That makes it very hard to share code across
+ * compile time (when errors are accumulated into lists) vs runtime (when SDEs
+ * are usually fatal)
+ *
+ * Both true "compilation" i.e., SchemaComponent will mix this in, as well as
+ * runtime data structures.
+ */
 trait ThrowsSDE {
 
-  def SDE(str: String, args: Any*): Nothing
-  def SDW(str: String, args: Any*): Unit
-  def SDEButContinue(str: String, args: Any*): Unit
+  def SDE(id: String, args: Any*): Nothing
 
-  def rethrowAsDiagnostic(th: Throwable) = SDE("%s", th)
+  def schemaFileLocation: SchemaFileLocation
 
-  def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
+  /**
+   * Centralize throwing for debug convenience
+   */
+  final def toss(th: Throwable) = {
+    throw th // good place for a breakpoint
+  }
 
-  def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
+  final def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 
   /**
    * Nobody gets the sense of the boolean test right here. So rename to
@@ -53,14 +77,33 @@ trait ThrowsSDE {
     schemaDefinitionUnless(testThatWillThrowIfFalse, str, args: _*)
   }
 
-  def schemaDefinitionUnless(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
+  final def schemaDefinitionUnless(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillThrowIfFalse)
       SDE(str, args: _*)
   }
 
-  def schemaDefinitionWhen(testThatWillThrowIfTrue: => Boolean, str: String, args: Any*) {
+  final def schemaDefinitionWhen(testThatWillThrowIfTrue: => Boolean, str: String, args: Any*) {
     schemaDefinitionUnless(!testThatWillThrowIfTrue, str, args: _*)
   }
+
+  final def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
+
+}
+
+/**
+ * This trait for true "compilation" when there is a mechanism for accumulating
+ * multiple errors and/or warnings, and we are trying (someplace) to keep going
+ * after an error.
+ *
+ * True SchemaComponents will have this mixed in. Runtime data structures will not.
+ */
+trait SavesErrorsAndWarnings {
+
+  def SDE(id: String, args: Any*): Nothing
+  def SDW(str: String, args: Any*): Unit
+  def SDEButContinue(str: String, args: Any*): Unit
+
+  def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
 
   @deprecated(message = "use schemaDefinitionWarningUnless(...) or schemaDefinitionWarningWhen(...) instead", since = "2013-03-25")
   def schemaDefinitionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
@@ -75,8 +118,6 @@ trait ThrowsSDE {
     schemaDefinitionWarningUnless(!testThatWillWarnIfTrue, str, args: _*)
   }
 
-  def notYetImplemented(msg: String, args: Any*): Nothing = SDE("Feature not yet implemented: " + msg, args: _*)
-
   /**
    * SDE special case when we're blaming the error on the value of a property.
    * If the location where the property value is defined is different
@@ -86,8 +127,8 @@ trait ThrowsSDE {
   def schemaDefinitionErrorDueToPropertyValue(
     propertyName: String,
     propertyValue: String,
-    propertyLocation: SchemaFileLocatable,
-    otherPropertyLocation: SchemaFileLocatable,
+    propertyLocation: LookupLocation,
+    otherPropertyLocation: LookupLocation,
     str: String, args: Any*): Nothing = {
     //
     // only if there is more than one location to discuss, do we 

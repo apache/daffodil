@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -76,17 +77,7 @@ import edu.illinois.ncsa.daffodil.util.PreSerialization
  *
  * TODO: provide enough scope information for this to optimize.
  */
-abstract class CompiledExpression(val value: Any) extends PreSerialization with Serializable {
-
-  override def preSerialization: Unit = {
-    // called before serializing. Default does nothing.
-  }
-
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
+abstract class CompiledExpression(val value: Any) extends Serializable {
 
   def prettyExpr: String
   /**
@@ -143,7 +134,7 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
 
   lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(v)
 
-  override lazy val prettyExpr = v.toString
+  @transient override lazy val prettyExpr = v.toString
 
   def isConstant = true
   def isKnownNonEmpty = value != ""
@@ -152,40 +143,35 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
 }
 
 /**
- * The purpose of this trait is to abstract over the SchemaComponent
- * and RuntimeData. These are the things that are needed to compile
- * expressions.
- *
- * This is needed to avoid a circularity problem:
- * - compiling an expression produces a CompiledExpression object
- * - those CompiledExpression objects need to be reachable from the RuntimeData
- * - so we can't depend on the RuntimeData to compile an expression.
- * Instead we use this, and when compiling expressions in the regular compiler
- * we pass the SchemaComponent, which mixes this in.
- *
- * In summary, the compilation process for expressions doesn't know nor care
- * whether it is dealing with an ElementRuntimeData or an ElementBase.
- *
- * Do not add anything to these classes that exposes anything about RuntimeData
- * objects. Those methods go on SchemaComponent or RuntimeData directly.
+ * This class is to contain only things that are needed to do
+ * DPath Expression Compilation. Nothing else.
  */
-trait DPathCompileInfo
-  extends ThrowsSDE with SchemaFileLocatable {
+class DPathCompileInfo(
+  @transient parentArg: => Option[DPathCompileInfo],
+  @transient variableMapArg: => VariableMap,
+  val namespaces: scala.xml.NamespaceBinding,
+  val path: String,
+  override val schemaFileLocation: SchemaFileLocation)
+  extends ImplementsThrowsSDE with PreSerialization
+  with HasSchemaFileLocation {
 
-  def namespaces: scala.xml.NamespaceBinding
-  def warn(th: Diagnostic): Unit
-  def error(th: Diagnostic): Unit
-  def variableMap: VariableMap
-  def path: String
+  lazy val parent = parentArg
+  lazy val variableMap = variableMapArg
 
-  def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = {
-    Assert.invariantFailed("has no element children")
+  override def preSerialization = {
+    parent
+    variableMap
   }
 
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+
+  override def toString = "DPathCompileInfo(%s)".format(path)
   /**
    * The immediate containing parent.
    */
-  def immediateEnclosingCompileInfo: Option[DPathCompileInfo]
+  final lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = parent
+
   /**
    * The contract here supports the semantics of ".." in paths.
    *
@@ -233,32 +219,35 @@ trait DPathCompileInfo
     }
   }
 
-  /**
-   * Be careful using this. If you use it at compile time as part of say
-   * a compiled expresion, which.... ends up being part of the runtime data
-   * then you end up chasing your tail/stack overflow/circular, etc.
-   */
-  final def realRuntimeData: RuntimeData = this match {
-    case rd: RuntimeData => rd
-    case sc: SchemaComponent => sc.runtimeData
-  }
 }
 
-trait DPathElementCompileInfo extends DPathCompileInfo {
+/**
+ * This class is to contain only things that are needed to do
+ * DPath Expression Compilation. Nothing else.
+ */
+class DPathElementCompileInfo(
+  @transient parentArg: => Option[DPathCompileInfo],
+  @transient variableMap: => VariableMap,
+  namespaces: scala.xml.NamespaceBinding,
+  path: String,
+  val slotIndexInParent: Int,
+  val name: String,
+  val isArray: Boolean,
+  val namedQName: NamedQName,
+  val optPrimType: Option[RuntimePrimType],
+  sfl: SchemaFileLocation,
+  val elementChildrenCompileInfo: Seq[DPathElementCompileInfo])
+  extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl)
+  with HasSchemaFileLocation
+  with HasSlotIndexInParent {
 
-  def slotIndexInParent: Int
+  override def toString = "DPathElementCompileInfo(%s)".format(name)
 
-  def name: String
-
-  def elementRuntimeData: ElementRuntimeData
-
-  def optPrimType: Option[RuntimePrimType] = None
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
   final lazy val rootElement: DPathElementCompileInfo =
     this.enclosingElementCompileInfo.map { _.rootElement }.getOrElse { this }
-
-  def isArray: Boolean
-  def namedQName: NamedQName
 
   //  final def realERD: ElementRuntimeData = this match {
   //    case erd: ElementRuntimeData => erd
@@ -335,7 +324,7 @@ trait DPathElementCompileInfo extends DPathCompileInfo {
   }
 }
 
-class ExpressionCompiler(rd: DPathCompileInfo) {
+object ExpressionCompiler {
 
   /**
    * For expressions that are the values of DFDL properties
@@ -367,10 +356,15 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
 
   private def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found, isEvaluatedAbove: Boolean): CompiledExpression = {
     val expr: String = property.value
-    val xmlForNamespaceResolution = property.location.xml
-    val scWherePropertyWasLocated = property.location.asInstanceOf[SchemaComponent]
+    val namespacesForNamespaceResolution = property.location.namespaces
+    val compileInfoWherePropertyWasLocated = {
+      property.location match {
+        case sc: SchemaComponent => sc.dpathCompileInfo
+        case di: DPathCompileInfo => di
+      }
+    }
 
-    val compiled1 = compile(staticNodeInfoKind, expr, xmlForNamespaceResolution.scope, scWherePropertyWasLocated,
+    val compiled1 = compile(staticNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated,
       isEvaluatedAbove)
     if (compiled1.isConstant) return compiled1
     if (staticNodeInfoKind == runtimeNodeInfoKind) return compiled1
@@ -378,7 +372,7 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
     // TODO: consider passing in a flag or some other way of avoiding this
     // duplicate compile run.
     //
-    val compiled2 = compile(runtimeNodeInfoKind, expr, xmlForNamespaceResolution.scope, scWherePropertyWasLocated,
+    val compiled2 = compile(runtimeNodeInfoKind, expr, namespacesForNamespaceResolution, compileInfoWherePropertyWasLocated,
       isEvaluatedAbove)
     compiled2
   }
@@ -392,7 +386,7 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
    *
    */
   def compile(nodeInfoKind: NodeInfo.Kind, exprWithBracesMaybe: String, namespaces: NamespaceBinding,
-    scWherePropertyWasLocated: DPathCompileInfo,
+    compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean) = {
     val expr = exprWithBracesMaybe
     //
@@ -406,7 +400,7 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
         // whitespace separated list of literal strings, or an expression in { .... }
         if (expr.startsWith("{") && !expr.startsWith("{{")) {
           val msg = "'%s' is an unterminated expression.  Add missing closing brac, or escape opening brace with another opening brace."
-          rd.SDE(msg, expr)
+          compileInfoWherePropertyWasLocated.SDE(msg, expr)
         }
         val expr1 = if (expr.startsWith("{{")) expr.tail else expr
         //
@@ -423,7 +417,7 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
       }
     // it's an actual expression, not a literal constant.
     compileExpression(nodeInfoKind, exprForCompiling, namespaces,
-      scWherePropertyWasLocated, isEvaluatedAbove)
+      compileInfoWherePropertyWasLocated, isEvaluatedAbove)
   }
 
   /**
@@ -440,7 +434,7 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
     // how is this different from the namespace resolution that the
     // next argument provides? Ans: Point of use versus point of definition.
     namespaces: NamespaceBinding,
-    scWherePropertyWasLocated: DPathCompileInfo,
+    compileInfoWherePropertyWasLocated: DPathCompileInfo,
     isEvaluatedAbove: Boolean = false): CompiledExpression = {
     // This is important. The namespace bindings we use must be
     // those from the object where the property carrying the expression 
@@ -453,11 +447,9 @@ class ExpressionCompiler(rd: DPathCompileInfo) {
     // compiled expression ends up being needed to construct the runtime
     // data object....
     //
-    val compileInfo = scWherePropertyWasLocated // .realRuntimeData
-
     // This compiler is a transient object. We shouldn't store it anywhere.
     val compiler = new DFDLPathExpressionCompiler(
-      nodeInfoKind, namespaces, compileInfo, isEvaluatedAbove)
+      nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
     val compiledDPath = compiler.compile(expr)
     compiledDPath
   }

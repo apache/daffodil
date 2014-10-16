@@ -6,7 +6,8 @@
 
 <xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-		   <dfdl:format initiator="" terminator="" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   escapeSchemeRef="" emptyValueDelimiterPolicy="none"
+		   <dfdl:format representation="binary" initiator=""
+                    terminator="" truncateSpecifiedLengthString="no"  separator="" textBidi="no" floating="no"   escapeSchemeRef="" emptyValueDelimiterPolicy="none"
 					useNilForDefault="yes" nilValueDelimiterPolicy="none" nilKind="literalValue" nilValue="-"
 					encodingErrorPolicy="replace" encoding="utf-8" byteOrder="bigEndian" lengthUnits="bytes" 
 					textOutputMinLength="1"

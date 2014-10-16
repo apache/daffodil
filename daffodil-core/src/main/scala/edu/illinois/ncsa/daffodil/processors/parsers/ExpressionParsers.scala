@@ -18,6 +18,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -114,8 +115,15 @@ class AssertExpressionEvaluationParser(
         //
         // a PE during evaluation of an assertion is a PE
         //
-        Assert.invariant(!start.status.isInstanceOf[Failure])
-        Assert.invariant(res != null)
+        // Removed this assert check because eval now side-effects start to
+        // contain the result status.
+        // Assert.invariant(!start.status.isInstanceOf[Failure])
+        //
+        // Assert.invariant(res != null)
+        start.status match {
+          case Success => // ok
+          case f: Failure => return start
+        }
         val testResult = res.asInstanceOf[Boolean]
         val postState = start.withVariables(newVMap)
         if (testResult) {
@@ -132,15 +140,12 @@ class AssertExpressionEvaluationParser(
 class AssertPatternParser(
   eName: String,
   kindString: String,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   rd: RuntimeData,
   testPattern: String,
   message: String)
   extends PrimParser(rd)
-  with TextReader {
+  with TextReader with RuntimeEncodingMixin {
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -148,7 +153,7 @@ class AssertPatternParser(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+      new DFDLDelimParser(rd, encodingInfo)
     }
   }
 
@@ -194,10 +199,7 @@ class DiscriminatorPatternParser(
   testPattern: String,
   eName: String,
   kindString: String,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   rd: RuntimeData,
   message: String)
   extends PrimParser(rd)
@@ -209,7 +211,7 @@ class DiscriminatorPatternParser(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+      new DFDLDelimParser(rd, encodingInfo)
     }
   }
 

@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
+import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 
 /**
  * This file is classes and traits to implement
@@ -82,7 +83,7 @@ case class NotFound(localWhereLooked: Seq[LookupLocation], defaultWhereLooked: S
  * QName to a namespace and a local name.
  */
 trait LookupLocation
-  extends ResolvesQNames with SchemaFileLocatable {
+  extends ResolvesQNames with LocationInSchemaFile {
 
   //def nameAndPath: (String, String)
 }

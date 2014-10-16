@@ -18,7 +18,8 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	<!-- Defaulted property values from sample snippet-->
 	<xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-        <dfdl:format ref="daffodilNewProperties1" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"  encoding="utf-8" separator="%NL;" />
+        <dfdl:format ref="daffodilNewProperties1" leadingSkip="0" trailingSkip="0" textBidi="no" floating="no"  
+        encoding="utf-8" separator="%NL;" representation="text" />
     </xs:appinfo>
      </xs:annotation>
 

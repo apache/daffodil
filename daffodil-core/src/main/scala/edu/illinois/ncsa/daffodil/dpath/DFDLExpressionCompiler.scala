@@ -104,9 +104,18 @@ class DFDLPathExpressionCompiler(
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
 
-    val recipe = tree.compiledDPath
+    //
+    // TODO: call tree.isError and if there are errors, grab all the diagnostics
+    // and somehow get them back to the OOLAG world - e.g., by throwing a
+    // special DPathExpressionError(diags) which takes a whole list
+    // of diagnostics. Then when this is caught, it can be treated specially 
+    // and the individual diagnostics take out, or they might do better all in 
+    // one.
+    tree.isError // forces the requiredEvaluations in a useful order for debug
 
-    val value = recipe.runExpressionForConstant(Some(context))
+    val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
+
+    val value = recipe.runExpressionForConstant(context.schemaFileLocation)
     val res = value match {
       case Some(constantValue) => {
         Assert.invariant(constantValue != null)
@@ -121,9 +130,6 @@ class DFDLPathExpressionCompiler(
   }
 
   override val skipWhitespace = true
-
-  // only used to determine if paths are constant or not. 
-  // private val expressionCompiler = new ExpressionCompiler(context)
 
   /**
    *  We need to override ~ of Parser so that we can consume/omit
@@ -193,7 +199,7 @@ class DFDLPathExpressionCompiler(
   //          {
   //            val exp = "{ " + p.toString + " }"
   //            val f = Found(exp, context)
-  //            val ce = expressionCompiler.compile(f)
+  //            val ce = ExpressionCompiler.compile(f)
   //            ce
   //          }
   //        }.filterNot(ce => ce.isConstant) // Paths are not constant

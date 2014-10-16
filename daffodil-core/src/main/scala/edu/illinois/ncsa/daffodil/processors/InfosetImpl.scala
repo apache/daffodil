@@ -24,9 +24,26 @@ import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.dsom.RuntimePrimType
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
 
-sealed trait DINode {
+sealed trait DINode extends {
   def toXML: scala.xml.NodeSeq
+}
+
+/**
+ * Exception thrown if infoset doesn't have a child corresponding to the
+ * slot being probed. E.g., expression evaluation reaching to a forward
+ * sibling that has not yet been parsed.
+ */
+class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
+  def this(erd: ElementRuntimeData) = this("Child element %s does not exist.".format(erd.prettyName))
+  // def this(slot: Int) = this("Child element with slot position %s does not exist.".format(slot))
+  def this(name: String, namespace: NS, slot: Int) = this("Child named '" + name +
+    (if (namespace == NoNamespace) "' " else "' in namespace '%s' ".format(namespace)) +
+    "(slot %s) does not exist.")
+
+  override def getMessage: String = msg
 }
 
 /**
@@ -76,6 +93,10 @@ trait DIElement extends DINode with InfosetElement {
    * no notion of creating an infoset element then making it hidden by marking
    * it in some way. Rather, the corresponding elementRuntimeData tells you whether
    * it is hidden or not.
+   *
+   * When we convert to XML, then if we want to preserve information about
+   * things being hidden (for inspection by looking at the XML) then we
+   * need to add an attribute. But for the infoset itself, we don't need it.
    */
   final def isHidden: Boolean = erd.isHidden
 
@@ -108,7 +129,8 @@ trait DIElement extends DINode with InfosetElement {
 
 // This is not a mutable collection class on purpose.
 // This forces use of while-loops and similar known-efficient
-// code, rather than letting all sorts of map/flatmap composition.
+// code, rather than letting all sorts of map/flatmap compositions,
+// which may or may not be optimized effectively.
 //
 final class DIArray extends DINode with InfosetArray {
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
@@ -314,14 +336,24 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   }
 
   final override def getChild(erd: ElementRuntimeData): InfosetElement = getChildMaybe(erd).getOrElse {
-    this.erd.SDE("Child element %s does not exist.", erd.prettyName)
+    throw new InfosetNoSuchChildElementException(erd)
   }
 
   final override def getChildMaybe(erd: ElementRuntimeData): Maybe[InfosetElement] =
-    _slots(erd.slotIndexInParent).map { _.asInstanceOf[InfosetElement] }
+    getChildMaybe(erd.slotIndexInParent)
 
   final override def getChildArray(erd: ElementRuntimeData): Maybe[InfosetArray] =
-    _slots(erd.slotIndexInParent).map {
+    getChildArray(erd.slotIndexInParent)
+
+  final def getChild(slot: Int, name: String, namespace: NS): InfosetElement = getChildMaybe(slot).getOrElse {
+    throw new InfosetNoSuchChildElementException(name, namespace, slot)
+  }
+
+  final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
+    _slots(slot).map { _.asInstanceOf[InfosetElement] }
+
+  final def getChildArray(slot: Int): Maybe[InfosetArray] =
+    _slots(slot).map {
       _ match {
         case arr: DIArray => arr
         case _ => Assert.usageError("not an array")

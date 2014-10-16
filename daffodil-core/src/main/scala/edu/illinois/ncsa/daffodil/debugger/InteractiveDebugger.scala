@@ -219,9 +219,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
 
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
     val context = state.getContext()
-    val ec = new ExpressionCompiler(context)
     val namespaces = context.namespaces
-    val compiledExpr = ec.compileExpression(NodeInfo.Boolean, expression, parser.context.namespaces, context)
+    val compiledExpr = ExpressionCompiler.compileExpression(
+      NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo)
     try {
       val (res, vars) = compiledExpr.evaluate(state)
       res match {
@@ -292,7 +292,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
     } else {
       ie.toXML
     }
-    if (xml.length == 0) debugPrintln("Nil"); return
+    if (xml.length == 0) {
+      debugPrintln("Nil"); return
+    }
     Assert.invariant(xml.length == 1)
     val elem = xml(0)
     val xmlClean = XMLUtils.removeAttributes(elem) // strip them all , Seq(XMLUtils.INT_NS_OBJECT))
@@ -847,7 +849,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           throw new DebugException("eval requires a DFDL expression")
         }
         val expressionList = args
-        val ec = new ExpressionCompiler(state.getContext())
         val expression = expressionList.mkString(" ")
 
         val element = state.infoset match {
@@ -865,8 +866,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
           else adjustedExpression
         val isEvaluatedAbove = false
-        val compiledExpression = ec.compile(
-          NodeInfo.AnyType, expressionWithBraces, namespaces, context,
+        val compiledExpression = ExpressionCompiler.compile(
+          NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
           isEvaluatedAbove)
         try {
 

@@ -20,19 +20,18 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 class LiteralNilPatternParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   pattern: String,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues)
+  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
   with HasPadding
   with TextReader {
 
@@ -100,15 +99,12 @@ class LiteralNilExplicitParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
   nUnits: Long,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   pattern: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues)
+  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
   with HasPadding
   with TextReader {
 
@@ -179,15 +175,12 @@ class LiteralNilExplicitParser(
 class LiteralNilExplicitLengthInCharsParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues)
+  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
   with TextReader
   with HasPadding {
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -273,14 +266,11 @@ class LiteralNilKnownLengthInBytesParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
   lengthInBytes: Long,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(encInfo, erd, eName, nilValues) {
   final def computeLength(start: PState) = {
     (lengthInBytes, start.variableMap)
   }
@@ -289,15 +279,12 @@ class LiteralNilKnownLengthInBytesParser(
 class LiteralNilExplicitLengthInBytesParser(
   val padChar: String,
   val justificationTrim: TextJustificationType.Type,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(encInfo, erd, eName, nilValues) {
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
@@ -308,14 +295,11 @@ class LiteralNilExplicitLengthInBytesParser(
 }
 
 abstract class LiteralNilParserBase(
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
-  extends PrimParser(erd) {
+  extends PrimParser(erd) with RuntimeEncodingMixin {
   val name = erd.prettyName
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -326,20 +310,17 @@ abstract class LiteralNilParserBase(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+      new DFDLDelimParser(erd, encodingInfo)
     }
-  }  
+  }
 }
 
 abstract class LiteralNilInBytesParserBase(
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, erd, dcharset, eName, nilValues)
+  extends LiteralNilParserBase(encInfo, erd, eName, nilValues)
   with HasPadding {
 
   protected def computeLength(start: PState): (Long, VariableMap)

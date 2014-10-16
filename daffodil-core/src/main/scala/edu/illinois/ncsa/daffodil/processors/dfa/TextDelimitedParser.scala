@@ -19,13 +19,14 @@ import edu.illinois.ncsa.daffodil.processors.FieldFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 abstract class TextDelimitedParserBase(
   val justification: TextJustificationType.Type,
   val padCharOpt: Maybe[Char],
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String,
+  override val context: RuntimeData,
+  override val encodingInfo: EncodingInfo,
   delims: Seq[DFADelimiter],
   field: DFAField)
   extends DelimitedParser with RuntimeEncodingMixin with Serializable {
@@ -150,12 +151,11 @@ abstract class TextDelimitedParserBase(
 class TextDelimitedParser(
   justArg: TextJustificationType.Type,
   padCharArg: Maybe[Char],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  context: RuntimeData,
+  encInfo: EncodingInfo,
   delims: Seq[DFADelimiter],
   field: DFAField)
-  extends TextDelimitedParserBase(justArg, padCharArg, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, delims, field) {
+  extends TextDelimitedParserBase(justArg, padCharArg, context, encInfo, delims, field) {
 }
 
 /**
@@ -165,15 +165,14 @@ class TextDelimitedParser(
 class TextDelimitedParserWithEscapeBlock(
   justArg: TextJustificationType.Type,
   padCharArg: Maybe[Char],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  context: RuntimeData,
+  encInfo: EncodingInfo,
   delims: Seq[DFADelimiter],
   field: DFAField,
   fieldEsc: DFAField,
   startBlock: DFADelimiter,
   endBlock: DFADelimiter)
-  extends TextDelimitedParserBase(justArg, padCharArg, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, delims, field) {
+  extends TextDelimitedParserBase(justArg, padCharArg, context, encInfo, delims, field) {
 
   protected def removeLeftPadding(input: DFDLCharReader): Registers = {
     val leftPaddingRegister = new Registers
@@ -382,11 +381,9 @@ class TextDelimitedParserWithEscapeBlock(
 sealed abstract class TextDelimitedParserFactoryBase(
   justArg: TextJustificationType.Type,
   padCharArg: Maybe[Char],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  val encodingInfo: EncodingInfo,
   fieldFact: FieldFactoryBase,
-  context: ThrowsSDE) extends Logging with Serializable {
+  context: RuntimeData) extends Logging with Serializable {
 
   def getParser(state: PState): (PState, TextDelimitedParserBase, List[String])
 
@@ -397,19 +394,19 @@ sealed abstract class TextDelimitedParserFactoryBase(
       scheme match {
         case s: EscapeSchemeBlock => {
           val parser =
-            new TextDelimitedParserWithEscapeBlock(justArg, padCharArg,
-              knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, delims,
+            new TextDelimitedParserWithEscapeBlock(justArg, padCharArg, context,
+              encodingInfo, delims,
               fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA)
           parser
         }
         case s: EscapeSchemeChar => {
-          val parser = new TextDelimitedParser(justArg, padCharArg,
-            knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, delims, fieldDFA)
+          val parser = new TextDelimitedParser(justArg, padCharArg, context,
+            encodingInfo, delims, fieldDFA)
           parser
         }
       }
     } else {
-      val parser = new TextDelimitedParser(justArg, padCharArg, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName, delims, fieldDFA)
+      val parser = new TextDelimitedParser(justArg, padCharArg, context, encodingInfo, delims, fieldDFA)
       parser
     }
     (postEvalState, theParser, delimsCooked)
@@ -423,17 +420,13 @@ sealed abstract class TextDelimitedParserFactoryBase(
 case class TextDelimitedParserFactoryStatic(
   justArg: TextJustificationType.Type,
   padCharArg: Maybe[Char],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   fieldFact: FieldFactoryStatic,
-  context: ThrowsSDE)
+  context: RuntimeData)
   extends TextDelimitedParserFactoryBase(
     justArg,
     padCharArg,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName,
+    encInfo,
     fieldFact,
     context) {
 
@@ -454,17 +447,13 @@ case class TextDelimitedParserFactoryStatic(
 case class TextDelimitedParserFactoryDynamic(
   justArg: TextJustificationType.Type,
   padCharArg: Maybe[Char],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   fieldFact: FieldFactoryDynamic,
-  context: ThrowsSDE)
+  context: RuntimeData)
   extends TextDelimitedParserFactoryBase(
     justArg,
     padCharArg,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName,
+    encInfo,
     fieldFact,
     context) {
 

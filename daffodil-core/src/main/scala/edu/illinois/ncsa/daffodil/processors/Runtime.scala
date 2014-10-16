@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.io.ObjectOutputStream
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
 
 /**
@@ -94,8 +95,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val rootERD = ssrd.elementRuntimeData
 
     val initialState =
-      if (ssrd.isScannable &&
-        ssrd.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
+      if (ssrd.encodingInfo.isScannable &&
+        ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         ssrd.knownEncodingIsFixedWidth &&
         ssrd.knownEncodingAlignmentInBits == 8 // byte-aligned characters
         ) {
@@ -103,8 +104,9 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         //val charsetEncodingName = rootElem.encoding.constantAsString
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
+          ssrd.encodingInfo,
           ssrd.elementRuntimeData,
-          jis, ssrd.charsetEncodingName, lengthLimitInBits)
+          jis, ssrd.encodingInfo.knownEncodingName, lengthLimitInBits)
         PState.createInitialState(rootERD,
           inStream,
           this)
@@ -127,12 +129,13 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.usage(!this.isError)
 
     val initialState =
-      if (ssrd.isScannable &&
-        ssrd.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
+      if (ssrd.encodingInfo.isScannable &&
+        ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         ssrd.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(ssrd.elementRuntimeData,
-          file, ssrd.charsetEncodingName, -1)
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(ssrd.encodingInfo,
+          ssrd.elementRuntimeData,
+          file, ssrd.knownEncodingName, -1)
         PState.createInitialState(ssrd.elementRuntimeData,
           inStream,
           this)
@@ -171,7 +174,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
               Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
             }
             case procErr: ProcessingError => {
-              Assert.invariantFailed("got a processing error that was not a parse error. This is the parser!")
+              val x = procErr
+              Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
             }
             case sde: SchemaDefinitionError => {
               // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)

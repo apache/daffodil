@@ -47,14 +47,9 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionWarning
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-//import edu.illinois.ncsa.daffodil.dsom.SchemaComponentRegistry
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.Term
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -68,6 +63,7 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 
 abstract class ProcessingError extends Exception with DiagnosticImplMixin
 
@@ -163,7 +159,7 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  */
 trait WithParseErrorThrowing {
 
-  def context: SchemaFileLocatable
+  def context: HasSchemaFileLocation
 
   /**
    * Use to check for parse errors.

@@ -169,6 +169,8 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     //    globalGroupDefs
   }
 
+  override lazy val encodingInfo = Assert.invariantFailed("encodingInfo on SchemaDocument")
+
   override lazy val schemaDocument = this
 
   override lazy val schema = schemaSet.getSchema(targetNamespace).getOrElse {

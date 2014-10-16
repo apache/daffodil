@@ -59,7 +59,6 @@ object SchemaUtils {
 
   private val msg = """Eliminate proliferation of these convenience methods. Use the primary dfdlTestSchema method"""
 
-  @deprecated(msg, "2014-10-01")
   def dfdlTestSchemaUnqualified(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = ""): Elem =
     dfdlTestSchema(topLevelAnnotations, contentElements, fileName, elementFormDefault = "unqualified")
 

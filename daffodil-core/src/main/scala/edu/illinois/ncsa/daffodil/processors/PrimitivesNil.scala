@@ -61,11 +61,8 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   override def parser: PrimParser = new LiteralNilExplicitLengthInBytesParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.name,
     e.length,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
@@ -83,11 +80,8 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     lengthInBytes: Long,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.name,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
 
@@ -122,11 +116,8 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
   override def parser = new LiteralNilExplicitLengthInCharsParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.name,
     e.length,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
@@ -145,11 +136,8 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     nUnits: Long,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.name,
     e.lengthPattern,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
@@ -166,11 +154,8 @@ case class LiteralNilPattern(e: ElementBase)
   override def parser = new LiteralNilPatternParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.lengthPattern,
     e.name,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)

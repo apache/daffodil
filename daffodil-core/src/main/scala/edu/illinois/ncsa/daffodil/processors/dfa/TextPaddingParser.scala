@@ -4,11 +4,12 @@ import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 class TextPaddingParser(val padChar: Char,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String)
+  override val context: RuntimeData,
+  override val encodingInfo: EncodingInfo)
   extends Parser with RuntimeEncodingMixin {
 
   val paddingDFA = CreatePaddingDFA(padChar)

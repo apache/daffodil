@@ -104,7 +104,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Property</tdml:error>
-      <tdml:error>representation</tdml:error>
+      <tdml:error>initiator</tdml:error>
       <tdml:error>is not defined</tdml:error>
     </tdml:errors>
 

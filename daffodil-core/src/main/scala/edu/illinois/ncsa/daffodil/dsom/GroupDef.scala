@@ -58,6 +58,9 @@ abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, v
     val res = Some(groupRef)
     res
   }
+
+  override lazy val enclosingComponent = groupRef.enclosingComponent
+
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children
   // might be annotations and Text nodes. Even if you trim the text nodes out, there are

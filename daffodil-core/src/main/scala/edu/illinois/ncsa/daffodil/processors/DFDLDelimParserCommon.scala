@@ -87,10 +87,9 @@ case class DelimParseFailure(msgArg: String, nextArg: Reader[Char])
 }
 
 class DFDLDelimParserCommon(
-    val knownEncodingIsFixedWidth: Boolean,
-    val knownEncodingWidthInBits: Int,
-    val knownEncodingName: String)
-    extends RegexParsers with DebugRegexParsers with RuntimeEncodingMixin with Serializable {
+  override val context: RuntimeData,
+  override val encodingInfo: EncodingInfo)
+  extends RegexParsers with DebugRegexParsers with RuntimeEncodingMixin with Serializable {
   /**
    * Thisobject has to be nested because it has as an argument type Success[String]
    * and that type is only availble to things that implement the scala...Parsers trait.

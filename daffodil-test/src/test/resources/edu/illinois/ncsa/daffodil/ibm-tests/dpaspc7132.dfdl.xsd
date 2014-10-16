@@ -19,7 +19,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 	<!-- Defaulted property values from sample snippet-->
 	<xs:annotation>
 		<xs:appinfo source="http://www.ogf.org/dfdl/">
-			<dfdl:format ref="daffodilNewProperties1" >
+			<dfdl:format ref="daffodilNewProperties1" representation="text">
 				<dfdl:property name="encoding">utf-8</dfdl:property>
 				<dfdl:property name='separator'>%NL;</dfdl:property>
 			</dfdl:format>

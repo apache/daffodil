@@ -368,7 +368,8 @@ object OOLAG extends Logging {
      * by things that can actually construct Diagnostic
      * objects (Anything that ThrowsSDE)
      */
-    def rethrowAsDiagnostic(th: Throwable): Nothing
+    // unused. Remove?
+    // def rethrowAsDiagnostic(th: Throwable): Nothing
 
     protected def oolagWarn(th: Diagnostic) {
       if (!warnings_.contains(th))

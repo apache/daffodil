@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
 /**
  * This test shows how to use the Generated Code mixins, and verifies that they work.
@@ -66,6 +67,12 @@ class TestGeneratedProperties {
     def columnAttribute: Option[String] = ???
     def fileAttribute: Option[String] = ???
     def lineAttribute: Option[String] = ???
+    def columnDescription: String = ???
+    def fileDescription: String = ???
+    def lineDescription: String = ???
+    def locationDescription: String = ???
+    def namespaces: scala.xml.NamespaceBinding = ???
+    def schemaFileLocation: SchemaFileLocation = ???
 
     override lazy val oolagContext = this
     override val xml = bagOfProps

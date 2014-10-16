@@ -75,10 +75,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
  * bit more tightly to the OOLAG library there.
  */
 abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg)
-  with LookupLocation
-  with FindPropertyMixin
-  with ImplementsThrowsSDE {
+  extends SchemaComponent(xmlArg, annotatedSCArg) {
 
   final override val context: AnnotatedSchemaComponent = annotatedSCArg
 
@@ -154,12 +151,11 @@ trait RawSimpleTypeRuntimeValuedPropertiesMixin
 
 class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
-  with LookupLocation
   with NamedMixin {
 
   override lazy val path = formatAnnotation.path + "::" + prettyName
 
-  override lazy val schemaComponent: SchemaFileLocatable = formatAnnotation.annotatedSC // .runtimeData
+  override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC // .runtimeData
 
   override lazy val schemaDocument = formatAnnotation.schemaDocument
   override lazy val fileName = xmlSchemaDocument.fileName
@@ -475,18 +471,16 @@ class EscapeSchemeObject(
   val optionEscapeEscapeCharacter: Option[CompiledExpression],
   val optionEscapeBlockStart: Option[String],
   val optionEscapeBlockEnd: Option[String])
- extends Serializable
+  extends Serializable
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
-  override def enclosingComponent = Some(defES)
+  override lazy val enclosingComponent = Some(defES)
 
   lazy val referringComponent: Option[SchemaComponent] = Some(defES)
-
-  override lazy val schemaComponent: DPathCompileInfo = defES
 
   override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
@@ -515,7 +509,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
   private val _optionEscapeCharacter = LV('optionEscapeCharacter) {
     escapeCharacterRaw match {
       case Found("", loc) => None
-      case found @ Found(v, loc) => Some(decl.expressionCompiler.compile(NodeInfo.NonEmptyString, found))
+      case found @ Found(v, loc) => Some(ExpressionCompiler.compile(NodeInfo.NonEmptyString, found))
     }
   }
 
@@ -526,7 +520,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
       case found @ Found(v, loc) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        Some(decl.expressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, found))
+        Some(ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, found))
       }
     }
   }
@@ -548,10 +542,10 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
   }
 
   lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
-          case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)
-          case EscapeKind.EscapeCharacter => new EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None)
+    case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)
+    case EscapeKind.EscapeCharacter => new EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None)
   }
-  
+
   //
   // These are sort of tri-state. We can know it is non-existant, 
   // we can know it and have its value, or we must check at runtime, 
@@ -585,8 +579,7 @@ class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse: Schem
   // with DefineEscapeScheme_AnnotationMixin 
   {
 
-  override def enclosingComponent = Some(pointOfUse)
-  override lazy val schemaComponent: DPathCompileInfo = pointOfUse
+  override lazy val enclosingComponent = Some(pointOfUse)
 
   /*
    * For diagnostic messages, we need the decl - because that's where the 
@@ -726,9 +719,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   override lazy val runtimeData = variableRuntimeData
 
   lazy val variableRuntimeData = new VariableRuntimeData(
-    this.lineAttribute,
-    this.columnAttribute,
-    this.fileAttribute,
+    this.schemaFileLocation,
     this.prettyName,
     this.path,
     this.namespaces,
@@ -773,7 +764,7 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument)
+  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument.runtimeData)
   lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
     schemaDefinitionError("Unknown variable: %s", ref))
 

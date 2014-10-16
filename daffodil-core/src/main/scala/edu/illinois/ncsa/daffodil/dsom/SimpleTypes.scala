@@ -111,6 +111,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   def element: ElementBase
 
+  override def encodingInfo = element.encodingInfo
+
   requiredEvaluations(myBaseTypeList)
 
   lazy val bases: Seq[SimpleTypeDefBase] =

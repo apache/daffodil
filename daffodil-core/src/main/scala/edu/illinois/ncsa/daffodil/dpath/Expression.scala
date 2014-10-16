@@ -43,8 +43,7 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 abstract class Expression extends OOLAGHost
-  with SchemaFileLocatable
-  with ImplementsThrowsSDE {
+  with ImplementsThrowsOrSavesSDE {
 
   /**
    * Use several calls instead of one, because then OOLAG will try them
@@ -93,10 +92,7 @@ abstract class Expression extends OOLAGHost
    * We're parsing them, so we should have access to specific locations
    * within the expression.
    */
-  def lineAttribute: Option[String] = schemaComponent.lineAttribute
-  def columnAttribute: Option[String] = schemaComponent.columnAttribute
-  def fileAttribute: Option[String] = schemaComponent.fileAttribute
-  def fileName = schemaComponent.fileName
+  lazy val schemaFileLocation = compileInfo.schemaFileLocation
 
   lazy val conversions = {
     val inh = inherentType
@@ -118,17 +114,17 @@ abstract class Expression extends OOLAGHost
     }
   }
 
-  lazy val schemaComponent: DPathCompileInfo = // override in WholeExpression
-    parent.schemaComponent
+  lazy val compileInfo: DPathCompileInfo = // override in WholeExpression
+    parent.compileInfo
 
   final lazy val enclosingElementCompileInfo: Option[DPathElementCompileInfo] =
-    schemaComponent.enclosingElementCompileInfo
+    compileInfo.enclosingElementCompileInfo
 
   final lazy val rootElement: DPathElementCompileInfo = {
     enclosingElementCompileInfo.map {
       _.rootElement
     }.getOrElse {
-      schemaComponent.elementCompileInfo.getOrElse {
+      compileInfo.elementCompileInfo.getOrElse {
         Assert.invariantFailed("root doesn't have compile info")
       }
     }
@@ -559,19 +555,11 @@ case class WholeExpression(
   nodeInfoKind: NodeInfo.Kind,
   ifor: Expression,
   nsBindingForPrefixResolution: NamespaceBinding,
-  sc: DPathCompileInfo)
+  ci: DPathCompileInfo)
   extends Expression {
 
   def init() {
-    sc match {
-      case comp: OOLAGHost => this.setOOLAGContext(comp)
-      case _ => {
-        // it's a runtime object. Shouldn't be except if we're compiling
-        // from the debugger.
-        this.setOOLAGContext(null) // we are the root.
-      }
-    }
-
+    this.setOOLAGContext(null) // we are the root.
     this.setContextsForChildren()
   }
 
@@ -593,7 +581,7 @@ case class WholeExpression(
 
   override lazy val inherentType = ifor.inherentType
 
-  override lazy val schemaComponent = sc
+  override lazy val compileInfo = ci
 
   override lazy val compiledDPath = ifor.compiledDPath
 
@@ -808,7 +796,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   extends Expression {
 
   requiredEvaluations(priorStep)
-  requiredEvaluations(schemaComponent)
+  requiredEvaluations(compileInfo)
   requiredEvaluations(stepElement)
 
   // override def toString = text
@@ -875,7 +863,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
    * prefixes for this namespace (because there can be more than one)
    */
   def suggestedPossiblePrefixes(ns: NS): Seq[String] = {
-    val res = NS.allPrefixes(ns, schemaComponent.namespaces)
+    val res = NS.allPrefixes(ns, compileInfo.namespaces)
     res
   }
 
@@ -917,7 +905,7 @@ case class Self(predArg: Option[PredicateExpression]) extends StepExpression(nul
   override lazy val stepElement: DPathElementCompileInfo =
     priorStep.map { _.stepElement }.getOrElse {
       //  no prior step, so we're the first step 
-      this.schemaComponent.elementCompileInfo.getOrElse {
+      this.compileInfo.elementCompileInfo.getOrElse {
         SDE("Relative path .. past root element.")
       }
     }
@@ -932,7 +920,7 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
     if (isFirstStep) {
       Assert.invariant(!isAbsolutePath)
       val rpe = this.relPathParent
-      val sc = this.schemaComponent
+      val sc = this.compileInfo
       // if we are some component inside an element then we 
       // need to get the element surrounding first, then go up one.
       val e = sc.elementCompileInfo
@@ -973,19 +961,19 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     res
   }
 
-  lazy val erd = stepElement
+  lazy val dpathElementCompileInfo = stepElement
 
   lazy val downwardStep = {
     if (stepElement.isArray && pred.isDefined) {
       Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
       val indexRecipe = pred.get.compiledDPath
-      new DownArrayOccurrence(erd, indexRecipe)
+      new DownArrayOccurrence(dpathElementCompileInfo, indexRecipe)
     } else if (stepElement.isArray) {
       schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
-      new DownArray(erd)
+      new DownArray(dpathElementCompileInfo)
     } else {
       Assert.invariant(!pred.isDefined)
-      new DownElement(erd)
+      new DownElement(dpathElementCompileInfo)
     }
   }
 
@@ -1009,12 +997,23 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
         rootElement
       } else {
         // since we're first we start from the element, or nearest enclosing
-        val e = schemaComponent.elementCompileInfo.map { _.findNamedChild(stepQName) }.getOrElse(die)
+        val e = compileInfo.elementCompileInfo.map { ci =>
+          // print("stepElement starting at " + compileInfo + " enclosed by element: " + ci)
+          val nc = ci.findNamedChild(stepQName)
+          // println(" and stepping to: " + nc)
+          nc
+        }.getOrElse(die)
         e
       }
     } else {
       // not first step so we are extension of prior step
-      val e = priorStep.map { _.stepElement }.map { _.findNamedChild(stepQName) }.getOrElse(die)
+      val e = priorStep.map { ps =>
+        val psse = ps.stepElement
+        psse
+      }.map { se =>
+        val nc = se.findNamedChild(stepQName)
+        nc
+      }.getOrElse(die)
       e
     }
     stepElem
@@ -1125,7 +1124,7 @@ case class VariableRef(val qnameString: String)
 
   lazy val theQName: RefQName = resolveRef(qnameString)
 
-  lazy val vrd = schemaComponent.variableMap.getVariableRuntimeData(theQName).getOrElse(
+  lazy val vrd = compileInfo.variableMap.getVariableRuntimeData(theQName).getOrElse(
     SDE("Undefined variable: %s", text))
 
   lazy val varType = {
@@ -1230,8 +1229,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "hexBinary", XSD), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.HexBinary, NodeInfo.AnyAtomic, XSHexBinary(_, _))
-          
-          case (RefQName(_, "hexBinary", DFDL), args) =>
+
+      case (RefQName(_, "hexBinary", DFDL), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.HexBinary, NodeInfo.AnyAtomic, DFDLHexBinary(_, _))
 

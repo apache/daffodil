@@ -143,7 +143,11 @@ abstract class Enum[A] extends EnumBase {
  * base mixin for traits representing collections of DFDL properties
  *
  */
-trait PropertyMixin extends FindPropertyMixin with ThrowsSDE with Logging {
+trait PropertyMixin
+  extends FindPropertyMixin
+  with ThrowsSDE
+  with SavesErrorsAndWarnings
+  with Logging {
 
   //  /**
   //   * Only for testing purposes

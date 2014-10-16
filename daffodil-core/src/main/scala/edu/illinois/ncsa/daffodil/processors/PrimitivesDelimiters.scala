@@ -67,28 +67,28 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.runtimeData)
-  val textParser = new TextParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
+  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
+  val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.knownEncodingCharset)
+  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo)
 
-//  def unparser: Unparser = new Unparser(e) {
-//    val t = e.asInstanceOf[Term]
-//    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
-//    // setLoggingLevel(LogLevel.Info)
-//    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
-//    Assert.invariant(delim != "") //shouldn't be here at all in this case
-//
-//    def unparse(start: UState): UState = {
-//      val encoder = e.knownEncodingCharset.charset.newEncoder()
-//      start.outStream.setEncoder(encoder)
-//      start.outStream.fillCharBuffer(unparserDelim)
-//      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
-//      start
-//    }
-//  }
+  //  def unparser: Unparser = new Unparser(e) {
+  //    val t = e.asInstanceOf[Term]
+  //    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
+  //    // setLoggingLevel(LogLevel.Info)
+  //    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
+  //    Assert.invariant(delim != "") //shouldn't be here at all in this case
+  //
+  //    def unparse(start: UState): UState = {
+  //      val encoder = e.knownEncodingCharset.charset.newEncoder()
+  //      start.outStream.setEncoder(encoder)
+  //      start.outStream.fillCharBuffer(unparserDelim)
+  //      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
+  //      start
+  //    }
+  //  }
 
-//  def unparserDelim: String
+  //  def unparserDelim: String
 }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
@@ -233,10 +233,10 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   extends Text(e, e, guard)
   with DelimiterText {
 
-  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.runtimeData)
-  val textParser = new TextParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
+  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
+  val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, e.knownEncodingCharset)
+  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo)
 
   /*
   def unparser: Unparser = new Unparser(e) {
@@ -296,7 +296,7 @@ case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep"
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
-  val dp = new DFDLDelimParser(e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName)
+  val dp = new DFDLDelimParser(e.runtimeData, e.encodingInfo)
 
   private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
     string.startsWith(possiblePrefix)

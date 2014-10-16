@@ -188,8 +188,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
-  with TextNumberFormatMixin
-  with DPathElementCompileInfo {
+  with TextNumberFormatMixin {
 
   requiredEvaluations(typeDef)
   requiredEvaluations(isSimpleType)
@@ -220,7 +219,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
 
-  override lazy val optPrimType: Option[RuntimePrimType] = Misc.boolToOpt(isSimpleType, primType.typeRuntimeData)
+  lazy val optPrimType: Option[RuntimePrimType] = Misc.boolToOpt(isSimpleType, primType.typeRuntimeData)
 
   def isScalar: Boolean
   def isOptional: Boolean
@@ -230,6 +229,24 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val optMaxOccurs: Option[Int] = None
 
   def elementRef: Option[ElementRef]
+
+  override lazy val dpathCompileInfo = dpathElementCompileInfo
+
+  lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
+    val eci = new DPathElementCompileInfo(
+      enclosingElement.map { _.dpathElementCompileInfo },
+      variableMap,
+      namespaces,
+      path,
+      slotIndexInParent,
+      name,
+      isArray,
+      namedQName,
+      optPrimType,
+      schemaFileLocation,
+      elementChildrenCompileInfo)
+    eci
+  }
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
@@ -263,10 +280,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     //
     lazy val childrenERDs: Seq[ElementRuntimeData] =
       elementChildren.map { _.elementRuntimeData }
-    lazy val newERD: ElementRuntimeData = new ElementRuntimeData(
-      lineAttribute,
-      columnAttribute,
-      fileAttribute,
+    val newERD: ElementRuntimeData = new ElementRuntimeData(
+      parent,
+      childrenERDs,
+      schemaSet.variableMap,
+      dpathElementCompileInfo,
+      schemaFileLocation,
       prettyName,
       path,
       namespaces,
@@ -292,16 +311,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       slotIndexInParent,
       isNillable,
       defaultValue,
-      childrenERDs,
       isArray,
       isOptional,
       namedQName,
-      schemaSet.variableMap,
-      parent,
-      encoding,
-      optionUTF16Width,
-      isScannable,
-      defaultEncodingErrorPolicy)
+      isRepresented,
+      couldHaveText,
+      alignmentValueInBits,
+      hasNoSkipRegions,
+      impliedRepresentation)
     newERD
   }
 
@@ -348,7 +365,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  final override lazy val elementChildrenCompileInfo = elementChildren
+  final lazy val elementChildrenCompileInfo = elementChildren.map { _.dpathElementCompileInfo }
 
   override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
 
@@ -369,13 +386,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     hasDelimiters ||
       (isSimpleType && impliedRepresentation == Representation.Text) ||
       (isComplexType && elementComplexType.modelGroup.couldHaveText)
-  }
-
-  override lazy val isLocallyTextOnly = {
-    this.hasNoSkipRegions &&
-      this.hasTextAlignment &&
-      ((isSimpleType && this.impliedRepresentation == Representation.Text) ||
-        isComplexType)
   }
 
   override lazy val termChildren: Seq[Term] = {
@@ -444,7 +454,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         if (this.isSimpleType) {
           impliedRepresentation match {
             case Representation.Text => {
-              if ((alignInBits % implicitAlignmentInBits) != 0)
+              if (isRepresented && (alignInBits % implicitAlignmentInBits) != 0)
                 SDE("The given alignment (%s bits) must be a multiple of the encoding specified alignment (%s bits) for %s when representation='text'. Encoding: %s",
                   alignInBits, implicitAlignmentInBits, primType.name, this.knownEncodingName)
             }
@@ -1448,6 +1458,8 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   lazy val isRoot = elementRef == None
 
   override lazy val isHidden = if (isRoot) false else elementRef.get.isHidden
+
+  override lazy val enclosingComponent = elementRef.flatMap { _.enclosingComponent }
 
   override lazy val referringComponent: Option[SchemaComponent] = elementRef
 

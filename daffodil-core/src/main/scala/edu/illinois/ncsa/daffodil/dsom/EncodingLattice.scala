@@ -71,4 +71,4 @@ case object NoText extends EncodingLattice
 /**
  * Means we have a named encoding.
  */
-case class Encoding(name: String) extends EncodingLattice
+case class NamedEncoding(name: String) extends EncodingLattice

@@ -303,7 +303,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   }
 
   override lazy val fileName = {
-    this.fileNameFromAttribute().getOrElse("file:unknown")
+    this.fileNameFromAttribute.getOrElse("file:unknown")
   }
 
   def seenBefore: IIMap

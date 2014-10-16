@@ -1289,7 +1289,7 @@ Differences were (path, expected, actual):
    * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
    */
   @deprecated("use daffodil.xml.QName object", "2014-08-28")
-  def QName(nsBindings: NamespaceBinding, nom: String, loc: SchemaFileLocatable): (NS, String) = {
+  def QName(nsBindings: NamespaceBinding, nom: String, loc: LookupLocation): (NS, String) = {
     val parts = nom.split(":").toList
     val (prefix, localName) = parts match {
       case List(local) => (null, local) // use null not "" for no prefix
@@ -1360,7 +1360,7 @@ trait GetAttributesMixin extends ThrowsSDE {
 
 }
 
-class QNamePrefixNotInScopeException(pre: String, loc: SchemaFileLocatable)
+class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
   extends Exception("Prefix " + pre + " not found in scope. Location: " + loc.toString)
 
 // Commented out for now, but we may reactivate this to 

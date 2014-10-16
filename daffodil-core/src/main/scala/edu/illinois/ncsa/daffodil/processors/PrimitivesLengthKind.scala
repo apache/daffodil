@@ -167,10 +167,7 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     lengthText)
 }
 
@@ -189,10 +186,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     lengthText)
 }
 
@@ -207,10 +201,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: 
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     lengthText)
 }
 
@@ -224,10 +215,7 @@ case class StringVariableLengthInBytes(e: ElementBase)
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.length,
     lengthText)
 }
@@ -242,10 +230,7 @@ case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.length,
     lengthText)
 }
@@ -260,10 +245,7 @@ case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName,
+    e.encodingInfo,
     e.length,
     lengthText)
 }
@@ -272,11 +254,10 @@ case class StringPatternMatched(e: ElementBase)
   extends Terminal(e, true)
   with Padded {
 
-  val charset = e.knownEncodingCharset
   val pattern = e.lengthPattern
 
-  def parser: DaffodilParser = new StringPatternMatchedParser(charset, pattern, e.elementRuntimeData,
-    e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, justificationTrim, padChar)
+  def parser: DaffodilParser = new StringPatternMatchedParser(pattern, e.elementRuntimeData,
+    e.encodingInfo, justificationTrim, padChar)
 
 }
 
@@ -530,10 +511,10 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
 }
 
 abstract class EscapeSchemeFactoryBase(
-    escapeSchemeObject: EscapeSchemeObject,
-    context: ThrowsSDE)
-    extends Serializable {
-  
+  escapeSchemeObject: EscapeSchemeObject,
+  context: ThrowsSDE)
+  extends Serializable {
+
   protected def constEval(knownValue: Option[String]) = {
     val optConstValue = knownValue match {
       case None => None
@@ -602,9 +583,9 @@ abstract class EscapeSchemeFactoryBase(
 
 }
 class EscapeSchemeFactoryStatic(
-    escapeSchemeObject: EscapeSchemeObject,
-    context: ThrowsSDE)
-    extends EscapeSchemeFactoryBase(escapeSchemeObject, context) {
+  escapeSchemeObject: EscapeSchemeObject,
+  context: ThrowsSDE)
+  extends EscapeSchemeFactoryBase(escapeSchemeObject, context) {
 
   val escChar = evalAsConstant(getOptEscChar)
   val escEscChar = evalAsConstant(escapeSchemeObject.optionEscapeEscapeCharacter)
@@ -625,9 +606,9 @@ class EscapeSchemeFactoryStatic(
 }
 
 class EscapeSchemeFactoryDynamic(
-    escapeSchemeObject: EscapeSchemeObject,
-    context: ThrowsSDE)
-    extends EscapeSchemeFactoryBase(escapeSchemeObject, context) with Dynamic {
+  escapeSchemeObject: EscapeSchemeObject,
+  context: ThrowsSDE)
+  extends EscapeSchemeFactoryBase(escapeSchemeObject, context) with Dynamic {
 
   val escapeCharacterCached: Maybe[CachedDynamic[String]] = {
     escapeSchemeObject.escapeKind match {
@@ -700,7 +681,6 @@ abstract class StringDelimited(e: ElementBase)
   lazy val cname = toString
 
   lazy val eName = e.toString()
-  lazy val charset = e.knownEncodingCharset
 
   lazy val hasDynamicDelims: Boolean =
     e.allTerminatingMarkup.exists { case (delimValue, _, _) => !delimValue.isConstant }
@@ -709,7 +689,7 @@ abstract class StringDelimited(e: ElementBase)
 
   lazy val leftPaddingOpt: Option[TextPaddingParser] = {
     if (!pad.isDefined) None
-    else Some(new TextPaddingParser(pad.get, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName))
+    else Some(new TextPaddingParser(pad.get, e.runtimeData, e.encodingInfo))
   }
 
   lazy val escapeSchemeFactory = createEscSchemeFactory
@@ -732,12 +712,12 @@ abstract class StringDelimited(e: ElementBase)
               scheme.optionEscapeEscapeCharacter.get.isConstant)
         }
       }
-      
+
       val theScheme = {
         if (isConstant) new EscapeSchemeFactoryStatic(scheme.escapeScheme, context.runtimeData)
         else new EscapeSchemeFactoryDynamic(scheme.escapeScheme, context.runtimeData)
       }
-      
+
       Some(theScheme)
     } else None
   }
@@ -768,12 +748,12 @@ abstract class StringDelimited(e: ElementBase)
     val theParserFact = fieldFactory match {
       case ffs: FieldFactoryStatic => {
         val pStatic = new TextDelimitedParserFactoryStatic(
-          justificationTrim, pad, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, ffs, context.runtimeData)
+          justificationTrim, pad, e.encodingInfo, ffs, context.runtimeData)
         pStatic
       }
       case ffd: FieldFactoryDynamic => {
         val pDynamic = new TextDelimitedParserFactoryDynamic(
-          justificationTrim, pad, e.knownEncodingIsFixedWidth, e.knownEncodingWidthInBits, e.knownEncodingName, ffd, context.runtimeData)
+          justificationTrim, pad, e.encodingInfo, ffd, context.runtimeData)
         pDynamic
       }
     }
@@ -801,10 +781,7 @@ abstract class StringDelimited(e: ElementBase)
     parserFactory,
     isDelimRequired,
     e.allTerminatingMarkup,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName)
+    e.encodingInfo)
 
   //def unparser: Unparser = new DummyUnparser(e)
 }
@@ -816,7 +793,6 @@ case class StringDelimitedEndOfData(e: ElementBase)
 
 abstract class HexBinaryDelimited(e: ElementBase)
   extends StringDelimited(e) {
-  override lazy val charset = new DFDLCharset("ISO-8859-1")
 
   override def parser: DaffodilParser = new HexBinaryDelimitedParser(
     e.elementRuntimeData,
@@ -826,9 +802,7 @@ abstract class HexBinaryDelimited(e: ElementBase)
     parserFactory,
     isDelimRequired,
     e.allTerminatingMarkup,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName)
+    e.encodingInfo)
 
 }
 
@@ -853,10 +827,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       parserFactory,
       eb.allTerminatingMarkup,
       nilValuesCooked,
-      eb.knownEncodingCharset,
-      eb.knownEncodingIsFixedWidth,
-      eb.knownEncodingWidthInBits,
-      eb.knownEncodingName)
+      eb.encodingInfo)
 
 }
 

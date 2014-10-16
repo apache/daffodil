@@ -50,7 +50,7 @@
   </tdml:defineSchema>
 
   <!-- Illustrates that if we turn off copying of Instream (line 258 of InStream.scala), then there is a problem with backtracking -->
-  <tdml:parserTestCase name="backtrack1" model="s" root="A">
+  <tdml:parserTestCase name="backtrack1Text" model="s" root="A">
     <tdml:document><![CDATA[C/c//
 L/W//
 T/t//

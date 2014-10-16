@@ -166,42 +166,13 @@ case class PState(
     res
   }
 
-  /**
-   * Added because ThrowsSDE is a SchemaFileLocatable
-   */
-  def fileName: String = {
-    val ctxt = getContext()
-    ctxt.fileName
-  }
+  override def schemaFileLocation = getContext().schemaFileLocation
 
   def SDE(str: String, args: Any*) = {
     ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
-  }
-
-  // TODO: Do we want these to reside on PState at all? SDEButContinue and SDW
-  // Had to implement so that we could add ThrowsSDE as a trait to PState
-  // Could just make private and Assert.impossible
-  def SDEButContinue(id: String, args: Any*): Unit = {
-    ???
-    /*
-    ExecutionMode.requireRuntimeMode
-    val ctxt = getContext.runtimeData
-    val rsde = new RuntimeSchemaDefinitionError(ctxt, this, id, args: _*)
-    ctxt.error(rsde)
-    */
-  }
-
-  def SDW(id: String, args: Any*): Unit = {
-    ???
-    /*
-    ExecutionMode.requireRuntimeMode
-    val ctxt = getContext.runtimeData
-    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt, this, id, args: _*)
-    ctxt.warn(rsdw)
-    */
   }
 
   def discriminator = discriminatorStack.head
@@ -283,12 +254,12 @@ case class PState(
     failed(new GeneralParseFailure(msg))
 
   def failed(failureDiagnostic: Diagnostic) = {
-    copy(status = new Failure(failureDiagnostic.getMessage),
+    copy(status = new Failure(failureDiagnostic),
       diagnostics = failureDiagnostic :: diagnostics)
   }
 
   def setFailed(failureDiagnostic: Diagnostic) {
-    status = new Failure(failureDiagnostic.getMessage)
+    status = new Failure(failureDiagnostic)
     diagnostics = failureDiagnostic :: diagnostics
   }
 

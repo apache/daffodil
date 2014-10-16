@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_Annotatio
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -69,95 +70,25 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def termRuntimeData: TermRuntimeData
 
+  override lazy val encodingInfo =
+    new EncodingInfo(termRuntimeData, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
+      termChildrenEncodingInfo)
+
+  override lazy val dpathCompileInfo =
+    new DPathCompileInfo(
+      enclosingComponent.map { _.dpathCompileInfo },
+      variableMap,
+      namespaces,
+      path,
+      schemaFileLocation)
+
+  lazy val termChildrenEncodingInfo: Seq[EncodingInfo] = termChildren.map { _.encodingInfo }
+
   /**
    * An integer which is the alignment of this term. This takes into account the
    * representation, type, charset encoding and alignment-related properties.
    */
   def alignmentValueInBits: Int
-
-  /**
-   * True if it is sensible to scan this data e.g., with a regular expression.
-   * Requires that all children have same encoding as enclosing groups and
-   * elements, requires that there is no leading or trailing alignment regions,
-   * skips. We have to be able to determine that we are for sure going to
-   * always be properly aligned for text.
-   * <p>
-   * Caveat: we only care that the encoding is the same if the term
-   * actually could have text (couldHaveText is an LV) as part of its
-   * representation. For example, a sequence
-   * with no initiator, terminator, nor separators can have any encoding at all,
-   * without disqualifying an element containing it from being scannable. There
-   * has to be text that would be part of the scan.
-   * <p>
-   * If the root element isScannable, and encodingErrorPolicy is 'replace',
-   * then we can use a lower-overhead I/O layer - basically we can use a java.io.InputStreamReader
-   * directly.
-   * <p>
-   * We are going to depend on the fact that if the encoding is going to be this
-   * US-ASCII-7Bit-PACKED thingy (7-bits wide code units, so aligned at 1 bit) that
-   * this encoding must be specified statically in the schema.
-   * <p>
-   * If an encoding is determined at runtime, then we will
-   * insist on it being 8-bit aligned code units.
-   */
-
-  final lazy val isScannable: Boolean = {
-    if (!this.isRepresented) true
-    else {
-      val res = summaryEncoding match {
-        case Mixed => false
-        case Binary => false
-        case NoText => false
-        case Runtime => false
-        case _ => true
-      }
-      res
-    }
-  }
-
-  /**
-   * If s1 and s2 are the same encoding name
-   * then s1, else "mixed". Also "notext" combines
-   * with anything.
-   */
-  def combinedEncoding(
-    s1: EncodingLattice,
-    s2: EncodingLattice): EncodingLattice = {
-    (s1, s2) match {
-      case (x, y) if (x == y) => x
-      case (Mixed, _) => Mixed
-      case (_, Mixed) => Mixed
-      case (Binary, Binary) => Binary
-      case (Binary, _) => Mixed
-      case (_, Binary) => Mixed
-      case (NoText, x) => x
-      case (x, NoText) => x
-      case (x, y) => Mixed
-    }
-  }
-
-  /**
-   * Roll up from the bottom. This is abstract interpretation.
-   * The top (aka conflicting encodings) is "mixed"
-   * The bottom is "noText" (combines with anything)
-   * The values are encoding names, or "runtime" for expressions.
-   * <p>
-   * By doing expression analysis we could do a better job
-   * here and determine when things that use expressions
-   * to get the encoding are all going to get the same
-   * expression value. For now, if it is an expression
-   * then we lose.
-   */
-  lazy val summaryEncoding: EncodingLattice = {
-    val myEnc = if (!isRepresented) NoText
-    else if (!isLocallyTextOnly) Binary
-    else if (!couldHaveText) NoText
-    else if (!this.isKnownEncoding) Runtime
-    else Encoding(this.knownEncodingName)
-    val childEncs: Seq[EncodingLattice] = termChildren.map { x => x.summaryEncoding }
-    val res = childEncs.fold(myEnc) { (x, y) => combinedEncoding(x, y) }
-    res
-  }
 
   /**
    * True if this term is known to have some text aspect. This can be the value, or it can be
@@ -173,24 +104,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * Override in element base to take simple type or prefix length situations into account
    */
   lazy val couldHaveText = hasDelimiters
-
-  /**
-   * Returns true if this term either cannot conflict because it has no textual
-   * aspects, or if it couldHaveText then the encoding must be same.
-   */
-  def hasCompatibleEncoding(t2: Term): Boolean = {
-    if (!this.couldHaveText) true
-    else if (!t2.couldHaveText) true
-    else this.knownEncodingCharset == t2.knownEncodingCharset
-  }
-
-  /**
-   * True if this element itself consists only of text. No binary stuff like alignment
-   * or skips.
-   * <p>
-   * Not recursive into contained children.
-   */
-  def isLocallyTextOnly: Boolean
 
   //TODO: if we add recursive types capability to DFDL this will have to change
   // but so will many of these compiler passes up and down through the DSOM objects.
@@ -616,9 +529,9 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   override lazy val couldHaveText = group.couldHaveText
 
-  override lazy val isLocallyTextOnly = group.isLocallyTextOnly
-
   override lazy val referredToComponent = group
+
+  override lazy val encodingInfo = group.encodingInfo
 
   lazy val groupDef = groupDef_.value
   private val groupDef_ = LV('groupDef) {

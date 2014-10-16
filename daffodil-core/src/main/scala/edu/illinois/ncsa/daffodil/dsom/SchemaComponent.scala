@@ -55,14 +55,22 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
  */
 abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   extends SchemaComponentBase(xmlArg, parent)
-  with ImplementsThrowsSDE
+  with ImplementsThrowsOrSavesSDE
   with GetAttributesMixin
   with SchemaComponentIncludesAndImportsMixin
   with ResolvesQNames
   with FindPropertyMixin
   with LookupLocation
-  with PropTypes
-  with DPathCompileInfo {
+  with SchemaFileLocatable
+  with PropTypes {
+
+  lazy val dpathCompileInfo: DPathCompileInfo =
+    new DPathCompileInfo(
+      enclosingComponent.map { _.dpathCompileInfo },
+      variableMap,
+      namespaces,
+      path,
+      schemaFileLocation)
 
   lazy val primitiveFactory: PrimitiveFactoryBase = schemaSet.primitiveFactory
   lazy val prims = primitiveFactory
@@ -75,8 +83,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * We need our own instance so that the expression compiler has this schema
    * component as its context.
    */
-  lazy val expressionCompiler = _expressionCompiler.value
-  private val _expressionCompiler = LV('expressionCompiler) { new ExpressionCompiler(this) }
 
   override lazy val lineAttribute: Option[String] = {
     val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
@@ -108,7 +114,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     val xsiURI = XMLUtils.xsiURI.toString
     val newScope =
       (foundXsiURI, this) match {
-        case (null, e: ElementBase) if (e.isNillable) => new NamespaceBinding("xsi", xsiURI, scope)
+        case (null, e: ElementBase) => new NamespaceBinding("xsi", xsiURI, scope)
         case (`xsiURI`, _) => scope
         case (s: String, _) => schemaDefinitionError("Prefix 'xsi' must be bound to the namespace '%s', but was bound to the namespace '%s'.", xsiURI, s)
         case (null, _) => scope
@@ -134,17 +140,15 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val nonTermRuntimeData = _nonTermRuntimeData.value
   private val _nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
-      lineAttribute,
-      columnAttribute,
-      fileAttribute,
+      variableMap,
+      schemaFileLocation,
       prettyName,
       path,
       namespaces,
-      enclosingElement.map { _.erd },
-      variableMap)
+      enclosingElement.map { _.erd })
   }
 
-  override lazy val variableMap: VariableMap = schemaSet.variableMap
+  lazy val variableMap: VariableMap = schemaSet.variableMap
 
   /*
    * Anything non-annotated always returns property not found
@@ -167,7 +171,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val schemaDocument: SchemaDocument = parent.schemaDocument
   lazy val xmlSchemaDocument: XMLSchemaDocument = parent.xmlSchemaDocument
   lazy val schema: Schema = parent.schema
-  override lazy val schemaComponent: SchemaFileLocatable = this
+  lazy val schemaComponent: LookupLocation = this
   override lazy val fileName: String = parent.fileName
 
   override lazy val isHidden: Boolean = isHidden_.value
@@ -178,38 +182,36 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     }
   }
 
-  override def enclosingComponent = super.enclosingComponent.asInstanceOf[Option[SchemaComponent]]
+  override lazy val enclosingComponent = {
+    val res = enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
+    res
+  }
 
   /**
    * All schema components except the root have an enclosing element.
    */
-  final lazy val enclosingElement: Option[ElementBase] =
-    enclosingElementCompileInfo.asInstanceOf[Option[ElementBase]]
-  //  {
-  //    val et = enclosingTerm
-  //    et match {
+  final lazy val enclosingElement: Option[ElementBase] = {
+    val et = enclosingTerm
+    val ee = et match {
+      case None => None
+      case Some(eb: ElementBase) => Some(eb)
+      case Some(sc: SchemaComponent) => sc.enclosingElement
+    }
+    ee
+  }
+
+  //  final override lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = {
+  //    val ec = this.enclosingComponent
+  //    ec match {
+  //      // we need to walk back past element references since they will
+  //      // fool things looking for an enclosing element into thinking they've
+  //      // moved outward to one, when they're just on the element ref to the
+  //      // element they were originally on.
+  //      case Some(er: ElementRef) => er.immediateEnclosingCompileInfo
+  //      case Some(sc) => Some(sc.dpathCompileInfo)
   //      case None => None
-  //      case Some(eb: ElementBase) => Some(eb)
-  //      case Some(sc: SchemaComponent) =>
-  //        val ec = sc.enclosingComponent
-  //        val ee = ec.flatMap {
-  //          _.enclosingElement
-  //        }
-  //        ee
   //    }
   //  }
-
-  final override lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = {
-    val ec = this.enclosingComponent
-    ec match {
-      // we need to walk back past element references since they will
-      // fool things looking for an enclosing element into thinking they've
-      // moved outward to one, when they're just on the element ref to the
-      // element they were originally on.
-      case Some(er: ElementRef) => er.immediateEnclosingCompileInfo
-      case _ => ec
-    }
-  }
 
   final lazy val enclosingTerm: Option[Term] = {
     enclosingComponent match {

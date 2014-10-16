@@ -83,6 +83,16 @@ class TestPropertyRuntime {
   class HasMixin extends SchemaComponentBase(<dummy/>, null)
     with TheExamplePropMixin
     with LookupLocation {
+    // Members declared in edu.illinois.ncsa.daffodil.api.LocationInSchemaFile   
+    def columnDescription: String = ???
+    def fileDescription: String = ???
+    def lineDescription: String = ???
+    def locationDescription: String = ???
+    // Members declared in edu.illinois.ncsa.daffodil.dsom.ResolvesQNames  
+    def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
+    // Members declared in edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE  
+    def schemaFileLocation: edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation = ???
+
     def findPropertyOption(pname: String) =
       Found("left", this)
     override val xml = <foo/>

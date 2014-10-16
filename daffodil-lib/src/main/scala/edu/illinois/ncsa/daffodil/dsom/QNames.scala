@@ -59,13 +59,13 @@ trait HasRefMixin extends GetAttributesMixin {
 
 trait ResolvesQNames
   extends ThrowsSDE {
-  def xml: Node
+  def namespaces: scala.xml.NamespaceBinding
 
   /**
    * If prefix of name is unmapped, SDE, otherwise break into NS and local part.
    */
   def resolveQName(name: String): (NS, String) = {
-    val pair @ (ns, localName) = XMLUtils.getQName(name, xml)
+    val pair @ (ns, localName) = XMLUtils.getQName(name, namespaces)
     schemaDefinitionUnless(ns != null, "In QName '%s', the prefix was not defined.", name)
     pair
   }

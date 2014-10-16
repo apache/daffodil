@@ -29,11 +29,11 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
-    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.String, testSchema.scope, erd)
+    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.String, testSchema.scope, erd.dpathCompileInfo)
     val result = exprCompiler.getExpressionTree(expr)
     body(result)
   }
-  def testExpr2(testSchema: scala.xml.Elem, expr: String)(body: (Expression, DPathElementCompileInfo) => Unit) {
+  def testExpr2(testSchema: scala.xml.Elem, expr: String)(body: (Expression, ElementRuntimeData) => Unit) {
     val schemaCompiler = Compiler()
     val (sset, _) = schemaCompiler.frontEnd(testSchema)
     val Seq(schema) = sset.schemas
@@ -41,9 +41,9 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl
-    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.AnyType, testSchema.scope, decl)
+    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo)
     val result = exprCompiler.getExpressionTree(expr)
-    body(result, erd)
+    body(result, erd.elementRuntimeData)
   }
 
   val testSchema = SchemaUtils.dfdlTestSchemaUnqualified(
@@ -172,8 +172,8 @@ class TestDFDLExpressionTree extends Parsers {
       //
       val ex = NS("http://example.com")
       assertEquals(StepQName(Some("tns"), "bookstore", ex), n1.stepQName)
-      assertEquals(erd, n1.stepElement)
-      assertEquals(NS("http://example.com"), erd.elementRuntimeData.targetNamespace)
+      assertEquals(erd.dpathElementCompileInfo, n1.stepElement)
+      assertEquals(NS("http://example.com"), erd.targetNamespace)
 
       val NamedStep("book", None) = n2
       assertFalse(n2.isFirstStep)
@@ -181,8 +181,8 @@ class TestDFDLExpressionTree extends Parsers {
       assertEquals(1, n2.positionInStepsSequence) // zero based
       assertTrue(n2.priorStep.isDefined)
       assertEquals(StepQName(None, "book", NoNamespace), n2.stepQName)
-      val bookERD = erd.elementRuntimeData.childERDs.find { _.name == "book" }.get
-      assertEquals(bookERD, n2.stepElement.elementRuntimeData)
+      val bookERD = erd.childERDs.find { _.name == "book" }.get
+      assertEquals(bookERD.dpathElementCompileInfo, n2.stepElement)
       val NamedStep("title", None) = n3
       assertFalse(n3.isFirstStep)
       assertTrue(n3.isLastStep)
@@ -190,7 +190,7 @@ class TestDFDLExpressionTree extends Parsers {
       assertTrue(n3.priorStep.isDefined)
       assertEquals(StepQName(None, "title", NoNamespace), n3.stepQName)
       val titleERD = bookERD.childERDs.find { _.name == "title" }.get
-      assertEquals(titleERD, n3.stepElement.elementRuntimeData)
+      assertEquals(titleERD.dpathElementCompileInfo, n3.stepElement)
     }
   }
 

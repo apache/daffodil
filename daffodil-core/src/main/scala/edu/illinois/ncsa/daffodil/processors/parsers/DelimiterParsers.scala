@@ -20,6 +20,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 trait HasDelimiterText {
 
@@ -57,10 +58,8 @@ abstract class DelimiterValues extends HasDelimiterText with Serializable
 class StaticTextDelimiterValues(
   val delim: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
-  context: ThrowsSDE)
+  encInfo: EncodingInfo,
+  context: RuntimeData)
   extends DelimiterValues {
 
   val staticTexts = delim.split("\\s").toList
@@ -87,15 +86,13 @@ class StaticTextDelimiterValues(
 
   // here we define the parsers so that they are pre-compiled/generated
   val delims = CreateDelimiterDFA(allDelims.toSeq)
-  val textParser = new TextParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+  val textParser = new TextParser(context, encInfo)
 }
 
 class DynamicTextDelimiterValues(
   val delimExpr: CompiledExpression,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encodingInfo: EncodingInfo,
   context: ThrowsSDE)
   extends DelimiterValues {
 
@@ -126,7 +123,8 @@ class DynamicTextDelimiterValues(
   val maxDelimLengthStatic = computeMaxDelimiterLength(allStaticDelims)
 }
 
-abstract class DelimiterTextParser(rd: RuntimeData)
+abstract class DelimiterTextParser(rd: RuntimeData,
+  val encodingInfo: EncodingInfo)
   extends PrimParser(rd)
   with HasDelimiterText {
 
@@ -186,11 +184,8 @@ class StaticTextParser(
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String,
-  dcharset: DFDLCharset)
-  extends DelimiterTextParser(rd)
+  encInfo: EncodingInfo)
+  extends DelimiterTextParser(rd, encInfo)
   with TextReader
   with RuntimeEncodingMixin {
 
@@ -272,11 +267,8 @@ class DynamicTextParser(
   textParser: TextParser,
   positionalInfo: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String,
-  dcharset: DFDLCharset)
-  extends DelimiterTextParser(rd)
+  encInfo: EncodingInfo)
+  extends DelimiterTextParser(rd, encInfo)
   with TextReader
   with RuntimeEncodingMixin {
   override def toBriefXML(depthLimit: Int = -1) = {

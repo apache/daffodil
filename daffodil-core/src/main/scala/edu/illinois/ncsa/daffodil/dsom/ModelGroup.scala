@@ -95,8 +95,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case gb: GroupBase => gb.group.elementChildren
     }
 
-  override lazy val elementChildrenCompileInfo = elementChildren
-
   override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 
   override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
@@ -113,21 +111,21 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case _ => Nil
     }
     new ModelGroupRuntimeData(
-      lineAttribute,
-      columnAttribute,
-      fileAttribute,
+      schemaSet.variableMap,
+      // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
+      schemaFileLocation,
+      dpathCompileInfo,
       prettyName,
       path,
       namespaces,
       defaultBitOrder,
       groupMembers,
-      elementCompileInfo.map { _.elementRuntimeData }.get,
-      schemaSet.variableMap,
-      elementChildrenCompileInfo.map { _.elementRuntimeData },
-      encoding,
-      optionUTF16Width,
-      isScannable,
-      encodingErrorPolicy)
+      enclosingElement.map { _.elementRuntimeData }.getOrElse(
+        Assert.invariantFailed("model group with no surrounding element.")),
+      isRepresented,
+      couldHaveText,
+      alignmentValueInBits,
+      hasNoSkipRegions)
   }
 
   val mgID = UUID.randomUUID()
@@ -172,11 +170,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   }
 
   override lazy val termChildren = groupMembers
-
-  override lazy val isLocallyTextOnly = {
-    this.hasNoSkipRegions &&
-      this.hasTextAlignment
-  }
 
   lazy val groupMembersNoRefs = groupMembers.map {
     case eRef: ElementRef => eRef.referencedElement

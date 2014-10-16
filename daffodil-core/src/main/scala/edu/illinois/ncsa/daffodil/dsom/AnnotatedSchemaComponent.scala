@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Text
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 /**
  * Shared characteristics of any annotated schema component.

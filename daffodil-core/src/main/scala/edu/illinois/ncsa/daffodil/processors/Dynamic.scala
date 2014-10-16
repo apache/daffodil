@@ -41,6 +41,15 @@ trait Dynamic {
       case Right(r) => (s, r)
       case Left(l) => {
         val (aAsAny, newVMap) = l.evaluate(s)
+        s.status match {
+          case Success => // nothing
+          case f: Failure => {
+            // evaluation failed
+            // we can't continue this code path
+            // have to throw out of here
+            throw f.cause
+          }
+        }
         val a: A = conv(s, aAsAny)
         (s.withVariables(newVMap), a)
       }

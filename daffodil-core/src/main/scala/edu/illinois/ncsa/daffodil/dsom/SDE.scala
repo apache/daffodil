@@ -32,15 +32,12 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
@@ -121,6 +118,10 @@ abstract class SchemaDefinitionDiagnosticBase(
 
   protected val currentLocation = runtimeContext.map { _.currentLocation }
 
+  /**
+   * These are put into a collection to remove duplicates so equals and hash
+   * matter or we'll get duplicates we don't want.
+   */
   override def equals(b: Any): Boolean = {
     b match {
       case other: SchemaDefinitionDiagnosticBase => {
@@ -211,36 +212,31 @@ abstract class SchemaDefinitionDiagnosticBase(
 }
 
 trait ImplementsThrowsSDE
-  extends ThrowsSDE { self: SchemaFileLocatable =>
+  extends ThrowsSDE {
 
-  val NoAnnotationContext: Option[SchemaFileLocation] = None
-
-  /**
-   * Centralize throwing for debug convenience
-   */
-  def toss(th: Throwable) = {
-    throw th // good place for a breakpoint
-  }
-
-  def schemaComponent: SchemaFileLocatable
-  def error(sde: Diagnostic): Unit
-  def warn(sdw: Diagnostic): Unit
+  def NoAnnotationContext: Option[SchemaFileLocation] = None
 
   def SDE(id: String, args: Any*): Nothing = {
-    ExecutionMode.requireCompilerMode
-    val sde = new SchemaDefinitionError(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
+    val sde = new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
     toss(sde)
   }
+}
+
+trait ImplementsThrowsOrSavesSDE
+  extends ImplementsThrowsSDE with SavesErrorsAndWarnings {
+
+  def error(th: Diagnostic): Unit
+  def warn(th: Diagnostic): Unit
 
   def SDEButContinue(id: String, args: Any*): Unit = {
     ExecutionMode.requireCompilerMode
-    val sde = new SchemaDefinitionError(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
+    val sde = new SchemaDefinitionError(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
     error(sde) // calls the error routine which records the error, but doesn't throw/toss it.
   }
 
   def SDW(id: String, args: Any*): Unit = {
     ExecutionMode.requireCompilerMode
-    val sdw = new SchemaDefinitionWarning(Some(schemaComponent.schemaFileLocation), NoAnnotationContext, id, args: _*)
+    val sdw = new SchemaDefinitionWarning(Some(schemaFileLocation), NoAnnotationContext, id, args: _*)
     warn(sdw)
   }
 

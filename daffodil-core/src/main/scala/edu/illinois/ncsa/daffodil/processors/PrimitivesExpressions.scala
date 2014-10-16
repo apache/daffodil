@@ -57,7 +57,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
-  xmlForNamespaceResolution: Node,
+  namespacesForNamespaceResolution: scala.xml.NamespaceBinding,
   scWherePropertyWasLocated: AnnotatedSchemaComponent,
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
@@ -70,12 +70,12 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
     msg: String,
     discrim: Boolean, // are we a discriminator or not.
     assertKindName: String) =
-    this(decl, foundProp.value, foundProp.location.xml, decl, msg, discrim, assertKindName)
+    this(decl, foundProp.value, foundProp.location.namespaces, decl, msg, discrim, assertKindName)
 
   override val baseName = assertKindName
   override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
   override lazy val exprText = exprWithBraces
-  override lazy val exprXMLForNamespace = xmlForNamespaceResolution
+  override lazy val exprNamespaces = namespacesForNamespaceResolution
   override lazy val exprComponent = scWherePropertyWasLocated
   override def nodeKind = NodeInfo.Boolean
 
@@ -107,7 +107,7 @@ case class DiscriminatorBooleanPrim(
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
   extends AssertBase(decl,
-    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>, decl,
+    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
     // always true. We're just an assertion that says an initiator was found.
     "initiatedContent. This message should not be used.",
     true,
@@ -120,7 +120,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   val baseName = "SetVariable[" + stmt.localName + "]"
 
   override lazy val exprText = stmt.value
-  override lazy val exprXMLForNamespace = stmt.xml
+  override lazy val exprNamespaces = stmt.xml.scope
   override lazy val exprComponent = stmt
 
   lazy val expandedTypeName = stmt.defv.extType
@@ -165,7 +165,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   override def toString = baseName + "(" + exprText + ")"
 
   def baseName: String
-  def exprXMLForNamespace: Node
+  def exprNamespaces: scala.xml.NamespaceBinding
   def exprComponent: SchemaComponent
   def expandedTypeName: String
   def exprText: String
@@ -174,8 +174,8 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   lazy val expr = _expr.value
   private val _expr = LV('expr) {
-    e.expressionCompiler.compile(
-      nodeKind, exprText, exprXMLForNamespace.scope, exprComponent, false)
+    ExpressionCompiler.compile(
+      nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false)
   }
 }
 
@@ -189,7 +189,7 @@ case class InputValueCalc(e: ElementBase)
   }
 
   override lazy val exprText = exprProp.value
-  override lazy val exprXMLForNamespace = exprProp.location.xml
+  override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
   lazy val pt = e.primType.typeRuntimeData
@@ -205,8 +205,6 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
 
   lazy val eName = decl.prettyName
   lazy val testPattern = stmt.testTxt
-  lazy val csName = charset.charsetName
-  lazy val charset = decl.knownEncodingCharset
 
   def parser: DaffodilParser
 }
@@ -216,8 +214,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  def parser: DaffodilParser = new AssertPatternParser(eName, kindString, charset,
-      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt.testTxt, stmt.message)
+  def parser: DaffodilParser = new AssertPatternParser(eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.testTxt, stmt.message)
 
 }
 
@@ -226,11 +223,10 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
-  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, charset,
-      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt.message)
+  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.message)
 }
 
-trait TextReader extends Logging {
+trait TextReader extends Logging with RuntimeEncodingMixin {
 
   /**
    * Readers are stored in the PState within the InStream object.

@@ -17,7 +17,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				lengthUnits="bytes" lengthKind="implicit"
 				initiatedContent="no" sequenceKind="ordered" 
 				alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
-				bitOrder="mostSignificantBitFirst" />
+				bitOrder="mostSignificantBitFirst" representation="binary" />
 		</xs:appinfo>
 
 	</xs:annotation>

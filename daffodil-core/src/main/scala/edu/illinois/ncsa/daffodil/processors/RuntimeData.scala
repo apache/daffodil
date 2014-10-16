@@ -17,114 +17,99 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 
-trait RuntimeData extends SchemaFileLocatable
-  with ImplementsThrowsSDE
-  with DPathCompileInfo {
-  val lineAttribute: Option[String]
-  val columnAttribute: Option[String]
-  val fileAttribute: Option[String]
+trait RuntimeData
+  extends ImplementsThrowsSDE
+  with HasSchemaFileLocation {
+  val schemaFileLocation: SchemaFileLocation
   val prettyName: String
   val path: String
   val namespaces: NamespaceBinding
 
   def immediateEnclosingRuntimeData: Option[RuntimeData]
-
-  final override def immediateEnclosingCompileInfo = immediateEnclosingRuntimeData
-
   def variableMap: VariableMap
-
-  override val fileName = fileAttribute.getOrElse("<no file>")
-
   override def toString = prettyName
-
-  override def schemaComponent = this // needed by ImplementsThrowsSDE
-
-  override def error(sde: Diagnostic): Unit
-  override def warn(sdw: Diagnostic): Unit
 
 }
 
 abstract class TermRuntimeData(
-  val encoding: CompiledExpression,
-  val optionUTF16Width: Option[UTF16Width],
-  val isScannable: Boolean,
-  val defaultEncodingErrorPolicy: EncodingErrorPolicy,
-  @transient immedEnclosingRD: => Option[RuntimeData])
+  @transient immedEnclosingRD: => Option[RuntimeData],
+  val dpathCompileInfo: DPathCompileInfo,
+  val isRepresented: Boolean,
+  val couldHaveText: Boolean,
+  val alignmentValueInBits: Int,
+  val hasNoSkipRegions: Boolean)
   extends RuntimeData
   with Serializable
   with PreSerialization {
 
   lazy val immediateEnclosingRuntimeData = immedEnclosingRD
+
   val defaultBitOrder: BitOrder
-  lazy val utf16Width = optionUTF16Width.get
-  
-  def preSerialization: Unit = {
+
+  override def preSerialization: Unit = {
+    super.preSerialization
     immediateEnclosingRuntimeData
-    //utf16Width
   }
-
   @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
-
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 }
 
 class NonTermRuntimeData(
-  override val lineAttribute: Option[String],
-  override val columnAttribute: Option[String],
-  override val fileAttribute: Option[String],
+  @transient variableMapArg: => VariableMap,
+  override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
-  override val immediateEnclosingRuntimeData: Option[RuntimeData],
-  override val variableMap: VariableMap)
+  override val immediateEnclosingRuntimeData: Option[RuntimeData])
   extends RuntimeData
-  with Serializable {
+  with PreSerialization {
 
-  private def erd = this.enclosingElementCompileInfo
+  override lazy val variableMap = variableMapArg
 
-  override def warn(th: Diagnostic) = erd.get.warn(th)
-  override def error(th: Diagnostic) = erd.get.error(th)
+  override def preSerialization: Unit = {
+    super.preSerialization
+    variableMap
+  }
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
+  // override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
 
 }
 
 class ModelGroupRuntimeData(
-  override val lineAttribute: Option[String],
-  override val columnAttribute: Option[String],
-  override val fileAttribute: Option[String],
+  @transient variableMapArg: => VariableMap,
+  // val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
+  override val schemaFileLocation: SchemaFileLocation,
+  ci: DPathCompileInfo,
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
   val groupMembers: Seq[RuntimeData],
   val erd: ElementRuntimeData,
-  override val variableMap: VariableMap,
-  override val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
-  encoding: CompiledExpression,
-  optUTF16Width: Option[UTF16Width],
-  isScannable: Boolean,
-  defaultEncodingErrorPolicy: EncodingErrorPolicy)
-  extends TermRuntimeData(encoding, optUTF16Width, isScannable, defaultEncodingErrorPolicy, Some(erd)) {
+  isRepresented: Boolean,
+  couldHaveText: Boolean,
+  alignmentValueInBits: Int,
+  hasNoSkipRegions: Boolean)
+  extends TermRuntimeData(Some(erd), ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions) {
 
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
+  override lazy val variableMap = variableMapArg
+
+  override def preSerialization: Unit = {
+    super.preSerialization
+    variableMap
   }
+  @throws(classOf[java.io.IOException])
+  final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  override def warn(th: Diagnostic) = erd.warn(th)
-  override def error(th: Diagnostic) = erd.error(th)
 }
 
 class VariableRuntimeData(
-  override val lineAttribute: Option[String],
-  override val columnAttribute: Option[String],
-  override val fileAttribute: Option[String],
+  sfl: SchemaFileLocation,
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
@@ -135,15 +120,13 @@ class VariableRuntimeData(
   val globalQName: GlobalQName,
   val primType: RuntimePrimType)
   extends NonTermRuntimeData(
-    lineAttribute,
-    columnAttribute,
-    fileAttribute,
+    null, // no variable map
+    sfl,
     prettyName,
     path,
     namespaces,
-    None,
-    null)
+    None)
   with Serializable {
 
-  override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
+  // override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
 }

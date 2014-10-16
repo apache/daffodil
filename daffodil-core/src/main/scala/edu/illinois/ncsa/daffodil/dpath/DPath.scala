@@ -51,16 +51,9 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
   dpathText: String,
-  @transient rdArg: DPathCompileInfo,
+  ci: DPathCompileInfo,
   isEvaluatedAbove: Boolean)
   extends CompiledExpression(dpathText) {
-
-  final override def preSerialization = {
-    rd
-    recipe.preSerialization
-  }
-
-  lazy val rd = rdArg.realRuntimeData
 
   override def targetType = tt
 
@@ -79,7 +72,13 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
   def constant: Any = Assert.usageError("Boolean isConstant is false. Cannot request a constant value.")
 
   private def doPE(e: Exception, pstate: PState) = {
-    val pe = new ParseError(One(rd.schemaFileLocation), One(pstate), "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
+    val pe = new ParseError(One(ci.schemaFileLocation), One(pstate), "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
+    pstate.setFailed(pe)
+    (null, null)
+  }
+
+  private def doSDE(e: Exception, pstate: PState) = {
+    val pe = new RuntimeSchemaDefinitionError(ci.schemaFileLocation, pstate, "Expression evaluation failed due to: %s.", DiagnosticUtils.getSomeMessage(e).get)
     pstate.setFailed(pe)
     (null, null)
   }
@@ -87,7 +86,6 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
   final def evaluate(pstate: PState): (Any, VariableMap) = {
     val (value, vmap) =
       try {
-        recipe.preSerialization // must insure this has been done
         recipe.runExpression(pstate)
 
         val dstate = pstate.dstate
@@ -109,6 +107,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
         }
         (value, vmap)
       } catch {
+        case e: InfosetNoSuchChildElementException => doSDE(e, pstate)
         case e: IllegalArgumentException => doPE(e, pstate)
         case e: IllegalStateException => doPE(e, pstate)
         case e: NumberFormatException => doPE(e, pstate)
@@ -117,7 +116,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
     value match {
       case null => {
         Assert.invariant(pstate.status != Success)
-        return (pstate, null)
+        return (null, null)
       }
       case _ => // fall through
     }
@@ -137,7 +136,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
           }
           case NodeInfo.NonEmptyString => {
             Assert.invariant(value.isInstanceOf[String])
-            rd.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
+            ci.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
               "Non-empty string required.")
             value
           }
@@ -166,19 +165,5 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
       }
     (value1, vmap)
   }
-  //  /**
-  //   * For use in cases where we expect the expression to evaluate
-  //   * to a Node or NodeList.
-  //   */
-  //  def evaluatesToNodes(pre: InfosetElement, vmap: VariableMap, pstate: PState): (Option[List[InfosetElement]], VariableMap) = {
-  //    Assert.notYetImplemented
-  //  }
-  //
-  //  def evaluateTo[T](current: InfosetElement, vmap: VariableMap, pstate: PState): T = {
-  //    ???
-  //  }
-  //
-  //  def evaluateToElement(current: InfosetElement, vmap: VariableMap, pstate: PState): InfosetElement = {
-  //    ???
-  //  }
+
 }

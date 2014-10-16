@@ -21,15 +21,13 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 abstract class StringLengthParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String)
+  override val encodingInfo: EncodingInfo)
   extends PrimParser(erd) with TextReader with RuntimeEncodingMixin {
   override def toString = String.format("%sParser(%s)", parserName, lengthText)
 
@@ -71,10 +69,10 @@ abstract class StringLengthParser(
         return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
       }
       case u: UnsuppressableException => throw u
-//      case e: Exception => {
-//        val foo = e
-//        return PE(start, "%s - Exception:\n%s", parserName, e.getMessage())
-//        }
+      //      case e: Exception => {
+      //        val foo = e
+      //        return PE(start, "%s - Exception:\n%s", parserName, e.getMessage())
+      //        }
     }
     pstate
   }
@@ -85,18 +83,12 @@ class StringFixedLengthInVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val lengthText: String)
   extends StringLengthInCharsParser(numChars, justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName) {
+    encInfo) {
 
   lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
 }
@@ -105,19 +97,13 @@ class StringVariableLengthInBytesParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val length: CompiledExpression,
   override val lengthText: String)
   extends StringLengthInBytesParser(justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName)
+    encInfo)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInBytes"
@@ -127,19 +113,13 @@ class StringVariableLengthInBytesVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val length: CompiledExpression,
   override val lengthText: String)
   extends StringLengthInBytesParser(justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName)
+    encInfo)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
@@ -149,20 +129,14 @@ class StringVariableLengthInVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val length: CompiledExpression,
   override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName)
+    encInfo)
   with HasVariableLength {
 
   lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
@@ -173,19 +147,13 @@ class StringFixedLengthInBytesVariableWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName) {
+    encInfo) {
 
   lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
 
@@ -199,19 +167,13 @@ class StringFixedLengthInBytesFixedWidthCharactersParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  encInfo: EncodingInfo,
   override val lengthText: String)
   extends StringLengthInBytesParser(
     justificationTrim: TextJustificationType.Type,
     pad: Maybe[Char],
     erd,
-    dcharset,
-    knownEncodingIsFixedWidth,
-    knownEncodingWidthInBits,
-    knownEncodingName) {
+    encInfo) {
 
   lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
 
@@ -225,11 +187,8 @@ abstract class StringLengthInCharsParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String)
-  extends StringLengthParser(justificationTrim, pad, erd, dcharset, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
+  encInfo: EncodingInfo)
+  extends StringLengthParser(justificationTrim, pad, erd, encInfo) {
 
   def getLength(pstate: PState): (Long, PState) = {
     (nChars, pstate)
@@ -276,11 +235,8 @@ abstract class StringLengthInBytesParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String)
-  extends StringLengthParser(justificationTrim, pad, erd, dcharset, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
+  encInfo: EncodingInfo)
+  extends StringLengthParser(justificationTrim, pad, erd, encInfo) {
   def formatValue(value: String): String = {
     value
   }

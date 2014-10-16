@@ -37,15 +37,12 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
 
   val kind = "Pattern"
 
-  if (!e.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
+  if (!e.encodingInfo.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
   def parser: Parser = new SpecifiedLengthPatternParser(
     eParser,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.lengthPattern,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName)
+    e.encodingInfo)
 
 }
 
@@ -117,10 +114,7 @@ class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nCh
     eParser,
     e.elementRuntimeData,
     nChars,
-    e.knownEncodingCharset,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName)
+    e.encodingInfo)
 
 }
 
@@ -132,11 +126,8 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
   def parser: Parser = new SpecifiedLengthExplicitCharactersParser(
     eParser,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
-    e.length,
-    e.knownEncodingIsFixedWidth,
-    e.knownEncodingWidthInBits,
-    e.knownEncodingName)
+    e.encodingInfo,
+    e.length)
 
 }
 
@@ -178,16 +169,13 @@ abstract class SpecifiedLengthParserBase(eParser: Parser,
 class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   pattern: String,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  override val encodingInfo: EncodingInfo)
+  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+      new DFDLDelimParser(erd, encodingInfo)
     }
   }
 
@@ -358,10 +346,7 @@ class SpecifiedLengthExplicitCharactersFixedParser(
   eParser: Parser,
   erd: ElementRuntimeData,
   nChars: Long,
-  dcharset: DFDLCharset,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String)
+  override val encodingInfo: EncodingInfo)
   extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
@@ -384,11 +369,8 @@ class SpecifiedLengthExplicitCharactersFixedParser(
 class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
-  length: CompiledExpression,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String)
+  override val encodingInfo: EncodingInfo,
+  length: CompiledExpression)
   extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin with AsIntMixin {
 
   def getLength(s: PState): (PState, Long) = {

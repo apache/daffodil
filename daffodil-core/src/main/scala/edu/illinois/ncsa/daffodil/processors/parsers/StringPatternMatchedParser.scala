@@ -14,12 +14,11 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Padded
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
-class StringPatternMatchedParser(dcharset: DFDLCharset, pattern: String,
+class StringPatternMatchedParser(pattern: String,
   erd: ElementRuntimeData,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String,
+  override val encodingInfo: EncodingInfo,
   override val justificationTrim: TextJustificationType.Type,
   override val padChar: String)
   extends PrimParser(erd) with TextReader with HasPadding {
@@ -28,7 +27,7 @@ class StringPatternMatchedParser(dcharset: DFDLCharset, pattern: String,
 
   lazy val dp = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+      new DFDLDelimParser(erd, encodingInfo)
     }
   }
 

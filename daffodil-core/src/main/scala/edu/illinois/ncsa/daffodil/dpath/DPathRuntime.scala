@@ -11,8 +11,6 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.OnStack
-import edu.illinois.ncsa.daffodil.dsom.TypeConversions
-import edu.illinois.ncsa.daffodil.dsom.RuntimeSchemaDefinitionError 
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
@@ -25,7 +23,7 @@ import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
 
-class DPathRecipe(val ops: RecipeOp*) extends Serializable with PreSerialization {
+class DPathRecipe(val ops: RecipeOp*) extends Serializable {
 
   def this(ops: List[RecipeOp]) = this(ops.toArray: _*)
 
@@ -43,26 +41,13 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable with PreSerialization
   }
 
   /**
-   * Must be called before serialization, and before evaluating
-   * the expression on a real infoset.
+   * Used at compilation time to evaluate expressions to determine
+   * if they are constant valued.
+   *
+   * TODO: constnat folding really should operate on sub-expressions of expressions
+   * so that part of an expression can be constant, not necessarily the whole thing.
    */
-  override def preSerialization: Seq[ElementRuntimeData] = preSerializedERDs
-
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
-
-  private lazy val preSerializedERDs = {
-    ops.flatMap { _.preSerialization }
-  }
-
-  /**
-   * Used at compilation time to evaluate expressions that
-   * are known to be constants.
-   */
-  def runExpressionForConstant(context: Option[SchemaFileLocatable]): Option[Any] = {
+  def runExpressionForConstant(sfl: SchemaFileLocation): Option[Any] = {
 
     //
     // we use a special dummy dstate here that errors out via throw
@@ -88,18 +73,18 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable with PreSerialization
         // it ran, so must have produced a constant value
         val v = dstate.currentValue
         Assert.invariant(v != null)
-        dstate.setCurrentValue(v)
+        // the only way dstate can have a value is if setCurrentValue was called
+        // so this is redundant. Remove?
+        // dstate.setCurrentValue(v) // side effect nulls out the current node
         true
       } catch {
         case e: java.lang.IllegalStateException =>
           false // useful place for breakpoint
-        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
+        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
-        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
-        case e: ProcessingError => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
-        case th: Throwable =>
-          throw th
+        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
+        case e: ProcessingError => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
       }
     val res =
       if (isConstant) Some(dstate.currentValue) else None
@@ -326,21 +311,23 @@ trait AsIntMixin {
   }
 }
 
-sealed abstract class RecipeOp extends AsIntMixin with Serializable with PreSerialization { // extends TypeConversions {
+sealed abstract class RecipeOp extends AsIntMixin
+  with Serializable // with PreSerialization 
+  { // extends TypeConversions 
 
   def run(dstate: DState): Unit
 
   protected def subRecipes: Seq[DPathRecipe] = Nil
 
-  override def preSerialization: Seq[ElementRuntimeData] = {
-    subRecipes.flatMap { _.preSerialization }
-  }
-
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
+  //  override def preSerialization: Seq[ElementRuntimeData] = {
+  //    subRecipes.flatMap { _.preSerialization }
+  //  }
+  //
+  //  @throws(classOf[java.io.IOException])
+  //  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+  //    preSerialization
+  //    out.defaultWriteObject()
+  //  }
 
   def toXML(s: String): scala.xml.Node = toXML(new scala.xml.Text(s))
 
@@ -394,63 +381,19 @@ case object UpMove extends RecipeOp {
 }
 
 /**
- * Some RecipeOps need elementRuntimeData as they navigate down
- * the infoset.
- *
- * However, there's this circularity problem. The expression compiler
- * is used to determine if the values of expressions are constants,
- * and that is done by compiling them and evaluating them at compile
- * time. Then some compiled expressions want to become part of the
- * elementRuntimeData, and we're chasing our tail.
- *
- * The fix for this is that evaluation to determine if an expression
- * is constant is done in a mode where no elementRuntimeData objects
- * have been supplied yet.
- *
- * When we really want to evaluate the expression, or serialize it out
- * to a file, then we must run the preSerialization method, which
- * then extracts the real elementRuntimeData object, and serializes
- * that one, not the schema component from which it was derived.
- */
-trait RecipeOpWithERD
-  extends RecipeOp {
-
-  protected def info: DPathElementCompileInfo
-
-  private var _erd: ElementRuntimeData = null
-
-  final override lazy val preSerialization = {
-    _erd = info.elementRuntimeData
-    _erd +: super.preSerialization
-  }
-
-  final protected def erd = {
-    if (_erd == null) throw new IllegalStateException("no runtime data")
-    _erd
-  }
-}
-/**
  * Down to a non-array element. Can be optional or scalar.
  */
-case class DownElement(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD with Serializable with PreSerialization  {
-  @transient final override val info = infoArg
+case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
     // TODO PE ? if doesn't exist should be a processing error.
     // It will throw and so will be a PE, but may be poor diagnostic.
-    dstate.setCurrentNode(now.getChild(erd).asInstanceOf[DIElement])
+    dstate.setCurrentNode(now.getChild(info.slotIndexInParent, info.name, info.namedQName.namespace).asInstanceOf[DIElement])
   }
 
   override def toXML = {
-    preSerialization
-    toXML(erd.name)
-  }
-  
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
+    toXML(info.name)
   }
 
 }
@@ -458,58 +401,45 @@ case class DownElement(@transient infoArg: DPathElementCompileInfo) extends Reci
 /**
  * Move down to an occurrence of an array element.
  */
-case class DownArrayOccurrence(@transient infoArg: DPathElementCompileInfo, indexRecipe: DPathRecipe)
-  extends RecipeOpWithSubRecipes(indexRecipe)
-  with RecipeOpWithERD {
-
-  @transient final override val info = infoArg
+case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: DPathRecipe)
+  extends RecipeOpWithSubRecipes(indexRecipe) {
 
   override def run(dstate: DState) {
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
     Assert.invariant(dstate.index > 0) // TODO PE?
-    val arr = savedCurrentElement.getChildArray(erd)
+    val arr = savedCurrentElement.getChildArray(info.slotIndexInParent)
     Assert.invariant(arr.isDefined) // TODO PE?
     val occurrence = arr.get.getOccurrence(index) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
 
   override def toXML = {
-    preSerialization
     toXML(new scala.xml.Text(info.name) ++ indexRecipe.toXML)
   }
 
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
-  }
+  //  @throws(classOf[java.io.IOException])
+  //  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
+  //    preSerialization
+  //    out.defaultWriteObject()
+  //  }
 }
 
 /*
  * down to an array object containing all occurrences
  */
-case class DownArray(@transient infoArg: DPathElementCompileInfo) extends RecipeOpWithERD with Serializable with PreSerialization {
-
-  @transient final override val info = infoArg
+case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(erd)
+    val arr = now.getChildArray(info.slotIndexInParent)
     Assert.invariant(arr.isDefined) // TODO PE?
     dstate.setCurrentNode(arr.get.asInstanceOf[DIArray])
   }
 
   override def toXML = {
-    preSerialization
-    toXML(erd.name)
-  }
-  
-  @throws(classOf[java.io.IOException])
-  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-    preSerialization
-    out.defaultWriteObject()
+    toXML(info.name)
   }
 
 }
@@ -945,19 +875,19 @@ case class FNExists(recipe: DPathRecipe, argType: NodeInfo.Kind) extends RecipeO
         recipe.run(dstate)
         true
       } catch {
-        // catch exceptions indicating a node doesn't exist.
+        // catch exceptions indicating a node (or value) doesn't exist.
         //
-        // TODO: there is some risk here of masking SDEs.
-        // Should recipes and the infoset operations they call
-        // throw a distinct exception type that can 
-        // be caught here, and if not caught here converts
-        // into a regular SDE or PE?
-        //
+        // if you reach into an array location that doesn't exist
+        case e: java.lang.IndexOutOfBoundsException => false
+        // if you reach into a child element slot that isn't filled
+        case e: InfosetNoSuchChildElementException => false
+        // if something else goes wrong while evaluating the
+        // expression (fn:exist can be called on expressions that are
+        // not necessarily nodes.They can be simple value expressions)
         case e: java.lang.IllegalStateException => false
         case e: java.lang.NumberFormatException => false
-        case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
-        case e: SchemaDefinitionDiagnosticBase => false
+        case e: java.lang.ArithmeticException => false
         case e: ProcessingError => false
       }
     dstate.setCurrentValue(exists)

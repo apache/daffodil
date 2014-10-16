@@ -31,6 +31,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -40,10 +41,7 @@ class StringDelimitedParser(
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  dcharset: DFDLCharset,
-  val knownEncodingIsFixedWidth: Boolean,
-  val knownEncodingWidthInBits: Int,
-  val knownEncodingName: String)
+  override val encodingInfo: EncodingInfo)
   extends PrimParser(erd)
   with TextReader
   with RuntimeEncodingMixin {
@@ -54,7 +52,7 @@ class StringDelimitedParser(
   }
   override def toString = erd.prettyName + "(" + delimListForPrint + ")"
 
-  val dp = new DFDLDelimParser(knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName)
+  val dp = new DFDLDelimParser(erd, encodingInfo)
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
@@ -108,11 +106,8 @@ class LiteralNilDelimitedEndOfDataParser(
   pf: TextDelimitedParserFactoryBase,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
   nilValues: Seq[String],
-  dcharset: DFDLCharset,
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, dcharset, knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
+  encInfo: EncodingInfo)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, encInfo) {
 
   val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
@@ -159,12 +154,10 @@ class HexBinaryDelimitedParser(
   pf: TextDelimitedParserFactoryBase,
   isDelimRequired: Boolean,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  knownEncodingIsFixedWidth: Boolean,
-  knownEncodingWidthInBits: Int,
-  knownEncodingName: String)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, new DFDLCharset("ISO-8859-1"), knownEncodingIsFixedWidth, knownEncodingWidthInBits, knownEncodingName) {
+  encInfo: EncodingInfo)
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, encInfo) {
 
-  // override val charset: Charset = Charset.forName("ISO-8859-1")
+  override lazy val dcharset = new DFDLCharset("ISO-8859-1")
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {

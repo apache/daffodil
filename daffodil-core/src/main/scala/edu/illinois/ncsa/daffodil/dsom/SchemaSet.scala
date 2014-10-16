@@ -92,6 +92,7 @@ class SchemaSet(
     requiredEvaluations(this.allTopLevels)
   }
   requiredEvaluations(validateSchemaFiles)
+  requiredEvaluations(variableMap)
 
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.

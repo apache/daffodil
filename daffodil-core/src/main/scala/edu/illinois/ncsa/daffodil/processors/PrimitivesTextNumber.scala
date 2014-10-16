@@ -261,9 +261,9 @@ abstract class ConvertTextFloatingPointNumberParserUnparserHelper[S](zeroRep: Li
 
     if (nAsStr.contains("E") || nAsStr.contains("e")) {
       // Exponent
-      return trailingZeroesBeforeExponent.replaceAllIn(nAsStr, "")
+      trailingZeroesBeforeExponent.replaceAllIn(nAsStr, "")
     } else {
-      return trailingZeroes.replaceAllIn(nAsStr, "")
+      trailingZeroes.replaceAllIn(nAsStr, "")
     }
 
     nAsStr
@@ -621,19 +621,22 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     parserHelper.zeroRepListRaw,
     context)
 
-   @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+  lazy val generatedNumFormat =
+    generateNumFormat(
+      decSep,
+      groupSep,
+      expRep,
+      infRep,
+      nanRep,
+      checkPolicy,
+      pattern,
+      rounding,
+      roundingMode,
+      roundingInc)
+
+  @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
     override def initialValue() = {
-      generateNumFormat(
-        decSep,
-        groupSep,
-        expRep,
-        infRep,
-        nanRep,
-        checkPolicy,
-        pattern,
-        rounding,
-        roundingMode,
-        roundingInc)
+      generatedNumFormat
     }
   }
 
@@ -714,19 +717,22 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       parserHelper.zeroRepListRaw,
       state)
 
+    lazy val generatedNumFormat =
+      generateNumFormat(
+        decimalSepList,
+        groupingSep,
+        exponentRep,
+        infRep,
+        nanRep,
+        checkPolicy,
+        pattern,
+        rounding,
+        roundingMode,
+        roundingInc)
+
     @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
       override def initialValue() = {
-        generateNumFormat(
-          decimalSepList,
-          groupingSep,
-          exponentRep,
-          infRep,
-          nanRep,
-          checkPolicy,
-          pattern,
-          rounding,
-          roundingMode,
-          roundingInc)   
+        generatedNumFormat
       }
     }
 

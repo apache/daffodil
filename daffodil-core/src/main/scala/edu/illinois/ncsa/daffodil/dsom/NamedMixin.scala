@@ -85,7 +85,7 @@ trait GlobalComponentMixin
    * which is to go back to their referring component (which will be None only for
    * the root element.
    */
-  override def enclosingComponent = {
+  override lazy val enclosingComponent = {
     Assert.invariant(context.isInstanceOf[SchemaDocument]) // global things have schema documents as their parents.
     referringComponent
   }

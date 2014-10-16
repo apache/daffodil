@@ -411,7 +411,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type): Unit
-    
+
   private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
       case None => Seq.empty
@@ -480,7 +480,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val nBits = document.map { _.nBits }
 
     runProcessor(pf, data, nBits, infoset, errors, warnings, validationErrors, validationMode)
-    
+
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
     log(LogLevel.Debug, "Bytes processed: " + bytesProcessed)
@@ -528,7 +528,6 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-
   def runProcessor(processor: DFDL.DataProcessor,
     data: Option[DFDL.Input],
     lengthLimitInBits: Option[Long],
@@ -537,16 +536,16 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) = {
-  
+
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)  
+      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
       case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
   }
-  
+
   def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedParser: Boolean): DFDL.DataProcessor = {
     val p = pf.onPath("/")
     if (useSerializedParser) {
@@ -573,26 +572,26 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val useSerializedParser = true
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
-    
+
     (optInfoset, optErrors) match {
-      case (Some(infoset), None) =>  {
+      case (Some(infoset), None) => {
         val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
         if (pf.isError) {
           throw new Exception(diags)
         }
-        
-        val processor = this.generateProcessor(pf, useSerializedParser)        
+
+        val processor = this.generateProcessor(pf, useSerializedParser)
         runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
       }
 
       case (None, Some(errors)) => {
         if (pf.isError) verifyAllDiagnosticsFound(pf, Some(errors))
         else {
-          val processor = this.generateProcessor(pf, useSerializedParser)        
+          val processor = this.generateProcessor(pf, useSerializedParser)
           runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
         }
       }
-      
+
       case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
     }
   }
@@ -673,7 +672,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // verifyAllDiagnosticsFound(objectToDiagnose, warnings)
 
   }
-  
+
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
     dataToParse: DFDL.Input,
     lengthLimitInBits: Long,
@@ -747,7 +746,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type): Unit = ???
-    
+
   def runProcessor(pf: DFDL.ProcessorFactory,
     optData: Option[DFDL.Input],
     optNBits: Option[Long],
@@ -1076,7 +1075,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       // assemble the input from the various pieces, having lowered
       // everything to bits.
       val bytes = documentBytes.toArray
-      println("data size is " + bytes.length)
+      // println("data size is " + bytes.length)
       val inputStream = new java.io.ByteArrayInputStream(bytes);
       val rbc = java.nio.channels.Channels.newChannel(inputStream);
       rbc.asInstanceOf[DFDL.Input]

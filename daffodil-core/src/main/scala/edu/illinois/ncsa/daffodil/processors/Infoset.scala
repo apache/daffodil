@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 
 /**
  * Saved for backtracking. Used to restore to prior Infoset element content.

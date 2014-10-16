@@ -33,27 +33,50 @@ package edu.illinois.ncsa.daffodil.exceptions
  */
 
 import java.net.URLDecoder
-
 import scala.xml.Node
-
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 
-class SchemaFileLocation (@transient context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
-  
+object NoSchemaFileLocation extends SchemaFileLocation(NotLocatable)
+
+trait HasSchemaFileLocation extends LookupLocation {
+  def schemaFileLocation: SchemaFileLocation
+  override def lineDescription: String = schemaFileLocation.lineDescription
+
+  override def columnDescription: String = schemaFileLocation.columnDescription
+
+  override def fileDescription: String = schemaFileLocation.fileDescription
+
+  override def locationDescription: String = schemaFileLocation.locationDescription
+}
+
+class SchemaFileLocation(@transient context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
+
   val lineNumber = context.lineNumber
   val lineDescription: String = context.lineDescription
-  
+
   val columnNumber = context.columnNumber
   val columnDescription: String = context.columnDescription
-  
+
+  val fileName: String = context.fileName
   val fileDescription: String = context.fileDescription
   val locationDescription: String = context.locationDescription
-  
+
   override val toString = context.toString()
 }
 
-trait SchemaFileLocatable extends LocationInSchemaFile {
+object NotLocatable extends SchemaFileLocatable {
+  def lineAttribute: Option[String] = None
+  def columnAttribute: Option[String] = None
+  def fileAttribute: Option[String] = None
+  def fileName: String = "NotLocatable"
+  def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
+  def SDE(id: String, args: Any*): Nothing = ???
+}
+
+trait SchemaFileLocatable extends LocationInSchemaFile
+  with HasSchemaFileLocation {
   def lineAttribute: Option[String]
   def columnAttribute: Option[String]
   def fileAttribute: Option[String]
@@ -63,7 +86,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
     case None => None
   }
 
-  lazy val lineDescription = lineNumber match {
+  override lazy val lineDescription = lineNumber match {
     case Some(num) => " line " + num
     case None => ""
   }
@@ -73,15 +96,15 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
     case None => None
   }
 
-  lazy val columnDescription = columnNumber match {
+  override lazy val columnDescription = columnNumber match {
     case Some(num) => " column " + num
     case None => ""
   }
 
   // URLDecoder removes %20, etc from the file name.
-  lazy val fileDescription = " in " + URLDecoder.decode(fileName, "UTF-8")
+  override lazy val fileDescription = " in " + URLDecoder.decode(fileName, "UTF-8")
 
-  lazy val locationDescription = {
+  override lazy val locationDescription = {
     val showInfo = lineDescription != "" || fileDescription != ""
     val info = lineDescription + columnDescription + fileDescription
     val txt = if (showInfo) "Location" + info else ""
@@ -107,7 +130,7 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
    */
   def fileName: String
 
-  def fileNameFromAttribute() = {
+  lazy val fileNameFromAttribute = {
     fileAttribute match {
       case Some(seqNodes) => Some(seqNodes.toString)
       case None => None
@@ -115,6 +138,6 @@ trait SchemaFileLocatable extends LocationInSchemaFile {
 
   }
 
-  def schemaFileLocation = new SchemaFileLocation(this)
+  override lazy val schemaFileLocation = new SchemaFileLocation(this)
 }
 

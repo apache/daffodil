@@ -152,7 +152,7 @@ object VariableFactory {
 
     val compilationTargetType = DPathUtil.convertTypeString(extType)
     val defaultValExpr = defaultValue.map { e =>
-      doc.expressionCompiler.compile(compilationTargetType, Found(e, defv))
+      ExpressionCompiler.compile(compilationTargetType, Found(e, defv.dpathCompileInfo))
     }
 
     /**
@@ -337,8 +337,8 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
             mkVMap(expandedName, newFirstTier, enclosingScopes)
           }
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.extName, VariableDefined, v.get)
-            this // Unaltered VMap
+            referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.extName, VariableDefined, v.get)
+            // this // Unaltered VMap
           }
 
           case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest if ctxt.external => {
@@ -348,20 +348,20 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
           }
 
           case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
-            referringContext.SDEButContinue("Cannot set variable %s externally. State was: %s.", ctxt.extName, VariableUndefined)
-            this // Unaltered VMap
+            referringContext.SDE("Cannot set variable %s externally. State was: %s.", ctxt.extName, VariableUndefined)
+            // this // Unaltered VMap
           }
 
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
             // Shouldn't this be an impossible case? External variables should be defined before parsing.
             // Parsing is the only point at which Set can be called?
-            referringContext.SDEButContinue("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-            this // Unaltered VMap
+            referringContext.SDE("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
+            // this // Unaltered VMap
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDEButContinue("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-            this // Unaltered VMap
+            referringContext.SDE("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
+            // this // Unaltered VMap
           }
 
           case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)

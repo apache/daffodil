@@ -1,6 +1,8 @@
 package edu.illinois.ncsa.daffodil.processors
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -78,12 +80,12 @@ package edu.illinois.ncsa.daffodil.processors
 sealed abstract class ProcessorResult;
 
 case object Success extends ProcessorResult
-case object Last extends ProcessorResult
-case object LastEmpty extends ProcessorResult
-class Failure(msgArg: => String) extends ProcessorResult {
-  lazy val msg = msgArg
+//case object Last extends ProcessorResult
+//case object LastEmpty extends ProcessorResult
+class Failure(val cause: Throwable) extends ProcessorResult {
+  lazy val msg = DiagnosticUtils.getSomeMessage(cause).get
   // System.err.println("FAILURE: " + msg)
   override def toString = "Failure(" + msg + ")"
 }
-case object Empty extends ProcessorResult
+//case object Empty extends ProcessorResult
 
