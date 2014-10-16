@@ -40,6 +40,11 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.jdom2.output.Format;
 import org.junit.Test;
@@ -122,6 +127,76 @@ public class TestJavaAPI {
 		Daffodil.setDebugger(null);
 	}
 
+	// This is a duplicate of test testJavaAPI1 that serializes the parser before executing the test.
+	@Test
+	public void testJavaAPI1_A() throws IOException {
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugging(true);
+		Daffodil.setDebugger(debugger);
+
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File[] schemaFiles = new java.io.File[2];
+		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
+		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		DataProcessor dp = pf.onPath("/");
+		
+		// Serialize the parser to memory, then deserialize for parsing.
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		WritableByteChannel output = Channels.newChannel(os);
+		dp.save(output);
+		
+		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+		ReadableByteChannel input = Channels.newChannel(is);
+		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		DataProcessor parser = compiler.reload(input);
+		
+		java.io.File file = getResource("/test/japi/myData.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = parser.parse(rbc, 2 << 3);
+		boolean err = res.isError();
+		if (!err) {
+			org.jdom2.Document doc = res.result();
+			org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+			xo.setFormat(Format.getPrettyFormat());
+			xo.output(doc, System.out);
+		}
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		assertTrue(res.location().isAtEnd());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
+
+		for (String e : lw.errors)
+			System.err.println(e);
+		for (String e : lw.warnings)
+			System.err.println(e);
+		assertEquals(0, lw.errors.size());
+		assertEquals(0, lw.warnings.size());
+		// assertTrue(lw.infos.size() > 0); // got rid of include info messages
+		// (too noisy)
+		assertTrue(lw.others.size() > 0);
+		assertTrue(debugger.lines.size() > 0);
+		assertTrue(debugger.lines
+				.contains("----------------------------------------------------------------- 1\n"));
+		assertTrue(debugger.getCommand().equals("trace"));
+
+		// reset the global logging and debugger state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugging(false);
+		Daffodil.setDebugger(null);
+	}
+	
 	@Test
 	public void testJavaAPI2() throws IOException {
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
@@ -191,6 +266,51 @@ public class TestJavaAPI {
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
 				.newChannel(fis);
 		ParseResult res = dp.parse(rbc, 16 << 3);
+		boolean err = res.isError();
+		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
+		xo.setFormat(Format.getPrettyFormat());
+		java.util.List<Diagnostic> diags = res.getDiagnostics();
+		for (Diagnostic d : diags) {
+			System.err.println(d.getMessage());
+		}
+		if (!err) {
+			org.jdom2.Document doc = res.result();
+			xo.output(doc, System.out);
+		}
+		assertFalse(err);
+		assertFalse(res.location().isAtEnd());
+		assertEquals(2, res.location().bytePos1b());
+		assertEquals(9, res.location().bitPos1b());
+		System.err.println("bitPos = " + res.location().bitPos1b());
+		System.err.println("bytePos = " + res.location().bytePos1b());
+	}
+
+	// This is a duplicate of test testJavaAPI3 that serializes the parser before executing the test.
+	@Test
+	public void testJavaAPI3_A() throws IOException {
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File[] schemaFiles = new java.io.File[1];
+		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
+		ProcessorFactory pf = c.compile(schemaFiles);
+		pf.setDistinguishedRootNode("e3", null);
+		DataProcessor dp = pf.onPath("/");
+		
+		// Serialize the parser to memory, then deserialize for parsing.
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		WritableByteChannel output = Channels.newChannel(os);
+		dp.save(output);
+		
+		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+		ReadableByteChannel input = Channels.newChannel(is);
+		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		DataProcessor parser = compiler.reload(input);
+
+		java.io.File file = getResource("/test/japi/myData16.dat");
+		java.io.FileInputStream fis = new java.io.FileInputStream(file);
+		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
+				.newChannel(fis);
+		ParseResult res = parser.parse(rbc, 16 << 3);
 		boolean err = res.isError();
 		org.jdom2.output.XMLOutputter xo = new org.jdom2.output.XMLOutputter();
 		xo.setFormat(Format.getPrettyFormat());

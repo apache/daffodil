@@ -113,8 +113,12 @@ class Compiler {
     new ProcessorFactory(pf)
   }
 
-  def reload(savedParser: File): DFDL.DataProcessor = {
-    sCompiler.reload(savedParser)
+  def reload(savedParser: File): DataProcessor = {
+    new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+  }
+
+  def reload(savedParser: ReadableByteChannel): DataProcessor = {
+    new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
   }
 
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
