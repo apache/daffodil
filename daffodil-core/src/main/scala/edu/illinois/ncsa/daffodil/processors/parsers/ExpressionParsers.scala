@@ -137,12 +137,10 @@ class AssertPatternParser(
   knownEncodingWidthInBits: Int,
   knownEncodingName: String,
   rd: RuntimeData,
-  @transient stmt: DFDLAssert)
+  testPattern: String,
+  message: String)
   extends PrimParser(rd)
   with TextReader {
-
-  val testPattern = stmt.testTxt
-  val stmtMessage = stmt.message
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -183,7 +181,7 @@ class AssertPatternParser(
           }
           case f: DelimParseFailure => {
             log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
-            val diag = new AssertionFailed(rd.schemaFileLocation, start, stmtMessage, One(f.msg))
+            val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
             start.failed(diag)
           }
         }
@@ -201,12 +199,9 @@ class DiscriminatorPatternParser(
   knownEncodingWidthInBits: Int,
   knownEncodingName: String,
   rd: RuntimeData,
-  @transient stmt: DFDLAssertionBase,
-  gram: Gram)
+  message: String)
   extends PrimParser(rd)
   with TextReader {
-
-  val stmtMessage = stmt.message
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -244,7 +239,7 @@ class DiscriminatorPatternParser(
         val finalState = result match {
           case s: DelimParseSuccess => start.withDiscriminator(true)
           case f: DelimParseFailure => {
-            val diag = new AssertionFailed(rd.schemaFileLocation, start, stmtMessage, One(f.msg))
+            val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
             start.failed(diag)
           }
         }

@@ -93,11 +93,11 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable with PreSerialization
       } catch {
         case e: java.lang.IllegalStateException =>
           false // useful place for breakpoint
-        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
+        case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
-        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
-        case e: ProcessingError => throw new SchemaDefinitionError(Some(context.get.schemaFileLocation), None, e.getMessage)
+        case e: SchemaDefinitionDiagnosticBase => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
+        case e: ProcessingError => throw new SchemaDefinitionError(context.map(_.schemaFileLocation), None, e.getMessage)
         case th: Throwable =>
           throw th
       }

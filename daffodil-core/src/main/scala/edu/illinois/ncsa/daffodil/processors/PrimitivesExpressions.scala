@@ -217,7 +217,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
   val kindString = "AssertPatternPrim"
 
   def parser: DaffodilParser = new AssertPatternParser(eName, kindString, charset,
-      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt)
+      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt.testTxt, stmt.message)
 
 }
 
@@ -227,7 +227,7 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
   val kindString = "DiscriminatorPatternPrim"
 
   def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, charset,
-      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt, this)
+      decl.knownEncodingIsFixedWidth, decl.knownEncodingWidthInBits, decl.knownEncodingName, decl.runtimeData, stmt.message)
 }
 
 trait TextReader extends Logging {

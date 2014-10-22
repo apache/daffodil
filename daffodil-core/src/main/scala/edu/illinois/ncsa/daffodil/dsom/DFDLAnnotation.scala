@@ -52,6 +52,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 
 /**
  * Base class for any DFDL annotation
@@ -132,15 +134,10 @@ trait RawSequenceRuntimeValuedPropertiesMixin
 trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   extends PropertyMixin {
 
-  //lazy val escapeKind = getProperty("escapeKind")
-  //  lazy val escapeSchemeObject = {
-  //
-  //  }
-
   lazy val escapeCharacterRaw = findProperty("escapeCharacter")
   lazy val escapeEscapeCharacterRaw = findProperty("escapeEscapeCharacter")
-  //  lazy val escapeBlockStartRaw = getProperty("escapeBlockStart")
-  //  lazy val escapeBlockEndRaw = getProperty("escapeBlockEnd")
+  lazy val escapeBlockStartRaw = findProperty("escapeBlockStart")
+  lazy val escapeBlockEndRaw = findProperty("escapeBlockEnd")
 }
 
 trait RawSimpleTypeRuntimeValuedPropertiesMixin
@@ -472,6 +469,14 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
 
 }
 
+class EscapeSchemeObject(
+  val escapeKind: EscapeKind,
+  val optionEscapeCharacter: Option[CompiledExpression],
+  val optionEscapeEscapeCharacter: Option[CompiledExpression],
+  val optionEscapeBlockStart: Option[String],
+  val optionEscapeBlockEnd: Option[String])
+ extends Serializable
+
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
@@ -510,7 +515,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
   private val _optionEscapeCharacter = LV('optionEscapeCharacter) {
     escapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => Some(decl.expressionCompiler.compile(NodeInfo.NonEmptyString, escapeCharacterRaw))
+      case found @ Found(v, loc) => Some(decl.expressionCompiler.compile(NodeInfo.NonEmptyString, found))
     }
   }
 
@@ -518,14 +523,35 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
   private val _optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
     escapeEscapeCharacterRaw match {
       case Found("", loc) => None
-      case Found(v, loc) => {
+      case found @ Found(v, loc) => {
         val typeIfStaticallyKnown = NodeInfo.String
         val typeIfRuntimeKnown = NodeInfo.NonEmptyString
-        Some(decl.expressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, escapeEscapeCharacterRaw))
+        Some(decl.expressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, found))
       }
     }
   }
 
+  lazy val optionEscapeBlockStart = _optionEscapeBlockStart.value
+  private val _optionEscapeBlockStart = LV('optionEscapeBlockStart) {
+    escapeBlockStartRaw match {
+      case Found("", loc) => None
+      case Found(v, loc) => Some(v)
+    }
+  }
+
+  lazy val optionEscapeBlockEnd = _optionEscapeBlockEnd.value
+  private val _optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
+    escapeBlockEndRaw match {
+      case Found("", loc) => None
+      case Found(v, loc) => Some(v)
+    }
+  }
+
+  lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
+          case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)
+          case EscapeKind.EscapeCharacter => new EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None)
+  }
+  
   //
   // These are sort of tri-state. We can know it is non-existant, 
   // we can know it and have its value, or we must check at runtime, 

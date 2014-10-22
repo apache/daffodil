@@ -79,7 +79,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   override def getDiagnostics = ssrd.diagnostics
 
   def save(output: DFDL.Output): Unit = {
-    //val os = new java.io.ByteArrayOutputStream()
     val oos = new ObjectOutputStream(Channels.newOutputStream(output))
     oos.writeObject(this)
     oos.close()

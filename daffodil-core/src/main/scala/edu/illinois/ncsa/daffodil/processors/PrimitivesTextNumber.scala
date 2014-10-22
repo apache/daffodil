@@ -621,7 +621,8 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     parserHelper.zeroRepListRaw,
     context)
 
-   lazy val generatedNumFormat = 
+   @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+    override def initialValue() = {
       generateNumFormat(
         decSep,
         groupSep,
@@ -633,10 +634,6 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
         rounding,
         roundingMode,
         roundingInc)
-     
-   @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
-    override def initialValue() = {
-      generatedNumFormat
     }
   }
 
@@ -717,7 +714,8 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       parserHelper.zeroRepListRaw,
       state)
 
-    lazy val generatedNumFormat = 
+    @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
+      override def initialValue() = {
         generateNumFormat(
           decimalSepList,
           groupingSep,
@@ -729,10 +727,6 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
           rounding,
           roundingMode,
           roundingInc)   
-      
-    @transient lazy val numFormat = new ThreadLocal[NumberFormat] {
-      override def initialValue() = {
-        generatedNumFormat
       }
     }
 

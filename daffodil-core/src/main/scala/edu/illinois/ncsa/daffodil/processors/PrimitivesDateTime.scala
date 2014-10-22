@@ -126,7 +126,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     // Calendar values are correct with respect to leniency. So instead, just
     // try to calculate the time, which forces validation. This causes an
     // exception to be thrown if a Calendar is not valid.
-    val t = try {
+    try {
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {

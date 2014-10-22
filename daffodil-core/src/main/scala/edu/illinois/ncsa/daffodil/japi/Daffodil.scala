@@ -117,7 +117,7 @@ class Compiler {
     new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
   }
 
-  def reload(savedParser: ReadableByteChannel): DataProcessor = {
+  def reload(savedParser: DFDL.Input): DataProcessor = {
     new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
   }
 

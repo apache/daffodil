@@ -263,7 +263,7 @@ class TestDsomCompiler extends Logging {
 
     // Explore define escape schemes
     val Seq(desc1) = sd.defineEscapeSchemes // only one of these
-    val es = desc1.forComponent(e1a).escapeScheme.escapeCharacterRaw.value
+    val es = desc1.forComponent(e1a).escapeScheme.escapeCharacterRaw.asInstanceOf[Found].value
     assertEquals("%%", es) // has escapeCharacter="%%" (note: string literals not digested yet, so %% is %%, not %.
 
     // Explore global group defs

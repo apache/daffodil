@@ -529,11 +529,11 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
   }
 }
 
-abstract class EscapeSchemeFactoryBase(@transient scheme: DFDLEscapeScheme,
-  context: ThrowsSDE) extends Serializable {
+abstract class EscapeSchemeFactoryBase(
+    escapeSchemeObject: EscapeSchemeObject,
+    context: ThrowsSDE)
+    extends Serializable {
   
-  protected val escapeKind = scheme.escapeKind
-
   protected def constEval(knownValue: Option[String]) = {
     val optConstValue = knownValue match {
       case None => None
@@ -566,19 +566,15 @@ abstract class EscapeSchemeFactoryBase(@transient scheme: DFDLEscapeScheme,
   }
 
   protected def getOptEscChar = {
-    scheme.escapeKind match {
+    escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeBlock => None
       case EscapeKind.EscapeCharacter => {
-        if (!scheme.optionEscapeCharacter.isDefined) {
+        if (!escapeSchemeObject.optionEscapeCharacter.isDefined) {
           context.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.")
         }
-        scheme.optionEscapeCharacter
+        escapeSchemeObject.optionEscapeCharacter
       }
     }
-  }
-
-  protected def getOptEscEscChar = {
-    scheme.optionEscapeEscapeCharacter
   }
 
   protected def getEscValue(escChar: String, context: ThrowsSDE): String = {
@@ -587,36 +583,35 @@ abstract class EscapeSchemeFactoryBase(@transient scheme: DFDLEscapeScheme,
   }
 
   protected def getBlockStart: String = {
-    if (scheme.escapeKind == EscapeKind.EscapeCharacter) return ""
-    if (scheme.escapeBlockStart == "") { context.SDE("escapeBlockStart cannot be the empty string when EscapeSchemeKind is Block.") }
+    if (escapeSchemeObject.escapeKind == EscapeKind.EscapeCharacter) Assert.usageError("getBlockStart called when escapeKind = character")
+    if (escapeSchemeObject.optionEscapeBlockStart.get == "") { context.SDE("escapeBlockStart cannot be the empty string when EscapeSchemeKind is Block.") }
 
-    val bs = new StringValueAsLiteral(scheme.escapeBlockStart, context).cooked
+    val bs = new StringValueAsLiteral(escapeSchemeObject.optionEscapeBlockStart.get, context).cooked
     bs
   }
 
   protected def getBlockEnd: String = {
-    if (scheme.escapeKind == EscapeKind.EscapeCharacter) return ""
-    if (scheme.escapeBlockEnd == "") { context.SDE("escapeBlockEnd cannot be the empty string when EscapeSchemeKind is Block.") }
+    if (escapeSchemeObject.escapeKind == EscapeKind.EscapeCharacter) Assert.usageError("getBlockStart called when escapeKind = character")
+    if (escapeSchemeObject.optionEscapeBlockEnd.get == "") { context.SDE("escapeBlockEnd cannot be the empty string when EscapeSchemeKind is Block.") }
 
-    val be = new StringValueAsLiteral(scheme.escapeBlockEnd, context).cooked
+    val be = new StringValueAsLiteral(escapeSchemeObject.optionEscapeBlockEnd.get, context).cooked
     be
   }
 
   def getEscapeScheme(state: PState): (PState, EscapeScheme)
 
 }
-class EscapeSchemeFactoryStatic(@transient scheme: DFDLEscapeScheme,
-  context: ThrowsSDE)
-  extends EscapeSchemeFactoryBase(scheme, context) {
+class EscapeSchemeFactoryStatic(
+    escapeSchemeObject: EscapeSchemeObject,
+    context: ThrowsSDE)
+    extends EscapeSchemeFactoryBase(escapeSchemeObject, context) {
 
   val escChar = evalAsConstant(getOptEscChar)
-  val escEscChar = evalAsConstant(getOptEscEscChar)
-  val blockStart = getBlockStart
-  val blockEnd = getBlockEnd
+  val escEscChar = evalAsConstant(escapeSchemeObject.optionEscapeEscapeCharacter)
 
   def generateEscapeScheme: EscapeScheme = {
-    val result = scheme.escapeKind match {
-      case EscapeKind.EscapeBlock => new EscapeSchemeBlock(escEscChar, blockStart, blockEnd)
+    val result = escapeSchemeObject.escapeKind match {
+      case EscapeKind.EscapeBlock => new EscapeSchemeBlock(escEscChar, getBlockStart, getBlockEnd)
       case EscapeKind.EscapeCharacter => new EscapeSchemeChar(escChar, escEscChar)
     }
     result
@@ -629,20 +624,21 @@ class EscapeSchemeFactoryStatic(@transient scheme: DFDLEscapeScheme,
   }
 }
 
-class EscapeSchemeFactoryDynamic(@transient scheme: DFDLEscapeScheme,
-  context: ThrowsSDE)
-  extends EscapeSchemeFactoryBase(scheme, context) with Dynamic {
+class EscapeSchemeFactoryDynamic(
+    escapeSchemeObject: EscapeSchemeObject,
+    context: ThrowsSDE)
+    extends EscapeSchemeFactoryBase(escapeSchemeObject, context) with Dynamic {
 
   val escapeCharacterCached: Maybe[CachedDynamic[String]] = {
-    scheme.escapeKind match {
+    escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeBlock => // do nothing
       case EscapeKind.EscapeCharacter => {
-        if (!scheme.optionEscapeCharacter.isDefined) {
+        if (!escapeSchemeObject.optionEscapeCharacter.isDefined) {
           context.SDE("escapeCharacter cannot be the empty string when EscapeSchemeKind is Character.")
         }
       }
     }
-    val ec = scheme.optionEscapeCharacter match {
+    val ec = escapeSchemeObject.optionEscapeCharacter match {
       case None => Nope
       case Some(c) => One(c)
     }
@@ -651,15 +647,12 @@ class EscapeSchemeFactoryDynamic(@transient scheme: DFDLEscapeScheme,
     }
   }
 
-  val escapeEscapeCharacterCached: Maybe[CachedDynamic[String]] = cacheConstantExpression(scheme.optionEscapeEscapeCharacter) {
+  val escapeEscapeCharacterCached: Maybe[CachedDynamic[String]] = cacheConstantExpression(escapeSchemeObject.optionEscapeEscapeCharacter) {
     (a: Any) => constEval(a.asInstanceOf[String], context)
   }
 
-  val blockStart = getBlockStart
-  val blockEnd = getBlockEnd
-
   def getEscapeScheme(state: PState) = {
-    val (finalState, theScheme) = escapeKind match {
+    val (finalState, theScheme) = escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeCharacter => {
         val (afterEscCharEval, finalOptEscChar) = evalWithConversion(state, escapeCharacterCached) {
           (s: PState, c: Any) =>
@@ -682,7 +675,7 @@ class EscapeSchemeFactoryDynamic(@transient scheme: DFDLEscapeScheme,
               getEscValue(c.asInstanceOf[String], s)
             }
         }
-        (afterEscEscCharEval, new EscapeSchemeBlock(finalOptEscEscChar, blockStart, blockEnd))
+        (afterEscEscCharEval, new EscapeSchemeBlock(finalOptEscEscChar, getBlockStart, getBlockEnd))
       }
     }
     (finalState, theScheme)
@@ -739,9 +732,12 @@ abstract class StringDelimited(e: ElementBase)
               scheme.optionEscapeEscapeCharacter.get.isConstant)
         }
       }
-      val theScheme =
-        if (isConstant) new EscapeSchemeFactoryStatic(scheme, context.runtimeData)
-        else new EscapeSchemeFactoryDynamic(scheme, context.runtimeData)
+      
+      val theScheme = {
+        if (isConstant) new EscapeSchemeFactoryStatic(scheme.escapeScheme, context.runtimeData)
+        else new EscapeSchemeFactoryDynamic(scheme.escapeScheme, context.runtimeData)
+      }
+      
       Some(theScheme)
     } else None
   }
