@@ -143,6 +143,8 @@ class TestDFDLExpressions {
   @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
   @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
 
+/////////////////////// FUNCTIONS ///////////////////////////
+  
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
@@ -159,6 +161,33 @@ class TestDFDLExpressions {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_boolFunctionChoice_01() { runner2.runOneTest("boolFunctionChoice_01") }
+  @Test def test_boolFunctionChoice_02() { runner2.runOneTest("boolFunctionChoice_02") }
+  @Test def test_boolFunctionChoice_03() { runner2.runOneTest("boolFunctionChoice_03") }
+  
+  @Test def test_boolFlags_01() { runner2.runOneTest("boolFlags_01") }
+  @Test def test_boolFlags_02() { runner2.runOneTest("boolFlags_02") }
+  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
+  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
+  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
+  
+  @Test def test_not_01() { runner2.runOneTest("not_01") }
+  @Test def test_not_02() { runner2.runOneTest("not_02") }
+  @Test def test_not_03() { runner2.runOneTest("not_03") }
+  //DFDL-
+  //@Test def test_not_04() { runner2.runOneTest("not_04") }
+  @Test def test_not_05() { runner2.runOneTest("not_05") }
+  @Test def test_not_06() { runner2.runOneTest("not_06") }
+  @Test def test_not_07() { runner2.runOneTest("not_07") }
+  @Test def test_not_08() { runner2.runOneTest("not_08") }
+  @Test def test_not_09() { runner2.runOneTest("not_09") }
+  @Test def test_not_10() { runner2.runOneTest("not_10") }
+  @Test def test_not_11() { runner2.runOneTest("not_11") }
+  @Test def test_not_12() { runner2.runOneTest("not_12") }
+  @Test def test_not_13() { runner2.runOneTest("not_13") }
+  @Test def test_not_14() { runner2.runOneTest("not_14") }
+  @Test def test_not_15() { runner2.runOneTest("not_15") }
 
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
 
@@ -358,5 +387,6 @@ class TestDFDLExpressions {
   // the same file to fail.
   //
   @Test def test_no_closing_brace() { runner3.runOneTest("no_closing_brace") } // no closing } for expression
+
 
 }

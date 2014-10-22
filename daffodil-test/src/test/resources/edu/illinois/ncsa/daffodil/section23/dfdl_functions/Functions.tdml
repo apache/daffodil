@@ -3910,4 +3910,706 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="booleanFunctions">
+		<dfdl:format ref="ex:daffodilTest1" initiator=""
+			separator="," terminator="" leadingSkip="0" trailingSkip="0"
+			textBidi="no" floating="no" byteOrder="bigEndian"
+			alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+			truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+			lengthKind="delimited" nilValueDelimiterPolicy="both"
+			emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
+			initiatedContent="no" separatorSuppressionPolicy="never" separatorPosition="infix" />
+
+    <xs:element name="choice">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+  
+    <xs:element name="root1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="dataType" type="xs:string"/>
+          <xs:element name="choice">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited">
+                    <xs:annotation>
+                      <xs:appinfo source="http://www.ogf.org/dfdl/">
+                        <dfdl:discriminator><![CDATA[{ if (fn:lower-case(/root1/dataType) eq 'string') then fn:true() else fn:false() }]]></dfdl:discriminator>
+                      </xs:appinfo>
+                    </xs:annotation>
+                  </xs:element>
+                  <xs:element name="int" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="3"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+  <xs:element name="flags01">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="income" type="xs:int"/>
+        <xs:element name="spending" type="xs:int"/>
+        <xs:element name="areYouInDebt" type="xs:boolean" dfdl:inputValueCalc="{ if ( /flags01/income - /flags01/spending gt 0) then fn:false() else fn:true() }"/>
+        <xs:element name="shouldYouBuyABoat" type="xs:boolean" dfdl:inputValueCalc="{ if ( /flags01/income - /flags01/spending gt 0) then fn:true() else fn:false() } "/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="flags02">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="">
+        <xs:element name="password" type="xs:string"/>
+        <xs:element name="passwordLen" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(/flags02/password) }"/>
+        <xs:element name="moreThan8Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/flags02/passwordLen) gt 8) then fn:true() else fn:false() }"/>
+        <xs:element name="lessThan16Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/flags02/passwordLen) lt 16) then fn:true() else fn:false() }"/>
+        <xs:element name="containsNumbers" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/flags02/password, '0') or fn:contains(/flags02/password, '1') or fn:contains(/flags02/password, '2') or fn:contains(/flags02/password, '3') or fn:contains(/flags02/password, '4') or fn:contains(/flags02/password, '5') or fn:contains(/flags02/password, '6') or fn:contains(/flags02/password, '7') or fn:contains(/flags02/password, '8') or fn:contains(/flags02/password, '9')) then fn:true() else fn:false() }"/>
+        <xs:element name="containsSpecial" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/flags02/password, '!') or fn:contains(/flags02/password, '#') or fn:contains(/flags02/password, '$') or fn:contains(/flags02/password, '%') or fn:contains(/flags02/password, '&amp;') or fn:contains(/flags02/password, '&quot;') or fn:contains(/flags02/password, '*')) then fn:true() else fn:false() }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not01" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(fn:true()) }"/>                  <!-- !true = false -->
+  <xs:element name="not02" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(fn:not(fn:true())) }"/>          <!-- !!true = true -->
+  <xs:element name="not03" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(fn:not(fn:not(fn:false()))) }"/> <!-- !!!false = true -->
+
+  <xs:element name="not04">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="nameVal" nillable="true" type="xs:string" dfdl:nilKind="literalValue" dfdl:nilValue="nil"/>
+        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not04/nameVal)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not05">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="seq">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="num" type="xs:int" minOccurs="0" maxOccurs="10"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="seqNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not05/seq) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="not06">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="">
+        <xs:element name="bool" type="xs:boolean" dfdl:inputValueCalc="{ fn:false() }"/>
+        <xs:element name="notBool" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:boolean(/not06/bool)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not07">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="seq">
+          <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+              <xs:element name="num" type="xs:int" minOccurs="0" maxOccurs="10"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="seqNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not07/seq) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not08">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="nameVal" nillable="true" type="xs:string" dfdl:nilKind="literalValue" dfdl:nilValue="nil"/>
+        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not08/nameVal) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not09">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="item" type="xs:string"/>
+        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not09/item)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not10">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="item" type="xs:string"/>
+        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not10/item)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not11">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="num" type="xs:int" dfdl:textStandardNaNRep="NaN"/>
+        <xs:element name="numNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:int(/not11/num)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="not12" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:hexBinary('EFB2')) }" />
+  <xs:element name="not13" type="xs:boolean" dfdl:inputValueCalc="{ fn:not() }" />
+
+  </tdml:defineSchema>
+<!--
+    Test Name: boolFunctionChoice_01
+       Schema: booleanFunctions
+         Root: choice
+      Purpose: This test demonstrates the use of fn:true in a discriminator to force a choice branch.
+-->
+
+	<tdml:parserTestCase name="boolFunctionChoice_01" root="choice"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">123</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<choice>
+          <string>123</string>
+				</choice>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFunctionChoice_02
+       Schema: booleanFunctions
+         Root: root1
+      Purpose: This test demonstrates the use of fn:true in a discriminator to force a choice branch based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFunctionChoice_02" root="root1"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">int|123</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root1>
+          <dataType>int</dataType>
+          <choice>
+            <int>123</int>
+          </choice>
+				</root1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFunctionChoice_03
+       Schema: booleanFunctions
+         Root: root1
+      Purpose: This test demonstrates the use of fn:true in a discriminator to force a choice branch based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFunctionChoice_03" root="root1"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">string|123</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<root1>
+          <dataType>string</dataType>
+          <choice>
+            <string>123</string>
+          </choice>
+				</root1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFlags_01
+       Schema: booleanFunctions
+         Root: flags01
+      Purpose: This test demonstrates the use of fn:true to set a boolean value based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFlags_01" root="flags01"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">40,000|55,000</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+      <flags01>
+        <income>40000</income>
+        <spending>55000</spending>
+        <areYouInDebt>true</areYouInDebt>
+        <shouldYouBuyABoat>false</shouldYouBuyABoat>
+      </flags01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFlags_02
+       Schema: booleanFunctions
+         Root: flags01
+      Purpose: This test demonstrates the use of fn:true to set a boolean value based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFlags_02" root="flags01"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">40,000|38,000</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+      <flags01>
+        <income>40000</income>
+        <spending>38000</spending>
+        <areYouInDebt>false</areYouInDebt>
+        <shouldYouBuyABoat>true</shouldYouBuyABoat>
+      </flags01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFlags_03
+       Schema: booleanFunctions
+         Root: flags02
+      Purpose: This test demonstrates the use of fn:true to set a boolean value based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFlags_03" root="flags02"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">badpassword</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+      <flags02>
+        <password>badpassword</password>
+        <passwordLen>11</passwordLen>
+        <moreThan8Chars>true</moreThan8Chars>
+        <lessThan16Chars>true</lessThan16Chars>
+        <containsNumbers>false</containsNumbers>
+        <containsSpecial>false</containsSpecial>
+      </flags02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFlags_04
+       Schema: booleanFunctions
+         Root: flags02
+      Purpose: This test demonstrates the use of fn:true to set a boolean value based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFlags_04" root="flags02"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">Goo!dPa55w0rd*</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+      <flags02>
+        <password>Goo!dPa55w0rd*</password>
+        <passwordLen>14</passwordLen>
+        <moreThan8Chars>true</moreThan8Chars>
+        <lessThan16Chars>true</lessThan16Chars>
+        <containsNumbers>true</containsNumbers>
+        <containsSpecial>true</containsSpecial>
+      </flags02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: boolFlags_05
+       Schema: booleanFunctions
+         Root: flags02
+      Purpose: This test demonstrates the use of fn:true to set a boolean value based on previously-parsed data.
+-->
+
+	<tdml:parserTestCase name="boolFlags_05" root="flags02"
+		model="booleanFunctions" description="Section 23 - Functions - fn:true - DFDL-23-091R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">short!</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+      <flags02>
+        <password>short!</password>
+        <passwordLen>6</passwordLen>
+        <moreThan8Chars>false</moreThan8Chars>
+        <lessThan16Chars>true</lessThan16Chars>
+        <containsNumbers>false</containsNumbers>
+        <containsSpecial>true</containsSpecial>
+      </flags02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_01
+       Schema: booleanFunctions
+         Root: not01
+      Purpose: This test demonstrates the use of the fn:not function to invert the xs:boolean value of the argument
+-->
+
+	<tdml:parserTestCase name="not_01" root="not01"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R7">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not01>false</not01>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_02
+       Schema: booleanFunctions
+         Root: not02
+      Purpose: This test demonstrates the use of the fn:not function to invert the xs:boolean value ofthe argument.
+-->
+
+	<tdml:parserTestCase name="not_02" root="not02"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R7">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not02>true</not02>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_03
+       Schema: booleanFunctions
+         Root: not03
+      Purpose: This test demonstrates the use of the fn:not function to invert the xs:boolean value of the argument.
+-->
+
+	<tdml:parserTestCase name="not_03" root="not03"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R7">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not03>true</not03>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_04
+       Schema: booleanFunctions
+         Root: not04
+      Purpose: This test demonstrates that the fn:not function returns true if arg is a node with nilled = true
+-->
+
+	<tdml:parserTestCase name="not_04" root="not04"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R1">
+
+		<tdml:document>
+			<tdml:documentPart type="text">nil</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not04>
+          <nameVal xsi:nil="true"/>
+          <nameNotExist>true</nameNotExist>
+        </not04>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_05
+       Schema: booleanFunctions
+         Root: not05
+      Purpose: This test demonstrates that the fn:not function returns true if arg is an empty sequence
+-->
+
+	<tdml:parserTestCase name="not_05" root="not05"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R1">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not05>
+          <seq/>
+          <seqNotExist>true</seqNotExist>
+        </not05>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_06
+       Schema: booleanFunctions
+         Root: not06
+      Purpose: This test demonstrates that if $arg is a value of type xs:boolean, fn:not returns the boolean inverse of $arg.
+-->
+
+	<tdml:parserTestCase name="not_06" root="not06"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R3">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not06>
+          <bool>false</bool>
+          <notBool>true</notBool>
+        </not06>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_07
+       Schema: booleanFunctions
+         Root: not07
+      Purpose: This test demonstrates that if $arg is a sequence containing a node with [nilled] false, fn:not returnes false
+-->
+
+	<tdml:parserTestCase name="not_07" root="not07"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R2">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1,2,3</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not07>
+          <seq>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </seq>
+          <seqNotExist>false</seqNotExist>
+        </not07>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_08
+       Schema: booleanFunctions
+         Root: not08
+      Purpose: This test demonstrates that if $arg is a sequence containing a node with [nilled] false or [nilled] having no value, fn:not returnes false
+-->
+
+	<tdml:parserTestCase name="not_08" root="not08"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R2">
+
+		<tdml:document>
+			<tdml:documentPart type="text">Raphael</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not08>
+          <nameVal>Raphael</nameVal>     
+          <nameNotExist>false</nameNotExist>
+        </not08>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_09
+       Schema: booleanFunctions
+         Root: not09
+      Purpose: This test demonstrates that if $arg is a value of type xs:string, fn:not returns true if the operant value has zero length
+-->
+
+	<tdml:parserTestCase name="not_09" root="not09"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R4">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not09>
+          <item></item>     
+          <itemNotExist>true</itemNotExist>
+        </not09>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_10
+       Schema: booleanFunctions
+         Root: not10
+      Purpose: This test demonstrates that if $arg is a value of type xs:string, fn:not returns true if the operant value has zero length
+-->
+
+	<tdml:parserTestCase name="not_10" root="not10"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R4">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not10>
+          <item></item>     
+          <itemNotExist>true</itemNotExist>
+        </not10>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_11
+       Schema: booleanFunctions
+         Root: not11
+      Purpose: This test demonstrates that if $arg is a value of any numeric type, fn:not returns true if the operand value is NaN.
+-->
+
+	<tdml:parserTestCase name="not_11" root="not11"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R5">
+
+		<tdml:document>
+			<tdml:documentPart type="text"><![CDATA[NaN]]></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not11>
+          <num>NaN</num>     
+          <numNotExist>true</numNotExist>
+        </not11>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_12
+       Schema: booleanFunctions
+         Root: not11
+      Purpose: This test demonstrates that if $arg is a value of any numeric type, fn:not returns true if the operand value is numerically equal to zero.
+-->
+
+	<tdml:parserTestCase name="not_12" root="not11"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R5">
+
+		<tdml:document>
+			<tdml:documentPart type="text">0</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not11>
+          <num>0</num>     
+          <numNotExist>true</numNotExist>
+        </not11>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_13
+       Schema: booleanFunctions
+         Root: not11
+      Purpose: This test demonstrates that if $arg is a value of any numeric type, fn:not returns false if the operand value is not NaN or numerically equal to zero.
+-->
+
+	<tdml:parserTestCase name="not_13" root="not11"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R5">
+
+		<tdml:document>
+			<tdml:documentPart type="text">43</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not11>
+          <num>43</num>     
+          <numNotExist>false</numNotExist>
+        </not11>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_14
+       Schema: booleanFunctions
+         Root: not12
+      Purpose: This test demonstrates that if none of the previous cases apply, fn:not raises a processing error
+-->
+
+	<tdml:parserTestCase name="not_14" root="not12"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R6">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+        <not12></not12>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: not_15
+       Schema: booleanFunctions
+         Root: not13
+      Purpose: This test demonstrates that if none of the previous cases apply, fn:not raises a processing error
+-->
+
+	<tdml:parserTestCase name="not_15" root="not13"
+		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R6">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>function</tdml:error>
+      <tdml:error>not()</tdml:error>
+      <tdml:error>zero arguments</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+
 </tdml:testSuite>
