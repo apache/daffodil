@@ -26,22 +26,21 @@ RUNNING
 The command line of Daffodil is invoked through a bash script for Linux
 and Cygwin, or a batch script for Windows.
 
-To execute Daffodil, run the following command (replacing .sh with .bat
-if running windows):
+To execute Daffodil, run the following command:
 
-  $ ./bin/daffodil.sh <options>
+  $ ./bin/daffodil <options>
 
 To display Daffodil usage and options, run the script with the --help
 option:
 
-  $ ./bin/daffodil.sh --help
+  $ ./bin/daffodil --help
 
 Additionally, the --help option can be used on a subcommand to get
 subcommand specific help:
 
-  $ ./bin/daffodil.sh parse --help
+  $ ./bin/daffodil parse --help
 
-  $ ./bin/daffodil.sh test --help
+  $ ./bin/daffodil test --help
 
 For more information on the command line options, visit the command line
 interface page on the Daffodil website:
@@ -57,7 +56,7 @@ to pause parsing and inspect various aspects of the parse state. To
 enable the interactive debugger, supply the global -d option when
 parsing, for example:
 
-  $ ./bin/daffodil.sh -d parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
+  $ ./bin/daffodil -d parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
 
 When running the debugger, the user is provided with a command prompt,
 at which point the user can execute debugger commands to control the
@@ -80,11 +79,11 @@ run using two methods:
 
 1) Using DFDL schemas and input file, for example:
 
-  $ ./bin/daffodil.sh parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
+  $ ./bin/daffodil parse --schema examples/pcap/pcap.dfdl.xsd examples/pcap/dns.cap
 
 2) Using a TDML test file, for example:
 
-  $ ./bin/daffodil.sh test examples/pcap/pcap.tdml
+  $ ./bin/daffodilh test examples/pcap/pcap.tdml
 
 
 ========================================================================

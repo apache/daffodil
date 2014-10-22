@@ -26,18 +26,18 @@ STEPS TO RELEASE
 
 	$ sbt daffodil-lib/publish-signed
 	$ sbt daffodil-core/publish-signed
-	$ sbt daffodil-runtime1/publish-signed
 	$ sbt daffodil-io/publish-signed
 	$ sbt daffodil-tdml/publish-signed
 	$ sbt daffodil-cli/publish-signed
 
-6) Build the pack files
+6) Build the release tar/zip
 
-	$ cd daffodil-pack
-	$ rm -rf ~/.ivy2/local/edu.illinois.ncsa
-	$ sbt pack
+	$ sbt universal:packageBin
+	$ sbt universal:packageZipTarball
 
 7) Upload pack files to wiki at https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Getting+Daffodil
 
-	$ cd daffodil-pack/target/scala-2.10/pack
-	$ sha256sum *
+	$ cd daffodil-cli/target/universal/
+	$ gunzip --stdout *.tgz | bzip2 > $(basename *.tgz .tgz).tar.bz2
+	$ rm *.tgz
+	$ sha256sum daffodil-*

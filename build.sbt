@@ -46,9 +46,9 @@ publishMavenStyle in ThisBuild := true
 
 publishArtifact in Test := false
 
-publishTo in ThisBuild <<= version { (v: String) =>
+publishTo in ThisBuild := {
   val nexus = "https://opensource.ncsa.illinois.edu/nexus/"
-  if (v.trim.endsWith("SNAPSHOT"))
+  if (isSnapshot.value)
     Some("NCSA Sonatype Nexus Snapshot" at nexus + "content/repositories/snapshots")
   else
     Some("NCSA Sonatype Nexus Release" at nexus + "content/repositories/releases")

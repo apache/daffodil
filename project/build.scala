@@ -1,12 +1,20 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.SbtStartScript
 import scala.language.existentials
+import com.typesafe.sbt.SbtNativePackager._
+import NativePackagerKeys._
+import com.typesafe.sbt.SbtLicenseReport.autoImportImpl._
+import com.typesafe.sbt.license.LicenseCategory
+import com.typesafe.sbt.license.LicenseInfo
+import com.typesafe.sbt.license.DepModuleInfo
+import com.typesafe.sbt.license.Html
 
 object DaffodilBuild extends Build {
 
   var s = Defaults.defaultSettings
   lazy val nopub = Seq(publish := {}, publishLocal := {})
+
+  var cliOnlySettings = packageArchetype.java_application
 
   // sbt uses reflection to find suprojects. we need to also add the projects
   // in daffodil-extra, which can't be detected via reflection
@@ -56,13 +64,12 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(core)
                              
-  lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ startScriptSettings ++ stageTaskSettings)
+  lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ cliOnlySettings)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
                              .dependsOn(tdml)
                                                          
-
   lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
@@ -92,39 +99,18 @@ object DaffodilBuild extends Build {
    
 
   //set up 'sbt stage' as a dependency
-  //TODO: find a way to clean this up and reduce repetition
-  lazy val testTask = Keys.test in CliTest
-  lazy val testOnlyTask = Keys.testOnly in CliTest
-  lazy val testQuickTask = Keys.testQuick in CliTest
-  
-  lazy val testTaskNew = Keys.test in NewTest
-  lazy val testOnlyTaskNew = Keys.testOnly in NewTest
-  lazy val testQuickTaskNew = Keys.testQuick in NewTest
-  
-  lazy val testTaskDebug = Keys.test in DebugTest
-  lazy val testOnlyTaskDebug = Keys.testOnly in DebugTest
-  lazy val testQuickTaskDebug = Keys.testQuick in DebugTest
-
-  lazy val stageTask = SbtStartScript.stage in Compile //  in cli
+  lazy val cliTestTask = Keys.test in CliTest
+  lazy val cliTestOnlyTask = Keys.testOnly in CliTest
+  lazy val cliTestQuickTask = Keys.testQuick in CliTest
+  lazy val stageTask = stage in Compile
 
   lazy val stageTaskSettings = Seq(
-    //cli test tasks
-    (testTask <<= testTask.dependsOn(stageTask)),
-    (testOnlyTask <<= testOnlyTask.dependsOn(stageTask)),
-    (testQuickTask <<= testQuickTask.dependsOn(stageTask)),
-    //new test tasks
-    (testTaskNew <<= testTaskNew.dependsOn(stageTask)),
-    (testOnlyTaskNew <<= testOnlyTaskNew.dependsOn(stageTask)),
-    (testQuickTaskNew <<= testQuickTaskNew.dependsOn(stageTask)),
-    //debug test tasks
-    (testTaskDebug <<= testTaskDebug.dependsOn(stageTask)),
-    (testOnlyTaskDebug <<= testOnlyTaskDebug.dependsOn(stageTask)),
-    (testQuickTaskDebug <<= testQuickTaskDebug.dependsOn(stageTask)),
-    //cli, new, and debug tasks
-    (debugTask <<= debugTask.dependsOn(stageTask)),
-    (newTask <<= newTask.dependsOn(stageTask)),
+    (cliTestTask <<= cliTestTask.dependsOn(stageTask)),
+    (cliTestOnlyTask <<= cliTestOnlyTask.dependsOn(stageTask)),
+    (cliTestQuickTask <<= cliTestQuickTask.dependsOn(stageTask)),
     (cliTask <<= cliTask.dependsOn(stageTask))
   )
+  cliOnlySettings ++= stageTaskSettings
 
   val managedGenerator = TaskKey[Unit]("gen-managed", "Generate managed sources and resources")
   lazy val managedgenSettings = managedGenerator <<= Seq(propertyGenerator in Compile, schemasGenerator in Compile).dependOn
@@ -198,6 +184,12 @@ object DaffodilBuild extends Build {
 
   s ++= Seq(resourceManaged <<= baseDirectory(_ / "resource_managed"))
 
+  // modify the managed libraries directory to be lib/jars/ instead of lib,
+  // allowing us to manage sources/docs in lib/srcs and lib/docs without them
+  // being included as a dependency
+  s ++= Seq(unmanagedBase <<= baseDirectory(_ / "lib" / "jars"))
+  
+
   // creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
   lazy val DebugTest = config("debug") extend(Test)
   lazy val debugSettings: Seq[Setting[_]] = inConfig(DebugTest)(Defaults.testSettings ++ Seq(
@@ -269,9 +261,51 @@ object DaffodilBuild extends Build {
   }
   s ++= Seq(cliTaskSettings)
 
-  // start-script configuration
-  lazy val startScriptSettings = Seq(SbtStartScript.startScriptForJarSettings : _*) ++
-                                 Seq(mainClass in Compile := Some("edu.illinois.ncsa.daffodil.Main"))
+  // license report configuration
+  val licenseSettings = Seq(
+    licenseReportTitle := "Daffodil Licenses",
+    licenseConfigurations := Set("compile"),
+    licenseSelection := Seq(LicenseCategory("NCSA"), LicenseCategory("ICU")) ++ LicenseCategory.all,
+    licenseOverrides := {
+      case DepModuleInfo("commons-io", "commons-io", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("net.sf.expectit", "expectit-core", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("xml-resolver", "xml-resolver", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
+      case DepModuleInfo("org.scala-tools.testing", "test-interface", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/sbt/test-interface/blob/master/LICENSE")
+      case DepModuleInfo("org.hamcrest", "hamcrest-core", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/hamcrest/JavaHamcrest/blob/master/LICENSE.txt")
+    },
+    licenseFilter := {
+      case LicenseCategory("NCSA", _) => false
+      case _ => true
+    },
+    licenseReportMakeHeader := {
+      case Html => Html.header1(licenseReportTitle.value) + "<p>Daffodil is licensed under the <a href='http://opensource.org/licenses/NCSA'>University of Illinois/NCSA Open Source License</a>.</p><p>Below are the libraries that Daffodil depends on and their licenses.<br></p>"
+      case l => l.header1(licenseReportTitle.value)
+    }
+  )
+  cliOnlySettings ++= licenseSettings
+
+  // native package configuration
+  val exampleDirMappings = {
+    // this recursively gathers all files in the daffodil-examples resources
+    // directory and creates a mapping to the relative location in the
+    // 'examples' directory which is packaged in zip/tars
+    val examplesDir = file("daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/")
+    val allFiles = examplesDir.***
+    val mappings = allFiles.pair { f: File =>
+      val relative = f.relativeTo(examplesDir.getParentFile).get.toString
+      val exRelative = relative.replaceFirst("^daffodil", "examples")
+      Some(exRelative)
+    }
+    mappings
+  }
+
+  val packageSettings = Seq(
+    packageName := "daffodil",
+    mappings in Universal ++= exampleDirMappings,
+    mappings in Universal += dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
+    mappings in Universal += baseDirectory.value / "README" -> "README"
+  )
+  cliOnlySettings ++= packageSettings
 
 
   // test report plugin configuration

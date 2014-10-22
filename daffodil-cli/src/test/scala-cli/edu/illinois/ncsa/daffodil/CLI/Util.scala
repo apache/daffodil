@@ -47,6 +47,8 @@ object Util {
 
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
+  val binPath = "./daffodil-cli/target/universal/stage/bin/daffodil" + (if (isWindows) ".bat" else "")
+
   def getExpectedString(filename: String): String = {
     val rsrc = Misc.getRequiredResource(outputDir + filename)
     //val source = scala.io.Source.fromFile(outputDir + filename)
