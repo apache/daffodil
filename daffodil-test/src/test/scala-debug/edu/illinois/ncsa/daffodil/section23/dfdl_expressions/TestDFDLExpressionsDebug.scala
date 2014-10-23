@@ -61,11 +61,13 @@ class TestDFDLExpressionsDebug {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  //DFDL-
+  //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
 
-  //This test should work once DPath is pushed up
+  //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
+  @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
+  @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
 
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }

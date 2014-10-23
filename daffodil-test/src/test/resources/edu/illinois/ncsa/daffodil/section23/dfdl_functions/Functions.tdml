@@ -1550,21 +1550,16 @@
 		<tdml:document>
 			<tdml:documentPart type="byte">AB123</tdml:documentPart>
 		</tdml:document>
-		<tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ceil04>
-          <val>-3.4</val>
-          <ceilval>-3</ceilval>
-        </ceil04>
-      </tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Argument must be of numeric type but was HexBinary</tdml:error>
+    </tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
     Test Name: ceil_07
        Schema: XPathFunctions
          Root: ceil06
-      Purpose: This test demonstrates the ceiling function
 -->
 
 	<tdml:parserTestCase name="ceil_07" root="ceil06"
@@ -1602,8 +1597,8 @@
 			<tdml:documentPart type="text">forty-nine point two</tdml:documentPart>
 		</tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Argument must be of numeric type but was String.</tdml:error>
     </tdml:errors>
 	</tdml:parserTestCase>
   
@@ -4267,7 +4262,7 @@
                   <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited">
                     <xs:annotation>
                       <xs:appinfo source="http://www.ogf.org/dfdl/">
-                        <dfdl:discriminator><![CDATA[{ if (fn:lower-case(/root1/dataType) eq 'string') then fn:true() else fn:false() }]]></dfdl:discriminator>
+                        <dfdl:discriminator><![CDATA[{ if (fn:lower-case(/ex:root1/ex:dataType) eq 'string') then fn:true() else fn:false() }]]></dfdl:discriminator>
                       </xs:appinfo>
                     </xs:annotation>
                   </xs:element>
@@ -4284,8 +4279,8 @@
       <xs:sequence dfdl:separator="|">
         <xs:element name="income" type="xs:int"/>
         <xs:element name="spending" type="xs:int"/>
-        <xs:element name="areYouInDebt" type="xs:boolean" dfdl:inputValueCalc="{ if ( /flags01/income - /flags01/spending gt 0) then fn:false() else fn:true() }"/>
-        <xs:element name="shouldYouBuyABoat" type="xs:boolean" dfdl:inputValueCalc="{ if ( /flags01/income - /flags01/spending gt 0) then fn:true() else fn:false() } "/>
+        <xs:element name="areYouInDebt" type="xs:boolean" dfdl:inputValueCalc="{ if ( /ex:flags01/ex:income - /ex:flags01/ex:spending gt 0) then fn:false() else fn:true() }"/>
+        <xs:element name="shouldYouBuyABoat" type="xs:boolean" dfdl:inputValueCalc="{ if ( /ex:flags01/ex:income - /ex:flags01/ex:spending gt 0) then fn:true() else fn:false() } "/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4294,11 +4289,11 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="">
         <xs:element name="password" type="xs:string"/>
-        <xs:element name="passwordLen" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(/flags02/password) }"/>
-        <xs:element name="moreThan8Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/flags02/passwordLen) gt 8) then fn:true() else fn:false() }"/>
-        <xs:element name="lessThan16Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/flags02/passwordLen) lt 16) then fn:true() else fn:false() }"/>
-        <xs:element name="containsNumbers" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/flags02/password, '0') or fn:contains(/flags02/password, '1') or fn:contains(/flags02/password, '2') or fn:contains(/flags02/password, '3') or fn:contains(/flags02/password, '4') or fn:contains(/flags02/password, '5') or fn:contains(/flags02/password, '6') or fn:contains(/flags02/password, '7') or fn:contains(/flags02/password, '8') or fn:contains(/flags02/password, '9')) then fn:true() else fn:false() }"/>
-        <xs:element name="containsSpecial" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/flags02/password, '!') or fn:contains(/flags02/password, '#') or fn:contains(/flags02/password, '$') or fn:contains(/flags02/password, '%') or fn:contains(/flags02/password, '&amp;') or fn:contains(/flags02/password, '&quot;') or fn:contains(/flags02/password, '*')) then fn:true() else fn:false() }"/>
+        <xs:element name="passwordLen" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(/ex:flags02/ex:password) }"/>
+        <xs:element name="moreThan8Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/ex:flags02/ex:passwordLen) gt 8) then fn:true() else fn:false() }"/>
+        <xs:element name="lessThan16Chars" type="xs:boolean" dfdl:inputValueCalc="{ if (xs:int(/ex:flags02/ex:passwordLen) lt 16) then fn:true() else fn:false() }"/>
+        <xs:element name="containsNumbers" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/ex:flags02/ex:password, '0') or fn:contains(/ex:flags02/ex:password, '1') or fn:contains(/ex:flags02/ex:password, '2') or fn:contains(/ex:flags02/ex:password, '3') or fn:contains(/ex:flags02/ex:password, '4') or fn:contains(/ex:flags02/ex:password, '5') or fn:contains(/ex:flags02/ex:password, '6') or fn:contains(/ex:flags02/ex:password, '7') or fn:contains(/ex:flags02/ex:password, '8') or fn:contains(/ex:flags02/ex:password, '9')) then fn:true() else fn:false() }"/>
+        <xs:element name="containsSpecial" type="xs:boolean" dfdl:inputValueCalc="{ if (fn:contains(/ex:flags02/ex:password, '!') or fn:contains(/ex:flags02/ex:password, '#') or fn:contains(/ex:flags02/ex:password, '$') or fn:contains(/ex:flags02/ex:password, '%') or fn:contains(/ex:flags02/ex:password, '&amp;') or fn:contains(/ex:flags02/ex:password, '&quot;') or fn:contains(/ex:flags02/ex:password, '*')) then fn:true() else fn:false() }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
