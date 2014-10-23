@@ -1013,7 +1013,64 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="abs05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(../ex:val) }"/>
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
+                <xs:element name="int" type="xs:int" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element> 
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="abs06">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ fn:abs(/ex:abs06/ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
+    <xs:element name="abs07">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(/ex:abs07/ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="abs08">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="two" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="three" type="xs:long" dfdl:lengthKind="delimited" />
+          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ fn:abs(../ex:one - ../ex:two - ../ex:three) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="abs09">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="one" type="xs:int" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          <xs:element name="two" type="xs:float"  dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="4"/>
+          <xs:element name="three" type="xs:short" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:element name="absval" type="xs:float" dfdl:inputValueCalc="{ fn:abs(../ex:one - ../ex:two - ../ex:three) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+ 
     <xs:element name="ceil" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(4.2) }"/>
 
     <xs:element name="ceil02">
@@ -1043,6 +1100,40 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="ceil05">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:hexBinary" dfdl:lengthKind="delimited"/>
+          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ceil06">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="ceilval" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:maxExclusive value="50"/>
+                <xs:minExclusive value="0"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="ceil07">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="floor" type="xs:int" dfdl:inputValueCalc="{ fn:floor(4.2) }"/>
 
     <xs:element name="floor02">
@@ -1068,6 +1159,22 @@
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:int" dfdl:inputValueCalc="{ tst:floor(../ex:val) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="floor05">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="val" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="floorval" dfdl:inputValueCalc="{ fn:floor(../ex:val) }">
+            <xs:simpleType>
+              <xs:restriction base="xs:int">
+                <xs:maxExclusive value="50"/>
+                <xs:minExclusive value="0"/>
+              </xs:restriction>
+            </xs:simpleType>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1202,6 +1309,124 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: abs_05
+       Schema: XPathFunctions
+         Root: abs05
+      Purpose: This test demonstrates the absolute value function
+-->
+
+	<tdml:parserTestCase name="abs_05" root="abs05"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-30</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs05>
+          <val>-30</val>
+          <absval>30</absval>
+          <choice>
+            <nonNeg>30</nonNeg>
+          </choice>
+        </abs05>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: abs_06
+       Schema: XPathFunctions
+         Root: abs06
+      Purpose: This test demonstrates the absolute value function when passed a float
+-->
+
+	<tdml:parserTestCase name="abs_06" root="abs06"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-4.563</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs06>
+          <val>-4.563</val>
+          <absval>4.563</absval>
+        </abs06>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: abs_07
+       Schema: XPathFunctions
+         Root: abs07
+      Purpose: This test demonstrates the absolute value function when passed hexBinary
+-->
+
+	<tdml:parserTestCase name="abs_07" root="abs07"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">11</tdml:documentPart>
+		</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+      </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: abs_08
+       Schema: XPathFunctions
+         Root: abs08
+      Purpose: This test demonstrates the absolute value function when passed an arithmetic operation using previoulsly-parsed values
+-->
+
+	<tdml:parserTestCase name="abs_08" root="abs08"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">100,200,500</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs08>
+          <one>100</one>
+          <two>200.0</two>
+          <three>500</three>
+          <absval>600.0</absval>
+        </abs08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: abs_09
+       Schema: XPathFunctions
+         Root: abs09
+      Purpose: This test demonstrates the absolute value function when passed an arithmetic operation using previoulsly-parsed values (binary)
+-->
+
+	<tdml:parserTestCase name="abs_09" root="abs09"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - abs - DFDL-23-094R">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">64 43480000 01F4 </tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <abs09>
+          <one>100</one>
+          <two>200.0</two>
+          <three>500</three>
+          <absval>600.0</absval>
+        </abs09>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+
+<!--
     Test Name: xPathFunc_ceil_01
        Schema: XPathFunctions
          Root: ceil
@@ -1310,6 +1535,76 @@
         </ceil04>
       </tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: ceil_06
+       Schema: XPathFunctions
+         Root: ceil05
+      Purpose: This test demonstrates the ceiling function, and how it handles an invalid argument
+-->
+
+	<tdml:parserTestCase name="ceil_06" root="ceil05"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="byte">AB123</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil04>
+          <val>-3.4</val>
+          <ceilval>-3</ceilval>
+        </ceil04>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: ceil_07
+       Schema: XPathFunctions
+         Root: ceil06
+      Purpose: This test demonstrates the ceiling function
+-->
+
+	<tdml:parserTestCase name="ceil_07" root="ceil06"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R" validation="on">
+
+		<tdml:document>
+			<tdml:documentPart type="text">49.2</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ceil06>
+          <val>49.2</val>
+          <ceilval>50</ceilval>
+        </ceil06>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+			<tdml:error>'50'</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
+      <tdml:error>maxExclusive '50'</tdml:error>
+		</tdml:validationErrors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: ceil_08
+       Schema: XPathFunctions
+         Root: ceil07
+      Purpose: This test demonstrates the ceiling function, and how it handles an invalid argument
+-->
+
+	<tdml:parserTestCase name="ceil_08" root="ceil07"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - ceiling - DFDL-23-095R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">forty-nine point two</tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+    </tdml:errors>
 	</tdml:parserTestCase>
   
 <!--
@@ -1421,6 +1716,33 @@
         </floor04>
       </tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: floor_06
+       Schema: XPathFunctions
+         Root: floor05
+      Purpose: This test demonstrates the floor function
+-->
+
+	<tdml:parserTestCase name="floor_06" root="floor05"
+		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - floor - DFDL-23-096R" validation="on">
+		<tdml:document>
+			<tdml:documentPart type="text">0.8</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+      <tdml:dfdlInfoset>
+        <floor05>
+          <val>0.8</val>
+          <floorval>0</floorval>
+        </floor05>
+      </tdml:dfdlInfoset>
+		</tdml:infoset>
+		<tdml:validationErrors>
+			<tdml:error>'0'</tdml:error>
+      <tdml:error>not facet-valid</tdml:error>
+      <tdml:error>minExclusive '0'</tdml:error>
+		</tdml:validationErrors>
 	</tdml:parserTestCase>
   
 <!--
@@ -3989,7 +4311,7 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
         <xs:element name="nameVal" nillable="true" type="xs:string" dfdl:nilKind="literalValue" dfdl:nilValue="nil"/>
-        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not04/nameVal)) }"/>
+        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/ex:not04/ex:nameVal) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4004,7 +4326,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="seqNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not05/seq) }"/>
+        <xs:element name="seqNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/ex:not05/ex:seq/ex:num) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4013,22 +4335,7 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="">
         <xs:element name="bool" type="xs:boolean" dfdl:inputValueCalc="{ fn:false() }"/>
-        <xs:element name="notBool" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:boolean(/not06/bool)) }"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-  
-  <xs:element name="not07">
-    <xs:complexType>
-      <xs:sequence dfdl:separator="|">
-        <xs:element name="seq">
-          <xs:complexType>
-            <xs:sequence dfdl:separator=",">
-              <xs:element name="num" type="xs:int" minOccurs="0" maxOccurs="10"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="seqNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not07/seq) }"/>
+        <xs:element name="notBool" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:boolean(/ex:not06/ex:bool)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4037,7 +4344,7 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
         <xs:element name="nameVal" nillable="true" type="xs:string" dfdl:nilKind="literalValue" dfdl:nilValue="nil"/>
-        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/not08/nameVal) }"/>
+        <xs:element name="nameNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(/ex:not08/ex:nameVal) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4046,7 +4353,7 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
         <xs:element name="item" type="xs:string"/>
-        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not09/item)) }"/>
+        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/ex:not09/ex:item)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4055,7 +4362,7 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
         <xs:element name="item" type="xs:string"/>
-        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/not10/item)) }"/>
+        <xs:element name="itemNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:string(/ex:not10/ex:item)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4063,8 +4370,8 @@
   <xs:element name="not11">
     <xs:complexType>
       <xs:sequence dfdl:separator="|">
-        <xs:element name="num" type="xs:int" dfdl:textStandardNaNRep="NaN"/>
-        <xs:element name="numNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:int(/not11/num)) }"/>
+        <xs:element name="num" type="xs:float" dfdl:textStandardNaNRep="NaN"/>
+        <xs:element name="numNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:float(/ex:not11/ex:num)) }"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -4408,11 +4715,11 @@
 <!--
     Test Name: not_07
        Schema: booleanFunctions
-         Root: not07
+         Root: not05
       Purpose: This test demonstrates that if $arg is a sequence containing a node with [nilled] false, fn:not returnes false
 -->
 
-	<tdml:parserTestCase name="not_07" root="not07"
+	<tdml:parserTestCase name="not_07" root="not05"
 		model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R2">
 
 		<tdml:document>
@@ -4420,14 +4727,14 @@
 		</tdml:document>
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
-        <not07>
+        <not05>
           <seq>
             <num>1</num>
             <num>2</num>
             <num>3</num>
           </seq>
           <seqNotExist>false</seqNotExist>
-        </not07>
+        </not05>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
@@ -4540,7 +4847,7 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
         <not11>
-          <num>0</num>     
+          <num>0.0</num>     
           <numNotExist>true</numNotExist>
         </not11>
 			</tdml:dfdlInfoset>
@@ -4563,7 +4870,7 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
         <not11>
-          <num>43</num>     
+          <num>43.0</num>     
           <numNotExist>false</numNotExist>
         </not11>
 			</tdml:dfdlInfoset>
@@ -4583,11 +4890,9 @@
 		<tdml:document>
 			<tdml:documentPart type="text"></tdml:documentPart>
 		</tdml:document>
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-        <not12></not12>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
@@ -4606,8 +4911,8 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>function</tdml:error>
-      <tdml:error>not()</tdml:error>
-      <tdml:error>zero arguments</tdml:error>
+      <tdml:error>not</tdml:error>
+      <tdml:error>argument</tdml:error>
     </tdml:errors>
 	</tdml:parserTestCase>
 

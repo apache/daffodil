@@ -189,6 +189,33 @@ class TestDFDLExpressions {
   @Test def test_not_14() { runner2.runOneTest("not_14") }
   @Test def test_not_15() { runner2.runOneTest("not_15") }
 
+  @Test def test_xPathFunc_abs_01() { runner2.runOneTest("xPathFunc_abs_01") }
+  @Test def test_xPathFunc_abs_02() { runner2.runOneTest("xPathFunc_abs_02") }
+  @Test def test_xPathFunc_abs_03() { runner2.runOneTest("xPathFunc_abs_03") }
+  @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
+  @Test def test_abs_05() { runner2.runOneTest("abs_05") }
+  @Test def test_abs_06() { runner2.runOneTest("abs_06") }
+  //This test should work once DPath is pushed up
+  //@Test def test_abs_07() { runner2.runOneTest("abs_07") }
+  @Test def test_abs_08() { runner2.runOneTest("abs_08") }
+  @Test def test_abs_09() { runner2.runOneTest("abs_09") }
+  
+  @Test def test_xPathFunc_ceil_01() { runner2.runOneTest("xPathFunc_ceil_01") }
+  @Test def test_xPathFunc_ceil_02() { runner2.runOneTest("xPathFunc_ceil_02") }
+  @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
+  @Test def test_xPathFunc_ceil_04() { runner2.runOneTest("xPathFunc_ceil_04") }
+  @Test def test_xPathFunc_ceil_05() { runner2.runOneTest("xPathFunc_ceil_05") }
+  @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
+  @Test def test_ceil_07() { runner2.runOneTest("ceil_07") }
+  @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
+  
+  @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
+  @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
+  @Test def test_xPathFunc_floor_03() { runner2.runOneTest("xPathFunc_floor_03") }
+  @Test def test_xPathFunc_floor_04() { runner2.runOneTest("xPathFunc_floor_04") }
+  @Test def test_xPathFunc_floor_05() { runner2.runOneTest("xPathFunc_floor_05") }
+  @Test def test_floor_06() { runner2.runOneTest("floor_06") }
+
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
 
   @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
@@ -336,23 +363,6 @@ class TestDFDLExpressions {
 
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_xPathFunc_abs_01() { runner2.runOneTest("xPathFunc_abs_01") }
-  @Test def test_xPathFunc_abs_02() { runner2.runOneTest("xPathFunc_abs_02") }
-  @Test def test_xPathFunc_abs_03() { runner2.runOneTest("xPathFunc_abs_03") }
-  @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
-
-  @Test def test_xPathFunc_ceil_01() { runner2.runOneTest("xPathFunc_ceil_01") }
-  @Test def test_xPathFunc_ceil_02() { runner2.runOneTest("xPathFunc_ceil_02") }
-  @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
-  @Test def test_xPathFunc_ceil_04() { runner2.runOneTest("xPathFunc_ceil_04") }
-  @Test def test_xPathFunc_ceil_05() { runner2.runOneTest("xPathFunc_ceil_05") }
-
-  @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
-  @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
-  @Test def test_xPathFunc_floor_03() { runner2.runOneTest("xPathFunc_floor_03") }
-  @Test def test_xPathFunc_floor_04() { runner2.runOneTest("xPathFunc_floor_04") }
-  @Test def test_xPathFunc_floor_05() { runner2.runOneTest("xPathFunc_floor_05") }
 
   @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
   @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
