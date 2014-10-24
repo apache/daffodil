@@ -216,6 +216,35 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_floor_04() { runner2.runOneTest("xPathFunc_floor_04") }
   @Test def test_xPathFunc_floor_05() { runner2.runOneTest("xPathFunc_floor_05") }
   @Test def test_floor_06() { runner2.runOneTest("floor_06") }
+  @Test def test_floor_07() { runner2.runOneTest("floor_07") }
+  @Test def test_floor_08() { runner2.runOneTest("floor_08") }
+  
+  @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
+  @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
+  @Test def test_xPathFunc_round_03() { runner2.runOneTest("xPathFunc_round_03") }
+  @Test def test_xPathFunc_round_04() { runner2.runOneTest("xPathFunc_round_04") }
+  @Test def test_xPathFunc_round_05() { runner2.runOneTest("xPathFunc_round_05") }
+  @Test def test_xPathFunc_round_06() { runner2.runOneTest("xPathFunc_round_06") }
+  @Test def test_round_07() { runner2.runOneTest("round_07") }
+  @Test def test_round_08() { runner2.runOneTest("round_08") }
+  @Test def test_round_09() { runner2.runOneTest("round_09") }
+  @Test def test_round_10() { runner2.runOneTest("round_10") }
+  @Test def test_round_11() { runner2.runOneTest("round_11") }
+  @Test def test_round_12() { runner2.runOneTest("round_12") }
+  @Test def test_round_13() { runner2.runOneTest("round_13") }
+  
+  @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
+  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
+  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
+  @Test def test_xPathFunc_round_hte_04() { runner2.runOneTest("xPathFunc_round_hte_04") }
+  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
+  @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
+  @Test def test_xPathFunc_round_hte_07() { runner2.runOneTest("xPathFunc_round_hte_07") }
+  @Test def test_xPathFunc_round_hte_08() { runner2.runOneTest("xPathFunc_round_hte_08") }
+  @Test def test_round_hte_09() { runner2.runOneTest("round_hte_09") }
+  @Test def test_round_hte_10() { runner2.runOneTest("round_hte_10") }
+  @Test def test_round_hte_11() { runner2.runOneTest("round_hte_11") }
+  @Test def test_round_hte_12() { runner2.runOneTest("round_hte_12") }
 
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
@@ -427,22 +456,6 @@ class TestDFDLExpressions {
 
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
-  @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
-  @Test def test_xPathFunc_round_03() { runner2.runOneTest("xPathFunc_round_03") }
-  @Test def test_xPathFunc_round_04() { runner2.runOneTest("xPathFunc_round_04") }
-  @Test def test_xPathFunc_round_05() { runner2.runOneTest("xPathFunc_round_05") }
-  @Test def test_xPathFunc_round_06() { runner2.runOneTest("xPathFunc_round_06") }
-
-  @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
-  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
-  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
-  @Test def test_xPathFunc_round_hte_04() { runner2.runOneTest("xPathFunc_round_hte_04") }
-  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
-  @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
-  @Test def test_xPathFunc_round_hte_07() { runner2.runOneTest("xPathFunc_round_hte_07") }
-  @Test def test_xPathFunc_round_hte_08() { runner2.runOneTest("xPathFunc_round_hte_08") }
 
   val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aab = testDir2b + "Functions-neg.tdml"

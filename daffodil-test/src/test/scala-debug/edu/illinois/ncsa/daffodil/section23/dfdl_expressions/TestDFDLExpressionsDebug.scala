@@ -68,7 +68,7 @@ class TestDFDLExpressionsDebug {
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
   @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
   @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
-
+  
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
