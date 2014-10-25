@@ -3642,29 +3642,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 	</tdml:parserTestCase>
-
-<!--
-    Test Name: round_hte_14
-       Schema: XPathFunctions
-         Root: round-hte-5
-      Purpose: This test demonstrates the round-half-to-even function when a precision is not provided
--->
-
-	<tdml:parserTestCase name="round_hte_14" root="round-hte-5"
-		model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
-
-		<tdml:document>
-			<tdml:documentPart type="text">3.45</tdml:documentPart>
-		</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <round-hte-5>
-          <num>3.45</num>
-          <roundval>3.0</roundval>
-        </round-hte-5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-	</tdml:parserTestCase>
   
   <tdml:defineSchema name="constructorSchema">
     <dfdl:format ref="daffodilTest1" />
