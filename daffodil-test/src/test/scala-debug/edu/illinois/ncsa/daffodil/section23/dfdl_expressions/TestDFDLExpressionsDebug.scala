@@ -72,6 +72,12 @@ class TestDFDLExpressionsDebug {
   //fails on build server 
   @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
+  //DFDL-1080
+  @Test def test_empty_02() { runner2.runOneTest("empty_02") }
+  //DFDL-1079
+  @Test def test_empty_05() { runner2.runOneTest("empty_05") }
+  //DFDL-1081
+  @Test def test_empty_09() { runner2.runOneTest("empty_09") }
   
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }

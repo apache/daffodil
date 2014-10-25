@@ -2469,6 +2469,89 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="empty01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="empty" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="empty02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10" dfdl:lengthKind="explicit" dfdl:length="5"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="empty" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="empty03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:inputValueCalc="{ '123' }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="empty" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="empty04">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="queue">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="order_num" type="xs:int" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="empty" type="xs:string" dfdl:inputValueCalc="{ 'There is no one waiting right now' }">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator><![CDATA[{ fn:empty(/ex:empty04/ex:queue/ex:order_num) }]]></dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="orders">
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator=",">
+                      <xs:element name="order" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="empty05" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty() }"/>
+
+    <xs:element name="empty06" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty(/ex:IDONOTEXIST) }"/>
 
   </tdml:defineSchema>
 
@@ -6479,5 +6562,231 @@
     </tdml:errors>
 	</tdml:parserTestCase>
 
+<!--
+    Test Name: empty_01
+       Schema: XPathFunctions
+         Root: empty01
+      Purpose: This test demonstrates the empty() function. In this case the function is referencing a sequence that is
+               not empty, and should be set to false.
+-->
+
+	<tdml:parserTestCase name="empty_01" root="empty01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1,2,3,4</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty01>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+          </seq>
+          <empty>false</empty>
+        </empty01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_02
+       Schema: XPathFunctions
+         Root: empty01
+      Purpose: This test demonstrates the empty() function. In this case the function is referencing
+               a sequence that is empty, and should be true.
+-->
+
+	<tdml:parserTestCase name="empty_02" root="empty01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty01>
+          <seq/>
+          <empty>true</empty>
+        </empty01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_03
+       Schema: XPathFunctions
+         Root: empty02
+      Purpose: This test demonstrates the empty() function. In this case the function is referencing a 
+               sequence that is not empty, and should be false.
+-->
+
+	<tdml:parserTestCase name="empty_03" root="empty02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">12345,12345,12345</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty02>
+          <seq>
+            <item>12345</item>
+            <item>12345</item>
+            <item>12345</item>
+          </seq>
+          <empty>false</empty>
+        </empty02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_04
+       Schema: XPathFunctions
+         Root: empty02
+      Purpose: This test demonstrates the empty() function. In this case the function is referencing a
+               sequence that is empty, and should be true.
+-->
+
+	<tdml:parserTestCase name="empty_04" root="empty02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty02>
+          <seq/>
+          <empty>true</empty>
+        </empty02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_05
+       Schema: XPathFunctions
+         Root: empty03
+      Purpose: This test demonstrates the empty() function. In this case the function is referencing a
+               sequence that is empty, and should be true.
+-->
+
+	<tdml:parserTestCase name="empty_05" root="empty03"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty02>
+          <seq/>
+          <empty>true</empty>
+        </empty02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_06
+       Schema: XPathFunctions
+         Root: empty04
+      Purpose: This test demonstrates the empty() function. In this case, the empty function is setting a 
+               discriminator to true, which dictates the choice branch selected.
+-->
+
+	<tdml:parserTestCase name="empty_06" root="empty04"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">600,601,602|Reuben,BLT,Club</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty04>
+          <queue>
+            <order_num>600</order_num>
+            <order_num>601</order_num>
+            <order_num>602</order_num>
+          </queue>
+          <choice>
+            <orders>
+              <order>Reuben</order>
+              <order>BLT</order>
+              <order>Club</order>
+            </orders>
+          </choice>
+        </empty04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_07
+       Schema: XPathFunctions
+         Root: empty04
+      Purpose: This test demonstrates the empty() function. In this case, the empty function is setting a 
+               discriminator to false, which dictates the choice branch selected.
+-->
+
+	<tdml:parserTestCase name="empty_07" root="empty04"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">|</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <empty04>
+          <queue/>
+          <choice>
+            <empty>There is no one waiting right now</empty>
+          </choice>
+        </empty04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_08
+       Schema: XPathFunctions
+         Root: empty05
+      Purpose: This test demonstrates the empty() function when it is not provided any arguments
+-->
+
+	<tdml:parserTestCase name="empty_08" root="empty05"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>empty()</tdml:error>
+      <tdml:error>zero arguments</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: empty_09
+       Schema: XPathFunctions
+         Root: empty06
+      Purpose: This test demonstrates the empty() function when it is passed an element that does not exist.
+-->
+
+	<tdml:parserTestCase name="empty_09" root="empty06"
+		model="XPathFunctions" description="Section 23 - Functions - fn:empty - DFDL-23-121R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
 
 </tdml:testSuite>

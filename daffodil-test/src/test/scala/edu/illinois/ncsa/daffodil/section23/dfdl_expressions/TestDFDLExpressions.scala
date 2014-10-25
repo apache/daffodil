@@ -247,6 +247,19 @@ class TestDFDLExpressions {
   @Test def test_round_hte_12() { runner2.runOneTest("round_hte_12") }
   @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
   @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
+  
+  @Test def test_empty_01() { runner2.runOneTest("empty_01") }
+  //DFDL-1080
+  //@Test def test_empty_02() { runner2.runOneTest("empty_02") }
+  @Test def test_empty_03() { runner2.runOneTest("empty_03") }
+  @Test def test_empty_04() { runner2.runOneTest("empty_04") }
+  //DFDL-1079
+  //@Test def test_empty_05() { runner2.runOneTest("empty_05") }
+  @Test def test_empty_06() { runner2.runOneTest("empty_06") }
+  @Test def test_empty_07() { runner2.runOneTest("empty_07") }
+  @Test def test_empty_08() { runner2.runOneTest("empty_08") }
+  //DFDL-1081
+  //@Test def test_empty_09() { runner2.runOneTest("empty_09") }
  
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
