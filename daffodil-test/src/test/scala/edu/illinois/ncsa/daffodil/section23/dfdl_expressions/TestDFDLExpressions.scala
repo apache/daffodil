@@ -218,6 +218,69 @@ class TestDFDLExpressions {
   @Test def test_floor_06() { runner2.runOneTest("floor_06") }
 
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
+  @Test def test_concat_02() { runner2.runOneTest("concat_02") }
+  @Test def test_concat_03() { runner2.runOneTest("concat_03") }
+  @Test def test_concat_04() { runner2.runOneTest("concat_04") }
+  @Test def test_concat_05() { runner2.runOneTest("concat_05") }
+  
+  @Test def test_substring_01() { runner2.runOneTest("substring_01") }
+  @Test def test_substring_02() { runner2.runOneTest("substring_02") }
+  @Test def test_substring_03() { runner2.runOneTest("substring_03") }
+  @Test def test_substring_04() { runner2.runOneTest("substring_04") }
+  @Test def test_substring_05() { runner2.runOneTest("substring_05") }
+  @Test def test_substring_06() { runner2.runOneTest("substring_06") }
+  
+  @Test def test_stringlength_01() { runner2.runOneTest("stringlength_01") }
+  @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
+  @Test def test_stringlength_03() { runner2.runOneTest("stringlength_03") }
+  @Test def test_stringlength_04() { runner2.runOneTest("stringlength_04") }
+  
+  @Test def test_uppercase_01() { runner2.runOneTest("uppercase_01") }
+  @Test def test_uppercase_02() { runner2.runOneTest("uppercase_02") }
+  @Test def test_uppercase_03() { runner2.runOneTest("uppercase_03") }
+  @Test def test_uppercase_04() { runner2.runOneTest("uppercase_04") }
+  @Test def test_uppercase_05() { runner2.runOneTest("uppercase_05") }
+  
+  @Test def test_lowercase_01() { runner2.runOneTest("lowercase_01") }
+  @Test def test_lowercase_02() { runner2.runOneTest("lowercase_02") }
+  @Test def test_lowercase_03() { runner2.runOneTest("lowercase_03") }
+  @Test def test_lowercase_04() { runner2.runOneTest("lowercase_04") }
+  @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
+
+  @Test def test_contains_01() { runner2.runOneTest("contains_01") }
+  @Test def test_contains_02() { runner2.runOneTest("contains_02") }
+  @Test def test_contains_03() { runner2.runOneTest("contains_03") }
+  @Test def test_contains_04() { runner2.runOneTest("contains_04") }
+  @Test def test_contains_05() { runner2.runOneTest("contains_05") }
+  @Test def test_contains_06() { runner2.runOneTest("contains_06") }
+
+  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
+  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
+  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
+  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
+  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
+  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
+
+  @Test def test_endswith_01() { runner2.runOneTest("endswith_01") }
+  @Test def test_endswith_02() { runner2.runOneTest("endswith_02") }
+  @Test def test_endswith_03() { runner2.runOneTest("endswith_03") }
+  @Test def test_endswith_04() { runner2.runOneTest("endswith_04") }
+  @Test def test_endswith_05() { runner2.runOneTest("endswith_05") }
+  @Test def test_endswith_06() { runner2.runOneTest("endswith_06") }
+
+  @Test def test_substringbefore_01() { runner2.runOneTest("substringbefore_01") }
+  @Test def test_substringbefore_02() { runner2.runOneTest("substringbefore_02") }
+  @Test def test_substringbefore_03() { runner2.runOneTest("substringbefore_03") }
+  //@Test def test_substringbefore_04() { runner2.runOneTest("substringbefore_04") }
+  //@Test def test_substringbefore_05() { runner2.runOneTest("substringbefore_05") }
+  @Test def test_substringbefore_06() { runner2.runOneTest("substringbefore_06") }
+
+  @Test def test_substringafter_01() { runner2.runOneTest("substringafter_01") }
+  @Test def test_substringafter_02() { runner2.runOneTest("substringafter_02") }
+  @Test def test_substringafter_03() { runner2.runOneTest("substringafter_03") }
+  //@Test def test_substringafter_04() { runner2.runOneTest("substringafter_04") }
+  //@Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
+  @Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
 
   @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
   @Test def test_ubyte_constructor_02() { runner2.runOneTest("ubyte_constructor_02") }

@@ -262,7 +262,135 @@
       </xs:complexType>
     </xs:element>
 
-	</tdml:defineSchema>
+    <xs:element name="e_concat2" type="xs:string" dfdl:inputValueCalc="{ fn:concat(1, 'cat', 0.2) }" />
+
+    <xs:element name="e_concat3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:float" dfdl:lengthKind="delimited"/>
+          <xs:element name="two" type="xs:dateTime" dfdl:lengthKind="delimited"/>
+          <xs:element name="concat" type="xs:string" dfdl:inputValueCalc="{ fn:concat(../ex:one,../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_concat4" type="xs:int" dfdl:inputValueCalc="{ fn:concat(1, 2) }" />
+    <xs:element name="e_concat5" type="xs:string" dfdl:inputValueCalc="{ fn:concat('a',(),'b','c') }" />
+
+    <xs:element name="e_substring1" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 6) }" />
+    <xs:element name="e_substring2" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 3, 9) }" />
+    <xs:element name="e_substring3" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', -5) }" />
+    <xs:element name="e_substring4" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 15, 5) }" />
+    <xs:element name="e_substring5" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 20) }" />
+    <xs:element name="e_substring6" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 4.7, 6.01) }" />
+
+    <xs:element name="e_stringlength1" type="xs:int" dfdl:inputValueCalc="{ fn:string-length('string') }" />
+    <xs:element name="e_stringlength2" type="xs:int" dfdl:inputValueCalc="{ fn:string-length() }" />
+    <xs:element name="e_stringlength3" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(()) }" />
+    <xs:element name="e_stringlength4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:string" />
+          <xs:element name="length" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(../ex:one) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_uppercase1" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('test upper') }" />
+    <xs:element name="e_uppercase2" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('TeSt UpPeR') }" />
+    <xs:element name="e_uppercase3" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case(()) }" />
+    <xs:element name="e_uppercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case('tèst4!ã') }" />
+    <xs:element name="e_uppercase5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
+          <xs:element name="upper" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case(../ex:one) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_lowercase1" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TEST LOWER') }" />
+    <xs:element name="e_lowercase2" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TeSt LoWeR') }" />
+    <xs:element name="e_lowercase3" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case(()) }" />
+    <xs:element name="e_lowercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case('TÉST4!Ø') }" />
+    <xs:element name="e_lowercase5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
+          <xs:element name="lower" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case(../ex:one) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_contains1" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'quick') }" />
+    <xs:element name="e_contains2" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'slow') }" />
+    <xs:element name="e_contains3" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', ()) }" />
+    <xs:element name="e_contains4" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains((), 'test') }" />
+    <xs:element name="e_contains5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="contains" type="xs:string" dfdl:inputValueCalc="{ fn:contains(../ex:one, ../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_startswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'The q') }" />
+    <xs:element name="e_startswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'he qu') }" />
+    <xs:element name="e_startswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', ()) }" />
+    <xs:element name="e_startswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with((), 'The') }" />
+    <xs:element name="e_startswith5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="starts" type="xs:string" dfdl:inputValueCalc="{ fn:starts-with(../ex:one, ../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_endswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'fox.') }" />
+    <xs:element name="e_endswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'The') }" />
+    <xs:element name="e_endswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', ()) }" />
+    <xs:element name="e_endswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with((), 'fox') }" />
+    <xs:element name="e_endswith5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="ends" type="xs:string" dfdl:inputValueCalc="{ fn:ends-with(../ex:one, ../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_substringbefore1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', 'quick') }" />
+    <xs:element name="e_substringbefore2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before((), ()) }" />
+    <xs:element name="e_substringbefore3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', ()) }" />
+    <xs:element name="e_substringbefore4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="before" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before(../ex:one, ../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_substringafter1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', 'brown') }" />
+    <xs:element name="e_substringafter2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after((), ()) }" />
+    <xs:element name="e_substringafter3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', ()) }" />
+    <xs:element name="e_substringafter4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="one" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited" />
+          <xs:element name="after" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after(../ex:one, ../ex:two) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</tdml:defineSchema>
   
 <!--
     Test Name: concat_01
@@ -286,6 +414,1045 @@
           <concat>45two</concat>
           <concat2>45two2</concat2>
 				</e_concat>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: concat_02
+       Schema: Functions.dfdl.xsd
+         Root: e_concat2
+      Purpose: This test demonstrates the use of the concat function to concatenate three anyAtomicType objects
+               into a string.
+-->
+
+	<tdml:parserTestCase name="concat_02" root="e_concat2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:concat - DFDL-23-099R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_concat2>1cat0.2</e_concat2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: concat_03
+       Schema: Functions.dfdl.xsd
+         Root: e_concat3
+      Purpose: This test demonstrates the use of the concat function to concatenate two or more anyAtomicType objects
+               into a string.
+-->
+
+	<tdml:parserTestCase name="concat_03" root="e_concat3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:concat - DFDL-23-099R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">-5E3,2004-04-12T13:20:00</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_concat3>
+					<one>-5000.0</one>
+					<two>2004-04-12T13:20:00.000000+00:00</two>
+					<concat>-5000.02004-04-12T13:20:00.000000+00:00</concat>
+				</e_concat3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: concat_04
+       Schema: Functions.dfdl.xsd
+         Root: e_concat4
+      Purpose: This test demonstrates the use of the concat function to concatenate two or more anyAtomicType objects
+               into a string.
+-->
+
+	<tdml:parserTestCase name="concat_04" root="e_concat4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:concat - DFDL-23-099R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_concat4>12</e_concat4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: concat_05
+       Schema: Functions.dfdl.xsd
+         Root: e_concat5
+      Purpose: This test demonstrates the use of the concat function to concatenate two or more anyAtomicType objects
+               into a string and shows that an empty argument is treated as a zero length string.
+-->
+
+	<tdml:parserTestCase name="concat_05" root="e_concat5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:concat - DFDL-23-099R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_concat5>abc</e_concat5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_01
+       Schema: Functions.dfdl.xsd
+         Root: e_substring1
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_01" root="e_substring1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring1>string test</e_substring1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_02
+       Schema: Functions.dfdl.xsd
+         Root: e_substring2
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_02" root="e_substring2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring2>substring</e_substring2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_03
+       Schema: Functions.dfdl.xsd
+         Root: e_substring3
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string. When the starting location is negative or zero characters in positions greater than zero are returned.
+-->
+
+	<tdml:parserTestCase name="substring_03" root="e_substring3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring3>A substring test</e_substring3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_04
+       Schema: Functions.dfdl.xsd
+         Root: e_substring4
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_04" root="e_substring4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring4>st</e_substring4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_05
+       Schema: Functions.dfdl.xsd
+         Root: e_substring5
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_05" root="e_substring5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring5/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_06
+       Schema: Functions.dfdl.xsd
+         Root: e_substring6
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string and that the values for start and length are rounded.
+-->
+
+	<tdml:parserTestCase name="substring_06" root="e_substring6"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring6>bstrin</e_substring6>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringlength_01
+       Schema: Functions.dfdl.xsd
+         Root: e_stringlength1
+      Purpose: This test demonstrates the use of the string-length function to return the length of the argument as an integer.
+-->
+
+	<tdml:parserTestCase name="stringlength_01" root="e_stringlength1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:string-length - DFDL-23-101R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_stringlength1>6</e_stringlength1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringlength_02
+       Schema: Functions.dfdl.xsd
+         Root: e_stringlength2
+      Purpose: This test demonstrates the use of the string-length function to return the length of the argument as an integer.
+-->
+
+	<tdml:parserTestCase name="stringlength_02" root="e_stringlength2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:string-length - DFDL-23-101R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_stringlength2>0</e_stringlength2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringlength_03
+       Schema: Functions.dfdl.xsd
+         Root: e_stringlength3
+      Purpose: This test demonstrates the use of the string-length function to return the length of the argument as an integer.
+-->
+
+	<tdml:parserTestCase name="stringlength_03" root="e_stringlength3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:string-length - DFDL-23-101R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_stringlength3>0</e_stringlength3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: stringlength_03
+       Schema: Functions.dfdl.xsd
+         Root: e_stringlength3
+      Purpose: This test demonstrates the use of the string-length function to return the length of the argument as an integer.
+-->
+
+	<tdml:parserTestCase name="stringlength_04" root="e_stringlength4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:string-length - DFDL-23-101R">
+
+		<tdml:document>test string</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_stringlength4>
+					<one>test string</one>
+					<length>11</length>
+				</e_stringlength4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: uppercase_01
+       Schema: Functions.dfdl.xsd
+         Root: e_uppercase1
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+	<tdml:parserTestCase name="uppercase_01" root="e_uppercase1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_uppercase1>TEST UPPER</e_uppercase1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: uppercase_02
+       Schema: Functions.dfdl.xsd
+         Root: e_uppercase2
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+	<tdml:parserTestCase name="uppercase_02" root="e_uppercase2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_uppercase2>TEST UPPER</e_uppercase2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: uppercase_03
+       Schema: Functions.dfdl.xsd
+         Root: e_uppercase3
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+	<tdml:parserTestCase name="uppercase_03" root="e_uppercase3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_uppercase3/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: uppercase_04
+       Schema: Functions.dfdl.xsd
+         Root: e_uppercase4
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+	<tdml:parserTestCase name="uppercase_04" root="e_uppercase4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_uppercase4>TÈST4!Ã</e_uppercase4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: upperCase_05
+       Schema: Functions.dfdl.xsd
+         Root: e_upperCase5
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+	<tdml:parserTestCase name="uppercase_05" root="e_uppercase5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+		<tdml:document>`ÿ a 8   o ı </tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_uppercase5>
+					<one>`ÿ a 8   o ı </one>
+					<upper>`Ÿ A 8   O I </upper>
+				</e_uppercase5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_01
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase1
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+	<tdml:parserTestCase name="lowercase_01" root="e_lowercase1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_lowercase1>test lower</e_lowercase1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_02
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase2
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+	<tdml:parserTestCase name="lowercase_02" root="e_lowercase2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_lowercase2>test lower</e_lowercase2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_03
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase3
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+	<tdml:parserTestCase name="lowercase_03" root="e_lowercase3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_lowercase3/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_04
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase4
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+	<tdml:parserTestCase name="lowercase_04" root="e_lowercase4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_lowercase4>tést4!ø</e_lowercase4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_05
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase5
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+	<tdml:parserTestCase name="lowercase_05" root="e_lowercase5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+		<tdml:document>`Ÿ A 8   O İ </tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_lowercase5>
+					<one>`Ÿ A 8   O İ </one>
+					<lower>`ÿ a 8   o i̇ </lower>
+				</e_lowercase5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_01
+       Schema: Functions.dfdl.xsd
+         Root: e_contains1
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_01" root="e_contains1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains1>true</e_contains1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_02
+       Schema: Functions.dfdl.xsd
+         Root: e_contains2
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_02" root="e_contains2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains2>false</e_contains2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_03
+       Schema: Functions.dfdl.xsd
+         Root: e_contains3
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_03" root="e_contains3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains3>true</e_contains3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_04
+       Schema: Functions.dfdl.xsd
+         Root: e_contains4
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_04" root="e_contains4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains4>false</e_contains4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_05
+       Schema: Functions.dfdl.xsd
+         Root: e_contains5
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_05" root="e_contains5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains5>
+					<one>The quick brown fox.</one>
+					<two>The quick brown fox.</two>
+					<contains>true</contains>
+				</e_contains5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: contains_06
+       Schema: Functions.dfdl.xsd
+         Root: e_contains5
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_06" root="e_contains5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document>The quick brown fox.,The quick BROWN fox.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_contains5>
+					<one>The quick brown fox.</one>
+					<two>The quick BROWN fox.</two>
+					<contains>false</contains>
+				</e_contains5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_01
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith1
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_01" root="e_startswith1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith1>true</e_startswith1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_02
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith2
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_02" root="e_startswith2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith2>false</e_startswith2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_03
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith3
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_03" root="e_startswith3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith3>true</e_startswith3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_04
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith4
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_04" root="e_startswith4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith4>false</e_startswith4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_05
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith5
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_05" root="e_startswith5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith5>
+					<one>The quick brown fox.</one>
+					<two>The quick brown fox.</two>
+					<starts>true</starts>
+				</e_startswith5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: startswith_06
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith5
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_06" root="e_startswith5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document>The quick brown fox.,the</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_startswith5>
+					<one>The quick brown fox.</one>
+					<two>the</two>
+					<starts>false</starts>
+				</e_startswith5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_01
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith1
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_01" root="e_endswith1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith1>true</e_endswith1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_02
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith2
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_02" root="e_endswith2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith2>false</e_endswith2>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_03
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith3
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_03" root="e_endswith3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith3>true</e_endswith3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_04
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith4
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_04" root="e_endswith4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith4>false</e_endswith4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_05
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith5
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_05" root="e_endswith5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document>The quick brown fox.,The quick brown fox.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith5>
+					<one>The quick brown fox.</one>
+					<two>The quick brown fox.</two>
+					<ends>true</ends>
+				</e_endswith5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_06
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith5
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_06" root="e_endswith5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document>The quick brown fox.,The quick BROWN fox.</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_endswith5>
+					<one>The quick brown fox.</one>
+					<two>The quick BROWN fox.</two>
+					<ends>false</ends>
+				</e_endswith5>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_01
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore1
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_01" root="e_substringbefore1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore1>The </e_substringbefore1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_02
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore2
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_02" root="e_substringbefore2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore2/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_03
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore3
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_03" root="e_substringbefore3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore3/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_04
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore4
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_04" root="e_substringbefore4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document>test,test</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore4>
+					<one>test</one>
+					<two>test</two>
+					<before/>
+				</e_substringbefore4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_05
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore4
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_05" root="e_substringbefore4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document>something,else</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore4>
+					<one>something</one>
+					<two>else</two>
+					<before/>
+				</e_substringbefore4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringbefore_06
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore4
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_06" root="e_substringbefore4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document>something,t</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringbefore4>
+					<one>something</one>
+					<two>t</two>
+					<before>some</before>
+				</e_substringbefore4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_01
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter1
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_01" root="e_substringafter1"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter1> fox.</e_substringafter1>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_02
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter2
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_02" root="e_substringafter2"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter2/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_03
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter3
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_03" root="e_substringafter3"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document/>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter3>The quick brown fox.</e_substringafter3>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_04
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter4
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_04" root="e_substringafter4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document>test,test</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter4>
+					<one>test</one>
+					<two>test</two>
+					<after/>
+				</e_substringafter4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_05
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter4
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_05" root="e_substringafter4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document>something,else</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter4>
+					<one>something</one>
+					<two>else</two>
+					<after/>
+				</e_substringafter4>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_06
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter4
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_06" root="e_substringafter4"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document>something,t</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substringafter4>
+					<one>something</one>
+					<two>t</two>
+					<after>hing</after>
+				</e_substringafter4>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>
