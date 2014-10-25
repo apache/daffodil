@@ -245,6 +245,8 @@ class TestDFDLExpressions {
   @Test def test_round_hte_10() { runner2.runOneTest("round_hte_10") }
   @Test def test_round_hte_11() { runner2.runOneTest("round_hte_11") }
   @Test def test_round_hte_12() { runner2.runOneTest("round_hte_12") }
+  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
+  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
 
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
