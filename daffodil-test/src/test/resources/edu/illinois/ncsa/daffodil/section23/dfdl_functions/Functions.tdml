@@ -2553,6 +2553,207 @@
 
     <xs:element name="empty06" type="xs:boolean" dfdl:inputValueCalc="{ fn:empty(/ex:IDONOTEXIST) }"/>
 
+    <xs:element name="exists01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exists" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="exists02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10" dfdl:lengthKind="explicit" dfdl:length="5"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exists" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="exists03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:inputValueCalc="{ '123' }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exists" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="exists04">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="queue">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="order_num" type="xs:int" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="orders">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator><![CDATA[{ fn:exists(/ex:exists04/ex:queue/ex:order_num) }]]></dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator=",">
+                      <xs:element name="order" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+                <xs:element name="exists" type="xs:string" dfdl:inputValueCalc="{ 'There is no one waiting right now' }"/>
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="exists05" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists() }"/>
+
+    <xs:element name="exists06" type="xs:boolean" dfdl:inputValueCalc="{ fn:exists(/ex:IDONOTEXIST) }"/>
+    
+    <xs:element name="exactly-one01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exactly-one" type="xs:boolean" dfdl:inputValueCalc="{ fn:exactly-one(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="exactly-one02" type="xs:boolean" dfdl:inputValueCalc="{ fn:exactly-one() } "/>
+
+    <xs:element name="exactly-one03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="name" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" maxOccurs="5" dfdl:initiator="name:"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="choice">
+            <xs:complexType>
+              <xs:choice>
+                <xs:element name="notEnough" type="xs:string" dfdl:inputValueCalc="{ 'not enough info' }">
+                  <xs:annotation>
+                    <xs:appinfo source="http://www.ogf.org/dfdl/">
+                      <dfdl:discriminator><![CDATA[{ fn:exactly-one(/ex:exactly-one03/ex:seq/ex:name) }]]></dfdl:discriminator>
+                    </xs:appinfo>
+                  </xs:annotation>
+                </xs:element>
+                <xs:element name="enough" type="xs:string" dfdl:inputValueCalc="{ 'enough' }"/> 
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="exactly-one04">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="first" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" maxOccurs="1" dfdl:initiator="first:"/>
+                <xs:element name="last" type="xs:string" dfdl:lengthKind="delimited" minOccurs="0" maxOccurs="1" dfdl:initiator="last:"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="exacOne" type="xs:boolean" dfdl:inputValueCalc="{ fn:exactly-one(/ex:exactly-one04/ex:seq) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="count01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="0" maxOccurs="15" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="count" type="xs:int" dfdl:inputValueCalc="{ fn:count(../ex:seq/ex:item) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="count02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="calced" type="xs:string" dfdl:inputValueCalc="{ 'calculated string' }"/>
+          <xs:element name="count" type="xs:int" dfdl:inputValueCalc="{ fn:count(../ex:calced) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="count03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="scores">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
+                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="B:" dfdl:lengthKind="delimited"/>
+                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="P:" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="bobcatScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03/ex:scores/ex:bobcats) }"/>
+          <xs:element name="pirateScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03/ex:scores/ex:pirates) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="count03b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="scores">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:sequenceKind="unordered">
+                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="B:" dfdl:lengthKind="delimited"/>
+                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="unbounded" dfdl:initiator="P:" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="bobcatScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03b/ex:scores/ex:bobcats) }"/>
+          <xs:element name="pirateScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03b/ex:scores/ex:pirates) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
 <!--
@@ -6681,14 +6882,10 @@
 		<tdml:document>
 			<tdml:documentPart type="text"></tdml:documentPart>
 		</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <empty02>
-          <seq/>
-          <empty>true</empty>
-        </empty02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>inputValueCalc</tdml:error>
+    </tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
@@ -6696,7 +6893,7 @@
        Schema: XPathFunctions
          Root: empty04
       Purpose: This test demonstrates the empty() function. In this case, the empty function is setting a 
-               discriminator to true, which dictates the choice branch selected.
+               discriminator to false, which dictates the choice branch selected.
 -->
 
 	<tdml:parserTestCase name="empty_06" root="empty04"
@@ -6730,7 +6927,7 @@
        Schema: XPathFunctions
          Root: empty04
       Purpose: This test demonstrates the empty() function. In this case, the empty function is setting a 
-               discriminator to false, which dictates the choice branch selected.
+               discriminator to true, which dictates the choice branch selected.
 -->
 
 	<tdml:parserTestCase name="empty_07" root="empty04"
@@ -6787,6 +6984,580 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
     </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_01
+       Schema: XPathFunctions
+         Root: exists01
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing a sequence that
+               exists, and should be set to true.
+-->
+
+	<tdml:parserTestCase name="exists_01" root="exists01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1,2,3,4</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists01>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+          </seq>
+          <exists>true</exists>
+        </exists01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_02
+       Schema: XPathFunctions
+         Root: exists01
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing
+               a sequence that does not exist, and should be false.
+-->
+
+	<tdml:parserTestCase name="exists_02" root="exists01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists01>
+          <seq/>
+          <exists>false</exists>
+        </exists01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_03
+       Schema: XPathFunctions
+         Root: exists02
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing a 
+               sequence that exists, and should be true.
+-->
+
+	<tdml:parserTestCase name="exists_03" root="exists02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">12345,12345,12345</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists02>
+          <seq>
+            <item>12345</item>
+            <item>12345</item>
+            <item>12345</item>
+          </seq>
+          <exists>true</exists>
+        </exists02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_04
+       Schema: XPathFunctions
+         Root: exists02
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing a
+               sequence that does not exist, and should be false.
+-->
+
+	<tdml:parserTestCase name="exists_04" root="exists02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists02>
+          <seq/>
+          <exists>false</exists>
+        </exists02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_05
+       Schema: XPathFunctions
+         Root: exists03
+      Purpose: This test demonstrates the exists() function. In this case the function is referencing a
+               sequence that does not exist, and should be false.
+-->
+
+	<tdml:parserTestCase name="exists_05" root="exists03"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>inputValueCalc</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_06
+       Schema: XPathFunctions
+         Root: exists04
+      Purpose: This test demonstrates the exists() function. In this case, the exists function is setting a 
+               discriminator to false, which dictates the choice branch selected.
+-->
+
+	<tdml:parserTestCase name="exists_06" root="exists04"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">600,601,602|Reuben,BLT,Club</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists04>
+          <queue>
+            <order_num>600</order_num>
+            <order_num>601</order_num>
+            <order_num>602</order_num>
+          </queue>
+          <choice>
+            <orders>
+              <order>Reuben</order>
+              <order>BLT</order>
+              <order>Club</order>
+            </orders>
+          </choice>
+        </exists04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_07
+       Schema: XPathFunctions
+         Root: exists04
+      Purpose: This test demonstrates the exists() function. In this case, the exists function is setting a 
+               discriminator to false, which dictates the choice branch selected.
+-->
+
+	<tdml:parserTestCase name="exists_07" root="exists04"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">|</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exists04>
+          <queue/>
+          <choice>
+            <exists>There is no one waiting right now</exists>
+          </choice>
+        </exists04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_08
+       Schema: XPathFunctions
+         Root: exists05
+      Purpose: This test demonstrates the exists() function when it is not provided any arguments
+-->
+
+	<tdml:parserTestCase name="exists_08" root="exists05"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>exists</tdml:error>
+      <tdml:error>argument</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exists_09
+       Schema: XPathFunctions
+         Root: exists06
+      Purpose: This test demonstrates the exists() function when it is passed an element that does not exist.
+-->
+
+	<tdml:parserTestCase name="exists_09" root="exists06"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exists - DFDL-23-122R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_01
+       Schema: XPathFunctions
+         Root: exactly-one01
+      Purpose: This test demonstrates the exactly-one() function. In this case there is exactly one item so the function returns true.
+-->
+
+	<tdml:parserTestCase name="exactly_one_01" root="exactly-one01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exactly-one01>
+          <seq>
+            <item>1</item>
+          </seq>
+          <exactly-one>true</exactly-one>
+        </exactly-one01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_02
+       Schema: XPathFunctions
+         Root: exactly-one01
+      Purpose: This test demonstrates the exactly-one() function. In this case there is more than one item.
+-->
+
+	<tdml:parserTestCase name="exactly_one_02" root="exactly-one01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1,2,3</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exactly-one01>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+          </seq>
+          <exactly-one>false</exactly-one>
+        </exactly-one01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_03
+       Schema: XPathFunctions
+         Root: exactly-one01
+      Purpose: This test demonstrates the exactly-one() function. In this case there is less than one item.
+-->
+
+	<tdml:parserTestCase name="exactly_one_03" root="exactly-one01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <exactly-one01>
+          <seq/>
+          <exactly-one>false</exactly-one>
+        </exactly-one01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_04
+       Schema: XPathFunctions
+         Root: exactly-one02
+      Purpose: This test demonstrates the exactly-one() function. In this case we are not providing any arguments.
+-->
+
+	<tdml:parserTestCase name="exactly_one_04" root="exactly-one02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>exactly-one</tdml:error>
+      <tdml:error>argument</tdml:error>
+    </tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_05
+       Schema: XPathFunctions
+         Root: exactly-one03
+      Purpose: This test demonstrates the exactly-one() function.
+-->
+
+	<tdml:parserTestCase name="exactly_one_05" root="exactly-one03"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">name:Larry|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <exactly-one03>
+          <seq>
+            <name>Larry</name>
+          </seq>
+          <choice>
+            <notEnough>not enough info</notEnough>
+          </choice>
+        </exactly-one03>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_06
+       Schema: XPathFunctions
+         Root: exactly-one03
+      Purpose: This test demonstrates the exactly-one() function.
+-->
+
+	<tdml:parserTestCase name="exactly_one_06" root="exactly-one03"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">name:Larry,name:Smith|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <exactly-one03>
+          <seq>
+            <name>Larry</name>
+            <name>Smith</name>
+          </seq>
+          <choice>
+            <enough>enough</enough>
+          </choice>
+        </exactly-one03>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: exactly_one_07
+       Schema: XPathFunctions
+         Root: exactly-one04
+      Purpose: This test demonstrates the exactly-one() function.
+-->
+
+	<tdml:parserTestCase name="exactly_one_07" root="exactly-one04"
+		model="XPathFunctions" description="Section 23 - Functions - fn:exactly-one - DFDL-23-123R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">first:Larry,last:Smith|</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <exactly-one03>
+          <seq>
+            <name>Larry</name>
+            <name>Smith</name>
+          </seq>
+          <choice>
+            <enough>enough</enough>
+          </choice>
+        </exactly-one03>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_01
+       Schema: XPathFunctions
+         Root: count01
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_01" root="count01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1,2,3,4,5,6,7,8,9,10,11,12,13,14</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count01>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+            <item>6</item>
+            <item>7</item>
+            <item>8</item>
+            <item>9</item>
+            <item>10</item>
+            <item>11</item>
+            <item>12</item>
+            <item>13</item>
+            <item>14</item>
+          </seq>
+          <count>14</count>
+        </count01>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_02
+       Schema: XPathFunctions
+         Root: count01
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_02" root="count01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">15</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count01>
+          <seq>
+            <item>15</item>
+          </seq>
+          <count>1</count>
+        </count01>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_03
+       Schema: XPathFunctions
+         Root: count02
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_03" root="count02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count02>
+          <calced>calculated string</calced>
+          <count>1</count>
+        </count02>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_04
+       Schema: XPathFunctions
+         Root: count01
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_04" root="count01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count01>
+          <seq/>
+          <count>0</count>
+        </count01>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_05
+       Schema: XPathFunctions
+         Root: count03
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_05" root="count03"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">B:6,B:1,P:3,B:6,B:2,P:3,P:3</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count03>
+          <scores>
+            <bobcats>6</bobcats>
+            <bobcats>1</bobcats>
+            <bobcats>6</bobcats>
+            <bobcats>2</bobcats>
+            <pirates>3</pirates>
+            <pirates>3</pirates>
+            <pirates>3</pirates>
+          </scores>
+          <bobcatScoreCount>4</bobcatScoreCount>
+          <pirateScoreCount>3</pirateScoreCount>
+        </count03>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: count_05b
+       Schema: XPathFunctions
+         Root: count03b
+      Purpose: This test demonstrates the count() function.
+-->
+
+	<tdml:parserTestCase name="count_05b" root="count03b"
+		model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">B:6,B:1,P:3,B:6,B:2,P:3,P:3</tdml:documentPart>
+		</tdml:document>
+		<tdml:infoset>
+		  <tdml:dfdlInfoset>
+        <count03>
+          <scores>
+            <bobcats>6</bobcats>
+            <bobcats>1</bobcats>
+            <bobcats>6</bobcats>
+            <bobcats>2</bobcats>
+            <pirates>3</pirates>
+            <pirates>3</pirates>
+            <pirates>3</pirates>
+          </scores>
+          <bobcatScoreCount>4</bobcatScoreCount>
+          <pirateScoreCount>3</pirateScoreCount>
+        </count03>
+		  </tdml:dfdlInfoset>
+		</tdml:infoset>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>
