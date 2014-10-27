@@ -86,6 +86,9 @@ class TestDFDLExpressionsDebug {
   //DFDL-1091
   @Test def test_count_05b() { runner2.runOneTest("count_05b") }
   
+  //DFDL-1097
+  @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
+  
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }

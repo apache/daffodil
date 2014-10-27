@@ -260,6 +260,16 @@ class TestDFDLExpressions {
   //@Test def test_empty_09() { runner2.runOneTest("empty_09") }
   //@Test def test_exists_09() { runner2.runOneTest("exists_09") }
   
+  //DFDL-1087
+  //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
+  //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
+  
+  //DFDL-1091
+  //@Test def test_count_05b() { runner2.runOneTest("count_05b") }
+  
+  //DFDL-1097
+  //@Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
+  
   @Test def test_empty_01() { runner2.runOneTest("empty_01") }
   @Test def test_empty_03() { runner2.runOneTest("empty_03") }
   @Test def test_empty_04() { runner2.runOneTest("empty_04") }
@@ -273,11 +283,9 @@ class TestDFDLExpressions {
   @Test def test_exists_06() { runner2.runOneTest("exists_06") }
   @Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_exists_08() { runner2.runOneTest("exists_08") }
+  @Test def test_exists_10() { runner2.runOneTest("exists_10") }
   
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
-  //DFDL-1087
-  //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
-  //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
   @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
   @Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
   @Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
@@ -287,8 +295,16 @@ class TestDFDLExpressions {
   @Test def test_count_03() { runner2.runOneTest("count_03") }
   @Test def test_count_04() { runner2.runOneTest("count_04") }
   @Test def test_count_05() { runner2.runOneTest("count_05") }
-  //DFDL-1091
-  //@Test def test_count_05b() { runner2.runOneTest("count_05b") }
+  @Test def test_count_06() { runner2.runOneTest("count_06") }
+  @Test def test_count_07() { runner2.runOneTest("count_07") }
+  @Test def test_count_08() { runner2.runOneTest("count_08") }
+  
+  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
+  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
+  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
+  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
+  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
  
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
