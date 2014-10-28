@@ -305,6 +305,10 @@ class TestDFDLExpressions {
   @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
   @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
   @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
+  
+  //DFDL-
+  //@Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
+  @Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
  
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }

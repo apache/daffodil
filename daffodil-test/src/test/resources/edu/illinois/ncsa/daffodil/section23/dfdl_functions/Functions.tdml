@@ -2,7 +2,8 @@
 <tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
 	xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:fn="http://www.w3.org/2005/xpath-functions" xmlns:ex="http://example.com">
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="Functions.dfdl.xsd">
 		<dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -2907,7 +2908,6 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
 
   </tdml:defineSchema>
 
@@ -7992,6 +7992,57 @@
           <provided2>dob</provided2>
           <provided3>ssn</provided3>
         </local-name07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: namespace_uri_01
+       Schema: XPathFunctions
+         Root: e1
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_01" root="e1"
+		model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">1:123</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <two>123</two>
+          <uri1>http://home.com</uri1>
+          <uri2>http://first.com</uri2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: namespace_uri_02
+       Schema: XPathFunctions
+         Root: e2
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_02" root="e2"
+		model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">3:data</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <e1>
+            <three>data</three>
+          </e1>
+          <uri>http://first.com</uri>
+          <uri2>http://second.com</uri2>
+        </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
