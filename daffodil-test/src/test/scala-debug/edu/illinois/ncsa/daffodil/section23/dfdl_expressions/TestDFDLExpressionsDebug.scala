@@ -89,7 +89,7 @@ class TestDFDLExpressionsDebug {
   //DFDL-1097
   @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
   
-  //DFDL-
+  //DFDL-1101
   @Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
   
   //  DFDL-819
