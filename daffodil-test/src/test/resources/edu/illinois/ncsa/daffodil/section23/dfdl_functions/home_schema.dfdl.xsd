@@ -36,4 +36,14 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="e3" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri() }"/>
+
+  <xs:element name="e4">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="first:e2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
 </xs:schema>

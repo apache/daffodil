@@ -308,7 +308,11 @@ class TestDFDLExpressions {
   
   //DFDL-1101
   //@Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
-  @Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
+  //@Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
+  @Test def test_namespace_uri_03() { runner2.runOneTest("namespace_uri_03") }
+  @Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
+  @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
+  @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
  
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }

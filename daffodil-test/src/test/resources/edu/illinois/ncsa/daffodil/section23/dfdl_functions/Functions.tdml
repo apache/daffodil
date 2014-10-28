@@ -2908,6 +2908,24 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="namespace-uri01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="local" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri(/ex:namespace-uri01/ex:inty) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="namespace-uri02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="inty" type="xs:int" dfdl:lengthKind="delimited"/>
+          <xs:element name="local" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri() }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -8023,7 +8041,7 @@
 
 <!--
     Test Name: namespace_uri_02
-       Schema: XPathFunctions
+       Schema: home_schema.dfdl.xsd
          Root: e2
       Purpose: This test demonstrates the namespace-uri() function
 -->
@@ -8045,7 +8063,94 @@
         </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+	</tdml:parserTestCase>
 
+<!--
+    Test Name: namespace_uri_03
+       Schema: XPathFunctions
+         Root: namespace-uri01
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_03" root="namespace-uri01"
+		model="XPathFunctions" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">123</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <namespace-uri01>
+          <inty>123</inty>
+          <local>http://example.com</local>
+        </namespace-uri01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: namespace_uri_04
+       Schema: XPathFunctions
+         Root: namespace-uri02
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_04" root="namespace-uri02"
+		model="XPathFunctions" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text">123</tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <namespace-uri02>
+          <inty>123</inty>
+          <local>http://example.com</local>
+        </namespace-uri02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: namespace_uri_05
+       Schema: home_schema.dfdl.xsd
+         Root: e3
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_05" root="e3"
+		model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>http://home.com</e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: namespace_uri_06
+       Schema: home_schema.dfdl.xsd
+         Root: e4
+      Purpose: This test demonstrates the namespace-uri() function
+-->
+
+	<tdml:parserTestCase name="namespace_uri_06" root="e4"
+		model="home_schema.dfdl.xsd" description="Section 23 - Functions - fn:namespace-uri() - DFDL-23-126R">
+
+		<tdml:document>
+			<tdml:documentPart type="text"></tdml:documentPart>
+		</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e4>
+          <e2>http://first.com</e2>
+        </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
 	</tdml:parserTestCase>
 
 </tdml:testSuite>

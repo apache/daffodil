@@ -91,6 +91,7 @@ class TestDFDLExpressionsDebug {
   
   //DFDL-1101
   @Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
+  @Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
   
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }

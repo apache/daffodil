@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:fn="http://www.w3.org/2005/xpath-functions"
            xmlns:first="http://first.com" targetNamespace="http://first.com" xmlns:second="http://second.com">
   
   <xs:import namespace="http://second.com" schemaLocation="edu/illinois/ncsa/daffodil/section23/dfdl_functions/second_schema.dfdl.xsd"/>
@@ -23,5 +24,7 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ fn:namespace-uri() }"/>
 
 </xs:schema>
