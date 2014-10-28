@@ -639,11 +639,11 @@ class TestDFDLExpressions {
   // This test should be giving a runtime SDE instead of parse error (DFDL-710)
   // @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
-  @Test def test_stringLiteralFromString_0() { runner2.runOneTest("stringLiteralFromString_0") }
-  @Test def test_stringLiteralFromString_1() { runner2.runOneTest("stringLiteralFromString_1") }
-  @Test def test_stringLiteralFromString_2() { runner2.runOneTest("stringLiteralFromString_2") }
-  @Test def test_stringLiteralFromString_3() { runner2.runOneTest("stringLiteralFromString_3") }
-  @Test def test_stringLiteralFromString_4() { runner2.runOneTest("stringLiteralFromString_4") }
+  @Test def test_encodeDFDLEntities_0() { runner2.runOneTest("encodeDFDLEntities_0") }
+  @Test def test_encodeDFDLEntities_1() { runner2.runOneTest("encodeDFDLEntities_1") }
+  @Test def test_encodeDFDLEntities_2() { runner2.runOneTest("encodeDFDLEntities_2") }
+  @Test def test_encodeDFDLEntities_3() { runner2.runOneTest("encodeDFDLEntities_3") }
+  @Test def test_encodeDFDLEntities_4() { runner2.runOneTest("encodeDFDLEntities_4") }
 
   @Test def test_setBits_0() { runner2.runOneTest("setBits_0") }
   @Test def test_setBits_1() { runner2.runOneTest("setBits_1") }

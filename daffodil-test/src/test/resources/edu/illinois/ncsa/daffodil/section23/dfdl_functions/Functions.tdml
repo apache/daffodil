@@ -176,14 +176,14 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="stringLiteralFromString">
+    <xs:element name="encodeDFDLEntities">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="str" type="xs:string"
             dfdl:representation="text" />
           <xs:element name="literal" type="xs:string"
             dfdl:lengthKind="implicit"
-            dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str) }" />
+            dfdl:inputValueCalc="{ dfdl:encodeDFDLEntities( ../ex:str) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2014,14 +2014,14 @@
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringLiteralFromString_0
+    Test Name: encodeDFDLEntities_0
        Schema: Functions.dfdl.xsd
-         Root: stringLiteralFromString
-      Purpose: This test demonstrates the use of the stringLiteralFromString function
+         Root: encodeDFDLEntities
+      Purpose: This test demonstrates the use of the encodeDFDLEntities function
 -->
 
-  <tdml:parserTestCase name="stringLiteralFromString_0"
-    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+  <tdml:parserTestCase name="encodeDFDLEntities_0"
+    root="encodeDFDLEntities" model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[%This is a test!%]]></tdml:documentPart>
@@ -2029,23 +2029,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <stringLiteralFromString>
+        <encodeDFDLEntities>
           <str>%This is a test!%</str>
           <literal>%%This%SP;is%SP;a%SP;test!%%</literal>
-        </stringLiteralFromString>
+        </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringLiteralFromString_1
+    Test Name: encodeDFDLEntities_1
        Schema: Functions.dfdl.xsd
-         Root: stringLiteralFromString
-      Purpose: This test demonstrates the use of the stringLiteralFromString function
+         Root: encodeDFDLEntities
+      Purpose: This test demonstrates the use of the encodeDFDLEntities function
 -->
 
-  <tdml:parserTestCase name="stringLiteralFromString_1"
-    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+  <tdml:parserTestCase name="encodeDFDLEntities_1"
+    root="encodeDFDLEntities" model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[30 04 31 09 32 0a 33 0b 34]]></tdml:documentPart>
@@ -2053,23 +2053,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <stringLiteralFromString>
+        <encodeDFDLEntities>
           <str>01 2 34</str>
           <literal>0%EOT;1%HT;2%LF;3%VT;4</literal>
-        </stringLiteralFromString>
+        </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringLiteralFromString_2
+    Test Name: encodeDFDLEntities_2
        Schema: Functions.dfdl.xsd
-         Root: stringLiteralFromString
-      Purpose: This test demonstrates the use of the stringLiteralFromString function
+         Root: encodeDFDLEntities
+      Purpose: This test demonstrates the use of the encodeDFDLEntities function
 -->
 
-  <tdml:parserTestCase name="stringLiteralFromString_2"
-    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+  <tdml:parserTestCase name="encodeDFDLEntities_2"
+    root="encodeDFDLEntities" model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
       <tdml:documentPart type="byte"><![CDATA[01 07 33 0b 0a 09 08 34]]></tdml:documentPart>
@@ -2077,23 +2077,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <stringLiteralFromString>
+        <encodeDFDLEntities>
           <str>3 4</str>
           <literal>%SOH;%BEL;3%VT;%LF;%HT;%BS;4</literal>
-        </stringLiteralFromString>
+        </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringLiteralFromString_3
+    Test Name: encodeDFDLEntities_3
        Schema: Functions.dfdl.xsd
-         Root: stringLiteralFromString
-      Purpose: This test demonstrates the use of the stringLiteralFromString function
+         Root: encodeDFDLEntities
+      Purpose: This test demonstrates the use of the encodeDFDLEntities function
 -->
 
-  <tdml:parserTestCase name="stringLiteralFromString_3"
-    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+  <tdml:parserTestCase name="encodeDFDLEntities_3"
+    root="encodeDFDLEntities" model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[ThisIsATest!]]></tdml:documentPart>
@@ -2101,23 +2101,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <stringLiteralFromString>
+        <encodeDFDLEntities>
           <str>ThisIsATest!</str>
           <literal>ThisIsATest!</literal>
-        </stringLiteralFromString>
+        </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringLiteralFromString_4
+    Test Name: encodeDFDLEntities_4
        Schema: Functions.dfdl.xsd
-         Root: stringLiteralFromString
-      Purpose: This test demonstrates the use of the stringLiteralFromString function
+         Root: encodeDFDLEntities
+      Purpose: This test demonstrates the use of the encodeDFDLEntities function
 -->
 
-  <tdml:parserTestCase name="stringLiteralFromString_4"
-    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+  <tdml:parserTestCase name="encodeDFDLEntities_4"
+    root="encodeDFDLEntities" model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[  %  ]]></tdml:documentPart>
@@ -2125,10 +2125,10 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <stringLiteralFromString>
+        <encodeDFDLEntities>
           <str>  %  </str>
           <literal>%SP;%SP;%%%SP;%SP;</literal>
-        </stringLiteralFromString>
+        </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
