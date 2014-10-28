@@ -4486,7 +4486,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="floatified" type="xs:float" dfdl:inputValueCalc="{ xs:float(../ex:string + ../ex:string2) }"/>
+          <xs:element name="floatified" type="xs:float" dfdl:inputValueCalc="{ xs:float(../ex:string) + xs:float(../ex:string2) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4504,7 +4504,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="doublified" type="xs:double" dfdl:inputValueCalc="{ xs:double(../ex:string + ../ex:string2) }"/>
+          <xs:element name="doublified" type="xs:double" dfdl:inputValueCalc="{ xs:double(../ex:string) + xs:double(../ex:string2) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4514,7 +4514,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
           <xs:element name="string2" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="nonNeg" type="xs:integer" dfdl:inputValueCalc="{ xs:nonNegativeInteger(../ex:string + ../ex:string2) }"/>
+          <xs:element name="nonNeg" type="xs:integer" dfdl:inputValueCalc="{ xs:nonNegativeInteger(xs:string(xs:int(../ex:string) + xs:int(../ex:string2))) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -5531,8 +5531,7 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>convert</tdml:error>
       <tdml:error>string</tdml:error>
-      <tdml:error>double</tdml:error>
-      <tdml:error>"one"</tdml:error>
+      <tdml:error>one</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6206,7 +6205,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Value -20 cannot be converted to integer subtype xs:nonNegativeInteger</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
