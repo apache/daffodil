@@ -2371,7 +2371,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(../ex:val) }"/>
+          <xs:element name="absval" type="xs:int" dfdl:inputValueCalc="{ fn:abs(xs:int(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2380,7 +2380,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="absval" type="xs:int" dfdl:inputValueCalc="{ tst:abs(../ex:val) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="absval" type="xs:int" dfdl:inputValueCalc="{ tst:abs(xs:int(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2457,7 +2457,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(../ex:val) }"/>
+          <xs:element name="ceilval" type="xs:int" dfdl:inputValueCalc="{ fn:ceiling(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2466,7 +2466,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="ceilval" type="xs:int" dfdl:inputValueCalc="{ tst:ceiling(../ex:val) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="ceilval" type="xs:int" dfdl:inputValueCalc="{ tst:ceiling(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2520,7 +2520,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(../ex:val) }"/>
+          <xs:element name="floorval" type="xs:int" dfdl:inputValueCalc="{ fn:floor(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2529,7 +2529,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:int" dfdl:inputValueCalc="{ tst:floor(../ex:val) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="floorval" type="xs:int" dfdl:inputValueCalc="{ tst:floor(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2583,7 +2583,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(../ex:val) }"/>
+          <xs:element name="roundval" type="xs:int" dfdl:inputValueCalc="{ fn:round(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2592,7 +2592,7 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="val" type="xs:string" dfdl:lengthKind="delimited"/>
-          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="roundval" type="xs:int" dfdl:inputValueCalc="{ tst:round(../ex:val) }"/>
+          <xs:element xmlns:tst="http://www.w3.org/2005/xpath-functions" name="roundval" type="xs:int" dfdl:inputValueCalc="{ tst:round(xs:double(../ex:val)) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3192,8 +3192,6 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>convert</tdml:error>
       <tdml:error>string</tdml:error>
-      <tdml:error>"string"</tdml:error>
-      <tdml:error>double</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
