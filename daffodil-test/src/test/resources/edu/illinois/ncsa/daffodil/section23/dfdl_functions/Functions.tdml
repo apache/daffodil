@@ -4942,6 +4942,33 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+  <!-- 
+    Test name: fnDateTime_constructor_05
+       Schema: constructorSchema
+         Root: dateTime03
+      Purpose: This test demonstrates the use of the fn:dateTime function's timezone
+               checking ability.
+               The timezone of the result is computed as follows:
+
+                If neither argument has a timezone, the result has no timezone.
+                If exactly one of the arguments has a timezone, or if both arguments 
+                  have the same timezone, the result has this timezone.
+                If the two arguments have different timezones, 
+                  an error is raised:[err:FORG0008]
+-->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_05" root="dateTime03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">March-31-96-0700,04:55:30-0800</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Runtime Schema Definition Error</tdml:error>
+      <tdml:error>The two arguments to fn:dateTime have inconsistent timezones</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
   <!--
     Test name: int_constructor_01
        Schema: constructorSchema
