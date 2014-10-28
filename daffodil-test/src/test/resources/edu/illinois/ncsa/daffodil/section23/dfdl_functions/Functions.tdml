@@ -4,7 +4,7 @@
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:fn="http://www.w3.org/2005/xpath-functions"
   xmlns:ex="http://example.com">
-
+    
   <tdml:defineSchema name="Functions.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       separator="," terminator="" leadingSkip="0" trailingSkip="0"
@@ -4358,6 +4358,18 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="dateTime05">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="dateTime" type="xs:string" dfdl:inputValueCalc="{ xs:string(xs:dateTime(../ex:string)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="dateTime06" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(xs:time('04:55:30')) }"/> <!-- invalid cast -->
+    <xs:element name="dateTime07" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(xs:date('2014-10-23')) }"/> <!-- valid cast -->
+    <xs:element name="dateTime08" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(xs:dateTime('2014-10-23T04:55:30')) }"/> <!-- valid cast -->
+    <xs:element name="dateTime09" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(1) }"/> <!-- invalid cast -->
     
     <xs:element name="time01">
       <xs:complexType>
@@ -4368,6 +4380,18 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="time02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="time" type="xs:string" dfdl:inputValueCalc="{ xs:string(xs:time(../ex:string)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="time03" type="xs:time" dfdl:inputValueCalc="{ xs:time(xs:date('2014-10-23')) }"/> <!-- invalid cast -->
+    <xs:element name="time04" type="xs:time" dfdl:inputValueCalc="{ xs:time(xs:time('08:00:00')) }"/> <!-- valid cast -->
+    <xs:element name="time05" type="xs:time" dfdl:inputValueCalc="{ xs:time(xs:dateTime('2014-10-23T08:00:00')) }"/> <!-- valid cast -->
+    
     <xs:element name="date01">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -4377,6 +4401,19 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="date02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="date" type="xs:string" dfdl:inputValueCalc="{ xs:string(xs:date(../ex:string)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="date03" type="xs:date" dfdl:inputValueCalc="{ xs:date(xs:time('08:00:00')) }"/> <!-- invalid cast -->
+    <xs:element name="date04" type="xs:date" dfdl:inputValueCalc="{ xs:date(xs:date('2014-10-23')) }"/> <!-- valid cast -->
+    <xs:element name="date05" type="xs:date" dfdl:inputValueCalc="{ xs:date(xs:dateTime('2014-10-23T08:00:00-05:00')) }"/> <!-- valid cast -->
+    
     <xs:element name="hexBinary01">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -4385,6 +4422,105 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="dfdlHexBinary01" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(xs:short(208)) }"/>
+    <xs:element name="dfdlHexBinary02" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary('208') }"/>
+    <xs:element name="dfdlHexBinary03" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(-2084) }"/>
+    <xs:element name="dfdlHexBinary04" type="xs:hexBinary" dfdl:inputValueCalc="{ dfdl:hexBinary(200000000000000000000) }"/>
+    
+    <xs:element name="dfdlByte01" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(127) }"/> <!-- valid -->
+    <xs:element name="dfdlByte02" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(208) }"/> <!-- invalid -->
+    <xs:element name="dfdlByte03" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('127') }"/> <!-- valid -->
+    <xs:element name="dfdlByte04" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('208') }"/> <!-- invalid -->
+    <xs:element name="dfdlByte05" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('x7F') }"/> <!-- valid -->
+    <xs:element name="dfdlByte06" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('xD0') }"/> <!-- invalid -->
+    <xs:element name="dfdlByte07" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte('xDG') }"/> <!-- invalid -->
+    <xs:element name="dfdlByte08" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(xs:short(127)) }"/> <!-- valid -->
+    <xs:element name="dfdlByte09" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(xs:short(208)) }"/> <!-- invalid -->
+    <xs:element name="dfdlByte10" type="xs:byte" dfdl:inputValueCalc="{ dfdl:byte(dfdl:hexBinary(127)) }"/> <!-- invalid -->
+    
+    <xs:element name="dfdlUByte01" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(208) }"/> <!-- valid -->
+    <xs:element name="dfdlUByte02" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(256) }"/> <!-- invalid -->
+    <xs:element name="dfdlUByte03" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('208') }"/> <!-- valid -->
+    <xs:element name="dfdlUByte04" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('256') }"/> <!-- invalid -->
+    <xs:element name="dfdlUByte05" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('xD0') }"/> <!-- valid -->
+    <xs:element name="dfdlUByte06" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('x100') }"/> <!-- invalid -->
+    <xs:element name="dfdlUByte07" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(xs:short(208)) }"/> <!-- valid -->
+    <xs:element name="dfdlUByte08" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(xs:short(256)) }"/> <!-- invalid -->
+    <xs:element name="dfdlUByte09" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte(dfdl:hexBinary(208)) }"/> <!-- valid -->
+    <xs:element name="dfdlUByte11" type="xs:unsignedByte" dfdl:inputValueCalc="{ dfdl:unsignedByte('xDG') }"/> <!-- invalid -->
+    
+    <xs:element name="dfdlShort01" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(32767) }"/> <!-- valid -->
+    <xs:element name="dfdlShort02" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(32768) }"/> <!-- invalid -->
+    <xs:element name="dfdlShort03" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('32767') }"/> <!-- valid -->
+    <xs:element name="dfdlShort04" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('32768') }"/> <!-- invalid -->
+    <xs:element name="dfdlShort05" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('x7FFF') }"/> <!-- valid -->
+    <xs:element name="dfdlShort06" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('x8000') }"/> <!-- invalid -->
+    <xs:element name="dfdlShort07" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(xs:long(32767)) }"/> <!-- valid -->
+    <xs:element name="dfdlShort08" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(xs:long(32768)) }"/> <!-- invalid -->
+    <xs:element name="dfdlShort09" type="xs:short" dfdl:inputValueCalc="{ dfdl:short(dfdl:hexBinary(32767)) }"/> <!-- valid -->
+    <xs:element name="dfdlShort11" type="xs:short" dfdl:inputValueCalc="{ dfdl:short('x7FFG') }"/> <!-- invalid -->
+    
+    <xs:element name="dfdlUShort01" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(65535) }"/> <!-- valid -->
+    <xs:element name="dfdlUShort02" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(65536) }"/> <!-- invalid -->
+    <xs:element name="dfdlUShort03" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('65535') }"/> <!-- valid -->
+    <xs:element name="dfdlUShort04" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('65536') }"/> <!-- invalid -->
+    <xs:element name="dfdlUShort05" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('xFFFF') }"/> <!-- valid -->
+    <xs:element name="dfdlUShort06" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('x10000') }"/> <!-- invalid -->
+    <xs:element name="dfdlUShort07" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(xs:long(65535)) }"/> <!-- valid -->
+    <xs:element name="dfdlUShort08" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(xs:long(65536)) }"/> <!-- invalid -->
+    <xs:element name="dfdlUShort09" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort(dfdl:hexBinary(65535)) }"/> <!-- valid -->
+    <xs:element name="dfdlUShort11" type="xs:unsignedShort" dfdl:inputValueCalc="{ dfdl:unsignedShort('xFFFG') }"/> <!-- invalid -->
+    
+    <xs:element name="dfdlInt01" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(2147483647) }"/> <!-- valid -->
+    <xs:element name="dfdlInt02" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(2147483648) }"/> <!-- invalid -->
+    <xs:element name="dfdlInt03" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('2147483647') }"/> <!-- valid -->
+    <xs:element name="dfdlInt04" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('2147483648') }"/> <!-- invalid -->
+    <xs:element name="dfdlInt05" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('x7FFFFFFF') }"/> <!-- valid -->
+    <xs:element name="dfdlInt06" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('x80000000') }"/> <!-- invalid -->
+    <xs:element name="dfdlInt07" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(xs:long(2147483647)) }"/> <!-- valid -->
+    <xs:element name="dfdlInt08" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(xs:long(2147483648)) }"/> <!-- invalid -->
+    <xs:element name="dfdlInt09" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(dfdl:hexBinary(2147483647)) }"/> <!-- valid -->
+    <xs:element name="dfdlInt11" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int('x7FFFFFFG') }"/> <!-- invalid -->
+    <xs:element name="dfdlInt12" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(-2147483648) }"/> <!-- valid -->
+    <xs:element name="dfdlInt13" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(dfdl:hexBinary(dfdl:int(127))) }"/> <!-- invalid -->
+    <xs:element name="dfdlInt14" type="xs:integer" dfdl:inputValueCalc="{ dfdl:int(fn:concat('x', xs:string(dfdl:hexBinary(dfdl:int(125))))) }"/> <!-- valid -->
+    
+    <xs:element name="dfdlUInt01" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(4294967295) }"/> <!-- valid -->
+    <xs:element name="dfdlUInt02" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(4294967296) }"/> <!-- invalid -->
+    <xs:element name="dfdlUInt03" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('4294967295') }"/> <!-- valid -->
+    <xs:element name="dfdlUInt04" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('4294967296') }"/> <!-- invalid -->
+    <xs:element name="dfdlUInt05" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('xFFFFFFFF') }"/> <!-- valid -->
+    <xs:element name="dfdlUInt06" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('x100000000') }"/> <!-- invalid -->
+    <xs:element name="dfdlUInt07" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(xs:long(4294967295)) }"/> <!-- valid -->
+    <xs:element name="dfdlUInt08" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(xs:long(4294967296)) }"/> <!-- invalid -->
+    <xs:element name="dfdlUInt09" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(dfdl:hexBinary(4294967295)) }"/> <!-- valid -->
+    <xs:element name="dfdlUInt11" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt('xFFFFFFFG') }"/> <!-- invalid -->
+    <xs:element name="dfdlUInt12" type="xs:unsignedInt" dfdl:inputValueCalc="{ dfdl:unsignedInt(-1) }"/> <!-- invalid -->
+    
+    <xs:element name="dfdlLong01" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(9223372036854775807) }"/> <!-- valid -->
+    <xs:element name="dfdlLong02" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(9223372036854775808) }"/> <!-- invalid -->
+    <xs:element name="dfdlLong03" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('9223372036854775807') }"/> <!-- valid -->
+    <xs:element name="dfdlLong04" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('9223372036854775808') }"/> <!-- invalid -->
+    <xs:element name="dfdlLong05" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('x7FFFFFFFFFFFFFFF') }"/> <!-- valid -->
+    <xs:element name="dfdlLong06" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('x8000000000000000') }"/> <!-- invalid -->
+    <xs:element name="dfdlLong07" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(xs:integer(9223372036854775807)) }"/> <!-- valid -->
+    <xs:element name="dfdlLong08" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(xs:integer(9223372036854775808)) }"/> <!-- invalid -->
+    <xs:element name="dfdlLong09" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(dfdl:hexBinary(9223372036854775807)) }"/> <!-- valid -->
+    <xs:element name="dfdlLong11" type="xs:long" dfdl:inputValueCalc="{ dfdl:long('x7FFFFFFFFFFFFFFG') }"/> <!-- invalid -->
+    <xs:element name="dfdlLong12" type="xs:long" dfdl:inputValueCalc="{ dfdl:long(-9223372036854775808) }"/> <!-- valid -->
+    
+    <xs:element name="dfdlULong01" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(18446744073709551615) }"/> <!-- valid -->
+    <xs:element name="dfdlULong02" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(18446744073709551616) }"/> <!-- invalid -->
+    <xs:element name="dfdlULong03" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('18446744073709551615') }"/> <!-- valid -->
+    <xs:element name="dfdlULong04" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('18446744073709551616') }"/> <!-- invalid -->
+    <xs:element name="dfdlULong05" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('xFFFFFFFFFFFFFFFF') }"/> <!-- valid -->
+    <xs:element name="dfdlULong06" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('x10000000000000000') }"/> <!-- invalid -->
+    <xs:element name="dfdlULong07" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(xs:integer(18446744073709551615)) }"/> <!-- valid -->
+    <xs:element name="dfdlULong08" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(xs:integer(18446744073709551616)) }"/> <!-- invalid -->
+    <xs:element name="dfdlULong09" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(dfdl:hexBinary(9223372036854775807)) }"/> <!-- valid -->
+    <xs:element name="dfdlULong11" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong('xFFFFFFFFFFFFFFFG') }"/> <!-- invalid -->
+    <xs:element name="dfdlULong12" type="xs:unsignedLong" dfdl:inputValueCalc="{ dfdl:unsignedLong(-1) }"/> <!-- invalid -->
     
     <xs:element name="byte01">
       <xs:complexType>
@@ -5835,6 +5971,115 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: xsDateTime_constructor_06
+       Schema: constructorSchema
+         Root: dateTime05
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a string to a dateTime
+               123000 because of http://www.ogf.org/pipermail/dfdl-wg/2013-April/002434.html
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_06" root="dateTime05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1998-03-04T12:30:34.123456+00:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime05>
+          <string>1998-03-04T12:30:34.123456+00:00</string>
+          <dateTime>1998-03-04T12:30:34.123000+00:00</dateTime>
+        </dateTime05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_07
+       Schema: constructorSchema
+         Root: dateTime06
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its inability to
+               cast xs:time to xs:dateTime
+               123000 because of http://www.ogf.org/pipermail/dfdl-wg/2013-April/002434.html
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_07" root="dateTime06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Casting from xs:time to xs:dateTime can never succeed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_08
+       Schema: constructorSchema
+         Root: dateTime07
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a xs:date to a xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_08" root="dateTime07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<dateTime07>2014-10-23T00:00:00.000000+00:00</dateTime07>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_09
+       Schema: constructorSchema
+         Root: dateTime08
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its ability to
+               convert a xs:dateTime to a xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_09" root="dateTime08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<dateTime08>2014-10-23T04:55:30.000000+00:00</dateTime08>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: xsDateTime_constructor_10
+       Schema: constructorSchema
+         Root: dateTime09
+      Purpose: This test demonstrates the use of the xs:dateTime constructor function and its inability to
+               convert a xs:integer to a xs:dateTime
+  -->
+
+  <tdml:parserTestCase name="xsDateTime_constructor_10" root="dateTime09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:dateTime()  - DFDL-23-074R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dateTime</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  
+  <!--
     Test name: time_constructor_01
        Schema: constructorSchema
          Root: time01
@@ -5916,6 +6161,92 @@
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>"five o'clock"</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_05
+       Schema: constructorSchema
+         Root: time02
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               convert a string to a time
+  -->
+
+  <tdml:parserTestCase name="time_constructor_05" root="time02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12:49:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time02>
+          <string>12:49:00</string>
+          <time>12:49:00.000000+00:00</time>
+        </time02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_06
+       Schema: constructorSchema
+         Root: time03
+      Purpose: This test demonstrates the use of the xs:time constructor function and its inability to
+               cast a xs:date to xs:time
+  -->
+
+  <tdml:parserTestCase name="time_constructor_06" root="time03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Casting from xs:date to xs:time can never succeed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_07
+       Schema: constructorSchema
+         Root: time04
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               cast xs:time to xs:time
+  -->
+
+  <tdml:parserTestCase name="time_constructor_07" root="time04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<dfdl:time04>08:00:00.000000+00:00</dfdl:time04>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_constructor_08
+       Schema: constructorSchema
+         Root: time05
+      Purpose: This test demonstrates the use of the xs:time constructor function and its ability to
+               cast xs:dateTime to xs:time
+  -->
+
+  <tdml:parserTestCase name="time_constructor_08" root="time05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:time()  - DFDL-23-075R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<tdml:time05>08:00:00.000000+00:00</tdml:time05>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -8352,6 +8683,2491 @@
         <e4>
           <e2>http://first.com</e2>
         </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <!--
+    Test name: date_constructor_01
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string. In this case the string is not valid and an error will occur.
+               
+               NOTE: This appears to no longer fail because the ICU Calendar does not care when parsing
+               if it receives a two digit or single digit value for the day as long as it is within the
+               acceptable numeric range.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_01" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-4</tdml:documentPart>
+    </tdml:document>
+    <!-- <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid date "1991-03-4" (Day must be two digits)</tdml:error>
+    </tdml:errors> -->
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>
+          <string>1991-03-4</string>
+          <date>1991-03-04+00:00</date>
+        </date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_02
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_02" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>
+          <string>1991-03-04</string>
+          <date>1991-03-04+00:00</date>
+        </date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_03
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_03" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-045</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <!-- <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid date "1991-03-045" (Day must be two digits)</tdml:error> -->
+      <tdml:error>XSDate failed to convert "1991-03-045" to xs:date.</tdml:error>
+      <tdml:error>DAY_OF_MONTH=45, valid range=1..31</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_04
+       Schema: constructorSchema
+         Root: date01
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_04" root="date01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">2013-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date01>
+          <string>2013-03-04</string>
+          <date>2013-03-04+00:00</date>
+        </date01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_05
+       Schema: constructorSchema
+         Root: date02
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_05" root="date02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">2013-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date02>
+          <string>2013-03-04</string>
+          <date>2013-03-04+00:00</date>
+        </date02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_06
+       Schema: constructorSchema
+         Root: date03
+      Purpose: This test demonstrates the use of the xs:date constructor function and its inability to
+               cast xs:time to xs:date.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_06" root="date03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Casting from xs:time to xs:date can never succeed</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_07
+       Schema: constructorSchema
+         Root: date04
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               cast xs:date to xs:date.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_07" root="date04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<tdml:date04>2014-10-23+00:00</tdml:date04>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_constructor_08
+       Schema: constructorSchema
+         Root: date05
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               cast xs:dateTime to xs:date.
+  -->
+
+  <tdml:parserTestCase name="date_constructor_08" root="date05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<tdml:date05>2014-10-23-05:00</tdml:date05>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_01
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_01" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDEF123456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hexBinary01>
+          <string>ABCDEF123456</string>
+          <hexBinary>ABCDEF123456</hexBinary>
+        </hexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_02
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. In this case the length of the hexBinary is not even and 
+      an error will occur.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_02" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">ABCDEF12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>A hexBinary value must contain an even number of characters</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_03
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. 
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_03" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abcdef123456</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <hexBinary01>
+          <string>abcdef123456</string>
+          <hexBinary>ABCDEF123456</hexBinary>
+        </hexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: hexBinary_constructor_04
+       Schema: constructorSchema
+         Root: hexBinary01
+      Purpose: This test demonstrates the use of the xs:hexBinary constructor function and its ability to
+      construct a hexBinary string from a string. In this case some characters are invalid and the test
+      should result in an error.
+  -->
+
+  <tdml:parserTestCase name="hexBinary_constructor_04" root="hexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abcdefj12345</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Invalid hexadecimal digit</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <!--
+    Test name: dfdlHexBinary_constructor_01
+       Schema: constructorSchema
+         Root: dfdlHexBinary01
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_01" root="dfdlHexBinary01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary01>00D0</tdml:dfdlHexBinary01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_02
+       Schema: constructorSchema
+         Root: dfdlHexBinary02
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_02" root="dfdlHexBinary02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary02>00D0</tdml:dfdlHexBinary02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_03
+       Schema: constructorSchema
+         Root: dfdlHexBinary03
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_03" root="dfdlHexBinary03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlHexBinary03>F7DC</tdml:dfdlHexBinary03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlHexBinary_constructor_04
+       Schema: constructorSchema
+         Root: dfdlHexBinary04
+      Purpose: This test demonstrates the use of the dfdl:hexBinary constructor function and its ability to
+               construct a hexBinary string from a string.
+  -->
+
+  <tdml:parserTestCase name="dfdlHexBinary_constructor_04" root="dfdlHexBinary04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:hexBinary()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>could not fit into a long</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_01
+       Schema: constructorSchema
+         Root: dfdlByte01
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a literal number.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_01" root="dfdlByte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlByte01>127</tdml:dfdlByte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_02
+       Schema: constructorSchema
+         Root: dfdlByte02
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a literal number.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_02" root="dfdlByte02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 208 out of range for Byte type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_03
+       Schema: constructorSchema
+         Root: dfdlByte01
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a string of decimal digits.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_03" root="dfdlByte03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlByte03>127</tdml:dfdlByte03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_04
+       Schema: constructorSchema
+         Root: dfdlByte04
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a string of decimal digits.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_04" root="dfdlByte04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 208 out of range for Byte type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_03
+       Schema: constructorSchema
+         Root: dfdlByte01
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a string of hex digits.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_05" root="dfdlByte05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlByte05>127</tdml:dfdlByte05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_04
+       Schema: constructorSchema
+         Root: dfdlByte04
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a string of hex digits.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_06" root="dfdlByte06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 208 out of range for Byte type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_07
+       Schema: constructorSchema
+         Root: dfdlByte07
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a string of hex digits.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_07" root="dfdlByte07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "DG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_08
+       Schema: constructorSchema
+         Root: dfdlByte08
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_08" root="dfdlByte08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlByte08>127</tdml:dfdlByte08>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlByte_constructor_09
+       Schema: constructorSchema
+         Root: dfdlByte09
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_09" root="dfdlByte09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 208 out of range for Byte type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <!--
+    Test name: dfdlByte_constructor_10
+       Schema: constructorSchema
+         Root: dfdlByte10
+      Purpose: This test demonstrates the use of the dfdl:byte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlByte_constructor_10" root="dfdlByte10" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>received an unrecognized type!</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+     <!--
+    Test name: dfdlUByte_constructor_01
+       Schema: constructorSchema
+         Root: dfdlUByte01
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_01" root="dfdlUByte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUByte01>208</tdml:dfdlUByte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_02
+       Schema: constructorSchema
+         Root: dfdlUByte02
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_02" root="dfdlUByte02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 256 out of range for unsigned byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlUByte_constructor_03
+       Schema: constructorSchema
+         Root: dfdlUByte03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_03" root="dfdlUByte03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUByte03>208</tdml:dfdlUByte03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_04
+       Schema: constructorSchema
+         Root: dfdlUByte04
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_04" root="dfdlUByte04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 256 out of range for unsigned byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlUByte_constructor_05
+       Schema: constructorSchema
+         Root: dfdlUByte05
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_05" root="dfdlUByte05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUByte05>208</tdml:dfdlUByte05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_06
+       Schema: constructorSchema
+         Root: dfdlUByte06
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_06" root="dfdlUByte06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>violates maximum hex digits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlUByte_constructor_07
+       Schema: constructorSchema
+         Root: dfdlUByte07
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_07" root="dfdlUByte07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUByte07>208</tdml:dfdlUByte07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_08
+       Schema: constructorSchema
+         Root: dfdlUByte08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_08" root="dfdlUByte08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 256 out of range for unsigned byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_09
+       Schema: constructorSchema
+         Root: dfdlUByte09
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_09" root="dfdlUByte09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUByte_constructor_11
+       Schema: constructorSchema
+         Root: dfdlUByte11
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUByte_constructor_11" root="dfdlUByte11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:byte()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "DG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+   <!--
+    Test name: dfdlShort_constructor_01
+       Schema: constructorSchema
+         Root: dfdlShort01
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_01" root="dfdlShort01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlShort01>32767</tdml:dfdlShort01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_02
+       Schema: constructorSchema
+         Root: dfdlShort02
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_02" root="dfdlShort02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 32768 out of range for Short type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlShort_constructor_03
+       Schema: constructorSchema
+         Root: dfdlShort03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_03" root="dfdlShort03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlShort03>32767</tdml:dfdlShort03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_04
+       Schema: constructorSchema
+         Root: dfdlShort04
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_04" root="dfdlShort04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 32768 out of range for Short type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlShort_constructor_05
+       Schema: constructorSchema
+         Root: dfdlShort05
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_05" root="dfdlShort05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlShort05>32767</tdml:dfdlShort05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_06
+       Schema: constructorSchema
+         Root: dfdlShort06
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_06" root="dfdlShort06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 32768 out of range for Short type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlShort_constructor_07
+       Schema: constructorSchema
+         Root: dfdlShort07
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_07" root="dfdlShort07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlShort07>32767</tdml:dfdlShort07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_08
+       Schema: constructorSchema
+         Root: dfdlShort08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_08" root="dfdlShort08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 32768 out of range for Short type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_09
+       Schema: constructorSchema
+         Root: dfdlShort09
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_09" root="dfdlShort09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dfdl:short received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlShort_constructor_11
+       Schema: constructorSchema
+         Root: dfdlShort11
+      Purpose: This test demonstrates the use of the dfdl:short constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlShort_constructor_11" root="dfdlShort11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:short()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "7FFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_01
+       Schema: constructorSchema
+         Root: dfdlUShort01
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_01" root="dfdlUShort01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUShort01>65535</tdml:dfdlUShort01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_02
+       Schema: constructorSchema
+         Root: dfdlUShort02
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_02" root="dfdlUShort02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 65536 out of range for unsigned short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlUShort_constructor_03
+       Schema: constructorSchema
+         Root: dfdlUShort03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_03" root="dfdlUShort03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUShort03>65535</tdml:dfdlUShort03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_04
+       Schema: constructorSchema
+         Root: dfdlUShort04
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_04" root="dfdlUShort04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 65536 out of range for unsigned short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlUShort_constructor_05
+       Schema: constructorSchema
+         Root: dfdlUShort05
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_05" root="dfdlUShort05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUShort05>65535</tdml:dfdlUShort05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_06
+       Schema: constructorSchema
+         Root: dfdlUShort06
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_06" root="dfdlUShort06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>violates maximum hex digits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlUShort_constructor_07
+       Schema: constructorSchema
+         Root: dfdlUShort07
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_07" root="dfdlUShort07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUShort07>65535</tdml:dfdlUShort07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_08
+       Schema: constructorSchema
+         Root: dfdlUShort08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_08" root="dfdlUShort08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 65536 out of range for unsigned short</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_09
+       Schema: constructorSchema
+         Root: dfdlUShort09
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_09" root="dfdlUShort09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>dfdl:unsignedShort received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUShort_constructor_11
+       Schema: constructorSchema
+         Root: dfdlUShort11
+      Purpose: This test demonstrates the use of the dfdl:unsignedShort constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUShort_constructor_11" root="dfdlUShort11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedShort()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "FFFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_01
+       Schema: constructorSchema
+         Root: dfdlInt01
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_01" root="dfdlInt01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlInt01>2147483647</tdml:dfdlInt01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_02
+       Schema: constructorSchema
+         Root: dfdlInt02
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_02" root="dfdlInt02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 2147483648 out of range for Int type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlInt_constructor_03
+       Schema: constructorSchema
+         Root: dfdlInt03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_03" root="dfdlInt03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlInt03>2147483647</tdml:dfdlInt03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_04
+       Schema: constructorSchema
+         Root: dfdlInt04
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_04" root="dfdlInt04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 2147483648 out of range for Int type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlInt_constructor_05
+       Schema: constructorSchema
+         Root: dfdlInt05
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_05" root="dfdlInt05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlInt05>2147483647</tdml:dfdlInt05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_06
+       Schema: constructorSchema
+         Root: dfdlInt06
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_06" root="dfdlInt06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 2147483648 out of range for Int type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlInt_constructor_07
+       Schema: constructorSchema
+         Root: dfdlInt07
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_07" root="dfdlInt07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlInt07>2147483647</tdml:dfdlInt07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_08
+       Schema: constructorSchema
+         Root: dfdlInt08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_08" root="dfdlInt08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 2147483648 out of range for Int type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_09
+       Schema: constructorSchema
+         Root: dfdlInt09
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_09" root="dfdlInt09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dfdl:int received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_11
+       Schema: constructorSchema
+         Root: dfdlInt11
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_11" root="dfdlInt11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "7FFFFFFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_12
+       Schema: constructorSchema
+         Root: dfdlInt12
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_12" root="dfdlInt12" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlInt12>-2147483648</tdml:dfdlInt12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_13
+       Schema: constructorSchema
+         Root: dfdlInt13
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_13" root="dfdlInt13" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>0x7F cannot be cast to dfdl:int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlInt_constructor_14
+       Schema: constructorSchema
+         Root: dfdlInt14
+      Purpose: This test demonstrates the use of the dfdl:int constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlInt_constructor_14" root="dfdlInt14" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:int()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<tdml:dfdlInt14>125</tdml:dfdlInt14>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_01
+       Schema: constructorSchema
+         Root: dfdlUInt01
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_01" root="dfdlUInt01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUInt01>4294967295</tdml:dfdlUInt01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_02
+       Schema: constructorSchema
+         Root: dfdlUInt02
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_02" root="dfdlUInt02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 4294967296 out of range for unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlUInt_constructor_03
+       Schema: constructorSchema
+         Root: dfdlUInt03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_03" root="dfdlUInt03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUInt03>4294967295</tdml:dfdlUInt03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_04
+       Schema: constructorSchema
+         Root: dfdlUInt04
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_04" root="dfdlUInt04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 4294967296 out of range for unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlUInt_constructor_05
+       Schema: constructorSchema
+         Root: dfdlUInt05
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_05" root="dfdlUInt05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUInt05>4294967295</tdml:dfdlUInt05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_06
+       Schema: constructorSchema
+         Root: dfdlUInt06
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_06" root="dfdlUInt06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dfdl:unsignedInt</tdml:error>
+    	<tdml:error>violates maximum hex digits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlUInt_constructor_07
+       Schema: constructorSchema
+         Root: dfdlUInt07
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_07" root="dfdlUInt07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlUInt07>4294967295</tdml:dfdlUInt07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_08
+       Schema: constructorSchema
+         Root: dfdlUInt08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_08" root="dfdlUInt08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 4294967296 out of range for unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_09
+       Schema: constructorSchema
+         Root: dfdlUInt09
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_09" root="dfdlUInt09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_11
+       Schema: constructorSchema
+         Root: dfdlUInt11
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_11" root="dfdlUInt11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "FFFFFFFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlUInt_constructor_12
+       Schema: constructorSchema
+         Root: dfdlUInt12
+      Purpose: This test demonstrates the use of the dfdl:unsignedInt constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlUInt_constructor_12" root="dfdlUInt12" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedInt()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Negative value -1 cannot be converted to an unsigned int</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  
+  <!--
+    Test name: dfdlLong_constructor_01
+       Schema: constructorSchema
+         Root: dfdlLong01
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_01" root="dfdlLong01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlLong01>9223372036854775807</tdml:dfdlLong01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_02
+       Schema: constructorSchema
+         Root: dfdlLong02
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_02" root="dfdlLong02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 9223372036854775808 out of range for Long type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlLong_constructor_03
+       Schema: constructorSchema
+         Root: dfdlLong03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_03" root="dfdlLong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlLong03>9223372036854775807</tdml:dfdlLong03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_04
+       Schema: constructorSchema
+         Root: dfdlLong04
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_04" root="dfdlLong04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "9223372036854775808"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlLong_constructor_05
+       Schema: constructorSchema
+         Root: dfdlLong05
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_05" root="dfdlLong05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlLong05>9223372036854775807</tdml:dfdlLong05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_06
+       Schema: constructorSchema
+         Root: dfdlLong06
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_06" root="dfdlLong06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "8000000000000000"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlLong_constructor_07
+       Schema: constructorSchema
+         Root: dfdlLong07
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_07" root="dfdlLong07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlLong07>9223372036854775807</tdml:dfdlLong07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_08
+       Schema: constructorSchema
+         Root: dfdlLong08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_08" root="dfdlLong08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 9223372036854775808 out of range for Long type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_09
+       Schema: constructorSchema
+         Root: dfdlLong09
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_09" root="dfdlLong09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dfdl:long received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_11
+       Schema: constructorSchema
+         Root: dfdlLong11
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_11" root="dfdlLong11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type long: For input string: "7FFFFFFFFFFFFFFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlLong_constructor_12
+       Schema: constructorSchema
+         Root: dfdlLong12
+      Purpose: This test demonstrates the use of the dfdl:long constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlLong_constructor_12" root="dfdlLong12" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:long()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<tdml:dfdlLong12>-9223372036854775808</tdml:dfdlLong12>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <!--
+    Test name: dfdlULong_constructor_01
+       Schema: constructorSchema
+         Root: dfdlULong01
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_01" root="dfdlULong01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlULong01>18446744073709551615</tdml:dfdlULong01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_02
+       Schema: constructorSchema
+         Root: dfdlULong02
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_02" root="dfdlULong02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 18446744073709551616 out of range for UnsignedLong type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+       <!--
+    Test name: dfdlULong_constructor_03
+       Schema: constructorSchema
+         Root: dfdlULong03
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_03" root="dfdlULong03" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlULong03>18446744073709551615</tdml:dfdlULong03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_04
+       Schema: constructorSchema
+         Root: dfdlULong04
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_04" root="dfdlULong04" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 18446744073709551616 out of range for UnsignedLong type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+         <!--
+    Test name: dfdlULong_constructor_05
+       Schema: constructorSchema
+         Root: dfdlULong05
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_05" root="dfdlULong05" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlULong05>18446744073709551615</tdml:dfdlULong05>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_06
+       Schema: constructorSchema
+         Root: dfdlULong06
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_06" root="dfdlULong06" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>violates maximum hex digits</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+           <!--
+    Test name: dfdlULong_constructor_07
+       Schema: constructorSchema
+         Root: dfdlULong07
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_07" root="dfdlULong07" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tdml:dfdlULong07>18446744073709551615</tdml:dfdlULong07>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_08
+       Schema: constructorSchema
+         Root: dfdlULong08
+      Purpose: This test demonstrates the use of the dfdl:unsignedByte constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_08" root="dfdlULong08" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Value 18446744073709551616 out of range for UnsignedLong type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_09
+       Schema: constructorSchema
+         Root: dfdlULong09
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_09" root="dfdlULong09" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>dfdl:unsignedLong received an unrecognized type</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_11
+       Schema: constructorSchema
+         Root: dfdlULong11
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_11" root="dfdlULong11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Cannot convert to type unsignedLong: For input string: "FFFFFFG"</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: dfdlULong_constructor_12
+       Schema: constructorSchema
+         Root: dfdlULong12
+      Purpose: This test demonstrates the use of the dfdl:unsignedLong constructor function and its ability to
+               construct a hexBinary string from a short.
+  -->
+
+  <tdml:parserTestCase name="dfdlULong_constructor_12" root="dfdlULong12" model="constructorSchema"
+    description="Section 23 - Constructor Functions - dfdl:unsignedLong()  - DFDL-23-077R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+    	<tdml:error>Schema Definition Error</tdml:error>
+    	<tdml:error>Negative value -1 cannot be converted to an unsigned long</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_01
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. 
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_01" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">15</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>15</string>
+          <byte>15</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_02
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. 
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_02" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00110001 00110101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>15</string>
+          <byte>15</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_03
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. The range for a byte is -128 - 127 so this test should err out.
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_03" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 32 38</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>byte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: byte_constructor_04
+       Schema: constructorSchema
+         Root: byte01
+      Purpose: This test demonstrates the use of the xs:byte constructor function and its ability to
+      construct a byte from a numeric string. The range for a byte is -128 - 127.
+  -->
+
+  <tdml:parserTestCase name="byte_constructor_04" root="byte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:byte()  - DFDL-23-082R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 32 37</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <byte01>
+          <string>127</string>
+          <byte>127</byte>
+        </byte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_01
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_01" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50,30</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>-50</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_02
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_02" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50,60</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>-50</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>nonNegativeInteger</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_03
+       Schema: constructorSchema
+         Root: nonNeg01
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_03" root="nonNeg01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">50,700</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nonNeg01>
+          <string>50</string>
+          <string2>700</string2>
+          <nonNeg>750</nonNeg>
+        </nonNeg01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: nonNeg_constructor_04
+       Schema: constructorSchema
+         Root: nonNeg02
+      Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
+      construct a nonNegativeInteger from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="nonNeg_constructor_04" root="nonNeg02" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">abc</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>string</tdml:error>
+      <tdml:error>abc</tdml:error>
+      <tdml:error>Decimal</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_01
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string.
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_01" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-50</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>-50</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_02
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+      so this test should cause an error.
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_02" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4294967296</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+	  <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedInt</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_03
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_03" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">4294967295</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uint01>
+          <string>4294967295</string>
+          <uintified>4294967295</uintified>
+        </uint01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: uint_constructor_04
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedInt constructor function and its ability to
+      construct an unsigned Int from a numeric string. The range for unsignedInt is 0 - 4,294,967,295,
+  -->
+
+  <tdml:parserTestCase name="uint_constructor_04" root="uint01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedInt()  - DFDL-23-085R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">34 32 39 34 39 36 37 32 39 35</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <uint01>
+          <string>4294967295</string>
+          <uintified>4294967295</uintified>
+        </uint01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_01
+       Schema: constructorSchema
+         Root: uint01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_01" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-1</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>-1</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_02
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_02" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">255</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ubyte01>
+          <string>255</string>
+          <ubyte>255</ubyte>
+        </ubyte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_03
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_03" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">256</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>out of range</tdml:error>
+      <tdml:error>unsignedByte</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: ubyte_constructor_04
+       Schema: constructorSchema
+         Root: ubyte01
+      Purpose: This test demonstrates the use of the xs:unsignedByte constructor function and its ability to
+      construct an unsigned byte from a numeric string. The range for unsignedByte is 0 - 255
+  -->
+
+  <tdml:parserTestCase name="ubyte_constructor_04" root="ubyte01" model="constructorSchema"
+    description="Section 23 - Constructor Functions - xs:unsignedByte()  - DFDL-23-087R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">31 30 30 </tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ubyte01>
+          <string>100</string>
+          <ubyte>100</ubyte>
+        </ubyte01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
