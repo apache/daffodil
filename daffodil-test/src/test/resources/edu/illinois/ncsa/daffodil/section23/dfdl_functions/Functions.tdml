@@ -188,23 +188,23 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="containsEntity">
+    <xs:element name="containsDFDLEntities">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="str" type="xs:string"
             dfdl:representation="text" />
           <xs:element name="hasEntity" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity('TEST%NL;TEST') }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsDFDLEntities('TEST%NL;TEST') }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="containsEntity1">
+    <xs:element name="containsDFDLEntities1">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="str" type="xs:string"  dfdl:representation="text" />
           <xs:element name="hasEntity" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity(xs:string(/ex:containsEntity1/ex:str)) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsDFDLEntities(xs:string(/ex:containsDFDLEntities1/ex:str)) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2134,13 +2134,13 @@
   </tdml:parserTestCase>
 
 <!--
-    Test Name: containsEntity_0
+    Test Name: containsDFDLEntities_0
        Schema: Functions.dfdl.xsd
-         Root: containsEntity
-      Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
+         Root: containsDFDLEntities
+      Purpose: This test demonstrates the use of the containsDFDLEntities function to determine if a string contains an entity
 -->
 
-  <tdml:parserTestCase name="containsEntity_0" root="containsEntity"
+  <tdml:parserTestCase name="containsDFDLEntities_0" root="containsDFDLEntities"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2149,23 +2149,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <containsEntity>
+        <containsDFDLEntities>
           <str>%This is a test!%</str>
           <hasEntity>true</hasEntity>
-        </containsEntity>
+        </containsDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: containsEntity_1
+    Test Name: containsDFDLEntities_1
        Schema: Functions.dfdl.xsd
-         Root: containsEntity1
-      Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
+         Root: containsDFDLEntities1
+      Purpose: This test demonstrates the use of the containsDFDLEntities function to determine if a string contains an entity
                In this case the string does not contain an entity
 -->
 
-  <tdml:parserTestCase name="containsEntity_1" root="containsEntity1"
+  <tdml:parserTestCase name="containsDFDLEntities_1" root="containsDFDLEntities1"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2174,23 +2174,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <containsEntity1>
+        <containsDFDLEntities1>
           <str>This is a test!</str>
           <hasEntity>false</hasEntity>
-        </containsEntity1>
+        </containsDFDLEntities1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: containsEntity_2
+    Test Name: containsDFDLEntities_2
        Schema: Functions.dfdl.xsd
-         Root: containsEntity1
-      Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
+         Root: containsDFDLEntities1
+      Purpose: This test demonstrates the use of the containsDFDLEntities function to determine if a string contains an entity
                In this case the string contains an entity
 -->
 
-  <tdml:parserTestCase name="containsEntity_2" root="containsEntity1"
+  <tdml:parserTestCase name="containsDFDLEntities_2" root="containsDFDLEntities1"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2199,23 +2199,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <containsEntity1>
+        <containsDFDLEntities1>
           <str>%NUL;%SOH;;;%%;</str>
           <hasEntity>true</hasEntity>
-        </containsEntity1>
+        </containsDFDLEntities1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: containsEntity_3
+    Test Name: containsDFDLEntities_3
        Schema: Functions.dfdl.xsd
-         Root: containsEntity1
-      Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
+         Root: containsDFDLEntities1
+      Purpose: This test demonstrates the use of the containsDFDLEntities function to determine if a string contains an entity
                In this case the string contains an entity
 -->
 
-  <tdml:parserTestCase name="containsEntity_3" root="containsEntity1"
+  <tdml:parserTestCase name="containsDFDLEntities_3" root="containsDFDLEntities1"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2224,23 +2224,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <containsEntity1>
+        <containsDFDLEntities1>
           <str>%NUL;%SP;-</str>
           <hasEntity>true</hasEntity>
-        </containsEntity1>
+        </containsDFDLEntities1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: containsEntity_4
+    Test Name: containsDFDLEntities_4
        Schema: Functions.dfdl.xsd
-         Root: containsEntity1
-      Purpose: This test demonstrates the use of the containsEntity function to determine if a string contains an entity
+         Root: containsDFDLEntities1
+      Purpose: This test demonstrates the use of the containsDFDLEntities function to determine if a string contains an entity
                In this case the string contains an entity
 -->
 
-  <tdml:parserTestCase name="containsEntity_4" root="containsEntity1"
+  <tdml:parserTestCase name="containsDFDLEntities_4" root="containsDFDLEntities1"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2249,10 +2249,10 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <containsEntity1>
+        <containsDFDLEntities1>
           <str>%HT;%LF;</str>
           <hasEntity>true</hasEntity>
-        </containsEntity1>
+        </containsDFDLEntities1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

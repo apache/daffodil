@@ -649,11 +649,11 @@ class TestDFDLExpressions {
   @Test def test_setBits_1() { runner2.runOneTest("setBits_1") }
   @Test def test_setBits_2() { runner2.runOneTest("setBits_2") }
 
-  @Test def test_containsEntity_0() { runner2.runOneTest("containsEntity_0") }
-  @Test def test_containsEntity_1() { runner2.runOneTest("containsEntity_1") }
-  @Test def test_containsEntity_2() { runner2.runOneTest("containsEntity_2") }
-  @Test def test_containsEntity_3() { runner2.runOneTest("containsEntity_3") }
-  @Test def test_containsEntity_4() { runner2.runOneTest("containsEntity_4") }
+  @Test def test_containsDFDLEntities_0() { runner2.runOneTest("containsDFDLEntities_0") }
+  @Test def test_containsDFDLEntities_1() { runner2.runOneTest("containsDFDLEntities_1") }
+  @Test def test_containsDFDLEntities_2() { runner2.runOneTest("containsDFDLEntities_2") }
+  @Test def test_containsDFDLEntities_3() { runner2.runOneTest("containsDFDLEntities_3") }
+  @Test def test_containsDFDLEntities_4() { runner2.runOneTest("containsDFDLEntities_4") }
 
   @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
   @Test def test_occursCount_1() { runner2.runOneTest("occursCount_1") }
