@@ -1800,8 +1800,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>no such function</tdml:error>
-      <tdml:error>setBits with arity 6</tdml:error>
+      <tdml:error>setBits</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4611,7 +4610,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "forty-eight" to an integer</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>forty-eight</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4891,7 +4891,8 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Expression evaluation failed</tdml:error>
-      <tdml:error>Cannot convert string "not an int!" to an integer</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not an int</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -4976,7 +4977,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "not longable"</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not longable</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5062,7 +5064,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "not longable"</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not longable</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5192,7 +5195,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "not shortable"</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not shortable</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -5300,7 +5304,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "not shortable"</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not shortable</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5409,7 +5414,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "not decimalable"</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>not decimalable</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5763,7 +5769,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid dateTime value "02-03-1998T12:30:34" (Year is less than four digits)</tdml:error>
+      <tdml:error>"02-03-1998T12:30:34"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5807,7 +5813,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid dateTime value "1996-03-04T28:30:34" (Hour is out of range)</tdml:error>
+      <tdml:error>1996-03-04T28:30:34</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5827,7 +5833,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid dateTime value "about four-thirty or so" (Non-numeric year component)</tdml:error>
+      <tdml:error>about four-thirty or so</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5871,7 +5877,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid time "03:61:00" (minute is out of range)</tdml:error>
+      <tdml:error>"03:61:00"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5891,7 +5897,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid time "03:61:00" (minute is out of range)</tdml:error>
+      <tdml:error>"03:61:00"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5911,7 +5917,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid time "five o'clock" (hour must be two digits)</tdml:error>
+      <tdml:error>"five o'clock"</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -5975,7 +5981,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Invalid date "1991-03-045" (Day must be two digits)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6271,7 +6276,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Cannot convert string "abc" to an integer</tdml:error>
+      <tdml:error>Cannot convert</tdml:error>
+      <tdml:error>abc</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6291,8 +6297,6 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>out of range</tdml:error>
-      <tdml:error>unsignedInt</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6382,8 +6386,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>out of range</tdml:error>
-      <tdml:error>unsignedByte</tdml:error>
+      <tdml:error>unsigned</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -7340,8 +7343,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>empty()</tdml:error>
-      <tdml:error>zero arguments</tdml:error>
+      <tdml:error>empty</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
