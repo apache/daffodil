@@ -284,6 +284,20 @@
     <xs:element name="e_substring4" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 15, 5) }" />
     <xs:element name="e_substring5" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 20) }" />
     <xs:element name="e_substring6" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 4.7, 6.01) }" />
+    <xs:element name="e_substring7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="start" type="xs:double" dfdl:lengthKind="delimited"/>
+          <xs:element name="length" type="xs:double" dfdl:lengthKind="delimited"/>
+          <xs:element name="substring" type="xs:string" dfdl:inputValueCalc="{ fn:substring(../ex:string,../ex:start,../ex:length) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e_substring8" type="xs:string" dfdl:inputValueCalc="{ fn:substring((), 1, 2) }" />
+    <xs:element name="e_substring9" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -42, 1 div 0E0) }" />
+    <xs:element name="e_substring10" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -1 div 0E0, 1 div 0E0) }" />
+    <xs:element name="e_substring11" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -3, 5) }" />
 
     <xs:element name="e_stringlength1" type="xs:int" dfdl:inputValueCalc="{ fn:string-length('string') }" />
     <xs:element name="e_stringlength2" type="xs:int" dfdl:inputValueCalc="{ fn:string-length() }" />
@@ -605,6 +619,101 @@
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
 				<e_substring6>bstrin</e_substring6>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_07
+       Schema: Functions.dfdl.xsd
+         Root: e_substring7
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_07" root="e_substring7"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document>A substring test,3,-2</tdml:document>
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring7>
+					<string>A substring test</string>
+					<start>3.0</start>
+					<length>-2.0</length>
+					<substring/>
+				</e_substring7>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_08
+       Schema: Functions.dfdl.xsd
+         Root: e_substring8
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_08" root="e_substring8"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring8/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_09
+       Schema: Functions.dfdl.xsd
+         Root: e_substring9
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_09" root="e_substring9"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring9>12345</e_substring9>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_10
+       Schema: Functions.dfdl.xsd
+         Root: e_substring10
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_10" root="e_substring10"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring10/>
+			</tdml:dfdlInfoset>
+		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substring_11
+       Schema: Functions.dfdl.xsd
+         Root: e_substring11
+      Purpose: This test demonstrates the use of the substring function to return a portion of a string.
+-->
+
+	<tdml:parserTestCase name="substring_11" root="e_substring11"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring - DFDL-23-100R">
+
+		<tdml:document />
+		<tdml:infoset>
+			<tdml:dfdlInfoset>
+				<e_substring11>1</e_substring11>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
 	</tdml:parserTestCase>

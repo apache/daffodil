@@ -326,6 +326,11 @@ class TestDFDLExpressions {
   @Test def test_substring_04() { runner2.runOneTest("substring_04") }
   @Test def test_substring_05() { runner2.runOneTest("substring_05") }
   @Test def test_substring_06() { runner2.runOneTest("substring_06") }
+  //@Test def test_substring_07() { runner2.runOneTest("substring_07") }
+  @Test def test_substring_08() { runner2.runOneTest("substring_08") }
+  @Test def test_substring_09() { runner2.runOneTest("substring_09") }
+  @Test def test_substring_10() { runner2.runOneTest("substring_10") }
+  @Test def test_substring_11() { runner2.runOneTest("substring_11") }
   
   @Test def test_stringlength_01() { runner2.runOneTest("stringlength_01") }
   @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }

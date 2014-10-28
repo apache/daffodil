@@ -118,6 +118,7 @@ class TestDFDLExpressionsDebug {
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
+  @Test def test_substring_07() { runner2.runOneTest("substring_07") }
   @Test def test_substringbefore_04() { runner2.runOneTest("substringbefore_04") }
   @Test def test_substringbefore_05() { runner2.runOneTest("substringbefore_05") }
   @Test def test_substringafter_04() { runner2.runOneTest("substringafter_04") }
