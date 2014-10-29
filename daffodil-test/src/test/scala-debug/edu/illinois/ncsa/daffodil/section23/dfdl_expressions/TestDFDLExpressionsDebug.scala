@@ -103,6 +103,8 @@ class TestDFDLExpressionsDebug {
   @Test def test_exists_04() { runner2.runOneTest("exists_04") }
   @Test def test_exists_06() { runner2.runOneTest("exists_06") }
   @Test def test_exists_07() { runner2.runOneTest("exists_07") }
+  @Test def test_not_05() { runner2.runOneTest("not_05") }
+  @Test def test_not_07() { runner2.runOneTest("not_07") }
   
   //DFDL-1120
   @Test def test_exists_10() { runner2.runOneTest("exists_10") }
