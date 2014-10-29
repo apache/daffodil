@@ -658,13 +658,14 @@ class TestDFDLExpressions {
   @Test def test_containsDFDLEntities_3() { runner2.runOneTest("containsDFDLEntities_3") }
   @Test def test_containsDFDLEntities_4() { runner2.runOneTest("containsDFDLEntities_4") }
 
-  @Test def test_occursCount_0() { runner2.runOneTest("occursCount_0") }
-  @Test def test_occursCount_1() { runner2.runOneTest("occursCount_1") }
-  @Test def test_occursCount_1b() { runner2.runOneTest("occursCount_1b") }
-  @Test def test_occursCount_1b_2() { runner2.runOneTest("occursCount_1b_2") }
-  @Test def test_occursCount_2() { runner2.runOneTest("occursCount_2") }
-  @Test def test_occursCount_3() { runner2.runOneTest("occursCount_3") }
-  @Test def test_occursCount_3b() { runner2.runOneTest("occursCount_3b") }
+  //DFDL-1118
+  //@Test def test_more_count_0() { runner2.runOneTest("more_count_0") }
+  //@Test def test_more_count_1() { runner2.runOneTest("more_count_1") }
+  //@Test def test_more_count_1b() { runner2.runOneTest("more_count_1b") }
+  //@Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
+  //@Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
+  @Test def test_more_count_3() { runner2.runOneTest("more_count_3") }
+  @Test def test_more_count_3b() { runner2.runOneTest("more_count_3b") }
 
   //  @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   //  @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }

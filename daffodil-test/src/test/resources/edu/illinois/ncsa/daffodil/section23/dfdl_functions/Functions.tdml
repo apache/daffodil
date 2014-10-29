@@ -99,12 +99,12 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="occursCount">
+    <xs:element name="more_count">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount ) eq 3 }"
+          <dfdl:assert test="{ fn:count( /ex:more_count ) eq 3 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount ) eq 3" />
+            failed for fn:count( /ex:more_count ) eq 3" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -116,12 +116,12 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="occursCount1">
+    <xs:element name="more_count1">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1 ) eq 3 }"
+          <dfdl:assert test="{ fn:count( /ex:more_count1 ) eq 3 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount ) eq 3" />
+            failed for fn:count( /ex:more_count ) eq 3" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -131,12 +131,12 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="occursCount1b">
+    <xs:element name="more_count1b">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1b ) eq 1 }"
+          <dfdl:assert test="{ fn:count( /ex:more_count1b ) eq 1 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount ) eq 1" />
+            failed for fn:count( /ex:more_count ) eq 1" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -146,7 +146,7 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="occursCount2">
+    <xs:element name="more_count2">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="array">
@@ -156,12 +156,12 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount2/ex:array) }"/>
+          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:more_count2/ex:array) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="occursCount3">
+    <xs:element name="more_count3">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="array">
@@ -171,7 +171,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount3/ex:array/ex:i1) }"/>
+          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:more_count3/ex:array/ex:i1) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1836,13 +1836,13 @@
   </tdml:parserTestCase>
   
 <!--
-    Test Name: occursCount_0
+    Test Name: more_count_0
        Schema: Functions.dfdl.xsd
-         Root: occursCount
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count
+      Purpose: This test demonstrates the use of the count function
 -->
 
-  <tdml:parserTestCase name="occursCount_0" root="occursCount"
+  <tdml:parserTestCase name="more_count_0" root="more_count"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1851,23 +1851,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount>
+        <more_count>
           <i1>1</i1>
           <i2>2</i2>
           <i3>3</i3>
-        </occursCount>
+        </more_count>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
-    Test Name: occursCount_1
+    Test Name: more_count_1
        Schema: Functions.dfdl.xsd
-         Root: occursCount1
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count1
+      Purpose: This test demonstrates the use of the count function
 -->
 
-  <tdml:parserTestCase name="occursCount_1" root="occursCount1"
+  <tdml:parserTestCase name="more_count_1" root="more_count1"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1876,23 +1876,23 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount1>
+        <more_count1>
           <i1>1</i1>
           <i1>2</i1>
           <i1>3</i1>
-        </occursCount1>
+        </more_count1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
-    Test Name: occursCount_1b
+    Test Name: more_count_1b
        Schema: Functions.dfdl.xsd
-         Root: occursCount1b
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count1b
+      Purpose: This test demonstrates the use of the count function
 -->
 
-  <tdml:parserTestCase name="occursCount_1b" root="occursCount1b"
+  <tdml:parserTestCase name="more_count_1b" root="more_count1b"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1901,22 +1901,22 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount1b>
+        <more_count1b>
           <i1>1</i1>
-        </occursCount1b>
+        </more_count1b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: occursCount_1b_2
+    Test Name: more_count_1b_2
        Schema: Functions.dfdl.xsd
-         Root: occursCount1b
-      Purpose: This test demonstrates the use of the occursCount function and
+         Root: more_count1b
+      Purpose: This test demonstrates the use of the count function and
                that the assertion will fail if the count is greater than 1.
 -->
 
-  <tdml:parserTestCase name="occursCount_1b_2" root="occursCount1b"
+  <tdml:parserTestCase name="more_count_1b_2" root="more_count1b"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1924,18 +1924,18 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Assertion failed</tdml:error>
-      <tdml:error>dfdl:occursCount( /ex:occursCount ) eq 1</tdml:error>
+      <tdml:error>dfdl:more_count( /ex:more_count ) eq 1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
-    Test Name: occursCount_2
+    Test Name: more_count_2
        Schema: Functions.dfdl.xsd
-         Root: occursCount2
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count2
+      Purpose: This test demonstrates the use of the count function
 -->
 
-  <tdml:parserTestCase name="occursCount_2" root="occursCount2"
+  <tdml:parserTestCase name="more_count_2" root="more_count2"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1944,7 +1944,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount2>
+        <more_count2>
           <array>
             <i1>1</i1>
             <i1>2</i1>
@@ -1953,19 +1953,19 @@
             <i1>5</i1>
           </array>
           <occurs>5</occurs>
-        </occursCount2>
+        </more_count2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
-    Test Name: occursCount_3
+    Test Name: more_count_3
        Schema: Functions.dfdl.xsd
-         Root: occursCount3
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count3
+      Purpose: This test demonstrates the use of the count function
 -->
 
-  <tdml:parserTestCase name="occursCount_3" root="occursCount3"
+  <tdml:parserTestCase name="more_count_3" root="more_count3"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -1974,27 +1974,27 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount3>
+        <more_count3>
           <array>
             <i1>1</i1>
             <i1>2</i1>
             <i1>3</i1>
           </array>
           <occurs>3</occurs>
-        </occursCount3>
+        </more_count3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
-    Test Name: occursCount_3b
+    Test Name: more_count_3b
        Schema: Functions.dfdl.xsd
-         Root: occursCount3
-      Purpose: This test demonstrates the use of the occursCount function
+         Root: more_count3
+      Purpose: This test demonstrates the use of the count function
                In this case there is only one occurrence.      
 -->
 
-  <tdml:parserTestCase name="occursCount_3b" root="occursCount3"
+  <tdml:parserTestCase name="more_count_3b" root="more_count3"
     model="Functions.dfdl.xsd" description="Section 23 ">
 
     <tdml:document>
@@ -2003,12 +2003,12 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <occursCount3>
+        <more_count3>
           <array>
             <i1>1</i1>
           </array>
           <occurs>1</occurs>
-        </occursCount3>
+        </more_count3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
