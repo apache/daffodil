@@ -124,6 +124,14 @@ class TestDFDLExpressionsDebug {
   @Test def test_substringafter_04() { runner2.runOneTest("substringafter_04") }
   @Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
 
+  //DFDL-1095
+  @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
+  @Test def test_contains_07() { runner2.runOneTest("contains_07") }
+  @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
+  @Test def test_endswith_07() { runner2.runOneTest("endswith_07") }
+  @Test def test_substringbefore_07() { runner2.runOneTest("substringbefore_07") }
+  @Test def test_substringafter_07() { runner2.runOneTest("substringafter_07") }
+
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))

@@ -350,6 +350,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_contains6" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('test', 'est', 'collation') }" />
 
     <xs:element name="e_startswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'The q') }" />
     <xs:element name="e_startswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'he qu') }" />
@@ -364,6 +365,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_startswith6" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('test', 'te', 'collation') }" />
 
     <xs:element name="e_endswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'fox.') }" />
     <xs:element name="e_endswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'The') }" />
@@ -378,6 +380,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_endswith6" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('test', 'est', 'collation') }" />
 
     <xs:element name="e_substringbefore1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', 'quick') }" />
     <xs:element name="e_substringbefore2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before((), ()) }" />
@@ -391,6 +394,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_substringbefore5" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('test', 's', 'collation') }" />
 
     <xs:element name="e_substringafter1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', 'brown') }" />
     <xs:element name="e_substringafter2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after((), ()) }" />
@@ -404,6 +408,7 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    <xs:element name="e_substringafter5" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('test', 'e', 'collation') }" />
 
 </tdml:defineSchema>
   
@@ -747,11 +752,11 @@
 		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:string-length - DFDL-23-101R">
 
 		<tdml:document />
-		<tdml:infoset>
-			<tdml:dfdlInfoset>
-				<e_stringlength2>0</e_stringlength2>
-			</tdml:dfdlInfoset>
-		</tdml:infoset>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:string-length</tdml:error>
+			<tdml:error>takes 1 argument</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
@@ -1096,6 +1101,24 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: contains_07
+       Schema: Functions.dfdl.xsd
+         Root: e_contains6
+      Purpose: This test demonstrates the use of the contains function to indicate whether one string contains another.
+-->
+
+	<tdml:parserTestCase name="contains_07" root="e_contains6"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:contains - DFDL-23-104R">
+
+		<tdml:document/>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:contains</tdml:error>
+			<tdml:error>takes 2 arguments</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
     Test Name: startswith_01
        Schema: Functions.dfdl.xsd
          Root: e_startswith1
@@ -1212,6 +1235,24 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: startswith_07
+       Schema: Functions.dfdl.xsd
+         Root: e_startswith6
+      Purpose: This test demonstrates the use of the starts-with function to indicate whether one string starts with another.
+-->
+
+	<tdml:parserTestCase name="startswith_07" root="e_startswith6"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:starts-with - DFDL-23-105R">
+
+		<tdml:document/>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:starts-with</tdml:error>
+			<tdml:error>takes 2 arguments</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
     Test Name: endswith_01
        Schema: Functions.dfdl.xsd
          Root: e_endswith1
@@ -1325,6 +1366,24 @@
 				</e_endswith5>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: endswith_07
+       Schema: Functions.dfdl.xsd
+         Root: e_endswith6
+      Purpose: This test demonstrates the use of the ends-with function to indicate whether one string ends with another.
+-->
+
+	<tdml:parserTestCase name="endswith_07" root="e_endswith6"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:ends-with - DFDL-23-106R">
+
+		<tdml:document/>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:ends-with</tdml:error>
+			<tdml:error>takes 2 arguments</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
@@ -1448,6 +1507,24 @@
 	</tdml:parserTestCase>
 
 <!--
+    Test Name: substringbefore_07
+       Schema: Functions.dfdl.xsd
+         Root: e_substringbefore5
+      Purpose: This test demonstrates the use of the substring-before function which returns the substring from the first argument that precedes the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringbefore_07" root="e_substringbefore5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-before - DFDL-23-107R">
+
+		<tdml:document/>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:substring-before</tdml:error>
+			<tdml:error>takes 2 arguments</tdml:error>
+		</tdml:errors>
+	</tdml:parserTestCase>
+
+<!--
     Test Name: substringafter_01
        Schema: Functions.dfdl.xsd
          Root: e_substringafter1
@@ -1565,6 +1642,24 @@
 				</e_substringafter4>
 			</tdml:dfdlInfoset>
 		</tdml:infoset>
+	</tdml:parserTestCase>
+
+<!--
+    Test Name: substringafter_07
+       Schema: Functions.dfdl.xsd
+         Root: e_substringafter5
+      Purpose: This test demonstrates the use of the substring-after function which returns the substring from the first argument that comes after the substring contained in the second argument.
+-->
+
+	<tdml:parserTestCase name="substringafter_07" root="e_substringafter5"
+		model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:substring-after - DFDL-23-108R">
+
+		<tdml:document/>
+		<tdml:errors>
+			<tdml:error>Schema Definition Error</tdml:error>
+			<tdml:error>Function fn:substring-after</tdml:error>
+			<tdml:error>takes 2 arguments</tdml:error>
+		</tdml:errors>
 	</tdml:parserTestCase>
 
 <!--
