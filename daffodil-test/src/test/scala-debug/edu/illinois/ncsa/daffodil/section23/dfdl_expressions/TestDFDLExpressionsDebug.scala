@@ -69,6 +69,9 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
+  
+  //DFDL-1115
+  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
 
   //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }

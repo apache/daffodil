@@ -563,8 +563,8 @@ class TestDFDLExpressions {
   // DFDL-827
   @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
-  // DFDL-827
-  @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
+  //DFDL-1115
+  //@Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
   @Test def test_xsDateTime_constructor_04() { runner2.runOneTest("xsDateTime_constructor_04") }
   @Test def test_xsDateTime_constructor_05() { runner2.runOneTest("xsDateTime_constructor_05") }
 
