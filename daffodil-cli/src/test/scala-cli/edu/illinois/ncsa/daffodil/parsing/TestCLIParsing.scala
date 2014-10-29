@@ -82,6 +82,7 @@ class TestCLIparsing {
 
     val shell = Util.start(cmd)
 
+    shell.expect(contains("<tns:row2"))
     shell.expect(contains(output12))
 
     shell.send("exit\n")
@@ -121,6 +122,7 @@ class TestCLIparsing {
     var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
     var shell = Util.start(cmd)
   
+    shell.expect(contains("<rabbitHole"))
     shell.expect(contains(output10))
     shell.send("exit\n")
     shell.expect(eof())
@@ -131,6 +133,7 @@ class TestCLIparsing {
     var cmd = "echo test| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_16.dfdl.xsd\n"
     var shell = Util.start(cmd)
 
+    shell.expect(contains("<rabbitHole"))
     shell.expect(contains(output10))
     shell.send("exit\n")
     shell.expect(eof())
@@ -142,6 +145,7 @@ class TestCLIparsing {
     var cmd = "echo abcabcabc| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"
     val shell = Util.start(cmd)
 
+    shell.expect(contains("<ABC"))
     shell.expect(contains(output8))
     shell.send("exit\n")
     shell.expect(eof())
@@ -153,6 +157,7 @@ class TestCLIparsing {
     var cmd = "echo 0,1,2| daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
     val shell = Util.start(cmd)
 
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
     shell.send("exit\n")
     shell.expect(eof())
@@ -186,6 +191,7 @@ class TestCLIparsing {
   @Test def test_979_CLI_Parsing_SimpleParse_inFile() {
     val cmd = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -196,6 +202,7 @@ class TestCLIparsing {
   @Test def test_980_CLI_Parsing_SimpleParse_stOutDash() {
     val cmd = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -o - daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -206,6 +213,7 @@ class TestCLIparsing {
   @Test def test_981_CLI_Parsing_SimpleParse_stdInDash() {
     val cmd = "echo 0,1,2,3| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output2))
 
     shell.send("exit\n")
@@ -257,6 +265,7 @@ class TestCLIparsing {
   @Test def test_985_CLI_Parsing_SimpleParse_defaultRoot() {
     val cmd = "echo 0,1,2,3| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output2))
 
     shell.send("exit\n")
@@ -268,7 +277,9 @@ class TestCLIparsing {
     val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
     val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp2\n"
     val shell = Util.start(cmd)
-    shell.expect(contains(expected))
+    shell.expect(contains("<tns:hcp2"))
+    shell.expect(contains("12"))
+    shell.expect(contains("</tns:hcp2>"))
 
     shell.send("exit\n")
     shell.expect(eof())
@@ -299,7 +310,9 @@ class TestCLIparsing {
     val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
     val cmd = "echo 12| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r hcp2\n"
     val shell = Util.start(cmd)
-    shell.expect(contains(expected))
+    shell.expect(contains("<tns:hcp2"))
+    shell.expect(contains("12"))
+    shell.expect(contains("</tns:hcp2>"))
 
     shell.send("exit\n")
     shell.expect(eof())
@@ -307,6 +320,7 @@ class TestCLIparsing {
 
     val cmd2 = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
     val shell2 = Util.start(cmd2)
+    shell2.expect(contains("<address"))
     shell2.expect(contains(output4))
 
     shell2.send("exit\n")
@@ -317,7 +331,7 @@ class TestCLIparsing {
   @Test def test_1002_CLI_Parsing_negativeTest03() {
     val cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -P parserThatDoesNotExist\n"
     val shell = Util.start(cmd, true)
-    shell.expect(contains("Only one of --parser and --schema may be defined"))
+    shell.expect(contains("Bad arguments for option 'parser': 'parserThatDoesNotExist' - file 'parserThatDoesNotExist' doesn't exist"))
 
     shell.send("exit\n")
     shell.expect(eof())
@@ -330,6 +344,7 @@ class TestCLIparsing {
     val cmdLin = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r {}address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
     val cmd = if (Util.isWindows) cmdWin else cmdLin
     val shell = Util.start(cmd)
+    shell.expect(contains("<address"))
     shell.expect(contains(output4))
 
     shell.send("exit\n")
@@ -340,6 +355,7 @@ class TestCLIparsing {
   @Test def test_1004_CLI_Parsing_SimpleParse_namespaceUsed() {
     val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd -r {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output6))
 
     shell.send("exit\n")
@@ -350,6 +366,7 @@ class TestCLIparsing {
   @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt() {
     val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd --root {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output6))
 
     shell.send("exit\n")
@@ -365,7 +382,9 @@ class TestCLIparsing {
     val cmd = if (Util.isWindows) cmdWindows else cmdLinux
 
     val shell = Util.startNoConvert(cmd)
-    shell.expect(contains(expected))
+    shell.expect(contains("<tns:hcp2"))
+    shell.expect(contains("12"))
+    shell.expect(contains("</tns:hcp2>"))
 
     shell.send("exit\n")
     shell.expect(eof())
@@ -375,6 +394,7 @@ class TestCLIparsing {
   @Test def test_1015_CLI_Parsing_SimpleParse_defaultRootMultSchema() {
     val cmd = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<address"))
     shell.expect(contains(output4))
 
     shell.send("exit\n")
@@ -385,6 +405,7 @@ class TestCLIparsing {
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOn() {
     var cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate on\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -395,6 +416,7 @@ class TestCLIparsing {
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validation() {
     var cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -405,6 +427,7 @@ class TestCLIparsing {
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationLimited() {
     var cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate limited\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -415,6 +438,7 @@ class TestCLIparsing {
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOff() {
     var cmd = "echo 0,1,2| ./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate off\n"
     val shell = Util.start(cmd)
+    shell.expect(contains("<tns:matrix"))
     shell.expect(contains(output1))
 
     shell.send("exit\n")
@@ -461,6 +485,7 @@ class TestCLIparsing {
       println("Run " + x + " of 10")
       val cmd = "./daffodil-cli/target/start parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
       val shell = Util.start(cmd)
+      shell.expect(contains("<address"))
       shell.expect(contains(output4))
 
       shell.send("exit\n")
@@ -515,7 +540,10 @@ class TestCLIparsing {
 
     val cmd = "./daffodil-cli/target/start parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
     val shell = Util.start(cmd)
-    shell.expect(contains(output))
+    shell.expect(contains("<tns:elem"))
+    shell.expect(contains("<tns:content"))
+    shell.expect(contains("Hello World"))
+    shell.expect(contains("</tns:elem>"))
 
     shell.send("exit\n")
     shell.expect(eof())

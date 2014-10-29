@@ -1,4 +1,3 @@
-<tns:matrix xmlns:tns="target">
   <tns:row>
     <tns:cell>0</tns:cell>
     <tns:cell>1</tns:cell>
