@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.parsers.LeadingSkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.TrailingSkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
@@ -106,8 +107,8 @@ trait Padded { self: Terminal =>
       val theJust = eBase.primType match {
 
         case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-          PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
-          PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+          PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
+          PrimType.UnsignedLong | PrimType.Double | PrimType.Float | PrimType.Decimal |
           PrimType.NonNegativeInteger => {
           padChar = eBase.textNumberPadCharacter
           eBase.textNumberJustification match {

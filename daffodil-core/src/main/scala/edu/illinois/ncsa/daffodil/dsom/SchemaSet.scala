@@ -51,6 +51,9 @@ import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+
 import java.io.File
 
 /**
@@ -447,11 +450,11 @@ class SchemaSet(
   }
   def getDefineEscapeScheme(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
 
-  def getPrimitiveType(ns: NS, localName: String) = {
+  def getPrimType(ns: NS, localName: String) = {
     if (ns != XMLUtils.XSD_NAMESPACE) // must check namespace
       None
     else
-      PrimType.allPrimitiveTypes.find { _.name == localName }
+      NodeInfo.PrimType.fromNameString(localName)
   }
 
   /**

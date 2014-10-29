@@ -1,7 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
-import edu.illinois.ncsa.daffodil.dsom.PrimitiveType
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.FacetTypes
 import scala.xml.NamespaceBinding
@@ -12,13 +11,13 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.RuntimePrimType
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EncodingMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
@@ -39,7 +38,7 @@ class ElementRuntimeData(
   override val path: String,
   override val namespaces: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
-  val optPrimType: Option[RuntimePrimType],
+  val optPrimType: Option[PrimType],
   val targetNamespace: NS,
   val patternValues: Option[Seq[FacetTypes.FacetValueR]],
   val enumerationValues: Option[String],

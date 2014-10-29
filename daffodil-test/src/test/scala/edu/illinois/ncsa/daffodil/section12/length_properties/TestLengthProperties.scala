@@ -116,11 +116,11 @@ class TestLengthProperties {
     assertEquals(384, res)
   }
 
-  @Test def test_bitULong() { runner_02.runOneTest("bitULong") }
-  @Test def test_bitULong2() { runner_02.runOneTest("bitULong2") }
-  @Test def test_bitULong3() { runner_02.runOneTest("bitULong3") }
-  @Test def test_bitULong4() { runner_02.runOneTest("bitULong4") }
-  @Test def test_bitULong5() { runner_02.runOneTest("bitULong5") }
+  @Test def test_bitUnsignedLong() { runner_02.runOneTest("bitUnsignedLong") }
+  @Test def test_bitUnsignedLong2() { runner_02.runOneTest("bitUnsignedLong2") }
+  @Test def test_bitUnsignedLong3() { runner_02.runOneTest("bitUnsignedLong3") }
+  @Test def test_bitUnsignedLong4() { runner_02.runOneTest("bitUnsignedLong4") }
+  @Test def test_bitUnsignedLong5() { runner_02.runOneTest("bitUnsignedLong5") }
   @Test def test_bitUCombo() { runner_02.runOneTest("bitUCombo") }
   @Test def test_bitUCombo2() { runner_02.runOneTest("bitUCombo2") }
 

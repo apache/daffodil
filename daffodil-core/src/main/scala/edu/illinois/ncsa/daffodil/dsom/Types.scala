@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /////////////////////////////////////////////////////////////////
 // Type System
@@ -121,9 +122,9 @@ trait TypeConversions extends TypeChecks {
       }
     }
 
-  def convertToUByte(s: Any, context: ThrowsSDE) =
+  def convertToUnsignedByte(s: Any, context: ThrowsSDE) =
     tryCatch(context, "Cannot convert %s to UnsignedByte.", s) {
-      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UByte, context)
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UnsignedByte, context)
       if (!isSuccess) context.SDE("Cannot convert %s to UnsignedByte. Failed range checks.", s.toString)
       theValue match {
         case Some(bd) => bd.toShort
@@ -131,9 +132,9 @@ trait TypeConversions extends TypeChecks {
       }
     }
 
-  def convertToUShort(s: Any, context: ThrowsSDE) =
+  def convertToUnsignedShort(s: Any, context: ThrowsSDE) =
     tryCatch(context, "Cannot convert %s to UnsignedShort.", s) {
-      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UShort, context)
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UnsignedShort, context)
       if (!isSuccess) context.SDE("Cannot convert %s to UnsignedShort. Failed range checks.", s.toString)
       theValue match {
         case Some(bd) => bd.toInt
@@ -141,9 +142,9 @@ trait TypeConversions extends TypeChecks {
       }
     }
 
-  def convertToUInt(s: Any, context: ThrowsSDE) =
+  def convertToUnsignedInt(s: Any, context: ThrowsSDE) =
     tryCatch(context, "Cannot convert %s to UnsignedInt.", s) {
-      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UInt, context)
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UnsignedInt, context)
       if (!isSuccess) context.SDE("Cannot convert %s to UnsignedInt. Failed range checks.", s.toString)
       theValue match {
         case Some(bd) => bd.toLong
@@ -151,9 +152,9 @@ trait TypeConversions extends TypeChecks {
       }
     }
 
-  def convertToULong(s: Any, context: ThrowsSDE) =
+  def convertToUnsignedLong(s: Any, context: ThrowsSDE) =
     tryCatch(context, "Cannot convert %s to UnsignedLong.", s) {
-      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.ULong, context)
+      val (isSuccess, theValue) = this.checkRangeReturnsValue(s.toString, PrimType.UnsignedLong, context)
       if (!isSuccess) context.SDE("Cannot convert %s to UnsignedLong. Failed range checks.", s.toString)
       theValue match {
         case Some(bd) => bd
@@ -210,7 +211,7 @@ trait TypeChecks {
     bd
   }
 
-  private def convertStringToBigDecimal(value: String, primitiveType: PrimType.Type, context: ThrowsSDE): java.math.BigDecimal = {
+  private def convertStringToBigDecimal(value: String, primitiveType: PrimType, context: ThrowsSDE): java.math.BigDecimal = {
     primitiveType match {
       case PrimType.DateTime => dateToBigDecimal(value, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", PrimType.DateTime.toString(), context)
       case PrimType.Date => dateToBigDecimal(value, "uuuu-MM-ddxxx", PrimType.Date.toString(), context)
@@ -219,7 +220,7 @@ trait TypeChecks {
     }
   }
 
-  def checkRangeReturnsValue(value: String, primitiveType: PrimType.Type, theContext: ThrowsSDE): (Boolean, Option[BigDecimal]) = {
+  def checkRangeReturnsValue(value: String, primitiveType: PrimType, theContext: ThrowsSDE): (Boolean, Option[BigDecimal]) = {
     // EmptyString is only valid for hexBinary and String
     if ((value == null | value.length() == 0)) {
       return primitiveType match {
@@ -253,10 +254,10 @@ trait TypeChecks {
           case PrimType.Short => isInShortRange(theValue)
           case PrimType.Long => isInLongRange(theValue)
           case PrimType.Integer => true // Unbounded Integer
-          case PrimType.UInt => isInUnsignedIntRange(theValue)
-          case PrimType.UByte => isInUnsignedByteRange(theValue)
-          case PrimType.UShort => isInUnsignedShortRange(theValue)
-          case PrimType.ULong => isInUnsignedLongRange(theValue)
+          case PrimType.UnsignedInt => isInUnsignedIntRange(theValue)
+          case PrimType.UnsignedByte => isInUnsignedByteRange(theValue)
+          case PrimType.UnsignedShort => isInUnsignedShortRange(theValue)
+          case PrimType.UnsignedLong => isInUnsignedLongRange(theValue)
           case PrimType.Double => isInDoubleRange(theValue)
           case PrimType.Float => isInFloatRange(theValue)
           case PrimType.DateTime => true
@@ -277,8 +278,8 @@ trait TypeChecks {
         }
         primitiveType match {
           case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
-            PrimType.ULong => if (!isValueWhole) theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
+            PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
+            PrimType.UnsignedLong => if (!isValueWhole) theContext.SDE("checkRange - Value (%s) must be a whole number.", value)
           case _ => // OK
         }
         (res, Some(theValue))
@@ -286,7 +287,7 @@ trait TypeChecks {
     }
   }
 
-  def checkRange(value: String, primitiveType: PrimType.Type, theContext: ThrowsSDE): Boolean = {
+  def checkRange(value: String, primitiveType: PrimType, theContext: ThrowsSDE): Boolean = {
     val (boolResult, _) = checkRangeReturnsValue(value, primitiveType, theContext)
     boolResult
   }

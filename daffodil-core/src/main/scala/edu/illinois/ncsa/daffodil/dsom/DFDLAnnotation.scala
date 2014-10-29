@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /**
  * Base class for any DFDL annotation
@@ -709,7 +710,8 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   lazy val typeQName = QName.resolveRef(typeQNameString, namespaces).getOrElse(
     SDE("Variables must have primitive types. Type is '%s'.", typeQNameString))
 
-  lazy val primType = RuntimePrimType(typeQName.local, this)
+  lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
+    this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
   lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
 
   // So that we can display the namespace information associated with

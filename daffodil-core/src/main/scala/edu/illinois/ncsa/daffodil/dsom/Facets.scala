@@ -37,6 +37,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Enum
 import scala.util.matching.Regex
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 trait Facets { self: SimpleTypeDefBase =>
   import Facet._
@@ -356,25 +357,25 @@ trait Facets { self: SimpleTypeDefBase =>
                 facetType, localFacet)
             }
           }
-          case PrimType.UInt => {
+          case PrimType.UnsignedInt => {
             if (!isFacetInUnsignedIntRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of unsigned int range.",
                 facetType, localFacet)
             }
           }
-          case PrimType.UByte => {
+          case PrimType.UnsignedByte => {
             if (!isFacetInUnsignedByteRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of unsigned byte range.",
                 facetType, localFacet)
             }
           }
-          case PrimType.UShort => {
+          case PrimType.UnsignedShort => {
             if (!isFacetInUnsignedShortRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of unsigned short range.",
                 facetType, localFacet)
             }
           }
-          case PrimType.ULong => {
+          case PrimType.UnsignedLong => {
             if (!isFacetInUnsignedLongRange(theLocalFacet)) {
               context.SDE("%s facet value (%s) was found to be outside of unsigned long range.",
                 facetType, localFacet)

@@ -151,7 +151,7 @@ abstract class Expression extends OOLAGHost
    * <p>
    * For setVariable and newVariableInstance, it is the type of the variable.
    * <p>
-   * For dfdl:length and dfdl:occursCount it is UInt
+   * For dfdl:length and dfdl:occursCount it is UnsignedInt
    * <p>
    * For the test properties of assert/discriminator it is Boolean
    * <p>
@@ -257,7 +257,8 @@ case class NumberComparisonExpression(op: String, adds: List[Expression])
   extends ExpressionLists(adds) with BooleanExpression {
 
   lazy val compareOp: NumberCompareOp = {
-    import NodeInfo._
+    import NodeInfo.PrimType._
+    import NodeInfo.ArrayIndex
     (op, convergedArgType) match {
       case ("<", Decimal) => LT_Decimal
       case ("lt", Decimal) => LT_Decimal
@@ -714,7 +715,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
     if (!(steps == Nil)) steps.last.inherentType
     else {
       rootElement.optPrimType match {
-        case Some(pt) => NodeInfo.fromPrimType(pt)
+        case Some(pt) => pt
         case None => {
           // this is the more common case. Only in unit tests will the
           // root element be simple type. 
@@ -884,8 +885,7 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
       if (stepElement.optPrimType.isDefined) {
         // simple type, so 
         val pt = stepElement.optPrimType.get
-        val nt = NodeInfo.fromPrimType(pt)
-        nt
+        pt
       } else {
         NodeInfo.Complex
       }
@@ -1129,8 +1129,7 @@ case class VariableRef(val qnameString: String)
 
   lazy val varType = {
     val vt = vrd.primType
-    val ni = NodeInfo.fromPrimType(vt)
-    ni
+    vt
   }
 
   override lazy val inherentType: NodeInfo.Kind = varType

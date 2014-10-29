@@ -122,7 +122,7 @@ class TresysTests {
 
   val st = testDir + "simple-type-bases.tdml"
   lazy val runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
-  @Test def test_simpleTypeDerivedFromPrimitiveType() { runnerST.runOneTest("st-prim") }
+  @Test def test_simpleTypeDerivedFromPrimType() { runnerST.runOneTest("st-prim") }
   @Test def test_simpleTypeChainedDerivations() { runnerST.runOneTest("st-derived") }
   @Test def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("st-prim-err1") }
   @Test def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1") }

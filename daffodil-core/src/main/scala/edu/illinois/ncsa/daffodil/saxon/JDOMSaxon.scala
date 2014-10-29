@@ -39,9 +39,9 @@ package edu.illinois.ncsa.daffodil.saxon
 //    convertTo match {
 //      case ConvertToType.Long => XPathConstants.NUMBER
 //      case ConvertToType.Double => XPathConstants.NUMBER
-//      case ConvertToType.Int | ConvertToType.UInt | ConvertToType.Integer |
-//        ConvertToType.UInteger | ConvertToType.Short | ConvertToType.UShort => XPathConstants.NUMBER
-//      case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UByte | ConvertToType.ULong => XPathConstants.NUMBER
+//      case ConvertToType.Int | ConvertToType.UnsignedInt | ConvertToType.Integer |
+//        ConvertToType.UnsignedInteger | ConvertToType.Short | ConvertToType.UnsignedShort => XPathConstants.NUMBER
+//      case ConvertToType.Decimal | ConvertToType.Byte | ConvertToType.UnsignedByte | ConvertToType.UnsignedLong => XPathConstants.NUMBER
 //      case ConvertToType.String => XPathConstants.STRING
 //      case ConvertToType.Element => XPathConstants.NODE
 //      case ConvertToType.Boolean => XPathConstants.BOOLEAN
@@ -249,15 +249,15 @@ package edu.illinois.ncsa.daffodil.saxon
 //            case ConvertToType.Double => convertToDouble(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Int => convertToInt(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Byte => convertToByte(n.toString, pstate).asInstanceOf[T]
-//            case ConvertToType.UByte => convertToUByte(n.toString, pstate).asInstanceOf[T]
+//            case ConvertToType.UnsignedByte => convertToUnsignedByte(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Short => convertToShort(n.toString, pstate).asInstanceOf[T]
-//            case ConvertToType.UShort => convertToUShort(n.toString, pstate).asInstanceOf[T]
-//            case ConvertToType.UInt => convertToUInt(n.toString, pstate).asInstanceOf[T]
+//            case ConvertToType.UnsignedShort => convertToUnsignedShort(n.toString, pstate).asInstanceOf[T]
+//            case ConvertToType.UnsignedInt => convertToUnsignedInt(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Boolean => convertToBoolean(n.toString, pstate).asInstanceOf[T]
-//            case ConvertToType.ULong => convertToULong(n.toString, pstate).asInstanceOf[T]
+//            case ConvertToType.UnsignedLong => convertToUnsignedLong(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Integer => convertToInteger(n.toString, pstate).asInstanceOf[T]
 //            case ConvertToType.Decimal => convertToDecimal(n.toString, pstate).asInstanceOf[T]
-//            case ConvertToType.UInteger => convertToNonNegativeInteger(n.toString, pstate).asInstanceOf[T]
+//            case ConvertToType.UnsignedInteger => convertToNonNegativeInteger(n.toString, pstate).asInstanceOf[T]
 //            case _ => n.asInstanceOf[T]
 //          }
 //        } catch {

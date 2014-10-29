@@ -178,7 +178,7 @@ object TestUtils {
 
 
 /**
- * We need a schema document and such for unit testing, also our PrimitiveType
+ * We need a schema document and such for unit testing, also our PrimType
  * needs a dummy schema document also so that our invariant, that *everything*
  * has a schema document, schema, and schema set
  * holds true even when we're not building up a "real" schema.

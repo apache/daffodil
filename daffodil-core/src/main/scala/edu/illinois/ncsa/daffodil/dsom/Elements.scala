@@ -47,6 +47,8 @@ import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /////////////////////////////////////////////////////////////////
 // Elements System
@@ -219,7 +221,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
 
-  lazy val optPrimType: Option[RuntimePrimType] = Misc.boolToOpt(isSimpleType, primType.typeRuntimeData)
+  lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
 
   def isScalar: Boolean
   def isOptional: Boolean
@@ -253,7 +255,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val defaultValue =
     if (isDefaultable) {
-      val value = Infoset.convertToInfosetRepType(primType.typeRuntimeData, defaultValueAsString, this)
+      val value = Infoset.convertToInfosetRepType(
+        primType, // .typeRuntimeData, 
+        defaultValueAsString, this)
       Some(value)
     } else None
 
@@ -411,7 +415,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
-  def getImplicitAlignmentInBits(thePrimType: PrimType.Type, theRepresentation: Representation): Int = {
+  def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
     theRepresentation match {
       case Representation.Text =>
         thePrimType match {
@@ -421,10 +425,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       case Representation.Binary =>
         thePrimType match {
           case PrimType.String => Assert.impossible("type xs:string with representation='binary'")
-          case PrimType.Double | PrimType.Long | PrimType.ULong => 64
-          case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
-          case PrimType.Short | PrimType.UShort => 16
-          case PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UByte | PrimType.NonNegativeInteger => 8
+          case PrimType.Double | PrimType.Long | PrimType.UnsignedLong => 64
+          case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
+          case PrimType.Short | PrimType.UnsignedShort => 16
+          case PrimType.Integer | PrimType.Decimal | PrimType.Byte | PrimType.UnsignedByte | PrimType.NonNegativeInteger => 8
           case PrimType.DateTime | PrimType.Date | PrimType.Time =>
             binaryCalendarRep match {
               case BinaryCalendarRep.BinaryMilliseconds => 64
@@ -579,96 +583,96 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   // 11/1/2012 - moved to base since needed by patternValue
-  lazy val isPrimitiveType = typeDef.isInstanceOf[PrimitiveType]
+  lazy val isPrimType = typeDef.isInstanceOf[PrimType]
 
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
   lazy val hasPattern: Boolean = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasPattern
     } else { false }
   }
   lazy val hasEnumeration: Boolean = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasEnumeration
     } else { false }
   }
 
   lazy val hasMinLength = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinLength
     } else { false }
   }
 
   lazy val hasMaxLength = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxLength
     } else { false }
   }
 
   lazy val hasMinInclusive = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinInclusive
     } else { false }
   }
 
   lazy val hasMaxInclusive = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxInclusive
     } else { false }
   }
 
   lazy val hasMinExclusive = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinExclusive
     } else { false }
   }
 
   lazy val hasMaxExclusive = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxExclusive
     } else { false }
   }
 
   lazy val hasTotalDigits = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasTotalDigits
     } else { false }
   }
 
   lazy val hasFractionDigits = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasFractionDigits
     } else { false }
   }
 
   lazy val patternValues: Seq[FacetValueR] = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasPattern) {
         val pt = st.primitiveType
         if (pt != PrimType.String) SDE("Pattern is only allowed to be applied to string and types derived from string.")
         st.patternValues
       } else SDE("Pattern was not found in this context.")
-    } else SDE("Pattern was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("Pattern was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val enumerationValues: String = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasEnumeration) st.enumerationValues
       else SDE("Enumeration was not found in this context.")
-    } else SDE("Enumeration was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("Enumeration was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   /**
@@ -684,7 +688,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
     schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
     elementSimpleType match {
-      case prim: PrimitiveType => {
+      case prim: PrimType => {
         schemaDefinitionWhen((prim == PrimType.String || prim == PrimType.HexBinary) && lengthKind == LengthKind.Implicit,
           "Facets minLength and maxLength must be defined for type %s with lengthKind='implicit'",
           prim.name)
@@ -725,7 +729,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
         }
         res
       }
-      case _ => Assert.invariantFailed("should only be a PrimitiveType or SimpleTypeDefBase")
+      case _ => Assert.invariantFailed("should only be a PrimType or SimpleTypeDefBase")
     }
   }
 
@@ -735,7 +739,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // Same thing applies to the other paired facets where there is lots of 
   // common logic associated with checking.
   lazy val minInclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (st.hasMinInclusive && st.hasMaxExclusive) {
@@ -748,11 +752,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
       if (st.hasMinInclusive) st.minInclusiveValue
       else SDE("MinInclusive was not found in this context.")
-    } else SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val maxInclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMaxInclusive && st.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
       if (st.hasMaxInclusive && st.hasMinExclusive) {
@@ -765,11 +769,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
       if (st.hasMaxInclusive) st.maxInclusiveValue
       else SDE("MaxInclusive was not found in this context.")
-    } else SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val minExclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
       if (st.hasMaxInclusive && st.hasMinExclusive) {
@@ -782,11 +786,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
       if (st.hasMinExclusive) st.minExclusiveValue
       else SDE("MinExclusive was not found in this context.")
-    } else SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val maxExclusive: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMaxExclusive && st.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
       if (st.hasMaxExclusive && st.hasMinInclusive) {
@@ -799,31 +803,31 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
       if (st.hasMaxExclusive) st.maxExclusiveValue
       else SDE("MaxExclusive was not found in this context.")
-    } else SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val totalDigits: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasTotalDigits) {
         // Can only be applied to decimal or any of the integer types, and
         // types derived from them
-        val isDerivedFromDecimal = st.isXDerivedFromY(st.primitiveType.name, "decimal")
-        val isDerivedFromInteger = st.isXDerivedFromY(st.primitiveType.name, "integer")
+        val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primitiveType.name, "decimal")
+        val isDerivedFromInteger = NodeInfo.isXDerivedFromY(st.primitiveType.name, "integer")
         if (isDerivedFromDecimal || isDerivedFromInteger) st.totalDigitsValue
         else {
           SDE("TotalDigits facet can only be applied to decimal or any of the integer types, and types derived from them. Restriction base is %s", st.primitiveType.name)
         }
       } else SDE("TotalDigits was not found in this context.")
-    } else SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val fractionDigits: java.math.BigDecimal = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasFractionDigits) {
         // Can only be applied to decimal
-        val isDerivedFromDecimal = st.isXDerivedFromY(st.primitiveType.name, "decimal")
+        val isDerivedFromDecimal = NodeInfo.isXDerivedFromY(st.primitiveType.name, "decimal")
         if (isDerivedFromDecimal) {
           if (st.hasTotalDigits) {
             val res = st.fractionDigitsValue.compareTo(st.totalDigitsValue)
@@ -834,11 +838,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
           SDE("FractionDigits facet can only be applied to decimal. Restriction base is %s", st.primitiveType.name)
         }
       } else SDE("FractionDigits was not found in this context.")
-    } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimitiveType(%s)", isSimpleType, isPrimitiveType)
+    } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
   lazy val allFacets: Seq[FacetValue] = {
-    if (isSimpleType && !isPrimitiveType) {
+    if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.combinedBaseFacets
     } else scala.collection.mutable.Seq.empty
@@ -901,8 +905,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   //        eBase.primType match {
   //
   //          case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
-  //            PrimType.Integer | PrimType.UInt | PrimType.UByte | PrimType.UShort |
-  //            PrimType.ULong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+  //            PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
+  //            PrimType.UnsignedLong | PrimType.Double | PrimType.Float | PrimType.Decimal |
   //            PrimType.NonNegativeInteger => {
   //            eBase.textNumberJustification match {
   //              case TextNumberJustification.Left => false
@@ -972,7 +976,7 @@ trait LocalElementMixin
   lazy val lengthKnownToBeGreaterThanZero = lengthKnownToBeGreaterThanZero_.value
   private val lengthKnownToBeGreaterThanZero_ = LV('lengthKnownToBeGreaterThanZero) {
     val pt = {
-      if (isPrimitiveType) typeDef.asInstanceOf[PrimitiveType]
+      if (isPrimType) typeDef.asInstanceOf[PrimType]
       else {
         val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
         st.primitiveType
@@ -999,7 +1003,7 @@ trait LocalElementMixin
       else if (emptyIsAnObservableConcept) true
       else {
         val pt = {
-          if (isPrimitiveType) typeDef.asInstanceOf[PrimitiveType]
+          if (isPrimType) typeDef.asInstanceOf[PrimType]
           else {
             val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
             st.primitiveType
@@ -1317,7 +1321,7 @@ trait ElementDeclMixin
       case Some(RefQName(_, localpart, ns)) => {
 
         val ss = schemaSet
-        val prim = ss.getPrimitiveType(ns, localpart)
+        val prim = ss.getPrimType(ns, localpart)
         //
         if (prim != None) prim
         else {

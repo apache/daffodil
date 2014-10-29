@@ -5,7 +5,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import com.ibm.icu.util.Calendar
-import edu.illinois.ncsa.daffodil.dsom.PrimType
 import edu.illinois.ncsa.daffodil.xml.NS
 import scala.xml.PrefixedAttribute
 import com.ibm.icu.util.GregorianCalendar
@@ -22,10 +21,10 @@ import scala.xml.Null
 import scala.util.DynamicVariable
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.dsom.RuntimePrimType
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 sealed trait DINode extends {
   def toXML: scala.xml.NodeSeq
@@ -181,7 +180,7 @@ class DISimple(val erd: ElementRuntimeData)
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string.
     //
-    val nodeKind = NodeInfo.fromPrimType(erd.optPrimType.get)
+    val nodeKind = erd.optPrimType.get
     if (x.isInstanceOf[String]) {
       if (!nodeKind.isInstanceOf[NodeInfo.String.Kind]) {
         // This is normal behavior for text numbers. First we parse the string
@@ -536,7 +535,7 @@ object Infoset {
     }
   }
 
-  import PrimType._
+  import NodeInfo.PrimType._
 
   def newElement(erd: ElementRuntimeData): InfosetElement = {
     if (erd.isSimpleType) new DISimple(erd)
@@ -560,8 +559,8 @@ object Infoset {
    * For use during compilation of a schema. Not for runtime, as this
    * can be slow.
    */
-  def convertToInfosetRepType(primType: RuntimePrimType, value: String, context: ThrowsSDE): Any = {
-    import RuntimePrimType._
+  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): Any = {
+    import NodeInfo.PrimType._
     primType match {
       case String => value
       case Int => java.lang.Integer.parseInt(value)
@@ -570,25 +569,25 @@ object Infoset {
       case Long => java.lang.Long.parseLong(value)
       case Integer => new java.math.BigInteger(value)
       case Decimal => new java.math.BigDecimal(value)
-      case UInt => {
+      case UnsignedInt => {
         val res = java.lang.Long.parseLong(value)
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.pname)
+        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
       }
-      case UByte => {
+      case UnsignedByte => {
         val res = java.lang.Short.parseShort(value)
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.pname)
+        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
       }
-      case UShort => {
+      case UnsignedShort => {
         val res = java.lang.Integer.parseInt(value)
-        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.pname)
+        context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
       }
-      case ULong => {
+      case UnsignedLong => {
         val res = new java.math.BigInteger(value)
-        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.pname)
+        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
       }
       case NonNegativeInteger => {
         val res = new java.math.BigInteger(value)
-        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.pname)
+        context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
       }
       case Double => java.lang.Double.parseDouble(value)
       case Float => java.lang.Float.parseFloat(value)
@@ -596,7 +595,7 @@ object Infoset {
       case Boolean => {
         if (value == "true") true
         if (value == "false") false
-        else context.schemaDefinitionError("Cannot convert %s to %s.", value, primType.pname)
+        else context.schemaDefinitionError("Cannot convert %s to %s.", value, primType.name)
       }
       case Time => {
         val cal = new GregorianCalendar()

@@ -24,11 +24,12 @@ import scala.math.BigDecimal
 import org.w3c.dom.NodeList
 import javax.xml.xpath.XPathFunction
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 object DFDLCheckConstraintsFunction {
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
   import util.control.Breaks._
-  import edu.illinois.ncsa.daffodil.dsom.PrimType._
+  import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType._
   /**
    * Used for validation purposes when ValidationMode is Limited or Full.
    *
@@ -55,7 +56,7 @@ object DFDLCheckConstraintsFunction {
     val e = currentElement.erd
     import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
     import util.control.Breaks._
-    import edu.illinois.ncsa.daffodil.dsom.PrimType._
+    import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType._
     val data =
       if (!currentElement.isNilled) currentElement.dataValueAsString
       else ""
@@ -148,15 +149,15 @@ object DFDLCheckConstraintsFunction {
   }
 
   def checkMinLength(data: String, minValue: java.math.BigDecimal,
-    e: ElementRuntimeData, primType: RuntimePrimType): java.lang.Boolean = {
+    e: ElementRuntimeData, primType: PrimType): java.lang.Boolean = {
     primType match {
-      case RuntimePrimType.String => {
+      case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
         val isDataLengthLess = bdData.compareTo(minValue) < 0
         if (isDataLengthLess) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
-      case RuntimePrimType.HexBinary => {
+      case PrimType.HexBinary => {
         // Has to come through as a string in infoset
         // hex string is exactly twice as long as number of bytes
         // take length / 2 = length
@@ -170,15 +171,15 @@ object DFDLCheckConstraintsFunction {
   }
 
   def checkMaxLength(data: String, maxValue: java.math.BigDecimal,
-    e: ElementRuntimeData, primType: RuntimePrimType): java.lang.Boolean = {
+    e: ElementRuntimeData, primType: PrimType): java.lang.Boolean = {
     primType match {
-      case RuntimePrimType.String => {
+      case PrimType.String => {
         val bdData = new java.math.BigDecimal(data.length())
         val isDataLengthGreater = bdData.compareTo(maxValue) > 0
         if (isDataLengthGreater) java.lang.Boolean.FALSE
         else java.lang.Boolean.TRUE
       }
-      case RuntimePrimType.HexBinary => {
+      case PrimType.HexBinary => {
         // Has to come through as a string in infoset
         // hex string is exactly twice as long as number of bytes
         // take length / 2 = length
@@ -206,35 +207,35 @@ object DFDLCheckConstraintsFunction {
   }
 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
-  def convertDataToBigDecimal(data: String, primType: RuntimePrimType, e: ElementRuntimeData): java.math.BigDecimal = {
+  def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementRuntimeData): java.math.BigDecimal = {
     primType match {
-      case RuntimePrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
-      case RuntimePrimType.Date => dateToBigDecimal(data, "uuuu-MM-ddxxx", e)
-      case RuntimePrimType.Time => dateToBigDecimal(data, "HH:mm:ss.SSSSSSxxx", e)
+      case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
+      case PrimType.Date => dateToBigDecimal(data, "uuuu-MM-ddxxx", e)
+      case PrimType.Time => dateToBigDecimal(data, "HH:mm:ss.SSSSSSxxx", e)
       case _ => new java.math.BigDecimal(data)
     }
   }
 
-  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: RuntimePrimType, e: ElementRuntimeData): Boolean = {
+  def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementRuntimeData): Boolean = {
     //    val bdData = new java.math.BigDecimal(data)
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
     isDataGreaterThanEqToMinInc
   }
 
-  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: RuntimePrimType, e: ElementRuntimeData): Boolean = {
+  def checkMinExc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinExc = bdData.compareTo(minValue) > 0
     isDataGreaterThanEqToMinExc
   }
 
-  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: RuntimePrimType, e: ElementRuntimeData): Boolean = {
+  def checkMaxInc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanEqToMaxInc = bdData.compareTo(maxValue) <= 0
     isDataLessThanEqToMaxInc
   }
 
-  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: RuntimePrimType, e: ElementRuntimeData): Boolean = {
+  def checkMaxExc(data: String, maxValue: java.math.BigDecimal, primType: PrimType, e: ElementRuntimeData): Boolean = {
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataLessThanMaxExc = bdData.compareTo(maxValue) < 0
     isDataLessThanMaxExc

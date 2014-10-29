@@ -10,8 +10,7 @@ import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
-import edu.illinois.ncsa.daffodil.dsom.PrimType
-import edu.illinois.ncsa.daffodil.dsom.RuntimePrimType
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
@@ -118,7 +117,7 @@ class VariableRuntimeData(
   @deprecated("use globalQName", "2014-09-18") val extName: String,
   @deprecated("use globalQName", "2014-09-18") val extType: String,
   val globalQName: GlobalQName,
-  val primType: RuntimePrimType)
+  val primType: PrimType)
   extends NonTermRuntimeData(
     null, // no variable map
     sfl,

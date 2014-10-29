@@ -192,8 +192,8 @@ case class InputValueCalc(e: ElementBase)
   override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
 
-  lazy val pt = e.primType.typeRuntimeData
-  override lazy val nodeKind = NodeInfo.fromPrimType(pt)
+  lazy val pt = e.primType //.typeRuntimeData
+  override lazy val nodeKind = pt
   lazy val ptn = pt.name
   lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 

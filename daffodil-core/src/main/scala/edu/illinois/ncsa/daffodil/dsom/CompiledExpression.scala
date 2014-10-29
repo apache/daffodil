@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -234,7 +235,7 @@ class DPathElementCompileInfo(
   val name: String,
   val isArray: Boolean,
   val namedQName: NamedQName,
-  val optPrimType: Option[RuntimePrimType],
+  val optPrimType: Option[PrimType],
   sfl: SchemaFileLocation,
   val elementChildrenCompileInfo: Seq[DPathElementCompileInfo])
   extends DPathCompileInfo(parentArg, variableMap, namespaces, path, sfl)

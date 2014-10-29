@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
@@ -233,10 +234,10 @@ trait ElementBaseGrammarMixin
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
   lazy val implicitBinaryLengthInBits: Long = primType match {
-    case PrimType.Byte | PrimType.UByte => 8
-    case PrimType.Short | PrimType.UShort => 16
-    case PrimType.Float | PrimType.Int | PrimType.UInt | PrimType.Boolean => 32
-    case PrimType.Double | PrimType.Long | PrimType.ULong => 64
+    case PrimType.Byte | PrimType.UnsignedByte => 8
+    case PrimType.Short | PrimType.UnsignedShort => 16
+    case PrimType.Float | PrimType.Int | PrimType.UnsignedInt | PrimType.Boolean => 32
+    case PrimType.Double | PrimType.Long | PrimType.UnsignedLong => 64
     case _ => schemaDefinitionError("Size of binary data '" + primType.name + "' cannot be determined implicitly.")
   }
 
@@ -687,7 +688,7 @@ trait ElementBaseGrammarMixin
         }
       }
 
-      case PrimType.UByte | PrimType.UShort | PrimType.UInt | PrimType.ULong | PrimType.NonNegativeInteger => {
+      case PrimType.UnsignedByte | PrimType.UnsignedShort | PrimType.UnsignedInt | PrimType.UnsignedLong | PrimType.NonNegativeInteger => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
           case -1 => new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber(this)
@@ -754,10 +755,10 @@ trait ElementBaseGrammarMixin
       case PrimType.Long => textLong
       case PrimType.Integer => textInteger
       case PrimType.Decimal => textDecimal
-      case PrimType.UInt => textUnsignedInt
-      case PrimType.UByte => textUnsignedByte
-      case PrimType.UShort => textUnsignedShort
-      case PrimType.ULong => textUnsignedLong
+      case PrimType.UnsignedInt => textUnsignedInt
+      case PrimType.UnsignedByte => textUnsignedByte
+      case PrimType.UnsignedShort => textUnsignedShort
+      case PrimType.UnsignedLong => textUnsignedLong
       case PrimType.NonNegativeInteger => textNonNegativeInteger // Should be treated as unsigned xs:integer
       case PrimType.Double => textDouble
       case PrimType.Float => textFloat

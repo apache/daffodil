@@ -109,8 +109,8 @@ class TestAlignedData {
   @Test def test_impAlignmentHexBinary() = { runner1.runOneTest("impAlignmentHexBinary") }
   @Test def test_impAlignmentHexBinary2() = { runner1.runOneTest("impAlignmentHexBinary2") }
 
-  @Test def test_implicitAlignmentUInt() = { runner1.runOneTest("implicitAlignmentUInt") }
-  @Test def test_implicitAlignmentUShort() = { runner1.runOneTest("implicitAlignmentUShort") }
+  @Test def test_implicitAlignmentUnsignedInt() = { runner1.runOneTest("implicitAlignmentUnsignedInt") }
+  @Test def test_implicitAlignmentUnsignedShort() = { runner1.runOneTest("implicitAlignmentUnsignedShort") }
 
   @Test def test_implicitAlignmentInt() = { runner1.runOneTest("implicitAlignmentInt") }
   @Test def test_implicitAlignmentInt2() = { runner1.runOneTest("implicitAlignmentInt2") }
@@ -123,27 +123,27 @@ class TestAlignedData {
   @Test def test_implicitAlignmentLongTBits() = { runner1.runOneTest("implicitAlignmentLongTBits") }
   @Test def test_implicitAlignmentByte() = { runner1.runOneTest("implicitAlignmentByte") }
   @Test def test_implicitAlignmentByte2() = { runner1.runOneTest("implicitAlignmentByte2") }
-  @Test def test_implicitAlignmentUByte() = { runner1.runOneTest("implicitAlignmentUByte") }
-  @Test def test_implicitAlignmentUByte2() = { runner1.runOneTest("implicitAlignmentUByte2") }
+  @Test def test_implicitAlignmentUnsignedByte() = { runner1.runOneTest("implicitAlignmentUnsignedByte") }
+  @Test def test_implicitAlignmentUnsignedByte2() = { runner1.runOneTest("implicitAlignmentUnsignedByte2") }
 
-  @Test def test_implicitAlignmentUIntT() = { runner1.runOneTest("implicitAlignmentUIntT") }
+  @Test def test_implicitAlignmentUnsignedIntT() = { runner1.runOneTest("implicitAlignmentUnsignedIntT") }
 
-  @Test def test_implicitAlignmentUIntT2() = { runner1.runOneTest("implicitAlignmentUIntT2") }
-  @Test def test_implicitAlignmentUIntT2b() = { runner1.runOneTest("implicitAlignmentUIntT2b") }
-  @Test def test_implicitAlignmentUIntTBits() = { runner1.runOneTest("implicitAlignmentUIntTBits") }
-  @Test def test_implicitAlignmentUShortT2b() = { runner1.runOneTest("implicitAlignmentUShortT2b") }
-  @Test def test_implicitAlignmentUShortTBits() = { runner1.runOneTest("implicitAlignmentUShortTBits") }
+  @Test def test_implicitAlignmentUnsignedIntT2() = { runner1.runOneTest("implicitAlignmentUnsignedIntT2") }
+  @Test def test_implicitAlignmentUnsignedIntT2b() = { runner1.runOneTest("implicitAlignmentUnsignedIntT2b") }
+  @Test def test_implicitAlignmentUnsignedIntTBits() = { runner1.runOneTest("implicitAlignmentUnsignedIntTBits") }
+  @Test def test_implicitAlignmentUnsignedShortT2b() = { runner1.runOneTest("implicitAlignmentUnsignedShortT2b") }
+  @Test def test_implicitAlignmentUnsignedShortTBits() = { runner1.runOneTest("implicitAlignmentUnsignedShortTBits") }
 
-  @Test def test_implicitAlignmentULong() = { runner1.runOneTest("implicitAlignmentULong") }
-  @Test def test_implicitAlignmentULongT() = { runner1.runOneTest("implicitAlignmentULongT") }
-  @Test def test_implicitAlignmentULongT2() = { runner1.runOneTest("implicitAlignmentULongT2") }
-  @Test def test_implicitAlignmentULongTBits() = { runner1.runOneTest("implicitAlignmentULongTBits") }
+  @Test def test_implicitAlignmentUnsignedLong() = { runner1.runOneTest("implicitAlignmentUnsignedLong") }
+  @Test def test_implicitAlignmentUnsignedLongT() = { runner1.runOneTest("implicitAlignmentUnsignedLongT") }
+  @Test def test_implicitAlignmentUnsignedLongT2() = { runner1.runOneTest("implicitAlignmentUnsignedLongT2") }
+  @Test def test_implicitAlignmentUnsignedLongTBits() = { runner1.runOneTest("implicitAlignmentUnsignedLongTBits") }
   @Test def test_implicitAlignmentIntT() = { runner1.runOneTest("implicitAlignmentIntT") }
   @Test def test_implicitAlignmentShortT() = { runner1.runOneTest("implicitAlignmentShortT") }
   @Test def test_implicitAlignmentByteT() = { runner1.runOneTest("implicitAlignmentByteT") }
   @Test def test_implicitAlignmentByteT2() = { runner1.runOneTest("implicitAlignmentByteT2") }
-  @Test def test_implicitAlignmentUByteT() = { runner1.runOneTest("implicitAlignmentUByteT") }
-  @Test def test_implicitAlignmentUByteT2() = { runner1.runOneTest("implicitAlignmentUByteT2") }
+  @Test def test_implicitAlignmentUnsignedByteT() = { runner1.runOneTest("implicitAlignmentUnsignedByteT") }
+  @Test def test_implicitAlignmentUnsignedByteT2() = { runner1.runOneTest("implicitAlignmentUnsignedByteT2") }
 
   @Test def test_implicitAlignmentDateT() = { runner1.runOneTest("implicitAlignmentDateT") }
   @Test def test_implicitAlignmentDateT2() = { runner1.runOneTest("implicitAlignmentDateT2") }

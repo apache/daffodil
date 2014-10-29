@@ -926,12 +926,12 @@
   </tdml:defineSchema>
   
   <!--
-    Test name: bitULong
+    Test name: bitUnsignedLong
     Schema: bitSchema
     Purpose: This test demonstrates the use of bits to convey an unsigned Long
   -->
 
-  <tdml:parserTestCase name="bitULong"
+  <tdml:parserTestCase name="bitUnsignedLong"
     root="bit12" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[11000011010100001100001101010000]]></tdml:documentPart>
@@ -944,12 +944,12 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: bitULong2
+    Test name: bitUnsignedLong2
     Schema: bitSchema
     Purpose: This test demonstrates the use of bits to convey an unsigned Long (bigEndian)
   -->
 
-  <tdml:parserTestCase name="bitULong2"
+  <tdml:parserTestCase name="bitUnsignedLong2"
     root="bit14" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[10000000 00100000 00000001]]></tdml:documentPart>
@@ -962,12 +962,12 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: bitULong3
+    Test name: bitUnsignedLong3
     Schema: bitSchema
     Purpose: This test demonstrates the use of bits to convey an unsigned Long (littleEndian)
   -->
 
-  <tdml:parserTestCase name="bitULong3"
+  <tdml:parserTestCase name="bitUnsignedLong3"
     root="bit15" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[10000000 00100000 00000001]]></tdml:documentPart>
@@ -980,12 +980,12 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: bitULong4
+    Test name: bitUnsignedLong4
     Schema: bitSchema
     Purpose: This test demonstrates the use of bits to convey an unsigned Long (bigEndian)
   -->
 
-  <tdml:parserTestCase name="bitULong4"
+  <tdml:parserTestCase name="bitUnsignedLong4"
     root="bit16" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[00000000 00000010 00000111 00000001 00000000 00000001 00100000 00000000]]></tdml:documentPart>
@@ -998,12 +998,12 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: bitULong5
+    Test name: bitUnsignedLong5
     Schema: bitSchema
     Purpose: This test demonstrates the use of bits to convey an unsigned Long (littleEndian)
   -->
 
-  <tdml:parserTestCase name="bitULong5"
+  <tdml:parserTestCase name="bitUnsignedLong5"
     root="bit17" model="bitSchema" description="Section 12 Length Properties - DFDL-12-161R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[00000000 00100000 00000001 00000000 00000001 00000111 00000010 00000000]]></tdml:documentPart>
