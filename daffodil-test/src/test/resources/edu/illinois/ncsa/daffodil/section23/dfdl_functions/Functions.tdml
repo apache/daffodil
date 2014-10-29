@@ -4936,7 +4936,7 @@
           <dateTime03>
             <date>1996-03-31-08:00</date>
             <time>04:55:30.000000-08:00</time>
-            <dateTime>1996-03-31T04:55:30-08:00</dateTime>
+            <dateTime>1996-03-31T04:55:30.000000-08:00</dateTime>
           </dateTime03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
