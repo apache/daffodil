@@ -1005,20 +1005,92 @@ case class FNConcat(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
 //  }
 //}
 
-case class FNSubstring2(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
-    val sourceString = arg1.asInstanceOf[String]
-    val startPos = asDouble(arg2)
-    sourceString.substring(startPos.toInt - 1)
+trait SubstringKind {
+
+  protected def substr(sourceString: String, startPos: Int, endPos: Int): String = {
+    //
+    // Essentially we want to return all characters whose indices >= startingPos 
+    // and indices < endPos
+    //
+    if (startPos >= endPos) return ""
+    if (startPos >= sourceString.length) return ""
+    if (endPos > sourceString.length) return sourceString.substring(startPos)
+    //
+    // Note: The documentation of substring says endIndex is exclusive.
+    // Yet it seems to behave inclusively here.
+    //
+    sourceString.substring(startPos, endPos)
+  }
+
+  def substring(sourceString: String, startingLoc: Double, length: Double): String = {
+    val result =
+      if (startingLoc.isNaN() || length.isNaN()) { "" }
+      else if (startingLoc.isNegInfinity && length.isNegInfinity) { "" }
+      else if (startingLoc.isNegInfinity && length.isPosInfinity) { "" }
+      else if (startingLoc.isPosInfinity && length.isNegInfinity) { "" }
+      else if (startingLoc.isPosInfinity && length.isPosInfinity) { "" }
+      else if (startingLoc.isNegInfinity) {
+        val sp = 0
+        val ep = length.round.toInt - 1 // adjust to zero-based
+        substr(sourceString, sp, ep)
+      } else if (length.isPosInfinity) {
+        val rounded = startingLoc.round.toInt
+        val sp =
+          if (rounded <= 0) 0
+          else rounded - 1 // adjust to zero-based
+        val ep = sourceString.length() // Pos Infinity for length, so result is whole string from startLoc
+        substr(sourceString, sp, ep)
+      } else {
+        val rounded = startingLoc.round.toInt
+        val sp =
+          if (rounded <= 0) 0
+          else rounded - 1 // adjust to zero-based
+        val ep = rounded + length.round.toInt - 1 // startLoc + len yields endLoc, adust to zero-based
+        substr(sourceString, sp, ep)
+      }
+    result
   }
 }
 
-case class FNSubstring3(recipes: List[CompiledDPath]) extends FNThreeArgs(recipes) {
-  override def computeValue(arg1: Any, arg2: Any, arg3: Any, dstate: DState) = {
+case class FNSubstring2(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
+  /**
+   * The two argument version of the function assumes that $length is infinite
+   * and returns the characters in $sourceString whose position $p obeys:
+   *
+   * fn:round($startingLoc) <= $p < fn:round(INF)
+   */
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
-    val startPos = asDouble(arg2).toInt - 1 //adjust to zero-based
-    val length = asDouble(arg3).toInt
-    sourceString.substring(startPos, length)
+    val startingLoc = asDouble(arg2)
+    val length = Double.PositiveInfinity
+
+    val res =
+      if (startingLoc.isNegInfinity) sourceString
+      else substring(sourceString, startingLoc, length)
+    res
+  }
+}
+
+case class FNSubstring3(recipes: List[CompiledDPath])
+  extends FNThreeArgs(recipes)
+  with SubstringKind {
+
+  /**
+   * More specifically, the three argument version of the function returns the
+   * characters in $sourceString whose position $p obeys:
+   *
+   * fn:round($startingLoc) <= $p < fn:round($startingLoc) + fn:round($length)
+   *
+   * See: http://www.w3.org/TR/xpath-functions/#func-substring
+   */
+  override def computeValue(arg1: Any, arg2: Any, arg3: Any, dstate: DState): Any = {
+    val sourceString = arg1.asInstanceOf[String]
+    val startingLoc = asDouble(arg2)
+    val length = asDouble(arg3)
+
+    substring(sourceString, startingLoc, length)
   }
 }
 
