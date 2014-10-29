@@ -242,11 +242,13 @@ class TestDFDLExpressions {
   @Test def test_round_12() { runner2.runOneTest("round_12") }
   @Test def test_round_13() { runner2.runOneTest("round_13") }
   
+  //DFDL-1122
+  //@Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
+  //@Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
+  //@Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
+  
   @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
-  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
-  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
   @Test def test_xPathFunc_round_hte_04() { runner2.runOneTest("xPathFunc_round_hte_04") }
-  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
   @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
   @Test def test_xPathFunc_round_hte_07() { runner2.runOneTest("xPathFunc_round_hte_07") }
   @Test def test_xPathFunc_round_hte_08() { runner2.runOneTest("xPathFunc_round_hte_08") }
@@ -254,8 +256,10 @@ class TestDFDLExpressions {
   @Test def test_round_hte_10() { runner2.runOneTest("round_hte_10") }
   @Test def test_round_hte_11() { runner2.runOneTest("round_hte_11") }
   @Test def test_round_hte_12() { runner2.runOneTest("round_hte_12") }
-  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
-  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
+
+  //DFDL-1123
+  //@Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
+  //@Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
   
   //DFDL-1080
   //@Test def test_empty_02() { runner2.runOneTest("empty_02") }

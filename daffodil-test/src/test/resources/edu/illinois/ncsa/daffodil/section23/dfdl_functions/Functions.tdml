@@ -4017,7 +4017,7 @@
         <round-hte>
           <num>3.45</num>
           <precision>0</precision>
-          <roundval>3.0</roundval>
+          <roundval>3</roundval>
         </round-hte>
       </tdml:dfdlInfoset>
     </tdml:infoset>

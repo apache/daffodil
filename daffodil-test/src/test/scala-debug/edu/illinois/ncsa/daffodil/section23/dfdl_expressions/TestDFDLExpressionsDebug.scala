@@ -112,6 +112,15 @@ class TestDFDLExpressionsDebug {
   //DFDL-1121
   @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
+  
+  //DFDL-1122
+  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
+  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
+  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
+  
+  //DFDL-1123
+  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
+  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
 
   //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
