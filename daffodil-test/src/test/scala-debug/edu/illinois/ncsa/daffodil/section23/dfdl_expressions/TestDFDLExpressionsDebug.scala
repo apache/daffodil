@@ -108,6 +108,10 @@ class TestDFDLExpressionsDebug {
   
   //DFDL-1120
   @Test def test_exists_10() { runner2.runOneTest("exists_10") }
+  
+  //DFDL-1121
+  @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
+  @Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
 
   //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }

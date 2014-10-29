@@ -1727,8 +1727,9 @@
       <tdml:documentPart type="bits">00000000 00000000 00000101 00010101</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Runtime Schema Definition Error</tdml:error>
-      <tdml:error>dfdl:testBit $data must be an unsignedByte within the range of (0-255). $data was 1301</tdml:error>
+      <tdml:error>Error</tdml:error>
+      <tdml:error>1301</tdml:error>
+      <tdml:error>range</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1750,6 +1751,30 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!--
+    Test Name: testBit_4
+       Schema: Functions.dfdl.xsd
+         Root: testBit1
+      Purpose: This test demonstrates the use of the testBit function to turn bits into boolean values
+-->
+
+  <tdml:parserTestCase name="testBit_4" root="testBit1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:testBit - DFDL-23-130R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000101</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <testBit1>
+          <byte>5</byte>
+          <bit1>false</bit1>
+          <bit2>true</bit2>
+        </testBit1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 <!--
     Test Name: setBits_0
