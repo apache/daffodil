@@ -304,11 +304,13 @@ class TestDFDLExpressions {
   @Test def test_count_02() { runner2.runOneTest("count_02") }
   //DFDL-1116
   //@Test def test_count_03() { runner2.runOneTest("count_03") }
-  @Test def test_count_04() { runner2.runOneTest("count_04") }
-  @Test def test_count_05() { runner2.runOneTest("count_05") }
-  @Test def test_count_06() { runner2.runOneTest("count_06") }
   @Test def test_count_07() { runner2.runOneTest("count_07") }
-  @Test def test_count_08() { runner2.runOneTest("count_08") }
+ 
+  //DFDL-1117 
+  //@Test def test_count_04() { runner2.runOneTest("count_04") }
+  //@Test def test_count_05() { runner2.runOneTest("count_05") }
+  //@Test def test_count_06() { runner2.runOneTest("count_06") }
+  //@Test def test_count_08() { runner2.runOneTest("count_08") }
  
   //DFDL-1096
   //@Test def test_local_name_01() { runner2.runOneTest("local_name_01") }

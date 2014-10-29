@@ -8374,14 +8374,14 @@
     Test Name: count_08
        Schema: XPathFunctions
          Root: count05
-      Purpose: This test demonstrates the count() function, and how it handles an arbitrary string argument.
+      Purpose: This test demonstrates the count() function, and how it handles being passed too many arguments
 -->
 
   <tdml:parserTestCase name="count_08" root="count05"
     model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
 
     <tdml:document>
-      <tdml:documentPart type="text"></tdml:documentPart>
+      <tdml:documentPart type="text">1,2,3</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>

@@ -75,6 +75,12 @@ class TestDFDLExpressionsDebug {
   
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
+  
+  //DFDL-1117 
+  @Test def test_count_04() { runner2.runOneTest("count_04") }
+  @Test def test_count_05() { runner2.runOneTest("count_05") }
+  @Test def test_count_06() { runner2.runOneTest("count_06") }
+  @Test def test_count_08() { runner2.runOneTest("count_08") }
 
   //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
