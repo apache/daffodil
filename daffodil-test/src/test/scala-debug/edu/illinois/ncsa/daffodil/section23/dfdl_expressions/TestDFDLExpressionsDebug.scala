@@ -88,6 +88,14 @@ class TestDFDLExpressionsDebug {
   @Test def test_more_count_1b() { runner2.runOneTest("more_count_1b") }
   @Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
   @Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
+  
+  //DFDL-1119
+  @Test def test_double_constructor_01() { runner2.runOneTest("double_constructor_01") }
+  @Test def test_double_constructor_02() { runner2.runOneTest("double_constructor_02") }
+  @Test def test_double_constructor_03() { runner2.runOneTest("double_constructor_03") }
+  @Test def test_double_constructor_04() { runner2.runOneTest("double_constructor_04") }
+  @Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
+  @Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
 
   //These tests should work once DPath is pushed up
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
