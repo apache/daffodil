@@ -302,7 +302,8 @@ class TestDFDLExpressions {
   
   @Test def test_count_01() { runner2.runOneTest("count_01") }
   @Test def test_count_02() { runner2.runOneTest("count_02") }
-  @Test def test_count_03() { runner2.runOneTest("count_03") }
+  //DFDL-1116
+  //@Test def test_count_03() { runner2.runOneTest("count_03") }
   @Test def test_count_04() { runner2.runOneTest("count_04") }
   @Test def test_count_05() { runner2.runOneTest("count_05") }
   @Test def test_count_06() { runner2.runOneTest("count_06") }
