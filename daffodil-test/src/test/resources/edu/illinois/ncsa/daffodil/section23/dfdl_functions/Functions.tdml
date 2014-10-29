@@ -175,6 +175,18 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="stringLiteralFromString">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="str" type="xs:string"
+            dfdl:representation="text" />
+          <xs:element name="literal" type="xs:string"
+            dfdl:lengthKind="implicit"
+            dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="encodeDFDLEntities">
       <xs:complexType>
@@ -184,6 +196,17 @@
           <xs:element name="literal" type="xs:string"
             dfdl:lengthKind="implicit"
             dfdl:inputValueCalc="{ dfdl:encodeDFDLEntities( ../ex:str) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="containsEntity">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="str" type="xs:string"
+            dfdl:representation="text" />
+          <xs:element name="hasEntity" type="xs:boolean"
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:containsEntity('TEST%NL;TEST') }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2039,6 +2062,27 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: stringLiteralFromString_obsolete
+       Schema: Functions.dfdl.xsd
+         Root: stringLiteralFromString
+      Purpose: This test demonstrates that the stringLiteralFromString function no longer exists.
+               It has been replaced with the encodeDFDLEntities function
+-->
+
+  <tdml:parserTestCase name="stringLiteralFromString_obsolete"
+    root="stringLiteralFromString" model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[%This is a test!%]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported function</tdml:error>
+      <tdml:error>dfdl:stringLiteralFromString</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
     Test Name: encodeDFDLEntities_0
        Schema: Functions.dfdl.xsd
          Root: encodeDFDLEntities
@@ -2156,6 +2200,27 @@
         </encodeDFDLEntities>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: containsEntity_obsolete
+       Schema: Functions.dfdl.xsd
+         Root: containsEntity
+      Purpose: This test demonstrates that the containsEntity function is no longer supported
+               It has been replaced by the containsDFDLEntities function
+-->
+
+  <tdml:parserTestCase name="containsEntity_obsolete" root="containsEntity"
+    model="Functions.dfdl.xsd" description="Section 23 ">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[%This is a test!%]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported function</tdml:error>
+      <tdml:error>dfdl:containsEntity</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

@@ -656,6 +656,9 @@ class TestDFDLExpressions {
   @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
   // This test should be giving a runtime SDE instead of parse error (DFDL-710)
   // @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
+  
+  @Test def test_stringLiteralFromString_obsolete() { runner2.runOneTest("stringLiteralFromString_obsolete") }
+  @Test def test_containsEntity_obsolete() { runner2.runOneTest("containsEntity_obsolete") }
 
   @Test def test_encodeDFDLEntities_0() { runner2.runOneTest("encodeDFDLEntities_0") }
   @Test def test_encodeDFDLEntities_1() { runner2.runOneTest("encodeDFDLEntities_1") }
