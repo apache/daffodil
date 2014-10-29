@@ -197,7 +197,8 @@ class TestDFDLExpressions {
   @Test def test_not_08() { runner2.runOneTest("not_08") }
   @Test def test_not_09() { runner2.runOneTest("not_09") }
   @Test def test_not_10() { runner2.runOneTest("not_10") }
-  @Test def test_not_11() { runner2.runOneTest("not_11") }
+  //DFDL-1074
+  //@Test def test_not_11() { runner2.runOneTest("not_11") }
   @Test def test_not_12() { runner2.runOneTest("not_12") }
   @Test def test_not_13() { runner2.runOneTest("not_13") }
   @Test def test_not_14() { runner2.runOneTest("not_14") }
