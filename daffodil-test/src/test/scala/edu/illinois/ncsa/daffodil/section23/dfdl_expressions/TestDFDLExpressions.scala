@@ -286,13 +286,15 @@ class TestDFDLExpressions {
   //@Test def test_empty_07() { runner2.runOneTest("empty_07") }
   //@Test def test_empty_08() { runner2.runOneTest("empty_08") }
 
-  @Test def test_exists_01() { runner2.runOneTest("exists_01") }
-  @Test def test_exists_03() { runner2.runOneTest("exists_03") }
-  @Test def test_exists_04() { runner2.runOneTest("exists_04") }
-  @Test def test_exists_06() { runner2.runOneTest("exists_06") }
-  @Test def test_exists_07() { runner2.runOneTest("exists_07") }
+  //DFDL-1075
+  //@Test def test_exists_01() { runner2.runOneTest("exists_01") }
+  //@Test def test_exists_03() { runner2.runOneTest("exists_03") }
+  //@Test def test_exists_04() { runner2.runOneTest("exists_04") }
+  //@Test def test_exists_06() { runner2.runOneTest("exists_06") }
+  //@Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_exists_08() { runner2.runOneTest("exists_08") }
-  @Test def test_exists_10() { runner2.runOneTest("exists_10") }
+  //DFDL-1120
+  //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
   
   //DFDL-1085
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
