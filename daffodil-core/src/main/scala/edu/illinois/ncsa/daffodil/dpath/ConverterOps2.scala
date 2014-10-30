@@ -29,7 +29,6 @@ import AsIntConverters._
 
 case object AnyAtomicToString extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
-    Console.out.println(a.getClass)
     a match {
       case c: DFDLCalendar => c.toString
       case _ => a.asInstanceOf[String]
