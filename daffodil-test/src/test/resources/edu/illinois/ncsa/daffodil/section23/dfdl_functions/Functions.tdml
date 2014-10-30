@@ -21,9 +21,9 @@
           <xs:element name="byte" type="xs:byte"
             dfdl:representation="binary" dfdl:lengthKind="implicit" />
           <xs:element name="bit0" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 0) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 0) }" />
           <xs:element name="bit7" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 7) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 7) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -34,9 +34,9 @@
           <xs:element name="byte" type="xs:byte"
             dfdl:representation="binary" dfdl:lengthKind="implicit" />
           <xs:element name="bit1" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 1) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 1) }" />
           <xs:element name="bit2" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte/text(), 2) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 2) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -46,9 +46,9 @@
         <xs:sequence>
           <xs:element name="int" type="xs:unsignedInt" dfdl:representation="binary" dfdl:lengthKind="implicit" />
           <xs:element name="bit1" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int/text(), 1) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int, 1) }" />
           <xs:element name="bit2" type="xs:boolean"
-            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int/text(), 2) }" />
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:int, 2) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -102,9 +102,9 @@
     <xs:element name="occursCount">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount/* ) eq 3 }"
+          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount ) eq 3 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
+            failed for dfdl:occursCount( /ex:occursCount ) eq 3" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -119,9 +119,9 @@
     <xs:element name="occursCount1">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1/* ) eq 3 }"
+          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1 ) eq 3 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount/* ) eq 3" />
+            failed for dfdl:occursCount( /ex:occursCount ) eq 3" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -134,9 +134,9 @@
     <xs:element name="occursCount1b">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1b/* ) eq 1 }"
+          <dfdl:assert test="{ dfdl:occursCount( /ex:occursCount1b ) eq 1 }"
             message="Assertion 
-            failed for dfdl:occursCount( /ex:occursCount/* ) eq 1" />
+            failed for dfdl:occursCount( /ex:occursCount ) eq 1" />
         </xs:appinfo>
       </xs:annotation>
       <xs:complexType>
@@ -156,7 +156,7 @@
               </xs:sequence>
             </xs:complexType>
           </xs:element>
-          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount2/ex:array/*) }"/>
+          <xs:element name="occurs" type="xs:int" dfdl:inputValueCalc="{ dfdl:occursCount(/ex:occursCount2/ex:array) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -183,7 +183,7 @@
             dfdl:representation="text" />
           <xs:element name="literal" type="xs:string"
             dfdl:lengthKind="implicit"
-            dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str/text()) }" />
+            dfdl:inputValueCalc="{ dfdl:stringLiteralFromString( ../ex:str) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -215,7 +215,7 @@
           <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" dfdl:textTrimKind="padChar" 
             dfdl:textStringPadCharacter="/" dfdl:textStringJustification="center" />
           <xs:element name="valLen" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str/text(), 0) }" />
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ dfdl:valueLength( ../ex:str, 0) }" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1924,7 +1924,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Assertion failed</tdml:error>
-      <tdml:error>dfdl:occursCount( /ex:occursCount/* ) eq 1</tdml:error>
+      <tdml:error>dfdl:occursCount( /ex:occursCount ) eq 1</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
