@@ -135,7 +135,7 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
 
   lazy val sourceType: NodeInfo.Kind = NodeInfo.fromObject(v)
 
-  @transient override lazy val prettyExpr = v.toString
+  override lazy val prettyExpr = v.toString
 
   def isConstant = true
   def isKnownNonEmpty = value != ""

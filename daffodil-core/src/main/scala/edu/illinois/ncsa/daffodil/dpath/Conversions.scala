@@ -70,7 +70,7 @@ object Conversion {
    */
   def conversionOps(st: NodeInfo.Kind, tt: NodeInfo.Kind, context: ThrowsSDE): List[RecipeOp] = {
     import NodeInfo._
-    val ops = (st, tt) match {
+    val ops: List[RecipeOp] = (st, tt) match {
       case (_, Array) => Nil
       case (x, y) if (x == y) => Nil
       case (x, Nillable) => {
@@ -148,10 +148,10 @@ object Conversion {
       case (String, UnsignedShort) => List(StringToLong, LongToUnsignedShort)
       case (String, Byte) => List(StringToLong, LongToByte)
       case (String, UnsignedByte) => List(StringToLong, LongToUnsignedByte)
-      case (String, HexBinary) => List(XSHexBinary)
-      case (String, Date) => List(ToDate)
-      case (String, Time) => List(ToTime)
-      case (String, DateTime) => List(ToDateTime)
+      case (String, HexBinary) => List(XSHexBinary.asInstanceOf[RecipeOp]) // TODO: figure out why I had to put this cast in place.
+      case (String, Date) => List(StringToDate)
+      case (String, Time) => List(StringToTime)
+      case (String, DateTime) => List(StringToDateTime)
       case (String, Boolean) =>
         List(StringToBoolean)
       case (Time, DateTime) => List(TimeToDateTime)

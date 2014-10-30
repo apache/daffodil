@@ -1,192 +1,193 @@
 package edu.illinois.ncsa.daffodil.dpath
 
+import edu.illinois.ncsa.daffodil.processors._
+import scala.collection.mutable.Stack
+import scala.collection.mutable.ListBuffer
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dpath.HexBinaryConversions._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.OnStack
+import edu.illinois.ncsa.daffodil.util.PreSerialization
+import com.ibm.icu.text.SimpleDateFormat
+import com.ibm.icu.util.Calendar
+import scala.math.BigDecimal.RoundingMode
+import edu.illinois.ncsa.daffodil.util.Bits
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import java.text.ParsePosition
+import com.ibm.icu.util.DFDLCalendar
+import com.ibm.icu.util.SimpleTimeZone
+import com.ibm.icu.util.TimeZone
+import java.nio.ByteBuffer
+import com.ibm.icu.util.DFDLDateTime
+import com.ibm.icu.util.DFDLDate
+import com.ibm.icu.util.DFDLTime
 
-abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) {
-
-  def constructorName: String
-  def maxHexDigits: Int
-
-  lazy val nfeMsg = "%s cannot be cast to dfdl:" + constructorName + "\ndfdl:" + constructorName + " received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
-  lazy val hexMsg = "dfdl:" + constructorName + " received string violates maximum hex digits.  Received %s expected a max of " + maxHexDigits
-
-  protected def convert(longValue: Long, dstate: DState): Any
-
-  override def computeValue(a: Any, dstate: DState): Any = {
-    val long: Long = a match {
-      case _: Byte | _: Short | _: Int => IntToLong.computeValue(a, dstate)
-      case l: Long => l
-      case s: String if s.startsWith("x") => {
-        val hexStr = s.substring(1)
-        if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
-        HexStringToLong.computeValue(hexStr, dstate)
+case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
+  override def run(dstate: DState) {
+    recipe.run(dstate)
+    if (dstate.currentElement.valid.isDefined) {
+      dstate.setCurrentValue(dstate.currentElement.valid.get)
+    } else {
+      val res = DFDLCheckConstraintsFunction.executeCheck(dstate.currentSimple) match {
+        case Right(boolVal) => true
+        case Left(msg) => false
       }
-      case s: String => StringToLong.computeValue(s, dstate)
-      case bi: BigInt => BigIntToLong.computeValue(bi, dstate)
-      case bd: BigDecimal => IntToLong.computeValue(bd.toInt, dstate)
-      case hb: Array[Byte] => {
-        val str = "0x" + HexBinaryToString.computeValue(hb, dstate)
-        throw new NumberFormatException(nfeMsg.format(str))
-      }
-      case x =>
-        throw new NumberFormatException(nfeMsg.format(x))
+      dstate.currentElement.setValid(res)
+      dstate.setCurrentValue(res)
     }
-    convert(long, dstate)
   }
 }
 
-/**
- * The argument can
- * also be a long, unsignedLong, or any subtype
- * thereof, and in that case a xs:hexBinary value
- * containing a number of hex digits is produced.
- * The ordering and number of the digits
- * correspond to a binary big-endian twos-
- * complement implementation of the type of the
- * argument. Digits 0-9, A-F are used.
- * The number of digits produced depends on the
- * type of $arg, being 2, 4, 8 or 16. If $arg is a
- * literal number then the type is the smallest
- * signed type (long, int, short, byte) that can
- * contain the value.
- * If a literal number is not able to be represented
- * by a long, it is a schema definition error.
- *
- * • dfdl:hexBinary(xs:short(208)) is the hexBinary value "00D0".
- * • dfdl:hexBinary(208) is the hexBinary value "D0".
- * • dfdl:hexBinary(-2084) is the hexBinary value "F7FF".
- *
- */
-case class DFDLHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends FNOneArg(recipe, argType) with HexBinaryKind {
-  val name = "DFDLHexBinary"
-
-  lazy val nfeMsg = "%s cannot be cast to dfdl:hexBinary\ndfdl:hexBinary received an unrecognized type! Must be String, Byte, Short, Integer, Long or a subtype thereof."
-
-  /**
-   * If the argument is of some fixed-width type like Byte, Int, Short, Long or
-   * the unsigned thereof, then you get hex digits corresponding to 1, 2, 4, or 8 bytes of
-   * a binary twos-complement integer value of that type. If the argument is anything
-   * else (including a literal number), then you get the smallest number of hex digit pairs
-   * that can represent the value.  If you get xs:integer (aka BigInt/Java BigInteger), then
-   * I'd say - smallest number of digits that can represent the value.
-   *
-   * So dfdl:hexBinary(208) is D0, dfdl:hexBinary(xs:integer(208))
-   * is also D0 dfdl:hexBinary(xs:short(208)) is 00D0
-   *
-   */
-  override def computeValue(a: Any, dstate: DState): Any = {
-    val arr = a match {
-      case s: String => {
-        // Literal number
-        reduce(s)
-      }
-      case b: Byte => HexBinaryConversions.toByteArray(b)
-      case s: Short => HexBinaryConversions.toByteArray(s)
-      case bi: BigInt => {
-        // Literal number
-        reduce(bi)
-      }
-      case i: Int => {
-        // Possibly a Literal Number, try to fit it into the smallest
-        // value anyway.
-        reduce(i)
-      }
-      case l: Long => HexBinaryConversions.toByteArray(l)
-      case ul: BigDecimal => {
-        reduce(ul)
-      }
-      case hb: Array[Byte] => hb
-      case x => throw new NumberFormatException(nfeMsg.format(x))
-    }
-
-    arr
+case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+  override def computeValue(str: Any, dstate: DState) = {
+    val dfdlString = EntityReplacer { _.replaceAll(str.asInstanceOf[String], None) }
+    dfdlString
   }
 }
 
-case class DFDLByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
+case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+  override def computeValue(str: Any, dstate: DState) = constructLiteral(str.asInstanceOf[String])
 
-  val constructorName = "byte"
-  val maxHexDigits = 2
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToByte.computeValue(longValue, dstate)
-}
-
-case class DFDLUnsignedByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "unsignedByte"
-  val maxHexDigits = 2
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedByte.computeValue(longValue, dstate)
-}
-
-case class DFDLShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "short"
-  val maxHexDigits = 4
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToShort.computeValue(longValue, dstate)
-}
-
-case class DFDLUnsignedShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "unsignedShort"
-  val maxHexDigits = 4
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedShort.computeValue(longValue, dstate)
-}
-
-case class DFDLInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "int"
-  val maxHexDigits = 8
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToInt.computeValue(longValue, dstate)
-}
-
-case class DFDLUnsignedInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "unsignedInt"
-  val maxHexDigits = 8
-
-  protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedInt.computeValue(longValue, dstate)
-}
-
-case class DFDLLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "long"
-  val maxHexDigits = 16
-
-  protected def convert(longValue: Long, dstate: DState): Any = longValue
-}
-
-case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends DFDLConstructorFunction(recipe, argType) {
-  val constructorName = "unsignedLong"
-  val maxHexDigits = 16
-
-  protected def convert(longValue: Long, dstate: DState): Any = {}
-
-  override def computeValue(a: Any, dstate: DState): Any = {
-    val ulong: Any = a match {
-      case _: Byte | _: Short | _: Int => IntegerToUnsignedLong.computeValue(a, dstate)
-      case s: String if s.startsWith("x") => {
-        val hexStr = s.substring(1)
-        if (hexStr.length > maxHexDigits) throw new NumberFormatException(hexMsg.format(hexStr.length))
-        HexStringToUnsignedLong.computeValue(hexStr, dstate)
+  def constructLiteral(s: String) = {
+    val sb = new StringBuilder
+    s.foreach(c => {
+      c match {
+        case '%' => sb.append("%%") // \u0025
+        case '\u0000' | 0xE000 => sb.append("%NUL;")
+        case '\u0001' | 0xE001 => sb.append("%SOH;")
+        case '\u0002' | 0xE002 => sb.append("%STX;")
+        case '\u0003' | 0xE003 => sb.append("%ETX;")
+        case '\u0004' | 0xE004 => sb.append("%EOT;")
+        case '\u0005' | 0xE005 => sb.append("%ENQ;")
+        case '\u0006' | 0xE006 => sb.append("%ACK;")
+        case '\u0007' | 0xE007 => sb.append("%BEL;")
+        case '\u0008' | 0xE008 => sb.append("%BS;")
+        case '\u0009' => sb.append("%HT;") // OK, not remapped
+        case '\u000A' => sb.append("%LF;") // OK, not remapped
+        case '\u000B' | 0xE00B => sb.append("%VT;")
+        case '\u000C' | 0xE00C => sb.append("%FF;")
+        case '\u000D' => sb.append("%CR;") // OK, not remapped
+        case '\u000E' | 0xE00E => sb.append("%SO;")
+        case '\u000F' | 0xE00F => sb.append("%SI;")
+        case '\u0010' | 0xE010 => sb.append("%DLE;")
+        case '\u0011' | 0xE011 => sb.append("%DC1;")
+        case '\u0012' | 0xE012 => sb.append("%DC2;")
+        case '\u0013' | 0xE013 => sb.append("%DC3;")
+        case '\u0014' | 0xE014 => sb.append("%DC4;")
+        case '\u0015' | 0xE015 => sb.append("%NAK;")
+        case '\u0016' | 0xE016 => sb.append("%SYN;")
+        case '\u0017' | 0xE017 => sb.append("%ETB;")
+        case '\u0018' | 0xE018 => sb.append("%CAN;")
+        case '\u0019' | 0xE019 => sb.append("%EM;") // and above remapped to c + 0xE000
+        case '\u001A' => sb.append("%SUB;")
+        case '\u001B' => sb.append("%ESC;")
+        case '\u001C' => sb.append("%FS;")
+        case '\u001D' => sb.append("%GS;")
+        case '\u001E' => sb.append("%RS;")
+        case '\u001F' => sb.append("%US;")
+        case '\u0020' => sb.append("%SP;")
+        case '\u007F' => sb.append("%DEL;")
+        case '\u00A0' => sb.append("%NBSP;")
+        case '\u0085' => sb.append("%NEL;")
+        case '\u2028' => sb.append("%LS;")
+        case _ => sb.append(c)
       }
-      case s: String => StringToUnsignedLong.computeValue(s, dstate)
-      case bi: BigInt => IntegerToUnsignedLong.computeValue(bi, dstate)
-      case bd: BigDecimal => IntegerToUnsignedLong.computeValue(bd.toInt, dstate)
-      case x =>
-        throw new NumberFormatException(nfeMsg.format(x))
-    }
-    ulong
+    })
+    sb.toString()
+  }
+}
+
+case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+  override def computeValue(str: Any, dstate: DState) =
+    EntityReplacer { _.hasDfdlEntity(str.asInstanceOf[String]) }
+}
+
+case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
+  extends RecipeOpWithSubRecipes(dataRecipe, bitPos1bRecipe) {
+
+  override def run(dstate: DState) {
+    val saved = dstate.currentNode
+    dataRecipe.run(dstate)
+    val dataVal = dstate.intValue
+    dstate.setCurrentNode(saved)
+    bitPos1bRecipe.run(dstate)
+    val bitPos1b = dstate.intValue
+    checkRange(bitPos1b)
+    val res = testBit(dataVal, bitPos1b)
+    dstate.setCurrentValue(res)
   }
 
+  private def checkRange(i: Int) = {
+    if (i > 8 || i < 1) {
+      throw new SchemaDefinitionError(None, None,
+        "dfdl:testBit $bitPos must be between 1 and 8 (inclusive). Was %s.", i)
+    }
+  }
+
+  private def testBit(data: Int, bitPos1b: Int): Boolean = {
+    // Assume 8-bit
+    val shifted = data >>> (bitPos1b - 1)
+    val maskedVal = shifted & 1
+    if (maskedVal == 1) true
+    else false
+  }
+}
+
+object withArray8 extends OnStack(new Array[Int](8))
+
+case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
+
+  override def run(dstate: DState) {
+    Assert.invariant(bitRecipes.length == 8)
+    val saved = dstate.currentNode
+    withArray8 { ar =>
+      {
+        var i = 0
+        var bitR = bitRecipes
+        while (i < 8) {
+          val br = bitR.head
+          dstate.setCurrentNode(saved)
+          br.run(dstate)
+          val currentVal = dstate.intValue
+          ar(i) = currentVal
+          i += 1
+          bitR = bitR.tail
+        }
+        // at this point we have ar with 8 values in it.
+        val byteVal = setBits(ar)
+        dstate.setCurrentValue(byteVal)
+      }
+    }
+  }
+
+  private def processValue(i: Int): Boolean = {
+    if (i < 0 || i > 1) throw new IllegalArgumentException("dfdl:setBits arguments must each be 0 or 1, but value was: %s.".format(i))
+    if (i == 0) false
+    else true
+  }
+
+  private def setBits(args: Array[Int]): Int = {
+    val bp0 = processValue(args(0))
+    val bp1 = processValue(args(1))
+    val bp2 = processValue(args(2))
+    val bp3 = processValue(args(3))
+    val bp4 = processValue(args(4))
+    val bp5 = processValue(args(5))
+    val bp6 = processValue(args(6))
+    val bp7 = processValue(args(7))
+    var uByte: Int = 0
+    if (bp0) uByte += 1
+    if (bp1) uByte += 2
+    if (bp2) uByte += 4
+    if (bp3) uByte += 8
+    if (bp4) uByte += 16
+    if (bp5) uByte += 32
+    if (bp6) uByte += 64
+    if (bp7) uByte += 128
+    uByte
+  }
 }

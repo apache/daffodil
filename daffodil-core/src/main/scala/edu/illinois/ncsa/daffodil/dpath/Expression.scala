@@ -971,9 +971,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
       } else {
         // since we're first we start from the element, or nearest enclosing
         val e = compileInfo.elementCompileInfo.map { ci =>
-          // print("stepElement starting at " + compileInfo + " enclosed by element: " + ci)
           val nc = ci.findNamedChild(stepQName)
-          // println(" and stepping to: " + nc)
           nc
         }.getOrElse(die)
         e
@@ -1161,13 +1159,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean,
           NodeInfo.String, NodeInfo.String, FNEndsWith(_))
 
-      // FIXME: Which of these two xs:string(...) implementations??
       case (RefQName(_, "string", XSD), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.AnyAtomic, XSString(_, _))
-
-      //      case (RefQName(_, "string", XSD), args) =>
-      //        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.String)
 
       case (RefQName(_, "dateTime", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
