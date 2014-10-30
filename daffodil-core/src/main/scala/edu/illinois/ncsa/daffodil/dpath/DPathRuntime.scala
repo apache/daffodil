@@ -1423,8 +1423,7 @@ case object BooleanToLong extends Converter {
 }
 
 case object BooleanToString extends Converter {
-  override def computeValue(a: Any, dstate: DState) = if (asBoolean(a) == true) "true" else "" // empty string is false in XPath
-}
+  override def computeValue(a: Any, dstate: DState) = if (asBoolean(a) == true) "true" else "false"
 
 case object DateTimeToDate extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
