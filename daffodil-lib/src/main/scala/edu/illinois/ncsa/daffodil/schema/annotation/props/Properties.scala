@@ -175,7 +175,7 @@ trait PropertyMixin
   }
 
   def registerToStringFunction(f: (() => String)) {
-    toStringFunctionList = toStringFunctionList :+ f
+    toStringFunctionList +:= f
   }
 
   /**

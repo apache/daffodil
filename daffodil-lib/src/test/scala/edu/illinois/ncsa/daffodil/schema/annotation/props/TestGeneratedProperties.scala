@@ -75,7 +75,7 @@ class TestGeneratedProperties {
     def schemaFileLocation: SchemaFileLocation = ???
 
     override lazy val oolagContext = this
-    override val xml = bagOfProps
+    override lazy val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 

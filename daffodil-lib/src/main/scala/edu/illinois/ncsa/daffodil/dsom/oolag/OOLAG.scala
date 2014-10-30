@@ -248,7 +248,7 @@ object OOLAG extends Logging {
     /**
      * For trace/debug output & diagnostic messages.
      */
-    def prettyName = Misc.getNameFromClass(this)
+    lazy val prettyName = Misc.getNameFromClass(this)
 
     def path: String = {
       if (isOOLAGRoot) prettyName else oolagParent.path + ":" + prettyName
@@ -315,7 +315,7 @@ object OOLAG extends Logging {
       val funcList =
         if (this.hasOOLAGRootSetup) oolagRoot
         else this
-      funcList.requiredEvalFunctions :+= (() => arg)
+      funcList.requiredEvalFunctions +:= (() => arg)
     }
 
     var requiredEvalFunctions: List[() => Any] = Nil

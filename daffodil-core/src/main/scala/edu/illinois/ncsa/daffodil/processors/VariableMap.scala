@@ -177,7 +177,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
 
   var currentPState: Maybe[PState] = Nope
 
-  lazy val context = Assert.invariantFailed("unused.")
+  def context = Assert.invariantFailed("unused.")
 
   private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
     val newMap = variables + ((newVar.rd.extName, (newVar :: firstTier) :: enclosingScopes))

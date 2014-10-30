@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.xml.QName
  */
 trait NamedMixin
   extends GetAttributesMixin { self: SchemaComponentBase =>
-  override def prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
+  override lazy val prettyName = Misc.getNameFromClass(this) + "(" + name + ")"
 
   requiredEvaluations(name)
 

@@ -1278,7 +1278,7 @@ trait ElementDeclMixin
     seq
   }
 
-  override def prettyName = "element." + name
+  override lazy val prettyName = "element." + name
 
   lazy val immediateType = immediateType_.value
   private val immediateType_ = LV('immediateType) {

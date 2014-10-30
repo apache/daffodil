@@ -114,7 +114,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
 
   lazy val leafProviders = leafProvidersArg
 
-  def prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
+  lazy val prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
     log(LogLevel.Debug, "%s chainFindProperty %s.", prettyName, pname)

@@ -54,16 +54,29 @@ trait HasSchemaFileLocation extends LookupLocation {
 class SchemaFileLocation(@transient context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
 
   val lineNumber = context.lineNumber
-  val lineDescription: String = context.lineDescription
-
   val columnNumber = context.columnNumber
-  val columnDescription: String = context.columnDescription
-
   val fileName: String = context.fileName
-  val fileDescription: String = context.fileDescription
-  val locationDescription: String = context.locationDescription
+  
+  override def lineDescription = lineNumber match {
+    case Some(num) => " line " + num
+    case None => ""
+  }
+  
+  override def columnDescription = columnNumber match {
+    case Some(num) => " column " + num
+    case None => ""
+  }
 
   override val toString = context.toString()
+  
+  override def fileDescription = " in " + URLDecoder.decode(fileName, "UTF-8")
+
+  override def locationDescription = {
+    val showInfo = lineDescription != "" || fileDescription != ""
+    val info = lineDescription + columnDescription + fileDescription
+    val txt = if (showInfo) "Location" + info else ""
+    txt
+  }
 }
 
 object NotLocatable extends SchemaFileLocatable {
@@ -74,6 +87,7 @@ object NotLocatable extends SchemaFileLocatable {
   def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
   def SDE(id: String, args: Any*): Nothing = ???
 }
+
 
 trait SchemaFileLocatable extends LocationInSchemaFile
   with HasSchemaFileLocation {

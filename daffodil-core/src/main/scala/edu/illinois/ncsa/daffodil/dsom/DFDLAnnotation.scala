@@ -713,7 +713,7 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
   // So that we can display the namespace information associated with
   // the variable when toString is called.
-  override def prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"
+  override lazy val prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"
 
   override lazy val runtimeData = variableRuntimeData
 

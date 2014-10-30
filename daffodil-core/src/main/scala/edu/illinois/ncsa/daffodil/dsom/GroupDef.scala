@@ -38,7 +38,7 @@ class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
   def forGroupRef(gref: GroupRef, position: Int) = {
-    scala.xml.Utility.trim(xml) match {
+    xml match {
       case <group><sequence>{ _* }</sequence></group> =>
         new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
       case <group><choice>{ _* }</choice></group> =>

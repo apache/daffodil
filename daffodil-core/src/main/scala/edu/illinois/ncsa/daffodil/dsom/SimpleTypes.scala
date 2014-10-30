@@ -314,6 +314,6 @@ class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, 
     case _ => Assert.invariantFailed("unexpected referringComponent")
   }
 
-  override def prettyName = "simpleType." + name
+  override lazy val prettyName = "simpleType." + name
 
 }
