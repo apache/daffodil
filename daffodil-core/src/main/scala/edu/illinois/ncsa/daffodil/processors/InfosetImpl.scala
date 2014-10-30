@@ -50,7 +50,7 @@ class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
  * They all save/restore the current node, so this is the placeholder
  * they use for that purpose.
  */
-class FakeDINode extends DISimple(null) {
+final class FakeDINode extends DISimple(null) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
   override def toXML: scala.xml.NodeSeq = die
@@ -80,7 +80,7 @@ class FakeDINode extends DISimple(null) {
  * Base for non-array elements. That is either scalar or optional (
  * minOccurs 0, maxOccurs 1)
  */
-trait DIElement extends DINode with InfosetElement {
+sealed trait DIElement extends DINode with InfosetElement {
   protected def erd: ElementRuntimeData
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
@@ -145,11 +145,6 @@ final class DIArray extends DINode with InfosetArray {
     _contents.trimEnd(n)
   }
 
-  def getThisOccurrence = {
-    val oci = Infoset.OccursIndex.get
-    val res = _contents(oci - 1)
-    res
-  }
   def getOccurrence(occursIndex: Long) = _contents(occursIndex.toInt - 1)
   def apply(occursIndex: Long) = getOccurrence(occursIndex)
 
@@ -164,7 +159,7 @@ final class DIArray extends DINode with InfosetArray {
   }
 }
 
-class DISimple(val erd: ElementRuntimeData)
+sealed class DISimple(val erd: ElementRuntimeData)
   extends DIElement
   with InfosetSimpleElement {
   protected var _isDefaulted: Boolean = false
@@ -188,6 +183,14 @@ class DISimple(val erd: ElementRuntimeData)
         // then we run a quasi-parser which takes the value and converts
         // it by parsing it as a textual number. It then overwrites
         // the value with the value of the number type.
+        //
+        // This comment code block is here because it is such a useful 
+        // place to put a breakpoint for debugging.
+        // 
+        // TODO: chase down places that a string is being put in the infoset
+        // but as the representation of a type, not as a temporary thing
+        // that is to be immediately converted to the 'real' type by the
+        // next parser.
         // println("assigning a string where " + nodeKind + " is required.")
       }
     }
@@ -519,22 +522,6 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
 
 object Infoset {
 
-  object OccursIndex {
-    /*
-     * Thread-local object that provides the implied occurs index
-   */
-    private var _occursIndex = new DynamicVariable[Long](-1)
-
-    final def get = _occursIndex.value.toInt
-
-    final def withValue[T](i: Long)(body: => T): T =
-      _occursIndex.withValue(i)(body)
-
-    final def set(i: Long) {
-      _occursIndex.value = i
-    }
-  }
-
   import NodeInfo.PrimType._
 
   def newElement(erd: ElementRuntimeData): InfosetElement = {
@@ -559,6 +546,8 @@ object Infoset {
    * For use during compilation of a schema. Not for runtime, as this
    * can be slow.
    */
+  // TODO: consolidate into the NodeInfo object where there is already similar
+  // code. Or maybe consolidates into the DPath Conversions.scala code?
   def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): Any = {
     import NodeInfo.PrimType._
     primType match {
@@ -632,57 +621,29 @@ object Infoset {
   }
 
   /**
+   * Compute a Daffodil Infoset from a SchemaSet, and a scala XML element representing
+   * the infoset (as projected into XML).
+   *
+   * Insures the created infoset matches the schema (rooted at that element).
+   * Converts xsi:nil="true" to isNilled on the infoset
+   * Converts dafint:hidden='true' to isHidden on the infoset (Daffodil extension
+   * allowing testing and visualization of the Augmented Infoset)
+   *
+   * This is used for testing the Infoset code, but may also be useful in other places.
+   * Perhaps the interactive debugger?
    */
-  private[processors] def valueOrNullForNil(erd: ElementRuntimeData, node: scala.xml.Node): Any = {
-    Assert.usage(erd.isSimpleType)
-    val primType = erd.optPrimType.get
-    val rep =
-      if (erd.isNillable && hasXSINilTrue(node)) null
-      else {
-        // the .text method removes XML escaping.
-        // so if the node has &amp; in it, an & character will be produced.
-        // Also if the node has <![CDATA[...]]> it will be removed.
-        // (Different XML Loader may have converted the CDATA into a 
-        // scala.xml.PCData node, or may have converted it into 
-        // escapified text. Either way the .text method gets us
-        // to "real" data)
-        // The .text method similarly concatenates all the children of 
-        // a node. Wierd that node.child produces a NodeSeq of children
-        // which are Text or PCData or ...? nodes. But .text does the 
-        // right thing with them. 
-        //
-        // The only thing left is we want to invert our illegal-XML characters
-        // from the PUA to their regular character values. E.g., &#xE000; produces
-        // unicode U+E000, but we want U+0000 (aka NUL). 
-        //
-        // FIXME: This needs to invert the PUA mapping (unless a tunable says
-        // not to)
-        val value = node.child.text
-        convertToInfosetRepType(primType, value, erd)
-      }
-    rep
+  def elem2Infoset(sset: SchemaSet, xmlElem: scala.xml.Elem): InfosetElement = {
+    val ns = xmlElem.namespace
+    val rootEB = sset.getGlobalElementDecl(NS(ns), xmlElem.label).getOrElse(
+      Assert.usageError(
+        "No global element declaration found corresponding to '%s'.".format(xmlElem.label))).forRoot()
+    elem2Infoset(rootEB.elementRuntimeData, xmlElem)
   }
 
-  /**
-   * Returns true if the node has xsi:nil="true" attribute.
-   *
-   * Does not require the xsi namespace to be defined.
-   */
-  private[processors] def hasXSINilTrue(node: scala.xml.Node): Boolean = {
-    val attribsList = if (node.attributes == null) Nil else node.attributes
-
-    val res = attribsList.exists { (attribute: MetaData) =>
-      {
-        val name = attribute.key
-        val value = attribute.value.text
-        val prefixedKey = attribute.prefixedKey
-        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-        val hasXSINil = (prefix == "xsi" && name == "nil")
-        val res = hasXSINil && value == "true"
-        res
-      }
-    }
-    res
+  private[processors] def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
+    val infosetElem = Infoset.newElement(erd)
+    populate(erd, infosetElem, xmlElem)
+    infosetElem
   }
 
   def populate(erd: ElementRuntimeData,
@@ -772,27 +733,56 @@ object Infoset {
     }
   }
 
-  private[processors] def elem2Infoset(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetElement = {
-    val infosetElem = Infoset.newElement(erd)
-    populate(erd, infosetElem, xmlElem)
-    infosetElem
+  private[processors] def valueOrNullForNil(erd: ElementRuntimeData, node: scala.xml.Node): Any = {
+    Assert.usage(erd.isSimpleType)
+    val primType = erd.optPrimType.get
+    val rep =
+      if (erd.isNillable && hasXSINilTrue(node)) null
+      else {
+        // the .text method removes XML escaping.
+        // so if the node has &amp; in it, an & character will be produced.
+        // Also if the node has <![CDATA[...]]> it will be removed.
+        // (Different XML Loader may have converted the CDATA into a 
+        // scala.xml.PCData node, or may have converted it into 
+        // escapified text. Either way the .text method gets us
+        // to "real" data)
+        // The .text method similarly concatenates all the children of 
+        // a node. Wierd that node.child produces a NodeSeq of children
+        // which are Text or PCData or ...? nodes. But .text does the 
+        // right thing with them. 
+        //
+        // The only thing left is we want to invert our illegal-XML characters
+        // from the PUA to their regular character values. E.g., &#xE000; produces
+        // unicode U+E000, but we want U+0000 (aka NUL). 
+        //
+        // FIXME: This needs to invert the PUA mapping (unless a tunable says
+        // not to)
+        val value = node.child.text
+        convertToInfosetRepType(primType, value, erd)
+      }
+    rep
   }
 
   /**
-   * Compute a Daffodil Infoset from a SchemaSet, and a scala XML element representing
-   * the infoset (as projected into XML).
+   * Returns true if the node has xsi:nil="true" attribute.
    *
-   * Insures the created infoset matches the schema (rooted at that element).
-   * Converts xsi:nil="true" to isNilled on the infoset
-   * Converts dafint:hidden='true' to isHidden on the infoset (Daffodil extension
-   * allowing testing and visualization of the Augmented Infoset)
+   * Does not require the xsi namespace to be defined.
    */
-  def elem2Infoset(sset: SchemaSet, xmlElem: scala.xml.Elem): InfosetElement = {
-    val ns = xmlElem.namespace
-    val rootEB = sset.getGlobalElementDecl(NS(ns), xmlElem.label).getOrElse(
-      Assert.usageError(
-        "No global element declaration found corresponding to '%s'.".format(xmlElem.label))).forRoot()
-    elem2Infoset(rootEB.elementRuntimeData, xmlElem)
+  private[processors] def hasXSINilTrue(node: scala.xml.Node): Boolean = {
+    val attribsList = if (node.attributes == null) Nil else node.attributes
+
+    val res = attribsList.exists { (attribute: MetaData) =>
+      {
+        val name = attribute.key
+        val value = attribute.value.text
+        val prefixedKey = attribute.prefixedKey
+        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
+        val hasXSINil = (prefix == "xsi" && name == "nil")
+        val res = hasXSINil && value == "true"
+        res
+      }
+    }
+    res
   }
 
 }

@@ -49,7 +49,9 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 trait TypeBase
   extends HasIsError
 
-trait TypeConversions extends TypeChecks {
+// TODO: consolidate this with dpath/Conversions.scala or NodeInfo.scala 
+// we have too many ways we're converting that do the same things really.
+object TypeConversions extends TypeChecks {
 
   private def tryCatch[T](context: ThrowsSDE, msg: String, args: Any*)(f: => T): T = {
     try { f } catch {

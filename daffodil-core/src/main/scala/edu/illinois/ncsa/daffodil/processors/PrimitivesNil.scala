@@ -52,13 +52,7 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   val expr = e.length
   val exprText = expr.prettyExpr
 
-  final def computeLength(start: PState) = {
-    val (nBytesAsAny, newVMap) = expr.evaluate(start)
-    val nBytes = asLong(nBytesAsAny)
-    (nBytes, newVMap)
-  }
-
-  override def parser: PrimParser = new LiteralNilExplicitLengthInBytesParser(
+  override lazy val parser: PrimParser = new LiteralNilExplicitLengthInBytesParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     e.encodingInfo,
@@ -76,7 +70,7 @@ case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
     (lengthInBytes, start.variableMap)
   }
 
-  override def parser: PrimParser = new LiteralNilKnownLengthInBytesParser(
+  override lazy val parser: PrimParser = new LiteralNilKnownLengthInBytesParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     lengthInBytes: Long,
@@ -92,8 +86,6 @@ abstract class LiteralNilInBytesBase(e: ElementBase, label: String)
   with Padded {
 
   val charset = e.knownEncodingCharset
-
-  protected def computeLength(start: PState): (Long, VariableMap)
 
   // We are to assume that we can always read nBytes
   // a failure to read nBytes is a failure period.
@@ -113,7 +105,7 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
   // TODO: LiteralNilExplicitLengthInChars really is a variation of LiteralNilPattern
   lazy val unparserDelim = Assert.notYetImplemented()
 
-  override def parser = new LiteralNilExplicitLengthInCharsParser(
+  override lazy val parser = new LiteralNilExplicitLengthInCharsParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     e.encodingInfo,
@@ -132,7 +124,7 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
-  override def parser = new LiteralNilExplicitParser(
+  override lazy val parser = new LiteralNilExplicitParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     nUnits: Long,
@@ -151,7 +143,7 @@ case class LiteralNilPattern(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
-  override def parser = new LiteralNilPatternParser(
+  override lazy val parser = new LiteralNilPatternParser(
     padChar: String,
     justificationTrim: TextJustificationType.Type,
     e.encodingInfo,

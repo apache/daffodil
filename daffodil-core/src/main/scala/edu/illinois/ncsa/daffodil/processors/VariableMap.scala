@@ -121,20 +121,6 @@ object VariableUtil {
   }
 }
 
-//
-//  def get(contextArg : SchemaComponent) : (AnyRef, Option[Variable]) = {
-//    val context = contextArg
-//    PECheck(context,
-//      state == VariableSet ||
-//        state == VariableDefined ||
-//        state == VariableRead,
-//      "Variable %s is not readable. State is: %s", defv.extName, state.toString)
-//    val newVar = if (state == VariableRead) None else
-//      Some(new Variable(VariableRead, value, defv))
-//    val res = value
-//    (res, newVar)
-//  }
-
 /**
  * Factory for Variable objects
  */
@@ -154,14 +140,6 @@ object VariableFactory {
     val defaultValExpr = defaultValue.map { e =>
       ExpressionCompiler.compile(compilationTargetType, Found(e, defv.dpathCompileInfo))
     }
-
-    /**
-     * FIXME: should not assume the default value expressions are constants.
-     * They should be compiled and left as CompiledExpression and when
-     * needed at runtime because the variable is being read, that's when they
-     * get evaluated.
-     */
-    // val defaultVal = defaultValExpr.map { ce => VariableUtil.convert(ce.constantAsString, defv.variableRuntimeData) }
 
     val defaultValIsConstant = {
       val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)

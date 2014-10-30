@@ -126,39 +126,7 @@ object SchemaUtils {
     // specific scopes in place.
     //
     val res = XMLUtils.collapseScopes(schemaNode, TopScope).asInstanceOf[Elem]
-    //    val pp = new scala.xml.PrettyPrinter(Int.MaxValue, 2)
-    //    val pretty = pp.format(res)
-    //    println(pretty)
     res
   }
-
-  //{
-  //    val fileAttrib = Null
-  //    val nodeWithScope = (topLevelAnnotations ++ contentElements).head.asInstanceOf[Elem]
-  //    val scopeToInherit = nodeWithScope.scope
-  //    val schemaNode = {
-  //      (<surroundingElement xmlns={ targetNS } xmlns:xs={ xsdURI } xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:tns={ targetNS } xmlns:ex={ targetNS } xmlns:dafint={ dafintURI }>
-  //         {
-  //           nodeWithScope.copy(child = {
-  //             <xs:schema targetNamespace={ theTargetNS } elementFormDefault={ elementFormDefault } attributeFormDefault="unqualified">
-  //               <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
-  //               <xs:annotation>
-  //                 <xs:appinfo source={ dfdlAppinfoSource }>
-  //                   { topLevelAnnotations }
-  //                 </xs:appinfo>
-  //               </xs:annotation>
-  //               { contentElements }
-  //             </xs:schema> % fileAttrib
-  //           })
-  //         }
-  //       </surroundingElement>) \\ "schema"
-  //    }.head.asInstanceOf[Elem]
-  //    val realSchema = schemaNode
-  //    //
-  //    // Note: no longer needs to write out and re-load to get namespaces 
-  //    // right due to the surroundingElement trick above
-  //    //
-  //    schemaNode
-  //  }
 
 }

@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import edu.illinois.ncsa.daffodil.util.Compile
 import edu.illinois.ncsa.daffodil.util.Error
 import edu.illinois.ncsa.daffodil.util.Warning
@@ -128,9 +127,10 @@ class ProcessorFactory(val sset: SchemaSet)
       CheckJavaVersion.checkJavaVersion(ssrd)
       val dataProc = new DataProcessor(ssrd)
       if (dataProc.isError) {
-        val diags = dataProc.getDiagnostics
-        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
-        diags.foreach { diag => log(Error(diag.toString())) }
+        // NO longer printing anything here. Callers must do this.
+        //        val diags = dataProc.getDiagnostics
+        //        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
+        //        diags.foreach { diag => log(Error(diag.toString())) }
       } else {
         log(Compile("Parser = %s.", ssrd.parser.toString))
         log(Compile("Compilation (DataProcesor) completed with no errors."))
@@ -277,7 +277,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
       if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
 
-      val sset = new SchemaSet(externalDFDLVariables, PrimitiveFactory, schemaFiles, validateDFDLSchemas, rootSpec, checkAllTopLevel)
+      val sset = new SchemaSet(externalDFDLVariables, schemaFiles, validateDFDLSchemas, rootSpec, checkAllTopLevel)
       val pf = new ProcessorFactory(sset)
       val err = pf.isError
       val diags = pf.getDiagnostics // might be warnings even if not isError

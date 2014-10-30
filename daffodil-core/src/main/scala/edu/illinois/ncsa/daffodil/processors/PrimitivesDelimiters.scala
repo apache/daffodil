@@ -67,28 +67,10 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
-  val textParser = new TextParser(e.runtimeData, e.encodingInfo)
+  lazy val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
+  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  def parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo)
-
-  //  def unparser: Unparser = new Unparser(e) {
-  //    val t = e.asInstanceOf[Term]
-  //    override def toString = "StaticText('" + delim + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
-  //    // setLoggingLevel(LogLevel.Info)
-  //    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
-  //    Assert.invariant(delim != "") //shouldn't be here at all in this case
-  //
-  //    def unparse(start: UState): UState = {
-  //      val encoder = e.knownEncodingCharset.charset.newEncoder()
-  //      start.outStream.setEncoder(encoder)
-  //      start.outStream.fillCharBuffer(unparserDelim)
-  //      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData)
-  //      start
-  //    }
-  //  }
-
-  //  def unparserDelim: String
+  lazy val parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo)
 }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
@@ -101,9 +83,9 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
     oes
   }
 
-  val eName = e.toString()
+  lazy val eName = e.toString()
 
-  val positionalInfo = {
+  lazy val positionalInfo = {
     if (e.isDirectChildOfSequence) {
       e.nearestEnclosingSequence match {
         case Some(es) => {
@@ -233,41 +215,11 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   extends Text(e, e, guard)
   with DelimiterText {
 
-  val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
-  val textParser = new TextParser(e.runtimeData, e.encodingInfo)
+  lazy val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
+  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  def parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo)
+  lazy val parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo)
 
-  /*
-  def unparser: Unparser = new Unparser(e) {
-    val t = e.asInstanceOf[Term]
-    override def toString = "StaticText('" + delimExpr + "' with terminating markup: " + t.prettyTerminatingMarkup + ")"
-    // setLoggingLevel(LogLevel.Info)
-    e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' is not supported.")
-    Assert.invariant(delimExpr != "") //shouldn't be here at all in this case
-
-    def unparse(start: UState): UState = {
-      // We really want to do something similar to the below to evaluate the expression
-      // for a delimiter.
-      //      val localDelimsRaw = {
-      //        val (res, newVMap) = delimExpr.evaluate(start.parentElement, vars, start)
-      //        vars = newVMap
-      //        res
-      //      }
-      //      val localDelimsCookedWithPosition = new ListOfStringValueAsLiteral(localDelimsRaw.toString(), e).cooked
-      //      val localDelimsCooked = localDelimsCookedWithPosition
-      val encoder = e.knownEncodingCharset.newEncoder()
-      start.outStream.setEncoder(encoder)
-
-      // TODO: This is not correct, we need to be able to evaluate delimExpr and select a
-      // delimiter to use here.
-      start.outStream.fillCharBuffer(delimExpr.toString()) //start.outStream.fillCharBuffer(unparserDelim)
-      log(LogLevel.Debug, "Unparsed: " + start.outStream.getData))
-      start
-    }
-  } */
-
-  //def unparserDelim: String
 }
 
 abstract class DynamicDelimiter(kindString: String, delimExpr: CompiledExpression, e: Term, guard: Boolean = true)

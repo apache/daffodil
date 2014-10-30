@@ -33,7 +33,6 @@ package edu.illinois.ncsa.daffodil.dpath
  */
 
 import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.processors.xpath._
 import javax.xml.xpath._
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -49,7 +48,7 @@ import com.ibm.icu.util.Calendar
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
-class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
+class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,
   ci: DPathCompileInfo,
   isEvaluatedAbove: Boolean)
@@ -57,6 +56,9 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
 
   override def targetType = tt
 
+  // TODO: fix this check below. There is a unierse of target types which is 
+  // muuch smaller than the set of all types, so some check is useful to be sure
+  // we stay within the subset of types that are actually used as target types.
   //  Assert.usage(targetType == NodeInfo.AnyType // used by debugger eval stmt
   //    || targetType == NodeInfo.NonEmptyString // string-valued properties
   //    || targetType == NodeInfo.Long // length and occurs expressions
@@ -107,6 +109,20 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: DPathRecipe,
         }
         (value, vmap)
       } catch {
+        //
+        // Here we catch exceptions that indicate something went wrong with the
+        // expression, but by that we mean legal evaluation of a compiled expression
+        // produced an error such as divide by zero or string having wrong format for 
+        // conversion to another type. I.e., things te DFDL schema author could get
+        // wrong that some data inputs would exacerbate.
+        //
+        // This should not catch things that indicate a Daffodil code problem e.g.,
+        // class cast exceptions. 
+        //
+        // Of course some things that are daffodil code bugs can hide - if for example
+        // there is an arithmetic error in daffodil code, this catch can't distinguish 
+        // that error (which should be an abort, from an arithmetic exception 
+        // due to an expression dividing by zero say. 
         case e: InfosetNoSuchChildElementException => doSDE(e, pstate)
         case e: IllegalArgumentException => doPE(e, pstate)
         case e: IllegalStateException => doPE(e, pstate)

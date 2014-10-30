@@ -50,18 +50,17 @@ import com.ibm.icu.util.DFDLDateTime
 import com.ibm.icu.util.DFDLTime
 import com.ibm.icu.util.DFDLDate
 
-
 case class ConvertTextCalendarParser(erd: ElementRuntimeData,
-    xsdType: String,
-    prettyType: String,
-    pattern: String,
-    locale: ULocale,
-    infosetPattern: String,
-    firstDay: Int,
-    calendarDaysInFirstWeek: Int,
-    calendarCheckPolicy: Boolean,
-    calendarTz: TimeZone,
-    tz: TimeZone)
+  xsdType: String,
+  prettyType: String,
+  pattern: String,
+  locale: ULocale,
+  infosetPattern: String,
+  firstDay: Int,
+  calendarDaysInFirstWeek: Int,
+  calendarCheckPolicy: Boolean,
+  calendarTz: TimeZone,
+  tz: TimeZone)
   extends PrimParser(erd) {
 
   // Used to configure the dataFormatter
@@ -74,7 +73,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     cal.clear
     cal
   }
-  
+
   // As per ICU4J documentation, "Date formats are not synchronized. If
   // multiple threads access a format concurrently, it must be synchronized
   // externally."
@@ -127,9 +126,6 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
         return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage)
       }
     }
-
-    // Convert to the infoset format
-    val result = tlInfosetFormatter.get.format(cal)
 
     val newCal = xsdType.toLowerCase() match {
       case "time" => new DFDLTime(cal)
@@ -202,7 +198,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     case CalendarCheckPolicy.Strict => false
     case CalendarCheckPolicy.Lax => true
   }
-    
+
   val TimeZoneRegex = """(UTC)?([+\-])?([01]\d|\d)(:?([0-5]\d))?""".r
   val tzStr = e.calendarTimeZone match {
     case TimeZoneRegex(_, plusOrMinus, hour, _, minute) => {
@@ -212,7 +208,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     }
     case _ => e.calendarTimeZone
   }
-    
+
   val calendarTz = TimeZone.getTimeZone(tzStr)
   if (calendarTz == TimeZone.UNKNOWN_ZONE) {
     e.schemaDefinitionErrorDueToPropertyValue(
@@ -221,17 +217,17 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   }
 
   def parser: Parser = new ConvertTextCalendarParser(
-      e.elementRuntimeData,
-      xsdType,
-      prettyType,
-      pattern,
-      locale,
-      infosetPattern,
-      firstDay,
-      calendarDaysInFirstWeek,
-      calendarCheckPolicy,
-      calendarTz,
-      TimeZone.GMT_ZONE)
+    e.elementRuntimeData,
+    xsdType,
+    prettyType,
+    pattern,
+    locale,
+    infosetPattern,
+    firstDay,
+    calendarDaysInFirstWeek,
+    calendarCheckPolicy,
+    calendarTz,
+    TimeZone.GMT_ZONE)
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

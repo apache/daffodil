@@ -32,7 +32,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
-    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo)
+    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = Infoset.newDocument(erd)
     doc.setRootElement(infosetRootElem)

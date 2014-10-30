@@ -5,7 +5,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dpath.HexBinaryConversions._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 
-abstract class DFDLConstructorFunction(recipe: DPathRecipe, argType: NodeInfo.Kind)
+abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
 
   def constructorName: String
@@ -61,7 +61,7 @@ abstract class DFDLConstructorFunction(recipe: DPathRecipe, argType: NodeInfo.Ki
  * • dfdl:hexBinary(-2084) is the hexBinary value "F7FF".
  *
  */
-case class DFDLHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) with HexBinaryKind {
   val name = "DFDLHexBinary"
 
@@ -108,7 +108,7 @@ case class DFDLHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-case class DFDLByte(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
 
   val constructorName = "byte"
@@ -117,7 +117,7 @@ case class DFDLByte(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToByte.computeValue(longValue, dstate)
 }
 
-case class DFDLUnsignedByte(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLUnsignedByte(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "unsignedByte"
   val maxHexDigits = 2
@@ -125,7 +125,7 @@ case class DFDLUnsignedByte(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedByte.computeValue(longValue, dstate)
 }
 
-case class DFDLShort(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "short"
   val maxHexDigits = 4
@@ -133,7 +133,7 @@ case class DFDLShort(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToShort.computeValue(longValue, dstate)
 }
 
-case class DFDLUnsignedShort(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLUnsignedShort(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "unsignedShort"
   val maxHexDigits = 4
@@ -141,7 +141,7 @@ case class DFDLUnsignedShort(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedShort.computeValue(longValue, dstate)
 }
 
-case class DFDLInt(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "int"
   val maxHexDigits = 8
@@ -149,7 +149,7 @@ case class DFDLInt(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToInt.computeValue(longValue, dstate)
 }
 
-case class DFDLUnsignedInt(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLUnsignedInt(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "unsignedInt"
   val maxHexDigits = 8
@@ -157,7 +157,7 @@ case class DFDLUnsignedInt(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = LongToUnsignedInt.computeValue(longValue, dstate)
 }
 
-case class DFDLLong(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "long"
   val maxHexDigits = 16
@@ -165,7 +165,7 @@ case class DFDLLong(recipe: DPathRecipe, argType: NodeInfo.Kind)
   protected def convert(longValue: Long, dstate: DState): Any = longValue
 }
 
-case class DFDLUnsignedLong(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class DFDLUnsignedLong(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends DFDLConstructorFunction(recipe, argType) {
   val constructorName = "unsignedLong"
   val maxHexDigits = 16

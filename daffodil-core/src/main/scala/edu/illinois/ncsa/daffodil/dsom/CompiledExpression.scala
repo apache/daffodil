@@ -250,11 +250,6 @@ class DPathElementCompileInfo(
   final lazy val rootElement: DPathElementCompileInfo =
     this.enclosingElementCompileInfo.map { _.rootElement }.getOrElse { this }
 
-  //  final def realERD: ElementRuntimeData = this match {
-  //    case erd: ElementRuntimeData => erd
-  //    case eb: ElementBase => eb.erd
-  //  }
-
   final def enclosingElementPath: Seq[DPathElementCompileInfo] = {
     enclosingElementCompileInfo match {
       case None => Seq()
@@ -351,6 +346,16 @@ object ExpressionCompiler {
      * This form for delimiters and escapeEscapeCharacter since they 
      * can have empty string if statically known, but if an evaluated expression,
      * it must be non-empty string.
+     * 
+     * You can have an empty string, but only statically.
+     * That turns off separators entirely. 
+     * If you have an expression (that is not trivially an empty string), 
+     * then it must be a non-empty string as the compiled parser will be 
+     * generated assuming there will be a concrete separator that is part of 
+     * the data syntax and serves as any delimiter to anchor the parse algorithm.
+     * 
+     * We don't want to allow turning on/off whether a format is delimited or
+     * not based on runtime expressions, only what the delimiters are.
      */
   def compile(staticNodeInfoKind: NodeInfo.Kind, runtimeNodeInfoKind: NodeInfo.Kind, property: Found): CompiledExpression =
     compile(staticNodeInfoKind, runtimeNodeInfoKind, property, false)
@@ -400,10 +405,12 @@ object ExpressionCompiler {
         // not an expression. For some properties like delimiters, you can use a literal string 
         // whitespace separated list of literal strings, or an expression in { .... }
         if (expr.startsWith("{") && !expr.startsWith("{{")) {
-          val msg = "'%s' is an unterminated expression.  Add missing closing brac, or escape opening brace with another opening brace."
+          val msg = "'%s' is an unterminated expression.  Add missing closing brace, or escape opening brace with another opening brace."
           compileInfoWherePropertyWasLocated.SDE(msg, expr)
         }
-        val expr1 = if (expr.startsWith("{{")) expr.tail else expr
+        val expr1 = if (expr.startsWith("{{"))
+          expr.tail // everthing except the self-escaped leading brace
+        else expr
         //
         // Literal strings get surrounded with quotation marks
         //
@@ -416,7 +423,24 @@ object ExpressionCompiler {
         }
         withQuotes
       }
-    // it's an actual expression, not a literal constant.
+    // If we get here then now it's something we can compile. It might be trivial
+    // to compile (e.g, '5' compiles to Literal(5)) but we uniformly compile 
+    // everything.
+
+    /* Question: If something starts with {{, e.g. 
+     * separator="{{ not an expression", then we strip off the first brace, 
+     * wrap in quotes, and compile it? Why try compiling it? Shouldn't we just
+     * return a constant expression or something at this point?
+     * <p>
+     * Answer: Conversions. E.g., if you have "{{ 6.847 }" as the expression
+     * for an inputValueCalc on an element of float type, then the compiler 
+     * can tell you this isn't going to convert - you get a type check error or
+     * maybe a number format exception at constant-folding time, which tells us
+     * that the expression - even though it's a constant, isn't right.
+     * 
+     * If we try to do this outside the expression compiler we'd be replicating
+     * some of this type-infer/check logic. 
+     */
     compileExpression(nodeInfoKind, exprForCompiling, namespaces,
       compileInfoWherePropertyWasLocated, isEvaluatedAbove)
   }
@@ -442,14 +466,7 @@ object ExpressionCompiler {
     // was written, not those of the edecl object where the property 
     // value is being used/compiled. JIRA DFDL-407
     //
-    // We don't want things holding onto SchemaComponent objects
-    // so let's be sure we have a RuntimeData object to hand to the
-    // expression compiler. Arggg. That will stack overflow, as this 
-    // compiled expression ends up being needed to construct the runtime
-    // data object....
-    //
-    // This compiler is a transient object. We shouldn't store it anywhere.
-    val compiler = new DFDLPathExpressionCompiler(
+    val compiler = new DFDLPathExpressionParser(
       nodeInfoKind, namespaces, compileInfoWherePropertyWasLocated, isEvaluatedAbove)
     val compiledDPath = compiler.compile(expr)
     compiledDPath

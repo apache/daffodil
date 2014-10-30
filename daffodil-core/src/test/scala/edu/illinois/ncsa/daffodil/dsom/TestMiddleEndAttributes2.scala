@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import edu.illinois.ncsa.daffodil.util.TestUtils
 
 class TestMiddleEndAttributes2 {
@@ -24,7 +23,7 @@ class TestMiddleEndAttributes2 {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 

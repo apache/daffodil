@@ -162,7 +162,7 @@ abstract class NumVerifier[T] {
 abstract class ConvertTo[S] {
   def getNum(javaNumber: Number): S
 
-  def parser = new NumVerifier[S] {
+  lazy val parser = new NumVerifier[S] {
     def parse(str: String): S = {
       val df = new DecimalFormat()
       val pos = new ParsePosition(0)

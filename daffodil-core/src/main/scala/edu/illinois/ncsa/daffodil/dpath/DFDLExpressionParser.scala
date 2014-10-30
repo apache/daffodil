@@ -43,44 +43,6 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import scala.util.parsing.input.CharSequenceReader
 
-//class DFDLExpressionError(schemaContext: Option[SchemaFileLocatable],
-//  kind: String,
-//  args: Any*)
-//  extends SchemaDefinitionDiagnosticBase(
-//    schemaContext, None, None, kind, args: _*) {
-//
-//  override def isError = false
-//  val diagnosticKind = "Error"
-//
-//  override def contextInfo(msg: String,
-//    diagnosticKind: String,
-//    schContextLocDescription: String,
-//    annContextLocDescription: String,
-//    schemaContext: Option[SchemaFileLocatable]): String = {
-//
-//    val res = "DFDLExpressionError " + diagnosticKind + ": " + msg +
-//      "\nSchema context: " + schemaContext.getOrElse("top level") + "." +
-//      // TODO: should be one or the other, never(?) both
-//      schContextLocDescription +
-//      annContextLocDescription
-//
-//    res
-//  }
-//}
-//
-//// For debugging to indent text
-//object StepCounter {
-//  private var cntr: Int = 0
-//  def plusOne(): Int = {
-//    cntr = cntr + 1
-//    cntr
-//  }
-//  def minusOne(): Int = {
-//    if (cntr > 0) cntr = cntr - 1
-//    cntr
-//  }
-//}
-
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
  * just the syntax being legal so that we can build the abstract syntax
@@ -95,7 +57,7 @@ import scala.util.parsing.input.CharSequenceReader
  * save it. So hopefully that discards all the state of the combinator
  * stuff as well.
  */
-class DFDLPathExpressionCompiler(
+class DFDLPathExpressionParser(
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
@@ -172,42 +134,6 @@ class DFDLPathExpressionCompiler(
       Console.out.println("end %s --> %s".format(name, r))
       r
     }
-
-  /**
-   * DFDL has various restrictions on path expressions. This extracts the paths from the expression
-   * so that one can check whether their names are all meaningful (for example).
-   */
-  def getPathsFromExpression(expr: String, vmap: Any): Either[(String, Any), (List[Expression], Any)] = ???
-  //
-  // The tests which call this function will be replaced by work done by the 
-  // DPath compiler generally to insure that paths are sensible.
-  // at that point, delete this code.  
-  //    variableMap = vmap
-  //    val pResult = this.parse(this.log(DFDLExpression)("getPathsFromExpression"), expr)
-  //    pResult match {
-  //      case Success(paths, next) => Right(paths.getPathExpressions, variableMap)
-  //      case NoSuccess(msg, next) => Left(msg, variableMap)
-  //    }
-  //  }
-  //
-  //  def getPathsFromExpressionAsCompiledExpressions(expr: String, vmap: VariableMap): Either[(String, VariableMap), (List[CompiledExpression], VariableMap)] = {
-  //    variableMap = vmap
-  //    val pResult = this.parse(this.log(DFDLExpression)("getPathsFromExpressionAsCompiledExpressions"), expr)
-  //    pResult match {
-  //      case Success(paths, next) => {
-  //        val ces = paths.getPathExpressions.map { p =>
-  //          {
-  //            val exp = "{ " + p.toString + " }"
-  //            val f = Found(exp, context)
-  //            val ce = ExpressionCompiler.compile(f)
-  //            ce
-  //          }
-  //        }.filterNot(ce => ce.isConstant) // Paths are not constant
-  //        Right(ces, variableMap)
-  //      }
-  //      case NoSuccess(msg, next) => Left(msg, variableMap)
-  //    }
-  //  }
 
   def getExpressionTree(expr: String): WholeExpression = {
     // This wrapping of phrase() prevents a memory leak in the scala parser

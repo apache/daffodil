@@ -50,6 +50,7 @@ trait HasRefMixin extends GetAttributesMixin {
   private lazy val xsdRef = getAttributeRequired("ref")
   lazy val ref = xsdRef
 
+  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
   lazy val (refPrefix, refLocalName) = xsdRef.split(":").toSeq match {
     case Seq(pre, local) => (pre, local)
     case Seq(local) => (null, local)
@@ -64,6 +65,7 @@ trait ResolvesQNames
   /**
    * If prefix of name is unmapped, SDE, otherwise break into NS and local part.
    */
+  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
   def resolveQName(name: String): (NS, String) = {
     val pair @ (ns, localName) = XMLUtils.getQName(name, namespaces)
     schemaDefinitionUnless(ns != null, "In QName '%s', the prefix was not defined.", name)
@@ -73,6 +75,7 @@ trait ResolvesQNames
   /**
    * Just chop off the prefix
    */
+  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
   def removePrefix(prefixedValue: String): String = {
     prefixedValue.split(":").last
   }

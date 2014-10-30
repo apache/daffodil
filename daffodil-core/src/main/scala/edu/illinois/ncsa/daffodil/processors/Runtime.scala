@@ -75,7 +75,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     ssrd.variables = ExternalVariablesLoader.loadVariables(extVars, ssrd, ssrd.variables)
   }
 
-  override def isError = false
+  override def isError = false // really there is no compiling at all currently, so there can be no errors.
 
   override def getDiagnostics = ssrd.diagnostics
 
@@ -101,7 +101,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         ssrd.knownEncodingAlignmentInBits == 8 // byte-aligned characters
         ) {
         // use simpler text only I/O layer
-        //val charsetEncodingName = rootElem.encoding.constantAsString
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
           ssrd.encodingInfo,
@@ -155,7 +154,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   }
 
   def parse(initialState: PState): ParseResult = {
-
     ExecutionMode.usingRuntimeMode {
       val pr = new ParseResult(this) {
         val p = ssrd.parser
@@ -193,12 +191,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
             case e: TunableLimitExceededError => {
               initialState.failed(e)
             }
-            case e: IllegalArgumentException => // if we get one here, then someone threw instead of returning a status. 
-              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
-            case e: IllegalStateException => // if we get one here, then someone threw instead of returning a status. 
-              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
-            case e: NumberFormatException => // if we get one here, then someone threw instead of returning a status. 
-              Assert.invariantFailed("ParseErrors should be returned as failed status, not thrown as %s. Fix please.".format(e))
           }
         }
 

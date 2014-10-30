@@ -162,7 +162,7 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
     (nBytes, pstate)
   }
 
-  override def parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
+  override lazy val parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
     nBytes,
     justificationTrim,
     padCharChar,
@@ -181,7 +181,7 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
     (nBytes, pstate)
   }
 
-  override def parser: DaffodilParser = new StringFixedLengthInBytesVariableWidthCharactersParser(
+  override lazy val parser: DaffodilParser = new StringFixedLengthInBytesVariableWidthCharactersParser(
     nBytes,
     justificationTrim,
     padCharChar,
@@ -196,7 +196,7 @@ case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: 
   lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
   lazy val lengthText = numChars.toString
 
-  override def parser: DaffodilParser = new StringFixedLengthInVariableWidthCharactersParser(
+  override lazy val parser: DaffodilParser = new StringFixedLengthInVariableWidthCharactersParser(
     numChars,
     justificationTrim,
     padCharChar,
@@ -211,7 +211,7 @@ case class StringVariableLengthInBytes(e: ElementBase)
   lazy val parserName = "StringVariableLengthInBytes"
   lazy val lengthText = e.length.prettyExpr
 
-  override def parser: DaffodilParser = new StringVariableLengthInBytesParser(
+  override lazy val parser: DaffodilParser = new StringVariableLengthInBytesParser(
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
@@ -226,7 +226,7 @@ case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
   lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
   lazy val lengthText = e.length.prettyExpr
 
-  override def parser: DaffodilParser = new StringVariableLengthInBytesVariableWidthCharactersParser(
+  override lazy val parser: DaffodilParser = new StringVariableLengthInBytesVariableWidthCharactersParser(
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
@@ -241,7 +241,7 @@ case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
   lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
   lazy val lengthText = e.length.prettyExpr
 
-  override def parser: DaffodilParser = new StringVariableLengthInVariableWidthCharactersParser(
+  override lazy val parser: DaffodilParser = new StringVariableLengthInVariableWidthCharactersParser(
     justificationTrim,
     padCharChar,
     e.elementRuntimeData,
@@ -794,7 +794,7 @@ case class StringDelimitedEndOfData(e: ElementBase)
 abstract class HexBinaryDelimited(e: ElementBase)
   extends StringDelimited(e) {
 
-  override def parser: DaffodilParser = new HexBinaryDelimitedParser(
+  override lazy val parser: DaffodilParser = new HexBinaryDelimitedParser(
     e.elementRuntimeData,
     justificationTrim,
     pad,
@@ -818,7 +818,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
 
   lazy val isDelimRequired: Boolean = false
 
-  override def parser: DaffodilParser =
+  override lazy val parser: DaffodilParser =
     new LiteralNilDelimitedEndOfDataParser(
       eb.elementRuntimeData,
       justificationTrim,

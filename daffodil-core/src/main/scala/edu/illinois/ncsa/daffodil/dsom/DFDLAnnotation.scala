@@ -156,7 +156,7 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
 
   override lazy val path = formatAnnotation.path + "::" + prettyName
 
-  override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC // .runtimeData
+  override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC
 
   override lazy val schemaDocument = formatAnnotation.schemaDocument
   override lazy val fileName = xmlSchemaDocument.fileName
@@ -702,9 +702,13 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
+  @deprecated("Use real QNames system.", "2014-10-29")
   lazy val extName = expandedNCNameToQName
 
+  @deprecated("Use real QNames system.", "2014-10-29")
   lazy val (typeURI, typeLocalName) = XMLUtils.QName(node.scope, typeQNameString, this)
+
+  @deprecated("Use real QNames system.", "2014-10-29")
   lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
 
   lazy val typeQName = QName.resolveRef(typeQNameString, namespaces).getOrElse(

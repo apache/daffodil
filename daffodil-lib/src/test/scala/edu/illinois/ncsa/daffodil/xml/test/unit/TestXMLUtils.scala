@@ -233,15 +233,9 @@ class TestXMLUtils {
     val xmlRaw = """<foo><![CDATA[&&&]]></foo>"""
     import scala.xml.parsing.ConstructingParser
     //
-    // This is the way we load XML for the TDML runner
-    // and it creates PCData nodes where Scala's basic loader
-    // and literal XML in scala program text, converts
-    // PCData to Text nodes (removing the bracket glop)
-    //
-    // We use this in the TDML runner because we can 
-    // preserve whitespace robustly inside CDATA bracketing.
-    // Other ways of loading XML all treat whitespace as
-    // somewhat fungible. 
+    //see testConstructingParserCoalesceText
+    //for a relevant comment about this use of the 
+    //Constructing parser.
     //
     val parser = ConstructingParser.fromSource(
       scala.io.Source.fromString(xmlRaw), true)

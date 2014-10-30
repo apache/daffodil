@@ -45,12 +45,6 @@ abstract class DFDLCalendar
   protected def handleGetExtendedYear(): Int = calendar.handleGetExtendedYear()
   protected def handleGetLimit(x$1: Int, x$2: Int): Int = calendar.handleGetLimit(x$1, x$2)
   def getField(fieldIndex: Int): Int = calendar.get(fieldIndex)
-  //  def clear(): Unit = calendar.clear()
-  //  def clear(field: Int) = calendar.clear(field)
-  //  def getTime() = calendar.getTime()
-  //  def getTimeInMillis() = calendar.getTimeInMillis()
-  //  def isLenient() = calendar.isLenient()
-  //  def isSet(field: Int) = calendar.isSet(field)
 
   def getCalendar() = calendar
   override def toString(): String = formattedStr

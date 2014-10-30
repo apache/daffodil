@@ -22,6 +22,7 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 class LiteralNilPatternParser(
   val padChar: String,
@@ -196,7 +197,7 @@ class LiteralNilExplicitLengthInCharsParser(
       //val postEvalState = start //start.withVariables(vars)
 
       val (nCharsAsAny, newVMap) = expr.evaluate(start)
-      val nChars = asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
+      val nChars = AsIntConverters.asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
       val postEvalState = start.withVariables(newVMap)
       log(LogLevel.Debug, "Explicit length %s", nChars)
 
@@ -289,7 +290,7 @@ class LiteralNilExplicitLengthInBytesParser(
 
   final def computeLength(start: PState) = {
     val (nBytesAsAny, newVMap) = expr.evaluate(start)
-    val nBytes = asLong(nBytesAsAny) //nBytesAsAny.asInstanceOf[Long]
+    val nBytes = AsIntConverters.asLong(nBytesAsAny) //nBytesAsAny.asInstanceOf[Long]
     (nBytes, newVMap)
   }
 }

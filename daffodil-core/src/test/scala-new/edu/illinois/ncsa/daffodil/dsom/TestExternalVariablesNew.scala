@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.InputValueCalc
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -84,8 +83,7 @@ class TestExternalVariablesNew {
           <xs:sequence/>
         </xs:choice>
       </xs:group>)
-    val DummyPrimitiveFactory = null
-    lazy val xsd_sset = new SchemaSet(DummyPrimitiveFactory, sch, "http://example.com", "fake")
+    lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
     lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
     lazy val fakeSD = xsd_schema.schemaDocuments(0)
     (fakeSD, xsd_sset)

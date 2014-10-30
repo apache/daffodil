@@ -64,15 +64,23 @@ abstract class StringLengthParser(
       val postState = parseInput(start, dcharset.charset, nBytes)
       return postState
     } catch {
+      // Malformed input exception indicates bytes/bits couldn't be decoded into 
+      // characters.
+      //
+      // This won't actually be thrown until encodingErrorPolicy='error' is
+      // implemented. That is tricky, because we must read-exact, we can't convert
+      // a buffer of characters but error out on a decoding error because that
+      // part of the buffer might never be consumed. It just represents perhaps 
+      // decoding ahead past end of string into some binary data perhaps.
+      //
       case m: MalformedInputException => { return PE(start, "%s - MalformedInputException: \n%s", parserName, m.getMessage()) }
+      //
+      // Thrown if the length is explicit but there aren't enough bytes/bits to
+      // meet the length.
+      //
       case e: IndexOutOfBoundsException => {
         return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
       }
-      case u: UnsuppressableException => throw u
-      //      case e: Exception => {
-      //        val foo = e
-      //        return PE(start, "%s - Exception:\n%s", parserName, e.getMessage())
-      //        }
     }
     pstate
   }

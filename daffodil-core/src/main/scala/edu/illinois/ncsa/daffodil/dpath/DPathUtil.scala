@@ -24,6 +24,9 @@ object DPathUtil {
     v.substring(1, v.length - 1)
   }
 
+  // TODO: When we get rid of this deprecated thing, part of that is part of getting
+  // rid of the other QName oriented code that is also deprecated. There
+  // should be no use of this "expandedTypeName" stuff anymore.
   @deprecated("use PrimType and/or NodeInfo instead.", "2014-09-17")
   def convertTypeString(expandedTypeName: String): NodeInfo.Kind = {
     Assert.usage(expandedTypeName != null)

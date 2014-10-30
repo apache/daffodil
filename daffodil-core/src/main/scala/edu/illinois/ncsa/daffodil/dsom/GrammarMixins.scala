@@ -127,6 +127,12 @@ trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent
       case Found(qName, loc) => {
         val (nsURI, name) = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
         val defESFactory = schemaSet.getDefineEscapeScheme(nsURI, name)
+        //
+        // We have escape scheme factories because an escape schema can have 
+        // expressions (for escapeCharacter and escapeEscapeCharacter), and 
+        // those need to be compiled for each context where the escape scheme
+        // is referenced, not just once.
+        //
         defESFactory match {
           case None => SDE("Define Escape Scheme %s Not Found", qName)
           case Some(desf) => Some(desf.forComponent(this).escapeScheme)

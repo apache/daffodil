@@ -14,7 +14,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
-import edu.illinois.ncsa.daffodil.dpath.AsIntMixin
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
   extends Terminal(e, true) {
@@ -134,8 +134,7 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
   extends PrimParser(erd)
-  with WithParseErrorThrowing
-  with AsIntMixin {
+  with WithParseErrorThrowing {
 
   override def toBriefXML(depthLimit: Int) = eParser.toBriefXML(depthLimit)
 
@@ -209,7 +208,7 @@ class SpecifiedLengthExplicitBitsParser(
 
   def getBitLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
-    val nBytes = asLong(nBytesAsAny)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
 
     (start, nBytes * toBits)
@@ -280,7 +279,7 @@ class SpecifiedLengthExplicitBytesParser(
 
   def getLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
-    val nBytes = asLong(nBytesAsAny)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }
@@ -371,11 +370,11 @@ class SpecifiedLengthExplicitCharactersParser(
   erd: ElementRuntimeData,
   override val encodingInfo: EncodingInfo,
   length: CompiledExpression)
-  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin with AsIntMixin {
+  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
 
   def getLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
-    val nBytes = asLong(nBytesAsAny)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }

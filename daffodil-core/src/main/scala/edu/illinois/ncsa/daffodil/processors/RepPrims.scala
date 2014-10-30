@@ -87,38 +87,38 @@ object RepPrims {
   class RepExactlyNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     // Since this is Exactly N, there is no new point of uncertainty considerations here.
-    def parser = new RepExactlyNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val parser = new RepExactlyNParser(n, r.parser, context.elementRuntimeData)
 
   }
 
   class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
-    def parser = new RepAtMostTotalNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val parser = new RepAtMostTotalNParser(n, r.parser, context.elementRuntimeData)
 
   }
 
   class RepExactlyTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
-    def parser = new RepExactlyTotalNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val parser = new RepExactlyTotalNParser(n, r.parser, context.elementRuntimeData)
 
   }
 
   class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r) {
 
-    def parser = new RepUnboundedParser(e.occursCountKind, r.parser, e.elementRuntimeData)
+    override lazy val parser = new RepUnboundedParser(e.occursCountKind, r.parser, e.elementRuntimeData)
   }
 
   class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram)
     extends RepPrim(e, n, r) {
 
-    def parser = new RepAtMostOccursCountParser(r.parser, n, e.elementRuntimeData)
+    override lazy val parser = new RepAtMostOccursCountParser(r.parser, n, e.elementRuntimeData)
 
   }
 
   class RepExactlyTotalOccursCountPrim(e: LocalElementBase, r: => Gram)
     extends RepPrim(e, 1, r) {
 
-    def parser = new RepExactlyTotalOccursCountParser(r.parser, e.elementRuntimeData)
+    override lazy val parser = new RepExactlyTotalOccursCountParser(r.parser, e.elementRuntimeData)
 
   }
 }
@@ -138,6 +138,6 @@ object RepExactlyTotalOccursCount extends Rep2Arg(new RepExactlyTotalOccursCount
 case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
 
-  def parser = new OccursCountExpressionParser(e.occursCount, e.elementRuntimeData)
+  override lazy val parser = new OccursCountExpressionParser(e.occursCount, e.elementRuntimeData)
 
 }

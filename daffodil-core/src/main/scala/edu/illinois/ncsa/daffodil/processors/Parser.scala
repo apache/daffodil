@@ -68,8 +68,9 @@ import edu.illinois.ncsa.daffodil.dsom.TypeConversions
 abstract class Parser(val context: RuntimeData)
   extends Logging
   with ToBriefXMLImpl
-  with TypeConversions
   with Serializable {
+
+  import TypeConversions._
 
   def PE(pstate: PState, s: String, args: Any*) = {
     pstate.failed(new ParseError(One(context.schemaFileLocation), One(pstate), s, args: _*))
@@ -149,11 +150,8 @@ trait ToBriefXMLImpl {
 class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
   extends Parser(context)
   with ToBriefXMLImpl {
-  //Assert.invariant(!childParsers.exists { _.isEmpty })
 
   override val nom = "seq"
-
-  //override val childParsers = children.map { _.parser }
 
   def parse(pstate: PState): PState = {
     var pResult = pstate
@@ -175,11 +173,8 @@ class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
 class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
   extends Parser(context)
   with ToBriefXMLImpl {
-  //Assert.invariant(!children.exists { _.isEmpty })
 
   override val nom = "alt"
-
-  //override val childParsers = children.map { _.parser }
 
   def parse(pInitial: PState): PState = {
     val pStart = pInitial.withNewPointOfUncertainty
@@ -195,9 +190,11 @@ class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
         } catch {
           case u: UnsuppressableException => throw u
           case rsde: RuntimeSchemaDefinitionError => throw rsde
-          // Don't catch this. Just let it propagate. Otherwise it makes it 
+          // Don't catch very general exception classes. Only very specific 
+          // ones. Otherwise it makes it 
           // hard to debug whatever caused the exception (e.g., class casts)
-          // case e: Exception => Assert.invariantFailed("Runtime parsers should not throw exceptions: " + e)
+          // because they're getting caught and converted into rSDEs which makes them 
+          // look to be DFDL Schema or parser issues when they are code problems.
         }
         if (pResult.status == Success) {
           log(LogLevel.Debug, "Choice alternative success: %s", parser)

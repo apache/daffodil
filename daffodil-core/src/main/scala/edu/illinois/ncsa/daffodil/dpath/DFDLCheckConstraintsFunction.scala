@@ -194,6 +194,8 @@ object DFDLCheckConstraintsFunction {
   }
 
   // TODO: Duplication of dateToBigDecimal in Types.scala, throw in a library?
+  // Note there is also similar code in Conversions.scala used by the DPath
+  // runtime - lots of overlap between that and facet-checking code. 
   def dateToBigDecimal(date: String, format: String, eb: ElementRuntimeData): java.math.BigDecimal = {
     val df = new SimpleDateFormat(format)
     df.setCalendar(new GregorianCalendar())
@@ -207,6 +209,8 @@ object DFDLCheckConstraintsFunction {
   }
 
   // TODO: Duplication of convertFacetToBigDecimal in Types.scala , throw in a library?
+  // Note there is also similar code in Conversions.scala used by the DPath
+  // runtime - lots of overlap between that and facet-checking code. 
   def convertDataToBigDecimal(data: String, primType: PrimType, e: ElementRuntimeData): java.math.BigDecimal = {
     primType match {
       case PrimType.DateTime => dateToBigDecimal(data, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxx", e)
@@ -217,7 +221,6 @@ object DFDLCheckConstraintsFunction {
   }
 
   def checkMinInc(data: String, minValue: java.math.BigDecimal, primType: PrimType, e: ElementRuntimeData): Boolean = {
-    //    val bdData = new java.math.BigDecimal(data)
     val bdData = convertDataToBigDecimal(data, primType, e)
     val isDataGreaterThanEqToMinInc = bdData.compareTo(minValue) >= 0
     isDataGreaterThanEqToMinInc
@@ -324,7 +327,6 @@ object DFDLCheckConstraintsFunction {
   }
 
   def checkOccurrance(minOccurs: Int, maxOccurs: Int, position: Long): Boolean = {
-    //System.err.println("checkOccurrance(%s, %s, %s)".format(minOccurs, maxOccurs, position))
     // A maxOccurs of -1 signifies unbounded
     if ( // position > minOccurs && // DON"T CHECK MIN OCCURS. 
     // That can't work. If minOccurs is 5 the first element at position 1 will fail this check.

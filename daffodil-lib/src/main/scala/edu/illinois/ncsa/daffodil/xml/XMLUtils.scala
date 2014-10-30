@@ -196,6 +196,17 @@ object XMLUtils {
     sb.toString
   }
 
+  /*
+   * This is needed for equality comparison of XML.
+   * 
+   * Ex: "foo&#x221;bar" is 3 nodes, not one string node. 
+   * But appears to be one string when serialized as XML.
+   * 
+   * Once the XML has been read into XML objects, the 3 objects 
+   * are just 3 adjacent text nodes, so adjacent text nodes
+   * can be coalesced for use in the DFDL Infoset, or for comparing
+   * trees of XML that may have been created different ways.
+   */
   def coalesceAdjacentTextNodes(seq: Seq[Node]): Seq[Node] = {
     type Atom = scala.xml.Atom[String]
     if (seq.length == 0) return seq
@@ -287,19 +298,6 @@ object XMLUtils {
   val DFDL_NAMESPACE = NS("http://www.ogf.org/dfdl/dfdl-1.0/") // dfdl ns does have a trailing slash
   val TDML_NAMESPACE = NS("http://www.ibm.com/xmlns/dfdl/testData")
   val EXAMPLE_NAMESPACE = NS("http://example.com")
-
-  // must manufacture these because in JDOM, attributes have parent pointers up
-  // to their enclosing elements.
-  // JDOM def nilAttribute() = new org.jdom2.Attribute("nil", "true", XMLUtils.xsiNS)
-
-  //  def wasCheckConstraintsRan(e: Element) = {
-  //    ???
-  //    //    val checkAttr = e.getAttribute("checkConstraintsRan", XMLUtils.INT_NS_OBJECT)
-  //    //    val res =
-  //    //      if (checkAttr == null) false
-  //    //      else checkAttr.getValue() == "true"
-  //    //    res
-  //  }
 
   /**
    * Added to support extensions and proposed future features as part of daffodil.
@@ -418,278 +416,9 @@ object XMLUtils {
       "time",
       "dateTime",
       "hexBinary")
-  //
-  //  private val listPattern = Pattern.compile("'([^']*)'|([^'\\s]+)")
-  //
-  //  private var shouldCompress = false
-  //  private var hasCompressed = false
 
   def slashify(s: String): String = if (s == "" || s.endsWith("/")) s else s + "/"
 
-  //  // TODO: Somehow the term "Full" name has come to mean the short name (no namespace qualification, nor prefix.
-  //  def getFullName(e:Element) = e.getName()
-  // 
-  //  def getFullNameWithNamespace(e:Element) = slashify(e.getNamespaceURI()) + e.getName()
-  //  
-  //  def getUnqualifiedName(e:Element) = e.getName()
-  //  
-  //  def getUnqualifiedName(a:Attribute) = a.getName()
-
-  //  def getFullNameWithNamespace(a:Attribute) =
-  //    slashify(a.getNamespaceURI()) + a.getName()
-  //    
-  //  def getFullName(a:Attribute) = a.getName()
-  //
-  //  def getAttribute(e:Element,name:String):Option[String] =
-  //    e getAttributeValue(name) match {
-  //      case null => None
-  //      case s:String => Some(s)
-  //    }
-  //
-  //  def getFullName(name:String,namespaces:Namespaces) = {
-  //    var namespace:String = ""
-  //    var localName:String = ""
-  //
-  //    if (name contains(":")){
-  //      val parts = name split(":")
-  //      namespace = namespaces getNamespaceURI(parts(0))
-  //      localName = parts(1)
-  //    }else{
-  //      namespace = namespaces getNamespaceURI("")
-  //      localName = name
-  //    }
-  //    slashify(namespace)+localName
-  //  }
-  //
-  //  def getChildren(e:Element):Iterable[Element] = {
-  //    val children = e.getChildren
-  //    val res = children.asInstanceOf[java.util.List[Element]]
-  //    res
-  //  }
-  //
-  //  def getAttributes(e:Element):Iterable[Attribute] = {
-  //    e.getAttributes.asInstanceOf[java.util.List[Attribute]]
-  //  }
-  //
-  //  /**
-  //   * given a name, finds the named child
-  //   * 
-  //   * TODO: QName/namespace support - right now it just tries with and without the prefix.
-  //   */
-  //  def getChildByName(parent:Element,name:String):Element = {
-  //    for(child <- getChildren(parent))
-  //      getAttribute(child,"name") match {
-  //        case Some(s) => {
-  //          if (s==name) return child
-  //          else {
-  //            // try stripping any prefix
-  //            val tokens = name.split(":").toList
-  //            if (tokens.length == 2) {
-  //              val withoutPrefix = tokens(1)
-  //              if (s==withoutPrefix) return child
-  //            }
-  //          }
-  //        }
-  //        case _ =>
-  //      }
-  //    throw new DFDLSchemaDefinitionException("Reference not found:"+name,schemaContext = parent)
-  //  }
-  //
-  //  def getChildByTag(parent:Element,tag:String):Option[Element] = {
-  //    for(child <- getChildren(parent))
-  //      if (getFullNameWithNamespace(child) == tag)
-  //        return Some(child)
-  //    None
-  //  }
-  //
-  //  def compare(x:Element,y:Element):Boolean = { // FIXME: give good diagnostics. This is used in unit tests.
-  //    val children1 = x getChildren
-  //    val children2 = y getChildren;
-  //    getFullName(x) == getFullName(y) && x.getText() == y.getText() &&
-  //            children1.size == children2.size &&
-  //            (0 until children1.size).forall { i:Int => compare(children1.get(i).asInstanceOf[Element],
-  //              children2.get(i).asInstanceOf[Element]) }
-  //  }
-  //
-  //  def addNewChild(parent:Parent,name:String,target:String,namespaces:Namespaces) = {
-  //
-  //    // checkMemory(parent)
-  //
-  //    val namespace = getTargetNamespace(name,target,namespaces)
-  //    nodeCount += 1
-  //    // val ele = new CompressableElement(name,namespace)
-  //    val ele = new Element(name,namespace)
-  //
-  //    for( ns <- namespaces getNotNullNamespaces)
-  //      ele addNamespaceDeclaration(ns)
-  //
-  //    parent match {
-  //      case null => ele
-  //      case p:Document => p addContent(ele)
-  //      case e:Element => e addContent(ele)
-  //    }
-  //    ele
-  //  }
-  //
-  //  def addNewChild(parent:Parent,name:String,value:String,target:String,namespaces:Namespaces) = {
-  //    val namespace = getTargetNamespace(name,target,namespaces)
-  //
-  //    // checkMemory(parent)
-  //
-  //    val ele = element(name,namespace,value)
-  //    for( ns <- namespaces getNotNullNamespaces)
-  //      ele addNamespaceDeclaration(ns)
-  //
-  //    parent match {
-  //      case null => ele
-  //      case p:Document => p addContent(ele)
-  //      case e:Element => e addContent(ele)
-  //    }
-  //    assert (ele.getDocument != null)
-  //    ele
-  //  }
-
-  //  /*
-  //   * public because it is used by tests
-  //   */
-  //  def element(name:String,text:String) = {
-  //    nodeCount += 1
-  //    // val ele = new CompressableElement(name)
-  //    val ele = new Element(name)
-  //    ele addContent(text)
-  //    ele
-  //  }
-
-  //  private def element(name:String,namespace:Namespace,text:String) = {
-  //    nodeCount += 1
-  //    // val ele = new CompressableElement(name,namespace)
-  //    val ele = new Element(name,namespace)
-  //    ele addContent(text)
-  //    ele
-  //  }
-  //
-  //  def element(name:String,children:List[Element]):Element = {    
-  //    nodeCount += 1
-  //    // val node = new CompressableElement(name)
-  //    val node = new Element(name)
-  //    children foreach { node addContent (_) }
-  //    node
-  //  }
-  //
-  //  def removeChild(parent:Parent,child:Element):Unit = {
-  //    if (child != null){
-  //      val root = getRoot(child)
-  //      if (parent != null)
-  //        parent removeContent(child)
-  //    }
-  //  }
-
-  //  def getRoot(child:Parent):Parent =
-  //    if (child.getParent != null)
-  //      getRoot(child getParent)
-  //    else
-  //      child
-  //
-  //
-  //  def removeChildren(node:Parent,children:LinkedList[Element]):Unit =
-  //    if (node != null && children !=null )
-  //      children foreach { node removeContent (_) }
-  //
-  //
-  //  def addChildren(parent:Parent,children:LinkedList[Element]):Unit =
-  //    if (parent != null && children !=null )
-  //     parent match {
-  //      case p:Document => children foreach { p addContent(_) }
-  //      case e:Element => children foreach { e addContent(_) }
-  //    }
-  //  
-  //  def parse(is:InputStream):Document = {
-  //	val builder = new SAXBuilder()
-  //	builder.build(is)
-  //  }
-  //  
-  //  def parse(f:File):Document = {
-  //	  parse(new FileInputStream(f))
-  //  }
-  //
-  //  def compactXml(xml: scala.xml.NodeSeq): scala.xml.NodeSeq = {
-  //    xml flatMap {
-  //      case scala.xml.Elem(prefix, label, attributes, scope, children @ _*) => {
-  //        scala.xml.Elem(prefix, label, attributes, scope, children.flatMap(compactXml(_)): _*)
-  //      }
-  //      case scala.xml.Text(data) => {
-  //        if (data.matches("""\s*"""))
-  //          scala.xml.NodeSeq.Empty
-  //        else
-  //          xml
-  //      }
-  //      case x => x
-  //    }
-  //  }
-  //    
-  //  def serialize(parent:Parent) = serializeFormatted(parent, Format.getPrettyFormat())
-  //  def serializeCompact(parent : Parent) = serializeFormatted(parent, Format.getCompactFormat())
-  //  
-  //  def serializeFormatted(parent:Parent, format : Format) = {
-  //    val sw = new StringWriter()
-  //    format setLineSeparator(System.getProperty("line.separator"))
-  //    parent match {
-  //      case d:Document => new XMLOutputter(format).output(d,sw)
-  //      case e:Element =>  new XMLOutputter(format).output(e,sw)
-  //    }
-  //    sw write(System.getProperty("line.separator"));
-  //    sw toString
-  //  }
-  //  
-  //    def serialize(out: OutputStream, parent: Parent) = {
-  //      val format = Format.getPrettyFormat()
-  //      format.setLineSeparator(System.getProperty("line.separator"))
-  //      parent match {
-  //        case d:Document => new XMLOutputter(format).output(d,out)
-  //        case e:Element => new XMLOutputter(format).output(e,out)
-  //      }
-  //      out.write(System.getProperty("line.separator").getBytes())
-  //      //new PrintWriter(out).println()
-  //    }
-  //  
-  //  def getTotalNodes = nodeCount
-  //
-  //  def printContext(element:Element,insert:String,context:Int):String = {
-  //    try {
-  //      val sw = new StringWriter()
-  //      val separator = System.getProperty("line.separator")
-  //      val writer = new daffodil.parser.xml.Writer(sw)
-  //      val format = Format getPrettyFormat;
-  //      format setLineSeparator(separator)
-  //      getRoot(element) match {
-  //        case document:Document => new daffodil.parser.xml.XMLOutputter(format).output(document,writer)
-  //        case child:Element => new daffodil.parser.xml.XMLOutputter(format).output(child,writer)
-  //      }
-  //      val position = writer getPosition(element)
-  //      val level = writer getLevel(element)
-  //      val string = sw toString
-  //      val indent = format getIndent
-  //      var start = string lastIndexOf(separator,position-context)
-  //      val stop = string indexOf(separator,position)
-  //      var end = string indexOf(separator,position+context)
-  //
-  //      start = if (start<0) 0 else start
-  //      end = if (end<0) string.length else end
-  //
-  //      val sb = new StringBuilder()
-  //      sb append(string.substring(start,stop))
-  //      sb append(separator)
-  //      for( i <- 0 until level)
-  //        sb append(indent)
-  //      sb append(insert)
-  //      sb append(string.substring(stop,end))
-  //
-  //      sb toString
-  //    }catch {
-  //      case e:java.util.NoSuchElementException => "Unknown"
-  //      case e:StringIndexOutOfBoundsException => "Unknown"
-  //    }
-  //  }
   @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
   def expandedQName(qName: JQName): String = {
     val uri = NS(qName.getNamespaceURI)
@@ -767,22 +496,6 @@ object XMLUtils {
   }
 
   /**
-   * super inefficient, but useful for unit tests
-   */
-  //  def element2Elem(jElem: Element): scala.xml.Node = {
-  //    return XML.loadString(new org.jdom2.output.XMLOutputter().outputString(jElem))
-  //  }
-  //
-  //  def element2ElemTDML(jElem: Element): scala.xml.Node = {
-  //    val format = org.jdom2.output.Format.getRawFormat().setTextMode(Format.TextMode.PRESERVE) // Literal text preservation
-  //    val w = new java.io.StringWriter
-  //    val out = new org.jdom2.output.XMLOutputter(format)
-  //    out.output(jElem, w)
-  //    val res = XML.loadString(w.toString())
-  //    return res
-  //  }
-
-  /**
    * Annoying, but namespace bindings are never a collection you can process like a normal collection.
    * Instead they are linked by these parent chains.
    */
@@ -796,99 +509,6 @@ object XMLUtils {
       thisOne ++ others
     }
   }
-
-  //
-  //  def namespaceBindings(element: org.jdom2.Element): Seq[org.jdom2.Namespace] = {
-  //    if (element == null) Nil
-  //    else {
-  //      val ans = element.getAdditionalNamespaces.toSeq.asInstanceOf[Seq[org.jdom2.Namespace]]
-  //      val thisOne = element.getNamespace()
-  //      val parentContribution = element.getParent match {
-  //        case parentElem: org.jdom2.Element => namespaceBindings(parentElem)
-  //        case _ => Nil
-  //      }
-  //      val res = thisOne +: (ans ++ parentContribution)
-  //      res
-  //    }
-  //  }
-
-  val CDATAPattern = {
-    """(?s)^<!\[CDATA\[(.*?)\]\]>$""".r
-  }
-
-  /**
-   * Specially interprets text that matches the CDATAPattern so as to preserve
-   * it
-   *
-   * TODO: refactor this and elem2Element(node) since they are only different
-   * in a few lines.
-   */
-  //  def elem2ElementTDML(node: scala.xml.Node): Element = {
-  //    val jdomNode = new Element(node.label, node.prefix, node.namespace)
-  //    var Elem(_, _, _, nsBinding: NamespaceBinding, _*) = node.asInstanceOf[scala.xml.Elem]
-  //
-  //    namespaceBindings(nsBinding).foreach { ns =>
-  //      {
-  //        val prefix = ns.prefix
-  //        if (prefix != null & prefix != ""
-  //          && jdomNode.getNamespace(prefix) == null)
-  //          jdomNode.addNamespaceDeclaration(org.jdom2.Namespace.getNamespace(ns.prefix, ns.uri))
-  //      }
-  //    }
-  //
-  //    val attribsList = if (node.attributes == null) Nil else node.attributes
-  //
-  //    val attribs = attribsList.map { (attribute: MetaData) =>
-  //      {
-  //        // for(attribute <- attribs) {
-  //        val attrNS = attribute.getNamespace(node)
-  //        val name = attribute.key
-  //        val value = attribute.value.text
-  //        val prefixedKey = attribute.prefixedKey
-  //        val prefix = if (prefixedKey.contains(":")) prefixedKey.split(":")(0) else ""
-  //        val ns = (prefix, attrNS) match {
-  //          //
-  //          // to make our test cases less cluttered and more compact visually, we're 
-  //          // going to specifically allow for an attribute named xsi:nil where xsi prefix
-  //          // is NOT defined.
-  //          //
-  //          case ("xsi", null) | ("xsi", "") => xsiNS
-  //          case (_, null) | (_, "") => {
-  //            Assert.invariantFailed("attribute with prefix '%s', but no associated namespace".format(prefix))
-  //          }
-  //          case ("", uri) => Namespace.getNamespace(uri)
-  //          case (pre, uri) => Namespace.getNamespace(pre, uri)
-  //        }
-  //
-  //        if (attribute.isPrefixed && attrNS != "") {
-  //          //          println("THE ATTRIBUTE IS: " + name)
-  //          //          println("THE NAMESPACE SHOULD BE: " + attrNS)
-  //          //          println("IT ACTUALLY IS:" + Namespace.getNamespace(name, attrNS))
-  //
-  //          // jdomNode setAttribute (name, value, ns)
-  //          new Attribute(name, value, ns)
-  //        } else
-  //          // jdomNode setAttribute (name, value)
-  //          new Attribute(name, value)
-  //      }
-  //    }
-  //    jdomNode.setAttributes(attribs)
-  //    for (child <- node.child) {
-  //      child.toString match {
-  //        case CDATAPattern(text) => {
-  //          jdomNode.addContent(new org.jdom2.CDATA(text))
-  //        }
-  //        case _ => child.label match {
-  //          case "#PCDATA" => jdomNode.addContent(child.toString)
-  //          case "#CDATA" => jdomNode.addContent(new org.jdom2.CDATA(child.toString))
-  //          case "#REM" =>
-  //          case _ => jdomNode.addContent(elem2ElementTDML(child))
-  //        }
-  //      }
-  //
-  //    }
-  //    jdomNode
-  //  }
 
   /**
    * We don't want to be sensitive to which prefix people bind
@@ -925,48 +545,6 @@ object XMLUtils {
     }
     res
   }
-
-  // private lazy val hiddenNS = org.jdom2.Namespace.getNamespace(INT_NS)
-  //
-  //  def isHiddenElement(e: org.jdom2.Element): Boolean = {
-  //    e.getAttribute("hidden", hiddenNS) match {
-  //      case null => false
-  //      case attr: Attribute => {
-  //        Assert.usage(attr.getValue() == "true", "hidden attribute should have value true or not be present at all.")
-  //        true
-  //      }
-  //    }
-  //  }
-
-  /**
-   * Copies a JDOM Element and removes all hidden
-   * elements from the copy and its children.
-   *
-   * @param e the Element to copy and remove hidden elements from.
-   * @return a copy of Element without hidden elements.
-   */
-  //  def copyWithoutHiddenElements(e: org.jdom2.Element): org.jdom2.Element = {
-  //    val newNode: org.jdom2.Element = e.clone.asInstanceOf[org.jdom2.Element]
-  //    removeHiddenElements(newNode)
-  //    newNode
-  //  }
-
-  /**
-   * Removes hidden elements from a JDOM Element and
-   * all its children.
-   *
-   * @param e the Element to remove hidden elements from.
-   */
-  //  def removeHiddenElements(e: Element): Unit = {
-  //    val children = e.getChildren().toList.asInstanceOf[List[Element]]
-  //    for (child <- children) {
-  //      if (isHiddenElement(child)) {
-  //        if (!e.removeContent(child)) Assert.abort("removeHiddenElements - JDOM failed to remove hidden element.")
-  //      } else {
-  //        removeHiddenElements(child)
-  //      }
-  //    }
-  //  }
 
   /**
    * Used to collapse the excessive xmlns proliferation.

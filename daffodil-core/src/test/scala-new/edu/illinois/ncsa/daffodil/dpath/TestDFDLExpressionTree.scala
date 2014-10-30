@@ -29,7 +29,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
-    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.String, testSchema.scope, erd.dpathCompileInfo)
+    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.String, testSchema.scope, erd.dpathCompileInfo)
     val result = exprCompiler.getExpressionTree(expr)
     body(result)
   }
@@ -41,7 +41,7 @@ class TestDFDLExpressionTree extends Parsers {
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl
-    val exprCompiler = new DFDLPathExpressionCompiler(NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo)
+    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, decl.dpathCompileInfo)
     val result = exprCompiler.getExpressionTree(expr)
     body(result, erd.elementRuntimeData)
   }

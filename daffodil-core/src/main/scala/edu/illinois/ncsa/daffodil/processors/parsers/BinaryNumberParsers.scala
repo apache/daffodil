@@ -182,11 +182,13 @@ abstract class BinaryNumberBaseParser[T](
       start.simpleElement.setDataValue(convertedValue)
       start.withPos(newPos, -1, Nope)
     } catch {
+      /*
+       * The reason we catch IndexOutOfBounds is that is the exception 
+       * thrown when indexing into the data stream and you reach past the end.
+       */
       case e: IndexOutOfBoundsException => {
         return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
       }
-      case u: UnsuppressableException => throw u
-      // case e: Exception => { return PE(start0, "BinaryNumber - Exception: \n%s", e) }
     }
   }
 

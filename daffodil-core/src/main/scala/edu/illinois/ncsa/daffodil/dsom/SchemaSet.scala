@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.collection.JavaConversions.asScalaIterator
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.Binding
-import edu.illinois.ncsa.daffodil.grammar.PrimitiveFactoryBase
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
@@ -78,7 +77,6 @@ import java.io.File
  */
 class SchemaSet(
   externalVariables: Seq[Binding],
-  primFactory: PrimitiveFactoryBase,
   schemaFilesArg: Seq[File],
   validateDFDLSchemas: Boolean,
   rootSpec: Option[RootSpec] = None,
@@ -86,8 +84,6 @@ class SchemaSet(
   parent: SchemaComponent = null)
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
-
-  override lazy val primitiveFactory = primFactory
 
   requiredEvaluations(isValid)
   if (checkAllTopLevel) {
@@ -128,20 +124,12 @@ class SchemaSet(
   private val _validateSchemaFiles = LV('validateSchemaFiles) {
     // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
     if (validateDFDLSchemas) {
-      // val diags: scala.collection.mutable.Queue[(DFDLSchemaValidationException, String)] = scala.collection.mutable.Queue.empty
-      //
       schemaFilesArg.foreach(f =>
         try {
           loader.validateDFDLSchema(f)
         } catch {
           case e: DFDLSchemaValidationException => SDE(DiagnosticUtils.getSomeMessage(e).get)
         })
-      //
-      //      val warn = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationWarning] }.map { case (d, f) => d.getMessage() + " File: " + f }
-      //      val errs = diags.filter { case (d, _) => d.isInstanceOf[DFDLSchemaValidationError] }.map { case (d, f) => d.getMessage() + " File: " + f }
-      //
-      //      if (warn.length > 0) SDW("DFDL Schema Validation warned due to the following:\n%s", warn.mkString("\n"))
-      //      if (errs.length > 0) SDE("DFDL Schema Validation failed due to the following:\n%s", errs.mkString("\n"))
     }
   }
 
@@ -155,10 +143,9 @@ class SchemaSet(
   /**
    * This constructor for unit testing only
    */
-  def this(primFact: PrimitiveFactoryBase, sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty) =
+  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty) =
     this(
       extVars,
-      primFact,
       {
         val file = XMLUtils.convertNodeToTempFile(sch)
         val files = List(file)

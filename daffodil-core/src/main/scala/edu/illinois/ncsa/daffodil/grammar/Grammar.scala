@@ -48,7 +48,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.util.Logging
 
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
-  extends OOLAGHost(contextArg) with AsIntMixin {
+  extends OOLAGHost(contextArg) {
 
   val context: AnnotatedSchemaComponent = contextArg
 
@@ -163,7 +163,7 @@ class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  def parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
+  override lazy val parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
 }
 
 object AltComp {
@@ -186,21 +186,21 @@ class AltComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   def open = "["
   def close = "]"
 
-  def parser = new AltCompParser(context.runtimeData, children.map { _.parser })
+  override lazy val parser = new AltCompParser(context.runtimeData, children.map { _.parser })
 }
 
 object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
-  def parser = new EmptyGramParser
+  override lazy val parser = new EmptyGramParser
 }
 
 object ErrorGram extends Gram(null) {
   override def isEmpty = false
   override def toString = "Error"
 
-  def parser = new ErrorParser
+  override lazy val parser = new ErrorParser
 }
 
 abstract class NamedGram(context: AnnotatedSchemaComponent) extends Gram(context) {

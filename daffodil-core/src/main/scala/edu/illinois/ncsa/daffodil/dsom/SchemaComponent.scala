@@ -36,7 +36,6 @@ import scala.xml.Node
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar.PrimitiveFactoryBase
 import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
@@ -72,9 +71,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       path,
       schemaFileLocation)
 
-  lazy val primitiveFactory: PrimitiveFactoryBase = schemaSet.primitiveFactory
-  lazy val prims = primitiveFactory
-
   val context: SchemaComponent = parent
 
   /**
@@ -109,7 +105,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * when we convert to XML.
    */
   lazy val namespaces = {
-    val scope = xml.scope // XMLUtils.namespaceBindings(xml.scope)
+    val scope = xml.scope
     val foundXsiURI = scope.getURI("xsi")
     val xsiURI = XMLUtils.xsiURI.toString
     val newScope =
@@ -199,19 +195,6 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     }
     ee
   }
-
-  //  final override lazy val immediateEnclosingCompileInfo: Option[DPathCompileInfo] = {
-  //    val ec = this.enclosingComponent
-  //    ec match {
-  //      // we need to walk back past element references since they will
-  //      // fool things looking for an enclosing element into thinking they've
-  //      // moved outward to one, when they're just on the element ref to the
-  //      // element they were originally on.
-  //      case Some(er: ElementRef) => er.immediateEnclosingCompileInfo
-  //      case Some(sc) => Some(sc.dpathCompileInfo)
-  //      case None => None
-  //    }
-  //  }
 
   final lazy val enclosingTerm: Option[Term] = {
     enclosingComponent match {

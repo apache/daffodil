@@ -49,7 +49,6 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.api.DFDL._
 
-
 /*
  * This is not a file of tests.
  * 
@@ -176,7 +175,6 @@ object TestUtils {
 
 }
 
-
 /**
  * We need a schema document and such for unit testing, also our PrimType
  * needs a dummy schema document also so that our invariant, that *everything*
@@ -208,7 +206,7 @@ class Fakes private () {
       </xs:choice>
     </xs:group>)
   val DummyPrimitiveFactory = null
-  lazy val xsd_sset: SchemaSet = new SchemaSet(DummyPrimitiveFactory, sch, "http://example.com", "fake")
+  lazy val xsd_sset: SchemaSet = new SchemaSet(sch, "http://example.com", "fake")
   lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get.forRoot()

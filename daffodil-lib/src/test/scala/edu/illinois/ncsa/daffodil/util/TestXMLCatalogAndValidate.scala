@@ -430,7 +430,7 @@ class SchemaAwareFactoryAdapter()
     res)
   //
 
-  override def parser: SAXParser = p
+  override lazy val parser: SAXParser = p
 
   var exceptionList: List[Exception] = Nil
 

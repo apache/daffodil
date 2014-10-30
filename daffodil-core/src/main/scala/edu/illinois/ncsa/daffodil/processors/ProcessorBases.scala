@@ -6,11 +6,11 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dpath.AsIntMixin
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 abstract class PrimParser(contextArg: RuntimeData)
   extends DaffodilParser(contextArg)
-  with WithParseErrorThrowing with AsIntMixin {
+  with WithParseErrorThrowing {
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + Misc.getNameFromClass(this) + "/>"
@@ -31,5 +31,5 @@ case class Nada(sc: Term) extends Terminal(sc, true) {
   // cannot optimize this out! It is used as an alternative to things
   // with the intention of "find this and this, or find nothing"
 
-  def parser = new NadaParser(sc.runtimeData)
+  override lazy val parser = new NadaParser(sc.runtimeData)
 }

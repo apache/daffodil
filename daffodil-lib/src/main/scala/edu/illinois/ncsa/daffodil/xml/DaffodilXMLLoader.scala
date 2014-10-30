@@ -484,7 +484,7 @@ trait SchemaAwareLoaderMixin {
 
   protected lazy val resolver = DaffodilCatalogResolver.resolver
 
-  override def parser: SAXParser = {
+  override lazy val parser: SAXParser = {
 
     // val x = new com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl
 

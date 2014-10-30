@@ -11,7 +11,6 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import junit.framework.Assert.{ assertTrue, assertEquals, assertFalse, fail }
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
-import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Fakes
 
@@ -217,7 +216,7 @@ class TestDsomCompiler extends Logging {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -294,7 +293,7 @@ class TestDsomCompiler extends Logging {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -322,7 +321,7 @@ class TestDsomCompiler extends Logging {
           "/test/example-of-named-format-chaining-and-element-simpleType-property-combining.dfdl.xml").toURL)
 
     val compiler = Compiler()
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -344,7 +343,7 @@ class TestDsomCompiler extends Logging {
 
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -363,7 +362,7 @@ class TestDsomCompiler extends Logging {
 
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -406,7 +405,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
@@ -431,7 +430,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -456,7 +455,7 @@ class TestDsomCompiler extends Logging {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -504,7 +503,7 @@ class TestDsomCompiler extends Logging {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
     val compiler = Compiler()
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -570,7 +569,7 @@ class TestDsomCompiler extends Logging {
     val ibm7132Schema = XML.load(Misc.getRequiredResource("/test/TestRefChainingIBM7132.dfdl.xml").toURL)
     // val ibm7132Schema = "test/TestRefChainingIBM7132.dfdl.xml"
     val compiler = Compiler()
-    val sset = new SchemaSet(PrimitiveFactory, ibm7132Schema)
+    val sset = new SchemaSet(ibm7132Schema)
     // val Seq(sch) = sset.schemas
     val Seq(sd) = sset.allSchemaDocuments
 
@@ -607,7 +606,7 @@ class TestDsomCompiler extends Logging {
       <dfdl:defineFormat name="ref1"> <dfdl:format initiator=":"/> </dfdl:defineFormat>,
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -627,7 +626,7 @@ class TestDsomCompiler extends Logging {
       <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:ref="tns:ref1" type="xs:string">
       </xs:element>)
     // println(testSchema)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -656,7 +655,7 @@ class TestDsomCompiler extends Logging {
     val delimiterInheritance = XML.load(Misc.getRequiredResource("/test/TestDelimiterInheritance.dfdl.xml").toURL)
 
     val compiler = Compiler()
-    val sset = new SchemaSet(PrimitiveFactory, delimiterInheritance)
+    val sset = new SchemaSet(delimiterInheritance)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -716,7 +715,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -746,7 +745,7 @@ class TestDsomCompiler extends Logging {
   @Test def test_element_references {
     val testSchema = XML.load(Misc.getRequiredResource("/test/example-of-most-dfdl-constructs.dfdl.xml").toURL)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd) = sch.schemaDocuments
 
@@ -782,7 +781,7 @@ class TestDsomCompiler extends Logging {
           </xs:sequence>
         </xs:sequence>
       </xs:complexType>)
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 

@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends Parser(context) {
@@ -249,14 +250,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
     val res = try {
       val (oc, newVMap) = occursCount.evaluate(pstate)
       val postEvalState = pstate.withVariables(newVMap)
-      val ocLong = oc match {
-        case s: String => s.toInt.toLong
-        case i: Int => i.toLong
-        case l: Long => l
-        case bi: BigInt => bi.toLong
-        case bi: java.math.BigInteger => BigInt(bi).toLong
-        case _ => Assert.invariantFailed("not an integer-type number: " + oc + " of type " + oc.getClass().getName())
-      }
+      val ocLong = AsIntConverters.asLong(oc)
       if (ocLong < 0 ||
         ocLong > DaffodilTunableParameters.maxOccursBounds) {
         return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", occursCount.prettyExpr, ocLong)

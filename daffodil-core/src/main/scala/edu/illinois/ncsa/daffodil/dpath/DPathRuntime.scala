@@ -26,13 +26,15 @@ import com.ibm.icu.util.DFDLDateTime
 import com.ibm.icu.util.DFDLDate
 import com.ibm.icu.util.DFDLTime
 
-class DPathRecipe(val ops: RecipeOp*) extends Serializable {
+import AsIntConverters._
+
+class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
   def this(ops: List[RecipeOp]) = this(ops.toArray: _*)
 
   override def toString = toXML.toString
 
-  def toXML = <DPathRecipe>{ ops.map { _.toXML } }</DPathRecipe>
+  def toXML = <CompiledDPath>{ ops.map { _.toXML } }</CompiledDPath>
 
   def runExpression(pstate: PState) {
     val dstate = pstate.dstate
@@ -56,20 +58,7 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable {
     // we use a special dummy dstate here that errors out via throw
     // if the evaluation tries to get a processor state or node.
     //
-    val dstate = new DState {
-
-      private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
-
-      override def currentSimple = currentNode.asInstanceOf[DISimple]
-      override def currentElement = die
-      override def currentArray = die
-      override def currentComplex = die
-      override def pstate = die
-      override def currentNode = new FakeDINode
-      override def vmap = die
-      override def selfMove() = die
-      override def fnExists() = die
-    }
+    val dstate = new DStateForConstantFolding
     val isConstant: Boolean =
       try {
         run(dstate)
@@ -81,8 +70,16 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable {
         // dstate.setCurrentValue(v) // side effect nulls out the current node
         true
       } catch {
+        // 
+        // We use IllegalStateException to indicate that the DState was manipulated 
+        // in a way that is not consistent with a constant expression. Such as trying to do 
+        // anything with the infoset other than saving and restoring current position in the infoset. 
         case e: java.lang.IllegalStateException =>
           false // useful place for breakpoint
+        // if the expression is all literals, but illegal such as xs:int("foobar") then 
+        // all the pieces are constant, but evaluating will throw NumberFormatException
+        // or dfdl:length='{ 5 / 0 }' - contrived yes, but in larger expressions misakes like this
+        // are typically typographical errors so it is good to pick them up here.
         case e: java.lang.NumberFormatException => throw new SchemaDefinitionError(Some(sfl), None, e.getMessage)
         case e: java.lang.IndexOutOfBoundsException => false
         case e: java.lang.IllegalArgumentException => false
@@ -105,11 +102,25 @@ class DPathRecipe(val ops: RecipeOp*) extends Serializable {
   }
 }
 
+class DStateForConstantFolding extends DState {
+  private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
+
+  override def currentSimple = currentNode.asInstanceOf[DISimple]
+  override def currentElement = die
+  override def currentArray = die
+  override def currentComplex = die
+  override def pstate = die
+  override def currentNode = new FakeDINode
+  override def vmap = die
+  override def selfMove() = die
+  override def fnExists() = die
+}
+
 /**
  * expression evaluation side-effects this state block.
  */
-case class DState() extends AsIntMixin { // extends NotSerializable
-
+case class DState() {
+  import AsIntConverters._
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have
@@ -186,12 +197,18 @@ case class DState() extends AsIntMixin { // extends NotSerializable
   }
 
   // These exists so we can override it in our fake DState we use when
-  // checking expressions to see if they are constants.
+  // checking expressions to see if they are constants. SelfMove 
+  // for real is a no-op, but when we're evaluating an expression to see if 
+  // it is a constant, the expression "." aka self, isn't constant. 
+  // Similarly, if you call fn:exists(....) and the contents are not gong to 
+  // exist at constnat fold time. But we don't want fn:exists to say the result
+  // is always a constant (false) because at constant folding time, hey, nothing
+  // exists... this hook lets us change behavior for constant folding to throw.
   def selfMove(): Unit = {}
   def fnExists(): Unit = {}
 }
 
-trait AsIntMixin {
+object AsIntConverters {
   /**
    * Parsers don't always insert the smallest numeric type into the infoset.
    * Sometimes we get a BigInt when an Int would have sufficed, but the
@@ -242,6 +259,7 @@ trait AsIntMixin {
       case i: Int => i.toLong
       case l: Long => l
       case bi: BigInt => bi.toLong
+      case jbi: java.math.BigInteger => jbi.longValue()
       case _ => Assert.invariantFailed("Unsupported conversion to Long. %s of type %s".format(
         n, Misc.getNameFromClass(n)))
     }
@@ -314,33 +332,28 @@ trait AsIntMixin {
   }
 }
 
-sealed abstract class RecipeOp extends AsIntMixin
-  with Serializable // with PreSerialization 
-  { // extends TypeConversions 
+sealed abstract class RecipeOp
+  extends Serializable {
+  import AsIntConverters._
 
   def run(dstate: DState): Unit
 
-  protected def subRecipes: Seq[DPathRecipe] = Nil
+  protected def subRecipes: Seq[CompiledDPath] = Nil
 
-  //  override def preSerialization: Seq[ElementRuntimeData] = {
-  //    subRecipes.flatMap { _.preSerialization }
-  //  }
-  //
-  //  @throws(classOf[java.io.IOException])
-  //  final private def writeObject(out: java.io.ObjectOutputStream): Unit = {
-  //    preSerialization
-  //    out.defaultWriteObject()
-  //  }
+  protected def toXML(s: String): scala.xml.Node = toXML(new scala.xml.Text(s))
 
-  def toXML(s: String): scala.xml.Node = toXML(new scala.xml.Text(s))
+  protected def toXML(children: scala.xml.Node*): scala.xml.Node = toXML(children.toSeq)
 
-  def toXML(children: scala.xml.Node*): scala.xml.Node = toXML(children.toSeq)
-
-  def toXML(children: scala.xml.NodeSeq): scala.xml.Node = {
+  protected def toXML(children: scala.xml.NodeSeq): scala.xml.Node = {
     val name = Misc.getNameFromClass(this)
     scala.xml.Elem(null, name, scala.xml.Null, scala.xml.TopScope, children.isEmpty, children: _*)
   }
 
+  /**
+   * default behavior is inherited and it displays a RecipeOp assuming there are no children
+   * to display. Override and make it call one of the above toXML methods if
+   * there are children to display.
+   */
   def toXML: scala.xml.Node = toXML(scala.xml.NodeSeq.Empty)
 
 }
@@ -357,11 +370,11 @@ case object ToRoot extends RecipeOp {
   }
 }
 
-abstract class RecipeOpWithSubRecipes(recipes: List[DPathRecipe]) extends RecipeOp {
+abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends RecipeOp {
 
-  override def subRecipes: List[DPathRecipe] = recipes
+  override def subRecipes: List[CompiledDPath] = recipes
 
-  def this(recipes: DPathRecipe*) = this(recipes.toList)
+  def this(recipes: CompiledDPath*) = this(recipes.toList)
 
 }
 
@@ -404,7 +417,7 @@ case class DownElement(info: DPathElementCompileInfo) extends RecipeOp {
 /**
  * Move down to an occurrence of an array element.
  */
-case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: DPathRecipe)
+case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(indexRecipe) {
 
   override def run(dstate: DState) {
@@ -459,7 +472,7 @@ case object DFDLOccursIndex extends RecipeOp {
   }
 }
 
-case class DFDLCheckConstraints(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) {
+case class DFDLCheckConstraints(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     if (dstate.currentElement.valid.isDefined) {
@@ -475,14 +488,14 @@ case class DFDLCheckConstraints(recipe: DPathRecipe) extends RecipeOpWithSubReci
   }
 }
 
-case class DFDLDecodeDFDLEntities(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class DFDLDecodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) = {
     val dfdlString = EntityReplacer { _.replaceAll(str.asInstanceOf[String], None) }
     dfdlString
   }
 }
 
-case class DFDLEncodeDFDLEntities(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class DFDLEncodeDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) = constructLiteral(str.asInstanceOf[String])
 
   def constructLiteral(s: String) = {
@@ -534,12 +547,12 @@ case class DFDLEncodeDFDLEntities(recipe: DPathRecipe, argType: NodeInfo.Kind) e
   }
 }
 
-case class DFDLContainsDFDLEntities(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) =
     EntityReplacer { _.hasDfdlEntity(str.asInstanceOf[String]) }
 }
 
-case class DFDLTestBit(dataRecipe: DPathRecipe, bitPos1bRecipe: DPathRecipe)
+case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(dataRecipe, bitPos1bRecipe) {
 
   override def run(dstate: DState) {
@@ -572,7 +585,7 @@ case class DFDLTestBit(dataRecipe: DPathRecipe, bitPos1bRecipe: DPathRecipe)
 
 object withArray8 extends OnStack(new Array[Int](8))
 
-case class DFDLSetBits(bitRecipes: List[DPathRecipe]) extends RecipeOpWithSubRecipes(bitRecipes) {
+case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
 
   override def run(dstate: DState) {
     Assert.invariant(bitRecipes.length == 8)
@@ -648,7 +661,7 @@ case class Literal(v: Any) extends RecipeOp {
   override def toXML = toXML(v.toString)
 }
 
-case class IF(predRecipe: DPathRecipe, thenPartRecipe: DPathRecipe, elsePartRecipe: DPathRecipe)
+case class IF(predRecipe: CompiledDPath, thenPartRecipe: CompiledDPath, elsePartRecipe: CompiledDPath)
   extends RecipeOpWithSubRecipes(predRecipe, thenPartRecipe, elsePartRecipe) {
 
   override def run(dstate: DState) {
@@ -676,14 +689,14 @@ case class IF(predRecipe: DPathRecipe, thenPartRecipe: DPathRecipe, elsePartReci
 
 trait BinaryOpMixin { self: RecipeOp =>
   def op: String
-  def left: DPathRecipe
-  def right: DPathRecipe
-  override def subRecipes: Seq[DPathRecipe] = Seq(left, right)
+  def left: CompiledDPath
+  def right: CompiledDPath
+  override def subRecipes: Seq[CompiledDPath] = Seq(left, right)
 
   override def toXML: scala.xml.Node = toXML(new scala.xml.Text(op), left.toXML, right.toXML)
 }
 
-case class NumberCompareOperator(cop: NumberCompareOp, left: DPathRecipe, right: DPathRecipe)
+case class NumberCompareOperator(cop: NumberCompareOp, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(cop)
@@ -700,7 +713,7 @@ case class NumberCompareOperator(cop: NumberCompareOp, left: DPathRecipe, right:
   }
 }
 
-trait NumberCompareOp extends AsIntMixin {
+trait NumberCompareOp {
   /**
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
@@ -726,7 +739,7 @@ abstract class CompareOp
   def compare(op: String, v1: Any, v2: Any): Boolean
 }
 
-case class EqualityCompareOp(op: String, left: DPathRecipe, right: DPathRecipe)
+case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPath)
   extends CompareOp {
 
   def compare(op: String, v1: Any, v2: Any): Boolean = {
@@ -742,7 +755,7 @@ case class EqualityCompareOp(op: String, left: DPathRecipe, right: DPathRecipe)
   }
 }
 
-case class BooleanOp(op: String, left: DPathRecipe, right: DPathRecipe)
+case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -763,7 +776,7 @@ case class BooleanOp(op: String, left: DPathRecipe, right: DPathRecipe)
     }
   }
 }
-case class NegateOp(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) {
+case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     recipe.run(dstate)
@@ -781,7 +794,7 @@ case class NegateOp(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) 
   override def toXML: scala.xml.Node = <Negate>{ recipe.toXML }</Negate>
 }
 
-case class FNDateTime(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
+case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   val name = "FNDateTime"
 
   private def calendarToDFDLDateTime(calendar: Calendar, formatString: String, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
@@ -835,7 +848,7 @@ case class FNDateTime(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
   }
 }
 
-case class FNRoundHalfToEven(recipeNum: DPathRecipe, recipePrecision: DPathRecipe)
+case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: CompiledDPath)
   extends RecipeOpWithSubRecipes(recipeNum, recipePrecision) {
 
   override def run(dstate: DState) {
@@ -854,7 +867,6 @@ case class FNRoundHalfToEven(recipeNum: DPathRecipe, recipePrecision: DPathRecip
       case _ => Assert.invariantFailed("not a number")
     }
     val value = {
-      // val mc = new java.math.MathContext(precision, java.math.RoundingMode.HALF_EVEN)
       val rounded = bd.setScale(precision, BigDecimal.RoundingMode.HALF_EVEN)
       rounded
     }
@@ -862,12 +874,11 @@ case class FNRoundHalfToEven(recipeNum: DPathRecipe, recipePrecision: DPathRecip
   }
 }
 
-case class FNNot(recipe: DPathRecipe, argType: NodeInfo.Kind = null) extends FNOneArg(recipe, NodeInfo.Boolean) {
+case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null) extends FNOneArg(recipe, NodeInfo.Boolean) {
   override def computeValue(value: Any, dstate: DState) = !(value.asInstanceOf[Boolean])
 }
 
-case class FNEndsWith(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
-  // println(recipes)
+case class FNEndsWith(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
     val arg1s = arg1.asInstanceOf[String]
     val arg2s = arg2.asInstanceOf[String]
@@ -876,11 +887,11 @@ case class FNEndsWith(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
   }
 }
 
-case class FNNilled(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, NodeInfo.Nillable) {
+case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, NodeInfo.Nillable) {
   override def computeValue(value: Any, dstate: DState) = value.asInstanceOf[DIElement].isNilled
 }
 
-case class FNExists(recipe: DPathRecipe, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
+case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     dstate.fnExists() // hook so we can insist this is non-constant at compile time.
     val exists =
@@ -910,7 +921,7 @@ case class FNExists(recipe: DPathRecipe, argType: NodeInfo.Kind) extends RecipeO
 
 }
 
-case class FNCeiling(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) with TypeConversions {
+case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
@@ -924,7 +935,7 @@ case class FNCeiling(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneA
   }
 }
 
-case class FNFloor(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) with TypeConversions {
+case class FNFloor(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
@@ -938,7 +949,7 @@ case class FNFloor(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg
   }
 }
 
-case class FNRound(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = argType match {
 
     case NodeInfo.Decimal => {
@@ -952,7 +963,7 @@ case class FNRound(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg
   }
 }
 
-case class FNAbs(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNAbs(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = argType match {
     case _: NodeInfo.UnsignedNumeric.Kind => value
     case NodeInfo.Decimal => asBigDecimal(value).abs
@@ -967,24 +978,26 @@ case class FNAbs(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(r
   }
 }
 
-case class FNStringLength(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNStringLength(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[String].length.toLong
 }
 
-case class FNLowerCase(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNLowerCase(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[String].toLowerCase
 }
 
-case class FNUpperCase(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class FNUpperCase(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(str: Any, dstate: DState) = str.asInstanceOf[String].toUpperCase
 }
 
-case class FNConcat(recipes: List[DPathRecipe]) extends FNArgsList(recipes) {
+case class FNConcat(recipes: List[CompiledDPath]) extends FNArgsList(recipes) {
   override def computeValue(values: List[Any], dstate: DState) = values.mkString
 }
 
-// No such function in DFDL.
-//case class FNStringJoin(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
+// No such function in DFDL v1.0
+// But leave this here because we probably will want to add it as a 
+// daffodil extension function and then eventually hope it gets into DFDL1.1
+//case class FNStringJoin(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
 //  override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
 //    val values = arg1.asInstanceOf[List[String]]
 //    val sep = arg2.asInstanceOf[String]
@@ -992,7 +1005,7 @@ case class FNConcat(recipes: List[DPathRecipe]) extends FNArgsList(recipes) {
 //  }
 //}
 
-case class FNSubstring2(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
+case class FNSubstring2(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
     val sourceString = arg1.asInstanceOf[String]
     val startPos = asDouble(arg2)
@@ -1000,7 +1013,7 @@ case class FNSubstring2(recipes: List[DPathRecipe]) extends FNTwoArgs(recipes) {
   }
 }
 
-case class FNSubstring3(recipes: List[DPathRecipe]) extends FNThreeArgs(recipes) {
+case class FNSubstring3(recipes: List[CompiledDPath]) extends FNThreeArgs(recipes) {
   override def computeValue(arg1: Any, arg2: Any, arg3: Any, dstate: DState) = {
     val sourceString = arg1.asInstanceOf[String]
     val startPos = asDouble(arg2).toInt - 1 //adjust to zero-based
@@ -1009,7 +1022,7 @@ case class FNSubstring3(recipes: List[DPathRecipe]) extends FNThreeArgs(recipes)
   }
 }
 
-abstract class FNOneArg(recipe: DPathRecipe, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
+abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     val arg = dstate.currentValue
@@ -1021,7 +1034,7 @@ abstract class FNOneArg(recipe: DPathRecipe, argType: NodeInfo.Kind) extends Rec
   def computeValue(str: Any, dstate: DState): Any
 }
 
-abstract class FNTwoArgs(recipes: List[DPathRecipe]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNTwoArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val List(recipe1, recipe2) = recipes
@@ -1043,7 +1056,7 @@ abstract class FNTwoArgs(recipes: List[DPathRecipe]) extends RecipeOpWithSubReci
   override def toXML = toXML(recipes.map { _.toXML })
 }
 
-abstract class FNThreeArgs(recipes: List[DPathRecipe]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNThreeArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val List(recipe1, recipe2, recipe3) = recipes
@@ -1072,7 +1085,7 @@ trait FNFromDateTimeKind {
   def field: Int
 }
 
-abstract class FNFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+abstract class FNFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
   override def computeValue(a: Any, dstate: DState) = {
@@ -1083,7 +1096,7 @@ abstract class FNFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-abstract class FNFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+abstract class FNFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
   override def computeValue(a: Any, dstate: DState) = {
@@ -1094,7 +1107,7 @@ abstract class FNFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-abstract class FNFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
   with FNFromDateTimeKind {
   override def computeValue(a: Any, dstate: DState) = {
@@ -1105,71 +1118,71 @@ abstract class FNFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-case class FNYearFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNYearFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.YEAR
 }
-case class FNMonthFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: Any, dstate: DState) = super.computeValue(a, dstate).asInstanceOf[Int] + 1 // JAN 0
 }
-case class FNDayFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNDayFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
-case class FNHoursFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNHoursFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
-case class FNMinutesFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNMinutesFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
-case class FNSecondsFromDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
 }
 
-case class FNYearFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "year"
   val field = Calendar.YEAR
 }
-case class FNMonthFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "month"
   val field = Calendar.MONTH
   override def computeValue(a: Any, dstate: DState) = super.computeValue(a, dstate).asInstanceOf[Int] + 1 // JAN 0
 }
-case class FNDayFromDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNDayFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "day"
   val field = Calendar.DAY_OF_MONTH
 }
-case class FNHoursFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNHoursFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromTime(recipe, argType) {
   val fieldName = "hours"
   val field = Calendar.HOUR_OF_DAY
 }
-case class FNMinutesFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNMinutesFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromTime(recipe, argType) {
   val fieldName = "minutes"
   val field = Calendar.MINUTE
 }
-case class FNSecondsFromTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
 }
 
-abstract class FNArgsList(recipes: List[DPathRecipe]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val savedNode = dstate.currentNode
@@ -1193,7 +1206,7 @@ abstract class FNArgsList(recipes: List[DPathRecipe]) extends RecipeOpWithSubRec
   def computeValue(args: List[Any], dstate: DState): Any
 }
 
-case class XSInt(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) {
+case class XSInt(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     recipe.run(dstate)
@@ -1203,7 +1216,7 @@ case class XSInt(recipe: DPathRecipe) extends RecipeOpWithSubRecipes(recipe) {
   }
 }
 
-case class XSString(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
+case class XSString(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = {
     val res: Any = value match {
       case hb: Array[Byte] => HexBinaryToString.computeValue(hb, dstate)
@@ -1213,7 +1226,7 @@ case class XSString(recipe: DPathRecipe, argType: NodeInfo.Kind) extends FNOneAr
   }
 }
 
-case class XSDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class XSDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDateTime"
 
@@ -1226,7 +1239,7 @@ case class XSDateTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-case class XSDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class XSDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSDate"
 
@@ -1239,7 +1252,7 @@ case class XSDate(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-case class XSTime(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class XSTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) {
   val name = "XSTime"
 
@@ -1312,7 +1325,7 @@ trait HexBinaryKind {
   }
 }
 
-case class XSHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
+case class XSHexBinary(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType) with HexBinaryKind {
   val name = "XSHexBinary"
 
@@ -1329,7 +1342,7 @@ case class XSHexBinary(recipe: DPathRecipe, argType: NodeInfo.Kind)
   }
 }
 
-case class NumericOperator(nop: NumericOp, left: DPathRecipe, right: DPathRecipe)
+case class NumericOperator(nop: NumericOp, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(nop)
@@ -1346,7 +1359,7 @@ case class NumericOperator(nop: NumericOp, left: DPathRecipe, right: DPathRecipe
   }
 }
 
-trait NumericOp extends AsIntMixin {
+trait NumericOp {
   /**
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
@@ -1354,29 +1367,7 @@ trait NumericOp extends AsIntMixin {
   def operate(v1: Any, v2: Any): Any
 }
 
-//case class XSConverter(sourceRecipe: DPathRecipe, sourceType: NodeInfo.Kind, targetType: NodeInfo.Kind)
-//  extends RecipeOp {
-//
-//  override def toXML = <XSConverter source={ sourceType.toString } target={ targetType.toString }/>
-//
-//  override def run(dstate: DState) {
-//    val savedNode = dstate.currentNode
-//    sourceRecipe.run(dstate)
-//    val sourceValue = dstate.currentValue
-//    dstate.setCurrentNode(savedNode)
-//
-//    val targetValue = try {
-//      val tv = Conversion.convertTo(sourceType, targetType, sourceValue)
-//      tv
-//    } catch {
-//      case e: NumberFormatException => throw new NumberFormatException("Could not convert \"%s\" of type %s to %s: %s".format(sourceValue, sourceType, targetType, e.getMessage))
-//    }
-//
-//    dstate.setCurrentValue(targetValue)
-//  }
-//}
-
-case class DAFTrace(recipe: DPathRecipe, msg: String)
+case class DAFTrace(recipe: CompiledDPath, msg: String)
   extends FNOneArg(recipe, NodeInfo.AnyType) {
 
   override def computeValue(str: Any, dstate: DState) = {
@@ -1386,8 +1377,6 @@ case class DAFTrace(recipe: DPathRecipe, msg: String)
 }
 
 abstract class Converter extends RecipeOp {
-
-  final val maxUnsignedLong = BigInt("18446744073709551615")
 
   def typeNames = {
     // This is a total hack. Grab the type names of this converter
@@ -1428,17 +1417,6 @@ case object AnyAtomicToString extends Converter {
     }
   }
 }
-
-//case object AnyAtomicToHexBinary extends Converter {
-//  override def computeValue(a: Any, dstate: DState) = {
-//    Console.out.println(a.getClass)
-//    a match {
-//      case hb: Array[Byte] => hb
-//      case s: String => XSHexBinary.computeValue(s, dstate)
-//      case _ => a.asInstanceOf[String]
-//    }
-//  }
-//}
 
 case object BooleanToLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = if (asBoolean(a) == true) 1L else 0L
@@ -1496,7 +1474,8 @@ case object DecimalToUnsignedLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
     val res = asBigDecimal(a).toBigInt
     if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to a non-negative integer.".format(res))
-    if (res > this.maxUnsignedLong) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+
+    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -1521,7 +1500,7 @@ case object DoubleToUnsignedLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
     val res = BigDecimal(asDouble(a)).toBigInt
     if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > this.maxUnsignedLong) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -1535,7 +1514,7 @@ case object IntegerToUnsignedLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
     val res = asBigInt(a)
     if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > this.maxUnsignedLong) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }
@@ -1655,7 +1634,7 @@ case object StringToUnsignedLong extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
     val res = BigInt(a.asInstanceOf[String])
     if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an unsigned long.".format(res))
-    if (res > this.maxUnsignedLong) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
+    if (res > NodeInfo.UnsignedLong.Max) throw new NumberFormatException("Value %s out of range for UnsignedLong type.".format(res))
     else res
   }
 }

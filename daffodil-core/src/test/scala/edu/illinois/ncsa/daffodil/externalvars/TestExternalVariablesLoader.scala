@@ -70,8 +70,7 @@ class TestExternalVariablesLoader extends Logging {
           <xs:sequence/>
         </xs:choice>
       </xs:group>)
-    val DummyPrimitiveFactory = null
-    lazy val xsd_sset = new SchemaSet(DummyPrimitiveFactory, sch, "http://example.com", "fake")
+    lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
     lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
     lazy val fakeSD = xsd_schema.schemaDocuments(0)
     (fakeSD, xsd_sset)

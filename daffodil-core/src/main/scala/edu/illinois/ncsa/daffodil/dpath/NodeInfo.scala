@@ -8,7 +8,15 @@ import com.ibm.icu.util.DFDLCalendar
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 
-abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode]) extends Serializable {
+/**
+ * We need to have a data structure that lets us represent a type, and
+ * its relationship (conversion, subtyping) to other types.
+ *
+ * This is what TypeNodes are for. They are linked into a graph that
+ * can answer questions about how two types are related. It can find the
+ * least general supertype, or most general subtype of two types.
+ */
+sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode]) extends Serializable {
   def name: String
 
   // Eliminated a var here. Doing functional graph construction now below.
@@ -32,7 +40,12 @@ abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode]) extend
   }
 }
 
-abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
+/*
+ * Used to define primitive type objects. We often need to 
+ * deal with just the primitive types exclusive of all the abstract 
+ * types (like AnyAtomic, or AnyDateTimeType) that surround them. 
+ */
+sealed abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
   extends TypeNode(parent, childrenArg) with NodeInfo.PrimType
 
 /**
@@ -53,6 +66,23 @@ abstract class PrimTypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
  * NodeInfo.Number.Kind (type of just the number variants)
  * NodeInfo.Value.Kind (type of just the value variants)
  * The enums themselves are just NodeInfo.Decimal (for example)
+ *
+ * Note that you can talk about types using type node objects: E.g., NodeInfo.Number.
+ * But you can also use Scala typing to ask whether a particular type object is
+ * a subtype of another: e.g.
+ * <pre>
+ * val x = NodeInfo.String
+ * val aa = NodeInfo.AnyAtomic
+ * x.isSubTypeOf(aa) // true. Ordinary way to check. Navigates our data structure.
+ * x.isInstanceOf[NodeInfo.AnyAtomic.Kind] // true. Uses scala type checking
+ * </pre>
+ * So each NodeInfo object has a corresponding class (named with .Kind suffix)
+ * which is actually a super-type (in Scala sense) of the enums for the types
+ * beneath.
+ * <p>
+ * The primary advantage of the latter is that this is a big bunch of sealed traits/classes,
+ * so if you have a match-case analysis by type, scala's compiler can tell you
+ * if your match-case exhausts all possibilities and warn you if it does not.
  */
 object NodeInfo extends Enum {
 
@@ -73,7 +103,6 @@ object NodeInfo extends Enum {
     }
 
     def isError: Boolean = false
-    // def context: SchemaComponent = Assert.usageError("PrimType has no context.")
     def primitiveType = this
   }
 
@@ -128,6 +157,12 @@ object NodeInfo extends Enum {
     }
   }
 
+  /**
+   * When operating on two operands, this computes the type to which
+   * they are mutually converted before the operation. Such as if you
+   * add an Int and a Double, the Int is converted to Double before adding, and
+   * the result type is Double.
+   */
   def generalize(aExpr: Expression, bExpr: Expression): NodeInfo.Kind = {
     val a = aExpr.inherentType
     val b = bExpr.inherentType
@@ -149,19 +184,29 @@ object NodeInfo extends Enum {
       }
   }
 
+  /**
+   * An isolated singleton "type" which is used as a target type for
+   * the indexing operation.
+   */
   protected sealed trait ArrayKind extends NodeInfo.Kind
   case object Array extends TypeNode(null, Nil) with ArrayKind {
     sealed trait Kind extends ArrayKind
   }
 
+  /**
+   * AnyType is the Top of the type lattice. It is the super type of all data
+   * types except some special singleton types like ArrayType.
+   */
   protected sealed trait AnyTypeKind extends NodeInfo.Kind
   case object AnyType extends TypeNode(null, List(Nillable)) with AnyTypeKind {
     sealed trait Kind extends AnyTypeKind
   }
 
   /**
-   * This is the return type of the daf:error() function. It's a subtype of
-   * everything.
+   * Nothing is the bottom of the type lattice.
+   *
+   * It is the return type of the daf:error() function. It's a subtype of
+   * every type (except some special singletons like ArrayType).
    */
   case object Nothing
     extends TypeNode(
@@ -176,21 +221,35 @@ object NodeInfo extends Enum {
     with Boolean.Kind with Complex.Kind with Nillable.Kind with Array.Kind
     with ArrayIndex.Kind with Double.Kind with Float.Kind with Date.Kind with Time.Kind with DateTime.Kind with UnsignedByte.Kind with Byte.Kind with HexBinary.Kind with NonEmptyString.Kind
 
+  /**
+   * All complex types are represented by this one type object.
+   */
   protected sealed trait ComplexKind extends AnyType.Kind
   case object Complex extends TypeNode(AnyType, Nil) with ComplexKind {
     type Kind = ComplexKind
   }
 
+  /**
+   * There is nothing corresponding to NillableKind in the DFDL/XML Schema type
+   * hierarchy. We have it as a parent of both complex type and simple type since
+   * both of them can be nillable.
+   */
   protected sealed trait NillableKind extends AnyType.Kind
   case object Nillable extends TypeNode(AnyType, List(Complex, AnySimpleType)) with NillableKind {
     type Kind = NillableKind
   }
 
+  /**
+   * It might be possible to combine AnySimpleType and AnyAtomic, but both
+   * terminologies are used. In DFDL we don't talk of Atomic's much, but
+   * lots of XPath and XML Schema materials do, so we have these two types
+   * that are very similar really.
+   */
   protected sealed trait AnySimpleTypeKind extends Nillable.Kind
-
   case object AnySimpleType extends TypeNode(Nillable, List(AnyAtomic)) with AnySimpleTypeKind {
     type Kind = AnySimpleTypeKind
   }
+
   protected sealed trait AnyAtomicKind extends AnySimpleType.Kind
   case object AnyAtomic extends TypeNode(AnySimpleType, List(String, Numeric, Boolean, Opaque, AnyDateTime)) with AnyAtomicKind {
     type Kind = AnyAtomicKind
@@ -219,6 +278,13 @@ object NodeInfo extends Enum {
   case object Opaque extends TypeNode(AnyAtomic, List(HexBinary)) with OpaqueKind {
     type Kind = OpaqueKind
   }
+
+  /**
+   * NonEmptyString is used for the special case where DFDL properties can
+   * have expressions that compute their values which are strings, but those
+   * strings aren't allowed to be empty strings. Also for properties that simply
+   * arent allowed to be empty strings (e.g. padChar).
+   */
   protected sealed trait NonEmptyStringKind extends String.Kind
   case object NonEmptyString extends TypeNode(String, Nil) with NonEmptyStringKind {
     type Kind = NonEmptyStringKind
@@ -276,6 +342,10 @@ object NodeInfo extends Enum {
     Date,
     Time)
 
+  /**
+   * The PrimType objects are a child enum within the overall NodeInfo
+   * enum.
+   */
   object PrimType {
 
     def fromNameString(name: String): Option[PrimType] = {
@@ -330,18 +400,22 @@ object NodeInfo extends Enum {
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
     case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind {
       type Kind = UnsignedLongKind
+      val Max = BigInt("18446744073709551615")
     }
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
     case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind {
       type Kind = UnsignedIntKind
+      val Max = 4294967295L
     }
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
     case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind {
       type Kind = UnsignedShortKind
+      val Max = 65535
     }
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
     case object UnsignedByte extends PrimTypeNode(UnsignedShort, Nil) with UnsignedByteKind {
       type Kind = UnsignedByteKind
+      val Max = 255
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
@@ -374,15 +448,23 @@ object NodeInfo extends Enum {
   }
 
   import PrimType._
+  //
+  // The below must be lazy vals because of the recursion between this
+  // list and the definition of these type objects above.
+  //
+  private lazy val allAbstractTypes = List(
+    AnyType, Nillable, AnySimpleType, AnyAtomic,
+    Numeric, SignedNumeric, UnsignedNumeric, SignedInteger,
+    // There is no UnsignedInteger because the concrete type 
+    // NonNegativeInteger plays that role.
+    Opaque, AnyDateTime, Nothing)
+  private lazy val allDFDLTypes = List(
+    Float, Double, Decimal, Integer, Long, Int, Short, Byte,
+    NonNegativeInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
+    String, Boolean, HexBinary,
+    Date, Time, DateTime)
+
   lazy val allTypes =
-    List(AnyType, Complex, Nillable, AnySimpleType, AnyAtomic,
-      Numeric, SignedNumeric, UnsignedNumeric,
-      Float, Double, Decimal,
-      SignedInteger, Integer, Long, Int, Short, Byte,
-      NonNegativeInteger, UnsignedLong, UnsignedInt, UnsignedShort, UnsignedByte,
-      ArrayIndex,
-      String, NonEmptyString,
-      Boolean,
-      Opaque, HexBinary,
-      AnyDateTime, Date, DateTime, Time)
+    allDFDLTypes ++ List(Complex, ArrayIndex, NonEmptyString) ++ allAbstractTypes
+
 }

@@ -42,6 +42,15 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 
+/**
+ * Root class of the type hierarchy for the AST nodes used when we
+ * compile a DPath Expression.
+ *
+ * All the work in 'compiling' the DPath expressions happens on methods
+ * of these objects.
+ *
+ * This is the OOLAG pattern again.
+ */
 abstract class Expression extends OOLAGHost
   with ImplementsThrowsOrSavesSDE {
 
@@ -62,26 +71,6 @@ abstract class Expression extends OOLAGHost
   // override for other checking beyond what is needed to do conversions
   //
   protected def checkTypeCorrectness = true
-  //    lazy val parentString = 
-  //      if (parent == null) this.text
-  //    else parent.text
-  //    typeCheck(inherentType, targetType, this.text, parentString)
-  //  }
-  //
-  //  def typeCheck(inherentType: NodeInfo.Kind,
-  //    targetType: NodeInfo.Kind,
-  //    inherentExprText: => String,
-  //    enclosingExprText: => String): Boolean = {
-  //    if (targetType == NodeInfo.Array) {
-  //      // other places verify that an expression produces an array.
-  //      return true
-  //    }
-  //    if (!inherentType.isSubtypeOf(targetType)) {
-  //      SDE("Types incompatible: got %s (from %s), but required %s (for %s)",
-  //        inherentType.name, inherentExprText, targetType.name, enclosingExprText)
-  //    }
-  //    true
-  //  }
 
   def text: String
 
@@ -101,7 +90,7 @@ abstract class Expression extends OOLAGHost
     res
   }
 
-  def compiledDPath: DPathRecipe
+  def compiledDPath: CompiledDPath
 
   final lazy val parentOpt = Option(parent)
 
@@ -197,27 +186,6 @@ abstract class Expression extends OOLAGHost
    */
   def inherentType: NodeInfo.Kind
 
-  //  protected def indent = {
-  //    val numTabs = StepCounter.plusOne
-  //    val indent = new StringBuilder
-  //    for (i <- 1 to numTabs) {
-  //      indent.append(".")
-  //    }
-  //    indent.toString
-  //  }
-  //  protected def unindent = StepCounter.minusOne
-  // protected def retrievePathExpressions: List[Expression] = 
-  //  {
-  //    //val indentStr = indent
-  //    var lst: List[Expression] = children.toList.filter(c => c.isInstanceOf[PathTypeExpression]).filter(p => p.isLiteral)
-  //    //Console.err.println(indentStr + "S_" + name + "\t" + str)
-  //    val childPaths = children.foreach(c => lst = lst ++ c.retrievePathExpressions)
-  //    //Console.err.println(indentStr + "E_" + name + "\t" + str + "\t" + lst)
-  //    //unindent
-  //    lst
-  //  }
-  // def getPathExpressions: List[Expression] = retrievePathExpressions
-
   def resolveRef(qnameString: String) = {
     QName.resolveRef(qnameString, namespaces).getOrElse {
       SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
@@ -244,7 +212,7 @@ trait BooleanExpression extends BinaryExpMixin {
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
-    val res = new DPathRecipe(BooleanOp(op, leftDPath, rightDPath) +: c)
+    val res = new CompiledDPath(BooleanOp(op, leftDPath, rightDPath) +: c)
     res
   }
 
@@ -394,7 +362,7 @@ case class NumberComparisonExpression(op: String, adds: List[Expression])
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
-    val res = new DPathRecipe(NumberCompareOperator(compareOp, leftDPath, rightDPath) +: c)
+    val res = new CompiledDPath(NumberCompareOperator(compareOp, leftDPath, rightDPath) +: c)
     res
   }
 
@@ -524,7 +492,7 @@ trait NumericExpression extends BinaryExpMixin {
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
-    new DPathRecipe(NumericOperator(numericOp, leftDPath, rightDPath) +: c)
+    new CompiledDPath(NumericOperator(numericOp, leftDPath, rightDPath) +: c)
   }
 
   /**
@@ -593,7 +561,7 @@ case class WholeExpression(
 case class IfExpression(ifthenelse: List[Expression])
   extends ExpressionLists(ifthenelse) {
 
-  override lazy val compiledDPath = new DPathRecipe(IF(predicate.compiledDPath,
+  override lazy val compiledDPath = new CompiledDPath(IF(predicate.compiledDPath,
     thenPart.compiledDPath, elsePart.compiledDPath))
 
   override def text = "if (" + predicate.text + ") then " + thenPart.text + " else " + elsePart.text
@@ -632,7 +600,7 @@ case class EqualityComparisonExpression(op: String, adds: List[Expression])
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
-    val res = new DPathRecipe(EqualityCompareOp(op, leftDPath, rightDPath) +: c)
+    val res = new CompiledDPath(EqualityCompareOp(op, leftDPath, rightDPath) +: c)
     res
   }
   override lazy val inherentType = NodeInfo.Boolean
@@ -666,7 +634,7 @@ case class UnaryExpression(op: String, exp: Expression)
       // no conversions because we passed on target type to subexpression
       exp.compiledDPath
     } else {
-      new DPathRecipe(NegateOp(exp.compiledDPath) +: conversions)
+      new CompiledDPath(NegateOp(exp.compiledDPath) +: conversions)
     }
 }
 
@@ -735,7 +703,7 @@ case class RootPathExpression(relPath: Option[RelativePathExpression])
 
   override lazy val compiledDPath = {
     val rel = relPath.map { rp => rp.compiledDPath.ops.toList }.getOrElse(Nil)
-    val cdp = new DPathRecipe(ToRoot +: rel)
+    val cdp = new CompiledDPath(ToRoot +: rel)
     cdp
   }
 }
@@ -769,14 +737,14 @@ case class RelativePathExpression(steps1: List[StepExpression], isEvaluatedAbove
     }
   }
 
-  override lazy val compiledDPath: DPathRecipe = {
+  override lazy val compiledDPath: CompiledDPath = {
     val cps = adjustedSteps.map {
       _.compiledDPath
     }
     val ops = cps.map {
       _.ops.toList
     }
-    val res = new DPathRecipe(ops.flatten)
+    val res = new CompiledDPath(ops.flatten)
     res
   }
 
@@ -785,9 +753,14 @@ case class RelativePathExpression(steps1: List[StepExpression], isEvaluatedAbove
   }
 
   // remove any spurious "." in relative paths so "./.././.." becomes "../.."
-  val steps2 =
-    if (steps1.length == 1) steps1
-    else steps1.filter { case Self(None) => false; case _ => true }
+  // corner case "././././." should behave like "."
+  val steps2 = {
+    val noSelfSteps = steps1.filter { case Self(None) => false; case _ => true }
+    val res =
+      if (noSelfSteps.length == 0) List(Self(None)) // we need one "."
+      else noSelfSteps
+    res
+  }
 
   override lazy val children: List[Expression] = steps
 
@@ -898,9 +871,9 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
 
 case class Self(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
 
-  override lazy val compiledDPath = new DPathRecipe(SelfMove +: conversions)
+  override lazy val compiledDPath = new CompiledDPath(SelfMove +: conversions)
 
-  override def text = "." // + "{" + stepElement.path + "}"
+  override def text = "."
 
   override lazy val stepElement: DPathElementCompileInfo =
     priorStep.map { _.stepElement }.getOrElse {
@@ -912,7 +885,7 @@ case class Self(predArg: Option[PredicateExpression]) extends StepExpression(nul
 }
 
 case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
-  override lazy val compiledDPath = new DPathRecipe(UpMove)
+  override lazy val compiledDPath = new CompiledDPath(UpMove)
 
   override def text = ".." // + "{" + stepElement.path + "}"
 
@@ -957,7 +930,7 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
     val d = downwardStep
     val conv = conversions
     val c = (if (isLastStep) conv else Nil)
-    val res = new DPathRecipe(d +: c)
+    val res = new CompiledDPath(d +: c)
     res
   }
 
@@ -1078,8 +1051,8 @@ abstract class LiteralExpressionBase(value: Any)
     case _ => Assert.invariantFailed("value not one of the expected types")
   }
 
-  override lazy val compiledDPath: DPathRecipe = {
-    new DPathRecipe(Literal(litValue) +: conversions)
+  override lazy val compiledDPath: CompiledDPath = {
+    new CompiledDPath(Literal(litValue) +: conversions)
   }
 
   override lazy val inherentType = {
@@ -1118,7 +1091,7 @@ case class VariableRef(val qnameString: String)
 
   override lazy val compiledDPath = {
     val vrefOp = VRef(theQName, vrd)
-    new DPathRecipe(vrefOp +: conversions)
+    new CompiledDPath(vrefOp +: conversions)
   }
   override def text = "$" + qnameString
 
@@ -1135,19 +1108,6 @@ case class VariableRef(val qnameString: String)
   override lazy val inherentType: NodeInfo.Kind = varType
   override def targetTypeForSubexpression(subexp: Expression) =
     Assert.usageError("variable reference expressions have no subexpressions")
-
-  // lazy val evaluatedValue: Option[Expression] =
-  //  {
-  //    val (ns, localPart) = XMLUtils.QName(referringContext.namespaces, theQName, referringContext)
-  //    val expandedVarName = XMLUtils.expandedQName(ns, localPart)
-  //    val compiler = new DFDLPathExpressionCompiler(referringContext)
-  //    val (value, newVMap) = variableMap.readVariable(expandedVarName, referringContext)
-  //    variableMap = newVMap
-  //    // FIXME: Why are we re-parsing the value of a variable?
-  //    val (result, newerVMap) = compiler.getExpressionTree(value.toString, newVMap)
-  //    variableMap = newerVMap
-  //    result
-  //  }
 }
 
 /*
@@ -1206,8 +1166,8 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.AnyAtomic, XSString(_, _))
 
-      case (RefQName(_, "string", XSD), args) =>
-        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.String)
+      //      case (RefQName(_, "string", XSD), args) =>
+      //        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.String)
 
       case (RefQName(_, "dateTime", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
@@ -1294,6 +1254,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.String, NodeInfo.String, FNConcat(_))
 
       // Note: there is no string-join function in DFDL
+      // keep this as we may put this in as a daffodil extension
       //      case (RefQName(_, "string-join", FUNC), args) =>
       //        FNTwoArgsExpr(functionQNameString, functionQName, args,
       //          NodeInfo.Array, NodeInfo.String, NodeInfo.String, FNStringJoin(_))
@@ -1420,128 +1381,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "unsignedByte", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.UnsignedByte)
 
-      case (RefQName(_, "hexBinary", XSD), args) =>
-        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.HexBinary)
-
       case _ => SDE("Unsupported function: %s", functionQName)
     }
     funcObj.setOOLAGContext(this)
     funcObj
   }
 }
-// xs constructors
-/*
-xs:string($arg as xs:anyAtomicType) as xs:string
-xs:boolean($arg as xs:anyAtomicType) as xs:boolean
-xs:decimal($arg as xs:anyAtomicType) as xs:decimal
-xs:float($arg as xs:anyAtomicType) as xs:float
-xs:double($arg as xs:anyAtomicType) as xs:double
-xs:dateTime($arg as xs:anyAtomicType) as xs:dateTime
-xs:time($arg as xs:anyAtomicType) as xs:time
-xs:date($arg as xs:anyAtomicType) as xs:date
-xs:hexBinary($arg as xs:anyAtomicType) as xs:hexBinary
-xs:integer($arg as xs:anyAtomicType) as xs:integer
-xs:long($arg as xs:anyAtomicType) as xs:long
-xs:short($arg as xs:anyAtomicType) as xs:short
-xs:byte($arg as xs:anyAtomicType) as xs:byte
-xs:nonNegativeInteger($arg as xs:anyAtomicType) as xs:nonNegativeInteger
-xs:unsignedLong($arg as xs:anyAtomicType) as xs:unsignedLong
-xs:unsignedInt($arg as xs:anyAtomicType) as xs:unsignedInt
-xs:unsignedShort($arg as xs:anyAtomicType) as xs:unsignedShort
-xs:unsignedByte($arg as xs:anyAtomicType) as xs:unsignedByte
-*/
-/* special fn constructor for dateTime
-      fn:dateTime($arg1 as xs:date, $arg2 as xs:time) as xs:dateTime
-      */
-// boolean functions
-/* fn:not(arg) */
-// numeric functions
-/*
-fn:abs($arg as numeric)	Returns the absolute value of the argument. 
-fn:ceiling($arg as numeric)	Returns the smallest number with no fractional part that is greater than or equal to the argument.
-fn:floor($arg as numeric)	Returns the largest number with no fractional part that is less than or equal to the argument.
-fn:round($arg as numeric)	Rounds to the nearest number with no fractional part. When the value is x.5, it rounds toward positive infinity.
-
-*/
-// string functions
-/*
-fn:concat( $arg1 as xs:anyAtomicType, $arg2 as xs:anyAtomicType, ... ) 	Concatenates two or more xs:anyAtomicType arguments cast to xs:string.
-fn:substring($sourceString as xs:string, $startingLoc as xs:double) 
-fn:substring($sourceString as xs:string, $startingLoc as xs:double, $length as xs:double)	Returns the xs:string located at a specified place within an argument xs:string.
-fn:upper-case($arg as xs:string)  	Returns the upper-cased value of the argument.
-fn:lower-case($arg as xs:string) 	Returns the lower-cased value of the argument.
-fn:contains($arg1 as xs:string, $arg2 as xs:string)	Returns xs:boolean indicating whether one xs:string contains another xs:string.
-fn:starts-with($arg1 as xs:string, $arg2 as xs:string)	Returns xs:boolean indicating whether the value of one xs:string begins with the characters of another xs:string. 
-fn:ends-with($arg1 as xs:string, $arg2 as xs:string)	Returns xs:boolean indicating whether the value of one xs:string ends with the characters of another xs:string. 
-fn:substring-before($arg1 as xs:string, $arg2 as xs:string)	Returns the characters of one xs:string that precede in that xs:string the characters of another xs:string.
-fn:substring-after($arg1 as xs:string, $arg2 as xs:string)	Returns the characters of xs:string that follow in that xs:string the characters of another xs:string. 
-*/
-// date and time functions
-/*
-fn:year-from-dateTime($arg as xs:dateTime)	Returns the year from an xs:dateTime value as an xs:integer.
-fn:month-from-dateTime($arg as xs:dateTime)	Returns the month from an xs:dateTime value as an xs:integer.
-fn:day-from-dateTime($arg as xs:dateTime)	Returns the day from an xs:dateTime value as an xs:integer.
-fn:hours-from-dateTime($arg as xs:dateTime)	Returns the hours from an xs:dateTime value as an xs:integer.
-fn:minutes-from-dateTime($arg as xs:dateTime)	Returns the minutes from an xs:dateTime value as an xs:integer.
-fn:seconds-from-dateTime($arg as xs:dateTime)	Returns the seconds from an xs:dateTime value as an xs:decimal.
-fn:year-from-date($arg as xs:date)	Returns the year from an xs:date value as an xs:integer.
-fn:month-from-date($arg as xs:date)	Returns the month from an xs:date value as an xs:integer.
-fn:day-from-date($arg as xs:date)	Returns the day from an xs:date value as an xs:integer.
-fn:hours-from-time($arg as xs:time) Returns the hours from an xs:time value as an xs:integer.
-fn:minutes-from-time($arg as xs:time) Returns the minutes from an xs:time value as an xs:integer.
-fn:seconds-from-time($arg as xs:time) Returns the seconds from an xs:time value as an xs:decimal.
-*/
-
-/*
- * 23.5.2.5	Node Sequence Test Functions
-The following functions are defined on sequences. (Note that DFDL v1.0 does not support sequences of length > 1.)
-Function	Meaning
-fn:empty($arg?)	Indicates whether or not the provided sequence is empty.
-fn:exists($arg?)	Indicates whether or not the provided sequence is not empty.
-fn:exactly-one($arg?)	True if the provided sequence contains exactly one node/value.
-
-Table 65 Node Sequence Test Functions
-23.5.2.6	Node functions
-This section discusses functions and operators on nodes.
-Function	Meaning
-fn:local-name()
-fn:local-name($arg)	Returns the local name of the context node or the specified node as an xs:string.
-fn:namespace-uri()
-fn:namespace-uri($arg)	Returns the namespace URI as an xs:string for the argument node or the context node if the argument is omitted. Returns empty string if the argument/context node is in no namespace.
-Table 66 Node functions
-23.5.2.7	Nillable Element Functions
-This section discusses functions related to nillable elements.
-Function	Meaning
-fn:nilled($arg?)	Returns an xs:boolean true when the argument node Infoset member [nilled] is true and false when [nilled] is false. If the argument is not an element node, returns the empty sequence. If the argument is the empty sequence, returns the empty sequence. If the argument is an element node and [nilled] has no value returns the empty sequence.
-Table 67 Nillable Element Functions
-*/
-// DFDL functions
-/*
-dfdl:testBit($data, $bitPos) 	Returns Boolean true if the bit number given by the xs:nonNegativeInteger $bitPos is set on in the xs:unsignedByte given by $data, otherwise returns Boolean false.
-dfdl:setBits($bit1, $bit2, ... $bit8)	Returns an unsigned byte being the value of the bit positions provided by the Boolean arguments, where true is1, false is 0. The number of arguments must be 8.
-
-dfdl:encodeDFDLEntities($arg) 	Returns a string containing a DFDL string literal constructed from the $arg string argument. If $arg contains any '%' and/or space characters, then the return value replaces each '%' with '%%' and each space with '%SP;', otherwise $arg is returned unchanged. 
-dfdl:decodeDFDLEntities ($arg)	Returns a string constructed from the $arg string argument. If $arg contains syntax matching DFDL Character Entities syntax, then the corresponding characters are used in the result.  Any characters in $arg not matching the DFDL Character Entities syntax remain unchanged in the result.
-dfdl:containsDFDLEntities($arg) 	Returns a Boolean indicating whether the $arg string argument contains one or more DFDL entities. 
-dfdl:timeZoneFromDateTime($arg) 
-dfdl:timeZoneFromDate($arg)
-dfdl:timeZoneFromTime ($arg)	Returns the timezone component, if any, of $arg as an xs:string. The $arg is of type xs:dateTime, xs:date and xs:time respectively.
-If $arg has a timezone component, then the result is a string in the format of an ISO Time zone designator. Interpreted as an offset from UTC, its value may range from +14:00 to -14:00 hours, both inclusive. The UTC time zone is represented as "+00:00". If the $arg has no timezone component, then "" (empty string) is returned.
- * 
- */
-// dfdl constructors
-/*
-dfdl:byte ($arg) 
-dfdl:unsignedByte ($arg) 
-dfdl:short ($arg) 
-dfdl:unsignedShort ($arg) 
-dfdl:int ($arg) 
-dfdl:unsignedInt ($arg) 
-dfdl:long ($arg) 
-dfdl:unsignedLong ($arg) 
-dfdl:hexBinary ($arg) 
- * 
- */
 
 abstract class FunctionCallBase(functionQNameString: String,
   functionQName: RefQName,
@@ -1551,6 +1396,33 @@ abstract class FunctionCallBase(functionQNameString: String,
   override lazy val targetType = {
     val res = parent.targetType
     res
+  }
+
+  final def checkArgCount(n: Int) {
+    if (expressions.length != n) argCountErr(n)
+  }
+  final def argCountErr(n: Int) = {
+    SDE("The %s function requires %s argument(s).", functionQName.toPrettyString, n)
+  }
+
+  final def argCountTooFewErr(n: Int) = {
+    //
+    // Digression: below illustrates what is a hard problem in internationalization 
+    // of software, which is called pluralization.
+    //
+    // See that "(s)" fudge here where we mean - add plural 's' if the number is not one.
+    // Well there's no one consistent way to do that.
+
+    // Even consider zero. In English zero is plural. In French it is singular. 
+
+    // In many languages there are different endings for 0, x1, x2, x3, etc.
+    // Much the way ordinal numbers work in English where we have 1st (st ending)
+    // 2nd (nd ending for 2nd 22nd, 32nd, 572nd - but not 12 - special case 12th has th ending).
+    // We seldom use ordinals in English, but in many languages CARDINAL numbers work
+    // this way, and must match the quantity and there's 3 or 4 different endings
+    // with exceptions for 11, 12, 13, etc.
+    //
+    SDE("The %s function requires at least %s argument(s).", functionQName.toPrettyString, n)
   }
 }
 /**
@@ -1567,7 +1439,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, arrPath: PathExp
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = NodeInfo.Array
 
   override lazy val compiledDPath = {
-    new DPathRecipe((arrPath.compiledDPath.ops.toList :+ FNCount) ++ conversions)
+    new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNCount) ++ conversions)
   }
 }
 
@@ -1578,7 +1450,8 @@ case class FNRoundHalfToEvenExpr(nameAsParsed: String, fnQName: RefQName,
   val (valueExpr, precisionExpr) = args match {
     case List(ve) => (ve, LiteralExpression(0))
     case List(ve, pe) => (ve, pe)
-    case _ => Assert.usageError("must have one or two args in the argument list.")
+    case _ => SDE("The %n function requires 1 or 2 arguments. But %s were found.",
+      fnQName.toPrettyString, args.length)
   }
 
   override lazy val children = List(valueExpr, precisionExpr)
@@ -1592,7 +1465,7 @@ case class FNRoundHalfToEvenExpr(nameAsParsed: String, fnQName: RefQName,
   }
 
   override lazy val compiledDPath =
-    new DPathRecipe(
+    new CompiledDPath(
       FNRoundHalfToEven(
         valueExpr.compiledDPath,
         precisionExpr.compiledDPath) +: conversions)
@@ -1604,7 +1477,7 @@ case class FNRoundHalfToEvenExpr(nameAsParsed: String, fnQName: RefQName,
  * the argument type is a subtype thereof.
  */
 case class FNOneArgMathExpr(nameAsParsed: String, fnQName: RefQName,
-  args: List[Expression], constructor: (DPathRecipe, NodeInfo.Kind) => RecipeOp)
+  args: List[Expression], constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = {
@@ -1625,13 +1498,13 @@ case class FNOneArgMathExpr(nameAsParsed: String, fnQName: RefQName,
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = conversions
-    val res = new DPathRecipe(constructor(arg0Recipe, arg0Type) +: c)
+    val res = new CompiledDPath(constructor(arg0Recipe, arg0Type) +: c)
     res
   }
 }
 
 case class FNOneArgExpr(nameAsParsed: String, fnQName: RefQName,
-  args: List[Expression], resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (DPathRecipe, NodeInfo.Kind) => RecipeOp)
+  args: List[Expression], resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -1639,48 +1512,41 @@ case class FNOneArgExpr(nameAsParsed: String, fnQName: RefQName,
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
 
   override lazy val compiledDPath = {
-    schemaDefinitionUnless(args.length == 1, "Function %s takes 1 argument.",
-      fnQName.toPrettyString)
+    checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = conversions
-    val res = new DPathRecipe(constructor(arg0Recipe, arg0Type) +: c)
+    val res = new CompiledDPath(constructor(arg0Recipe, arg0Type) +: c)
     res
   }
 }
 
 case class FNOneArgExprConversionDisallowed(nameAsParsed: String, fnQName: RefQName,
-  args: List[Expression], resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (DPathRecipe, NodeInfo.Kind) => RecipeOp)
+  args: List[Expression], resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
-
-  schemaDefinitionUnless(args.length == 1, "Function %s takes 1 argument.",
-    fnQName.toPrettyString)
 
   override lazy val inherentType = resultType
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
 
   override lazy val compiledDPath = {
+    checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val arg0Type = args(0).inherentType
     val c = Nil //conversions
-    val res = new DPathRecipe(constructor(arg0Recipe, arg0Type) +: c)
+    val res = new CompiledDPath(constructor(arg0Recipe, arg0Type) +: c)
     res
   }
 }
 
 case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind,
-  constructor: List[DPathRecipe] => RecipeOp)
+  constructor: List[CompiledDPath] => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
-
-  lazy val checkArgs = {
-    schemaDefinitionUnless(args.length == 2, "Function %s takes 2 arguments.", fnQName.toPrettyString)
-  }
 
   override lazy val inherentType = resultType
 
-  lazy val List(arg1, arg2) = { checkArgs; args }
+  lazy val List(arg1, arg2) = { checkArgCount(2); args }
 
   override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
     if (subexp == arg1)
@@ -1694,7 +1560,7 @@ case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
   override lazy val compiledDPath = {
     val arg1Recipe = arg1.compiledDPath
     val arg2Recipe = arg2.compiledDPath
-    val res = new DPathRecipe(constructor(List(arg1Recipe, arg2Recipe)) +: conversions)
+    val res = new CompiledDPath(constructor(List(arg1Recipe, arg2Recipe)) +: conversions)
     res
   }
 }
@@ -1702,15 +1568,12 @@ case class FNTwoArgsExpr(nameAsParsed: String, fnQName: RefQName,
 case class FNThreeArgsExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind,
   arg1Type: NodeInfo.Kind, arg2Type: NodeInfo.Kind, arg3Type: NodeInfo.Kind,
-  constructor: List[DPathRecipe] => RecipeOp)
+  constructor: List[CompiledDPath] => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
-
-  lazy val checkArgs = schemaDefinitionUnless(args.length == 3, "Function %s takes 3 arguments.",
-    fnQName.toPrettyString)
 
   override lazy val inherentType = resultType
 
-  lazy val List(arg1, arg2, arg3) = { checkArgs; args }
+  lazy val List(arg1, arg2, arg3) = { checkArgCount(3); args }
 
   override def targetTypeForSubexpression(subexp: Expression): NodeInfo.Kind = {
     if (subexp == arg1) arg1Type
@@ -1726,7 +1589,7 @@ case class FNThreeArgsExpr(nameAsParsed: String, fnQName: RefQName,
     val arg2Path = arg2.compiledDPath
     val arg3Path = arg3.compiledDPath
     val c = conversions
-    val res = new DPathRecipe(constructor(
+    val res = new CompiledDPath(constructor(
       List(arg1Path, arg2Path, arg3Path)) +: c)
     res
   }
@@ -1735,8 +1598,6 @@ case class FNThreeArgsExpr(nameAsParsed: String, fnQName: RefQName,
 case class XSConverterExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression],
   resultType: NodeInfo.Kind)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
-
-  lazy val checkArgs = schemaDefinitionUnless(args.length == 1, "Function %s takes 1 argument.", fnQName.toPrettyString)
 
   override lazy val inherentType = resultType
 
@@ -1747,24 +1608,24 @@ case class XSConverterExpr(nameAsParsed: String, fnQName: RefQName, args: List[E
    */
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = resultType // NodeInfo.AnyType
 
-  // override lazy val compiledDPath = new DPathRecipe(XSConverter(args(0).compiledDPath, args(0).inherentType, resultType) +: conversions)
+  // override lazy val compiledDPath = new CompiledDPath(XSConverter(args(0).compiledDPath, args(0).inherentType, resultType) +: conversions)
 
   // TODO: this should work... why do we need to call an additional converter. The
   // args(0).compiledDPath should already have taken into account converting into 
   // their target types which are the same as this conversion's output result type.
 
   override lazy val compiledDPath = {
-    checkArgs
+    checkArgCount(1)
     val arg0Recipe = args(0).compiledDPath
     val c = conversions
-    val res = new DPathRecipe(arg0Recipe.ops.toList ++ c)
+    val res = new CompiledDPath(arg0Recipe.ops.toList ++ c)
     res
   }
 }
 
 case class FNArgListExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression], resultType: NodeInfo.Kind, argType: NodeInfo.Kind,
-  constructor: List[DPathRecipe] => RecipeOp)
+  constructor: List[CompiledDPath] => RecipeOp)
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
   override lazy val inherentType = resultType
@@ -1772,8 +1633,8 @@ case class FNArgListExpr(nameAsParsed: String, fnQName: RefQName,
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
 
   override lazy val compiledDPath = {
-    schemaDefinitionUnless(args.length > 1, "Function %s called with no arguments.", fnQName.toPrettyString)
-    new DPathRecipe(constructor(args.map { _.compiledDPath }) +: conversions)
+    if (args.length < 1) argCountTooFewErr(1)
+    new CompiledDPath(constructor(args.map { _.compiledDPath }) +: conversions)
   }
 }
 
@@ -1788,7 +1649,7 @@ case class DFDLOccursIndexExpr(nameAsParsed: String, fnQName: RefQName, args: Li
 
   override lazy val compiledDPath = {
     schemaDefinitionUnless(args.length == 0, "Function %s takes no arguments.", fnQName.toPrettyString)
-    new DPathRecipe(DFDLOccursIndex +: conversions)
+    new CompiledDPath(DFDLOccursIndex +: conversions)
   }
 
   override lazy val inherentType = NodeInfo.ArrayIndex
@@ -1799,10 +1660,7 @@ case class DFDLOccursIndexExpr(nameAsParsed: String, fnQName: RefQName, args: Li
 case class DFDLTestBitExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression]) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
-  lazy val checkArgs = schemaDefinitionUnless(args.length == 2, "Function %s takes 2 arguments.",
-    fnQName.toPrettyString)
-
-  val List(data, bitPos) = { checkArgs; args }
+  val List(data, bitPos) = { checkArgCount(2); args }
 
   override lazy val inherentType = NodeInfo.Boolean
 
@@ -1815,7 +1673,7 @@ case class DFDLTestBitExpr(nameAsParsed: String, fnQName: RefQName,
   }
 
   override lazy val compiledDPath =
-    new DPathRecipe(DFDLTestBit(data.compiledDPath, bitPos.compiledDPath) +: conversions)
+    new CompiledDPath(DFDLTestBit(data.compiledDPath, bitPos.compiledDPath) +: conversions)
 
 }
 
@@ -1826,8 +1684,8 @@ case class DFDLSetBitsExpr(nameAsParsed: String, fnQName: RefQName,
   override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = NodeInfo.UnsignedByte
 
   override lazy val compiledDPath = {
-    schemaDefinitionUnless(args.length == 8, "Function %s takes 8 arguments.", fnQName.toPrettyString)
-    new DPathRecipe(DFDLSetBits(args.map { _.compiledDPath }) +: conversions)
+    checkArgCount(8)
+    new CompiledDPath(DFDLSetBits(args.map { _.compiledDPath }) +: conversions)
   }
 }
 
@@ -1837,10 +1695,10 @@ case class DFDLCheckConstraintsExpr(nameAsParsed: String, fnQName: RefQName,
   override lazy val children = args
 
   override lazy val compiledDPath = {
-    schemaDefinitionUnless(args.length == 1, "Function %s takes 1 argument.", fnQName.toPrettyString)
+    checkArgCount(1)
     val argDPath = args(0).compiledDPath
     val c = conversions
-    val res = new DPathRecipe(DFDLCheckConstraints(argDPath) +: c)
+    val res = new CompiledDPath(DFDLCheckConstraints(argDPath) +: c)
     res
   }
   override def targetTypeForSubexpression(subexpr: Expression): NodeInfo.Kind = NodeInfo.AnyAtomic
@@ -1874,7 +1732,7 @@ case class DAFTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
       SDE("The second argument to %n must be a string literal, but was %s.",
         nameAsParsed, other.text)
     case _ => {
-      SDE("The %n function requires 2 arguments.", nameAsParsed)
+      argCountErr(2)
     }
   }
 
@@ -1882,7 +1740,7 @@ case class DAFTraceExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = targetType
 
   override lazy val compiledDPath = {
-    new DPathRecipe(DAFTrace(realArg.compiledDPath, msgText) +: conversions)
+    new CompiledDPath(DAFTrace(realArg.compiledDPath, msgText) +: conversions)
   }
 }
 
@@ -1894,7 +1752,8 @@ case class DAFErrorExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expr
     Assert.invariantFailed("no subexpressions")
 
   override lazy val compiledDPath = {
+    checkArgCount(0)
     Assert.invariant(conversions == Nil)
-    new DPathRecipe(DAFError)
+    new CompiledDPath(DAFError)
   }
 }

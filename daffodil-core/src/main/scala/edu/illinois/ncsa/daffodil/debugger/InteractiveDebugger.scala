@@ -182,6 +182,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
   }
 
   private def isInteresting(parser: Parser): Boolean = true
+  // TODO: Until the debugger is fixed, this conditional stuff removed as
+  // we need to see more info. Eventually something that removes excess noise
+  // should go back in.
+  //
   //  {
   //    parser.toString match {
   //      case "Sequence" => false
@@ -293,7 +297,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
       ie.toXML
     }
     if (xml.length == 0) {
-      debugPrintln("Nil"); return
+      debugPrintln("Nil"); {
+        return
+      }
     }
     Assert.invariant(xml.length == 1)
     val elem = xml(0)
@@ -1236,7 +1242,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner) extends Debugger {
           } else {
             xmlNode
           }
-          val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0)) //, Seq(XMLUtils.INT_NS_OBJECT))
+          val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0))
           xmlClean
         }
 

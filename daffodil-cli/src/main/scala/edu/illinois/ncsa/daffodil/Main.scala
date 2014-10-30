@@ -512,7 +512,6 @@ object Main extends Logging {
 
   def displayDiagnostics(pr: WithDiagnostics) {
     pr.getDiagnostics.foreach { d =>
-      //log(lvl, "%s", d.getMessage())
       val lvl = if (d.isError) LogLevel.Error else LogLevel.Warning
       log(lvl, d.getMessage())
     }

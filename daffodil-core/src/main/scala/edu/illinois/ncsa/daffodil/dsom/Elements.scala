@@ -64,16 +64,32 @@ trait ParticleMixin { self: ElementBase =>
   override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   /**
-   * Determines if the element is optional, as in has zero or one instance.
+   * Determines if the element is optional, as in has zero or one instance only.
+   *
+   * There are two senses of optional
+   * 1) Optional as in "might not be present" but for any reason.
+   * Consistent with this is Required meaning must occur (but for any
+   * reason. So all the occurrences of an array that has fixed number of
+   * occurrences are required, and some of the occurrances of an array
+   * that has a variable number of occurrences are optional.
+   *
+   * 2) Optional is in minOccurs="0" maxOccurs="1".
+   *
+   * Consistent with (2) is defining array as maxOccurs >= 2, and Required
+   * as minOccurs=maxOccurs=1, but there are also special cases for occursCountKind parsed and stopValue
+   * since they don't examine min/max occurs - they are only used for validation
+   * in those occursCountKinds.
+   *
+   * The DFDL spec is not entirely consistent here either I don't believe.
    */
   lazy val isOptional = {
     // minOccurs == 0
     (optMinOccurs, optMaxOccurs) match {
-      case (Some(1), Some(1)) => false
+      case (Some(1), Some(1)) => false // scalars are not optional
       case (Some(0), max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
-        if (occursCountKind == OccursCountKind.Parsed |
+        if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue) {
           // we disregard the min/max occurs
           false
@@ -103,7 +119,13 @@ trait ParticleMixin { self: ElementBase =>
         case (Some(1), Some(1)) => false
         case (_, Some(n)) if n > 1 => true
         case (_, Some(UNBOUNDED)) => true
-        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed |
+        /**
+         * This next case is for occursCountKinds parsed and stopValue.
+         * These only use min/maxOccurs for validation, so anything
+         * with these occursCountKinds is an array (so long as it isn't
+         * scalar)
+         */
+        case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed ||
           occursCountKind == OccursCountKind.StopValue) => true
         case _ => false
       }
@@ -337,6 +359,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * In the case where you have several elements with the same name and type,
    * but separated by other non-optional elements, then those are considered
    * to be different slots.
+   *
+   * Also, an xs:choice of elements, each child element gets its own slot. We
+   * are not attempting to multiplex slots so that they are cleverly being shared.
+   *
+   * If a choice had many many disjoint children, then probably a map should be
+   * used, not an array (as the infoset representation) so as to avoid wasting
+   * all the slot space in these objects. This would stil be constant-time access,
+   * just with a larger constant overhead. It's a time/space tradeoff.
    */
   lazy val nChildSlots: Int = {
     if (isSimpleType) 0

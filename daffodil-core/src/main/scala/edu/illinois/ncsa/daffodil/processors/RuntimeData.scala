@@ -34,6 +34,11 @@ trait RuntimeData
 }
 
 abstract class TermRuntimeData(
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
   @transient immedEnclosingRD: => Option[RuntimeData],
   val dpathCompileInfo: DPathCompileInfo,
   val isRepresented: Boolean,
@@ -57,6 +62,11 @@ abstract class TermRuntimeData(
 }
 
 class NonTermRuntimeData(
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
   @transient variableMapArg: => VariableMap,
   override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
@@ -80,6 +90,11 @@ class NonTermRuntimeData(
 }
 
 class ModelGroupRuntimeData(
+  /**
+   * These transient by-name args are part of how we
+   * hook these objects into a parent-child tree without
+   * having to use an assignment to a var.
+   */
   @transient variableMapArg: => VariableMap,
   // val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
   override val schemaFileLocation: SchemaFileLocation,
@@ -125,7 +140,4 @@ class VariableRuntimeData(
     path,
     namespaces,
     None)
-  with Serializable {
-
-  // override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
-}
+  with Serializable

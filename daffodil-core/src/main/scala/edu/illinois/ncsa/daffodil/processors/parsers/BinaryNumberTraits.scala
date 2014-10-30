@@ -6,6 +6,7 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
   def e: ElementRuntimeData
@@ -21,13 +22,13 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
 
   def getBitLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
-    val nBytes = asLong(nBytesAsAny)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes * toBits)
   }
   def getLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
-    val nBytes = asLong(nBytesAsAny)
+    val nBytes = AsIntConverters.asLong(nBytesAsAny)
     val start = s.withVariables(newVMap)
     (start, nBytes)
   }

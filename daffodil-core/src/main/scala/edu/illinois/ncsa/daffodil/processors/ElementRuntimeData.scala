@@ -102,7 +102,7 @@ class ElementRuntimeData(
 
   def isComplexType = !isSimpleType
 
-  // note: these nil values are constants. They could be cached. 
+  // note: these nil xml things are constant chunks of XML.  
   val nilledXML: Maybe[scala.xml.Elem] = {
     if (!isNillable) Nope
     else One(scala.xml.Elem(targetNamespacePrefix, name, XMLUtils.xmlNilAttribute, namespaces, true))

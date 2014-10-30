@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._
 import org.junit.Test
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.processors.PrimitiveFactory
 
 class TestMiddleEndAttributes {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -61,7 +60,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -90,7 +89,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -122,7 +121,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -163,7 +162,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -201,7 +200,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 
@@ -247,7 +246,7 @@ class TestMiddleEndAttributes {
         </xs:complexType>
       </xs:element>)
 
-    val sset = new SchemaSet(PrimitiveFactory, testSchema)
+    val sset = new SchemaSet(testSchema)
     val Seq(sch) = sset.schemas
     val Seq(sd, _) = sch.schemaDocuments
 

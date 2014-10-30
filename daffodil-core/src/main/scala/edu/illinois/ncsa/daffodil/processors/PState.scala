@@ -160,7 +160,6 @@ case class PState(
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos0b, charPos, status)
   }
   def getContext(): ElementRuntimeData = {
-    // Assumes that a JDOM element was already created
     val currentElement = thisElement
     val res = currentElement.runtimeData
     res
