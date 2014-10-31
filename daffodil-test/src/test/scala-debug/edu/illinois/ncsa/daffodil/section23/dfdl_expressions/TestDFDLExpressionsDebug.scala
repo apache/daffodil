@@ -151,6 +151,9 @@ class TestDFDLExpressionsDebug {
   @Test def test_contains_04() { runner2.runOneTest("contains_04") }
   @Test def test_contains_05() { runner2.runOneTest("contains_05") }
   @Test def test_contains_06() { runner2.runOneTest("contains_06") }
+  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
+  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
+  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
 
   // DFDL-1093: DPath: fn:starts-with() Unsupported Function
   @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }

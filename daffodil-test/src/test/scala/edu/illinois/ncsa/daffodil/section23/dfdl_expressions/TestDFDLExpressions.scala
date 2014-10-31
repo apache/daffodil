@@ -173,9 +173,10 @@ class TestDFDLExpressions {
   
   @Test def test_boolFlags_01() { runner2.runOneTest("boolFlags_01") }
   @Test def test_boolFlags_02() { runner2.runOneTest("boolFlags_02") }
-  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
-  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
-  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
+  //DFDL-1090
+  //@Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
+  //@Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
+  //@Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
   
   @Test def test_not_01() { runner2.runOneTest("not_01") }
   @Test def test_not_02() { runner2.runOneTest("not_02") }
