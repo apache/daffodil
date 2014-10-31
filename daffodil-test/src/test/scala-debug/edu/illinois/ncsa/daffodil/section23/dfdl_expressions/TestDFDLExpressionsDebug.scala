@@ -72,6 +72,13 @@ class TestDFDLExpressionsDebug {
   //fails on build server 
   @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
+  //DFDL-1083
+  @Test def test_empty_01() { runner2.runOneTest("empty_01") }
+  @Test def test_empty_03() { runner2.runOneTest("empty_03") }
+  @Test def test_empty_04() { runner2.runOneTest("empty_04") }
+  @Test def test_empty_06() { runner2.runOneTest("empty_06") }
+  @Test def test_empty_07() { runner2.runOneTest("empty_07") }
+  @Test def test_empty_08() { runner2.runOneTest("empty_08") }
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   //DFDL-1079
@@ -79,6 +86,11 @@ class TestDFDLExpressionsDebug {
   //DFDL-1081
   @Test def test_empty_09() { runner2.runOneTest("empty_09") }
   
+  //DFDL-1085
+  @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
+  @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
+  @Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
+  @Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
   //DFDL-1087
   @Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   @Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
@@ -86,12 +98,24 @@ class TestDFDLExpressionsDebug {
   //DFDL-1091
   @Test def test_count_05b() { runner2.runOneTest("count_05b") }
   
+  //DFDL-1096
+  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
+  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
+  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
+  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
+  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
   //DFDL-1097
   @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
   
   //DFDL-1101
   @Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
   @Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
+  //DFDL-1114
+  @Test def test_namespace_uri_03() { runner2.runOneTest("namespace_uri_03") }
+  @Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
+  @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
+  @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
   
   //  DFDL-819
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
@@ -119,12 +143,40 @@ class TestDFDLExpressionsDebug {
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
   @Test def test_substring_07() { runner2.runOneTest("substring_07") }
+
+  // DFDL-1090: DPath: fn:contains() Unsupported Function
+  @Test def test_contains_01() { runner2.runOneTest("contains_01") }
+  @Test def test_contains_02() { runner2.runOneTest("contains_02") }
+  @Test def test_contains_03() { runner2.runOneTest("contains_03") }
+  @Test def test_contains_04() { runner2.runOneTest("contains_04") }
+  @Test def test_contains_05() { runner2.runOneTest("contains_05") }
+  @Test def test_contains_06() { runner2.runOneTest("contains_06") }
+
+  // DFDL-1093: DPath: fn:starts-with() Unsupported Function
+  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
+  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
+  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
+  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
+  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
+  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
+
+  // DFDL-1092: DPath: fn:substring-before() Unsupported Function
+  @Test def test_substringbefore_01() { runner2.runOneTest("substringbefore_01") }
+  @Test def test_substringbefore_02() { runner2.runOneTest("substringbefore_02") }
+  @Test def test_substringbefore_03() { runner2.runOneTest("substringbefore_03") }
   @Test def test_substringbefore_04() { runner2.runOneTest("substringbefore_04") }
   @Test def test_substringbefore_05() { runner2.runOneTest("substringbefore_05") }
+  @Test def test_substringbefore_06() { runner2.runOneTest("substringbefore_06") }
+
+  // DFDL-1094: DPath: fn:substring-after() Unsupported Function
+  @Test def test_substringafter_01() { runner2.runOneTest("substringafter_01") }
+  @Test def test_substringafter_02() { runner2.runOneTest("substringafter_02") }
+  @Test def test_substringafter_03() { runner2.runOneTest("substringafter_03") }
   @Test def test_substringafter_04() { runner2.runOneTest("substringafter_04") }
   @Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
+  @Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
 
-  //DFDL-1095
+  // DFDL-1095
   @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
   @Test def test_contains_07() { runner2.runOneTest("contains_07") }
   @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
