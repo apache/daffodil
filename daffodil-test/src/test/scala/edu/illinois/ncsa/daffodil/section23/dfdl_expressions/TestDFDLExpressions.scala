@@ -418,6 +418,37 @@ class TestDFDLExpressions {
   //@Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
   //@Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
   //@Test def test_substringafter_07() { runner2.runOneTest("substringafter_07") }
+  
+  @Test def test_yearfromdatetime_01() { runner2.runOneTest("yearfromdatetime_01") }
+  @Test def test_yearfromdatetime_02() { runner2.runOneTest("yearfromdatetime_02") }
+  @Test def test_monthfromdatetime_01() { runner2.runOneTest("monthfromdatetime_01") }
+  @Test def test_monthfromdatetime_02() { runner2.runOneTest("monthfromdatetime_02") }
+  @Test def test_dayfromdatetime_01() { runner2.runOneTest("dayfromdatetime_01") }
+  @Test def test_dayfromdatetime_02() { runner2.runOneTest("dayfromdatetime_02") }
+  @Test def test_hoursfromdatetime_01() { runner2.runOneTest("hoursfromdatetime_01") }
+  @Test def test_hoursfromdatetime_02() { runner2.runOneTest("hoursfromdatetime_02") }
+  @Test def test_minutesfromdatetime_01() { runner2.runOneTest("minutesfromdatetime_01") }
+  @Test def test_minutesfromdatetime_02() { runner2.runOneTest("minutesfromdatetime_02") }
+  @Test def test_secondsfromdatetime_01() { runner2.runOneTest("secondsfromdatetime_01") }
+  @Test def test_secondsfromdatetime_02() { runner2.runOneTest("secondsfromdatetime_02") }
+
+  @Test def test_xfromdatetime_01() { runner2.runOneTest("xfromdatetime_01") }
+  @Test def test_xfromdatetime_02() { runner2.runOneTest("xfromdatetime_02") }
+  @Test def test_xfromdatetime_03() { runner2.runOneTest("xfromdatetime_03") }
+
+  @Test def test_yearfromdate_01() { runner2.runOneTest("yearfromdate_01") }
+  @Test def test_yearfromdate_02() { runner2.runOneTest("yearfromdate_02") }
+  @Test def test_monthfromdate_01() { runner2.runOneTest("monthfromdate_01") }
+  @Test def test_monthfromdate_02() { runner2.runOneTest("monthfromdate_02") }
+  @Test def test_dayfromdate_01() { runner2.runOneTest("dayfromdate_01") }
+  @Test def test_dayfromdate_02() { runner2.runOneTest("dayfromdate_02") }
+
+  @Test def test_xfromdate_01() { runner2.runOneTest("xfromdate_01") }
+  @Test def test_xfromdate_02() { runner2.runOneTest("xfromdate_02") }
+
+  // DFDL-1126
+  //@Test def test_xfromdatetime_04() { runner2.runOneTest("xfromdatetime_04") }
+  //@Test def test_xfromdate_03() { runner2.runOneTest("xfromdate_03") }
 
   @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
   @Test def test_ubyte_constructor_02() { runner2.runOneTest("ubyte_constructor_02") }

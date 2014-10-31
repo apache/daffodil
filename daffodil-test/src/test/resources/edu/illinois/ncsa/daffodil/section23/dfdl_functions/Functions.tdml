@@ -433,6 +433,165 @@
     </xs:element>
     <xs:element name="e_substringafter5" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('test', 'e', 'collation') }" />
 
+    <xs:element name="e_yearfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_yearfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_monthfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_monthfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_dayfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_dayfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_hoursfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_hoursfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_minutesfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_minutesfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_secondsfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_secondsfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
+          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdatetime1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
+            dfdl:length="45" dfdl:calendarPattern="'It is 'hh:mm:ss' on the 'dd'st of 'MMM', year 'yyyy" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdatetime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
+            dfdl:lengthKind="explicit" dfdl:length="19" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdatetime3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
+            dfdl:lengthKind="explicit" dfdl:length="20" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-dateTime(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-dateTime(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_yearfromdate1" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(xs:date('2014-11-03')) }" />
+    <xs:element name="e_yearfromdate2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_monthfromdate1" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(xs:date('2014-11-03')) }" />
+    <xs:element name="e_monthfromdate2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" />
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_dayfromdate1" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(xs:date('2014-11-03')) }" />
+    <xs:element name="e_dayfromdate2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" />
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdate1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
+            dfdl:lengthKind="explicit" dfdl:length="11" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromdate2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="implicit"
+            dfdl:lengthKind="explicit" dfdl:length="10" />
+          <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
+          <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
+          <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 </tdml:defineSchema>
   
 <!--
@@ -1683,6 +1842,530 @@
       <tdml:error>Function fn:substring-after</tdml:error>
       <tdml:error>takes 2 arguments</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: yearfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdatetime1
+      Purpose: This test demonstrates the use of the year-from-dateTime function to return the year as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="yearfromdatetime_01" root="e_yearfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdatetime1>1999</e_yearfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: yearfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdatetime2
+      Purpose: This test demonstrates the use of the year-from-dateTime function to return the year as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="yearfromdatetime_02" root="e_yearfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <year>2034</year>
+        </e_yearfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: monthfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_monthfromdatetime1
+      Purpose: This test demonstrates the use of the month-from-dateTime function to return the month as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="monthfromdatetime_01" root="e_monthfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:month-from-dateTime - DFDL-23-110R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_monthfromdatetime1>5</e_monthfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: monthfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_monthfromdatetime2
+      Purpose: This test demonstrates the use of the month-from-dateTime function to return the month as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="monthfromdatetime_02" root="e_monthfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:month-from-dateTime - DFDL-23-110R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_monthfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <month>12</month>
+        </e_monthfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: dayfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_dayfromdatetime1
+      Purpose: This test demonstrates the use of the day-from-dateTime function to return the day as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="dayfromdatetime_01" root="e_dayfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:day-from-dateTime - DFDL-23-111R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_dayfromdatetime1>31</e_dayfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: dayfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_dayfromdatetime2
+      Purpose: This test demonstrates the use of the day-from-dateTime function to return the day as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="dayfromdatetime_02" root="e_dayfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:day-from-dateTime - DFDL-23-111R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_dayfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <day>31</day>
+        </e_dayfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: hoursfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_hoursfromdatetime1
+      Purpose: This test demonstrates the use of the hours-from-dateTime function to return the hours as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="hoursfromdatetime_01" root="e_hoursfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-dateTime - DFDL-23-112R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_hoursfromdatetime1>13</e_hoursfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: hoursfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_hoursfromdatetime2
+      Purpose: This test demonstrates the use of the hours-from-dateTime function to return the hours as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="hoursfromdatetime_02" root="e_hoursfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-dateTime - DFDL-23-112R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_hoursfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <hours>23</hours>
+        </e_hoursfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: minutesfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_minutesfromdatetime1
+      Purpose: This test demonstrates the use of the minutes-from-dateTime function to return the minutes as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="minutesfromdatetime_01" root="e_minutesfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-dateTime - DFDL-23-113R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_minutesfromdatetime1>20</e_minutesfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: minutesfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_minutesfromdatetime2
+      Purpose: This test demonstrates the use of the minutes-from-dateTime function to return the minutes as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="minutesfromdatetime_02" root="e_minutesfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-dateTime - DFDL-23-113R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_minutesfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <minutes>0</minutes>
+        </e_minutesfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: secondsfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_secondsfromdatetime1
+      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="secondsfromdatetime_01" root="e_secondsfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_secondsfromdatetime1>0</e_secondsfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: secondsfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_secondsfromdatetime2
+      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="secondsfromdatetime_02" root="e_secondsfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>2034-12-31T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_secondsfromdatetime2>
+          <date>2034-12-31T23:00:00.000000+00:00</date>
+          <seconds>0</seconds>
+        </e_secondsfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdatetime1
+      Purpose: This test demonstrates the use of the x-from-dateTime functions to return the value as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="xfromdatetime_01" root="e_xfromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>It is 11:53:06 on the 1st of April, year 2013</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdatetime1>
+          <date>2013-04-01T11:53:06.000000+00:00</date>
+          <year>2013</year>
+          <month>4</month>
+          <day>1</day>
+          <hours>11</hours>
+          <minutes>53</minutes>
+          <seconds>6</seconds>
+        </e_xfromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdatetime2
+      Purpose: This test demonstrates the use of the x-from-dateTime functions to return the value as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="xfromdatetime_02" root="e_xfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>2013-12-31T23:62:30</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdatetime2>
+          <date>2014-01-01T00:02:30.000000+00:00</date>
+          <year>2014</year>
+          <month>1</month>
+          <day>1</day>
+          <hours>0</hours>
+          <minutes>2</minutes>
+          <seconds>30</seconds>
+        </e_xfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdatetime_03
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdatetime2
+      Purpose: This test demonstrates the use of the x-from-dateTime functions to return the value as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="xfromdatetime_03" root="e_xfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>0100-13-12T24:11:99</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdatetime2>
+          <date>0101-01-13T00:12:39.000000+00:00</date>
+          <year>101</year>
+          <month>1</month>
+          <day>13</day>
+          <hours>0</hours>
+          <minutes>12</minutes>
+          <seconds>39</seconds>
+        </e_xfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdatetime_04
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdatetime3
+      Purpose: This test demonstrates the use of the x-from-dateTime functions to return the value as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="xfromdatetime_04" root="e_xfromdatetime3"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>0000-01--30T10:01:02</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdatetime3>
+          <date>-0001-12-01T10:01:02.000000+00:00</date>
+          <year>-1</year>
+          <month>12</month>
+          <day>1</day>
+          <hours>10</hours>
+          <minutes>1</minutes>
+          <seconds>2</seconds>
+        </e_xfromdatetime3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: yearfromdate_01
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdate1
+      Purpose: This test demonstrates the use of the year-from-date function to return the year as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="yearfromdate_01" root="e_yearfromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdate1>2014</e_yearfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: yearfromdate_02
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdate2
+      Purpose: This test demonstrates the use of the year-from-date function to return the year as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="yearfromdate_02" root="e_yearfromdate2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R">
+
+    <tdml:document>2034-12-31</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdate2>
+          <date>2034-12-31+00:00</date>
+          <year>2034</year>
+        </e_yearfromdate2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: monthfromdate_01
+       Schema: Functions.dfdl.xsd
+         Root: e_monthfromdate1
+      Purpose: This test demonstrates the use of the month-from-date function to return the month as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="monthfromdate_01" root="e_monthfromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:month-from-date - DFDL-23-116R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_monthfromdate1>11</e_monthfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: monthfromdate_02
+       Schema: Functions.dfdl.xsd
+         Root: e_monthfromdate2
+      Purpose: This test demonstrates the use of the month-from-date function to return the month as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="monthfromdate_02" root="e_monthfromdate2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:month-from-date - DFDL-23-116R">
+
+    <tdml:document>2034-12-31</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_monthfromdate2>
+          <date>2034-12-31+00:00</date>
+          <month>12</month>
+        </e_monthfromdate2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: dayfromdate_01
+       Schema: Functions.dfdl.xsd
+         Root: e_dayfromdate1
+      Purpose: This test demonstrates the use of the day-from-date function to return the day as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="dayfromdate_01" root="e_dayfromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:day-from-date - DFDL-23-117R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_dayfromdate1>3</e_dayfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: dayfromdate_02
+       Schema: Functions.dfdl.xsd
+         Root: e_dayfromdate2
+      Purpose: This test demonstrates the use of the day-from-date function to return the day as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="dayfromdate_02" root="e_dayfromdate2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:day-from-date - DFDL-23-117R">
+
+    <tdml:document>2034-12-31</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_dayfromdate2>
+          <date>2034-12-31+00:00</date>
+          <day>31</day>
+        </e_dayfromdate2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdate_01
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdate1
+      Purpose: This test demonstrates the use of the x-from-date functions to return the value as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="xfromdate_01" root="e_xfromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+
+    <tdml:document>2000-01-366</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdate1>
+          <date>2000-12-31+00:00</date>
+          <year>2000</year>
+          <month>12</month>
+          <day>31</day>
+        </e_xfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdate_02
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdate2
+      Purpose: This test demonstrates the use of the x-from-date functions to return the value as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="xfromdate_02" root="e_xfromdate2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+
+    <tdml:document>2008-09-31</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdate2>
+          <date>2008-10-01+00:00</date>
+          <year>2008</year>
+          <month>10</month>
+          <day>1</day>
+        </e_xfromdate2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromdate_03
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromdate1
+      Purpose: This test demonstrates the use of the x-from-date functions to return the value as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="xfromdate_03" root="e_xfromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
+
+    <tdml:document>0000-01--99</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromdate1>
+          <date>-0001-09-23+00:00</date>
+          <year>-1</year>
+          <month>9</month>
+          <day>23</day>
+        </e_xfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--
