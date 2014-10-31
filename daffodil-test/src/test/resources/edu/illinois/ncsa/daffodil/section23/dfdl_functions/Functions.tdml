@@ -276,7 +276,7 @@
     </xs:element>
 
     <xs:element name="e_concat4" type="xs:int" dfdl:inputValueCalc="{ fn:concat(1, 2) }" />
-    <xs:element name="e_concat5" type="xs:string" dfdl:inputValueCalc="{ fn:concat('a',(),'b','c') }" />
+    <xs:element name="e_concat5" type="xs:string" dfdl:inputValueCalc="{ fn:concat('a','','b','c') }" />
 
     <xs:element name="e_substring1" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 6) }" />
     <xs:element name="e_substring2" type="xs:string" dfdl:inputValueCalc="{ fn:substring('A substring test', 3, 9) }" />
@@ -294,14 +294,14 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-    <xs:element name="e_substring8" type="xs:string" dfdl:inputValueCalc="{ fn:substring((), 1, 2) }" />
+    <xs:element name="e_substring8" type="xs:string" dfdl:inputValueCalc="{ fn:substring('', 1, 2) }" />
     <xs:element name="e_substring9" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -42, 1 div 0E0) }" />
     <xs:element name="e_substring10" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -1 div 0E0, 1 div 0E0) }" />
     <xs:element name="e_substring11" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -3, 5) }" />
 
     <xs:element name="e_stringlength1" type="xs:int" dfdl:inputValueCalc="{ fn:string-length('string') }" />
     <xs:element name="e_stringlength2" type="xs:int" dfdl:inputValueCalc="{ fn:string-length() }" />
-    <xs:element name="e_stringlength3" type="xs:int" dfdl:inputValueCalc="{ fn:string-length(()) }" />
+    <xs:element name="e_stringlength3" type="xs:int" dfdl:inputValueCalc="{ fn:string-length('') }" />
     <xs:element name="e_stringlength4">
       <xs:complexType>
         <xs:sequence>
@@ -313,7 +313,7 @@
 
     <xs:element name="e_uppercase1" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('test upper') }" />
     <xs:element name="e_uppercase2" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('TeSt UpPeR') }" />
-    <xs:element name="e_uppercase3" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case(()) }" />
+    <xs:element name="e_uppercase3" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('') }" />
     <xs:element name="e_uppercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case('tèst4!ã') }" />
     <xs:element name="e_uppercase5">
       <xs:complexType>
@@ -326,7 +326,7 @@
 
     <xs:element name="e_lowercase1" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TEST LOWER') }" />
     <xs:element name="e_lowercase2" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TeSt LoWeR') }" />
-    <xs:element name="e_lowercase3" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case(()) }" />
+    <xs:element name="e_lowercase3" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('') }" />
     <xs:element name="e_lowercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case('TÉST4!Ø') }" />
     <xs:element name="e_lowercase5">
       <xs:complexType>
@@ -339,8 +339,8 @@
 
     <xs:element name="e_contains1" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'quick') }" />
     <xs:element name="e_contains2" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'slow') }" />
-    <xs:element name="e_contains3" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', ()) }" />
-    <xs:element name="e_contains4" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains((), 'test') }" />
+    <xs:element name="e_contains3" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', '') }" />
+    <xs:element name="e_contains4" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('', 'test') }" />
     <xs:element name="e_contains5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -354,8 +354,8 @@
 
     <xs:element name="e_startswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'The q') }" />
     <xs:element name="e_startswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', 'he qu') }" />
-    <xs:element name="e_startswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', ()) }" />
-    <xs:element name="e_startswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with((), 'The') }" />
+    <xs:element name="e_startswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('The quick brown fox.', '') }" />
+    <xs:element name="e_startswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:starts-with('', 'The') }" />
     <xs:element name="e_startswith5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -369,8 +369,8 @@
 
     <xs:element name="e_endswith1" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'fox.') }" />
     <xs:element name="e_endswith2" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', 'The') }" />
-    <xs:element name="e_endswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', ()) }" />
-    <xs:element name="e_endswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with((), 'fox') }" />
+    <xs:element name="e_endswith3" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('The quick brown fox.', '') }" />
+    <xs:element name="e_endswith4" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('', 'fox') }" />
     <xs:element name="e_endswith5">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -383,8 +383,8 @@
     <xs:element name="e_endswith6" type="xs:boolean" dfdl:inputValueCalc="{ fn:ends-with('test', 'est', 'collation') }" />
 
     <xs:element name="e_substringbefore1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', 'quick') }" />
-    <xs:element name="e_substringbefore2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before((), ()) }" />
-    <xs:element name="e_substringbefore3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', ()) }" />
+    <xs:element name="e_substringbefore2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('', '') }" />
+    <xs:element name="e_substringbefore3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('The quick brown fox.', '') }" />
     <xs:element name="e_substringbefore4">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -397,8 +397,8 @@
     <xs:element name="e_substringbefore5" type="xs:string" dfdl:inputValueCalc="{ fn:substring-before('test', 's', 'collation') }" />
 
     <xs:element name="e_substringafter1" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', 'brown') }" />
-    <xs:element name="e_substringafter2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after((), ()) }" />
-    <xs:element name="e_substringafter3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', ()) }" />
+    <xs:element name="e_substringafter2" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('', '') }" />
+    <xs:element name="e_substringafter3" type="xs:string" dfdl:inputValueCalc="{ fn:substring-after('The quick brown fox.', '') }" />
     <xs:element name="e_substringafter4">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
@@ -778,9 +778,9 @@
   </tdml:parserTestCase>
 
 <!--
-    Test Name: stringlength_03
+    Test Name: stringlength_04
        Schema: Functions.dfdl.xsd
-         Root: e_stringlength3
+         Root: e_stringlength4
       Purpose: This test demonstrates the use of the string-length function to return the length of the argument as an integer.
 -->
 
