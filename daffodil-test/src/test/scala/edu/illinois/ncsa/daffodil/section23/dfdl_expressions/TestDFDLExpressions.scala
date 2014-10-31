@@ -230,8 +230,8 @@ class TestDFDLExpressions {
   @Test def test_floor_08() { runner2.runOneTest("floor_08") }
   
   //DFDL-1077
-  //@Test def test_round_07() { runner2.runOneTest("round_07") }
-  //@Test def test_round_13() { runner2.runOneTest("round_13") }
+  @Test def test_round_07() { runner2.runOneTest("round_07") }
+  @Test def test_round_13() { runner2.runOneTest("round_13") }
   
   @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
   @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }

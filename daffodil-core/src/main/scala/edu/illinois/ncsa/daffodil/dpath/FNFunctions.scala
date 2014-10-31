@@ -320,8 +320,18 @@ case class FNRound(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneA
       val bd = asBigDecimal(value)
       bd.round(bd.mc)
     }
-    case NodeInfo.Float => asFloat(value).round
-    case NodeInfo.Double => asDouble(value).round
+    case NodeInfo.Float => {
+      val f = asFloat(value)
+      if (f.isPosInfinity || f.isNegInfinity) f
+      else if (f.isNaN()) throw new NumberFormatException("fn:round received NaN")
+      else f.round
+    }
+    case NodeInfo.Double => {
+      val d = asDouble(value)
+      if (d.isPosInfinity || d.isNegInfinity) d
+      else if (d.isNaN()) throw new NumberFormatException("fn:round received NaN")
+      else d.round
+    }
     case _: NodeInfo.Numeric.Kind => value
     case _ => Assert.invariantFailed(String.format("Type %s is not a valid type for function round.", argType))
   }

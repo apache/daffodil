@@ -5053,9 +5053,60 @@
     <tdml:document>
       <tdml:documentPart type="text">INFINITY</tdml:documentPart>
     </tdml:document>
-    <tdml:errors>
-      <tdml:error>Parse Error</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+    	<tdml:dfdlInfoset>
+    		<round07>
+    			<val>INF</val>
+    			<roundval>INF</roundval>
+    		</round07>
+    	</tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: xPathFunc_round_14
+       Schema: XPathFunctions
+         Root: round04
+      Purpose: This test demonstrates the round function
+-->
+
+  <tdml:parserTestCase name="xPathFunc_round_14" root="round04"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-0.5</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round04>
+          <val>-0.5</val>
+          <roundval>0</roundval>
+        </round04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: xPathFunc_round_15
+       Schema: XPathFunctions
+         Root: round04
+      Purpose: This test demonstrates the round function
+-->
+
+  <tdml:parserTestCase name="xPathFunc_round_15" root="round04"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-0.0</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round04>
+          <val>-0.0</val>
+          <roundval>0</roundval>
+        </round04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
