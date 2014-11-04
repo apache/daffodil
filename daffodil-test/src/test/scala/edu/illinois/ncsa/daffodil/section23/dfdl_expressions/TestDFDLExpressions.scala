@@ -358,7 +358,7 @@ class TestDFDLExpressions {
   @Test def test_substring_11() { runner2.runOneTest("substring_11") }
   
   @Test def test_stringlength_01() { runner2.runOneTest("stringlength_01") }
-  //@Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
+  @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
   @Test def test_stringlength_03() { runner2.runOneTest("stringlength_03") }
   @Test def test_stringlength_04() { runner2.runOneTest("stringlength_04") }
   
@@ -399,7 +399,7 @@ class TestDFDLExpressions {
   @Test def test_endswith_04() { runner2.runOneTest("endswith_04") }
   @Test def test_endswith_05() { runner2.runOneTest("endswith_05") }
   @Test def test_endswith_06() { runner2.runOneTest("endswith_06") }
-  //@Test def test_endswith_07() { runner2.runOneTest("endswith_07") }
+  @Test def test_endswith_07() { runner2.runOneTest("endswith_07") }
 
   // DFDL-1092
   //@Test def test_substringbefore_01() { runner2.runOneTest("substringbefore_01") }

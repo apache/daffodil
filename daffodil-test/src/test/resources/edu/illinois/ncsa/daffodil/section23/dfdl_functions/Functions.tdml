@@ -936,8 +936,8 @@
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:string-length</tdml:error>
-      <tdml:error>takes 1 argument</tdml:error>
+      <tdml:error>fn:string-length</tdml:error>
+      <tdml:error>requires 1 argument</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1295,8 +1295,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:contains</tdml:error>
-      <tdml:error>takes 2 arguments</tdml:error>
+      <tdml:error>fn:contains</tdml:error>
+      <tdml:error>requires 2 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1429,8 +1429,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:starts-with</tdml:error>
-      <tdml:error>takes 2 arguments</tdml:error>
+      <tdml:error>fn:starts-with</tdml:error>
+      <tdml:error>requires 2 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1563,8 +1563,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:ends-with</tdml:error>
-      <tdml:error>takes 2 arguments</tdml:error>
+      <tdml:error>fn:ends-with</tdml:error>
+      <tdml:error>requires 2 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1701,8 +1701,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:substring-before</tdml:error>
-      <tdml:error>takes 2 arguments</tdml:error>
+      <tdml:error>fn:substring-before</tdml:error>
+      <tdml:error>requires 2 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1839,8 +1839,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Function fn:substring-after</tdml:error>
-      <tdml:error>takes 2 arguments</tdml:error>
+      <tdml:error>fn:substring-after</tdml:error>
+      <tdml:error>requires 2 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
