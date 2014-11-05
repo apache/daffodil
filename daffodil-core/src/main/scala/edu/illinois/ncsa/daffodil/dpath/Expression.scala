@@ -1276,13 +1276,13 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "day-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNDayFromDateTime(_, _))
       case (RefQName(_, "hours-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNHoursFromDateTime(_, _))
       case (RefQName(_, "minutes-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNMinutesFromDateTime(_, _))
-      case (RefQName(_, "seconds-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNSecondsFromDateTime(_, _))
+      case (RefQName(_, "seconds-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Decimal, NodeInfo.DateTime, FNSecondsFromDateTime(_, _))
       case (RefQName(_, "year-from-date", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Date, FNYearFromDate(_, _))
       case (RefQName(_, "month-from-date", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Date, FNMonthFromDate(_, _))
       case (RefQName(_, "day-from-date", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Date, FNDayFromDate(_, _))
       case (RefQName(_, "hours-from-time", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Time, FNHoursFromTime(_, _))
       case (RefQName(_, "minutes-from-time", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Time, FNMinutesFromTime(_, _))
-      case (RefQName(_, "seconds-from-time", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.Time, FNSecondsFromTime(_, _))
+      case (RefQName(_, "seconds-from-time", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Decimal, NodeInfo.Time, FNSecondsFromTime(_, _))
 
       case (RefQName(_, "occursIndex", DFDL), args) => {
         DFDLOccursIndexExpr(functionQNameString, functionQName, args)

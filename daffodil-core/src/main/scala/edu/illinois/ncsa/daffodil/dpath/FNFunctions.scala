@@ -405,6 +405,21 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
+
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case dt: DFDLDateTime => {
+        val seconds = dt.getField(Calendar.SECOND)
+        val frac = dt.getField(Calendar.MILLISECOND)
+        if (frac == 0) { seconds }
+        else {
+          val d = seconds + (frac / 1000.0)
+          d
+        }
+      }
+      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+    }
+  }
 }
 
 case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
@@ -437,4 +452,18 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromTime(recipe, argType) {
   val fieldName = "seconds"
   val field = Calendar.SECOND
+  override def computeValue(a: Any, dstate: DState) = {
+    a match {
+      case dt: DFDLTime => {
+        val seconds = dt.getField(Calendar.SECOND)
+        val frac = dt.getField(Calendar.MILLISECOND)
+        if (frac == 0) { seconds }
+        else {
+          val d = seconds + (frac / 1000.0)
+          d
+        }
+      }
+      case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
+    }
+  }
 }
