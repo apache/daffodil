@@ -483,12 +483,21 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="e_secondsfromdatetime1" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_secondsfromdatetime1" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
     <xs:element name="e_secondsfromdatetime2">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="date" type="xs:dateTime" dfdl:lengthKind="delimited" />
-          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="e_secondsfromdatetime3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="date" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="explicit"
+            dfdl:length="22" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss.SS" />
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -503,7 +512,7 @@
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
           <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
           <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
-          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -518,7 +527,7 @@
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
           <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
           <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
-          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -533,7 +542,7 @@
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-dateTime(../ex:date) }"/>
           <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-dateTime(../ex:date) }"/>
           <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-dateTime(../ex:date) }"/>
-          <xs:element name="seconds" type="xs:int" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-dateTime(../ex:date) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -588,6 +597,59 @@
           <xs:element name="year" type="xs:int" dfdl:inputValueCalc="{ fn:year-from-date(../ex:date) }"/>
           <xs:element name="month" type="xs:int" dfdl:inputValueCalc="{ fn:month-from-date(../ex:date) }"/>
           <xs:element name="day" type="xs:int" dfdl:inputValueCalc="{ fn:day-from-date(../ex:date) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_hoursfromtime1" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(xs:time('13:25:14')) }" />
+    <xs:element name="e_hoursfromtime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" />
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_minutesfromtime1" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(xs:time('13:25:14')) }" />
+    <xs:element name="e_minutesfromtime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" />
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_secondsfromtime1" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(xs:time('13:25:14')) }" />
+    <xs:element name="e_secondsfromtime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" />
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromtime1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" />
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:time) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:time) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_xfromtime2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit"
+            dfdl:calendarPattern="HH:mm:ss.SSS"  />
+          <xs:element name="hours" type="xs:int" dfdl:inputValueCalc="{ fn:hours-from-time(../ex:time) }"/>
+          <xs:element name="minutes" type="xs:int" dfdl:inputValueCalc="{ fn:minutes-from-time(../ex:time) }"/>
+          <xs:element name="seconds" type="xs:decimal" dfdl:inputValueCalc="{ fn:seconds-from-time(../ex:time) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -2043,7 +2105,7 @@
     Test Name: secondsfromdatetime_01
        Schema: Functions.dfdl.xsd
          Root: e_secondsfromdatetime1
-      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as an xs:integer from an xs:dateTime.
+      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as a xs:decimal from an xs:dateTime.
 -->
 
   <tdml:parserTestCase name="secondsfromdatetime_01" root="e_secondsfromdatetime1"
@@ -2061,7 +2123,7 @@
     Test Name: secondsfromdatetime_02
        Schema: Functions.dfdl.xsd
          Root: e_secondsfromdatetime2
-      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as an xs:integer from an xs:dateTime.
+      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as a xs:decimal from an xs:dateTime.
 -->
 
   <tdml:parserTestCase name="secondsfromdatetime_02" root="e_secondsfromdatetime2"
@@ -2074,6 +2136,27 @@
           <date>2034-12-31T23:00:00.000000+00:00</date>
           <seconds>0</seconds>
         </e_secondsfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: secondsfromdatetime_03
+       Schema: Functions.dfdl.xsd
+         Root: e_secondsfromdatetime3
+      Purpose: This test demonstrates the use of the seconds-from-dateTime function to return the seconds as a xs:decimal from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="secondsfromdatetime_03" root="e_secondsfromdatetime3"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-dateTime - DFDL-23-114R">
+
+    <tdml:document>2014-07-19T23:00:05.18</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_secondsfromdatetime3>
+          <date>2014-07-19T23:00:05.180000+00:00</date>
+          <seconds>5.18</seconds>
+        </e_secondsfromdatetime3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -2364,6 +2447,192 @@
           <month>9</month>
           <day>23</day>
         </e_xfromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: hoursfromtime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_hoursfromtime1
+      Purpose: This test demonstrates the use of the hours-from-time function to return the hours as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="hoursfromtime_01" root="e_hoursfromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_hoursfromtime1>13</e_hoursfromtime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: hoursfromtime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_hoursfromtime2
+      Purpose: This test demonstrates the use of the hours-from-time function to return the hours as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="hoursfromtime_02" root="e_hoursfromtime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R">
+
+    <tdml:document>23:00:00+00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_hoursfromtime2>
+          <time>23:00:00.000000+00:00</time>
+          <hours>23</hours>
+        </e_hoursfromtime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: minutesfromtime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_minutesfromtime1
+      Purpose: This test demonstrates the use of the minutes-from-time function to return the minutes as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="minutesfromtime_01" root="e_minutesfromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-time - DFDL-23-119R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_minutesfromtime1>25</e_minutesfromtime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: minutesfromtime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_minutesfromtime2
+      Purpose: This test demonstrates the use of the minutes-from-time function to return the minutes as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="minutesfromtime_02" root="e_minutesfromtime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:minutes-from-time - DFDL-23-119R">
+
+    <tdml:document>23:59:00+00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_minutesfromtime2>
+          <time>23:59:00.000000+00:00</time>
+          <minutes>59</minutes>
+        </e_minutesfromtime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: secondsfromtime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_secondsfromtime1
+      Purpose: This test demonstrates the use of the seconds-from-time function to return the seconds as a xs:decimal from an xs:time.
+-->
+
+  <tdml:parserTestCase name="secondsfromtime_01" root="e_secondsfromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-time - DFDL-23-120R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_secondsfromtime1>14</e_secondsfromtime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: secondsfromtime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_secondsfromtime2
+      Purpose: This test demonstrates the use of the seconds-from-time function to return the seconds as a xs:decimal from an xs:time.
+-->
+
+  <tdml:parserTestCase name="secondsfromtime_02" root="e_secondsfromtime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:seconds-from-time - DFDL-23-120R">
+
+    <tdml:document>23:00:48+00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_secondsfromtime2>
+          <time>23:00:48.000000+00:00</time>
+          <seconds>48</seconds>
+        </e_secondsfromtime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromtime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromtime1
+      Purpose: This test demonstrates the use of the x-from-time function to return the value as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="xfromtime_01" root="e_xfromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+
+    <tdml:document>24:00:00+00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromtime1>
+          <time>00:00:00.000000+00:00</time>
+          <hours>0</hours>
+          <minutes>0</minutes>
+          <seconds>0</seconds>
+        </e_xfromtime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromtime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromtime2
+      Purpose: This test demonstrates the use of the x-from-time function to return the value as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="xfromtime_02" root="e_xfromtime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+
+    <tdml:document>01:75:18.743</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromtime2>
+          <time>02:15:18.743000+00:00</time>
+          <hours>2</hours>
+          <minutes>15</minutes>
+          <seconds>18.743</seconds>
+        </e_xfromtime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: xfromtime_03
+       Schema: Functions.dfdl.xsd
+         Root: e_xfromtime1
+      Purpose: This test demonstrates the use of the x-from-time function to return the value as an xs:integer from an xs:time.
+-->
+
+  <tdml:parserTestCase name="xfromtime_03" root="e_xfromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:hours-from-time - DFDL-23-118R, fn:minutes-from-time - DFDL-23-119R, fn:seconds-from-time - DFDL-23-120R">
+
+    <tdml:document>12:13:14+00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_xfromtime1>
+          <time>12:13:14.000000+00:00</time>
+          <hours>12</hours>
+          <minutes>13</minutes>
+          <seconds>14</seconds>
+        </e_xfromtime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
