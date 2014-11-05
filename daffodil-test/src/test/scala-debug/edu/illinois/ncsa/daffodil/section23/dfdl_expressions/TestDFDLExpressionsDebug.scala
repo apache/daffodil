@@ -256,10 +256,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_yearfromdatetime_03() { runner2.runOneTest("yearfromdatetime_03") }
   @Test def test_yearfromdate_03() { runner2.runOneTest("yearfromdate_03") }
 
-  // DFDL-1128
-  @Test def test_xfromtime_02() { runner2.runOneTest("xfromtime_02") }
-  @Test def test_secondsfromdatetime_03() { runner2.runOneTest("secondsfromdatetime_03") }
-
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
