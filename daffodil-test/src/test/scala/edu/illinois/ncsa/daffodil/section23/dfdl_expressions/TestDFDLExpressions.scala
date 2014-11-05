@@ -459,6 +459,8 @@ class TestDFDLExpressions {
   // DFDL-1126
   //@Test def test_xfromdatetime_04() { runner2.runOneTest("xfromdatetime_04") }
   //@Test def test_xfromdate_03() { runner2.runOneTest("xfromdate_03") }
+  //@Test def test_yearfromdatetime_03() { runner2.runOneTest("yearfromdatetime_03") }
+  //@Test def test_yearfromdate_03() { runner2.runOneTest("yearfromdate_03") }
 
   // DFDL-1128
   //@Test def test_xfromtime_02() { runner2.runOneTest("xfromtime_02") }

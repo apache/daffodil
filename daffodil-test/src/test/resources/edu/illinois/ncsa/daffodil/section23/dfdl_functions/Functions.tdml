@@ -1946,6 +1946,27 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: yearfromdatetime_03
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdatetime2
+      Purpose: This test demonstrates the use of the year-from-dateTime function to return the year as an xs:integer from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="yearfromdatetime_03" root="e_yearfromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R">
+
+    <tdml:document>0000-01-01T23:00:00</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdatetime2>
+          <date>0000-01-01T23:00:00.000000+00:00</date>
+          <year>0</year>
+        </e_yearfromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
     Test Name: monthfromdatetime_01
        Schema: Functions.dfdl.xsd
          Root: e_monthfromdatetime1
@@ -2249,14 +2270,14 @@
   <tdml:parserTestCase name="xfromdatetime_04" root="e_xfromdatetime3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-dateTime - DFDL-23-109R, fn:month-from-dateTime - DFDL-23-110R, fn:day-from-dateTime - DFDL-23-111R, fn:hours-from-dateTime - DFDL-23-112R, fn:minutes-from-dateTime - DFDL-23-113R, fn:seconds-from-dateTime - DFDL-23-114R">
 
-    <tdml:document>0000-01--30T10:01:02</tdml:document>
+    <tdml:document>-1234-01-30T10:01:02</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdatetime3>
-          <date>-0001-12-01T10:01:02.000000+00:00</date>
-          <year>-1</year>
-          <month>12</month>
-          <day>1</day>
+          <date>-1234-01-30T10:01:02.000000+00:00</date>
+          <year>-1234</year>
+          <month>1</month>
+          <day>30</day>
           <hours>10</hours>
           <minutes>1</minutes>
           <seconds>2</seconds>
@@ -2299,6 +2320,27 @@
         <e_yearfromdate2>
           <date>2034-12-31+00:00</date>
           <year>2034</year>
+        </e_yearfromdate2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: yearfromdate_03
+       Schema: Functions.dfdl.xsd
+         Root: e_yearfromdate2
+      Purpose: This test demonstrates the use of the year-from-date function to return the year as an xs:integer from an xs:date.
+-->
+
+  <tdml:parserTestCase name="yearfromdate_03" root="e_yearfromdate2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R">
+
+    <tdml:document>0000-01-01</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_yearfromdate2>
+          <date>0000-01-01+00:00</date>
+          <year>0</year>
         </e_yearfromdate2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -2438,14 +2480,14 @@
   <tdml:parserTestCase name="xfromdate_03" root="e_xfromdate1"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:year-from-date - DFDL-23-115R, fn:month-from-date - DFDL-23-116R, fn:day-from-date - DFDL-23-117R">
 
-    <tdml:document>0000-01--99</tdml:document>
+    <tdml:document>-0020-01-99</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_xfromdate1>
-          <date>-0001-09-23+00:00</date>
-          <year>-1</year>
-          <month>9</month>
-          <day>23</day>
+          <date>-0020-04-08+00:00</date>
+          <year>-20</year>
+          <month>4</month>
+          <day>8</day>
         </e_xfromdate1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
