@@ -43,6 +43,7 @@ import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.DFDLDateTime
 import com.ibm.icu.util.DFDLTime
 import com.ibm.icu.util.DFDLDate
+import java.text.ParseException
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with
@@ -287,23 +288,40 @@ object Conversion {
   }
 
   protected def constructCalendar(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): Calendar = {
-    val calendar = inFormat.getCalendar()
+    val isLenient = inFormat.isLenient()
 
+    try {
+      inFormat.setLenient(false)
+      inFormat.parse(value)
+      true
+    } catch {
+      case e: ParseException => {
+        inFormat.setLenient(isLenient)
+        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s",
+          fncName, value.toString, toType, "Failed to match format."))
+      }
+    }
+
+    val calendar = inFormat.getCalendar()
     val pos = new ParsePosition(0)
 
-    inFormat.setLenient(false)
     inFormat.parse(value.toString, calendar, pos)
 
     try {
       calendar.getTime()
     } catch {
       case ex: java.lang.IllegalArgumentException => {
-        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s", fncName, value.toString, toType, ex.getMessage()))
+        inFormat.setLenient(isLenient)
+        throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Due to %s",
+          fncName, value.toString, toType, ex.getMessage()))
       }
     }
 
-    if (pos.getIndex() == 0) {
-      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s due to a parse error.", fncName, value.toString, toType))
+    inFormat.setLenient(isLenient)
+
+    if (pos.getIndex() == 0 || pos.getErrorIndex() != -1) {
+      throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s due to a parse error.",
+        fncName, value.toString, toType))
     }
     if (pos.getIndex() != (value.length())) {
       throw new java.lang.IllegalArgumentException(String.format("Conversion Error: %s failed to convert \"%s\" to %s. Failed to use up all characters in the parse.  Stopped at %s.",

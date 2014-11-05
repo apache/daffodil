@@ -378,7 +378,7 @@ abstract class FNFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNYearFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
   val fieldName = "year"
-  val field = Calendar.YEAR
+  val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDateTime(recipe, argType) {
@@ -425,7 +425,7 @@ case class FNSecondsFromDateTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNYearFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
   val fieldName = "year"
-  val field = Calendar.YEAR
+  val field = Calendar.EXTENDED_YEAR
 }
 case class FNMonthFromDate(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNFromDate(recipe, argType) {
