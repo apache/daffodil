@@ -37,22 +37,27 @@ object DaffodilBuild extends Build {
 
   lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings ++ schemasgenSettings ++ managedgenSettings)
                              .configs(DebugTest)
-                             .configs(NewTest)   
+                             .configs(NewTest)
 
   lazy val io    = Project(id = "daffodil-io", base = file("daffodil-io"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(lib) 
+                             .dependsOn(lib)
+
+  lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(io)
 
   lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
-                             .dependsOn(io) 
+                             .dependsOn(runtime1)
 
 //
 // Keep as illustration of how to make test code depend on another module's
 // test code. Use case is test utility libraries in one module that want
-// to be shared, but are only used for testing. 
+// to be shared, but are only used for testing.
 //
 //   lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
 //                              .configs(DebugTest)
@@ -64,19 +69,19 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
-                             
+
   lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ cliOnlySettings)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .configs(CliTest)
                              .dependsOn(tdml)
-                                                         
+
   lazy val test    = Project(id = "daffodil-test", base = file("daffodil-test"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(tdml)
                              .dependsOn(core % "test->test") // need test utilities in core's test dirs
-  
+
   lazy val examples    = Project(id = "daffodil-examples", base = file("daffodil-examples"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
@@ -97,7 +102,7 @@ object DaffodilBuild extends Build {
            .configs(NewTest)
            .dependsOn(tdml)
   }
-   
+
 
   //set up 'sbt stage' as a dependency
   lazy val cliTestTask = Keys.test in CliTest
@@ -189,7 +194,7 @@ object DaffodilBuild extends Build {
   // allowing us to manage sources/docs in lib/srcs and lib/docs without them
   // being included as a dependency
   s ++= Seq(unmanagedBase <<= baseDirectory(_ / "lib" / "jars"))
-  
+
 
   // creates 'sbt debug:*' tasks, using src/test/scala-debug as the source directory
   lazy val DebugTest = config("debug") extend(Test)
@@ -239,7 +244,7 @@ object DaffodilBuild extends Build {
     Seq(base / "src/test/scala-new")
   }
   s ++= Seq(buildNewWithTestSettings)
-  
+
   // creates 'sbt cli:*' tasks, using src/test/scala-cli as the source directory
   lazy val CliTest = config("cli") extend(Test)
   lazy val cliSettings: Seq[Setting[_]] = inConfig(CliTest)(Defaults.testSettings ++ Seq(
@@ -333,7 +338,7 @@ object DaffodilBuild extends Build {
   s ++= Seq(version := {
     val describe = exec("git describe --long HEAD")
     assert(describe.length == 1)
-    
+
     val DescribeRegex = """^(.+)-(.+)-(.+)$""".r
     val res = describe(0) match {
       case DescribeRegex(taggedVersion, "0", hash) => {

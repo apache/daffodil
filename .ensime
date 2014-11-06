@@ -97,27 +97,12 @@
    :depends-on-modules nil
    :compile-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar"
 
-;; added by hand these ICU libraries
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1.jar"
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1.jar"
-;; those aren't auto-downloaded. We maintain them by hand
-
  "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
    :runtime-deps ("/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/jars/xercesImpl-2.10.0.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/jars/icu4j-51.1.jar"
-
-;; added by hand these ICU libraries
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1.jar"
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1.jar"
-;; those aren't auto-downloaded. We maintain them by hand
 
  "/home/mbeckerle/.ivy2/cache/jline/jline/jars/jline-2.9.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/jars/commons-io-2.4.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/jars/scallop_2.10-0.9.5.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/jars/xml-resolver-1.2.jar" "/home/mbeckerle/.sbt/boot/scala-2.10.4/lib/scala-library.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.10.3.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/jars/jdom2-2.0.5.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar")
    :test-deps ("/home/mbeckerle/.ivy2/cache/junit/junit-dep/jars/junit-dep-4.10.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/jars/junit-interface-0.10.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/jars/junit-4.11.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.3.jar" "/home/mbeckerle/.ivy2/cache/org.scala-tools.testing/test-interface/jars/test-interface-0.5.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/jars/expectit-core-0.3.1.jar")
    :reference-source-roots ("/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-library/srcs/scala-library-2.10.4-sources.jar" "/home/mbeckerle/.ivy2/cache/org.rogach/scallop_2.10/srcs/scallop_2.10-0.9.5-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-apis/xml-apis/srcs/xml-apis-1.4.01-sources.jar" "/home/mbeckerle/.ivy2/cache/com.ibm.icu/icu4j/srcs/icu4j-51.1-sources.jar"
-
-;; added by hand these ICU libraries (for src)
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-charset-51_1-src.jar"
- "/home/mbeckerle/dataiti/git/daffodil/daffodil-lib/lib/icu4j-localespi-51_1-src.jar"
-;; those aren't auto-downloaded. We maintain them by hand
 
  "/home/mbeckerle/.ivy2/cache/xerces/xercesImpl/srcs/xercesImpl-2.10.0-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit/srcs/junit-4.11-sources.jar" "/home/mbeckerle/.ivy2/cache/org.jdom/jdom2/srcs/jdom2-2.0.5-sources.jar" "/home/mbeckerle/.ivy2/cache/net.sf.expectit/expectit-core/srcs/expectit-core-0.3.1-sources.jar" "/home/mbeckerle/.ivy2/cache/junit/junit-dep/srcs/junit-dep-4.10-sources.jar" "/home/mbeckerle/.ivy2/cache/com.novocode/junit-interface/srcs/junit-interface-0.10-sources.jar" "/home/mbeckerle/.ivy2/cache/org.hamcrest/hamcrest-core/srcs/hamcrest-core-1.3-sources.jar" "/home/mbeckerle/.ivy2/cache/commons-io/commons-io/srcs/commons-io-2.4-sources.jar" "/home/mbeckerle/.ivy2/cache/xml-resolver/xml-resolver/srcs/xml-resolver-1.2-sources.jar" "/home/mbeckerle/.ivy2/cache/jline/jline/srcs/jline-2.9-sources.jar" "/home/mbeckerle/.ivy2/cache/org.scala-lang/scala-reflect/srcs/scala-reflect-2.10.3-sources.jar")) (
    :name "daffodil-examples"

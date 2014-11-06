@@ -29,7 +29,12 @@
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<locationURI>DAFFODIL_ROOT/daffodil-core/src</locationURI>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>src/main</name>
+			<type>2</type>
+			<locationURI>DAFFODIL_ROOT/daffodil-core/src/main</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -33,5 +33,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.3.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>
