@@ -109,10 +109,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1120
   @Test def test_exists_10() { runner2.runOneTest("exists_10") }
   
-  //DFDL-1121
-  @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
-  @Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
-  
   //DFDL-1122
   @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
   @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
@@ -198,12 +194,12 @@ class TestDFDLExpressionsDebug {
   @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
   @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
 
-  // DFDL-710
-  @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
-
   // DFDL-581
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
+
+  //DFDL-1129
+  @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
   // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }

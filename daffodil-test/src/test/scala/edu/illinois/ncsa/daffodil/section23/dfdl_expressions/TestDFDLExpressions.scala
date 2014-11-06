@@ -690,15 +690,14 @@ class TestDFDLExpressions {
   //  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   //  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
   @Test def test_integer_constructor_07() { runner2.runOneTest("integer_constructor_07") }
+  
+  //DFDL-1129
+  //@Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
-  //DFDL-1121
-  //@Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
-  //@Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
-
+  @Test def test_testBit_0() { runner2.runOneTest("testBit_0") }
   @Test def test_testBit_1() { runner2.runOneTest("testBit_1") }
   @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
-  // This test should be giving a runtime SDE instead of parse error (DFDL-710)
-  // @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
+  @Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
   
   @Test def test_stringLiteralFromString_obsolete() { runner2.runOneTest("stringLiteralFromString_obsolete") }
   @Test def test_containsEntity_obsolete() { runner2.runOneTest("containsEntity_obsolete") }

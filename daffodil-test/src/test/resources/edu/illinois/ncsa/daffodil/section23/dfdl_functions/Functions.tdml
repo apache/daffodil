@@ -52,6 +52,19 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="testBit3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="xs:byte"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="bit0" type="xs:boolean"
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte) }" />
+          <xs:element name="bit7" type="xs:boolean"
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 7) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="setBits">
       <xs:complexType>
@@ -2693,16 +2706,12 @@
       <tdml:documentPart type="bits">00000001
       </tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <testBit>
-          <byte>1</byte>
-          <bit0>true</bit0>
-          <bit7>false</bit7>
-        </testBit>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:testBit</tdml:error>
+      <tdml:error>$bitPos must be between 1 and 8 (inclusive)</tdml:error>
+      <tdml:error>Was 0</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -2754,17 +2763,17 @@
     Test Name: testBit_3
        Schema: Functions.dfdl.xsd
          Root: testBit3
-      Purpose: This test demonstrates the creation of a runtime SDE by feeding an unexpected data type
+      Purpose: This test demonstrates running the testBit function with not enough arguments
 -->
 
-  <tdml:parserTestCase name="testBit_3" root="testBit"
+  <tdml:parserTestCase name="testBit_3" root="testBit3"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:testBit - DFDL-23-130R">
 
     <tdml:document>
-      <tdml:documentPart type="bits">foobar</tdml:documentPart>
+      <tdml:documentPart type="bits">00000001</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>placeholder</tdml:error>
+      <tdml:error>Parse Error: Insufficient bits to create an xs:Byte</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2786,8 +2795,8 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <testBit1>
           <byte>5</byte>
-          <bit1>false</bit1>
-          <bit2>true</bit2>
+          <bit1>true</bit1>
+          <bit2>false</bit2>
         </testBit1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
