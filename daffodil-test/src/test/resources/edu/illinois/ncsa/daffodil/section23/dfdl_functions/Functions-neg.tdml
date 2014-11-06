@@ -8,7 +8,7 @@
     <dfdl:format ref="ex:daffodilTest1"/>
 
     <xs:element name="abs" type="xs:int" dfdl:inputValueCalc="{ fn:abs(-9) }"/>
-    <xs:element name="foo" type="xs:int" dfdl:inputValueCalc="{ ex:foo(-9) }"/>
+    <xs:element xmlns:fn="http://www.w3.org/2005/xpath-functions" name="foo" type="xs:int" dfdl:inputValueCalc="{ fn:foo(-9) }"/>
 
   </tdml:defineSchema>
 
@@ -35,8 +35,8 @@
 <!--
     Test Name: fn_not_declared_2
        Schema: Functions-neg.dfdl.xsd
-         Root: abs
-      Purpose: This test demonstrates that if a function uses the fn prefix but it is not defined,
+         Root: foo
+      Purpose: This test demonstrates that if a function uses the fn prefix but the function is not defined,
                an SDE occurs.
 -->
 
@@ -48,8 +48,8 @@
 		</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>function</tdml:error>
-      <tdml:error>ex:foo</tdml:error>
+      <tdml:error>Unsupported function</tdml:error>
+      <tdml:error>fn:foo</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
