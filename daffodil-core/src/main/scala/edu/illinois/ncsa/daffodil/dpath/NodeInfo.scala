@@ -238,6 +238,14 @@ object NodeInfo extends Enum {
   case object Nillable extends TypeNode(AnyType, List(Complex, AnySimpleType)) with NillableKind {
     type Kind = NillableKind
   }
+  
+  /**
+   * For things like fn:exists fn:empty
+   */
+  protected sealed trait ExistsKind extends AnyType.Kind
+  case object Exists extends TypeNode(AnyType, Nil) with NillableKind {
+    type Kind = ExistsKind
+  }
 
   /**
    * It might be possible to combine AnySimpleType and AnyAtomic, but both
@@ -453,7 +461,7 @@ object NodeInfo extends Enum {
   // list and the definition of these type objects above.
   //
   private lazy val allAbstractTypes = List(
-    AnyType, Nillable, AnySimpleType, AnyAtomic,
+    AnyType, Nillable, AnySimpleType, AnyAtomic, Exists,
     Numeric, SignedNumeric, UnsignedNumeric, SignedInteger,
     // There is no UnsignedInteger because the concrete type 
     // NonNegativeInteger plays that role.

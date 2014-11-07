@@ -114,3 +114,18 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
   }
 
 }
+
+case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
+
+  override def run(dstate: DState) {
+    val now = dstate.currentComplex
+    val arr = now.getChildArray(info.slotIndexInParent)
+
+    if (!arr.isDefined || arr.isEmpty) throw new InfosetNoSuchChildElementException("Array does not exist.")
+  }
+
+  override def toXML = {
+    toXML(info.name)
+  }
+
+}

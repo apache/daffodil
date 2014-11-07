@@ -941,7 +941,10 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
       Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
       val indexRecipe = pred.get.compiledDPath
       new DownArrayOccurrence(dpathElementCompileInfo, indexRecipe)
-    } else if (stepElement.isArray) {
+    } else if (stepElement.isArray && targetType == NodeInfo.Exists){
+      new DownArrayExists(dpathElementCompileInfo)
+    } 
+    else if (stepElement.isArray) {
       schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
       new DownArray(dpathElementCompileInfo)
     } else {
@@ -1154,6 +1157,10 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.Boolean, NodeInfo.Boolean, FNNot(_, _))
 
+      case (RefQName(_, "empty", FUNC), args) =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Boolean, NodeInfo.Exists, FNEmpty(_, _))
+
       case (RefQName(_, "ends-with", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
           NodeInfo.Boolean,
@@ -1225,7 +1232,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "exists", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
-          NodeInfo.Boolean, NodeInfo.AnyType, FNExists(_, _))
+          NodeInfo.Boolean, NodeInfo.Exists, FNExists(_, _))
 
       case (RefQName(_, "ceiling", FUNC), args) =>
         FNOneArgMathExpr(functionQNameString, functionQName, args,

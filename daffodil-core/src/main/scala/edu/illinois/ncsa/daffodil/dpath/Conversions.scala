@@ -282,6 +282,7 @@ object Conversion {
       //      case (AnyAtomic, Date) => AnyAtomicToString +: conversionOps(String, tt, context)
       //      case (AnyAtomic, DateTime) => AnyAtomicToString +: conversionOps(String, tt, context)
 
+      case (_, Exists) => Nil
       case (_, other) => context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
     }
     ops

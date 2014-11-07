@@ -255,30 +255,50 @@ case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOne
   override def computeValue(value: Any, dstate: DState) = value.asInstanceOf[DIElement].isNilled
 }
 
-case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
-  override def run(dstate: DState) {
+trait ExistsKind {
+  def exists(recipe: CompiledDPath, dstate: DState): Boolean = {
     dstate.fnExists() // hook so we can insist this is non-constant at compile time.
-    val exists =
-      try {
-        recipe.run(dstate)
-        true
-      } catch {
-        // catch exceptions indicating a node (or value) doesn't exist.
-        //
-        // if you reach into an array location that doesn't exist
-        case e: java.lang.IndexOutOfBoundsException => false
-        // if you reach into a child element slot that isn't filled
-        case e: InfosetNoSuchChildElementException => false
-        // if something else goes wrong while evaluating the
-        // expression (fn:exist can be called on expressions that are
-        // not necessarily nodes.They can be simple value expressions)
-        case e: java.lang.IllegalStateException => false
-        case e: java.lang.NumberFormatException => false
-        case e: java.lang.IllegalArgumentException => false
-        case e: java.lang.ArithmeticException => false
-        case e: ProcessingError => false
-      }
-    dstate.setCurrentValue(exists)
+    val res = try {
+      recipe.run(dstate)
+      true
+    } catch {
+      // catch exceptions indicating a node (or value) doesn't exist.
+      //
+      // if you reach into an array location that doesn't exist
+      case e: java.lang.IndexOutOfBoundsException => false
+      // if you reach into a child element slot that isn't filled
+      case e: InfosetNoSuchChildElementException => false
+      // if something else goes wrong while evaluating the
+      // expression (fn:exist can be called on expressions that are
+      // not necessarily nodes.They can be simple value expressions)
+      case e: java.lang.IllegalStateException => false
+      case e: java.lang.NumberFormatException => false
+      case e: java.lang.IllegalArgumentException => false
+      case e: java.lang.ArithmeticException => false
+      case e: ProcessingError => false
+    }
+    res
+  }
+}
+
+case class FNExists(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe)
+  with ExistsKind {
+  override def run(dstate: DState) {
+    val res = exists(recipe, dstate)
+    dstate.setCurrentValue(res)
+  }
+
+  override def toXML = toXML(recipe.toXML)
+
+}
+
+case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe)
+  with ExistsKind {
+  override def run(dstate: DState) {
+    val res = exists(recipe, dstate)
+    dstate.setCurrentValue(!res)
   }
 
   override def toXML = toXML(recipe.toXML)
