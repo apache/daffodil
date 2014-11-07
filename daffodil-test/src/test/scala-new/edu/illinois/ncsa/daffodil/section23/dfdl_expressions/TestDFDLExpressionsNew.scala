@@ -75,7 +75,4 @@ class TestDFDLExpressionsNew {
   @Test def test_substringFunction14() { runner_fun.runOneTest("substringFunction14") }
   @Test def test_substringFunction15() { runner_fun.runOneTest("substringFunction15") }
   
-  @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
-  @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
-
 }

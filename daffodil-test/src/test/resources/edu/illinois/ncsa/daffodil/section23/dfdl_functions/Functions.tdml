@@ -4921,11 +4921,11 @@
 <!--
     Test Name: round_07
        Schema: XPathFunctions
-         Root: round02
+         Root: round07
       Purpose: This test demonstrates the round function when applied to NaN
 -->
 
-  <tdml:parserTestCase name="round_07" root="round02"
+  <tdml:parserTestCase name="round_07" root="round07"
     model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
 
     <tdml:document>
@@ -5114,6 +5114,29 @@
           <val>-0.0</val>
           <roundval>0</roundval>
         </round04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: xPathFunc_round_16
+       Schema: XPathFunctions
+         Root: round07
+      Purpose: This test demonstrates the round function when applied to negative infinity
+-->
+
+  <tdml:parserTestCase name="xPathFunc_round_16" root="round07"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round - DFDL-23-097R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">-INFINITY</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round07>
+          <val>-INF</val>
+          <roundval>-INF</roundval>
+        </round07>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
