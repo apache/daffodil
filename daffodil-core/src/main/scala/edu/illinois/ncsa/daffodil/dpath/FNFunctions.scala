@@ -158,6 +158,25 @@ case class FNSubstring3(recipes: List[CompiledDPath])
   }
 }
 
+case class FNSubstringBefore(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
+
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
+    val sourceString: String = arg1.asInstanceOf[String]
+    val searchString: String = arg2.asInstanceOf[String]
+
+    val res =
+      if (searchString == null || searchString == "") ""
+      else {
+        val index = sourceString.indexOf(searchString)
+        if (index < 0) ""
+        else substr(sourceString, 0, index)
+      }
+    res
+  }
+}
+
 case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   val name = "FNDateTime"
 

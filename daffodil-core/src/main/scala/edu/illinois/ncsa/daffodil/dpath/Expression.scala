@@ -1276,6 +1276,10 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "substring", FUNC), args) if args.length == 3 =>
         FNThreeArgsExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, NodeInfo.Double, NodeInfo.Double, FNSubstring3(_))
+          
+      case (RefQName(_, "substring-before", FUNC), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+            NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringBefore(_))
 
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
       case (RefQName(_, "false", FUNC), Nil) => LiteralBooleanExpression(false)
