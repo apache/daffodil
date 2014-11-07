@@ -1281,6 +1281,10 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         FNTwoArgsExpr(functionQNameString, functionQName, args,
             NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringBefore(_))
 
+      case (RefQName(_, "substring-after", FUNC), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringAfter(_))
+            
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
       case (RefQName(_, "false", FUNC), Nil) => LiteralBooleanExpression(false)
       case (RefQName(_, "count", FUNC), args) => {

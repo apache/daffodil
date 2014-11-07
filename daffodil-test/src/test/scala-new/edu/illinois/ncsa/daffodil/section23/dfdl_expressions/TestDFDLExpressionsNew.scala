@@ -115,4 +115,14 @@ class TestDFDLExpressionsNew {
   @Test def test_substringbefore_05 { runner2.runOneTest("substringbefore_05") }
   @Test def test_substringbefore_06 { runner2.runOneTest("substringbefore_06") }
   @Test def test_substringbefore_07 { runner2.runOneTest("substringbefore_07") }
+  
+  // DFDL-1094: DPath: fn:substring-after()
+  @Test def test_substringafter_01()  { runner2.runOneTest("substringafter_01") }
+  @Test def test_substringafter_02()  { runner2.runOneTest("substringafter_02") }
+  @Test def test_substringafter_03()  { runner2.runOneTest("substringafter_03") }
+  @Test def test_substringafter_04()  { runner2.runOneTest("substringafter_04") }
+  @Test def test_substringafter_05()  { runner2.runOneTest("substringafter_05") }
+  @Test def test_substringafter_06()  { runner2.runOneTest("substringafter_06") }
+  @Test def test_substringafter_07()  { runner2.runOneTest("substringafter_07") }
+
 }

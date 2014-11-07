@@ -86,6 +86,18 @@ trait SubstringKind {
     sourceString.substring(startPos, endPos)
   }
 
+  protected def substr(sourceString: String, startPos: Int): String = {
+    //
+    // Essentially we want to return all characters whose indices >= startingPos 
+    //
+    if (startPos >= sourceString.length) return ""
+    //
+    // Note: The documentation of substring says endIndex is exclusive.
+    // Yet it seems to behave inclusively here.
+    //
+    sourceString.substring(startPos)
+  }
+
   def substring(sourceString: String, startingLoc: Double, length: Double): String = {
     val result =
       if (startingLoc.isNaN() || length.isNaN()) { "" }
@@ -111,6 +123,23 @@ trait SubstringKind {
           else rounded - 1 // adjust to zero-based
         val ep = rounded + length.round.toInt - 1 // startLoc + len yields endLoc, adust to zero-based
         substr(sourceString, sp, ep)
+      }
+    result
+  }
+
+  def substring(sourceString: String, startingLoc: Double): String = {
+    val result =
+      if (startingLoc.isNaN()) { "" }
+      else if (startingLoc.isPosInfinity) { "" }
+      else if (startingLoc.isNegInfinity) {
+        val sp = 0
+        substr(sourceString, sp)
+      } else {
+        val rounded = startingLoc.round.toInt
+        val sp =
+          if (rounded <= 0) 0
+          else rounded - 1 // adjust to zero-based
+        substr(sourceString, sp)
       }
     result
   }
@@ -172,6 +201,25 @@ case class FNSubstringBefore(recipes: List[CompiledDPath])
         val index = sourceString.indexOf(searchString)
         if (index < 0) ""
         else substr(sourceString, 0, index)
+      }
+    res
+  }
+}
+
+case class FNSubstringAfter(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes)
+  with SubstringKind {
+
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
+    val sourceString: String = arg1.asInstanceOf[String]
+    val searchString: String = arg2.asInstanceOf[String]
+
+    val res =
+      if (searchString == null || searchString == "") sourceString
+      else {
+        val index = sourceString.indexOf(searchString)
+        if (index < 0) ""
+        else substr(sourceString, index + searchString.length())
       }
     res
   }

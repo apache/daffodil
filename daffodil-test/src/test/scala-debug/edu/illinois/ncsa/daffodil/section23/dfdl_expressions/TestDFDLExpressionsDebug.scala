@@ -187,15 +187,6 @@ class TestDFDLExpressionsDebug {
 
   @Test def test_substring_07() { runner2.runOneTest("substring_07") }
 
-  // DFDL-1094: DPath: fn:substring-after() Unsupported Function
-  @Test def test_substringafter_01() { runner2.runOneTest("substringafter_01") }
-  @Test def test_substringafter_02() { runner2.runOneTest("substringafter_02") }
-  @Test def test_substringafter_03() { runner2.runOneTest("substringafter_03") }
-  @Test def test_substringafter_04() { runner2.runOneTest("substringafter_04") }
-  @Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
-  @Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
-  @Test def test_substringafter_07() { runner2.runOneTest("substringafter_07") }
-
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
