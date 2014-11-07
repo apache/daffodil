@@ -138,8 +138,6 @@ class TestSimpleTypes {
   @Test def test_millisecondAccuracy5() { runner.runOneTest("millisecondAccuracy5") }
   @Test def test_millisecondAccuracy6() { runner.runOneTest("millisecondAccuracy6") }
   @Test def test_millisecondAccuracy7() { runner.runOneTest("millisecondAccuracy7") }
-  // DFDL-1042 - not very strict
-  // @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
 
   @Test def test_timeFormatting() { runner.runOneTest("timeFormatting") }
   @Test def test_timeFormatting2() { runner.runOneTest("timeFormatting2") }
@@ -147,8 +145,6 @@ class TestSimpleTypes {
   @Test def test_timeFormatting2b() { runner.runOneTest("timeFormatting2b") }
   @Test def test_timeFormatting3() { runner.runOneTest("timeFormatting3") }
   @Test def test_timeFormatting4() { runner.runOneTest("timeFormatting4") }
-  // DFDL-1042 - not very strict
-  // @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
   @Test def test_timeFormatting6() { runner.runOneTest("timeFormatting6") }
   @Test def test_timeFormatting7() { runner.runOneTest("timeFormatting7") }
 
@@ -202,9 +198,12 @@ class TestSimpleTypes {
   @Test def test_dateLaxCheckPolicy03() { runner.runOneTest("dateLaxCheckPolicy03") }
   @Test def test_dateLaxCheckPolicy04() { runner.runOneTest("dateLaxCheckPolicy04") }
   @Test def test_dateLaxCheckPolicy05() { runner.runOneTest("dateLaxCheckPolicy05") }
+
   // DFDL-1042 - not very strict
   // @Test def test_dateStrictCheckPolicy01() { runner.runOneTest("dateStrictCheckPolicy01") }
   // @Test def test_timeStrictCheckPolicy01() { runner.runOneTest("timeStrictCheckPolicy01") }
+  // @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
+  // @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
 
   @Test def test_Long1() { runner.runOneTest("Long1") }
   @Test def test_BigInteger1() { runner.runOneTest("BigInteger1") }
