@@ -169,11 +169,6 @@ class TestDFDLExpressions {
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
   
-  //These tests should work once DPath is pushed up
-  //@Test def test_abs_07() { runner2.runOneTest("abs_07") }
-  //@Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
-  //@Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
-  
   @Test def test_boolFunctionChoice_01() { runner2.runOneTest("boolFunctionChoice_01") }
   @Test def test_boolFunctionChoice_02() { runner2.runOneTest("boolFunctionChoice_02") }
   @Test def test_boolFunctionChoice_03() { runner2.runOneTest("boolFunctionChoice_03") }
@@ -210,6 +205,7 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_abs_04() { runner2.runOneTest("xPathFunc_abs_04") }
   @Test def test_abs_05() { runner2.runOneTest("abs_05") }
   @Test def test_abs_06() { runner2.runOneTest("abs_06") }
+  @Test def test_abs_07() { runner2.runOneTest("abs_07") }
   @Test def test_abs_08() { runner2.runOneTest("abs_08") }
   @Test def test_abs_09() { runner2.runOneTest("abs_09") }
   
@@ -218,7 +214,9 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
   @Test def test_xPathFunc_ceil_04() { runner2.runOneTest("xPathFunc_ceil_04") }
   @Test def test_xPathFunc_ceil_05() { runner2.runOneTest("xPathFunc_ceil_05") }
+  @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
   @Test def test_ceil_07() { runner2.runOneTest("ceil_07") }
+  @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
   
   @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
   @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
