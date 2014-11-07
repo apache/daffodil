@@ -124,11 +124,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1074
   @Test def test_not_11() { runner2.runOneTest("not_11") }
 
-  //These tests should work once DPath is pushed up
-  @Test def test_abs_07() { runner2.runOneTest("abs_07") }
-  @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
-  @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
-  
   //fails on build server 
   @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
