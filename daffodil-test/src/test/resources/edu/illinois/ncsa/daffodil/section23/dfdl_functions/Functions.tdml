@@ -5958,7 +5958,7 @@
       <tdml:dfdlInfoset>
         <integer02>
           <string>-184.7</string>
-          <intified>-185</intified>
+          <intified>-184</intified>
         </integer02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -5980,10 +5980,10 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <integer02>
+        <integer03>
           <float>45.4</float>
           <intified>45</intified>
-        </integer02>
+        </integer03>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

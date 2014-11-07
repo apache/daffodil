@@ -177,10 +177,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
   
-  //  DFDL-819
-  @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
-  @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
-
   // DFDL-827
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
