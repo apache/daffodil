@@ -58,7 +58,7 @@ class TestInputValueCalcDebug {
   @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
   @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 
-  // These two tests depend on the DPath parent:: and such notations working
+  //DFDL-1059 - These two tests depend on the DPath parent:: and such notations working
   @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
   @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
 
