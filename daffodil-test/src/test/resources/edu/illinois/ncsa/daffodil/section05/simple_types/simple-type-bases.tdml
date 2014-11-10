@@ -32,7 +32,7 @@
 
   </tdml:defineSchema>
 
-  <tdml:parserTestCase name="st-prim" root="e1"
+  <tdml:parserTestCase name="simpleTypeDerivedFromPrimType" root="e1"
     model="stb" description="Simple type defined in terms of primitive int.">
 
     <tdml:document>1</tdml:document>
@@ -46,7 +46,7 @@
   </tdml:parserTestCase>
 
 
-  <tdml:parserTestCase name="st-derived" root="e2"
+  <tdml:parserTestCase name="simpleTypeChainedDerivations" root="e2"
     model="stb" description="Simple type defined in terms of primitive int.">
 
     <tdml:document>1</tdml:document>
@@ -59,7 +59,7 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="st-prim-err1" root="err1"
+  <tdml:parserTestCase name="simpleTypeOverlapPrimError" root="err1"
     model="stb" description="Simple type conflict with element on properties">
 
     <tdml:document>1</tdml:document>
@@ -70,7 +70,7 @@
 
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="st-st-err1" root="err1"
+  <tdml:parserTestCase name="simpleTypeOverlapSimpleTypeError" root="err1"
     model="stb" description="Simple type conflict with element on properties - indirect">
 
     <tdml:document>1</tdml:document>
