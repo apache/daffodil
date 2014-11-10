@@ -491,4 +491,12 @@ class TestSimpleTypes {
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
+  
+  val st = testDir + "simple-type-bases.tdml"
+  lazy val runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
+  @Test def test_simpleTypeDerivedFromPrimType() { runnerST.runOneTest("st-prim") }
+  @Test def test_simpleTypeChainedDerivations() { runnerST.runOneTest("st-derived") }
+  @Test def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("st-prim-err1") }
+  @Test def test_simpleTypeOverlapSimpleTypeError() { runnerST.runOneTest("st-st-err1") }
+
 }
