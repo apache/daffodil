@@ -103,11 +103,13 @@ class TresysTests2 {
 
   val be = testDir + "BE.tdml"
   lazy val runnerBE = new DFDLTestSuite(Misc.getRequiredResource(be))
+  //DFDL-1010
   @Test def test_BE000() { runnerBE.runOneTest("BE000") } // unordered sequences
   @Test def test_BE001() { runnerBE.runOneTest("BE001") }
 
   val bf = testDir + "BF.tdml"
   lazy val runnerBF1 = new DFDLTestSuite(Misc.getRequiredResource(bf))
+  //DFDL-1010
   @Test def test_BF000() { runnerBF1.runOneTest("BF000") } // unordered sequences
   @Test def test_BF001() { runnerBF1.runOneTest("BF001") }
 
