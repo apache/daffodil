@@ -74,7 +74,7 @@ class TestDFDLExpressionsNew {
   @Test def test_substringFunction13() { runner_fun.runOneTest("substringFunction13") }
   @Test def test_substringFunction14() { runner_fun.runOneTest("substringFunction14") }
   @Test def test_substringFunction15() { runner_fun.runOneTest("substringFunction15") }
-  
+
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
   
@@ -85,5 +85,23 @@ class TestDFDLExpressionsNew {
   @Test def test_empty_06() { runner2.runOneTest("empty_06") }
   @Test def test_empty_07() { runner2.runOneTest("empty_07") }
   @Test def test_empty_08() { runner2.runOneTest("empty_08") }
+
+  // DFDL-1093: DPath: fn:starts-with() Unsupported Function
+  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
+  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
+  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
+  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
+  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
+  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
+  @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
+
+  // DFDL-1090: DPath: fn:contains() Unsupported Function
+  @Test def test_contains_01() { runner2.runOneTest("contains_01") }
+  @Test def test_contains_02() { runner2.runOneTest("contains_02") }
+  @Test def test_contains_03() { runner2.runOneTest("contains_03") }
+  @Test def test_contains_04() { runner2.runOneTest("contains_04") }
+  @Test def test_contains_05() { runner2.runOneTest("contains_05") }
+  @Test def test_contains_06() { runner2.runOneTest("contains_06") }
+  @Test def test_contains_07() { runner2.runOneTest("contains_07") }
 
 }

@@ -1161,6 +1161,16 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.Boolean, NodeInfo.Exists, FNEmpty(_, _))
 
+      case (RefQName(_, "contains", FUNC), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Boolean,
+          NodeInfo.String, NodeInfo.String, FNContains(_))
+
+      case (RefQName(_, "starts-with", FUNC), args) =>
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Boolean,
+          NodeInfo.String, NodeInfo.String, FNStartsWith(_))
+
       case (RefQName(_, "ends-with", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
           NodeInfo.Boolean,

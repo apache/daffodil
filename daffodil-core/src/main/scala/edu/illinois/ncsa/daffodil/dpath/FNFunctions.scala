@@ -242,15 +242,6 @@ case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null) extends F
   override def computeValue(value: Any, dstate: DState) = !(value.asInstanceOf[Boolean])
 }
 
-case class FNEndsWith(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
-  override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
-    val arg1s = arg1.asInstanceOf[String]
-    val arg2s = arg2.asInstanceOf[String]
-    val res = arg1s.endsWith(arg2s)
-    res
-  }
-}
-
 case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, NodeInfo.Nillable) {
   override def computeValue(value: Any, dstate: DState) = value.asInstanceOf[DIElement].isNilled
 }
@@ -485,5 +476,76 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
       }
       case _ => throw new NumberFormatException("fn:" + fieldName + "-from-dateTime only accepts xs:dateTime.")
     }
+  }
+}
+
+case class FNContains(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes) {
+  /**
+   * Returns an xs:boolean indicating whether or not the value of $arg1 contains
+   * (at the beginning, at the end, or anywhere within) at least one sequence of
+   * collation units that provides a minimal match to the collation units in
+   * the value of $arg2, according to the collation that is used.
+   */
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
+    val sourceString = arg1.asInstanceOf[String]
+    val valueString = arg2.asInstanceOf[String]
+
+    // If the value of $arg2 is the zero-length string, then the function returns true.
+    if (valueString.isEmpty()) return true
+
+    // If the value of $arg1 is the zero-length string, the function returns false.
+    if (sourceString.isEmpty()) return false
+
+    val res = sourceString.contains(valueString)
+    res
+  }
+}
+
+case class FNStartsWith(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes) {
+  /**
+   *  Returns an xs:boolean indicating whether or not the
+   *  value of $arg1 starts with a sequence of collation units
+   *  that provides a match to the collation units of $arg2
+   *  according to the collation that is used.
+   */
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
+    val sourceString = arg1.asInstanceOf[String]
+    val prefixString = arg2.asInstanceOf[String]
+
+    // If the value of $arg2 is the zero-length string, then the function returns true.
+    if (prefixString.isEmpty()) return true
+
+    // If the value of $arg1 is the zero-length string and the value 
+    // of $arg2 is not the zero-length string, then the function returns false.
+    if (sourceString.isEmpty()) return false
+
+    val res = sourceString.startsWith(prefixString)
+    res
+  }
+}
+
+case class FNEndsWith(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes) {
+  /**
+   * Returns an xs:boolean indicating whether or not the
+   * value of $arg1 starts with a sequence of collation units
+   * that provides a match to the collation units of $arg2
+   * according to the collation that is used.
+   */
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
+    val sourceString = arg1.asInstanceOf[String]
+    val postfixString = arg2.asInstanceOf[String]
+
+    // If the value of $arg2 is the zero-length string, then the function returns true.
+    if (postfixString.isEmpty()) return true
+
+    // If the value of $arg1 is the zero-length string and the value of $arg2 
+    // is not the zero-length string, then the function returns false.
+    if (sourceString.isEmpty()) return false
+
+    val res = sourceString.endsWith(postfixString)
+    res
   }
 }

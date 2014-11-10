@@ -187,26 +187,9 @@ class TestDFDLExpressionsDebug {
 
   @Test def test_substring_07() { runner2.runOneTest("substring_07") }
 
-  // DFDL-1090: DPath: fn:contains() Unsupported Function
-  @Test def test_contains_01() { runner2.runOneTest("contains_01") }
-  @Test def test_contains_02() { runner2.runOneTest("contains_02") }
-  @Test def test_contains_03() { runner2.runOneTest("contains_03") }
-  @Test def test_contains_04() { runner2.runOneTest("contains_04") }
-  @Test def test_contains_05() { runner2.runOneTest("contains_05") }
-  @Test def test_contains_06() { runner2.runOneTest("contains_06") }
-  @Test def test_contains_07() { runner2.runOneTest("contains_07") }
   @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
   @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
   @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
-
-  // DFDL-1093: DPath: fn:starts-with() Unsupported Function
-  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
-  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
-  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
-  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
-  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
-  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
-  @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
 
   // DFDL-1092: DPath: fn:substring-before() Unsupported Function
   @Test def test_substringbefore_01() { runner2.runOneTest("substringbefore_01") }
