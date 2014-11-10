@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.usertests
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -53,6 +53,7 @@ class TestUserSubmittedTestsDebug {
   val aa = testDir + "UserSubmittedTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  //DFDL-1118
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner
     tr.init
