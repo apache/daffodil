@@ -1371,7 +1371,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.Float)
 
       case (RefQName(_, "double", XSD), args) =>
-        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.Float)
+        XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.Double)
 
       case (RefQName(_, "long", XSD), args) =>
         XSConverterExpr(functionQNameString, functionQName, args, NodeInfo.Long)

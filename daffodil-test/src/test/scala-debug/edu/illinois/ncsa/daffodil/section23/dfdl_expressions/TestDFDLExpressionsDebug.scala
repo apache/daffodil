@@ -89,14 +89,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
   @Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
   
-  //DFDL-1119
-  @Test def test_double_constructor_01() { runner2.runOneTest("double_constructor_01") }
-  @Test def test_double_constructor_02() { runner2.runOneTest("double_constructor_02") }
-  @Test def test_double_constructor_03() { runner2.runOneTest("double_constructor_03") }
-  @Test def test_double_constructor_04() { runner2.runOneTest("double_constructor_04") }
-  @Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
-  @Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
-  
   //DFDL-1075
   @Test def test_exists_01() { runner2.runOneTest("exists_01") }
   @Test def test_exists_03() { runner2.runOneTest("exists_03") }
