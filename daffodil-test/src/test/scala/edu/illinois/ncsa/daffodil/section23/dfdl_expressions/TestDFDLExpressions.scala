@@ -271,10 +271,6 @@ class TestDFDLExpressions {
   //@Test def test_empty_05() { runner2.runOneTest("empty_05") }
   //@Test def test_exists_05() { runner2.runOneTest("exists_05") }
   
-  //DFDL-1081
-  //@Test def test_empty_09() { runner2.runOneTest("empty_09") }
-  //@Test def test_exists_09() { runner2.runOneTest("exists_09") }
-  
   //DFDL-1087
   //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
@@ -285,13 +281,13 @@ class TestDFDLExpressions {
   //DFDL-1097
   //@Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
   
-  //DFDL-1083
-  //@Test def test_empty_01() { runner2.runOneTest("empty_01") }
-  //@Test def test_empty_03() { runner2.runOneTest("empty_03") }
-  //@Test def test_empty_04() { runner2.runOneTest("empty_04") }
-  //@Test def test_empty_06() { runner2.runOneTest("empty_06") }
-  //@Test def test_empty_07() { runner2.runOneTest("empty_07") }
-  //@Test def test_empty_08() { runner2.runOneTest("empty_08") }
+  @Test def test_empty_01() { runner2.runOneTest("empty_01") }
+  @Test def test_empty_03() { runner2.runOneTest("empty_03") }
+  @Test def test_empty_04() { runner2.runOneTest("empty_04") }
+  @Test def test_empty_06() { runner2.runOneTest("empty_06") }
+  @Test def test_empty_07() { runner2.runOneTest("empty_07") }
+  @Test def test_empty_08() { runner2.runOneTest("empty_08") }
+  @Test def test_empty_09() { runner2.runOneTest("empty_09") }
 
   //DFDL-1075
   //@Test def test_exists_01() { runner2.runOneTest("exists_01") }
@@ -300,6 +296,8 @@ class TestDFDLExpressions {
   //@Test def test_exists_06() { runner2.runOneTest("exists_06") }
   //@Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_exists_08() { runner2.runOneTest("exists_08") }
+  @Test def test_exists_09() { runner2.runOneTest("exists_09") }
+  
   //DFDL-1120
   //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
   
