@@ -187,10 +187,6 @@ class TestDFDLExpressionsDebug {
 
   @Test def test_substring_07() { runner2.runOneTest("substring_07") }
 
-  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
-  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
-  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
-
   // DFDL-1092: DPath: fn:substring-before() Unsupported Function
   @Test def test_substringbefore_01() { runner2.runOneTest("substringbefore_01") }
   @Test def test_substringbefore_02() { runner2.runOneTest("substringbefore_02") }

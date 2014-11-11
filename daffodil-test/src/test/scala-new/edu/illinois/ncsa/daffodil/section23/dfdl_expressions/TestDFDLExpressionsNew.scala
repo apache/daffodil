@@ -77,7 +77,7 @@ class TestDFDLExpressionsNew {
 
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
-  
+
   //DFDL-1083
   @Test def test_empty_01() { runner2.runOneTest("empty_01") }
   @Test def test_empty_03() { runner2.runOneTest("empty_03") }
@@ -103,5 +103,8 @@ class TestDFDLExpressionsNew {
   @Test def test_contains_05() { runner2.runOneTest("contains_05") }
   @Test def test_contains_06() { runner2.runOneTest("contains_06") }
   @Test def test_contains_07() { runner2.runOneTest("contains_07") }
+  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
+  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
+  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
 
 }

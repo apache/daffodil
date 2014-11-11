@@ -483,9 +483,7 @@ case class FNContains(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the value of $arg1 contains
-   * (at the beginning, at the end, or anywhere within) at least one sequence of
-   * collation units that provides a minimal match to the collation units in
-   * the value of $arg2, according to the collation that is used.
+   * (at the beginning, at the end, or anywhere within) $arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
@@ -506,9 +504,7 @@ case class FNStartsWith(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
    *  Returns an xs:boolean indicating whether or not the
-   *  value of $arg1 starts with a sequence of collation units
-   *  that provides a match to the collation units of $arg2
-   *  according to the collation that is used.
+   *  value of $arg1 starts with $arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
@@ -530,9 +526,7 @@ case class FNEndsWith(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the
-   * value of $arg1 starts with a sequence of collation units
-   * that provides a match to the collation units of $arg2
-   * according to the collation that is used.
+   * value of $arg1 ends with $arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
