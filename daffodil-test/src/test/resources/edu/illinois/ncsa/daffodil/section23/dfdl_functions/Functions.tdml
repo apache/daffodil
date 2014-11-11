@@ -8885,6 +8885,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>empty</tdml:error>
+      <tdml:error>function requires 1 argument(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -8903,6 +8904,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No element corresponding to step ex:IDONOTEXIST</tdml:error>
+      <tdml:error>found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -9126,6 +9129,8 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>No element corresponding to step ex:IDONOTEXIST</tdml:error>
+      <tdml:error>found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

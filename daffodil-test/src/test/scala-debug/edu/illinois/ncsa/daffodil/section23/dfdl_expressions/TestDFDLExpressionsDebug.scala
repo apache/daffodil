@@ -131,8 +131,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   //DFDL-1079
   @Test def test_empty_05() { runner2.runOneTest("empty_05") }
-  //DFDL-1081
-  @Test def test_empty_09() { runner2.runOneTest("empty_09") }
   
   //DFDL-1085
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }

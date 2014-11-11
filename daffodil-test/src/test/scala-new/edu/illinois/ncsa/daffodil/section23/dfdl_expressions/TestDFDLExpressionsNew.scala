@@ -78,14 +78,6 @@ class TestDFDLExpressionsNew {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
-  //DFDL-1083
-  @Test def test_empty_01() { runner2.runOneTest("empty_01") }
-  @Test def test_empty_03() { runner2.runOneTest("empty_03") }
-  @Test def test_empty_04() { runner2.runOneTest("empty_04") }
-  @Test def test_empty_06() { runner2.runOneTest("empty_06") }
-  @Test def test_empty_07() { runner2.runOneTest("empty_07") }
-  @Test def test_empty_08() { runner2.runOneTest("empty_08") }
-
   // DFDL-1093: DPath: fn:starts-with() Unsupported Function
   @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
   @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
