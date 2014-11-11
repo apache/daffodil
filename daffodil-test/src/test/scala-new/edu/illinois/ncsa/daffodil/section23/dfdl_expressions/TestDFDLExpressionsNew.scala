@@ -58,23 +58,6 @@ class TestDFDLExpressionsNew {
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-  @Test def test_substringFunction01() { runner_fun.runOneTest("substringFunction01") }
-  @Test def test_substringFunction02() { runner_fun.runOneTest("substringFunction02") }
-  @Test def test_substringFunction03() { runner_fun.runOneTest("substringFunction03") }
-  @Test def test_substringFunction04() { runner_fun.runOneTest("substringFunction04") }
-  @Test def test_substringFunction05() { runner_fun.runOneTest("substringFunction05") }
-  @Test def test_substringFunction06() { runner_fun.runOneTest("substringFunction06") }
-  @Test def test_substringFunction07() { runner_fun.runOneTest("substringFunction07") }
-  @Test def test_substringFunction08() { runner_fun.runOneTest("substringFunction08") }
-  // Fails fn:substring((), 1, 3) returns "".
-  //    @Test def test_substringFunction09() { runner_fun.runOneTest("substringFunction09") }
-  @Test def test_substringFunction10() { runner_fun.runOneTest("substringFunction10") }
-  @Test def test_substringFunction11() { runner_fun.runOneTest("substringFunction11") }
-  @Test def test_substringFunction12() { runner_fun.runOneTest("substringFunction12") }
-  @Test def test_substringFunction13() { runner_fun.runOneTest("substringFunction13") }
-  @Test def test_substringFunction14() { runner_fun.runOneTest("substringFunction14") }
-  @Test def test_substringFunction15() { runner_fun.runOneTest("substringFunction15") }
-
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
