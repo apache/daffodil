@@ -8,11 +8,12 @@ import com.typesafe.sbt.license.LicenseCategory
 import com.typesafe.sbt.license.LicenseInfo
 import com.typesafe.sbt.license.DepModuleInfo
 import com.typesafe.sbt.license.Html
+import com.typesafe.sbt.pgp.PgpSettings._
 
 object DaffodilBuild extends Build {
 
   var s = Defaults.defaultSettings
-  lazy val nopub = Seq(publish := {}, publishLocal := {})
+  lazy val nopub = Seq(publish := {}, publishLocal := {}, packagedArtifacts := Map.empty )
 
   var cliOnlySettings = packageArchetype.java_application
 
@@ -398,4 +399,13 @@ object DaffodilBuild extends Build {
     )
   }}
   s ++= manifestVersion
+
+  // by default, sbt-pgp tries to read ~/.gnupg for keys. We need to force it
+  // to be .sbt, which makes it easier to pass the keys around without having
+  // to import into gnupg keyrings
+  lazy val pgpSettings = Seq(
+    pgpPublicRing := file(System.getProperty("user.home")) / ".sbt" / "gpg" / "daffodil" / "pubring.asc",
+    pgpSecretRing := file(System.getProperty("user.home")) / ".sbt" / "gpg" / "daffodil" / "secring.asc"
+  )
+  s ++= pgpSettings
 }
