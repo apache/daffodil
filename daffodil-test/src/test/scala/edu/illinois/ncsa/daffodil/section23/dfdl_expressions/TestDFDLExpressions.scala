@@ -165,6 +165,19 @@ class TestDFDLExpressions {
   @Test def test_functionFail02() { runner_fun.runOneTest("functionFail02") }
   @Test def test_functionFail03() { runner_fun.runOneTest("functionFail03") }
 
+  @Test def test_substringFunction01() { runner_fun.runOneTest("substringFunction01") }
+  @Test def test_substringFunction02() { runner_fun.runOneTest("substringFunction02") }
+  @Test def test_substringFunction03() { runner_fun.runOneTest("substringFunction03") }
+  @Test def test_substringFunction04() { runner_fun.runOneTest("substringFunction04") }
+  @Test def test_substringFunction05() { runner_fun.runOneTest("substringFunction05") }
+  @Test def test_substringFunction06() { runner_fun.runOneTest("substringFunction06") }
+  @Test def test_substringFunction07() { runner_fun.runOneTest("substringFunction07") }
+  @Test def test_substringFunction08() { runner_fun.runOneTest("substringFunction08") }
+  @Test def test_substringFunction12() { runner_fun.runOneTest("substringFunction12") }
+  @Test def test_substringFunction13() { runner_fun.runOneTest("substringFunction13") }
+  @Test def test_substringFunction14() { runner_fun.runOneTest("substringFunction14") }
+  @Test def test_substringFunction15() { runner_fun.runOneTest("substringFunction15") }
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))

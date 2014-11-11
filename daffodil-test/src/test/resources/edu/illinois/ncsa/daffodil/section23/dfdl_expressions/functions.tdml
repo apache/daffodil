@@ -294,9 +294,6 @@
     <xs:element name="substring06" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -3, 5) }"/>
     <xs:element name="substring07" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', 0 div 0E0, 3) }"/>
     <xs:element name="substring08" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', 1, 0 div 0E0) }"/>
-    <xs:element name="substring09" type="xs:string" dfdl:inputValueCalc="{ fn:substring((), 1, 3) }"/>
-    <xs:element name="substring10" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -42, 1 div 0E0) }"/>
-    <xs:element name="substring11" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -1 div 0E0, 1 div 0E0) }"/>
     <xs:element name="substring12" type="xs:string" dfdl:inputValueCalc="{ fn:substring('motor car', 1 div 0E0) }"/>
     <xs:element name="substring13" type="xs:string" dfdl:inputValueCalc="{ fn:substring('', 1 div 0E0) }"/>
     <xs:element name="substring14" type="xs:string" dfdl:inputValueCalc="{ fn:substring('12345', -1 div 0E0) }"/>
@@ -444,60 +441,6 @@
     <tdml:infoset>
     	<tdml:dfdlInfoset>
     		<substring08></substring08>
-    	</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-  <!--
-     Test Name: substringFunction09
-        Schema: substringSchema
-          Root: substring09
-       Purpose: This test demonstrates appropriate behavior of fn:substring 
--->
-  
-  <tdml:parserTestCase name="substringFunction09" root="substring09"
-    model="substringSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
-
-    <tdml:document></tdml:document>
-    <tdml:infoset>
-    	<tdml:dfdlInfoset>
-    		<substring09></substring09>
-    	</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-  <!--
-     Test Name: substringFunction10
-        Schema: substringSchema
-          Root: substring10
-       Purpose: This test demonstrates appropriate behavior of fn:substring 
--->
-  
-  <tdml:parserTestCase name="substringFunction10" root="substring10"
-    model="substringSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
-
-    <tdml:document></tdml:document>
-    <tdml:infoset>
-    	<tdml:dfdlInfoset>
-    		<substring10>12345</substring10>
-    	</tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-  
-  <!--
-     Test Name: substringFunction11
-        Schema: substringSchema
-          Root: substring11
-       Purpose: This test demonstrates appropriate behavior of fn:substring 
--->
-  
-  <tdml:parserTestCase name="substringFunction11" root="substring11"
-    model="substringSchema" description="Section 23 Expressions - Date, Time functions - DFDL-23-109R">
-
-    <tdml:document></tdml:document>
-    <tdml:infoset>
-    	<tdml:dfdlInfoset>
-    		<substring11></substring11>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
