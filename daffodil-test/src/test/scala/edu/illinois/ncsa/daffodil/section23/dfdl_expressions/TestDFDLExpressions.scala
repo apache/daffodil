@@ -59,6 +59,7 @@ class TestDFDLExpressions {
   @Test def test_byteOrderExpr1 { runner4.runOneTest("byteOrderExpr1") }
   @Test def test_byteOrderExpr1b { runner4.runOneTest("byteOrderExpr1b") }
   @Test def test_byteOrderExpr2 { runner4.runOneTest("byteOrderExpr2") }
+  @Test def test_byteOrderExpr2b { runner4.runOneTest("byteOrderExpr2b") }
   @Test def test_byteOrderExpr3 { runner4.runOneTest("byteOrderExpr3") }
   @Test def test_byteOrderExpr4 { runner4.runOneTest("byteOrderExpr4") }
   @Test def test_byteOrderExpr5 { runner4.runOneTest("byteOrderExpr5") }

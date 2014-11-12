@@ -38,6 +38,29 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e2b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="bom" type="xs:unsignedByte" />
+          <xs:element name="num" type="xs:int">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element>
+                  <dfdl:property name="byteOrder"><![CDATA[{
+          if (fn:trace(fn:trace(xs:unsignedByte(../ex:bom), 'bom') eq 10, 'pred1')) then 'bigEndian' 
+          else (
+                 if (fn:trace(xs:unsignedByte(../ex:bom) eq 20, 'pred2')) then 'littleEndian'
+                 else daf:error()
+               )
+      }]]></dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="e3">
       <xs:complexType>
@@ -187,6 +210,26 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Unknown Property Value</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: byteOrderExpr2b
+        Schema: s1
+          Root: e2b
+       Purpose: This test demonstrates that fn:trace is no longer acceptable - the replacement is the trace function that is in 
+                the daffodil extension namespace
+-->
+
+  <tdml:parserTestCase name="byteOrderExpr2b" root="e2b"
+    model="s1" description="fn:trace no longer available">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0A01000100</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported function: fn:trace</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
