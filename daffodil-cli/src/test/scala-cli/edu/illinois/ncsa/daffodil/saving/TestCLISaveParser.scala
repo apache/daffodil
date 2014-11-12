@@ -225,4 +225,30 @@ class TestCLISaveParser {
     shell.expect(eof())
     shell.close()
   }
+
+  // See DFDL-1141
+  /*@Test def test_3036_CLI_Saving_SaveParser_debug() {
+
+    var lsCmd = "ls savedParser.xml\n"
+    val shell1 = Util.start(lsCmd, true)
+    shell1.expect(contains("No such file or directory"))
+    shell1.send("exit\n")
+    shell1.expect(eof())
+    shell1.close();
+
+    var cmd = Util.binPath + " -d save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
+    val shell = Util.start(cmd)
+    
+    val cmd2 = Util.binPath + " parse --parser savedParser.xml daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
+    shell.send(cmd2)
+    shell.expect(contains("(debug)"))
+    shell.send("continue\n")
+    shell.send("quit\n")
+
+    shell.send("rm savedParser.xml\n")
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }*/
+
 }
