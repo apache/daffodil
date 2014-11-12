@@ -96,31 +96,6 @@ case object VariableRead extends VariableState
  */
 case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression]) extends Serializable
 
-object VariableUtil {
-
-  /**
-   * Needed to deal with saxon XPath evaluation. Many things are implicitly converted. In JDOM
-   * everything is a string, so the only way to add, is to implicitly convert into the specified
-   * type of the variable.
-   */
-  def convert(v: String, rd: VariableRuntimeData) = {
-    val extType = rd.extType
-    extType match {
-      case XMLUtils.XSD_STRING => v
-      case XMLUtils.XSD_INT | XMLUtils.XSD_INTEGER | XMLUtils.XSD_UNSIGNED_INT | XMLUtils.XSD_SHORT |
-        XMLUtils.XSD_UNSIGNED_SHORT | XMLUtils.XSD_UNSIGNED_BYTE => Predef int2Integer (v.toInt)
-      case XMLUtils.XSD_LONG | XMLUtils.XSD_UNSIGNED_LONG => Predef long2Long (v.toLong)
-      case XMLUtils.XSD_FLOAT => Predef float2Float (v.toFloat)
-      case XMLUtils.XSD_DOUBLE | XMLUtils.XSD_DECIMAL => Predef double2Double (v.toDouble)
-      case XMLUtils.XSD_BYTE => Predef byte2Byte (v.toByte)
-      case XMLUtils.XSD_BOOLEAN => Predef boolean2Boolean (v.toBoolean)
-      case XMLUtils.XSD_DATE | XMLUtils.XSD_DATE_TIME | XMLUtils.XSD_TIME =>
-        rd.notYetImplemented("Variable default values for date,dateTime,time variable types")
-      case _ => Assert.invariantFailed("unknown variable type: " + extType)
-    }
-  }
-}
-
 /**
  * Factory for Variable objects
  */
@@ -273,12 +248,12 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
         firstTier match {
 
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
           case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
-            val newVar = Variable(VariableSet, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             mkVMap(newVar, firstTier, enclosingScopes)
           }
 
@@ -310,7 +285,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
         firstTier match {
 
           case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined && ctxt.external) => {
-            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(expandedName, newFirstTier, enclosingScopes)
           }
@@ -320,7 +295,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
           }
 
           case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest if ctxt.external => {
-            val newVar = Variable(VariableDefined, One(VariableUtil.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
+            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
             val newFirstTier = newVar :: rest
             mkVMap(expandedName, newFirstTier, enclosingScopes)
           }
@@ -351,7 +326,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
 
 }
 
-object VariableMap {
+object VariableMapFactory {
 
   def create(dvs: Seq[DFDLDefineVariable]): VariableMap = {
     val pairs = dvs.map { dv => (dv.extName, List(List(dv.newVariableInstance))) }

@@ -48,7 +48,7 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.processors.VariableMap
+import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
@@ -520,7 +520,7 @@ class SchemaSet(
   private val _variableMap = LV('variableMap) {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val alldvs = dvs.union(predefinedVars)
-    val vmap = VariableMap.create(alldvs)
+    val vmap = VariableMapFactory.create(alldvs)
 
     // At this point we want to try to figure out which, if any, external
     // variables did not have a namespace specified.

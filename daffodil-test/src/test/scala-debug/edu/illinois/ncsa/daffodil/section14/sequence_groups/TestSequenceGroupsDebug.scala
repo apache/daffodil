@@ -4,25 +4,25 @@ package edu.illinois.ncsa.daffodil.section14.sequence_groups
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -43,7 +43,8 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger._
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 class TestSequenceGroupsDebug {
 
@@ -53,7 +54,7 @@ class TestSequenceGroupsDebug {
 
   //  DFDL-284
   //  This test sets up an infinite loop of hidden groups. It is currently commented-out
-  //  because it runs indefinitely and prevents the rest of the suite from executing  
+  //  because it runs indefinitely and prevents the rest of the suite from executing
   //  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
@@ -64,4 +65,3 @@ class TestSequenceGroupsDebug {
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
 }
-

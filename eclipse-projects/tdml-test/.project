@@ -21,11 +21,11 @@
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/lib_managed</locationURI>
 		</link>
-        <link>
-            <name>src</name>
-            <type>2</type>
-            <locationURI>virtual:/virtual</locationURI>
-        </link>
+		<link>
+			<name>src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
 		<link>
 			<name>src/test</name>
 			<type>2</type>

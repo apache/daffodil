@@ -66,6 +66,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 /**
  * API Suitable for Java programmers to use.
@@ -96,7 +97,7 @@ object Daffodil {
     val debugger =
       if (dr != null) {
         val runner = new JavaInteractiveDebuggerRunner(dr)
-        new SInteractiveDebugger(runner)
+        new SInteractiveDebugger(runner, ExpressionCompiler)
       } else {
         null
       }

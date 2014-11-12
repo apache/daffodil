@@ -73,6 +73,7 @@ import scala.concurrent.Await
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.compiler._
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -638,8 +639,8 @@ object Main extends Logging {
             case None => new CLIDebuggerRunner()
           }
         }
+      Debugger.setDebugger(new InteractiveDebugger(runner, ExpressionCompiler))
       Debugger.setDebugging(true)
-      Debugger.setDebugger(new InteractiveDebugger(runner))
     }
 
     val ret = conf.subcommand match {

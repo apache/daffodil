@@ -76,7 +76,7 @@ class TestInfoset1 {
     val Seq(w) = decl.elementChildren
     val w_erd = w.elementRuntimeData
     val wSlot = w.slotIndexInParent
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     assertEquals(list_erd, infoset.runtimeData)
     val wItem = infoset.getChild(w_erd).asInstanceOf[InfosetSimpleElement]
@@ -112,7 +112,7 @@ class TestInfoset1 {
     val Seq(w, a, b, c) = decl.elementChildren
     val Seq(w_erd, a_erd, b_erd, c_erd) = decl.elementRuntimeData.childERDs
     val wSlot = w.slotIndexInParent
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     assertEquals(Maybe.Nope, infoset.parent)
     assertEquals(list_erd, infoset.runtimeData)
@@ -158,7 +158,7 @@ class TestInfoset1 {
     val Seq(w) = decl.elementChildren
     val Seq(w_erd) = decl.elementRuntimeData.childERDs
     val wSlot = w.slotIndexInParent
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     infoset.getChildArray(w_erd).get match {
       case arr: DIArray => {
@@ -206,7 +206,7 @@ class TestInfoset1 {
     val Seq(w, a, b, c) = decl.elementChildren
     val Seq(w_erd, a_erd, b_erd, c_erd) = decl.elementRuntimeData.childERDs
     val wSlot = w.slotIndexInParent
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     infoset.getChildArray(w_erd).get match {
       case arr: DIArray => {
@@ -252,7 +252,7 @@ class TestInfoset1 {
     val Seq(x) = decl.elementChildren
     val Seq(x_erd) = decl.elementRuntimeData.childERDs
     assertTrue(x_erd.isArray)
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     val xchild = infoset.getChildArray(x_erd).get
     xchild match {
@@ -301,7 +301,7 @@ class TestInfoset1 {
     val Seq(a_erd, b_erd, c_erd) = x_erd.childERDs
     assertTrue(x_erd.isArray)
     assertFalse(c_erd.isArray)
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     infoset.getChildArray(x_erd).get match {
       case xa: DIArray => {
@@ -351,7 +351,7 @@ class TestInfoset1 {
     assertTrue(w_erd.isArray)
     assertTrue(x_erd.isArray)
     assertFalse(c_erd.isArray)
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     assertTrue(infoset.isInstanceOf[DIComplex])
     infoset.getChildArray(x_erd).get match {
       case arr: DIArray => {
@@ -406,7 +406,7 @@ class TestInfoset1 {
     assertTrue(w_erd.isArray)
     assertTrue(x_erd.isArray)
     assertFalse(c_erd.isArray)
-    val infoset = Infoset.elem2Infoset(sset, xmlInfoset).asInstanceOf[InfosetComplexElement]
+    val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     val warr = infoset.getChildArray(w_erd)
     assertFalse(warr.isDefined)
     assertTrue(infoset.isInstanceOf[DIComplex])

@@ -57,12 +57,12 @@ class TestUserSubmittedTests {
     runner.runOneTest("test_prefix_separator_as_variable")
   }
 
-/*//DFDL-1118
+  /*//DFDL-1118
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner
     tr.init
     val crunner = new CustomInteractiveDebuggerRunner(tr)
-    val db = new InteractiveDebugger(crunner)
+    val db = new InteractiveDebugger(crunner, ExpressionCompiler)
     Debugger.setDebugging(true)
     Debugger.setDebugger(db)
 

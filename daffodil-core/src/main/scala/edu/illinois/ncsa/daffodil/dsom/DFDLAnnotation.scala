@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
 /**
  * Base class for any DFDL annotation
@@ -465,14 +466,6 @@ class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   }
 
 }
-
-class EscapeSchemeObject(
-  val escapeKind: EscapeKind,
-  val optionEscapeCharacter: Option[CompiledExpression],
-  val optionEscapeEscapeCharacter: Option[CompiledExpression],
-  val optionEscapeBlockStart: Option[String],
-  val optionEscapeBlockEnd: Option[String])
-  extends Serializable
 
 class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)

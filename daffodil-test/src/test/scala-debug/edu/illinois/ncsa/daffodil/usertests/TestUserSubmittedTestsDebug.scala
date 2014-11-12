@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.japi.debugger.TraceRunner
 import edu.illinois.ncsa.daffodil.japi.debugger.JavaInteractiveDebuggerRunner
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
 import edu.illinois.ncsa.daffodil.japi.debugger.DebuggerRunner
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 class TestUserSubmittedTestsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
@@ -58,7 +59,7 @@ class TestUserSubmittedTestsDebug {
     val tr = new CustomTraceRunner
     tr.init
     val crunner = new CustomInteractiveDebuggerRunner1(tr)
-    val db = new InteractiveDebugger(crunner)
+    val db = new InteractiveDebugger(crunner, ExpressionCompiler)
     Debugger.setDebugging(true)
     Debugger.setDebugger(db)
 

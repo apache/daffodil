@@ -225,22 +225,3 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.message)
 }
-
-trait TextReader extends Logging with RuntimeEncodingMixin {
-
-  /**
-   * Readers are stored in the PState within the InStream object.
-   */
-  def getReader(charset: Charset, bitPos: Long, state: PState): DFDLCharReader = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val csName = charset.name()
-      log(LogLevel.Debug, "Retrieving reader at bytePos %s", bitPos >> 3)
-      // Do we already have a reader in the PState?
-      val res = state.inStream.getCharReader(charset, bitPos)
-      res
-    }
-  }
-
-}
-

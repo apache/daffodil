@@ -26,12 +26,13 @@ class TestDFDLExpressionEvaluation extends Parsers {
     if (pf.isError) fail("pf compile errors")
     val dp = pf.onPath("/")
     val sset = pf.sset
-    val infosetRootElem = Infoset.elem2Infoset(sset, infosetAsXML)
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
     val decl = declf.forRoot()
     val erd = decl.elementRuntimeData
+    val infosetRootElem = Infoset.elem2Infoset(erd, infosetAsXML)
+
     val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = Infoset.newDocument(erd)

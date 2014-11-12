@@ -42,13 +42,6 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
-trait SimpleTypeBase
-  extends TypeBase
-  with TypeChecks {
-  // def context: SchemaComponent
-  def primitiveType: PrimType
-}
-
 abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   extends AnnotatedSchemaComponent(xmlArg, parent)
   with SimpleTypeBase

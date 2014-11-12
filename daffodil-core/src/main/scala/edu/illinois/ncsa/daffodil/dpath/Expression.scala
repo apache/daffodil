@@ -580,7 +580,7 @@ case class IfExpression(ifthenelse: List[Expression])
     // we need the type which is the generalization of the thenPart and
     // elsePart inherent types, but it's an error if they have no generalization.
     // 
-    NodeInfo.generalize(thenPart, elsePart)
+    NodeInfoUtils.generalize(thenPart, elsePart)
   }
 }
 
@@ -941,10 +941,9 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
       Assert.invariant(pred.get.targetType == NodeInfo.ArrayIndex)
       val indexRecipe = pred.get.compiledDPath
       new DownArrayOccurrence(dpathElementCompileInfo, indexRecipe)
-    } else if (stepElement.isArray && targetType == NodeInfo.Exists){
+    } else if (stepElement.isArray && targetType == NodeInfo.Exists) {
       new DownArrayExists(dpathElementCompileInfo)
-    } 
-    else if (stepElement.isArray) {
+    } else if (stepElement.isArray) {
       schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
       new DownArray(dpathElementCompileInfo)
     } else {
@@ -1276,15 +1275,15 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "substring", FUNC), args) if args.length == 3 =>
         FNThreeArgsExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, NodeInfo.Double, NodeInfo.Double, FNSubstring3(_))
-          
+
       case (RefQName(_, "substring-before", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
-            NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringBefore(_))
+          NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringBefore(_))
 
       case (RefQName(_, "substring-after", FUNC), args) =>
         FNTwoArgsExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, NodeInfo.String, FNSubstringAfter(_))
-            
+
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
       case (RefQName(_, "false", FUNC), Nil) => LiteralBooleanExpression(false)
       case (RefQName(_, "count", FUNC), args) => {
