@@ -258,7 +258,7 @@ object DaffodilBuild extends Build {
 
   // license report configuration
   val licenseSettings = Seq(
-    licenseReportTitle := "Daffodil Licenses",
+    licenseReportTitle := "Daffodil_Licenses",  // has an underscore since this is used to create the output file
     licenseConfigurations := Set("compile"),
     licenseSelection := Seq(LicenseCategory("NCSA"), LicenseCategory("ICU")) ++ LicenseCategory.all,
     licenseOverrides := {
@@ -273,8 +273,8 @@ object DaffodilBuild extends Build {
       case _ => true
     },
     licenseReportMakeHeader := {
-      case Html => Html.header1(licenseReportTitle.value) + "<p>Daffodil is licensed under the <a href='http://opensource.org/licenses/NCSA'>University of Illinois/NCSA Open Source License</a>.</p><p>Below are the libraries that Daffodil depends on and their licenses.<br></p>"
-      case l => l.header1(licenseReportTitle.value)
+      case Html => Html.header1(licenseReportTitle.value.replace("_", " ")) + "<p>Daffodil is licensed under the <a href='http://opensource.org/licenses/NCSA'>University of Illinois/NCSA Open Source License</a>.</p><p>Below are the libraries that Daffodil depends on and their licenses.<br></p>"
+      case l => l.header1(licenseReportTitle.value.replace("_", " "))
     }
   )
   cliOnlySettings ++= licenseSettings
