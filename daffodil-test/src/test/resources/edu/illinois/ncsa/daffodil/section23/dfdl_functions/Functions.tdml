@@ -4196,7 +4196,7 @@
     <xs:element name="local-name04">
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
-          <xs:element name="local" type="xs:string" dfdl:inputValueCalc="{ fn:local-name(parent::local-name04) }"/>
+          <xs:element name="local" type="xs:string" dfdl:inputValueCalc="{ fn:local-name(..) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -4212,7 +4212,7 @@
                 <xs:element name="blue">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
-                      <dfdl:discriminator><![CDATA[{ fn:starts-with(., "B") }]]></dfdl:discriminator>
+                      <dfdl:discriminator><![CDATA[{ fn:starts-with(./ex:player, "B") }]]></dfdl:discriminator>
                     </xs:appinfo>
                   </xs:annotation>
                   <xs:complexType>
@@ -4225,7 +4225,7 @@
                 <xs:element name="red">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
-                      <dfdl:discriminator><![CDATA[{ fn:starts-with(., "R") }]]></dfdl:discriminator>
+                      <dfdl:discriminator><![CDATA[{ fn:starts-with(./ex:player, "R") }]]></dfdl:discriminator>
                     </xs:appinfo>
                   </xs:annotation>
                   <xs:complexType>

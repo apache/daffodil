@@ -367,6 +367,67 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 }
 
+/**
+ * Returns the local part of the name of $arg as an xs:string
+ * that will either be the zero-length string or will have the
+ * lexical form of an xs:NCName
+ *
+ * If the argument is omitted, it defaults to the context item (.).
+ * The behavior of the function if the argument is omitted is
+ * exactly the same as if the context item had been passed as
+ * the argument.
+ *
+ * This function is called when 0 arguments are provided.  We
+ * treat this as if the argument passed was "." to denote self.
+ */
+case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe) {
+  override def run(dstate: DState) {
+    // Same as using "." to denote self.
+    val localName = dstate.currentElement.name
+
+    if (localName.contains(":"))
+      throw new IllegalArgumentException("fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.")
+
+    dstate.setCurrentValue(localName)
+  }
+}
+
+/**
+ * Returns the local part of the name of $arg as an xs:string
+ * that will either be the zero-length string or will have the
+ * lexical form of an xs:NCName
+ */
+case class FNLocalName1(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType) {
+  override def computeValue(value: Any, dstate: DState) = {
+    // Nothing to compute
+  }
+
+  override def run(dstate: DState) {
+    // Save off original state, which is the original
+    // element/node that calls inputValueCalc with fn:local-name
+    //
+    val origState = dstate
+
+    // Execute the recipe/expression which should 
+    // return a node/element whose local-name we want.
+    //
+    recipe.run(dstate)
+
+    val localName = dstate.currentElement.name
+
+    if (localName.contains(":"))
+      throw new IllegalArgumentException("fn:local-name failed. " + localName + " is not a valid NCName as it contains ':'.")
+
+    // The original state contains the node/element upon which
+    // fn:local-name was called.  This is where we should set
+    // the value.
+    //
+    origState.setCurrentValue(localName)
+  }
+}
+
 case class FNCeiling(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, argType) {
   override def computeValue(value: Any, dstate: DState) = argType match {
 

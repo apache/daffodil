@@ -1175,6 +1175,14 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
           NodeInfo.Boolean,
           NodeInfo.String, NodeInfo.String, FNEndsWith(_))
 
+      case (RefQName(_, "local-name", FUNC), args) if args.length == 0 =>
+        FNZeroArgExpr(functionQNameString, functionQName,
+          NodeInfo.String, NodeInfo.AnyAtomic, FNLocalName0(_, _))
+
+      case (RefQName(_, "local-name", FUNC), args) if args.length == 1 =>
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.AnyAtomic, FNLocalName1(_, _))
+
       case (RefQName(_, "string", XSD), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.AnyAtomic, XSString(_, _))
@@ -1517,6 +1525,22 @@ case class FNOneArgMathExpr(nameAsParsed: String, fnQName: RefQName,
     val arg0Type = args(0).inherentType
     val c = conversions
     val res = new CompiledDPath(constructor(arg0Recipe, arg0Type) +: c)
+    res
+  }
+}
+
+case class FNZeroArgExpr(nameAsParsed: String, fnQName: RefQName,
+  resultType: NodeInfo.Kind, argType: NodeInfo.Kind, constructor: (CompiledDPath, NodeInfo.Kind) => RecipeOp)
+  extends FunctionCallBase(nameAsParsed, fnQName, Nil) {
+
+  override lazy val inherentType = resultType
+
+  override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
+
+  override lazy val compiledDPath = {
+    checkArgCount(0)
+    val c = conversions
+    val res = new CompiledDPath(constructor(null, null) +: c)
     res
   }
 }

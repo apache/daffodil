@@ -81,6 +81,14 @@ class TestDFDLExpressionsNew {
   @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
   @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
   @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
+  
+  //DFDL-1096
+  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
+  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
+  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
+  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
+  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  
 
   // DFDL-1092: DPath: fn:substring-before()
   @Test def test_substringbefore_01 { runner2.runOneTest("substringbefore_01") }

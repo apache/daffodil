@@ -152,13 +152,9 @@ class TestDFDLExpressionsDebug {
   //DFDL-1091
   @Test def test_count_05b() { runner2.runOneTest("count_05b") }
   
-  //DFDL-1096
-  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
-  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
-  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
-  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
-  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  // Fails due to invariant failure slotIndexInParent
   @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
+  
   //DFDL-1097
   @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
   
