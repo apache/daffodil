@@ -43,10 +43,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
-import edu.illinois.ncsa.daffodil.japi.debugger.TraceRunner
-import edu.illinois.ncsa.daffodil.japi.debugger.JavaInteractiveDebuggerRunner
-import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
-import edu.illinois.ncsa.daffodil.japi.debugger.DebuggerRunner
+import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 class TestUserSubmittedTestsDebug {
@@ -56,10 +53,8 @@ class TestUserSubmittedTestsDebug {
 
   //DFDL-1118
   @Test def test_dfdl_782() = {
-    val tr = new CustomTraceRunner
-    tr.init
-    val crunner = new CustomInteractiveDebuggerRunner1(tr)
-    val db = new InteractiveDebugger(crunner, ExpressionCompiler)
+    val tr = new CustomTraceRunner1
+    val db = new InteractiveDebugger(tr, ExpressionCompiler)
     Debugger.setDebugging(true)
     Debugger.setDebugger(db)
 
@@ -73,15 +68,7 @@ class TestUserSubmittedTestsDebug {
 
 }
 
-class CustomInteractiveDebuggerRunner1(dr: DebuggerRunner)
-  extends InteractiveDebuggerRunner {
-  def init(id: InteractiveDebugger): Unit = dr.init
-  def getCommand(): String = dr.getCommand
-  def lineOutput(line: String): Unit = dr.lineOutput(line)
-  def fini(): Unit = dr.fini
-}
-
-class CustomTraceRunner1 extends TraceRunner {
+class CustomTraceRunner1 extends TraceDebuggerRunner {
   private var _lines = List.empty[String]
 
   def getAllTheLines(): String = {
@@ -93,7 +80,10 @@ class CustomTraceRunner1 extends TraceRunner {
     allTheLines
   }
 
-  override def init: Unit = { _lines = List.empty[String] }
+  override def init(id: InteractiveDebugger): Unit = {
+    _lines = List.empty[String]
+    super.init(id)
+  }
   override def lineOutput(line: String) = _lines ++ (line + "\n")
 
 }

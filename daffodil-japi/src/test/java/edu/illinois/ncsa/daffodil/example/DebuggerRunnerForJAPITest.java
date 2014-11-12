@@ -32,64 +32,46 @@ package edu.illinois.ncsa.daffodil.example;
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.japi.*;
+import edu.illinois.ncsa.daffodil.japi.debugger.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class LogWriterForJAPITest2 extends LogWriter {
-	ArrayList<String> errors = new ArrayList<String>();
-	ArrayList<String> warnings = new ArrayList<String>();
-	ArrayList<String> infos = new ArrayList<String>();
-	ArrayList<String> others = new ArrayList<String>();
+public class DebuggerRunnerForJAPITest extends DebuggerRunner {
+	ArrayList<String> lines;
 
-	public void write(LogLevel level, String logID, String msg) {
-		switch (level) {
-		case Error:
-			errors.add(msg);
-			break;
-		case Warning:
-			warnings.add(msg);
-			break;
-		case Info:
-			infos.add(msg);
-			break;
-		default:
-			others.add(msg);
+	ArrayList<String> commands = new ArrayList<String>() {{
+		add("display info parser");
+		add("display info bitPosition");
+		add("display info data");
+		add("display eval ..");
+		add("display info diff");
+		add("trace");
+	}};
+
+	Iterator<String> commandsIter;
+
+	public void init() {
+		lines = new ArrayList<String>();
+		commandsIter = commands.iterator();
+	}
+
+	public void fini() {
+	}
+
+	public String getCommand() {
+		if (commandsIter.hasNext()) {
+			return commandsIter.next();
 		}
+	
+		// If the commandsIter commands are good this should never happen. The
+		// only time this would ever get hit is if something caused the
+		// debugger to break. But if this does happen, just keep running trace.
+		// We should eventually finish parsing.
+		return "trace";
 	}
 
-	public String prefix(LogLevel level, String logID) {
-		String prefix;
-		switch (level) {
-		case Error:
-			prefix = "[error] ";
-			break;
-		case Warning:
-			prefix = "[warning] ";
-			break;
-		case Info:
-			prefix = "[info] ";
-			break;
-		case Compile:
-			prefix = "[compile] ";
-			break;
-		case Debug:
-			prefix = "[debug] ";
-			break;
-		case DelimDebug:
-			prefix = "[delimdebug] ";
-			break;
-		case OOLAGDebug:
-			prefix = "[oolagdebug] ";
-			break;
-		default:
-			prefix = "[unknown] ";
-		}
-		return "[JAPI LOG] " + prefix;
+	public void lineOutput(String line) {
+		lines.add(line + "\n");
 	}
-
-	public String suffix(LogLevel level, String ogID) {
-		return " [END]";
-	}
-
 }

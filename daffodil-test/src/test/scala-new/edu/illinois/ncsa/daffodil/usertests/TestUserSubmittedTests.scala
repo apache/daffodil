@@ -43,10 +43,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
-import edu.illinois.ncsa.daffodil.japi.debugger.TraceRunner
-import edu.illinois.ncsa.daffodil.japi.debugger.JavaInteractiveDebuggerRunner
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
-import edu.illinois.ncsa.daffodil.japi.debugger.DebuggerRunner
 
 class TestUserSubmittedTestsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"

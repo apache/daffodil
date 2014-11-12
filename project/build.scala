@@ -27,7 +27,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, core, tdml, testIBM1, cli, test, examples)
+                    .aggregate(propgen, lib, io, core, tdml, testIBM1, cli, test, examples, japi)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
@@ -53,6 +53,11 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(runtime1)
+
+  lazy val japi    = Project(id = "daffodil-japi", base = file("daffodil-japi"), settings = s ++ genJavaDocSettings)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(core)
 
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
@@ -280,28 +285,16 @@ object DaffodilBuild extends Build {
   cliOnlySettings ++= licenseSettings
 
   // native package configuration
-  val exampleDirMappings = {
-    // this recursively gathers all files in the daffodil-examples resources
-    // directory and creates a mapping to the relative location in the
-    // 'examples' directory which is packaged in zip/tars
-    val examplesDir = file("daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/")
-    val allFiles = examplesDir.***
-    val mappings = allFiles.pair { f: File =>
-      val relative = f.relativeTo(examplesDir.getParentFile).get.toString
-      val exRelative = relative.replaceFirst("^daffodil", "examples")
-      Some(exRelative)
-    }
-    mappings
-  }
-
   val packageSettings = Seq(
     packageName := "daffodil",
-    mappings in Universal ++= exampleDirMappings,
+    mappings in Universal ++= createRecursiveMapping(file("daffodil-examples/src/test/resources/edu/illinois/ncsa/daffodil/"), "examples"),
     mappings in Universal += dumpLicenseReport.value / (licenseReportTitle.value + ".html") -> "LICENSES.html",
-    mappings in Universal += baseDirectory.value / "README" -> "README"
+    mappings in Universal += baseDirectory.value / "README" -> "README",
+    mappings in Universal <+= (packageBin in japi in Compile, name in japi in Compile, organization, version) map {
+      (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
+    }
   )
   cliOnlySettings ++= packageSettings
-
 
   // test report plugin configuration
   lazy val testReportSettings = testListeners <+= (crossTarget) map {
@@ -402,4 +395,30 @@ object DaffodilBuild extends Build {
     pgpSecretRing := file(System.getProperty("user.home")) / ".sbt" / "gpg" / "daffodil" / "secring.asc"
   )
   s ++= pgpSettings
+
+
+  lazy val GenJavaDoc = config("genjavadoc") extend Compile
+  lazy val genJavaDocSettings = inConfig(GenJavaDoc)(Defaults.configSettings) ++ Seq(
+    libraryDependencies += compilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.8" cross CrossVersion.full),
+    scalacOptions <+= target map (t => "-P:genjavadoc:out=" + (t / "java")),
+    packageDoc in Compile <<= packageDoc in GenJavaDoc,
+    sources in GenJavaDoc <<= (target, compile in Compile, sources in Compile) map ((t, c, s) => (t / "java" ** "*.java").get.filterNot(f => f.toString.contains('$') || f.toString.contains("packageprivate")) ++ s.filter(_.getName.endsWith(".java"))),
+    artifactName in packageDoc in GenJavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
+    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-quiet", "-windowtitle", "Daffodil-" + v +"  Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
+  )
+  
+  def createRecursiveMapping(dir: File, newDir: String): Seq[(File,String)] = {
+    // this recursively gathers all files in the daffodil-examples resources
+    // directory and creates a mapping to the relative location in the
+    // 'examples' directory which is packaged in zip/tars
+    val allFiles = dir.***
+    val basename = dir.getName
+    val mappings = allFiles.pair { f: File =>
+      val relative = f.relativeTo(dir.getParentFile).get.toString
+      val exRelative = relative.replaceFirst("^" + basename, newDir)
+      Some(exRelative)
+    }
+    mappings
+  }
+
 }

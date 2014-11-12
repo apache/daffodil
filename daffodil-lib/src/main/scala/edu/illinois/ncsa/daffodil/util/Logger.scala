@@ -48,46 +48,17 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
  */
 
 object LogLevel extends Enum {
-  import edu.illinois.ncsa.daffodil.japi.{ LogLevel => JLogLevel }
-  sealed abstract class Type protected (val jlvl: JLogLevel) extends EnumValueType with Ordered[Type] {
-    val id = jlvl.id
-    def compare(that: LogLevel.Type) = this.id - that.id
+  sealed abstract class Type (val lvl: Int) extends EnumValueType with Ordered[Type] {
+    def compare(that: LogLevel.Type) = this.lvl - that.lvl
   }
-  case object Error extends Type(JLogLevel.Error); Error
-  case object Warning extends Type(JLogLevel.Warning); Warning
-  case object Info extends Type(JLogLevel.Info); Info
-  case object Compile extends Type(JLogLevel.Compile); Compile
-  case object Debug extends Type(JLogLevel.Debug); Debug
-  case object OOLAGDebug extends Type(JLogLevel.OOLAGDebug); OOLAGDebug
-  case object DelimDebug extends Type(JLogLevel.DelimDebug); DelimDebug
-
-  // 
-  // Very annoying, but if this values list is here, the obvious place for it
-  // then initialization doesn't work right if the very first thing that happens
-  // is someone calls LogLevel.fromJava. 
-  //
-  // In that case, the values.find returns the enum object, but that
-  // enum object hasn't been initialized properly so you get a null pointer exception.
-  //
-  // private val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug)
-  /**
-   * We want scala code to use the typesafe enum idiom which actually
-   * uses case objects as above. But that's not reachable from java,
-   * so we provide this conversion from the plain Java enum.
-   */
-  def fromJava(jLogLevel: JLogLevel): LogLevel.Type = {
-    //
-    // Seems like we should hoist this constant list out of this method.
-    // Do not. It causes problems with object initialization.
-    //
-    val values: List[Type] = List(Error, Warning, Info, Compile, Debug, OOLAGDebug, DelimDebug)
-    Assert.usage(jLogLevel != null)
-    values.find { _.id == jLogLevel.id }.getOrElse(Assert.abort("unmapped: java enum has no corresponding scala enum"))
-  }
-
-  def forJava(logLevel: LogLevel.Type): JLogLevel = {
-    logLevel.jlvl
-  }
+  
+  case object Error extends Type(10)
+  case object Warning extends Type(20)
+  case object Info extends Type(30)
+  case object Compile extends Type(40)
+  case object Debug extends Type(50)
+  case object OOLAGDebug extends Type(60)
+  case object DelimDebug extends Type(70)
 }
 
 sealed abstract class GlobBase(lvl: LogLevel.Type) {

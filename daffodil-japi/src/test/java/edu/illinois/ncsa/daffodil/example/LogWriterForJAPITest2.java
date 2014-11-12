@@ -33,11 +33,11 @@ package edu.illinois.ncsa.daffodil.example;
  */
 
 import edu.illinois.ncsa.daffodil.japi.*;
+import edu.illinois.ncsa.daffodil.japi.logger.*;
 
-import java.util.List;
 import java.util.ArrayList;
 
-public class LogWriterForJAPITest extends LogWriter {
+public class LogWriterForJAPITest2 extends LogWriter {
 	ArrayList<String> errors = new ArrayList<String>();
 	ArrayList<String> warnings = new ArrayList<String>();
 	ArrayList<String> infos = new ArrayList<String>();
@@ -93,15 +93,4 @@ public class LogWriterForJAPITest extends LogWriter {
 		return " [END]";
 	}
 
-	public void log(LogLevel level, String logID, String msg, List<Object> args) {
-		String message;
-		if (args.size() > 0) {
-			message = String.format(msg, args.toArray());
-		} else {
-			message = msg;
-		}
-		String p = prefix(level, logID);
-		String s = prefix(level, logID);
-		write(level, logID, p + message + s);
-	}
 }

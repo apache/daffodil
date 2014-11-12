@@ -49,14 +49,14 @@ import java.nio.channels.WritableByteChannel;
 import org.jdom2.output.Format;
 import org.junit.Test;
 
-import edu.illinois.ncsa.daffodil.japi.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.Daffodil;
 import edu.illinois.ncsa.daffodil.japi.DataProcessor;
 import edu.illinois.ncsa.daffodil.japi.Diagnostic;
 import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
-import edu.illinois.ncsa.daffodil.japi.LogLevel;
 import edu.illinois.ncsa.daffodil.japi.ParseResult;
 import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
+import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
+import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
 
 public class TestJavaAPI {
 

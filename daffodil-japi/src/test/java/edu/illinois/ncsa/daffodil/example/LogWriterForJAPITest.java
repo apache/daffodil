@@ -32,18 +32,77 @@ package edu.illinois.ncsa.daffodil.example;
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.japi.debugger.*;
+import edu.illinois.ncsa.daffodil.japi.*;
+import edu.illinois.ncsa.daffodil.japi.logger.*;
 
+import java.util.List;
 import java.util.ArrayList;
 
-public class DebuggerRunnerForJAPITest extends TraceRunner {
-	ArrayList<String> lines;
+public class LogWriterForJAPITest extends LogWriter {
+	ArrayList<String> errors = new ArrayList<String>();
+	ArrayList<String> warnings = new ArrayList<String>();
+	ArrayList<String> infos = new ArrayList<String>();
+	ArrayList<String> others = new ArrayList<String>();
 
-	public void init() {
-		lines = new ArrayList<String>();
+	public void write(LogLevel level, String logID, String msg) {
+		switch (level) {
+		case Error:
+			errors.add(msg);
+			break;
+		case Warning:
+			warnings.add(msg);
+			break;
+		case Info:
+			infos.add(msg);
+			break;
+		default:
+			others.add(msg);
+		}
 	}
 
-	public void lineOutput(String line) {
-		lines.add(line + "\n");
+	public String prefix(LogLevel level, String logID) {
+		String prefix;
+		switch (level) {
+		case Error:
+			prefix = "[error] ";
+			break;
+		case Warning:
+			prefix = "[warning] ";
+			break;
+		case Info:
+			prefix = "[info] ";
+			break;
+		case Compile:
+			prefix = "[compile] ";
+			break;
+		case Debug:
+			prefix = "[debug] ";
+			break;
+		case DelimDebug:
+			prefix = "[delimdebug] ";
+			break;
+		case OOLAGDebug:
+			prefix = "[oolagdebug] ";
+			break;
+		default:
+			prefix = "[unknown] ";
+		}
+		return "[JAPI LOG] " + prefix;
+	}
+
+	public String suffix(LogLevel level, String ogID) {
+		return " [END]";
+	}
+
+	public void log(LogLevel level, String logID, String msg, List<Object> args) {
+		String message;
+		if (args.size() > 0) {
+			message = String.format(msg, args.toArray());
+		} else {
+			message = msg;
+		}
+		String p = prefix(level, logID);
+		String s = prefix(level, logID);
+		write(level, logID, p + message + s);
 	}
 }
