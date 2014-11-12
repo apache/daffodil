@@ -54,17 +54,6 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(runtime1)
 
-//
-// Keep as illustration of how to make test code depend on another module's
-// test code. Use case is test utility libraries in one module that want
-// to be shared, but are only used for testing.
-//
-//   lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
-//                              .configs(DebugTest)
-//                             .configs(NewTest)
-//                             .dependsOn(core % "compile->compile;test->test") // //  test in core has utilities that test in runtime1 needs.
-//
-
   lazy val tdml    = Project(id = "daffodil-tdml", base = file("daffodil-tdml"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)

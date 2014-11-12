@@ -33,9 +33,6 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
-import java.util.regex.Pattern
-import java.util.regex.Matcher
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits._
 

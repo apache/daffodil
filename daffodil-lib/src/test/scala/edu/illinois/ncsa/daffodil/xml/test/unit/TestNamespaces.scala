@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml._
 import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.junit.Test
 
 /**

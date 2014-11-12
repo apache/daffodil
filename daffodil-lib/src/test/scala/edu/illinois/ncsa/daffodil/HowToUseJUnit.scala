@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.grammar
+package edu.illinois.ncsa.daffodil
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
