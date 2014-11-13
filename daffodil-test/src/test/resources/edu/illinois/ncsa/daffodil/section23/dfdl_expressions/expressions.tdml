@@ -7,6 +7,38 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   
+  <tdml:defineSchema name="attributeAxis">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:nilKind="literalValue" nillable="true" dfdl:nilValue="NIL"/>
+          <xs:element name="isNil" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string@nil }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:nilKind="literalValue" nillable="true" dfdl:nilValue="NIL"/>
+          <xs:element name="isNil" type="xs:boolean" dfdl:inputValueCalc="{ //@nil }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string" type="xs:string" dfdl:nilKind="literalValue" nillable="true" dfdl:nilValue="NIL"/>
+          <xs:element name="isNil" type="xs:boolean" dfdl:inputValueCalc="{ //ex:string[@*] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>  
+
   <tdml:defineSchema name="comparisonOperators">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
 
@@ -2868,6 +2900,57 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: attribute_axis_01
+        Schema: attributeAxis
+          Root: e1
+       Purpose: This test demonstrates that the attribute axis is not supported in path expressions
+  -->
+
+  <tdml:parserTestCase name="attribute_axis_01" root="e1"
+    model="attributeAxis" description="Section 23 - DFDL Expressions - DFDL-23-066R">
+
+    <tdml:document>NIL</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>attribute</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: attribute_axis_02
+        Schema: attributeAxis
+          Root: e2
+       Purpose: This test demonstrates that the attribute axis is not supported in path expressions
+  -->
+
+  <tdml:parserTestCase name="attribute_axis_02" root="e2"
+    model="attributeAxis" description="Section 23 - DFDL Expressions - DFDL-23-066R">
+
+    <tdml:document>NIL</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>attribute</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: attribute_axis_03
+        Schema: attributeAxis
+          Root: e3
+       Purpose: This test demonstrates that the attribute axis is not supported in path expressions
+  -->
+
+  <tdml:parserTestCase name="attribute_axis_03" root="e3"
+    model="attributeAxis" description="Section 23 - DFDL Expressions - DFDL-23-066R">
+
+    <tdml:document>NIL</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>attribute</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
