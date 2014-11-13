@@ -48,6 +48,11 @@ class TestDFDLExpressionsDebug {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  //DFDL-1146
+  @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
+  @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
+  @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
+
   //DFDL-1145
   @Test def test_comparison_operators_03() { runner.runOneTest("comparison_operators_03") }
   @Test def test_comparison_operators_04() { runner.runOneTest("comparison_operators_04") }
