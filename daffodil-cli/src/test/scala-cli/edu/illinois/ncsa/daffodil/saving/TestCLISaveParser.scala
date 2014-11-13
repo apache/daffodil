@@ -226,6 +226,94 @@ class TestCLISaveParser {
     shell.close()
   }
 
+  // See DFDL-1016
+  /*@Test def test_3038_CLI_Saving_SaveParser_namespaceNoRoot() {
+    
+    var cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {http://www.example.org/example1/} savedParser.xml\n"
+    val shell = Util.start(cmd, true)
+    
+    // Error message needs to be updated with actual message
+    shell.expect(contains("Error - Root is required if namespace is given"))
+
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }*/
+
+  @Test def test_3039_CLI_Saving_SaveParser_emptyNamespace() {
+
+    var lsCmd = "ls savedParser.xml\n"
+    val shell1 = Util.start(lsCmd, true)
+    shell1.expect(contains("No such file or directory"))
+    shell1.send("exit\n")
+    shell1.expect(eof())
+    shell1.close();
+
+    val cmdLinux = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {}matrix -p / savedParser.xml\n"
+    val cmdWindows = Util.binPath + """ save-parser -s daffodil-test\src\test\resources\edu\illinois\ncsa\daffodil\section06\entities\charClassEntities.dfdl.xsd -r {}matrix -p / savedParser.xml"""
+    val cmd = if (Util.isWindows) cmdWindows else cmdLinux
+    val shell = Util.startNoConvert(cmd)
+
+    val cmdLinux2 = "echo 0,1,2| " + Util.binPath + " parse --parser savedParser.xml\n"
+    val cmdWindows2 = """echo 0,1,2| """ + Util.binPath + """ parse --parser savedParser.xml"""
+    val cmd2 = if (Util.isWindows) cmdWindows2 else cmdLinux2
+    shell.send(cmd2)
+
+    shell.expect(contains("<tns:matrix"))
+    shell.expect(contains(output1))
+
+    val cmdLinux3 = "rm savedParser.xml\n"
+    val cmdWindows3 = """rm savedParser.xml"""
+    val cmd3 = if (Util.isWindows) cmdWindows3 else cmdLinux3
+    shell.send(cmd3)
+
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }
+
+  // See DFDL-1147
+  /*@Test def test_3063_CLI_Saving_SaveParser_validate() {
+
+    var lsCmd = "ls savedParser.xml\n"
+    val shell = Util.start(lsCmd, true)
+    shell.expect(contains("No such file or directory"))
+
+    var cmd = Util.binPath + " save-parser --validate on -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    shell.send(cmd)
+    
+    var cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
+    shell.send(cmd2)
+    shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
+    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+
+    cmd = Util.binPath + " save-parser --validate -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    shell.send(cmd)
+    
+    cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
+    shell.send(cmd2)
+    shell.expect(contains("[warning] Validation Error: validation_check: cvc-pattern-valid"))
+    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+
+    cmd = Util.binPath + " save-parser --validate limited -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    shell.send(cmd)
+    
+    cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
+    shell.send(cmd2)
+    shell.expect(contains("[warning] Validation Error: element.validation_check failed"))
+
+    cmd = Util.binPath + " save-parser --validate off -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r validation_check savedParser.xml\n"
+    shell.send(cmd)
+    
+    cmd2 = "echo -ne 'test'| " + Util.binPath + " parse --parser savedParser.xml \n"
+    shell.send(cmd2)
+
+    shell.send("rm savedParser.xml\n")
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }*/
+
   // See DFDL-1141
   /*@Test def test_3036_CLI_Saving_SaveParser_debug() {
 
@@ -249,6 +337,27 @@ class TestCLISaveParser {
     shell.send("exit\n")
     shell.expect(eof())
     shell.close()
-  }*/
+  }
 
+  @Test def test_3037_CLI_Saving_SaveParser_trace() {
+
+    var lsCmd = "ls savedParser.xml\n"
+    val shell1 = Util.start(lsCmd, true)
+    shell1.expect(contains("No such file or directory"))
+    shell1.send("exit\n")
+    shell1.expect(eof())
+    shell1.close();
+
+    var cmd = Util.binPath + " -t save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd savedParser.xml\n"
+    val shell = Util.start(cmd)
+    
+    val cmd2 = "echo test| " + Util.binPath + " parse --parser savedParser.xml\n"
+    shell.send(cmd2)
+    shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
+
+    shell.send("rm savedParser.xml\n")
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }*/
 }
