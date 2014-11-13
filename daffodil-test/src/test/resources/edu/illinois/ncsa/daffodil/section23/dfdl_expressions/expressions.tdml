@@ -6,6 +6,141 @@
   xmlns:ex="http://example.com" 
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  
+  <tdml:defineSchema name="comparisonOperators">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 lt ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 &lt; ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="float1" type="xs:float"/> 
+          <xs:element name="float2" type="xs:float"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:float1 gt ../ex:float2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="float1" type="xs:float"/> 
+          <xs:element name="float2" type="xs:float"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:float1 &gt; ../ex:float2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 ne ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 != ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 &lt;&gt; ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e10">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="lessThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 le ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e11">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="lessThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 &lt;= ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e12">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="greaterThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 ge ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e13">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="int1" type="xs:int"/> 
+          <xs:element name="int2" type="xs:int"/> 
+          <xs:element name="greaterThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 &gt;= ../ex:int2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
     <dfdl:format ref="ex:daffodilTest1" />
@@ -2275,7 +2410,7 @@ c' } "  />
         Schema: expressions-Embedded.dfdl.xsd
           Root: ws_expr2
        Purpose: This test demonstrates that whitespace will not be preserved without daffodil entities.
--->
+  -->
 
   <tdml:parserTestCase name="whitespace_expression2" root="ws_expr2"
     model="expressions-Embedded.dfdl.xsd" description="Section 6 - DFDL Expressions - DFDL-06-078R">
@@ -2290,6 +2425,450 @@ c' } "  />
         </ex:ws_expr2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_01
+        Schema: comparisonOperators 
+          Root: e1
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_01" root="e1"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>fish,bird</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <string1>fish</string1>
+          <string2>bird</string2>
+          <same>false</same>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_02
+        Schema: comparisonOperators 
+          Root: e1
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_02" root="e1"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>fish,fish</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <string1>fish</string1>
+          <string2>fish</string2>
+          <same>true</same>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_03
+        Schema: comparisonOperators 
+          Root: e2
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_03" root="e2"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>fish,bird</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_04
+        Schema: comparisonOperators 
+          Root: e2
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_04" root="e2"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>bird,bird</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_05
+        Schema: comparisonOperators 
+          Root: e3
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_05" root="e3"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>4,700</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <int1>4</int1>
+          <int2>700</int2>
+          <oneLTtwo>true</oneLTtwo>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_06
+        Schema: comparisonOperators 
+          Root: e3
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_06" root="e3"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>700,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <int1>700</int1>
+          <int2>2</int2>
+          <oneLTtwo>false</oneLTtwo>
+        </e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_07
+        Schema: comparisonOperators 
+          Root: e4
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_07" root="e4"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>1,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_08
+        Schema: comparisonOperators 
+          Root: e5
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_08" root="e5"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>7.509,7.510</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <float1>7.509</float1>
+          <float2>7.51</float2>
+          <oneGTtwo>false</oneGTtwo>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_09
+        Schema: comparisonOperators 
+          Root: e5
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_09" root="e5"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>10,9.99</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <float1>10.0</float1>
+          <float2>9.99</float2>
+          <oneGTtwo>true</oneGTtwo>
+        </e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_10
+        Schema: comparisonOperators 
+          Root: e6
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_10" root="e6"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>1.5,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_11
+        Schema: comparisonOperators 
+          Root: e7
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_11" root="e7"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>lemon,lemons</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e7>
+          <string1>lemon</string1>
+          <string2>lemons</string2>
+          <notEqual>true</notEqual>
+        </e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_12
+        Schema: comparisonOperators 
+          Root: e7
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_12" root="e7"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>lemonade,lemonade</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e7>
+          <string1>lemonade</string1>
+          <string2>lemonade</string2>
+          <notEqual>false</notEqual>
+        </e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_13
+        Schema: comparisonOperators 
+          Root: e8
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_13" root="e8"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>potayto,potahto</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_14
+        Schema: comparisonOperators 
+          Root: e9
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_14" root="e9"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>frodo,mordor</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_15
+        Schema: comparisonOperators 
+          Root: e10
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_15" root="e10"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>5,5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10>
+          <int1>5</int1>
+          <int2>5</int2>
+          <lessThanEqualTo>true</lessThanEqualTo>
+        </e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_16
+        Schema: comparisonOperators 
+          Root: e10
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_16" root="e10"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>5,10</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10>
+          <int1>5</int1>
+          <int2>10</int2>
+          <lessThanEqualTo>true</lessThanEqualTo>
+        </e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_17
+        Schema: comparisonOperators 
+          Root: e10
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_17" root="e10"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>50,10</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e10>
+          <int1>50</int1>
+          <int2>10</int2>
+          <lessThanEqualTo>false</lessThanEqualTo>
+        </e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_18
+        Schema: comparisonOperators 
+          Root: e11
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_18" root="e11"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>7,7</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_19
+        Schema: comparisonOperators 
+          Root: e12
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_19" root="e12"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>7,7</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e12>
+          <int1>7</int1>
+          <int2>7</int2>
+          <greaterThanEqualTo>true</greaterThanEqualTo>
+        </e12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_20
+        Schema: comparisonOperators 
+          Root: e12
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_20" root="e12"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>9,7</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e12>
+          <int1>9</int1>
+          <int2>7</int2>
+          <greaterThanEqualTo>true</greaterThanEqualTo>
+        </e12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_21
+        Schema: comparisonOperators 
+          Root: e12
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_21" root="e12"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>9,700</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e12>
+          <int1>9</int1>
+          <int2>700</int2>
+          <greaterThanEqualTo>false</greaterThanEqualTo>
+        </e12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_22
+        Schema: comparisonOperators 
+          Root: e13
+       Purpose: This test demonstrates that only two-character versions of comparison operators are supported
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_22" root="e13"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>7,7</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>operator</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

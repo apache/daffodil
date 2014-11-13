@@ -48,6 +48,16 @@ class TestDFDLExpressionsDebug {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  //DFDL-1145
+  @Test def test_comparison_operators_03() { runner.runOneTest("comparison_operators_03") }
+  @Test def test_comparison_operators_04() { runner.runOneTest("comparison_operators_04") }
+  @Test def test_comparison_operators_07() { runner.runOneTest("comparison_operators_07") }
+  @Test def test_comparison_operators_10() { runner.runOneTest("comparison_operators_10") }
+  @Test def test_comparison_operators_13() { runner.runOneTest("comparison_operators_13") }
+  @Test def test_comparison_operators_14() { runner.runOneTest("comparison_operators_14") }
+  @Test def test_comparison_operators_18() { runner.runOneTest("comparison_operators_18") }
+  @Test def test_comparison_operators_22() { runner.runOneTest("comparison_operators_22") }
+
   @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
   @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
