@@ -7,6 +7,41 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   
+  <tdml:defineSchema name="asterisk">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="nest">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="children" type="xs:string" dfdl:inputValueCalc="{ /ex:e1/ex:nest/* }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="nest">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="children" type="xs:string" dfdl:inputValueCalc="{ //* }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
   <tdml:defineSchema name="attributeAxis">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
 
@@ -2951,6 +2986,40 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>attribute</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: asterisk_01
+        Schema: asterisk
+          Root: e1
+       Purpose: This test demonstrates that in an expression, the asterisk cannot be used to denote all children 
+  -->
+
+  <tdml:parserTestCase name="asterisk_01" root="e1"
+    model="asterisk" description="Section 23 - DFDL Expressions - DFDL-23-068R2">
+
+    <tdml:document>one,two,three</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>unsupported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: asterisk_02
+        Schema: asterisk
+          Root: e2
+       Purpose: This test demonstrates that in an expression, the asterisk cannot be used to denote all children 
+  -->
+
+  <tdml:parserTestCase name="asterisk_02" root="e2"
+    model="asterisk" description="Section 23 - DFDL Expressions - DFDL-23-068R2">
+
+    <tdml:document>one,two,three</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>unsupported</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
