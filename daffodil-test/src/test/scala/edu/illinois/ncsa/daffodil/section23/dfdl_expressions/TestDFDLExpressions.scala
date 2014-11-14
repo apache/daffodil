@@ -73,6 +73,10 @@ class TestDFDLExpressions {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
 
+  //DFDL-1148
+  //@Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
+  //@Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
+
   //DFDL-1146
   //@Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
   //@Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
