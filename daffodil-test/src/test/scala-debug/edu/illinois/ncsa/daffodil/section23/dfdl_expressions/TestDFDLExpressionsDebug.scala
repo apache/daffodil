@@ -243,6 +243,10 @@ class TestDFDLExpressionsDebug {
   @Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
   @Test def test_substringafter_07() { runner2.runOneTest("substringafter_07") }
 
+  // DFDL-1111: Inadequate diagnostic message from DPath Expression parser
+  @Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
+  @Test def test_fn_text_02() { runner2.runOneTest("fn_text_02") }
+
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
