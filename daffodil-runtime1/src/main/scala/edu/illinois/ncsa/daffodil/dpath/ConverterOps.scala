@@ -247,3 +247,48 @@ case object StringToUnsignedLong extends Converter {
     else res
   }
 }
+
+/**
+ * Summary: Computes the effective boolean value of the sequence $arg. 
+ *
+ * If $arg is the empty sequence, fn:boolean returns false.
+ * 
+ * If $arg is a sequence whose first item is a node, fn:boolean returns true.
+ * 
+ * If $arg is a singleton value of type xs:boolean or a derived from 
+ * xs:boolean, fn:boolean returns $arg.
+ * 
+ * If $arg is a singleton value of type xs:string or a type derived from 
+ * xs:string, xs:anyURI or a type derived from xs:anyURI or xs:untypedAtomic, 
+ * fn:boolean returns false if the operand value has zero length; otherwise 
+ * it returns true.
+ * 
+ * If $arg is a singleton value of any numeric type or a type derived 
+ * from a numeric type, fn:boolean returns false if the operand value 
+ * is NaN or is numerically equal to zero; otherwise it returns true.
+ * 
+ * In all other cases, fn:boolean raises a type error [err:FORG0006].
+ */
+case object FNToBoolean extends Converter {
+  override def computeValue(a: Any, dstate: DState) = {
+    val res = a match {
+      case b: Boolean => b
+      case s: String => if (s.length == 0) false else true
+      case d: Double => if (d.isNaN() || d == 0) false else true
+      case f: Float => if (f.isNaN() || f == 0) false else true
+      //
+      // BigDecimal does not have a representation for NaN or Infinite
+      case bd: BigDecimal => if (bd.compare(java.math.BigDecimal.ZERO) == 0) false else true
+      case b: Byte => if (b == 0) false else true
+      case s: Short => if (s == 0) false else true
+      case i: Int => if (i == 0) false else true
+      case l: Long => if (l == 0) false else true
+      case bi: BigInt => if (bi.compare(java.math.BigInteger.ZERO) == 0) false else true
+      // TODO: Once sequences are supported, fill in these case statements
+      //case s: Sequence if s.length == 0 => false
+      //case s: Sequence if s(0) == Node => true
+      case _ => throw new NumberFormatException("Invalid argument type.")
+    }
+    res
+  }
+}

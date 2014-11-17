@@ -282,6 +282,13 @@ object Conversion {
       //      case (AnyAtomic, Date) => AnyAtomicToString +: conversionOps(String, tt, context)
       //      case (AnyAtomic, DateTime) => AnyAtomicToString +: conversionOps(String, tt, context)
 
+      // TODO: Is this a valid solution for DFDL-1074 and the like?
+      // Essentially, all of the 'types' should fall under AnyAtomic and there
+      // is no need to conver to an AnyAtomic.  So anything converted to AnyAtomic
+      // should be itself.
+      //
+      case (_, AnyAtomic) => Nil // is this correct?
+      
       case (_, Exists) => Nil
       case (_, other) => context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
     }

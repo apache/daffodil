@@ -305,8 +305,12 @@ case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: Compiled
   }
 }
 
-case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null) extends FNOneArg(recipe, NodeInfo.Boolean) {
-  override def computeValue(value: Any, dstate: DState) = !(value.asInstanceOf[Boolean])
+case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null) 
+extends FNOneArg(recipe, NodeInfo.Boolean) {
+  override def computeValue(value: Any, dstate: DState) = {
+    val bool = FNToBoolean.computeValue(value, dstate)
+    !bool
+  }
 }
 
 case class FNNilled(recipe: CompiledDPath, argType: NodeInfo.Kind) extends FNOneArg(recipe, NodeInfo.Nillable) {

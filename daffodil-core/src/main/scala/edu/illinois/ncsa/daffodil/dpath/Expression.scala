@@ -1154,7 +1154,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "not", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
-          NodeInfo.Boolean, NodeInfo.Boolean, FNNot(_, _))
+          NodeInfo.Boolean, NodeInfo.AnyAtomic, FNNot(_, _))
 
       case (RefQName(_, "empty", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
@@ -1546,6 +1546,8 @@ case class FNOneArgExprConversionDisallowed(nameAsParsed: String, fnQName: RefQN
   override lazy val inherentType = resultType
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
+  
+  override lazy val conversions = Nil
 
   override lazy val compiledDPath = {
     checkArgCount(1)
