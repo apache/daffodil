@@ -668,6 +668,26 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e_text1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" />
+          <xs:element name="str2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ fn:concat( ../ex:str/text(), 'a') }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e_text2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="str" type="xs:string"  dfdl:lengthKind="delimited" />
+          <xs:element name="str2" type="xs:string"
+            dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ ../ex:str/text() }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
 </tdml:defineSchema>
   
 <!--
@@ -2709,6 +2729,40 @@
         </e_xfromtime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: fn_text_01
+       Schema: Functions.dfdl.xsd
+         Root: e_text1
+      Purpose: This test demonstrates the text function is not supported by DPath.
+-->
+
+  <tdml:parserTestCase name="fn_text_01" root="e_text1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions">
+
+    <tdml:document>text</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: fn_text_02
+       Schema: Functions.dfdl.xsd
+         Root: e_text2
+      Purpose: This test demonstrates the text function is not supported by DPath.
+-->
+
+  <tdml:parserTestCase name="fn_text_02" root="e_text2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions">
+
+    <tdml:document>text</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
