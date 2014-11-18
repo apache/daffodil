@@ -95,7 +95,7 @@ class TestPropertyRuntime {
 
     def findPropertyOption(pname: String) =
       Found("left", this)
-    override lazy val xml = <foo/>
+    override val xml = <foo/>
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 

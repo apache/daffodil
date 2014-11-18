@@ -43,8 +43,8 @@ import edu.illinois.ncsa.daffodil.util.Logging
 abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaComponentBase)
   extends OOLAGHost(parent) {
 
-  lazy val xml = scala.xml.Utility.trim(xmlArg)
-  lazy val aaa_xml = xml // for debugging, so we don't have to scroll down.
+  val xml = xmlArg
+  val aaa_xml = xml // for debugging, so we don't have to scroll down.
 
   /**
    * override in derived class to narrow the result type.
