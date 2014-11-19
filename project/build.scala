@@ -296,12 +296,6 @@ object DaffodilBuild extends Build {
   )
   cliOnlySettings ++= packageSettings
 
-  // test report plugin configuration
-  lazy val testReportSettings = testListeners <+= (crossTarget) map {
-    ct => new eu.henkelmann.sbt.JUnitXmlTestsListener(ct.getPath)
-  }
-  s ++= Seq(testReportSettings)
-
 
   def exec(cmd: String): Seq[String] = {
     val r = java.lang.Runtime.getRuntime()
