@@ -947,12 +947,16 @@ case class NamedStep(s: String, predArg: Option[PredicateExpression])
       schemaDefinitionUnless(targetType == NodeInfo.Array, "Query-style paths not supported. Must have '[...]' after array-element's name. Offending path step: '%s'.", step)
       new DownArray(dpathElementCompileInfo)
     } else {
-      Assert.invariant(!pred.isDefined)
+      //
+      // Note: DFDL spec allows a[exp] if a is not an array, but it's a processing
+      // error if exp doesn't evaluate to 1.
+      // TODO: Implement this.
+      if (pred.isDefined) subsetError("Indexing is only allowed on arrays. Offending path step: '%s%s'.", step, pred.get.text)
       new DownElement(dpathElementCompileInfo)
     }
   }
 
-  override def text = step // + "{" + stepElement.path + "}"
+  override def text = step
 
   private def die = {
     Assert.invariantFailed("should have thrown")
@@ -1570,7 +1574,7 @@ case class FNOneArgExprConversionDisallowed(nameAsParsed: String, fnQName: RefQN
   override lazy val inherentType = resultType
 
   override def targetTypeForSubexpression(childExpr: Expression): NodeInfo.Kind = argType
-  
+
   override lazy val conversions = Nil
 
   override lazy val compiledDPath = {

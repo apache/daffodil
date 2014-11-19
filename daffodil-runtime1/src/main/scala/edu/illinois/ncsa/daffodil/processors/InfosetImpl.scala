@@ -340,8 +340,10 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final override def getChildMaybe(erd: ElementRuntimeData): Maybe[InfosetElement] =
     getChildMaybe(erd.slotIndexInParent)
 
-  final override def getChildArray(erd: ElementRuntimeData): Maybe[InfosetArray] =
+  final override def getChildArray(erd: ElementRuntimeData): Maybe[InfosetArray] = {
+    Assert.usage(erd.isArray)
     getChildArray(erd.slotIndexInParent)
+  }
 
   final def getChild(slot: Int, name: String, namespace: NS): InfosetElement = getChildMaybe(slot).getOrElse {
     throw new InfosetNoSuchChildElementException(name, namespace, slot)

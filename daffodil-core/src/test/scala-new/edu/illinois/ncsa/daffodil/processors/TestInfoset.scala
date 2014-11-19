@@ -408,7 +408,7 @@ class TestInfoset1 {
     assertFalse(c_erd.isArray)
     val infoset = Infoset.elem2Infoset(decl.elementRuntimeData, xmlInfoset).asInstanceOf[InfosetComplexElement]
     val warr = infoset.getChildArray(w_erd)
-    assertFalse(warr.isDefined)
+    assertTrue(warr.isDefined) // getChildArray now creates empty array if needed.
     assertTrue(infoset.isInstanceOf[DIComplex])
     infoset.getChildArray(x_erd).get match {
       case arr: DIArray => {

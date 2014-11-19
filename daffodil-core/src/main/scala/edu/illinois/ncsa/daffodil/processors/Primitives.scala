@@ -39,8 +39,7 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
-  def parser: DaffodilParser = DummyParser(e.runtimeData)
-
+  def parser: DaffodilParser = ??? // DummyParser(e.runtimeData)
 
 }
 
