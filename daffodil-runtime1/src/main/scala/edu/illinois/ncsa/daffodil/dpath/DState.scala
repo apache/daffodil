@@ -65,7 +65,15 @@ case class DState() {
 
   def isNilled: Boolean = currentElement.isNilled
 
-  def arrayLength: Long = currentArray.length
+  def arrayLength: Long =
+    if (currentNode.isInstanceOf[DIArray]) currentArray.length
+    else {
+      if (currentNode.isInstanceOf[DIElement]) {
+    	  this.pstate.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)        
+      }
+      else this.pstate.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
+      1
+    }
 
   def exists: Boolean = true // we're at a node, so it must exist.
 

@@ -1298,14 +1298,9 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
       case (RefQName(_, "false", FUNC), Nil) => LiteralBooleanExpression(false)
-      case (RefQName(_, "count", FUNC), args) => {
-        subset(args.length == 1, "The count function requires a single argument.")
-        args(0) match {
-          case pe: PathExpression if pe.isPathToOneWholeArray => FNCountExpr(functionQNameString, functionQName, pe)
-          case pe: PathExpression => subsetError("The count function must reference a single array.")
-          case _ => subsetError("The count function must contain a path.")
-        }
-      }
+      
+      case (RefQName(_, "count", FUNC), args) =>
+        FNCountExpr(functionQNameString, functionQName, args)
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) => FNOneArgExprConversionDisallowed(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNYearFromDateTime(_, _))
       case (RefQName(_, "month-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNMonthFromDateTime(_, _))
@@ -1458,10 +1453,16 @@ abstract class FunctionCallBase(functionQNameString: String,
 /**
  * Tells the sub-expression that we want an array out of it.
  */
-case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, arrPath: PathExpression)
-  extends FunctionCallBase(nameAsParsed, fnQName, List(arrPath)) {
+case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+  extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  lazy val arrPath = args(0) match {
+    case pe: PathExpression => pe
+    case _ => subsetError("The count function must contain a path.")
+  }
 
   override lazy val isTypeCorrect = {
+    checkArgCount(1)
     arrPath.isPathToOneWholeArray
   }
 
@@ -1469,6 +1470,7 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, arrPath: PathExp
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = NodeInfo.Array
 
   override lazy val compiledDPath = {
+    checkArgCount(1)
     new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNCount) ++ conversions)
   }
 }

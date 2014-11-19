@@ -119,4 +119,7 @@ class TestDFDLExpressionsNew {
   //DFDL-1074
   @Test def test_not_11() { runner2.runOneTest("not_11") }
 
+  //DFDL-1116
+  @Test def test_count_03() { runner2.runOneTest("count_03") }
+  
 }

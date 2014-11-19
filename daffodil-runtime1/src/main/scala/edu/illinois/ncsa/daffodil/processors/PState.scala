@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
@@ -115,7 +116,7 @@ case class PState(
   var diagnostics: List[Diagnostic],
   var discriminatorStack: List[Boolean],
   val mpstate: MPState)
-  extends DFDL.State with ThrowsSDE {
+  extends DFDL.State with ThrowsSDE with SavesErrorsAndWarnings {
 
   def dstate = mpstate.dstate
   // TODO: many off-by-one errors due to not keeping strong separation of 
@@ -166,6 +167,20 @@ case class PState(
     val ctxt = getContext()
     val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
     ctxt.toss(rsde)
+  }
+
+  def SDEButContinue(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
+    diagnostics = rsde :: diagnostics
+  }
+
+  def SDW(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
+    diagnostics = rsdw :: diagnostics
   }
 
   def discriminator = discriminatorStack.head
