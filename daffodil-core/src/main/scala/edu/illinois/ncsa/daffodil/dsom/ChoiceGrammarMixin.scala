@@ -45,17 +45,12 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait ChoiceGrammarMixin { self: Choice =>
 
-  def termContentBody = self.group.termContentBody
+  lazy val groupContent = Prod("choiceContent", this, alternatives.foldRight(mt)(folder))
 
+  def folder(p: Gram, q: Gram): Gram = p | q
+
+  lazy val alternatives = groupMembers.map { _.asTermInChoice }
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

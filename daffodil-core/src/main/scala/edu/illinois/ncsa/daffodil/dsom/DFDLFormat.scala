@@ -57,45 +57,46 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-/**
- * Base class for any DFDL annotation
- *
- * Note about SchemaComponent as a base class:
- * Many things are now derived from SchemaComponent that were not before.
- * Just turns out that there is a lot of desirable code sharing between
- * things that aren't strictly-speaking SchemaComponents and things that
- * previously were not. Accomplishing that sharing with mixins and
- * self-typing etc. was just too troublesome. So now many things
- * are schema components. E.g., all annotation objects, the Include
- * and Import objects which represent those statements in a schema,
- * the proxy DFDLSchemaFile object, etc.
- *
- * This change lets us share more easily, also hoist a base
- * SchemaComponentBase over into daffodil-lib, which lets some of this
- * shared code, specifcally stuff about errors and diagnostics,
- * migrate over to daffodil-lib as well where it can be tied a
- * bit more tightly to the OOLAG library there.
- */
-abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg) {
+class DFDLFormat(node: Node, sd: SchemaDocument)
+  extends DFDLFormatAnnotation(node, sd)
+// leave the below comments here for a while. (In case we have to reproduce
+// this list of mixins on a schema component somewhere)
+//  with Format_AnnotationMixin
+//  with NillableMixin
+//  with SeparatorSuppressionPolicyMixin
+//  with RawElementRuntimeValuedPropertiesMixin
+//  with RawSequenceRuntimeValuedPropertiesMixin
 
-  final override val context: AnnotatedSchemaComponent = annotatedSCArg
+abstract class DFDLNonDefaultFormatAnnotation(node: Node, sc: AnnotatedSchemaComponent)
+  extends DFDLFormatAnnotation(node, sc)
 
-  // delegate to the annotated component.
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.findPropertyOption(pname)
-    res
-  }
+class DFDLElement(node: Node, decl: ElementBase)
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
 
-  lazy val annotatedSC = annotatedSCArg
+class DFDLGroup(node: Node, decl: GroupBase)
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
 
-  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
+abstract class DFDLModelGroup(node: Node, decl: ModelGroup)
+  extends DFDLNonDefaultFormatAnnotation(node, decl)
 
-  //  match {
-  //      case sc : SchemaComponent => sc 
-  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
-  //    }
+class DFDLSequence(node: Node, decl: Sequence)
+  extends DFDLModelGroup(node, decl)
 
-  override def toString = path
+class DFDLChoice(node: Node, decl: Choice)
+  extends DFDLModelGroup(node, decl)
+
+class DFDLSimpleType(node: Node, decl: SimpleTypeDefBase)
+  extends DFDLNonDefaultFormatAnnotation(node, decl) {
 }
+// Leave the below comments in place. These are not reproduced (currently)
+// on SimpleTypeDefBase. It appears these properties are only accessed
+// indirectly by way of an ElementDecl that uses this type.
+//
+//  with SimpleType_AnnotationMixin
+//  with TextNumberFormatMixin
+//  with StringTextMixin
+//  with NumberTextMixin
+//  with CalendarTextMixin
+//  with BooleanTextMixin
+//  with RawSimpleTypeRuntimeValuedPropertiesMixin 
 

@@ -32,30 +32,56 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
+import edu.illinois.ncsa.daffodil.util.Misc
+import java.net.URL
 import scala.xml.Node
+import scala.xml.Elem
+import scala.xml.Attribute
+import scala.xml.Null
+import scala.collection.immutable.ListMap
+import org.apache.xerces.util.XMLResourceIdentifierImpl
+import java.io.IOException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.util._
-import com.ibm.icu.text.NumberFormat
-import java.math.BigInteger
+import edu.illinois.ncsa.daffodil.util.Info
+import IIUtils._
+import java.io.File
+import java.net.URI
+import scala.xml.NodeSeq
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
+import edu.illinois.ncsa.daffodil.util.Delay
+import java.net.URLDecoder
+import java.net.URLEncoder
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+/**
+ * Mixin for all SchemaComponents
+ */
 
-  def termContentBody = self.group.termContentBody
+trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
+
+  lazy val targetNamespace: NS = targetNamespace_.value
+  private val targetNamespace_ = LV('targetNamespace) {
+    val res = xmlSchemaDocument.targetNamespace
+    res
+  }
+
+  lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
+
+  val orElseURL: String = "file:??"
+
+  /**
+   * Used in diagnostic messages; hence, valueOrElse to avoid
+   * problems when this can't get a value due to an error.
+   */
+  lazy val fileName: String = fileName_.valueOrElse(orElseURL)
+  private val fileName_ = LV('fileName) {
+    xmlSchemaDocument.fileName
+  }
 
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

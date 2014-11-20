@@ -35,27 +35,32 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
+import scala.util.matching.Regex
+import edu.illinois.ncsa.daffodil.dsom.Facet._
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.util._
-import com.ibm.icu.text.NumberFormat
-import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
+  extends LocalElementBase(xmlArg, parent, position)
+  with ElementFormDefaultMixin
+  with ElementDeclMixin {
+  lazy val elementRef = None
 
-  def termContentBody = self.group.termContentBody
+  requiredEvaluations(minOccurs, maxOccurs)
 
+  override def namedQName = {
+    val isQualified = elementFormDefault == "qualified"
+    QName.createLocal(name, targetNamespace, isQualified, namespaces)
+  }
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

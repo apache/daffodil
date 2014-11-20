@@ -45,17 +45,12 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait HasStatementsGrammarMixin { self: Term with DFDLStatementMixin =>
 
-  def termContentBody = self.group.termContentBody
+  final lazy val statementGrams = statements.map { _.gram }
+  // TODO: statements (but specifically not newVariableInstance) can appear on simple type definitions as well as terms.
 
+  lazy val dfdlStatementEvaluations = Prod("dfdlStatementEvaluations", this, statementGrams.length > 0,
+    statementGrams.fold(EmptyGram) { _ ~ _ })
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

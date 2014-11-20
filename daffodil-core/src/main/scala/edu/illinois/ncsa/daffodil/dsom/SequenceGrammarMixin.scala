@@ -45,17 +45,41 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait SequenceGrammarMixin { self: Sequence =>
 
-  def termContentBody = self.group.termContentBody
+  lazy val groupContent = {
+    self.sequenceKind match {
+      case SequenceKind.Ordered => orderedSequenceContent
+      case SequenceKind.Unordered => unorderedSequenceContent
+    }
+  }
 
+  lazy val orderedSequenceContent = Prod("sequenceContent", this, SequenceCombinator(this, terms.foldRight(mt)(folder)))
+  lazy val unorderedSequenceContent = {
+    val uoseq = self.unorderedSeq.get
+    Prod("unorderedSequenceContent", this, SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))
+  }
+
+  def folder(p: Gram, q: Gram): Gram = p ~ q
+
+  lazy val terms = groupMembers.map { _.asTermInSequence }
+
+  /**
+   * These are static properties even though the delimiters can have runtime-computed values.
+   * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
+   */
+  lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
+
+  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
+
+  lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
+
+  // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
+  def sepExpr(pos: => SeparatorPosition): Boolean = {
+    if (hasSeparator) if (separatorPosition eq pos) true else false
+    else false
+  }
+
+  lazy val hasSeparator = separator.isKnownNonEmpty
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

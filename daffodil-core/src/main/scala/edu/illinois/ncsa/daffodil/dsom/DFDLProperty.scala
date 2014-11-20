@@ -57,45 +57,24 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-/**
- * Base class for any DFDL annotation
- *
- * Note about SchemaComponent as a base class:
- * Many things are now derived from SchemaComponent that were not before.
- * Just turns out that there is a lot of desirable code sharing between
- * things that aren't strictly-speaking SchemaComponents and things that
- * previously were not. Accomplishing that sharing with mixins and
- * self-typing etc. was just too troublesome. So now many things
- * are schema components. E.g., all annotation objects, the Include
- * and Import objects which represent those statements in a schema,
- * the proxy DFDLSchemaFile object, etc.
- *
- * This change lets us share more easily, also hoist a base
- * SchemaComponentBase over into daffodil-lib, which lets some of this
- * shared code, specifcally stuff about errors and diagnostics,
- * migrate over to daffodil-lib as well where it can be tied a
- * bit more tightly to the OOLAG library there.
- */
-abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg) {
+class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
+  extends DFDLAnnotation(xmlArg, formatAnnotation.annotatedSC)
+  with NamedMixin {
 
-  final override val context: AnnotatedSchemaComponent = annotatedSCArg
+  override lazy val path = formatAnnotation.path + "::" + prettyName
 
-  // delegate to the annotated component.
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.findPropertyOption(pname)
-    res
-  }
+  override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC
 
-  lazy val annotatedSC = annotatedSCArg
+  override lazy val schemaDocument = formatAnnotation.schemaDocument
+  override lazy val fileName = xmlSchemaDocument.fileName
 
-  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
+  lazy val <dfdl:property>{ valueNodes }</dfdl:property> = xml
 
-  //  match {
-  //      case sc : SchemaComponent => sc 
-  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
-  //    }
+  // TODO: if we grab the value from here, then any qnames inside that value
+  // have to be resolved by THIS Object
+  lazy val value = valueNodes.text
 
-  override def toString = path
+  override lazy val name = getAttributeRequired("name")
+
 }
 

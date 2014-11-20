@@ -45,17 +45,50 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent =>
+  /**
+   * Changed to use findProperty, and to resolve the namespace properly.
+   *
+   * We lookup a property like escapeSchemeRef, and that actual property
+   * binding can be local, in scope, by way of a format reference, etc.
+   *
+   * It's value is a QName, and the definition of the prefix is from the
+   * location where we found the property, and NOT where we consume the property.
+   *
+   * Hence, we resolve w.r.t. the location that provided the property.
+   *
+   * The point of findProperty vs. getProperty is just that the former returns
+   * both the value, and the object that contained it. That object is what
+   * we resolve QNames with respect to.
+   *
+   * Note: Same is needed for properties that have expressions as their values.
+   * E.g., consider "{ ../foo:bar/.. }". That foo prefix must be resolved relative
+   * to the object where this property was written, not where it is evaluated. (JIRA
+   * issue DFDL-77)
+   */
+  lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
+    val er = findPropertyOption("escapeSchemeRef")
+    er match {
+      case _: NotFound => {
+        SDW("Property escapeSchemeRef was undefined. Please add escapeSchemeRef='' to your schema.")
+        None
+      }
+      case Found("", _) => None // empty string means no escape scheme
+      case Found(qName, loc) => {
+        val (nsURI, name) = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
+        val defESFactory = schemaSet.getDefineEscapeScheme(nsURI, name)
+        //
+        // We have escape scheme factories because an escape schema can have 
+        // expressions (for escapeCharacter and escapeEscapeCharacter), and 
+        // those need to be compiled for each context where the escape scheme
+        // is referenced, not just once.
+        //
+        defESFactory match {
+          case None => SDE("Define Escape Scheme %s Not Found", qName)
+          case Some(desf) => Some(desf.forComponent(this).escapeScheme)
+        }
+      }
+    }
+  }
 
-  def termContentBody = self.group.termContentBody
-
-}
-
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
 }

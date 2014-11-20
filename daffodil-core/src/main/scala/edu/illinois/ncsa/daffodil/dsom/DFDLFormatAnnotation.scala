@@ -1,0 +1,263 @@
+package edu.illinois.ncsa.daffodil.dsom
+
+/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+ *
+ * Developed by: Tresys Technology, LLC
+ *               http://www.tresys.com
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal with
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ * of the Software, and to permit persons to whom the Software is furnished to do
+ * so, subject to the following conditions:
+ * 
+ *  1. Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimers.
+ * 
+ *  2. Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimers in the
+ *     documentation and/or other materials provided with the distribution.
+ * 
+ *  3. Neither the names of Tresys Technology, nor the names of its contributors
+ *     may be used to endorse or promote products derived from this Software
+ *     without specific prior written permission.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+ * SOFTWARE.
+ */
+
+import scala.collection.immutable.ListMap
+import scala.xml.Node
+import scala.xml.NodeSeq.seqToNodeSeq
+import scala.xml.Utility
+import edu.illinois.ncsa.daffodil.ExecutionMode
+import edu.illinois.ncsa.daffodil.exceptions._
+import edu.illinois.ncsa.daffodil.grammar.EmptyGram
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeScheme_AnnotationMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.dpath._
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.processors.VariableUtils
+
+/**
+ * Base class for annotations that carry format properties
+ */
+abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
+  extends DFDLAnnotation(nodeArg, annotatedSCArg)
+  //  with RawCommonRuntimeValuedPropertiesMixin
+  //  with RawEscapeSchemeRuntimeValuedPropertiesMixin
+  with LeafPropProvider {
+
+  requiredEvaluations(hasConflictingPropertyError)
+
+  lazy val ref = getLocalFormatRef()
+  //
+  // prefix of a QName as the value of this ref, must be referring
+  // to a namespace binding that is in force right here on this object
+  // So we can resolve the QName relative to this.
+  //
+  lazy val refPair = ref.map { resolveQName(_) }
+  lazy val referencedDefineFormat = refPair.flatMap { case (ns, name) => schemaSet.getDefineFormat(ns, name) }
+  lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
+
+  /**
+   * gets the dfdl:ref short form attribute, or if we have a long
+   * form format annotation (or we ARE a long form format annotation)
+   * gets the ref long form attribute.
+   */
+  private def getLocalFormatRef(): Option[String] = {
+    // We have to check if the ref exists in long form (dfdl:ref)
+    // or short form (ref).
+    //
+    // longForm references are not prefixed by a dfdl namespace
+    // they are actually located in the annotation located
+    // on the node (DFDLAnnotation) itself.
+    val optRefLongForm = getAttributeOption("ref")
+    // Applicable shortForm ref has a dfdl namespace prefix and is located
+    // on the actual Schema Component.
+    val optRefShortForm = annotatedSC.getAttributeOption(XMLUtils.DFDL_NAMESPACE, "ref")
+    (optRefLongForm, optRefShortForm) match {
+      case (None, Some(s)) => Some(s)
+      case (Some(s), None) => Some(s)
+      case (Some(sh), Some(lg)) =>
+        schemaDefinitionError("Both long form and short form ref attribute found.")
+      case (None, None) => None
+    }
+  }
+
+  def adjustNamespace(ns: NS) = {
+    ns match {
+      case NoNamespace => annotatedSC.targetNamespace // this could also be NoNamespace, but that's ok.
+      case _ => ns
+    }
+  }
+
+  // The ListMap collection preserves insertion order.
+  type NamedFormatMap = ListMap[(NS, String), DFDLFormat]
+
+  val emptyNamedFormatMap = ListMap[(NS, String), DFDLFormat]()
+  /**
+   * build up map of what we have 'seen' as we go so we can detect cycles
+   */
+  private def getFormatRefs(seen: NamedFormatMap): NamedFormatMap = {
+    val res =
+      refPair.map {
+        case pair @ (ns, ln) =>
+          // first we have to adjust the namespace
+          // because a file with no target namespace, 
+          // can reference something in another file, which also has no target 
+          // namespace. The files can collectively or by nesting, be 
+          // included in a third file that has a namespace, and in that
+          // case all the format definitions being created as those 
+          // files are loaded will be in that third namespace.
+          // so just because we had <dfdl:format ref="someFormat"/> and the
+          // ref has no namespace prefix on it, doesn't mean that the 
+          // defineFormat we're seeking is in no namespace. 
+          val adjustedNS = adjustNamespace(ns)
+          val newPair = (adjustedNS, ln)
+          val notSeenIt = seen.get(newPair) == None
+          schemaDefinitionUnless(notSeenIt, "Format ref attributes form a cycle: \n%s\n%s",
+            (newPair, locationDescription),
+            seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
+          val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
+            schemaDefinitionError("defineFormat with name {%s}%s, was not found.", newPair._1, newPair._2))
+          log(LogLevel.Debug, "found defineFormat named: %s", newPair)
+          val fmt = defFmt.formatAnnotation
+          val newSeen = seen + (newPair -> fmt)
+          // println("seen now: " + newSeen)
+          val moreRefs = fmt.getFormatRefs(newSeen)
+          // println("final seen: " + moreRefs)
+          moreRefs
+      }.getOrElse({
+        lazy val seenStrings = seen.map {
+          case ((ns, name), v) => name // + " is " + v.xml 
+        }.toSeq
+        log(LogLevel.Debug, "Property sources are: %s", seenStrings.mkString("\n"))
+        seen
+      })
+    res
+  }
+
+  /**
+   * A flat map where each entry is (ns, ln) onto DFDLFormatAnnotation.
+   */
+  final lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
+
+  def getFormatChain(): ChainPropProvider = {
+    val formatAnnotations = formatRefMap.map { case ((_, _), fa) => fa }.toSeq
+    val withMe = (this +: formatAnnotations).distinct
+    val res = new ChainPropProvider(withMe, this.prettyName)
+    res
+  }
+
+  /**
+   * Don't need the map anymore, and we put ourselves highest
+   * priority meaning at the front of the list.
+   */
+  lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
+    val fmts = formatRefMap.map { case ((ns, ln), fmt) => fmt }
+    log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
+    val seq = Seq(this) ++ fmts
+    seq
+  }
+
+  lazy val shortFormProperties: Set[PropItem] = {
+    // shortForm properties should be prefixed by dfdl
+    // Remove the dfdl prefix from the attributes so that they
+    // can be properly combined later.
+    val kvPairs = XMLUtils.dfdlAttributes(annotatedSC.xml).asAttrMap.map {
+      case (key: String, value: String) => (removePrefix(key), value)
+    }
+    val kvPairsButNotRef = kvPairs.filterNot { _._1 == "ref" } // dfdl:ref is NOT a property
+    val pairs = kvPairsButNotRef.map { case (k, v) => (k, (v, annotatedSC)).asInstanceOf[PropItem] }
+    pairs.toSet
+  }
+
+  lazy val longFormProperties: Set[PropItem] = {
+    // longForm Properties are not prefixed by dfdl
+    val dfdlAttrs = dfdlAttributes(xml).asAttrMap
+    schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
+    //
+    // TODO: This strips away any qualified attribute
+    // That won't work when we add extension attributes 
+    // like daffodil:asAttribute="true"
+    //
+    val kvPairs = xml.attributes.asAttrMap.collect {
+      case (k, v) if (!k.contains(":")) => (k, v)
+    }
+    val unqualifiedAttribs = kvPairs.filterNot { _._1 == "ref" } // get the ref off there. it is not a property.
+    val res = unqualifiedAttribs.map { case (k, v) => (k, (v, this.asInstanceOf[LookupLocation])) }.toSet
+    res
+  }
+
+  private lazy val elementFormPropertyAnnotations =
+    (xml \\ "property").map { new DFDLProperty(_, this) }
+
+  lazy val elementFormProperties: Set[PropItem] = {
+    elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet
+  }
+
+  /**
+   * 'locallyConflicting' means conflicting between the short form and long form and
+   * element form properties that appear on this same format annotation
+   * object locally. Not across references or schema components.
+   */
+  private lazy val locallyConflictingProperties = {
+    val sf = shortFormProperties.map { case (n, _) => n }
+    val lf = longFormProperties.map { case (n, _) => n }
+    val ef = elementFormProperties.map { case (n, _) => n }
+    val res = sf.intersect(lf).union(
+      sf.intersect(ef)).union(
+        lf.intersect(ef))
+    res
+  }
+
+  private lazy val hasConflictingPropertyError = locallyConflictingProperties.size != 0
+
+  private lazy val combinedJustThisOneProperties: PropMap = {
+    // We need this error to occur immediately! Didn't seem to be checked otherwise.
+    schemaDefinitionUnless(!hasConflictingPropertyError,
+      "Short, long, and element form properties overlap: %s at %s",
+      locallyConflictingProperties.mkString(", "),
+      this.locationDescription)
+    // jto = "just this one"
+    val jtoSet = shortFormProperties.union(longFormProperties).union(elementFormProperties)
+    val jto = jtoSet.toMap
+    jto
+  }
+
+  /**
+   * Just this one, as in the short, long, and element form properties, on just this
+   * annotated schema component, not following any ref chains. Just the properties
+   * right here.
+   *
+   * Needed for certain warnings, and also is the primitive from which the
+   * ChainPropProvider is built up. That one DOES follow ref chains.
+   */
+  override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
+  private val justThisOneProperties_ = LV('justThisOneProperties) {
+    val res = combinedJustThisOneProperties
+    log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res)
+    res
+  }
+
+}
+

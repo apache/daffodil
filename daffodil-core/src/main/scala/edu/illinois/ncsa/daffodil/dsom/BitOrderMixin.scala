@@ -45,17 +45,20 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait BitOrderMixin extends GrammarMixin { self: Term =>
 
-  def termContentBody = self.group.termContentBody
+  lazy val defaultBitOrder = {
+    if (DaffodilTunableParameters.requireBitOrderProperty) {
+      bitOrder
+    } else {
+      optionBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
+    }
+  }
 
+  lazy val enclosingBitOrder = enclosingTerm.map(_.defaultBitOrder)
+  lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
+  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
+
+  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != defaultBitOrder) { new BitOrderChange(this) }
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

@@ -45,17 +45,26 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait ModelGroupGrammarMixin
+  extends InitiatedTerminatedMixin
+  with AlignedMixin
+  with HasStatementsGrammarMixin
+  with GroupCommonAGMixin { self: ModelGroup =>
 
-  def termContentBody = self.group.termContentBody
+  lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
+  lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)
 
+  // I believe we can have the same grammar rules whether we're directly inside a complex type, or
+  // we're nested inside another group as a term.
+  lazy val asChildOfComplexType = termContentBody
+
+  lazy val termContentBody = prod("termContentBody", this) {
+    bitOrderChange ~ dfdlStatementEvaluations ~
+      groupLeftFraming ~ groupContent ~ groupRightFraming
+  }
+
+  def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
+
+  def groupContent: Prod
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

@@ -45,17 +45,21 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
-  def termContentBody = self.group.termContentBody
+  override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
 
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
+trait GlobalElementDeclGrammarMixin
+  extends LocalElementGrammarMixin // can be repeating if not root
+  { self: GlobalElementDecl =>
 
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
+  lazy val documentElement = Prod("documentElement", this, scalarDefaultable)
+
+  lazy val document = Prod("document", this, {
+    UnicodeByteOrderMark(this) ~ documentElement
+  })
+
 }
+

@@ -57,45 +57,55 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-/**
- * Base class for any DFDL annotation
- *
- * Note about SchemaComponent as a base class:
- * Many things are now derived from SchemaComponent that were not before.
- * Just turns out that there is a lot of desirable code sharing between
- * things that aren't strictly-speaking SchemaComponents and things that
- * previously were not. Accomplishing that sharing with mixins and
- * self-typing etc. was just too troublesome. So now many things
- * are schema components. E.g., all annotation objects, the Include
- * and Import objects which represent those statements in a schema,
- * the proxy DFDLSchemaFile object, etc.
- *
- * This change lets us share more easily, also hoist a base
- * SchemaComponentBase over into daffodil-lib, which lets some of this
- * shared code, specifcally stuff about errors and diagnostics,
- * migrate over to daffodil-lib as well where it can be tied a
- * bit more tightly to the OOLAG library there.
- */
-abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg) {
+trait RawCommonRuntimeValuedPropertiesMixin
+  extends PropertyMixin {
 
-  final override val context: AnnotatedSchemaComponent = annotatedSCArg
+  lazy val byteOrderRaw = findProperty("byteOrder")
+  lazy val encodingRaw = findProperty("encoding")
+  lazy val outputNewLineRaw = findProperty("outputNewLine")
+}
 
-  // delegate to the annotated component.
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.findPropertyOption(pname)
-    res
-  }
+trait RawDelimitedRuntimeValuedPropertiesMixin
+  extends RawCommonRuntimeValuedPropertiesMixin {
 
-  lazy val annotatedSC = annotatedSCArg
+  lazy val initiatorRaw = findProperty("initiator")
+  lazy val terminatorRaw = findProperty("terminator")
+}
 
-  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
+trait RawElementRuntimeValuedPropertiesMixin
+  extends RawDelimitedRuntimeValuedPropertiesMixin
+  with RawSimpleTypeRuntimeValuedPropertiesMixin {
 
-  //  match {
-  //      case sc : SchemaComponent => sc 
-  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
-  //    }
+  // these are almost certainly not in scope, but on the local object
+  // but not always. A type might define fixed length things for example.
+  lazy val lengthRaw = findProperty("length")
+  lazy val occursCountRaw = findProperty("occursCount")
+}
 
-  override def toString = path
+trait RawSequenceRuntimeValuedPropertiesMixin
+  extends RawDelimitedRuntimeValuedPropertiesMixin {
+
+  lazy val separatorRaw = findProperty("separator")
+}
+
+trait RawEscapeSchemeRuntimeValuedPropertiesMixin
+  extends PropertyMixin {
+
+  lazy val escapeCharacterRaw = findProperty("escapeCharacter")
+  lazy val escapeEscapeCharacterRaw = findProperty("escapeEscapeCharacter")
+  lazy val escapeBlockStartRaw = findProperty("escapeBlockStart")
+  lazy val escapeBlockEndRaw = findProperty("escapeBlockEnd")
+}
+
+trait RawSimpleTypeRuntimeValuedPropertiesMixin
+  extends RawCommonRuntimeValuedPropertiesMixin {
+
+  def textStandardDecimalSeparatorRaw = findProperty("textStandardDecimalSeparator")
+  def textStandardGroupingSeparatorRaw = findProperty("textStandardGroupingSeparator")
+  def textStandardExponentRepRaw = findProperty("textStandardExponentRep")
+  def binaryFloatRepRaw = findProperty("binaryFloatRep")
+  def textBooleanTrueRepRaw = findProperty("textBooleanTrueRep")
+  def textBooleanFalseRepRaw = findProperty("textBooleanFalseRep")
+
 }
 

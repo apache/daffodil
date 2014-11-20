@@ -45,17 +45,47 @@ import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait InitiatedTerminatedMixin
+  extends GrammarMixin
+  with AnnotatedMixin
+  with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
 
-  def termContentBody = self.group.termContentBody
+  lazy val parentSaysInitiatedContent = {
+    val parentSays = self.immediatelyEnclosingModelGroup match {
+      case Some(s) if (s.initiatedContent == YesNo.Yes) => true
+      case _ => false
+    }
+    parentSays
+  }
 
+  lazy val hasInitiator = {
+    val hasOne = initiator.isKnownNonEmpty
+    if (parentSaysInitiatedContent)
+      schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
+    hasOne
+  }
+
+  lazy val hasTerminator = terminator.isKnownNonEmpty
+
+  lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
+
+  lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, initiatorItself ~ initiatorDiscriminator)
+  lazy val initiatorItself = {
+    if (initiator.isConstant) StaticInitiator(this)
+    else DynamicInitiator(this)
+  }
+
+  lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
+    if (terminator.isConstant) StaticTerminator(this)
+    else DynamicTerminator(this))
+
+  /**
+   * True if this term has initiator, terminator, or separator that are either statically
+   * present, or there is an expression. (Such expressions are not allowed to evaluate to "" - you
+   * can't turn off a delimiter by providing "" at runtime. Minimum length is 1 for these at runtime.
+   * <p>
+   * Override in Sequence to also check for separator.
+   */
+  lazy val hasDelimiters = hasInitiator || hasTerminator
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}

@@ -57,45 +57,18 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-/**
- * Base class for any DFDL annotation
- *
- * Note about SchemaComponent as a base class:
- * Many things are now derived from SchemaComponent that were not before.
- * Just turns out that there is a lot of desirable code sharing between
- * things that aren't strictly-speaking SchemaComponents and things that
- * previously were not. Accomplishing that sharing with mixins and
- * self-typing etc. was just too troublesome. So now many things
- * are schema components. E.g., all annotation objects, the Include
- * and Import objects which represent those statements in a schema,
- * the proxy DFDLSchemaFile object, etc.
- *
- * This change lets us share more easily, also hoist a base
- * SchemaComponentBase over into daffodil-lib, which lets some of this
- * shared code, specifcally stuff about errors and diagnostics,
- * migrate over to daffodil-lib as well where it can be tied a
- * bit more tightly to the OOLAG library there.
- */
-abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
-  extends SchemaComponent(xmlArg, annotatedSCArg) {
+abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
+  extends DFDLAnnotation(xmlArg, annotatedSCArg)
+  with NamedMixin { self: DFDLAnnotation =>
 
-  final override val context: AnnotatedSchemaComponent = annotatedSCArg
+  // The point of this, is so we can match-case on type DFDLDefiningAnnotation
+  // but then still conveniently use methods/members defined in the 
+  // DFDLAnnotation class
+  lazy val asAnnotation = self
 
-  // delegate to the annotated component.
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
-    val res = annotatedSC.findPropertyOption(pname)
-    res
-  }
+  @deprecated("use globalQName", "2014-09-18")
+  lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, name)
 
-  lazy val annotatedSC = annotatedSCArg
-
-  //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
-
-  //  match {
-  //      case sc : SchemaComponent => sc 
-  //      case _ => Assert.invariantFailed("should be a SchemaComponent")
-  //    }
-
-  override def toString = path
+  lazy val globalQName: GlobalQName = QName.createGlobal(name, context.targetNamespace)
 }
 

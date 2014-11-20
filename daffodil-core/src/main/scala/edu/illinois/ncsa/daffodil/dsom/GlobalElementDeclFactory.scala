@@ -35,27 +35,38 @@ package edu.illinois.ncsa.daffodil.dsom
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.api.WithDiagnostics
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
+import scala.util.matching.Regex
+import edu.illinois.ncsa.daffodil.dsom.Facet._
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-import edu.illinois.ncsa.daffodil.util._
-import com.ibm.icu.text.NumberFormat
-import java.math.BigInteger
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+/**
+ * Factory to create an instance of a global element declaration
+ * either to be the root of the data, or when referenced from an
+ * element reference, in which case a backpointer from the global element decl
+ * instance will point back to the element reference.
+ *
+ * This backpointer is needed in order to determine some attributes that refer
+ * outward to what something is contained within. E.g., nearestEnclosingSequence
+ * is an attribute that might be the sequence containing the element reference
+ * that is referencing this global element declaration.
+ */
+class GlobalElementDeclFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+  extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
+  def forRoot() = asRoot // cache. Not a new one every time.
+  lazy val asRoot = new GlobalElementDecl(xml, schemaDocument, None)
 
-  def termContentBody = self.group.termContentBody
+  def forElementRef(eRef: ElementRef) = new GlobalElementDecl(xml, schemaDocument, Some(eRef))
 
 }
 
-/////////////////////////////////////////////////////////////////
-// Types System
-/////////////////////////////////////////////////////////////////
-
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
-}
