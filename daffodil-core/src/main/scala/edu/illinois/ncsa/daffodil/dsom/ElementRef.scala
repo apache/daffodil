@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
 
 /**
  * Note ElementRef isn't a first class citizen with the other schema components.
@@ -86,7 +87,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   override lazy val namedQName = referencedElement.namedQName
 
   // Need to go get the Element we are referencing
-  private[dsom] lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
+  lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   private val referencedElement_ = LV('referencedElement) {
     val ged = this.schemaSet.getGlobalElementDecl(namespace, localName)
     val res = ged match {

@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
+import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
 
 trait InitiatedTerminatedMixin
   extends GrammarMixin

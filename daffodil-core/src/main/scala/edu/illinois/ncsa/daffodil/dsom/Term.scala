@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.util.ListUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
 
 /////////////////////////////////////////////////////////////////
 // Groups System

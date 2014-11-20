@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.grammar.GlobalElementDeclGrammarMixin
 
 /**
  * A global element decl uses LocalElementBase because it behaves like a local

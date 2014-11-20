@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.AlignmentUnits
 import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
 
 /**
  * A factory for model groups.

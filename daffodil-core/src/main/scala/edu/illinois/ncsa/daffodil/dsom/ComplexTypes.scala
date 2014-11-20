@@ -33,6 +33,7 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import scala.xml.Node
+import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
 
 abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   extends SchemaComponent(xmlArg, parent)

@@ -40,6 +40,7 @@ import scala.xml.Null
 import scala.xml.Text
 import scala.xml._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
+import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
 
 /**
  * Choices are a bit complicated.
