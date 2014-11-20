@@ -27,7 +27,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, core, tdml, testIBM1, cli, test, examples, japi)
+                    .aggregate(propgen, lib, io, runtime1, core, tdml, testIBM1, cli, test, examples, japi)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
@@ -400,7 +400,7 @@ object DaffodilBuild extends Build {
     artifactName in packageDoc in GenJavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
     javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-quiet", "-windowtitle", "Daffodil-" + v +"  Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
   )
-  
+
   def createRecursiveMapping(dir: File, newDir: String): Seq[(File,String)] = {
     // this recursively gathers all files in the daffodil-examples resources
     // directory and creates a mapping to the relative location in the
