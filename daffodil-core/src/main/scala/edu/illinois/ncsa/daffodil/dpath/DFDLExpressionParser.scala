@@ -275,7 +275,7 @@ class DFDLPathExpressionParser(
   def RelativePathExpr: Parser[RelativePathExpression] = log(
     StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps => RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove) })("relativePath")
 
-  def StepExpr: Parser[StepExpression] = log(AxisStep)("step")
+  def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ {varRef => this.context.SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString)})("step")
   def AxisStep: Parser[StepExpression] =
     ".." ~> Predicate.? ^^ { Up(_) } |
       "." ~> Predicate.? ^^ { Self(_) } |

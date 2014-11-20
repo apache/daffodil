@@ -43,4 +43,7 @@ class TestVariables2 {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  // DFDL-1161
+  @Test def test_var_end_path() { runner.runOneTest("var_end_path") }
+  @Test def test_var_in_path() { runner.runOneTest("var_in_path") }
 }

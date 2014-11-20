@@ -855,7 +855,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Variables</tdml:error>
+      <tdml:error>path expressions</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -871,7 +872,8 @@
     <tdml:document/>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Unable to parse expression</tdml:error>
+      <tdml:error>but `/' found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
