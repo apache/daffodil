@@ -58,7 +58,8 @@ class TestPropertyScoping {
   @Test def test_localAnnotation_02() { runner.runOneTest("localAnnotation_02") }
   @Test def test_localAnnotation_03() { runner.runOneTest("localAnnotation_03") }
   @Test def test_localAnnotation_04() { runner.runOneTest("localAnnotation_04") }
-  //DFDL-1036
+
+  //DFDL-1036 (was fixed) now DFDL-1159
   //@Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
 
   @Test def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }

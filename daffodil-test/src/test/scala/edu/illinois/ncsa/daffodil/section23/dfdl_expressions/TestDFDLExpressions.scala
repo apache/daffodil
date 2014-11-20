@@ -91,7 +91,7 @@ class TestDFDLExpressions {
   //@Test def test_comparison_operators_14() { runner.runOneTest("comparison_operators_14") }
   //@Test def test_comparison_operators_18() { runner.runOneTest("comparison_operators_18") }
   //@Test def test_comparison_operators_22() { runner.runOneTest("comparison_operators_22") }
-  
+
   @Test def test_comparison_operators_01() { runner.runOneTest("comparison_operators_01") }
   @Test def test_comparison_operators_02() { runner.runOneTest("comparison_operators_02") }
   @Test def test_comparison_operators_05() { runner.runOneTest("comparison_operators_05") }
@@ -185,8 +185,8 @@ class TestDFDLExpressions {
   // @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
   @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
 
-/////////////////////// FUNCTIONS ///////////////////////////
-  
+  /////////////////////// FUNCTIONS ///////////////////////////
+
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
@@ -216,18 +216,18 @@ class TestDFDLExpressions {
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_boolFunctionChoice_01() { runner2.runOneTest("boolFunctionChoice_01") }
   @Test def test_boolFunctionChoice_02() { runner2.runOneTest("boolFunctionChoice_02") }
   @Test def test_boolFunctionChoice_03() { runner2.runOneTest("boolFunctionChoice_03") }
-  
+
   @Test def test_boolFlags_01() { runner2.runOneTest("boolFlags_01") }
   @Test def test_boolFlags_02() { runner2.runOneTest("boolFlags_02") }
   //DFDL-1090
   //@Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
   //@Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
   //@Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
-  
+
   @Test def test_not_01() { runner2.runOneTest("not_01") }
   @Test def test_not_02() { runner2.runOneTest("not_02") }
   @Test def test_not_03() { runner2.runOneTest("not_03") }
@@ -256,7 +256,7 @@ class TestDFDLExpressions {
   @Test def test_abs_07() { runner2.runOneTest("abs_07") }
   @Test def test_abs_08() { runner2.runOneTest("abs_08") }
   @Test def test_abs_09() { runner2.runOneTest("abs_09") }
-  
+
   @Test def test_xPathFunc_ceil_01() { runner2.runOneTest("xPathFunc_ceil_01") }
   @Test def test_xPathFunc_ceil_02() { runner2.runOneTest("xPathFunc_ceil_02") }
   @Test def test_xPathFunc_ceil_03() { runner2.runOneTest("xPathFunc_ceil_03") }
@@ -265,7 +265,7 @@ class TestDFDLExpressions {
   @Test def test_ceil_06() { runner2.runOneTest("ceil_06") }
   @Test def test_ceil_07() { runner2.runOneTest("ceil_07") }
   @Test def test_ceil_08() { runner2.runOneTest("ceil_08") }
-  
+
   @Test def test_xPathFunc_floor_01() { runner2.runOneTest("xPathFunc_floor_01") }
   @Test def test_xPathFunc_floor_02() { runner2.runOneTest("xPathFunc_floor_02") }
   @Test def test_xPathFunc_floor_03() { runner2.runOneTest("xPathFunc_floor_03") }
@@ -274,7 +274,7 @@ class TestDFDLExpressions {
   @Test def test_floor_06() { runner2.runOneTest("floor_06") }
   @Test def test_floor_07() { runner2.runOneTest("floor_07") }
   @Test def test_floor_08() { runner2.runOneTest("floor_08") }
-  
+
   @Test def test_xPathFunc_round_01() { runner2.runOneTest("xPathFunc_round_01") }
   @Test def test_xPathFunc_round_02() { runner2.runOneTest("xPathFunc_round_02") }
   @Test def test_xPathFunc_round_03() { runner2.runOneTest("xPathFunc_round_03") }
@@ -291,12 +291,12 @@ class TestDFDLExpressions {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
   @Test def test_xPathFunc_round_16() { runner2.runOneTest("xPathFunc_round_16") }
-  
+
   //DFDL-1122
   //@Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
   //@Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
   //@Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
-  
+
   @Test def test_xPathFunc_round_hte_01() { runner2.runOneTest("xPathFunc_round_hte_01") }
   @Test def test_xPathFunc_round_hte_04() { runner2.runOneTest("xPathFunc_round_hte_04") }
   @Test def test_xPathFunc_round_hte_06() { runner2.runOneTest("xPathFunc_round_hte_06") }
@@ -310,25 +310,25 @@ class TestDFDLExpressions {
   //DFDL-1123
   //@Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
   //@Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
-  
+
   //DFDL-1080
   //@Test def test_empty_02() { runner2.runOneTest("empty_02") }
   //@Test def test_exists_02() { runner2.runOneTest("exists_02") }
-  
+
   //DFDL-1079
   //@Test def test_empty_05() { runner2.runOneTest("empty_05") }
   //@Test def test_exists_05() { runner2.runOneTest("exists_05") }
-  
+
   //DFDL-1087
   //@Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   //@Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
-  
+
   //DFDL-1091
   //@Test def test_count_05b() { runner2.runOneTest("count_05b") }
-  
+
   //DFDL-1097
   //@Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
-  
+
   @Test def test_empty_01() { runner2.runOneTest("empty_01") }
   @Test def test_empty_03() { runner2.runOneTest("empty_03") }
   @Test def test_empty_04() { runner2.runOneTest("empty_04") }
@@ -345,28 +345,27 @@ class TestDFDLExpressions {
   //@Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_exists_08() { runner2.runOneTest("exists_08") }
   @Test def test_exists_09() { runner2.runOneTest("exists_09") }
-  
+
   //DFDL-1120
   //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
-  
+
   //DFDL-1085
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   //@Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
   //@Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
   //@Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
-  
+
   @Test def test_count_01() { runner2.runOneTest("count_01") }
   @Test def test_count_02() { runner2.runOneTest("count_02") }
   //DFDL-1116
   //@Test def test_count_03() { runner2.runOneTest("count_03") }
   @Test def test_count_07() { runner2.runOneTest("count_07") }
- 
-  //DFDL-1117 
-  //@Test def test_count_04() { runner2.runOneTest("count_04") }
+
+  //DFDL-1117, DFDL-1159 (unordered sequences)
   //@Test def test_count_05() { runner2.runOneTest("count_05") }
   //@Test def test_count_06() { runner2.runOneTest("count_06") }
   //@Test def test_count_08() { runner2.runOneTest("count_08") }
- 
+
   //DFDL-1096
   //@Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
   //@Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
@@ -374,7 +373,7 @@ class TestDFDLExpressions {
   //@Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
   //@Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
   //@Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
-  
+
   //DFDL-1101
   //@Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
   //@Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
@@ -383,13 +382,13 @@ class TestDFDLExpressions {
   //@Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
   //@Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   //@Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
- 
+
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
   @Test def test_concat_03() { runner2.runOneTest("concat_03") }
   @Test def test_concat_04() { runner2.runOneTest("concat_04") }
   @Test def test_concat_05() { runner2.runOneTest("concat_05") }
-  
+
   @Test def test_substring_01() { runner2.runOneTest("substring_01") }
   @Test def test_substring_02() { runner2.runOneTest("substring_02") }
   @Test def test_substring_03() { runner2.runOneTest("substring_03") }
@@ -401,18 +400,18 @@ class TestDFDLExpressions {
   @Test def test_substring_09() { runner2.runOneTest("substring_09") }
   @Test def test_substring_10() { runner2.runOneTest("substring_10") }
   @Test def test_substring_11() { runner2.runOneTest("substring_11") }
-  
+
   @Test def test_stringlength_01() { runner2.runOneTest("stringlength_01") }
   @Test def test_stringlength_02() { runner2.runOneTest("stringlength_02") }
   @Test def test_stringlength_03() { runner2.runOneTest("stringlength_03") }
   @Test def test_stringlength_04() { runner2.runOneTest("stringlength_04") }
-  
+
   @Test def test_uppercase_01() { runner2.runOneTest("uppercase_01") }
   @Test def test_uppercase_02() { runner2.runOneTest("uppercase_02") }
   @Test def test_uppercase_03() { runner2.runOneTest("uppercase_03") }
   @Test def test_uppercase_04() { runner2.runOneTest("uppercase_04") }
   @Test def test_uppercase_05() { runner2.runOneTest("uppercase_05") }
-  
+
   @Test def test_lowercase_01() { runner2.runOneTest("lowercase_01") }
   @Test def test_lowercase_02() { runner2.runOneTest("lowercase_02") }
   @Test def test_lowercase_03() { runner2.runOneTest("lowercase_03") }
@@ -463,7 +462,7 @@ class TestDFDLExpressions {
   //@Test def test_substringafter_05() { runner2.runOneTest("substringafter_05") }
   //@Test def test_substringafter_06() { runner2.runOneTest("substringafter_06") }
   //@Test def test_substringafter_07() { runner2.runOneTest("substringafter_07") }
-  
+
   @Test def test_yearfromdatetime_01() { runner2.runOneTest("yearfromdatetime_01") }
   @Test def test_yearfromdatetime_02() { runner2.runOneTest("yearfromdatetime_02") }
   @Test def test_yearfromdatetime_03() { runner2.runOneTest("yearfromdatetime_03") }
@@ -738,7 +737,7 @@ class TestDFDLExpressions {
   @Test def test_integer_constructor_05() { runner2.runOneTest("integer_constructor_05") }
   @Test def test_integer_constructor_06() { runner2.runOneTest("integer_constructor_06") }
   @Test def test_integer_constructor_07() { runner2.runOneTest("integer_constructor_07") }
-  
+
   //DFDL-1129
   //@Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 
@@ -746,7 +745,7 @@ class TestDFDLExpressions {
   @Test def test_testBit_1() { runner2.runOneTest("testBit_1") }
   @Test def test_testBit_2() { runner2.runOneTest("testBit_2") }
   @Test def test_testBit_4() { runner2.runOneTest("testBit_4") }
-  
+
   @Test def test_stringLiteralFromString_obsolete() { runner2.runOneTest("stringLiteralFromString_obsolete") }
   @Test def test_containsEntity_obsolete() { runner2.runOneTest("containsEntity_obsolete") }
 
@@ -798,6 +797,5 @@ class TestDFDLExpressions {
   // the same file to fail.
   //
   @Test def test_no_closing_brace() { runner3.runOneTest("no_closing_brace") } // no closing } for expression
-
 
 }

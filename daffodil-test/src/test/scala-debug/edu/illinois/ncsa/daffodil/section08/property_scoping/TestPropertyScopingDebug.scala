@@ -48,7 +48,7 @@ class TestPropertyScopingDebug {
   val aa = testDir + "PropertyScoping.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  //DFDL-1036
+  //DFDL-1036 (was fixed) now DFDL-1159
   @Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
 
   //DFDL-1037

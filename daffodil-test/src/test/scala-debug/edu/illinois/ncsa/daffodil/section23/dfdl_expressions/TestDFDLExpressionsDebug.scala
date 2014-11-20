@@ -88,26 +88,28 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
-  
+
   //DFDL-1115
   @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
-  
+
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
-  
-  //DFDL-1117 
+
+  //DFDL-1160
   @Test def test_count_04() { runner2.runOneTest("count_04") }
+
+  //DFDL-1117, DFDL-1159 (unordered sequences)
   @Test def test_count_05() { runner2.runOneTest("count_05") }
   @Test def test_count_06() { runner2.runOneTest("count_06") }
   @Test def test_count_08() { runner2.runOneTest("count_08") }
-  
+
   //DFDL-1118
   @Test def test_more_count_0() { runner2.runOneTest("more_count_0") }
   @Test def test_more_count_1() { runner2.runOneTest("more_count_1") }
   @Test def test_more_count_1b() { runner2.runOneTest("more_count_1b") }
   @Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
   @Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
-  
+
   //DFDL-1075
   @Test def test_exists_01() { runner2.runOneTest("exists_01") }
   @Test def test_exists_03() { runner2.runOneTest("exists_03") }
@@ -116,19 +118,19 @@ class TestDFDLExpressionsDebug {
   @Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_not_05() { runner2.runOneTest("not_05") }
   @Test def test_not_07() { runner2.runOneTest("not_07") }
-  
+
   //DFDL-1120
   @Test def test_exists_10() { runner2.runOneTest("exists_10") }
-  
+
   //DFDL-1122
   @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
   @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
   @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
-  
+
   //DFDL-1123
   @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
   @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
-  
+
   //DFDL-1124
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
 
@@ -139,7 +141,7 @@ class TestDFDLExpressionsDebug {
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   //DFDL-1079
   @Test def test_empty_05() { runner2.runOneTest("empty_05") }
-  
+
   //DFDL-1085
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
@@ -148,16 +150,16 @@ class TestDFDLExpressionsDebug {
   //DFDL-1087
   @Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   @Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }
-  
+
   //DFDL-1091
   @Test def test_count_05b() { runner2.runOneTest("count_05b") }
-  
+
   // Fails due to invariant failure slotIndexInParent
   @Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
-  
+
   //DFDL-1097
   @Test def test_local_name_06() { runner2.runOneTest("local_name_06") }
-  
+
   //DFDL-1101
   @Test def test_namespace_uri_01() { runner2.runOneTest("namespace_uri_01") }
   @Test def test_namespace_uri_02() { runner2.runOneTest("namespace_uri_02") }
@@ -166,7 +168,7 @@ class TestDFDLExpressionsDebug {
   @Test def test_namespace_uri_04() { runner2.runOneTest("namespace_uri_04") }
   @Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   @Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
-  
+
   // DFDL-827
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
