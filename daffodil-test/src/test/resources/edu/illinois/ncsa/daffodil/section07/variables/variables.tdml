@@ -823,4 +823,40 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="variable_path">
+    
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <dfdl:defineVariable name="var" defaultValue="e1" />
+
+    <xs:element name="r">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="e1" type="xs:string" dfdl:inputValueCalc="{ $var }" />
+          <xs:element name="e2" type="xs:string" dfdl:inputValueCalc="{ /ex:r/$var }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+<!--
+     Test: var_end_path
+   Schema: variable_path
+     Root: r 
+  Purpose: This test uses a variable at the end of a path. 
+-->
+  
+  <tdml:parserTestCase name="var_end_path" root="r"
+    model="variable_path" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <r>
+          <e1>e1</e1>
+          <e2>e1</e2>
+        </r>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
