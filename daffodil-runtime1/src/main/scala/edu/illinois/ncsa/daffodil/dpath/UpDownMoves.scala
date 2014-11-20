@@ -105,7 +105,7 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
   override def run(dstate: DState) {
     val now = dstate.currentComplex
     val arr = now.getChildArray(info.slotIndexInParent)
-    Assert.invariant(arr.isDefined) // TODO PE?
+    Assert.invariant(arr.isDefined)
     dstate.setCurrentNode(arr.get.asInstanceOf[DIArray])
   }
 

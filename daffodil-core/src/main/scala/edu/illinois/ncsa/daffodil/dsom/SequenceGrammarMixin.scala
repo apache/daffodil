@@ -50,7 +50,7 @@ trait SequenceGrammarMixin { self: Sequence =>
   lazy val groupContent = {
     self.sequenceKind match {
       case SequenceKind.Ordered => orderedSequenceContent
-      case SequenceKind.Unordered => unorderedSequenceContent
+      case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
     }
   }
 

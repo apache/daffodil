@@ -350,16 +350,29 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
     _slots(slot).map { _.asInstanceOf[InfosetElement] }
 
-  final def getChildArray(slot: Int): Maybe[InfosetArray] =
-    _slots(slot).map {
-      _ match {
-        case arr: DIArray => arr
+  final def getChildArray(slot: Int): Maybe[DIArray] = {
+    val slotVal = _slots(slot)
+    if (slotVal.isDefined)
+      slotVal.get match {
+        case arr: DIArray => slotVal.asInstanceOf[Maybe[DIArray]]
         case _ => Assert.usageError("not an array")
       }
+    else {
+      // slot is Nope. There isn't even an array object yet.
+      // create one (it will have zero entries)
+      val ia = One(new DIArray)
+      // no array there yet. So we have to create one.
+      setChildArray(slot, ia)
+      ia
     }
+  }
 
   final override def setChildArray(erd: ElementRuntimeData, arr: InfosetArray) {
-    _slots(erd.slotIndexInParent) = One(arr.asInstanceOf[DIArray])
+    setChildArray(erd.slotIndexInParent, One(arr.asInstanceOf[DIArray]))
+  }
+
+  final def setChildArray(slot: Int, arr: Maybe[DIArray]) {
+    _slots(slot) = arr
   }
 
   override def addChild(e: InfosetElement): Unit = {
