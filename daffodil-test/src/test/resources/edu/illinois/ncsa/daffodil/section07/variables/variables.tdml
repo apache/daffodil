@@ -828,6 +828,7 @@
     <dfdl:format ref="ex:daffodilTest1" />
 
     <dfdl:defineVariable name="var" defaultValue="e1" />
+    <dfdl:defineVariable name="var2" defaultValue="r" />
 
     <xs:element name="r">
       <xs:complexType>
@@ -837,26 +838,41 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
+    <xs:element name="e3" type="xs:string" dfdl:inputValueCalc="{ $var2/ex:e1 }" />
+
   </tdml:defineSchema>
 
 <!--
      Test: var_end_path
    Schema: variable_path
-     Root: r 
-  Purpose: This test uses a variable at the end of a path. 
+     Root: r
+  Purpose: This test uses a variable at the end of a path and should fail since it is invalid to have a variable in a path expression. 
 -->
-  
+ 
   <tdml:parserTestCase name="var_end_path" root="r"
     model="variable_path" description="Section 7 - ">
     <tdml:document/>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <r>
-          <e1>e1</e1>
-          <e2>e1</e2>
-        </r>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+     Test: var_in_path
+   Schema: variable_path
+     Root: e3
+  Purpose: This test uses a variable in a path and should fail since it is invalid to have a variable in a path expression. 
+-->
+
+  <tdml:parserTestCase name="var_in_path" root="e3"
+    model="variable_path" description="Section 7 - ">
+    <tdml:document/>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

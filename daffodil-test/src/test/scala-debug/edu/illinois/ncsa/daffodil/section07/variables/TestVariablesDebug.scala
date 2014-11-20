@@ -56,4 +56,5 @@ class TestVariablesDebug {
   @Test def test_emptyDefault2() { runner.runOneTest("emptyDefault2") }
 
   @Test def test_var_end_path() { runner.runOneTest("var_end_path") }
+  @Test def test_var_in_path() { runner.runOneTest("var_in_path") }
 }
