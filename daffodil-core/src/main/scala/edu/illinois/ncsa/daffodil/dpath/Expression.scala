@@ -1039,6 +1039,7 @@ abstract class LiteralExpressionBase(value: Any)
    */
   lazy val litValue = value match {
     case s: String => s
+    case i: Int => i
     case i: BigInt => {
       if (i.isValidInt) i.toInt
       else if (i.isValidLong) i.toLong
@@ -1341,8 +1342,15 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
         DFDLSetBitsExpr(functionQNameString, functionQName, args)
       }
 
-      case (RefQName(_, "round-half-to-even", FUNC), args) =>
-        FNRoundHalfToEvenExpr(functionQNameString, functionQName, args)
+      case (RefQName(_, "round-half-to-even", FUNC), args) if args.length == 1 => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.Numeric, NodeInfo.Numeric, FNRoundHalfToEven1(_, _))
+      }
+
+      case (RefQName(_, "round-half-to-even", FUNC), args) => {
+        FNTwoArgsExpr(functionQNameString, functionQName, args,
+          NodeInfo.Numeric, NodeInfo.Numeric, NodeInfo.Integer, FNRoundHalfToEven2(_))
+      }
 
       case (RefQName(_, "string-length", FUNC), args) => {
         FNOneArgExpr(functionQNameString, functionQName, args,

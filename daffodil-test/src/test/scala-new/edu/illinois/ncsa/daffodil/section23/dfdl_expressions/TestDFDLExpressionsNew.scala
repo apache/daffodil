@@ -81,14 +81,13 @@ class TestDFDLExpressionsNew {
   @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
   @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
   @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
-  
+
   //DFDL-1096
   @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
   @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
   @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
   @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
   @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
-  
 
   // DFDL-1092: DPath: fn:substring-before()
   @Test def test_substringbefore_01 { runner2.runOneTest("substringbefore_01") }
@@ -122,4 +121,13 @@ class TestDFDLExpressionsNew {
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
   
+  //DFDL-1123
+  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
+  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
+
+  //DFDL-1122
+  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
+  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
+  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
+
 }

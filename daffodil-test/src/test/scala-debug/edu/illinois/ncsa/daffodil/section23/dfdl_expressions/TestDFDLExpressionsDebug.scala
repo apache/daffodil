@@ -91,8 +91,11 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-1115
   @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
-  
-  //DFDL-1117 
+
+  //DFDL-1116
+  @Test def test_count_03() { runner2.runOneTest("count_03") }
+
+  //DFDL-1160
   @Test def test_count_04() { runner2.runOneTest("count_04") }
 
   //DFDL-1117, DFDL-1159 (unordered sequences)
@@ -118,15 +121,6 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-1120
   @Test def test_exists_10() { runner2.runOneTest("exists_10") }
-
-  //DFDL-1122
-  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
-  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
-  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
-
-  //DFDL-1123
-  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
-  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
 
   //DFDL-1124
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }

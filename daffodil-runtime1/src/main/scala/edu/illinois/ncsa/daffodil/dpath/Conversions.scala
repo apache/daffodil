@@ -84,6 +84,18 @@ object Conversion {
       case (x: AnyAtomic.Kind, AnyAtomic) => Nil
       case (x: Numeric.Kind, String) => List(NumericToString)
 
+      case (Numeric, _) => NumericToString +: conversionOps(String, tt, context)
+      //
+      // Because of round-half-to-even, we need to know what the type of the original
+      // argument is. Doing these auto-conversions to Decimal hide this.
+      //
+      // Valid Numeric types are xs:float, xs:double, xs:integer and any sub-types.
+      //
+      //      case (Float, n: Numeric.Kind) => FloatToDouble +: conversionOps(Double, tt, context)
+      //      case (Integer, n: Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+      //      case (Double, Numeric) => List(DoubleToDecimal)
+      case (n: NodeInfo.Numeric.Kind, Numeric) => Nil
+
       case (x: AnyDateTime.Kind, String) => List(DateTimeToString)
       case (HexBinary, String) => List(HexBinaryToString)
       case (String, NonEmptyString) => List(StringToNonEmptyString)
@@ -113,8 +125,10 @@ object Conversion {
       case (Double, UnsignedLong) => List(DoubleToUnsignedLong)
       case (Double, i: Int.Kind) => DoubleToLong +: conversionOps(Long, tt, context)
       case (Double, ui: UnsignedInt.Kind) => DoubleToUnsignedLong +: conversionOps(UnsignedLong, tt, context)
-      case (Float, Boolean) => FloatToDouble +: conversionOps(Double, tt, context)
+
       case (Float, n: Numeric.Kind) => FloatToDouble +: conversionOps(Double, tt, context)
+      case (Float, Boolean) => FloatToDouble +: conversionOps(Double, tt, context)
+
       case (Decimal, Boolean) => DecimalToLong +: conversionOps(Long, tt, context)
       case (Decimal, Integer) => List(DecimalToInteger)
       case (Decimal, NonNegativeInteger) => List(DecimalToNonNegativeInteger)
@@ -128,7 +142,9 @@ object Conversion {
       case (Decimal, UnsignedShort) => List(DecimalToLong, LongToUnsignedShort)
       case (Decimal, Byte) => List(DecimalToLong, LongToByte)
       case (Decimal, UnsignedByte) => List(DecimalToLong, LongToUnsignedByte)
-      case (Integer, n: Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+
+      case (Integer, n: NodeInfo.Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
+      
       case (NonNegativeInteger, n: Numeric.Kind) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
       // Commented these out because these are illegal conversions for XPath functions.
       // I cannot pass a DateTime as a Date argument to an XPath function.
@@ -153,8 +169,7 @@ object Conversion {
       case (String, Date) => List(StringToDate)
       case (String, Time) => List(StringToTime)
       case (String, DateTime) => List(StringToDateTime)
-      case (String, Boolean) =>
-        List(StringToBoolean)
+      case (String, Boolean) => List(StringToBoolean)
       case (Time, DateTime) => List(TimeToDateTime)
       case (Byte, Long) => List(ByteToLong)
 
@@ -185,7 +200,7 @@ object Conversion {
       case (Int, UnsignedShort) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, Byte) => IntToLong +: conversionOps(Long, tt, context)
       case (Int, UnsignedByte) => IntToLong +: conversionOps(Long, tt, context)
-
+      
       case (UnsignedInt, Double) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Decimal) => UnsignedIntToLong +: conversionOps(Long, tt, context)
       case (UnsignedInt, Float) => UnsignedIntToLong +: conversionOps(Long, tt, context)
@@ -288,7 +303,7 @@ object Conversion {
       // should be itself.
       //
       case (_, AnyAtomic) => Nil // is this correct?
-      
+
       case (_, Exists) => Nil
       case (_, other) => context.SDE("The type %s cannot be converted to %s.", st.name, tt.name)
     }

@@ -108,12 +108,16 @@ object AsIntConverters {
 
   def asBigDecimal(n: Any): BigDecimal = {
     val value = n match {
-      case f: Float => BigDecimal(f)
-      case d: Double => BigDecimal(d)
-      case b: Byte => BigDecimal(b)
-      case s: Short => BigDecimal(s)
-      case i: Int => BigDecimal(i)
-      case l: Long => BigDecimal(l)
+      //
+      // Not converting Float to string first causes precision issues 
+      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999. 
+      // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
+      case f: Float => BigDecimal(f.toString)
+      case d: Double => BigDecimal.valueOf(d)
+      case b: Byte => BigDecimal.valueOf(b)
+      case s: Short => BigDecimal.valueOf(s)
+      case i: Int => BigDecimal.valueOf(i)
+      case l: Long => BigDecimal.valueOf(l)
       case bi: BigInt => BigDecimal(bi)
       case bd: BigDecimal => bd
       case _ => Assert.invariantFailed("Unsupported conversion to BigDecimal. %s of type %s".format(

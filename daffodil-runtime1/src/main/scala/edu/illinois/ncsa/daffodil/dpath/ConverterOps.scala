@@ -89,7 +89,7 @@ case object DecimalToUnsignedLong extends Converter {
   }
 }
 case object DoubleToDecimal extends Converter {
-  override def computeValue(a: Any, dstate: DState) = BigDecimal(asDouble(a))
+  override def computeValue(a: Any, dstate: DState) = BigDecimal.valueOf(asDouble(a))
 }
 case object DoubleToFloat extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
@@ -138,7 +138,7 @@ case object LongToByte extends Converter {
   }
 }
 case object LongToDecimal extends Converter {
-  override def computeValue(a: Any, dstate: DState) = BigDecimal(asLong(a))
+  override def computeValue(a: Any, dstate: DState) = BigDecimal.valueOf(asLong(a))
 }
 case object LongToDouble extends Converter {
   override def computeValue(a: Any, dstate: DState) = asLong(a).toDouble

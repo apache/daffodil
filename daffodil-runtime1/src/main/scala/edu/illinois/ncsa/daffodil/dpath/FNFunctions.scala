@@ -305,8 +305,133 @@ case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: Compiled
   }
 }
 
-case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null) 
-extends FNOneArg(recipe, NodeInfo.Boolean) {
+trait FNRoundHalfToEvenKind {
+
+  /**
+   * For arguments of type xs:float and xs:double, if the argument is NaN,
+   * positive or negative zero, or positive or negative infinity, then the
+   * result is the same as the argument.
+   *
+   * In all other cases, the argument is cast to xs:decimal, the function
+   * is applied to this xs:decimal value, and the resulting xs:decimal is
+   * cast back to xs:float or xs:double as appropriate to form the function
+   * result.
+   *
+   * If the resulting xs:decimal value is zero, then positive or negative
+   * zero is returned according to the sign of the original argument.
+   *
+   * NOTE: Java does not appear to make a distinction between pos or neg zero.
+   */
+  def compute(value: Any, precision: Int) = {
+    // We should only receive 'Numeric' types here which are either
+    // xs:double, xs:float, xs:decimal, xs:integer or a sub-type thereof.
+    //
+    // The conversions code should be enforcing this, if not we
+    // have a serious issue.
+    //
+    val result = value match {
+      case f: Float if (f.isNaN() || f == 0 || f.isPosInfinity || f.isNegInfinity) => f
+      case d: Double if (d.isNaN() || d == 0 || d.isPosInfinity || d.isNegInfinity) => d
+      case _: Float | _: Double | _: BigDecimal | _: BigInt | _: Long | _: Int | _: Byte | _: Short => {
+        val unroundedValue = unrounded(value)
+        val roundedValue = toBaseNumericType(round(unroundedValue, precision), value)
+        roundedValue
+      }
+      case _ => Assert.invariantFailed("Unrecognized numeric type. Must be xs:float, xs:double, xs:decimal, xs:integer or a type derived from these.")
+    }
+    result
+  }
+
+  private def unrounded(value: Any): BigDecimal = {
+    val result = value match {
+      //
+      // Not converting Float to string first causes precision issues 
+      // that round-half-to-even doesn't resolve correctly.  BigDecimal.valueOf(3.455) turns into 3.454999. 
+      // HALF_EVEN rounding mode would round this to 3.45 rather than the desired 3.46.
+      //
+      // The solution is to do BigDecimal(float.toString).  This has been corrected in asBigDecimal.
+      //
+      // NOTE:
+      // Any change in how asBigDecimal handles Float
+      // will affect the correctness of this rounding operation.
+      //
+      case _: Float | _: Double | _: BigDecimal => asBigDecimal(value)
+      case _: BigInt | _: Long | _: Int | _: Byte | _: Short => asBigDecimal(value)
+      case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
+    }
+    result
+  }
+
+  private def round(value: BigDecimal, precision: Int): BigDecimal = {
+    val rounded = value.setScale(precision, BigDecimal.RoundingMode.HALF_EVEN)
+    rounded
+  }
+
+  /**
+   * If the type of $arg is one of the four numeric types xs:float, xs:double,
+   * xs:decimal or xs:integer the type of the result is the same as the type of $arg.
+   *
+   * If the type of $arg is a type derived from one of the numeric types, the
+   * result is an instance of the base numeric type.
+   */
+  private def toBaseNumericType(value: BigDecimal, origValue: Any): Any = {
+    val result = origValue match {
+      case _: Float => value.toFloat // xs:float
+      case _: Double => value.toDouble // xs:double
+      case _: BigDecimal => value //xs:decimal
+      case _: BigInt | _: Long | _: Int | _: Byte | _: Short => value.toBigInt // xs:integer 
+      case _ => Assert.usageError("Received a type other than xs:decimal, xs:double, xs:float, xs:integer or any of its sub-types.")
+    }
+    result
+  }
+
+}
+
+/**
+ * The value returned is the nearest (that is, numerically closest) value
+ * to $arg that is a multiple of ten to the power of minus $precision.
+ *
+ * If two such values are equally near (e.g. if the fractional part
+ * in $arg is exactly .500...), the function returns the one whose least
+ * significant digit is even.
+ *
+ * This particular function expects a single argument which is a Numeric.
+ * $precision is assumed 0.
+ */
+case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends FNOneArg(recipe, argType)
+  with FNRoundHalfToEvenKind {
+
+  override def computeValue(value: Any, dstate: DState) = {
+    val roundedValue = compute(value, 0)
+    roundedValue
+  }
+}
+
+/**
+ * The value returned is the nearest (that is, numerically closest) value
+ * to $arg that is a multiple of ten to the power of minus $precision.
+ *
+ * If two such values are equally near (e.g. if the fractional part
+ * in $arg is exactly .500...), the function returns the one whose least
+ * significant digit is even.
+ *
+ * This particular function expects a two arguments: $arg and $precision.
+ */
+case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
+  extends FNTwoArgs(recipes)
+  with FNRoundHalfToEvenKind {
+
+  override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
+    Assert.invariant(arg2.isInstanceOf[BigInt]) // Precision must be xs:integer
+    val precision = arg2.asInstanceOf[BigInt].toInt
+    val roundedValue = compute(arg1, precision)
+    roundedValue
+  }
+}
+
+case class FNNot(recipe: CompiledDPath, argType: NodeInfo.Kind = null)
+  extends FNOneArg(recipe, NodeInfo.Boolean) {
   override def computeValue(value: Any, dstate: DState) = {
     val bool = FNToBoolean.computeValue(value, dstate)
     !bool

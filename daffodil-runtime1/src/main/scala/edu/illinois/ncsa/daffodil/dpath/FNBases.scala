@@ -85,7 +85,8 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
   override def toXML: scala.xml.Node = <Negate>{ recipe.toXML }</Negate>
 }
 
-abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind) extends RecipeOpWithSubRecipes(recipe) {
+abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
+  extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     val arg = dstate.currentValue
@@ -97,7 +98,8 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind) extends R
   def computeValue(str: Any, dstate: DState): Any
 }
 
-abstract class FNTwoArgs(recipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(recipes) {
+abstract class FNTwoArgs(recipes: List[CompiledDPath])
+  extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val List(recipe1, recipe2) = recipes
