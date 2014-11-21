@@ -47,6 +47,7 @@ class defineFormatTestsDebug {
   val tdml = testDir + "defineFormat.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  //DFDL-478
   @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
 
 }
