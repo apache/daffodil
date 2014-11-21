@@ -82,6 +82,10 @@ class TestDFDLExpressionsDebug {
   // DFDL-1044
   @Test def test_expression_type_error2() { runner.runOneTest("expression_type_error2") }
 
+  //DFDL-1164
+  @Test def test_predicate_02() { runner.runOneTest("predicate_02") }
+  @Test def test_predicate_03() { runner.runOneTest("predicate_03") }
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
