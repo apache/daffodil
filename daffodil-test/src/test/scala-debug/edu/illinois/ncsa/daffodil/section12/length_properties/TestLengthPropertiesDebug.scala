@@ -70,6 +70,7 @@ class TestLengthPropertiesDebug {
   // should just skip the 2 excess bytes
   @Test def test_LengthProp_06() { runner_02.runOneTest("LengthProp_06") }
 
+  //DFDL-460
   @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
 
   @Test def test_LengthProp_bits_bool() { runner_02.runOneTest("LengthProp_bits_bool") }

@@ -131,6 +131,7 @@ class TestLengthProperties {
   @Test def test_LengthProp_leftover3() { runner_02.runOneTest("LengthProp_leftover3") }
   @Test def test_LengthProp_leftover4() { runner_02.runOneTest("LengthProp_leftover4") }
 
+  //DFDL-460
   //  @Test def test_LengthProp_floatBits() { runner_02.runOneTest("LengthProp_floatBits") }
 
   @Test def test_bitShort() { runner_02.runOneTest("bitShort") }
