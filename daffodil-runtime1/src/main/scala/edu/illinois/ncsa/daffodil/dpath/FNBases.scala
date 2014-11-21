@@ -35,9 +35,7 @@ case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPa
 
   def compare(op: String, v1: Any, v2: Any): Boolean = {
     (op, v1, v2) match {
-      case ("=", a, b) => a == b
       case ("eq", a, b) => a == b
-      case ("!=", a, b) => a != b
       case ("ne", a, b) => a != b
       case _ => Assert.notYetImplemented("operator " + op +
         " on types " + Misc.getNameFromClass(v1) + ", " +

@@ -328,7 +328,7 @@
           <xs:element name="num" type="xs:int" maxOccurs="5" dfdl:lengthKind="explicit" dfdl:length="1">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
-                <dfdl:assert testKind="expression" test="{ . = (dfdl:occursIndex()+2) }"/>
+                <dfdl:assert testKind="expression" test="{ . eq (dfdl:occursIndex()+2) }"/>
               </xs:appinfo>
             </xs:annotation>
           </xs:element>

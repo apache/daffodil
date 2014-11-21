@@ -162,7 +162,7 @@
         <xs:sequence dfdl:separator=",">
           <xs:element name="int1" type="xs:int"/> 
           <xs:element name="int2" type="xs:int"/> 
-          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 &lt;&gt; ../ex:int2 }"/>
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:int1 ne ../ex:int2 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1643,9 +1643,9 @@ c' } "  />
                       <xs:annotation>
                         <xs:appinfo source="http://www.ogf.org/dfdl/">
                           <dfdl:discriminator><![CDATA[{ 
-                                    if(dfdl:occursIndex() = 1 ) then fn:true()
+                                    if(dfdl:occursIndex() eq 1 ) then fn:true()
                                     else
-                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more = 1 
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1 
                           }]]></dfdl:discriminator>
                         </xs:appinfo>
                       </xs:annotation>
@@ -1826,10 +1826,10 @@ c' } "  />
         <xs:annotation>
           <xs:appinfo source="http://www.ogf.org/dfdl/">
             <dfdl:discriminator><![CDATA[{ 
-                                    if (dfdl:occursIndex() = 1 )
+                                    if (dfdl:occursIndex() eq 1 )
                                     then fn:true()
                                     else 
-                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more = 1 
+                                    ../ex:r[dfdl:occursIndex() - 1]/ex:more eq 1 
                           }]]></dfdl:discriminator>
           </xs:appinfo>
         </xs:annotation>
@@ -2571,7 +2571,7 @@ c' } "  />
     <tdml:document>fish,bird</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2588,7 +2588,7 @@ c' } "  />
     <tdml:document>bird,bird</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2649,7 +2649,7 @@ c' } "  />
     <tdml:document>1,5</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2710,7 +2710,7 @@ c' } "  />
     <tdml:document>1.5,5</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2771,7 +2771,7 @@ c' } "  />
     <tdml:document>potayto,potahto</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2785,11 +2785,16 @@ c' } "  />
   <tdml:parserTestCase name="comparison_operators_14" root="e9"
     model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
 
-    <tdml:document>frodo,mordor</tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
-    </tdml:errors>
+    <tdml:document>1,-1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9>
+          <int1>1</int1>
+          <int2>-1</int2>
+          <notEqual>true</notEqual>
+        </e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -2871,7 +2876,7 @@ c' } "  />
     <tdml:document>7,7</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2954,7 +2959,7 @@ c' } "  />
     <tdml:document>7,7</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>operator</tdml:error>
+      <tdml:error>Unsupported operation</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

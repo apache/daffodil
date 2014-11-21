@@ -26,7 +26,7 @@
         dfdl:representation="text" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ . &lt; 3 }" />
+            <dfdl:discriminator test="{ . lt 3 }" />
           </appinfo>
         </annotation>
       </element>
@@ -34,7 +34,7 @@
         dfdl:representation="text" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ . &lt; 10 }" />
+            <dfdl:discriminator test="{ . lt 10 }" />
           </appinfo>
         </annotation>
       </element>
@@ -42,7 +42,7 @@
         dfdl:representation="text" dfdl:terminator="%NL;">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ . &gt; 10 }" />
+            <dfdl:discriminator test="{ . gt 10 }" />
           </appinfo>
         </annotation>
       </element>

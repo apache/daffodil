@@ -202,8 +202,8 @@ class DFDLPathExpressionParser(
   def AbbrevReverseStep = ".." ^^ { expr => Up(None) }
   // TODO support forward axis syntax some day
   // def ForwardAxis = ("child" ~ "::") | ("self" ~ "::") 
-  def EqualityComp = "eq" | "ne" | "=" | "!="
-  def NumberComp = "lt" | "le" | "gt" | "ge" | "<" | ">" | "<=" | ">="
+  def EqualityComp = "eq" | "ne" | "!=" | "=" 
+  def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">" 
   def Comp = EqualityComp | NumberComp
   //
   // we don't care if it has braces around it or not.

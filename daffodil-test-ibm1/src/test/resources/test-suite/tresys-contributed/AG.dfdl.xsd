@@ -25,7 +25,7 @@
         dfdl:representation="text">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ ../zoneNumber = 1 }" />
+            <dfdl:discriminator test="{ ../zoneNumber eq 1 }" />
           </appinfo>
         </annotation>
       </element>
@@ -33,7 +33,7 @@
         dfdl:representation="text">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ ../zoneNumber = 2 }" />
+            <dfdl:discriminator test="{ ../zoneNumber eq 2 }" />
           </appinfo>
         </annotation>
       </element>
@@ -41,7 +41,7 @@
         dfdl:representation="text">
         <annotation>
           <appinfo source="http://www.ogf.org/dfdl/">
-            <dfdl:discriminator test="{ ../zoneNumber = 3 }" />
+            <dfdl:discriminator test="{ ../zoneNumber eq 3 }" />
           </appinfo>
         </annotation>
       </element>

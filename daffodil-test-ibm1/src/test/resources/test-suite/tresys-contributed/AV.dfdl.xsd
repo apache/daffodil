@@ -54,7 +54,7 @@
               dfdl:inputValueCalc="{ 'Another page coming' }">
               <annotation>
                 <appinfo source="http://www.ogf.org/dfdl/">
-                  <dfdl:discriminator test="{ ../../theNextByte = 10 }" />
+                  <dfdl:discriminator test="{ ../../theNextByte eq 10 }" />
                 </appinfo>
               </annotation>
             </element>

@@ -228,130 +228,79 @@ case class NumberComparisonExpression(op: String, adds: List[Expression])
     import NodeInfo.PrimType._
     import NodeInfo.ArrayIndex
     (op, convergedArgType) match {
-      case ("<", Decimal) => LT_Decimal
+      case ("<", _) => subsetError("Unsupported operation '%s'. Use 'lt' instead.", op)
+      case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
+      case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
+      case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
+
       case ("lt", Decimal) => LT_Decimal
-      case (">", Decimal) => GT_Decimal
       case ("gt", Decimal) => GT_Decimal
-      case ("<=", Decimal) => LE_Decimal
       case ("le", Decimal) => LE_Decimal
-      case (">=", Decimal) => GE_Decimal
       case ("ge", Decimal) => GE_Decimal
 
-      case ("<", Integer) => LT_Integer
       case ("lt", Integer) => LT_Integer
-      case (">", Integer) => GT_Integer
       case ("gt", Integer) => GT_Integer
-      case ("<=", Integer) => LE_Integer
       case ("le", Integer) => LE_Integer
-      case (">=", Integer) => GE_Integer
       case ("ge", Integer) => GE_Integer
 
-      case ("<", NonNegativeInteger) => LT_NonNegativeInteger
       case ("lt", NonNegativeInteger) => LT_NonNegativeInteger
-      case (">", NonNegativeInteger) => GT_NonNegativeInteger
       case ("gt", NonNegativeInteger) => GT_NonNegativeInteger
-      case ("<=", NonNegativeInteger) => LE_NonNegativeInteger
       case ("le", NonNegativeInteger) => LE_NonNegativeInteger
-      case (">=", NonNegativeInteger) => GE_NonNegativeInteger
       case ("ge", NonNegativeInteger) => GE_NonNegativeInteger
 
-      case ("<", UnsignedLong) => LT_UnsignedLong
       case ("lt", UnsignedLong) => LT_UnsignedLong
-      case (">", UnsignedLong) => GT_UnsignedLong
       case ("gt", UnsignedLong) => GT_UnsignedLong
-      case ("<=", UnsignedLong) => LE_UnsignedLong
       case ("le", UnsignedLong) => LE_UnsignedLong
-      case (">=", UnsignedLong) => GE_UnsignedLong
       case ("ge", UnsignedLong) => GE_UnsignedLong
 
-      case ("<", Long) => LT_Long
       case ("lt", Long) => LT_Long
-      case (">", Long) => GT_Long
       case ("gt", Long) => GT_Long
-      case ("<=", Long) => LE_Long
       case ("le", Long) => LE_Long
-      case (">=", Long) => GE_Long
       case ("ge", Long) => GE_Long
 
-      case ("<", UnsignedInt) => LT_UnsignedInt
       case ("lt", UnsignedInt) => LT_UnsignedInt
-      case (">", UnsignedInt) => GT_UnsignedInt
       case ("gt", UnsignedInt) => GT_UnsignedInt
-      case ("<=", UnsignedInt) => LE_UnsignedInt
       case ("le", UnsignedInt) => LE_UnsignedInt
-      case (">=", UnsignedInt) => GE_UnsignedInt
       case ("ge", UnsignedInt) => GE_UnsignedInt
 
-      case ("<", ArrayIndex) => LT_UnsignedInt
       case ("lt", ArrayIndex) => LT_UnsignedInt
-      case (">", ArrayIndex) => GT_UnsignedInt
       case ("gt", ArrayIndex) => GT_UnsignedInt
-      case ("<=", ArrayIndex) => LE_UnsignedInt
       case ("le", ArrayIndex) => LE_UnsignedInt
-      case (">=", ArrayIndex) => GE_UnsignedInt
       case ("ge", ArrayIndex) => GE_UnsignedInt
 
-      case ("<", Int) => LT_Int
       case ("lt", Int) => LT_Int
-      case (">", Int) => GT_Int
       case ("gt", Int) => GT_Int
-      case ("<=", Int) => LE_Int
       case ("le", Int) => LE_Int
-      case (">=", Int) => GE_Int
       case ("ge", Int) => GE_Int
 
-      case ("<", UnsignedShort) => LT_UnsignedShort
       case ("lt", UnsignedShort) => LT_UnsignedShort
-      case (">", UnsignedShort) => GT_UnsignedShort
       case ("gt", UnsignedShort) => GT_UnsignedShort
-      case ("<=", UnsignedShort) => LE_UnsignedShort
       case ("le", UnsignedShort) => LE_UnsignedShort
-      case (">=", UnsignedShort) => GE_UnsignedShort
       case ("ge", UnsignedShort) => GE_UnsignedShort
 
-      case ("<", Short) => LT_Short
       case ("lt", Short) => LT_Short
-      case (">", Short) => GT_Short
       case ("gt", Short) => GT_Short
-      case ("<=", Short) => LE_Short
       case ("le", Short) => LE_Short
-      case (">=", Short) => GE_Short
       case ("ge", Short) => GE_Short
 
-      case ("<", UnsignedByte) => LT_UnsignedByte
       case ("lt", UnsignedByte) => LT_UnsignedByte
-      case (">", UnsignedByte) => GT_UnsignedByte
       case ("gt", UnsignedByte) => GT_UnsignedByte
-      case ("<=", UnsignedByte) => LE_UnsignedByte
       case ("le", UnsignedByte) => LE_UnsignedByte
-      case (">=", UnsignedByte) => GE_UnsignedByte
       case ("ge", UnsignedByte) => GE_UnsignedByte
 
-      case ("<", Byte) => LT_Byte
       case ("lt", Byte) => LT_Byte
-      case (">", Byte) => GT_Byte
       case ("gt", Byte) => GT_Byte
-      case ("<=", Byte) => LE_Byte
       case ("le", Byte) => LE_Byte
-      case (">=", Byte) => GE_Byte
       case ("ge", Byte) => GE_Byte
 
-      case ("<", Float) => LT_Float
       case ("lt", Float) => LT_Float
-      case (">", Float) => GT_Float
       case ("gt", Float) => GT_Float
-      case ("<=", Float) => LE_Float
       case ("le", Float) => LE_Float
-      case (">=", Float) => GE_Float
       case ("ge", Float) => GE_Float
 
-      case ("<", Double) => LT_Double
       case ("lt", Double) => LT_Double
-      case (">", Double) => GT_Double
       case ("gt", Double) => GT_Double
-      case ("<=", Double) => LE_Double
       case ("le", Double) => LE_Double
-      case (">=", Double) => GE_Double
       case ("ge", Double) => GE_Double
 
       case _ => subsetError("Unsupported operation '%s' on type %s.", op, convergedArgType)
@@ -600,6 +549,9 @@ case class EqualityComparisonExpression(op: String, adds: List[Expression])
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
+
+    if (op == "=" || op == "!=") SDE("Unsupported operation '%s'.", op)
+
     val res = new CompiledDPath(EqualityCompareOp(op, leftDPath, rightDPath) +: c)
     res
   }
