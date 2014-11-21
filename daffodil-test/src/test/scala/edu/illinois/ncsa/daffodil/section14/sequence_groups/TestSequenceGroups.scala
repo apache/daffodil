@@ -95,8 +95,12 @@ class TestSequenceGroups {
   @Test def test_hiddenGroupIgnoredProps() { runner_02.runOneTest("hiddenGroupIgnoredProps") }
   @Test def test_hiddenGroupAttributeNotation() { runner_02.runOneTest("hiddenGroupAttributeNotation") }
   @Test def test_hiddenGroupElementNotation() { runner_02.runOneTest("hiddenGroupElementNotation") }
-  //  @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
-  //  @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
+
+  //DFDL-284
+  // @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
+
+  //DFDL-598
+  // @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
 
   @Test def test_AC000() { runner_02.runOneTest("AC000") }
   @Test def test_AD000() { runner_02.runOneTest("AD000") }
