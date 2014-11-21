@@ -3023,4 +3023,149 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="predicates">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="index" type="xs:int" />
+          <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10"/>
+          <xs:element name="p" type="xs:string" dfdl:inputValueCalc="{ /ex:e1/ex:item[ /ex:e1/ex:index ] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="item" minOccurs="0" maxOccurs="10" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="a" type="xs:string"/>
+                <xs:element name="b" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="p" type="xs:string" dfdl:inputValueCalc="{ /ex:e2/ex:item[ b='four' ]/ex:a }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="item" minOccurs="0" maxOccurs="10" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="a" type="xs:int"/>
+                <xs:element name="b" type="xs:int"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="p" type="xs:int" dfdl:inputValueCalc="{ /ex:e3/ex:item[ a>5 ]/ex:a }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="item" type="xs:string" minOccurs="0" maxOccurs="10"/>
+          <xs:element name="p" type="xs:string" dfdl:inputValueCalc="{ /ex:e4/ex:item[ 6-5 ] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: predicate_01
+        Schema: predicates
+          Root: e1
+       Purpose: This test demonstrates that DPath can use predicates to index arrays. 
+  -->
+
+  <tdml:parserTestCase name="predicate_01" root="e1"
+    model="predicates" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>2,one,two,three</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:index>2</ex:index>
+          <ex:item>one</ex:item>
+          <ex:item>two</ex:item>
+          <ex:item>three</ex:item>
+          <ex:p>two</ex:p>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: predicate_02
+        Schema: predicates
+          Root: e2
+       Purpose: This test demonstrates that DPath can only use integer expressions as predicates.
+  -->
+
+  <tdml:parserTestCase name="predicate_02" root="e2"
+    model="predicates" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>one,two;three,four;five,six</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <ex:item>one</ex:item>
+          <ex:item>two</ex:item>
+          <ex:item>three</ex:item>
+          <ex:p>one</ex:p>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: predicate_03
+        Schema: predicates
+          Root: e3
+       Purpose: This test demonstrates that DPath can only use integer expressions as predicates. 
+  -->
+
+  <tdml:parserTestCase name="predicate_03" root="e3"
+    model="predicates" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>1,6;14,3;2,9</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: predicate_04
+        Schema: predicates
+          Root: e4
+       Purpose: This test demonstrates that DPath can use predicates to index arrays.
+  -->
+
+  <tdml:parserTestCase name="predicate_04" root="e4"
+    model="predicates" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>one,two,three</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <ex:item>one</ex:item>
+          <ex:item>two</ex:item>
+          <ex:item>three</ex:item>
+          <ex:p>one</ex:p>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

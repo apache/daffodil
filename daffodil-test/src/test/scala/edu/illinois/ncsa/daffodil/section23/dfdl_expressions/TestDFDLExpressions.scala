@@ -185,8 +185,14 @@ class TestDFDLExpressions {
   // @Test def test_trueFalseTypeError() { runner.runOneTest("trueFalseTypeError") }
   @Test def test_trueFalseTypeCorrect() { runner.runOneTest("trueFalseTypeCorrect") }
 
-  /////////////////////// FUNCTIONS ///////////////////////////
+  @Test def test_predicate_01() { runner.runOneTest("predicate_01") }
+  //DFDL-1164
+  //@Test def test_predicate_02() { runner.runOneTest("predicate_02") }
+  //@Test def test_predicate_03() { runner.runOneTest("predicate_03") }
+  @Test def test_predicate_04() { runner.runOneTest("predicate_04") }
 
+/////////////////////// FUNCTIONS ///////////////////////////
+  
   val tdml2 = testDir + "functions.tdml"
   lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
