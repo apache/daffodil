@@ -52,9 +52,7 @@ class TestSequenceGroupsDebug {
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile = false)
 
   //  DFDL-284
-  //  This test sets up an infinite loop of hidden groups. It is currently commented-out
-  //  because it runs indefinitely and prevents the rest of the suite from executing  
-  //  @Test def test_hiddenGroupLoop() { runner_03.runOneTest("hiddenGroupLoop") }
+  @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_hiddenGroupEmpty() { runner_02.runOneTest("hiddenGroupEmpty") }
