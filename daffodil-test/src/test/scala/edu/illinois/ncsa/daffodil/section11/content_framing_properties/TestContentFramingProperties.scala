@@ -55,15 +55,15 @@ class TestContentFramingProperties {
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  
+  // Commented out due to 4byte char decode issue when implementing DFDL-951 - DFDL-965
+  // @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
+  // @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
 
   @Test def test_UTF_16_01() { runner2.runOneTest("UTF_16_01") }
   @Test def test_xml_illegal_chars_01() { runner2.runOneTest("xml_illegal_chars_01") }
-  // Commented out due to 4byte char decode issue when implementing DFDL-951
-  //  @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_xml_illegal_chars_02() { runner2.runOneTest("xml_illegal_chars_02") }
   @Test def test_xml_illegal_chars() { runner2.runOneTest("xml_illegal_chars") }
-  // Regression due to DFDL-951
-  //@Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
 
   @Test def test_alignmentPacked7BitASCII() { runner2.runOneTest("alignmentPacked7BitASCII") }
   @Test def test_alignmentPacked7BitASCII_03() { runner2.runOneTest("alignmentPacked7BitASCII_03") }
