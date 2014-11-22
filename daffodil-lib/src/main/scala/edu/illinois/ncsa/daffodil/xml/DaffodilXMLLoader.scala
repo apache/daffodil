@@ -71,6 +71,8 @@ import java.io.BufferedInputStream
 import org.w3c.dom.ls.LSResourceResolver
 import java.io.Reader
 import java.io.FileInputStream
+import org.xml.sax.ext.DefaultHandler2
+import javax.xml.transform.sax.SAXSource
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -88,14 +90,20 @@ import java.io.FileInputStream
  * and that gets priority, so that entities we choose to resolve
  * as built-ins are resolved from the Daffodil jars.
  */
-class DFDLCatalogResolver
+class DFDLCatalogResolver private ()
   extends org.apache.xerces.xni.parser.XMLEntityResolver
   with org.w3c.dom.ls.LSResourceResolver
   with org.xml.sax.EntityResolver
   with org.xml.sax.ext.EntityResolver2
   with Logging {
 
-  def catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
+  lazy val init = {
+    cm
+    catalogFiles
+    delegate
+  }
+
+  lazy val catalogFiles = cm.getCatalogFiles().asScala.toList.asInstanceOf[List[String]]
   // Caution: it took a long time to figure out how to use
   // the XML Catalog stuff. Many permutations were attempted
   // so change this next block of code at your peril
@@ -138,6 +146,9 @@ class DFDLCatalogResolver
   /**
    * Flag to let us know we're already inside the resolution of the
    * XML Schema URI. See comment below.
+   *
+   * This is not thread safe, but the underlying catalog resolver isn't either, so
+   * we're not making it worse.
    */
   var alreadyResolvingXSD: Boolean = false
 
@@ -154,9 +165,11 @@ class DFDLCatalogResolver
    * Without this special case check, we'll recurse and stack overflow here.
    */
   def resolveEntity(ri: org.apache.xerces.xni.XMLResourceIdentifier): XMLInputSource = {
-    val ns = ri.getNamespace()
-    log(LogLevel.Debug, "resolveEntity1: %s", ns)
-    //
+    val nsString = ri.getNamespace()
+    val ns = NS(nsString)
+    val literalSysId = ri.getLiteralSystemId()
+    val baseURIString = ri.getBaseSystemId()
+
     if (ns == XMLUtils.XSD_NAMESPACE) {
       if (alreadyResolvingXSD) {
         log(LogLevel.Debug, "special resolved to null")
@@ -166,47 +179,46 @@ class DFDLCatalogResolver
     val prior = alreadyResolvingXSD
     val res = try {
       alreadyResolvingXSD = (ns == XMLUtils.XSD_NAMESPACE)
-
-      // When a schema imports another schema that has the same target namespace, resolving using the namespace
-      // will not give the file being imported, but the file that is specified in the catalog for that namespace.
-      // To solve this problem, we are using the ExpandedSystemId, if it is set,
-      // because it will contain the full path of the file being imported.
-      val resolvedId = {
-        if (ri.getExpandedSystemId() != null) {
-          try {
-            val sysId = ri.getExpandedSystemId()
-            if (new URL(sysId).openStream() != null) {
-              ri.getExpandedSystemId()
-            } else {
-              delegate.resolveURI(ns)
-            }
-          } catch {
-            case e: Exception => {
-              delegate.resolveURI(ns)
-            }
-          }
-        } else {
-          delegate.resolveURI(ns)
+      val optURI = resolveCommon(nsString, literalSysId, baseURIString)
+      optURI match {
+        case None => null
+        case Some(uri) => {
+          val xis = new XMLInputSource(null, uri.toString, null)
+          xis
         }
       }
-
-      log(LogLevel.Debug, "resolved ns %s to: %s", ns, resolvedId)
-      if (resolvedId == null) return null
-      val res = new XMLInputSource(ri.getPublicId(),
-        resolvedId,
-        ri.getBaseSystemId())
-      res
     } finally {
       alreadyResolvingXSD = prior
     }
     res
   }
 
-  def resolveURI(uri: String) = delegate.resolveURI(uri)
+  def resolveURI(uri: String, silent: Boolean): String = {
+    init
+    val optURI = resolveCommon(uri, null, null, silent)
+    optURI match {
+      case None => null
+      case Some(uri) => uri.toString
+    }
+  }
 
-  def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
-    log(LogLevel.Debug, "resolveResource: nsURI = %s, baseURI = %s, type = %s, publicId = %s, systemId = %s", nsURI, baseURI, type_, publicId, systemId)
-
+  private def resolveCommon(nsURI: String, systemId: String, baseURIString: String, silent: Boolean = false): Option[URI] = {
+    init
+    if (nsURI == null && systemId == null && baseURIString == null) return None
+    //
+    // These checks are useful, because a common situation when the resolving logic
+    // gets broken is that a schemaLocation like "xsd/foo.xsd" gets appended to 
+    // the stem of a base URI, "file:/.../foo/xsd/bar.xsd", and it doubles-up the xsd directory.
+    if (nsURI != null) Assert.usage(!nsURI.contains("xsd/xsd"))
+    if (systemId != null) Assert.usage(!systemId.contains("xsd/xsd"))
+    //
+    // In case of the baseURIString, it's ok that Xerces has doubled up the xsd dir
+    // in its attempt to determine the relative path, as that will simply not be found, b
+    // but then the systemId alone (e.g., "xsd/foo.xsd")
+    // will be tried on the class path.
+    // if (baseURIString != null) Assert.usage(!baseURIString.contains("xsd/xsd")) // it can contain this!
+    //
+    if (!silent) log(LogLevel.Resolver, "nsURI = %s, baseURI = %s, systemId = %s", nsURI, baseURIString, systemId)
     val resolvedUri = delegate.resolveURI(nsURI)
     val resolvedSystem = delegate.resolveSystem(systemId)
 
@@ -223,60 +235,52 @@ class DFDLCatalogResolver
         null // We were unable to resolve the file based on the URI or systemID, so we will return null. 
     }
 
-    val result: LSInput = (resolvedId, systemId) match {
-      case (null, null) => Assert.invariantFailed("resolvedId and systemId were null.")
-      case (null, sysId) => {
-
-        // Attempt to resolve using the classpath
-        val resourceAsStream: InputStream = this.getClass().getClassLoader().getResourceAsStream(sysId)
-
-        if (resourceAsStream != null) {
-          val input = Input(publicId, sysId, resourceAsStream)
-          val v = this.getClass().getClassLoader().getResource(sysId).toString().replace(sysId, "")
-          input.setBaseURI(v)
-          input
-        } else if (baseURI != null) {
-          // Try resolving relative to the including schema file
-          val absURI = (new URL(new URI(baseURI).toURL, sysId)).toURI
-          val absFile = new File(absURI)
-          if (absFile.exists()) {
-            val input = new Input(publicId, sysId, new BufferedInputStream(new FileInputStream(absFile)))
-            input.setBaseURI(absURI.toString().replace(sysId, ""))
-            input
-          } else {
-            // File does not exist.
-            null // null means we wern't able to resolve
-          }
-        } else {
-          null // We wern't able to resolve
-        }
+    val result = (resolvedId, systemId) match {
+      case (null, null) => {
+        // This happens now in some unit tests.
+        // Assert.invariantFailed("resolvedId and systemId were null.")
+        if (!silent)
+          log(LogLevel.Resolver, "Unable to resolve.")
+        return None
       }
-
-      // Resolved using the schema catalog
-      case (resolved, _) => {
-        val input = new DOMInputImpl()
-        input.setBaseURI(baseURI)
-        val is = try {
-          val is = new URL(resolvedId).openStream()
-          input.setByteStream(is)
-          is
-        } catch {
-          case e: Exception => {
-            log(LogLevel.Debug, "resolveResource: Exception %s", e)
-            throw e
+      case (null, sysId) =>
+        {
+          val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
+          val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
+          optURI match {
+            case Some(uri) => if (!silent) log(LogLevel.Resolver, "Found on classpath: %s.", uri)
+            case None => if (!silent)
+              log(LogLevel.Info, "Unable to resolve.")
           }
+          optURI
         }
-        log(LogLevel.Debug, "resolveResource result inputStream = %s", is)
-        input
+      case (resolved, _) => {
+        if (!silent) log(LogLevel.Resolver, "Found via XML Catalog: %s.", resolved)
+        Some(new URI(resolved))
       }
     }
-    log(LogLevel.Debug, "resolved to: %s", result)
-
     result
   }
 
+  def resolveResource(type_ : String, nsURI: String, publicId: String, systemId: String, baseURIString: String): LSInput = {
+    val optURI = resolveCommon(nsURI, systemId, baseURIString)
+    optURI match {
+      case None => null
+      case Some(uri) => {
+        val resourceAsStream =
+          try {
+            uri.toURL.openStream() // This will work.
+          } catch {
+            case _: java.io.IOException => Assert.invariantFailed("found resource but couldn't open")
+          }
+        val input = new Input(publicId, systemId, new BufferedInputStream(resourceAsStream))
+        input.setBaseURI(uri.toString)
+        input
+      }
+    }
+  }
+
   override def resolveEntity(publicId: String, systemId: String) = {
-    log(LogLevel.Debug, "resolveEntity3: publicId = %s, systemId = %s", publicId, systemId)
     Assert.invariantFailed("resolveEntity3 - should not be called")
   }
 
@@ -289,22 +293,21 @@ class DFDLCatalogResolver
   }
 
   def resolveEntity(name: String, publicId: String, baseURI: String, systemId: String) = {
-    log(LogLevel.Debug, "resolveEntity4: name = %s, baseURI = %s, publicId = %s, systemId = %s", name, baseURI, publicId, systemId)
     Assert.invariantFailed("resolveEntity4 - should not be called")
   }
 }
 
-class ResourceResolver
-  extends LSResourceResolver {
-  def resolveResource(theType: String, namespaceURI: String, publicId: String, systemId: String, baseURI: String): LSInput = {
-    val resourceAsStream: InputStream = this.getClass().getClassLoader().getResourceAsStream(systemId)
-    val result = Input(publicId, systemId, resourceAsStream)
-    result
+/**
+ * catalog resolvers aren't thread safe. But they're also expensive stateful,
+ * do I/O etc. so we really only want one per thread.
+ */
+object DFDLCatalogResolver {
+  lazy val d = new ThreadLocal[DFDLCatalogResolver] {
+    override def initialValue() = {
+      new DFDLCatalogResolver()
+    }
   }
-}
-
-object Input {
-  def apply(publicId: String, systemId: String, input: InputStream) = new Input(publicId, systemId, new BufferedInputStream(input))
+  def get = d.get
 }
 
 class Input(var pubId: String, var sysId: String, var inputStream: BufferedInputStream)
@@ -327,7 +330,10 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
       contents
     }
   }
-  def setBaseURI(baseURI: String) = myBaseURI = baseURI
+  def setBaseURI(baseURI: String) = {
+    Assert.usage(!baseURI.contains("xsd/xsd"))
+    myBaseURI = baseURI
+  }
   def setByteStream(byteStream: InputStream) = {}
   def setCertifiedText(certifiedText: Boolean) = {}
   def setCharacterStream(characterStream: Reader) = {}
@@ -339,10 +345,43 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
 }
 
 /**
+ * Changes the parser behavior for <![CDATA[...]]]>
+ * by scanning for this construct, and special casing it.
+ */
+trait CDataMixin { self: DFDLXMLLocationAwareAdapter =>
+  val cdataStart = """\<\!\[CDATA\["""
+  val cdataEnd = """\]\]\>"""
+  val TextWithCData = ("""(.*)""" + cdataStart + """(.*)""" + cdataEnd + """(.*)""").r
+
+  override def createText(text: String): Text = {
+
+    if (!text.contains("<![CDATA[")) return Text(text)
+    //
+    // There's CDATA tags. They could be in the middle of the text
+    // and their could be several.
+    // They only extend until a matching "]]>" is found.
+    text match {
+      case TextWithCData(before, cdataPart, after) =>
+        {
+
+        }
+        null
+    }
+  }
+}
+/**
  * An Adapter in SAX parsing is both an XMLLoader, and a handler of events.
  */
 class DFDLXMLLocationAwareAdapter
   extends NoBindingFactoryAdapter
+  //
+  // We really want a whole XML Stack that is based on SAX2 DefaultHandler2 so that
+  // we can handle CDATA elements right (we need events for them so we can 
+  // create PCData objects from them directly. 
+  //
+  // The above is the only reason the TDML runner has to use the ConstructingParser
+  // instead of calling this loader.
+  //
   with Logging {
 
   var fileName: String = ""
@@ -454,23 +493,6 @@ class DFDLXMLLocationAwareAdapter
 }
 
 /**
- * Generally singletons in daffodil should be objects that are stored
- * in the SchemaSet, the DataProcessor or the ProcessorFactory. With
- * this singleton, Daffodil cannot run two different schemas that use
- * two different XML Catalogs to resolve their schema includes/imports
- * in the same JVM.
- *
- * Of course the underlying XML Catalog resolver may have the singleton
- * constraint, if so then there's no point in our stuff avoiding the
- * singleton.
- *
- * I suspect this is in fact the case, so we'll leave this a singleton.
- */
-object DaffodilCatalogResolver {
-  lazy val resolver = new DFDLCatalogResolver
-}
-
-/**
  * Manages the care and feeding of the Xerces schema-aware
  * XML parser that we use to do XML-Schema validation of the
  * files we are reading.
@@ -482,7 +504,7 @@ trait SchemaAwareLoaderMixin {
 
   protected def doValidation: Boolean
 
-  protected lazy val resolver = DaffodilCatalogResolver.resolver
+  lazy val resolver = DFDLCatalogResolver.get
 
   override lazy val parser: SAXParser = {
 
@@ -537,8 +559,14 @@ trait SchemaAwareLoaderMixin {
   sf.setResourceResolver(resolver)
   sf.setErrorHandler(errorHandler)
 
-  protected def validateSchemaFile(file: File) = {
+  @deprecated("use input sources, not Files", "2014-11-21")
+  def validateSchemaFile(file: File) = {
     sf.newSchema(file)
+  }
+
+  def validateSchema(source: InputSource) = {
+    val saxSource = new SAXSource(source)
+    sf.newSchema(saxSource)
   }
 
 }
@@ -560,6 +588,7 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   extends DFDLXMLLocationAwareAdapter
   with SchemaAwareLoaderMixin {
 
+  def this() = this(RethrowSchemaErrorHandler)
   //
   // Controls whether we setup Xerces for validation or not.
   // 
@@ -569,14 +598,13 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     doValidation = flag
   }
 
-  def validateDFDLSchema(file: File): Unit = validateSchemaFile(file)
-
   // everything interesting happens in the callbacks from the SAX parser
   // to the adapter.
   override def adapter = this
 
   // these load/loadFile overrides so we can grab the filename and give it to our
   // adapter that adds file attributes to the root XML Node.
+  @deprecated("Use uri or input source, not File", "2014-11-21")
   override def loadFile(f: File) = {
     adapter.fileName = f.getAbsolutePath()
 
@@ -584,7 +612,8 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     res
   }
 
-  override def loadFile(name: String) = loadFile(new File(name))
+  @deprecated("Use uri or input source, not filename", "2014-11-21")
+  override def loadFile(filename: String) = loadFile(new File(filename))
 
   def load(uri: URI) = {
     adapter.fileName = uri.toASCIIString
@@ -633,20 +662,16 @@ abstract class DFDLSchemaValidationException(cause: Throwable) extends Exception
 case class DFDLSchemaValidationWarning(cause: Throwable) extends DFDLSchemaValidationException(cause)
 case class DFDLSchemaValidationError(cause: Throwable) extends DFDLSchemaValidationException(cause)
 
-/**
- * DFDLSchemaErrorHandler exists so that we can throw DFDLSchemaValidation specific
- * diagnostics and filter out warnings vs. errors.  This is so that we know when to
- * SDE vs. SDW.
- */
-object DFDLSchemaErrorHandler extends org.xml.sax.ErrorHandler {
-
-  // We are escalating all warnings from the schema validation to an error
-  def warning(exception: SAXParseException) = error(exception)
+object RethrowSchemaErrorHandler extends org.xml.sax.ErrorHandler {
+  def warning(exception: SAXParseException) = {
+    throw exception
+  }
 
   def error(exception: SAXParseException) = {
-    throw new DFDLSchemaValidationError(exception)
+    throw exception
   }
+
   def fatalError(exception: SAXParseException) = {
-    throw new DFDLSchemaValidationError(exception)
+    throw exception
   }
 }

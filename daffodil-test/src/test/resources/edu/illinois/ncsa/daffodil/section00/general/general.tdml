@@ -166,8 +166,7 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <!-- <tdml:error>No type definition found for 'bar'</tdml:error> -->
-      <tdml:error>Error resolving component 'bar'</tdml:error>
+      <tdml:error>No type definition found for 'bar'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

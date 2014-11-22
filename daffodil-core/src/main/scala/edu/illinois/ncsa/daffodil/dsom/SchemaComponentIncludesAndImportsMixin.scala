@@ -51,7 +51,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
@@ -71,7 +70,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
   }
 
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
-
+  
   val orElseURL: String = "file:??"
 
   /**

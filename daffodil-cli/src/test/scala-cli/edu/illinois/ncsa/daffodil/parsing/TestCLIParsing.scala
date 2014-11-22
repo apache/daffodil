@@ -81,7 +81,6 @@ class TestCLIparsing {
     var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml\n"
 
     val shell = Util.start(cmd)
-
     shell.expect(contains("<tns:row2"))
     shell.expect(contains(output12))
 
@@ -472,7 +471,7 @@ class TestCLIparsing {
   @Test def test_1319_CLI_Parsing_invalidElementSDE() {
     val cmd = "echo ababababbaacccccb| " + Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/ABC_IBM_invalid.xsd -r ABC\n"
     val shell = Util.start(cmd, true)
-    shell.expect(contains("The value 'fixed' of attribute 'maxOccurs' on element 'xsd:element' is not valid with respect to its type"))
+    shell.expect(contains("'fixed' is not a valid"))
 
     shell.send("exit\n")
     shell.expect(eof())
@@ -541,7 +540,7 @@ class TestCLIparsing {
     val cmd = Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
     val shell = Util.start(cmd)
     shell.expect(contains("<tns:elem"))
-    shell.expect(contains("<tns:content"))
+    shell.expect(contains("<content"))
     shell.expect(contains("Hello World"))
     shell.expect(contains("</tns:elem>"))
 

@@ -38,7 +38,6 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.xml.DFDLSchemaErrorHandler
 import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationException
 import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationWarning
 import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationError
@@ -52,8 +51,10 @@ import edu.illinois.ncsa.daffodil.processors.VariableMapFactory
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
-
 import java.io.File
+import org.xml.sax.InputSource
+import java.net.URI
+import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -75,15 +76,31 @@ import java.io.File
  * doesn't correspond to any user-specified schema object. And unlike other
  * schema components obviously it does not live within a schema document.
  */
-class SchemaSet(
+
+class SchemaSet(rootSpec: Option[RootSpec] = None,
+  // very annoying, but had to change the order of args here because otherwise
+  // both constructors have "same signature after erasure" problem.
   externalVariables: Seq[Binding],
-  schemaFilesArg: Seq[File],
+  schemaSourcesArg: Seq[InputSource],
   validateDFDLSchemas: Boolean,
-  rootSpec: Option[RootSpec] = None,
-  checkAllTopLevelArg: Boolean = false,
-  parent: SchemaComponent = null)
+  checkAllTopLevelArg: Boolean,
+  parent: SchemaComponent)
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
+
+  @deprecated("Use input sources, not Files", "2014-11-22")
+  def this(externalVariables: Seq[Binding],
+    schemaFilesArg: Seq[File],
+    validateDFDLSchemas: Boolean,
+    rootSpec: Option[RootSpec] = None,
+    checkAllTopLevelArg: Boolean = false,
+    parent: SchemaComponent = null) =
+    this(rootSpec,
+      externalVariables,
+      schemaFilesArg.map { f => new InputSource(f.toURL.toString) },
+      validateDFDLSchemas,
+      checkAllTopLevelArg,
+      parent)
 
   requiredEvaluations(isValid)
   if (checkAllTopLevel) {
@@ -92,6 +109,8 @@ class SchemaSet(
   }
   requiredEvaluations(validateSchemaFiles)
   requiredEvaluations(variableMap)
+
+  lazy val resolver = DFDLCatalogResolver.get
 
   override lazy val schemaSet = this
   // These things are needed to satisfy the contract of being a schema component.
@@ -106,12 +125,12 @@ class SchemaSet(
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
    */
-  override lazy val fileName = schemaFilesArg(0).getPath()
+  override lazy val fileName = schemaSourcesArg(0).getSystemId()
 
   /**
-   * We need to use the loader here to validate the DFDL Schema
+   * We need to use the loader here to validate the DFDL Schema.
    */
-  private lazy val loader = new DaffodilXMLLoader(DFDLSchemaErrorHandler)
+  lazy val loader = new DaffodilXMLLoader(new ValidateSchemasErrorHandler(this))
 
   /**
    * Validates the DFDL Schema files present in the schemaFilesArg.
@@ -124,16 +143,16 @@ class SchemaSet(
   private val _validateSchemaFiles = LV('validateSchemaFiles) {
     // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
     if (validateDFDLSchemas) {
-      schemaFilesArg.foreach(f =>
+      schemaSourcesArg.foreach(f =>
         try {
-          loader.validateDFDLSchema(f)
+          loader.validateSchema(f)
         } catch {
           case e: DFDLSchemaValidationException => SDE(DiagnosticUtils.getSomeMessage(e).get)
         })
     }
   }
 
-  lazy val schemaFiles = schemaFilesArg
+  lazy val schemaURIs = schemaSourcesArg.map { source => new URI(source.getSystemId()) }
 
   lazy val checkAllTopLevel = checkAllTopLevelArg
 
@@ -356,6 +375,7 @@ class SchemaSet(
           // if the root element and rootNamespace aren't provided at all, then
           // the first element of the first schema document is the root
           val sDocs = this.allSchemaDocuments
+          assuming(sDocs.length > 0)
           val firstSchemaDocument = sDocs(0)
           val gdeclf = firstSchemaDocument.globalElementDecls
           val firstElement = {
@@ -463,7 +483,23 @@ class SchemaSet(
     dfv
   }
 
-  lazy val schemaDocForGlobalVars = this.schemas(0).schemaDocuments(0)
+  lazy val schemaDocForGlobalVars = {
+    //
+    // OOLAG no longer catches broad classes of exceptions like index out of bounds
+    //
+    // This avoids OOLAG masking what are coding errors and disguising them as some sort of
+    // error in the DFDL schema; however, it also requires that attributes that are 
+    // evaluated to determine if there is an error in an object (and to force gathering of diagnostics)
+    // cannot assume that other data structures are correct.
+    //
+    // In this case, if the schema document isn't valid, then there won't even be
+    // any schemas or schemaDocuments, so we'll index-out-of-bounds, and OOLAG
+    // won't suppress that. So we code defensively. 
+    // 
+    assuming(schemas.length > 0)
+    assuming(schemas(0).schemaDocuments.length > 0)
+    this.schemas(0).schemaDocuments(0)
+  }
 
   // We'll declare these here at the SchemaSet level since they're global.
   lazy val predefinedVars = {
@@ -532,4 +568,19 @@ class SchemaSet(
     finalVMap
   }
 
+}
+
+class ValidateSchemasErrorHandler(sset: SchemaSet) extends org.xml.sax.ErrorHandler {
+
+  def warning(exception: org.xml.sax.SAXParseException) = {
+    val sdw = new SchemaDefinitionWarning(sset.schemaFileLocation, "Warning loading schema due to %s", exception)
+    sset.warn(sdw)
+  }
+
+  def error(exception: org.xml.sax.SAXParseException) = {
+    val sde = new SchemaDefinitionError(sset.schemaFileLocation, "Error loading schema due to %s", exception)
+    sset.error(sde)
+  }
+
+  def fatalError(exception: org.xml.sax.SAXParseException) = this.error(exception)
 }

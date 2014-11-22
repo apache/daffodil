@@ -112,8 +112,7 @@ class TestCLISaveParser {
   }
 
   @Test def test_3019_CLI_Saving_SaveParser_withConfig() {
-
-    var lsCmd = "ls savedParser.xml\n"
+    var lsCmd = "rm savedParser.xml; ls savedParser.xml\n"
     val shell1 = Util.start(lsCmd, true)
     shell1.expect(contains("No such file or directory"))
     shell1.send("exit\n")
@@ -121,9 +120,11 @@ class TestCLISaveParser {
     shell1.close();
 
     var cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml savedParser.xml\n"
+    println(cmd)
     val shell = Util.start(cmd)
 
     var cmd2 = "echo 0,1,2| " + Util.binPath + " parse --parser savedParser.xml\n"
+    println(cmd2)
     shell.send(cmd2)
 
     shell.expect(contains("<tns:row2"))
@@ -138,7 +139,7 @@ class TestCLISaveParser {
 
   @Test def test_3020_CLI_Saving_SaveParser_namespaceUsed() {
 
-    var lsCmd = "ls savedParser.xml\n"
+    var lsCmd = "rm savedParser.xml; ls savedParser.xml\n"
     val shell1 = Util.start(lsCmd, true)
     shell1.expect(contains("No such file or directory"))
     shell1.send("exit\n")
@@ -161,7 +162,7 @@ class TestCLISaveParser {
 
   @Test def test_3021_CLI_Saving_SaveParser_path() {
 
-    var lsCmd = "ls savedParser.xml\n"
+    var lsCmd = "rm savedParser.xml; ls savedParser.xml\n"
     val shell1 = Util.start(lsCmd, true)
     shell1.expect(contains("No such file or directory"))
     shell1.send("exit\n")
@@ -193,7 +194,7 @@ class TestCLISaveParser {
 
   @Test def test_3022_CLI_Saving_SaveParser_MultSchema() {
 
-    var lsCmd = "ls savedParser.xml\n"
+    var lsCmd = "rm savedParser.xml; ls savedParser.xml\n"
     val shell1 = Util.start(lsCmd, true)
     shell1.expect(contains("No such file or directory"))
     shell1.send("exit\n")

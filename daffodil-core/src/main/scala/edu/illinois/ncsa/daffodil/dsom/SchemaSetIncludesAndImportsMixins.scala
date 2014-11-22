@@ -51,7 +51,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
@@ -75,12 +74,12 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 
     // Any time we synthesize xml we have to grab the namespace definitions and 
     // make sure we drag them along onto the new structures.
-    val fakeImportStatementsXML = schemaFiles.map { fn =>
-      <import schemaLocation={ fn.toURI.toURL.toString } xmlns={ xsd }/>
+    val fakeImportStatementsXML = schemaURIs.map { uri =>
+      <xs:import schemaLocation={ uri.toURL.toString } xmlns:xs={ xsd }/>
     }
 
     val fakeSchemaDocXML =
-      <schema xmlns={ xsd }>{ fakeImportStatementsXML }</schema>
+      <xs:schema xmlns:xs={ xsd }>{ fakeImportStatementsXML }</xs:schema>
 
     val initialEmptyIIMap: IIMap = Delay(ListMap.empty)
 

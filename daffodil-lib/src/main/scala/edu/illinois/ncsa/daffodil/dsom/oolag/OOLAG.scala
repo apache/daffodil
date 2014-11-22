@@ -123,6 +123,11 @@ object OOLAG extends Logging {
     override val cause1 = Some(th)
   }
 
+  case object AssumptionFailed extends Exception() with OOLAGRethrowException {
+    def lv: OOLAGValue = Assert.usageError("Should not call lv on AssumptionFailed.")
+    def cause1: Option[Throwable] = None
+  }
+
   protected case class CircularDefinition(val lv: OOLAGValue, list: Seq[OOLAGValue]) extends Exception with OOLAGException {
     override def getMessage() = {
       "OOLAG Cycle (of " + list.length + ") through " + list.mkString(", ")
@@ -208,6 +213,14 @@ object OOLAG extends Logging {
 
     def this(oolagContextArg: OOLAGHost) = this(oolagContextArg, OneArg)
     def this() = this(null, ZeroArgs)
+
+    /**
+     * Used to check things that OOLAG doesn't protect against such as
+     * index out of bounds.
+     */
+    def assuming(pred: Boolean) = {
+      if (!pred) throw OOLAG.AssumptionFailed
+    }
 
     /**
      * Either we were called with a constructor arg that provides the oolagContext,
@@ -323,7 +336,7 @@ object OOLAG extends Logging {
     def checkErrors: Unit = ExecutionMode.usingCompilerMode {
       Assert.usage(this.isOOLAGRoot || requiredEvalFunctions == Nil)
       while (oolagRoot.requiredEvalFunctions != Nil) {
-        val evFuncs = oolagRoot.requiredEvalFunctions
+        val evFuncs = oolagRoot.requiredEvalFunctions.reverse
         oolagRoot.requiredEvalFunctions = Nil
         evFuncs.foreach { f =>
           OOLAG.keepGoing { () } {
@@ -533,6 +546,9 @@ object OOLAG extends Logging {
           log(OOLAGDebug("Caught %s", at))
           oolagAction(at)
         }
+        case AssumptionFailed => {
+          oolagAction(AssumptionFailed)
+        }
         case e: Diagnostic => {
           // we threw, instead of producing a value
           //
@@ -561,8 +577,8 @@ object OOLAG extends Logging {
         // Note that these should be captured closer to where they may occur
         // otherwise we mask compiler bugs if these should occur outside
         // of the scope where we're expecting them.
-        case ex: ArithmeticException => yikes(ex)
-        case ex: IllegalArgumentException => yikes(ex)
+        // case ex: ArithmeticException => yikes(ex)
+        // case ex: IllegalArgumentException => yikes(ex)
       } finally {
         // nothing for now
       }

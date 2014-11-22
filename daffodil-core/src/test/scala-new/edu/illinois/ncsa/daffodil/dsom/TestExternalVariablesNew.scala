@@ -191,7 +191,7 @@ class TestExternalVariablesNew {
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val (sset, pf) = c.compileInternal(files)
+    val (sset, pf) = c.compileFiles(files)
 
     val finalVars = sset.variableMap.variables
 
@@ -239,7 +239,7 @@ class TestExternalVariablesNew {
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val (sset, pf) = c.compileInternal(files)
+    val (sset, pf) = c.compileFiles(files)
 
     val finalVars = sset.variableMap.variables
 
@@ -289,7 +289,7 @@ class TestExternalVariablesNew {
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
     val (sset, pf) =
-      c.compileInternal(files)
+      c.compileFiles(files)
     val msg = sset.getDiagnostics.mkString
     if (!msg.contains("var3 is ambiguous")) {
       println(msg)

@@ -64,6 +64,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import java.io.StreamCorruptedException
+import org.xml.sax.InputSource
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -240,9 +241,8 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * for unit testing of front end
    */
   def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    val (sset, pf) = compileInternal(xml)
-    val ge = pf.rootElem
-    (sset, ge)
+    val pf = compile(xml)
+    (pf.asInstanceOf[ProcessorFactory].sset, null)
   }
 
   def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
@@ -283,48 +283,56 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * This method exposes both the schema set and processor factory as results because
    * our tests often want to do things on the schema set.
    */
-  def compileInternal(schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
+  @deprecated("Use input sources, not Files", "2014-11-22")
+  def compileFiles(schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
     ExecutionMode.usingCompilerMode {
       Assert.usage(schemaFiles.length >= 1)
 
       val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
       if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
-
-      val sset = new SchemaSet(externalDFDLVariables, schemaFiles, validateDFDLSchemas, rootSpec, checkAllTopLevel)
-      val pf = new ProcessorFactory(sset)
-      val err = pf.isError
-      val diags = pf.getDiagnostics // might be warnings even if not isError
-      if (err) {
-        Assert.invariant(diags.length > 0)
-        log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
-      } else {
-        if (diags.length > 0) {
-          log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
-
-        } else {
-          log(Compile("ProcessorFactory completed with no errors."))
-        }
-      }
-      (sset, pf)
+      val sources = schemaFiles.map { f => new InputSource(f.toURL.toString) }
+      compileSources2(sources)
     }
   }
 
+  def compile(schemaFiles: File*): DFDL.ProcessorFactory = compileFiles(schemaFiles)._2
+
+  def compileSources2(schemaSources: Seq[InputSource]): (SchemaSet, ProcessorFactory) = {
+    val noParent = null // null indicates this is the root, and has no parent
+    val sset = new SchemaSet(rootSpec, externalDFDLVariables, schemaSources, validateDFDLSchemas, checkAllTopLevel, noParent)
+    val pf = new ProcessorFactory(sset)
+    val err = pf.isError
+    val diags = pf.getDiagnostics // might be warnings even if not isError
+    if (err) {
+      Assert.invariant(diags.length > 0)
+      log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+    } else {
+      if (diags.length > 0) {
+        log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+
+      } else {
+        log(Compile("ProcessorFactory completed with no errors."))
+      }
+    }
+    (sset, pf)
+  }
+
   /**
-   * Just hides the schema set, and returns the processor factory only.
+   * Varargs + Just hides the schema set, and returns the processor factory only.
    */
-  def compile(files: File*): DFDL.ProcessorFactory = compileInternal(files)._2
-  //def compile(fNames: String*): DFDL.ProcessorFactory = compileInternal(fNames)._2
+  def compileSources(sources: InputSource*): DFDL.ProcessorFactory = compileSources2(sources)._2
 
   /**
    * For convenient unit testing allow a literal XML node.
    */
-  def compile(xml: Node) = {
-    compileInternal(xml)._2
+  def compile(xml: Node): DFDL.ProcessorFactory = {
+    val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
+    compileSources(new InputSource(tempSchemaFile.toURI.toString))
   }
 
   def compileInternal(xml: Node): (SchemaSet, ProcessorFactory) = {
     val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
-    compileInternal(List(tempSchemaFile))
+    compileSources2(Seq(new InputSource(tempSchemaFile.toURI.toString)))
   }
 
 }

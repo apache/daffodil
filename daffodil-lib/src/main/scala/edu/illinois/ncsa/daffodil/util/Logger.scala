@@ -48,13 +48,14 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
  */
 
 object LogLevel extends Enum {
-  sealed abstract class Type (val lvl: Int) extends EnumValueType with Ordered[Type] {
+  sealed abstract class Type(val lvl: Int) extends EnumValueType with Ordered[Type] {
     def compare(that: LogLevel.Type) = this.lvl - that.lvl
   }
-  
+
   case object Error extends Type(10)
   case object Warning extends Type(20)
   case object Info extends Type(30)
+  case object Resolver extends Type(35)
   case object Compile extends Type(40)
   case object Debug extends Type(50)
   case object OOLAGDebug extends Type(60)
@@ -80,6 +81,8 @@ object Error extends GlobBase(LogLevel.Error)
 object Warning extends GlobBase(LogLevel.Warning)
 
 object Info extends GlobBase(LogLevel.Info)
+
+object Resolver extends GlobBase(LogLevel.Resolver)
 
 object Compile extends GlobBase(LogLevel.Compile)
 

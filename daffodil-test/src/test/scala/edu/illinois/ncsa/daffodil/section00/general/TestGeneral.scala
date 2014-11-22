@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.Implicits.intercept
 
 class TestGeneral {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
@@ -74,13 +75,32 @@ class TestGeneral {
   val a_b = testDir2 + "A BTinyData.tdml.dat"
   lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
 
-  @Test def test_dir_and_file_with_spaces() { runnerA_B.runOneTest("AB006") }
+  @Test def test_dir_and_file_with_spaces() {
+    val e = intercept[Exception] {
+      runnerA_B.runOneTest("AB006")
+    }
+    val m = e.getMessage()
+    println(m)
+    assertTrue(m.toLowerCase.contains("required resource"))
+    assertTrue(m.contains("/test%20space/A%20BTinyData.tdml.dat"))
+    assertTrue(m.toLowerCase.contains("not found"))
+
+  }
 
   val testDir3 = "/test space/test 1/"
   val cc = testDir3 + "namespaces.tdml"
   lazy val runner_ns = new DFDLTestSuite(Misc.getRequiredResource(cc))
 
-  @Test def test_no_namespace_02() { runner_ns.runOneTest("no_namespace_02") }
+  @Test def test_no_namespace_02() {
+    val e = intercept[Exception] {
+      runner_ns.runOneTest("no_namespace_02")
+    }
+    val m = e.getMessage()
+    println(m)
+    assertTrue(m.toLowerCase.contains("required resource"))
+    assertTrue(m.contains("/test%20space/test%201/namespaces.tdml"))
+    assertTrue(m.toLowerCase.contains("not found"))
+  }
 
   @Test def test_1530_scala_version() {
     val versionStr = scala.util.Properties.versionNumberString

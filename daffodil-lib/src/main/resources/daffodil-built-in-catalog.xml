@@ -22,5 +22,7 @@
   <public publicId="datatypes"
     uri="xsd/datatypes.dtd" />
   <uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:int"
-    uri="xsd/dafint.xsd"/>
+    uri="xsd/dafint.xsd"/>  
+  <uri name="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+    uri="xsd/dafext.xsd"/>
 </catalog>

@@ -7,7 +7,6 @@ package edu.illinois.ncsa.daffodil.japi.packageprivate
 // anything in the japiexclude package. So anything that should be package
 // private should go in this package.
 
-
 import edu.illinois.ncsa.daffodil.japi._
 import edu.illinois.ncsa.daffodil.japi.logger._
 import edu.illinois.ncsa.daffodil.japi.debugger._
@@ -52,9 +51,6 @@ import scala.collection.JavaConversions._
  * SOFTWARE.
  */
 
-
-
-
 object LoggingConversions {
 
   def levelToScala(lvl: LogLevel): SLogLevel.Type = {
@@ -75,6 +71,7 @@ object LoggingConversions {
       case SLogLevel.Error => LogLevel.Error
       case SLogLevel.Warning => LogLevel.Warning
       case SLogLevel.Info => LogLevel.Info
+      case SLogLevel.Resolver => LogLevel.Resolver
       case SLogLevel.Compile => LogLevel.Compile
       case SLogLevel.Debug => LogLevel.Debug
       case SLogLevel.OOLAGDebug => LogLevel.OOLAGDebug
@@ -131,5 +128,4 @@ class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
   def lineOutput(line: String): Unit = dr.lineOutput(line)
   def fini(): Unit = dr.fini
 }
-
 

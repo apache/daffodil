@@ -34,67 +34,68 @@ package edu.illinois.ncsa.daffodil.configuration
 
 import java.io.File
 import java.net.URI
-
 import scala.io.Codec.string2codec
 import scala.xml.Node
 import scala.xml.parsing.ConstructingParser
-
 import org.jdom2.Element
 import org.xml.sax.SAXException
-
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc.determineEncoding
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 
+/**
+ * TODO: This is all overkill. ConfigurationLoader doesn't need its own validator,
+ * nor does it need to use the ConstructingParser which is used for TDML only because
+ * it deals with CDATA nodes differently than the regular loader (DaffodilXMLLoader,
+ * which is based on scala.xml.XML's loader, which is based on the sax parser
+ * built into the JVM (which is xerces?), and which validates.
+ *
+ * For the configuration loader, we only need plain old loading.
+ *
+ * I suspect this was just cloned from the TDML loader code, and so copied its
+ * more complicated arrangements.
+ */
 object ConfigurationLoader {
 
-  def getConfiguration(file: File): Node = {
-    Assert.usage(file != null, "getConfiguration expects 'file' to not be null!")
-    ConfigurationValidator.validate(file) match {
-      case Left(ex) => Assert.abort(ex)
-      case Right(_) => // Success
-    }
-    val enc = determineEncoding(file)
-    val input = scala.io.Source.fromURI(file.toURI)(enc)
-    val node = ConstructingParser.fromSource(input, true).document.docElem
+  val loader = new DaffodilXMLLoader()
+
+  def getConfiguration(uri: URI): Node = {
+    Assert.usage(uri != null, "getConfiguration expects 'uri' to not be null!")
+    val node = loader.load(uri)
     scala.xml.Utility.trim(node)
   }
 
   def getConfiguration(fileName: String): Node = {
     Assert.usage(fileName != null, "getConfiguration expects 'fileName' to not be null!")
     val f = new File(fileName)
-    getConfiguration(f)
-  }
-
-  def getConfiguration(uri: URI): Node = {
-    Assert.usage(uri != null, "getConfiguration expects 'uri' to not be null!")
-    val file = new File(uri)
-    getConfiguration(file)
+    getConfiguration(f.toURI)
   }
 
 }
 
-object ConfigurationValidator {
-
-  final val configXsd = {
-    val stream = this.getClass().getResourceAsStream("/xsd/dfdl-config-format.xsd")
-    stream
-  }
-
-  def validate(xmlFile: File): Either[java.lang.Throwable, _] = {
-    try {
-      val schemaLang = "http://www.w3.org/2001/XMLSchema"
-      val factory = SchemaFactory.newInstance(schemaLang)
-      val schema = factory.newSchema(new StreamSource(configXsd))
-      val validator = schema.newValidator()
-      validator.validate(new StreamSource(xmlFile))
-    } catch {
-      case ex: SAXException => Left(ex)
-      case ex: Exception => Left(ex)
-    }
-    Right(true)
-  }
-
-}
+//object ConfigurationValidator {
+//
+//  final val configXsd = {
+//    val stream = this.getClass().getResourceAsStream("/xsd/dfdl-config-format.xsd")
+//    stream
+//  }
+//
+//  def validate(uri: URI): Either[java.lang.Throwable, _] = {
+//    try {
+//      val schemaLang = "http://www.w3.org/2001/XMLSchema"
+//      val factory = SchemaFactory.newInstance(schemaLang)
+//      val schema = factory.newSchema(new StreamSource(configXsd))
+//      val validator = schema.newValidator()
+//      validator.validate(new StreamSource(uri.toURL.openStream()))
+//    } catch {
+//      case ex: SAXException => Left(ex)
+//      case ex: Exception => Left(ex)
+//    }
+//    Right(true)
+//  }
+//
+//}

@@ -51,7 +51,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
@@ -200,7 +199,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
 
   /**
    * Both include and import have schemaLocation. For import it is optional.
-   * If supplied we resolve it via the classpath, current working dir, relative
+   * If supplied we resolve it via the classpath, relative
    * to the location of the including/importing file, etc.
    */
 
@@ -210,65 +209,34 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
       // We need to determine if the URI is valid, if it's not we should attempt to encode it
       // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
       val encodedSLText = if (!isValidURI(slText)) URLEncoder.encode(slText, "UTF-8") else slText
-      val fileURI = URI.create(encodedSLText)
-      val optURI =
-        if (fileURI.isAbsolute() &&
-          (new File(fileURI)).exists) Some(fileURI)
-        else {
-          // file is relative
-          // So we try to resolve it a few different ways
-          //
-          // Removed this first case intentionally. Looking in the CWD 
-          // would be a security risk/issue. So if a user wants the CWD
-          // they should add "." to their classpath to get this behavior.
-          //
-          ///////////////////////////////////////////////////////////////////
-          // (1) First try the current working directory, or however
-          // the JVM completes a relative File when you call getAbsolutePath()
-          //
-          //          val relPathString = fileURI.getPath()
-          //          val relFile = new File(relPathString)
-          //          val absPath = relFile.getAbsolutePath()
-          //          val absURI = new URI(absPath)
-          //          val absFile = new File(absURI)
-          //          if (absFile.exists()) {
-          //            // found in CWD
-          //            Some(absURI.toURL)
-          //          } else {
-          ///////////////////////////////////////////////////////////////////
-          //
-          // (2) Try self-relative, that is, relative to wherever this schema
-          // doing the import/include is in the file system (or jar) resources.
-          //
-          val enclosingSchemaAbsURI: Option[URI] = schemaFile.map { _.uri }
-          val selfRelative = enclosingSchemaAbsURI match {
-            case None => None
-            case Some(enclosingAbsURI) => {
-              val absURI = (new URL(enclosingAbsURI.toURL, fileURI.toString)).toURI
-              val absFile = new File(absURI)
-              if (absFile.exists())
-                // Win. found one relative to file doing the include/import
-                Some(absURI)
-              else
-                // Nope. Not found relative to the file.
-                None
-            }
-          }
-          if (selfRelative.isDefined) selfRelative
-          else {
-            //
-            // (2) Try classpath
-            //
-            val (optURI, _) = Misc.getResourceOption(slText) // searches classpath directories and classpath in jars.
-            if (optURI.isDefined) {
-              // found on classpath
-              optURI
-            } else {
-              None
-            }
-          }
+      val uri: URI = URI.create(encodedSLText)
+      val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.uri }
+
+      val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
+      val protocol = {
+        if (completeURI.isAbsolute) {
+          val completeURL = completeURI.toURL
+          completeURL.getProtocol()
+        } else {
+          ""
         }
-      optURI
+      }
+      // 
+      // Note that Looking in the current working directory (CWD)
+      // would be a security risk/issue. So if a user wants the CWD
+      // they should add "." to their classpath to get it to be
+      // searched.
+      //
+      val resolved =
+        if (protocol == "file" && (new File(completeURI)).exists)
+          Some(completeURI)
+        else if (protocol == "jar")
+          Some(completeURI) // jars are pre-resolved - we got the jar URI from the resolver
+        else {
+          val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
+          res
+        }
+      resolved
     }
     res
   }
@@ -329,7 +297,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    */
   lazy val classPathLines = classPathNotJars.mkString("\n")
 
-  lazy val classPathNotJars = Misc.classPath.filterNot { _.endsWith(".jar") }
+  lazy val classPathNotJars = Misc.classPath // .filterNot { _.endsWith(".jar") }
 
   lazy val whereSearched =
     if (classPathNotJars.length == 0) " Classpath was empty."

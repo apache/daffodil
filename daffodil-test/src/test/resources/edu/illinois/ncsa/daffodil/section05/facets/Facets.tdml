@@ -6400,7 +6400,9 @@
     <tdml:document>4.224</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>The value '-3' of attribute 'value' on element 'xs:totalDigits' is not valid with respect to its type, 'positiveInteger'</tdml:error>
+        <tdml:error>Value '-3' is not facet-valid with respect to</tdml:error>
+        <tdml:error>positiveInteger</tdml:error>
+        <tdml:error>totalDigits</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -6516,7 +6518,9 @@
     <tdml:document>4.224</tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>The value '0' of attribute 'value' on element 'xs:totalDigits' is not valid with respect to its type, 'positiveInteger'</tdml:error>
+        <tdml:error>Value '0' is not facet-valid with respect to</tdml:error>
+        <tdml:error>positiveInteger</tdml:error>
+        <tdml:error>totalDigits</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
 

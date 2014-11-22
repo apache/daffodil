@@ -135,6 +135,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       elementChildrenCompileInfo)
     eci
   }
+  
+  
+  lazy val thisElementsNamespace: NS = this.namedQName.namespace
+  lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
@@ -182,6 +186,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       defaultBitOrder,
       optPrimType,
       targetNamespace,
+      thisElementsNamespace,
       Misc.boolToOpt(hasPattern, patternValues),
       Misc.boolToOpt(hasEnumeration, enumerationValues),
       Misc.boolToOpt(hasMinLength, minLength),
@@ -196,6 +201,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       optMaxOccurs,
       name,
       targetNamespacePrefix,
+      thisElementsNamespacePrefix,
       isHidden,
       nChildSlots,
       slotIndexInParent,

@@ -263,10 +263,10 @@ sealed class DISimple(val erd: ElementRuntimeData)
           // Anyway... Constructing a Text node seems to automatically escapeify 
           // the supplied content.
           val textNode = new scala.xml.Text(s)
-          scala.xml.Elem(erd.targetNamespacePrefix, erd.name, Null, erd.namespaces, true, textNode)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.namespaces, true, textNode)
         } else {
           // no value yet
-          scala.xml.Elem(erd.targetNamespacePrefix, erd.name, Null, erd.namespaces, true)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.namespaces, true)
         }
       elem
     }
@@ -494,7 +494,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
           erd.nilledXML.get
         } else {
           val children = _slots.flatMap { _ map { slot => slot.toXML } }.toSeq.flatten
-          scala.xml.Elem(erd.targetNamespacePrefix, erd.name, scala.xml.Null, erd.namespaces, true, children: _*)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.namespaces, true, children: _*)
         }
       elem
     }

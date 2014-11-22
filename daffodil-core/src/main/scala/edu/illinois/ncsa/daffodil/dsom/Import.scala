@@ -51,7 +51,6 @@ import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
@@ -135,7 +134,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         None
       }
       case Some(ns) => {
-        val uri = resolver.resolveURI(ns.toString)
+        val uri = resolver.resolveURI(ns.toString, silent = true)
         if (uri == null) None
         else {
           val res = URI.create(uri)
@@ -145,7 +144,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     }
   }
 
-  lazy val resolver = DaffodilCatalogResolver.resolver // iiSchemaFileMaybe.map { _.resolver }
+  lazy val resolver = xsd.schemaSet.resolver // iiSchemaFileMaybe.map { _.resolver }
   lazy val catFiles = resolver.catalogFiles.mkString(", ")
 
   /**
@@ -153,15 +152,18 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    */
   lazy val resolvedLocation = resolvedLocation_.value
   private val resolvedLocation_ = LV('resolvedLocation) {
+    // KEEP THESE PRINTLNs for a bit
+    //    println("Computing resolvedLocation")
+    //    println("\nimportElementNS='%s'\nresolvedNamespaceURI='%s'\nschemaLocationProperty='%s'\nresolvedSchemaLocation='%s'".format(
+    //      importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation))
     val rl = (importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation) match {
       case (None, _, Some(sl), None) =>
-        schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, sl)
+        schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, importNode)
       case (Some(_), Some(rnURI), _, _) => rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
-        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s." + whereSearched, ns, catFiles, sl)
+        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s." + whereSearched, ns, catFiles, importNode)
       case (_, None, Some(sl), Some(rsl)) => rsl // found it by way of the schemaLocation
       case (Some(ns), None, None, None) => {
-
         schemaDefinitionError("Unable to import namespace %s using XML Catalog(s) %s", ns, catFiles)
       }
       case _ => Assert.invariantFailed("illegal combination of namespace and schemaLocation")

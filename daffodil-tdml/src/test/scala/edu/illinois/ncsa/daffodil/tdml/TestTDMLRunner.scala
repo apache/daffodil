@@ -377,9 +377,10 @@ class TestTDMLRunner {
   }
 
   @Test def testRunModelFile() {
-    val tmpFileName = getClass.getName() + ".dfdl.xsd"
+    val tmp = File.createTempFile(getClass.getName(), ".dfdl.xsd")
+    tmp.deleteOnExit()
     val testSuite = <testSuite xmlns={ tdml } suiteName="theSuiteName">
-                      <parserTestCase name="testRunModelFile" root="data" model={ tmpFileName }>
+                      <parserTestCase name="testRunModelFile" root="data" model={ tmp.getAbsolutePath() }>
                         <document>37</document>
                         <infoset>
                           <dfdlInfoset>
@@ -388,17 +389,13 @@ class TestTDMLRunner {
                         </infoset>
                       </parserTestCase>
                     </testSuite>
-    try {
-      using(new java.io.FileWriter(tmpFileName)) {
-        fileWriter =>
-          fileWriter.write(testSchema.toString())
-      }
-      lazy val ts = new DFDLTestSuite(testSuite)
-      ts.runOneTest("testRunModelFile")
-    } finally {
-      val f = new java.io.File(tmpFileName)
-      f.delete()
+
+    using(new java.io.FileWriter(tmp)) {
+      fileWriter =>
+        fileWriter.write(testSchema.toString())
     }
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testRunModelFile")
   }
 
   @Test def testRunTDMLFileReferencingModelFile() {
@@ -440,7 +437,8 @@ class TestTDMLRunner {
     lazy val res = Misc.getRequiredResource("/test-suite/ibm-contributed/dpaext1.tdml")
     lazy val ts = new DFDLTestSuite(new File(res))
     val mf = ts.findTDMLResource("./fvt/ext/dpa/dpaspc121_01.dfdl.xsd")
-    assertTrue(mf.get.exists())
+    val file = new File(mf.get)
+    assertTrue(file.exists())
   }
 
   val tdmlWithEmbeddedSchema =

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<daf:dfdlConfig name="cfg_01_ext"
+<daf:dfdlConfig
 	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext xsd/dfdl-config-format.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<daf:externalVariableBindings xmlns="http://www.w3.org/2001/XMLSchema"
 		xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
 		<daf:bind name="ex:v_no_default">1</daf:bind>

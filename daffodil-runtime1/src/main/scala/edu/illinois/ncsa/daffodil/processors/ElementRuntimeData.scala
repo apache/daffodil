@@ -40,6 +40,7 @@ class ElementRuntimeData(
   override val defaultBitOrder: BitOrder,
   val optPrimType: Option[PrimType],
   val targetNamespace: NS,
+  val thisElementsNamespace: NS, 
   val patternValues: Option[Seq[FacetTypes.FacetValueR]],
   val enumerationValues: Option[String],
   val minLength: Option[java.math.BigDecimal],
@@ -54,6 +55,7 @@ class ElementRuntimeData(
   val maxOccurs: Option[Int],
   val name: String,
   val targetNamespacePrefix: String,
+  val thisElementsNamespacePrefix: String,
   val isHidden: Boolean,
   val nChildSlots: Int,
   override val slotIndexInParent: Int,
@@ -105,7 +107,7 @@ class ElementRuntimeData(
   // note: these nil xml things are constant chunks of XML.  
   val nilledXML: Maybe[scala.xml.Elem] = {
     if (!isNillable) Nope
-    else One(scala.xml.Elem(targetNamespacePrefix, name, XMLUtils.xmlNilAttribute, namespaces, true))
+    else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, namespaces, true))
   }
 
 }

@@ -69,7 +69,7 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
-
+import org.xml.sax.InputSource
 
 /**
  * API Suitable for Java programmers to use.
@@ -78,7 +78,7 @@ class Daffodil private {
   // Having this empty but private companion class removes the constructor from
   // JAPI Javadocs, as well as prevents the creation of a Daffodil class,
   // forcing one to use the static methods on the Daffodil object
- }
+}
 
 object Daffodil {
 
@@ -105,7 +105,7 @@ object Daffodil {
    * Enable/disable debugging.
    *
    * Before enabling, [[Daffodil#setDebugger(DebuggerRunner)]] must be called with a non-null debugger.
-   * 
+   *
    * @param flag true to enable debugging, false to disabled
    */
   def setDebugging(flag: Boolean) {
@@ -150,8 +150,14 @@ class Compiler {
    */
   @throws(classOf[java.io.IOException])
   def compile(schemaFiles: Array[File]): ProcessorFactory = {
-    val (_, pf) = sCompiler.compileInternal(schemaFiles.toSeq)
+    val (_, pf) = sCompiler.compileFiles(schemaFiles.toSeq)
     new ProcessorFactory(pf)
+  }
+
+  @throws(classOf[java.io.IOException])
+  def compileSources(sources: Array[InputSource]): ProcessorFactory = {
+    val pf = sCompiler.compileSources(sources: _*)
+    new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }
 
   /**
@@ -178,9 +184,9 @@ class Compiler {
    */
   def reload(savedParser: DFDL.Input): DataProcessor = {
     try {
-       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+      new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
     } catch {
-      case ex: SInvalidParserException => throw new InvalidParserException(ex)      
+      case ex: SInvalidParserException => throw new InvalidParserException(ex)
     }
   }
 
@@ -188,9 +194,9 @@ class Compiler {
    * Specify a global element to be the root of DFDL Schema to start parsing
    *
    * @param name name of the root node
-   * @param namespace namespace of the root node. Set to empty string to specify 
+   * @param namespace namespace of the root node. Set to empty string to specify
    *                  no namespace. Set to to NULL to figure out the namespace.
-   */ 
+   */
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
     sCompiler.setDistinguishedRootNode(name, namespace)
 
@@ -198,10 +204,10 @@ class Compiler {
    * Set the value of a DFDL variable
    *
    * @param name name of the variable
-   * @param namespace namespace of the variable. Set to empty string to specify 
+   * @param namespace namespace of the variable. Set to empty string to specify
    *                  no namespace. Set to to NULL to figure out the namespace.
    * @param value value to so the variable to
-   */ 
+   */
   def setExternalDFDLVariable(name: String, namespace: String, value: String): Unit = {
     sCompiler.setExternalDFDLVariable(name, namespace, value)
   }
@@ -215,7 +221,7 @@ class Compiler {
    *                   define a namespace for the variable. If preceded with "{}",
    *                   then no namespace is used. With not preceded by "{namespace}",
    *                   then Daffodil will figure out the namespace.
-   */ 
+   */
   def setExternalDFDLVariables(extVarsMap: java.util.AbstractMap[String, String]): Unit = {
     val extVars = ExternalVariablesLoader.getVariables(extVarsMap.toMap)
     sCompiler.setExternalDFDLVariables(extVars)
@@ -225,7 +231,7 @@ class Compiler {
    * Read external variables from a Daffodil configuration file
    *
    * @see <a target="_blank" href='https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Configuration+File'>Daffodil Configuration File</a> - Daffodil configuration file format
-   * 
+   *
    * @param extVarsFile file to read DFDL variables from.
    */
   def setExternalDFDLVariables(extVarsFile: File): Unit = {
@@ -275,9 +281,9 @@ class ProcessorFactory(pf: SProcessorFactory)
    * Specify a global element to be the root of DFDL Schema to start parsing
    *
    * @param name name of the root node
-   * @param namespace namespace of the root node. Set to empty string to specify 
+   * @param namespace namespace of the root node. Set to empty string to specify
    *                  no namespace. Set to to NULL to figure out the namespace.
-   */ 
+   */
   def setDistinguishedRootNode(name: String, namespace: String): Unit =
     pf.setDistinguishedRootNode(name, namespace)
 
@@ -303,7 +309,7 @@ class ProcessorFactory(pf: SProcessorFactory)
  * class, aside from those functions in [[WithDiagnostics]], is invalid and
  * will result in an Exception.
  */
-abstract class WithDiagnostics (wd: SWithDiagnostics) {
+abstract class WithDiagnostics(wd: SWithDiagnostics) {
 
   /**
    * Determine if any errors occurred in the creation of the parent object.
@@ -327,7 +333,7 @@ abstract class WithDiagnostics (wd: SWithDiagnostics) {
   def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) } // implicitly converts to the Java collection
 }
 
-/** 
+/**
  * Class containing diagnostic information
  */
 class Diagnostic(d: SDiagnostic) {
@@ -426,7 +432,7 @@ class DataProcessor(dp: SDataProcessor)
    * Read external variables from a Daffodil configuration file
    *
    * @see <a target="_blank" href='https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Configuration+File'>Daffodil Configuration File</a> - Daffodil configuration file format
-   * 
+   *
    * @param extVars file to read DFDL variables from.
    */
   def setExternalVariables(extVars: File): Unit = dp.setExternalVariables(extVars)
@@ -440,7 +446,7 @@ class DataProcessor(dp: SDataProcessor)
    *                define a namespace for the variable. If preceded with "{}",
    *                then no namespace is used. If not preceded by anything,
    *                then Daffodil will figure out the namespace.
-   */ 
+   */
   def setExternalVariables(extVars: Map[String, String]) = dp.setExternalVariables(extVars)
 
   /**
@@ -454,7 +460,7 @@ class DataProcessor(dp: SDataProcessor)
 
   /**
    * Parse input data with a specified length
-   * 
+   *
    * @param input data to be parsed
    * @param lengthLimitInBits the length of the input data in bits. This must
    *                          be the actual length in bits if you want the

@@ -16,14 +16,14 @@
   <tdml:defineSchema name="upaFailure">
 
     <dfdl:format ref="ex:daffodilTest1" initiator=""
-      terminator="" textBidi="no" floating="no" encoding="utf-8"
+      terminator="" textBidi="no" floating="no" encoding="ascii"
       byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
       fillByte="f" occursCountKind="implicit"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
       documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
-      separatorSuppressionPolicy="never" separatorPosition="infix" />
+      separatorSuppressionPolicy="never" separatorPosition="infix"/>
 
     <xs:element name="root">
       <xs:complexType>

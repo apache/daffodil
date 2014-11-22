@@ -36,6 +36,7 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.net.URI
+import java.net.URL
 import scala.io.Codec.string2codec
 import scala.xml.Node
 import scala.xml.NodeSeq
@@ -113,6 +114,13 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val validateDFDLSchemas: Boolean = true)
   extends Logging {
 
+  aNodeFileOrURL match {
+    case _: URI => // ok
+    case _: File => // ok
+    case _: scala.xml.Node => // ok
+    case x => Assert.usageError("argument was not a scala.xmlNode, File, or URI: " + x)
+  }
+
   val errorHandler = new org.xml.sax.ErrorHandler {
     def warning(exception: SAXParseException) = {
       loadingExceptions == exception +: loadingExceptions
@@ -147,18 +155,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val loader = new DaffodilXMLLoader(errorHandler)
   loader.setValidation(validateTDMLFile)
 
-  /**
-   * Detects the encoding of the File for us.
-   */
-  def determineEncoding(theFile: File): String = {
-    val encH = scala.xml.include.sax.EncodingHeuristics
-    val is = new java.io.FileInputStream(theFile)
-    val bis = new java.io.BufferedInputStream(is)
-    val enc = encH.readEncodingFromStream(bis)
-    enc
-  }
-
-  val (ts, tdmlFile, tsInputSource) = {
+  val (ts, tdmlFile, tsSysId, tsURI) = {
 
     /**
      * We have to use the ConstructingParser in order for Scala to preserve
@@ -172,30 +169,33 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
      */
     val tuple = aNodeFileOrURL match {
       case tsNode: Node => {
+        //
+        // We were passed a literal schema node. This is for unit testing
+        // purposes. We are not going to worry about CDATA regions in that
+        // case, so we just use the regular old validating loader.
+        //
         val tempFile = XMLUtils.convertNodeToTempFile(tsNode)
-        val enc = determineEncoding(tempFile)
-        val input = scala.io.Source.fromURI(tempFile.toURI)(enc)
-        val origNode = loader.loadFile(tempFile) // used for validation only
-        val newNode = ConstructingParser.fromSource(input, true).document.docElem
-        (newNode, null, new InputSource(tempFile.toURI().toASCIIString()))
+        val uri = tempFile.toURI()
+        val source1 = new InputSource(uri.toASCIIString())
+        val origNode = loader.load(source1)
+        //
+        // diagnostic messages are going to feature a temp file name.... grrr.
+        (origNode, null, source1.getSystemId(), uri)
       }
       case tdmlFile: File => {
-        log(LogLevel.Debug, "loading TDML file: %s", tdmlFile)
-        val enc = determineEncoding(tdmlFile)
-        val input = scala.io.Source.fromURI(tdmlFile.toURI)(enc)
-        val origNode = loader.loadFile(tdmlFile) // used for validation only
-        val someNode = ConstructingParser.fromSource(input, true).document.docElem
-        val res = (someNode, tdmlFile, new InputSource(tdmlFile.toURI().toASCIIString()))
+        log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
+        val uri = tdmlFile.toURI()
+        val ignore = loader.load(uri) // used for validation only
+        val newNode = ConstructingParser.fromFile(tdmlFile, true).document.docElem
+        val res = (newNode, tdmlFile, tdmlFile.getAbsolutePath(), uri)
         log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
         res
       }
       case tsURI: URI => {
-        val f = new File(tsURI)
-        val enc = determineEncoding(f)
-        val input = scala.io.Source.fromURI(tsURI)(enc)
-        val origNode = loader.load(tsURI) // used for validation only
-        val someNode = ConstructingParser.fromSource(input, true).document.docElem
-        val res = (someNode, null, new InputSource(tsURI.toASCIIString()))
+        val ignore = loader.load(tsURI) // used for validation only
+        val input = scala.io.Source.fromURL(tsURI.toURL)
+        val newNode = ConstructingParser.fromSource(input, true).document.docElem
+        val res = (newNode, null, tsURI.toURL.toString, tsURI)
         res
       }
       case _ => Assert.usageError("not a Node, File, or URL")
@@ -221,22 +221,24 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
-  val embeddedSchemas = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
+  val embeddedSchemasRaw = (ts \ "defineSchema").map { node => DefinedSchema(node, this) }
   val embeddedConfigs = (ts \ "defineConfig").map { node => DefinedConfig(node, this) }
 
-  private val embeddedSchemaGroups = embeddedSchemas.groupBy { _.name }
-
-  embeddedSchemaGroups.foreach {
-    case (name, Seq(sch)) => // ok
-    case (name, seq) =>
-      Assert.usageError("More than one definition for embedded schema " + name)
+  val embeddedSchemas = {
+    val embeddedSchemaGroups = embeddedSchemasRaw.groupBy { _.name }
+    embeddedSchemaGroups.foreach {
+      case (name, Seq(sch)) => // ok
+      case (name, seq) =>
+        Assert.usageError("More than one definition for embedded schema " + name)
+    }
+    embeddedSchemasRaw
   }
 
   def runAllTests(schema: Option[Node] = None) {
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
-      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
+      log(Error("TDML file %s is not valid.", tsSysId))
     }
   }
 
@@ -275,7 +277,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
         }
       }
     } else {
-      log(Error("TDML file %s is not valid.", tsInputSource.getSystemId))
+      log(Error("TDML file %s is not valid.", tsSysId))
       val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
       throw new Exception(msgs)
     }
@@ -288,48 +290,20 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
    * so we look for the schema/model/tdml resources in the working directory, and in the same
    * directory as the tdml file, and some other variations.
    */
-  def findTDMLResource(fileName: String): Option[File] = {
-    // try it as is. Maybe it will be in the cwd or relative to that or absolute
-    val firstTry = new File(fileName)
-    if (firstTry.exists()) {
-      // it exists, but since validation may use this for defaulting other
-      // files, we really do need it to have the directory part.
-      val fileWithDir = firstTry.getAbsoluteFile()
-      return Some(fileWithDir)
-    }
-    // see if it can be found relative to the tdml test file, like next to it.
-    val sysId = tsInputSource.getSystemId()
-    if (sysId != null) {
-      val sysFile = new File(URI.create(sysId))
-      if (sysFile.exists()) {
-        // the system Id of the tdml file was a file.
-        val sysPath = sysFile.getParent()
-        val resourceFileName = sysPath + File.separator + fileName
-        log(LogLevel.Debug, "TDML resource name is: %s", resourceFileName)
-        val resourceFile = new File(resourceFileName)
-        if (resourceFile.exists()) return Some(resourceFile)
+  def findTDMLResource(resName: String): Option[URI] = {
+    val resolvedURI = Misc.getResourceRelativeOption(resName, Some(tsURI))
+    val res = resolvedURI.orElse {
+      // try ignoring the directory part
+      val parts = resName.split("/")
+      if (parts.length > 1) { // if there is one
+        val filePart = parts.last
+        val secondTry = findTDMLResource(filePart) // recursively
+        secondTry
+      } else {
+        None
       }
     }
-    // try as a classpath resource (allows eclipse to find it)
-    // ( also will look in the jar - which is bad. Have to avoid that.)
-    val (maybeRes, _) = Misc.getResourceOption(fileName)
-    maybeRes.foreach { uri =>
-      // could be that we found the file, could be that we
-      // got a match in the jar. This should tell them apart.
-      if (uri.toURL().getProtocol == "file") {
-        val resolvedName = uri.getPath()
-        val resFile = new File(resolvedName)
-        if (resFile.exists()) return Some(resFile)
-      }
-    }
-    // try ignoring the directory part
-    val parts = fileName.split("/")
-    if (parts.length > 1) { // if there is one
-      val filePart = parts.last
-      val secondTry = findTDMLResource(filePart) // recursively
-      return secondTry
-    }
-    None
+    res
   }
 
   def findEmbeddedSchema(modelName: String): Option[Node] = {
@@ -435,7 +409,13 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
           case (None, None) => throw new Exception("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
           case (Some(_), Some(_)) => throw new Exception("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
           case (Some(node), None) => node
-          case (None, Some(fn)) => fn
+          case (None, Some(uri)) => {
+            val url = uri.toURL
+            if (url.getProtocol() == "file") new File(uri)
+            else {
+              new InputSource(uri.toURL.toString)
+            }
+          }
         }
         schemaNodeOrFileName
       }
@@ -450,9 +430,9 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
           case (None, None) => None
           case (Some(_), Some(_)) => throw new Exception("Config '" + config + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
           case (Some(definedConfig), None) => Some(definedConfig)
-          case (None, Some(fn)) => {
+          case (None, Some(uri)) => {
             // Read file, convert to definedConfig
-            val node = ConfigurationLoader.getConfiguration(fn)
+            val node = ConfigurationLoader.getConfiguration(uri)
             val definedConfig = DefinedConfig(node, parent)
             Some(definedConfig)
           }
@@ -473,6 +453,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val pf = sch match {
       case node: Node => compiler.compile(node)
       case theFile: File => compiler.compile(theFile)
+      case source: InputSource => compiler.compileSources(source)
       case _ => Assert.invariantFailed("can only be Node or File")
     }
 
@@ -886,7 +867,8 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case Some(seqNodes) => seqNodes.toString
     case None => ""
   }
-  val xsdSchema = SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
+  lazy val xsdSchema =
+    SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
 }
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {
@@ -1215,16 +1197,20 @@ class BitsDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   }
 }
 
-class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) {
+class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, parent) with Logging {
 
   override lazy val nBits = -1L // signifies we do not know how many.
 
   lazy val fileDataInput = {
-    val maybeFile = parent.parent.parent.findTDMLResource(partRawContent.trim())
-    val file = maybeFile.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
-    println("file size is " + file.length())
-    val fis = new FileInputStream(file)
-    val rbc = fis.getChannel()
+    val maybeURI = parent.parent.parent.findTDMLResource(partRawContent.trim())
+    val uri = maybeURI.getOrElse(throw new FileNotFoundException("TDMLRunner: data file '" + partRawContent + "' was not found"))
+    val url = uri.toURL
+    if (url.getProtocol() == "file") {
+      val file = new File(uri)
+      log(LogLevel.Info, "File size is %s", file.length())
+    }
+    val is = url.openStream()
+    val rbc = Channels.newChannel(is)
     rbc.asInstanceOf[DFDL.Input]
   }
 

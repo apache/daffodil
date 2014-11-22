@@ -43,8 +43,8 @@ import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-
 import scala.language.reflectiveCalls
+import java.net.URLClassLoader
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -70,6 +70,16 @@ object Misc {
     val stripLast = if (stripFirst.endsWith("\"")) stripFirst.substring(0, stripFirst.length - 1) else stripFirst
     stripLast
   }
+
+  def isFileURI(uri: URI) = {
+    if (uri.isAbsolute()) {
+      val protocol = uri.toURL.getProtocol()
+      val result = protocol == "file"
+      result
+    } else
+      false
+  }
+
   /**
    * Takes care of using the resource built-in to the jar, or
    * if we're just running interactively in eclipse or Intellij, doesn't use the jar.
@@ -77,21 +87,104 @@ object Misc {
    *
    * resourcePath argument is relative to the classpath root.
    */
+  def getResourceOption(resourcePathRaw: String): (Option[URI], String) = {
+    val resourcePath = resourcePathRaw.replaceAll("""\s""", "%20")
 
-  def getResourceOption(resourcePath: String): (Option[URI], String) = {
     // more time is wasted by people forgetting that the initial "/" is needed
     // to get classpath relative behavior... Let's make sure there is a leading "/"
     val resPath = if (resourcePath.startsWith("/")) resourcePath else "/" + resourcePath
-    var res = this.getClass.getResource(resPath)
-    if (res == null) (None, resPath)
-    else (Some(res.toURI), resPath)
+    val res = this.getClass().getResource(resPath)
+    if (res == null) {
+      (None, resPath)
+    } else (Some(res.toURI), resPath)
+  }
+
+  /**
+   * Gets a resource on the classpath, or relative to another URI
+   */
+  def getResourceRelativeOption(rawResName: String, optContextURI: Option[URI]): Option[URI] = {
+    val resName = rawResName.replaceAll("""\s""", "%20")
+    val (maybeRes, _) = Misc.getResourceOption(resName)
+    if (maybeRes.isDefined) {
+      return maybeRes // found directly on the classpath.
+    }
+    val result: Option[URI] = {
+      optContextURI.flatMap { contextURI =>
+        // 
+        // try relative to enclosing context uri
+        // 
+        // Done using URL constructor because the URI.resolve(uri) method
+        // doesn't work against so called opaque URIs, and jar URIs of the 
+        // sort we get here if the resource is in a jar, are opaque.
+        // Some discussion of this issue is https://issues.apache.org/jira/browse/XMLSCHEMA-3
+        //
+        val contextURL = contextURI.toURL
+        val completeURL = new URL(contextURL, resName)
+        val completeURI = completeURL.toURI
+        val res = tryURL(completeURL)
+        if (res.isDefined) return res
+        //
+        // We couldn't open the resolved URL.
+        // But there is one more thing we can try.
+        //
+        // Xerces/Java's XML parser seems to construct
+        // Base URIs carelessly. Sometimes you find
+        // ...foo/xsd/xsd/bar.xsd. That is, the xsd
+        // component is repeated twice. That is because something
+        // mindlessly strips off the last component of the path,
+        // and then appends the current schema's schema location 
+        // onto it. Really it should be stripping off the 
+        // current file's literal systemId, so as to get 
+        // the right base. 
+        //
+        // So we can invert that logic.
+        // This is just a heuristic, but probably does what people want.
+        val parts = contextURI.toString.split("/")
+        val butLast = parts.dropRight(1)
+        val lastDir = butLast.takeRight(1).head
+        val priorDir = butLast.takeRight(2).head
+        val newContextURI =
+          if (priorDir != lastDir) {
+            // no repeating dir at the end.
+            contextURI
+          } else {
+            // this is the foo/xsd/xsd/bar.xsd case
+            val shortenedURIParts = parts.dropRight(2) :+ parts.last
+            val shortenedURI = new URI(shortenedURIParts.mkString("/"))
+            shortenedURI
+          }
+        val newContextURL = newContextURI.toURL
+        val newCompleteURL = new URL(newContextURL, resName)
+        val newRes = tryURL(newCompleteURL)
+        newRes
+      }
+    }
+    result
+  }
+
+  private def tryURL(url: URL): Option[URI] = {
+    var is: InputStream = null
+    val res =
+      try {
+        is = url.openStream()
+        // worked! We found it.
+        Some(url.toURI)
+      } catch {
+        case e: java.io.IOException => None
+      } finally {
+        if (is != null) is.close()
+      }
+    res
   }
 
   lazy val classPath = {
-    val props = System.getProperties()
-    val cp = props.getProperty("java.class.path", null)
-    val lines = cp.split(":").toSeq
-    lines
+    //    val props = System.getProperties()
+    //    val cp = props.getProperty("java.class.path", null)
+    //    val lines = cp.split(":").toSeq
+    //    lines
+    val cl = this.getClass().getClassLoader()
+    val urls = cl.asInstanceOf[URLClassLoader].getURLs()
+    urls.toList
   }
 
   def getRequiredResource(resourcePath: String): URI = {
@@ -276,12 +369,15 @@ object Misc {
    * This was needed for the ConstructingParser
    * in order to read in xml from a file.
    */
-  def determineEncoding(theFile: File): String = {
+  def determineEncoding(uri: URI): String = {
     val encH = scala.xml.include.sax.EncodingHeuristics
-    val is = new java.io.FileInputStream(theFile)
+    val is = uri.toURL.openStream()
     val bis = new java.io.BufferedInputStream(is)
     val enc = encH.readEncodingFromStream(bis)
+    is.close()
     enc
   }
+
+  def determineEncoding(file: File): String = determineEncoding(file.toURI)
 
 }

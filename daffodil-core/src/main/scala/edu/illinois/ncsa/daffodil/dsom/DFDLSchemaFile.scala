@@ -40,13 +40,15 @@ import java.net.URL
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import java.io.File
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
-import edu.illinois.ncsa.daffodil.xml.DaffodilCatalogResolver
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import java.net.URI
 import edu.illinois.ncsa.daffodil.util.Misc
+import org.xml.sax.SAXException
+import edu.illinois.ncsa.daffodil.util.LogLevel
+import org.xml.sax.InputSource
 
 /**
  * represents one schema document file
@@ -124,27 +126,30 @@ class DFDLSchemaFile(val sset: SchemaSet,
   def error(exception: SAXParseException) = {
     val ex = exception
     val sde = new SchemaDefinitionError(this.schemaFileLocation, "Error loading schema due to %s", exception)
-    // println(sde)
     error(sde)
     validationDiagnostics_ :+= sde
   }
 
   def fatalError(exception: SAXParseException) = {
     val sde = new SchemaDefinitionError(this.schemaFileLocation, "Fatal error loading schema due to %s", exception)
-    // error(sde) // will get picked up when parser throws after this returns
     validationDiagnostics_ :+= sde
     // parser throws out of fatalErrors.
   }
 
   lazy val loader = new DaffodilXMLLoader(this)
-  lazy val resolver = DaffodilCatalogResolver.resolver
+  lazy val resolver = schemaSet.resolver
 
   lazy val loadedURI = loadedURI_.value
   private val loadedURI_ = LV('loadedURI) {
+    def die(e: Throwable) = {
+      SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
+    }
     val node = try {
+      log(LogLevel.Resolver, "Loading %s.", uri)
       loader.load(uri)
     } catch {
-      case e: Exception => SDE("Loading XML failed due to %s.", DiagnosticUtils.getSomeMessage(e))
+      case e: java.io.IOException => die(e)
+      case e: SAXException => die(e)
     }
     node
   }

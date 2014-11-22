@@ -668,19 +668,15 @@ public class TestJavaAPI {
 			xo.output(doc, System.out);
 			org.jdom2.Element rootNode = doc.getRootElement();
 			org.jdom2.Element elementGroup = rootNode.getChild("elementGroup",
-					rootNode.getNamespace());
+					null); // local element names are unqualified
 			assertTrue(null != elementGroup);
-			org.jdom2.Element groupE2 = elementGroup.getChild("e2",
-					rootNode.getNamespace());
+			org.jdom2.Element groupE2 = elementGroup.getChild("e2", null);
 			assertTrue(null != groupE2);
-			org.jdom2.Element groupE3 = elementGroup.getChild("e3",
-					rootNode.getNamespace());
+			org.jdom2.Element groupE3 = elementGroup.getChild("e3", null);
 			assertTrue(null != groupE3);
-			org.jdom2.Element rootE2 = rootNode.getChild("e2",
-					rootNode.getNamespace());
+			org.jdom2.Element rootE2 = rootNode.getChild("e2", null);
 			assertTrue(null == rootE2);
-			org.jdom2.Element rootE3 = rootNode.getChild("e3",
-					rootNode.getNamespace());
+			org.jdom2.Element rootE3 = rootNode.getChild("e3", null);
 			assertTrue(null == rootE3);
 		}
 		java.util.List<Diagnostic> diags = res.getDiagnostics();
