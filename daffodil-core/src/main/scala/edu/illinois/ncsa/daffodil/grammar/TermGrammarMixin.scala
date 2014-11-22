@@ -7,7 +7,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.grammar.BitOrderMixin
 import edu.illinois.ncsa.daffodil.dsom.DFDLNewVariableInstance
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.dsom.Term
