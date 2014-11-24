@@ -6117,8 +6117,7 @@
     Test name: fnDateTime_constructor_03
        Schema: constructorSchema
          Root: dateTime02
-      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
-               xs:time into an xs:dateTime
+      Purpose: This test demonstrates that the fn:adjust-date-to-timezone is unsupported.
   -->
 
   <tdml:parserTestCase name="fnDateTime_constructor_03" root="dateTime02" model="constructorSchema"
@@ -6127,15 +6126,10 @@
     <tdml:document>
       <tdml:documentPart type="text">March-31-96,04:55:30-0800</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <dateTime02>
-          <date>1996-03-31+00:00</date>
-          <time>04:55:30.000000-08:00</time>
-          <dateTime>1996-03-30T04:55:30.000000-08:00</dateTime>
-        </dateTime02>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Unsupported function: fn:adjust-date-to-timezone</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
   <!--

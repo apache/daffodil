@@ -658,7 +658,6 @@ class TestDFDLExpressions {
   @Test def test_time_constructor_07() { runner2.runOneTest("time_constructor_07") }
   @Test def test_time_constructor_08() { runner2.runOneTest("time_constructor_08") }
 
-  // DFDL-827
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_time_constructor_02() { runner2.runOneTest("time_constructor_02") }
   @Test def test_time_constructor_03() { runner2.runOneTest("time_constructor_03") }
@@ -666,13 +665,10 @@ class TestDFDLExpressions {
 
   //DFDL-1124
   //@Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
-  // DFDL-827
   @Test def test_date_constructor_02() { runner2.runOneTest("date_constructor_02") }
   @Test def test_date_constructor_03() { runner2.runOneTest("date_constructor_03") }
-  // DFDL-827
   @Test def test_date_constructor_04() { runner2.runOneTest("date_constructor_04") }
 
-  // DFDL-827
   @Test def test_xsDateTime_constructor_01() { runner2.runOneTest("xsDateTime_constructor_01") }
   @Test def test_xsDateTime_constructor_02() { runner2.runOneTest("xsDateTime_constructor_02") }
   //DFDL-1115
@@ -730,10 +726,9 @@ class TestDFDLExpressions {
   @Test def test_int_constructor_03() { runner2.runOneTest("int_constructor_03") }
   @Test def test_int_constructor_04() { runner2.runOneTest("int_constructor_04") }
 
-  //  DFDL-727  
   @Test def test_fnDateTime_constructor_01() { runner2.runOneTest("fnDateTime_constructor_01") }
   @Test def test_fnDateTime_constructor_02() { runner2.runOneTest("fnDateTime_constructor_02") }
-  //  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
+  @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
   @Test def test_fnDateTime_constructor_04() { runner2.runOneTest("fnDateTime_constructor_04") }
   @Test def test_fnDateTime_constructor_05() { runner2.runOneTest("fnDateTime_constructor_05") }
 
