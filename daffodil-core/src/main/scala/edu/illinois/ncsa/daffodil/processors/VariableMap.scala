@@ -258,7 +258,7 @@ class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
           }
 
           case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            PE(referringContext.schemaFileLocation, "Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
+            referringContext.schemaDefinitionError("Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
           }
 
           case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
