@@ -129,14 +129,20 @@ class TestDFDLExpressionsDebug {
   //DFDL-1124
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
 
-  //fails on build server 
+  //DFDL-1078 - fails on build server 
   @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
+  @Test def test_exists_02() { runner2.runOneTest("exists_02") }
   //DFDL-1079
   @Test def test_empty_05() { runner2.runOneTest("empty_05") }
+<<<<<<< HEAD
 
+=======
+  @Test def test_exists_05() { runner2.runOneTest("exists_05") }
+  
+>>>>>>> 0.15.0
   //DFDL-1085
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
@@ -174,8 +180,6 @@ class TestDFDLExpressionsDebug {
   // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_substring_07() { runner2.runOneTest("substring_07") }
 
   // DFDL-1111: Inadequate diagnostic message from DPath Expression parser
   @Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
