@@ -3790,4 +3790,491 @@ c' } "  />
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="axes">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="c1" type="xs:string" />
+          <xs:element name="c2" type="xs:string" dfdl:inputValueCalc="{ parent::ex:e1/ex:c1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="c1" type="xs:string" />
+          <xs:element name="c2" dfdl:terminator="{ self::*/../ex:c1 }">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/" >
+                <xs:element name="d1" type="xs:string"/>
+                <xs:element name="d2" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c2" type="xs:string" dfdl:inputValueCalc="{ ../ex:c1/child::ex:d1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1" type="xs:string" dfdl:inputValueCalc="{ 'test' }"/>
+          <xs:element name="c2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" dfdl:inputValueCalc="{ ancestor::ex:e4/ex:c1 }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1" type="xs:string" dfdl:inputValueCalc="{ 'test' }"/>
+          <xs:element name="c2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" dfdl:inputValueCalc="{ ancestor-or-self::ex:c2/ex:d1 }"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6" type="xs:boolean" dfdl:nilKind="literalValue" nillable="true" dfdl:nilValue="NIL" dfdl:inputValueCalc="{ attribute::nil }"/>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c2" type="xs:string" dfdl:inputValueCalc="{ /ex:e7/descendant::ex:c1/ex:d1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c2" type="xs:string" dfdl:inputValueCalc="{ /ex:e8/descendant-or-self::ex:c1/ex:d2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1" type="xs:string" dfdl:inputValueCalc="{ following::ex:d1 }"/>
+          <xs:element name="c2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e10">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1" type="xs:string" dfdl:inputValueCalc="{ following-sibling::ex:c3 }"/>
+          <xs:element name="c2" type="xs:string" />
+          <xs:element name="c3" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e11" type="xs:string" dfdl:inputValueCalc="{ namespace::* }" />
+
+    <xs:element name="e12">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=";" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c2" type="xs:string" dfdl:inputValueCalc="{ preceding::ex:d1 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e13">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="," >
+          <xs:element name="c1" type="xs:string" />
+          <xs:element name="c2" type="xs:string" />
+          <xs:element name="c3" type="xs:string" dfdl:inputValueCalc="{ preceding-sibling::ex:c1 }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e14">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="c1" type="xs:string" />
+          <xs:element name="c2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/" >
+                <xs:element name="d1" type="xs:string" dfdl:inputValueCalc="{ self::ex:d1/parent::*/parent::ex:e14/child::ex:c1 }"/>
+                <xs:element name="d2" type="xs:string" dfdl:inputValueCalc="{ parent::ex:d1 }" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="c3" type="xs:string" dfdl:inputValueCalc="{ parent::ex:e14/ex:c2/child::ex:d2}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e15">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="c1" type="xs:string" />
+          <xs:element name="c2" dfdl:terminator="{ ../ex:c1 }" >
+            <xs:complexType>
+              <xs:sequence dfdl:separator="/" >
+                <xs:element name="d1" type="xs:string" />
+                <xs:element name="d2" type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: parent_axis_01
+        Schema: axes
+          Root: e1
+       Purpose: This test demonstrates the use of "parent" as an axis.
+  -->
+
+  <tdml:parserTestCase name="parent_axis_01" root="e1"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>test</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:c1>test</ex:c1>
+          <ex:c2>test</ex:c2>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: self_axis_01
+        Schema: axes
+          Root: e2
+       Purpose: This test demonstrates the use of "self" as an axis.
+  -->
+
+  <tdml:parserTestCase name="self_axis_01" root="e2"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>;,abc/def;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <ex:c1>;</ex:c1>
+          <ex:c2>
+            <ex:d1>abc</ex:d1>
+            <ex:d2>def</ex:d2>
+          </ex:c2>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: child_axis_01
+        Schema: axes
+          Root: e3
+       Purpose: This test demonstrates the use of "child" as an axis.
+  -->
+
+  <tdml:parserTestCase name="child_axis_01" root="e3"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc;test,</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>
+          <ex:c1>
+            <ex:d1>abc</ex:d1>
+            <ex:d2>test</ex:d2>
+          </ex:c1>
+          <ex:c2>abc</ex:c2>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: ancestor_axis_01
+        Schema: axes
+          Root: e4
+       Purpose: This test demonstrates that DPath does not support the "ancestor" axis.
+  -->
+
+  <tdml:parserTestCase name="ancestor_axis_01" root="e4"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ancestor</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: ancestor_or_self_axis_01
+        Schema: axes
+          Root: e5
+       Purpose: This test demonstrates that DPath does not support the "ancestor-or-self" axis.
+  -->
+
+  <tdml:parserTestCase name="ancestor_or_self_axis_01" root="e5"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>ancestor-or-self</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: attribute_axis_04
+        Schema: axes
+          Root: e6
+       Purpose: This test demonstrates that DPath does not support the "attribute" axis.
+  -->
+
+  <tdml:parserTestCase name="attribute_axis_04" root="e6"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>attribute</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: descendant_axis_01
+        Schema: axes
+          Root: e7
+       Purpose: This test demonstrates that DPath does not support the "descendant" axis.
+  -->
+
+  <tdml:parserTestCase name="descendant_axis_01" root="e7"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>descendant</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: descendant_or_self_axis_01
+        Schema: axes
+          Root: e8
+       Purpose: This test demonstrates that DPath does not support the "descendant-or-self" axis.
+  -->
+
+  <tdml:parserTestCase name="descendant_or_self_axis_01" root="e8"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>descendant-or-self</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: following_axis_01
+        Schema: axes
+          Root: e9
+       Purpose: This test demonstrates that DPath does not support the "following" axis.
+  -->
+
+  <tdml:parserTestCase name="following_axis_01" root="e9"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>following</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: following_sibling_axis_01
+        Schema: axes
+          Root: e10
+       Purpose: This test demonstrates that DPath does not support the "following-sibling" axis.
+  -->
+
+  <tdml:parserTestCase name="following_sibling_axis_01" root="e10"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>following-sibling</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: namespace_axis_01
+        Schema: axes
+          Root: e11
+       Purpose: This test demonstrates that DPath does not support the "namespace" axis.
+  -->
+
+  <tdml:parserTestCase name="namespace_axis_01" root="e11"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>namespace</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: preceding_axis_01
+        Schema: axes
+          Root: e12
+       Purpose: This test demonstrates that DPath does not support the "preceding" axis.
+  -->
+
+  <tdml:parserTestCase name="preceding_axis_01" root="e12"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>preceding</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: preceding_sibling_axis_01
+        Schema: axes
+          Root: e13
+       Purpose: This test demonstrates that DPath does not support the "preceding-sibling" axis.
+  -->
+
+  <tdml:parserTestCase name="preceding_sibling_axis_01" root="e13"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document />
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>preceding-sibling</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: multiple_axis_01
+        Schema: axes
+          Root: e14
+       Purpose: This test demonstrates the use of "parent", "child", and "self" as axes.
+  -->
+
+  <tdml:parserTestCase name="multiple_axis_01" root="e14"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e14>
+          <ex:c1>abc</ex:c1>
+          <ex:c2>
+            <ex:d1>abc</ex:d1>
+            <ex:d2>abc</ex:d2>
+          </ex:c2>
+          <ex:c3>abc</ex:c3>
+        </ex:e14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: short_parent_axis_01
+        Schema: axes
+          Root: e15
+       Purpose: This test demonstrates the use of "../" in a path expression as AbbrevReverseStep.
+  -->
+
+  <tdml:parserTestCase name="short_parent_axis_01" root="e15"
+    model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>;,abc/def;</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e15>
+          <ex:c1>;</ex:c1>
+          <ex:c2>
+            <ex:d1>abc</ex:d1>
+            <ex:d2>def</ex:d2>
+          </ex:c2>
+        </ex:e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
