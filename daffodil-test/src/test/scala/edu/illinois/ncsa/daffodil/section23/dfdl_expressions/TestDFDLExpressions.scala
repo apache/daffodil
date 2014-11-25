@@ -402,7 +402,7 @@ class TestDFDLExpressions {
   @Test def test_substring_04() { runner2.runOneTest("substring_04") }
   @Test def test_substring_05() { runner2.runOneTest("substring_05") }
   @Test def test_substring_06() { runner2.runOneTest("substring_06") }
-  //@Test def test_substring_07() { runner2.runOneTest("substring_07") }
+  @Test def test_substring_07() { runner2.runOneTest("substring_07") }
   @Test def test_substring_08() { runner2.runOneTest("substring_08") }
   @Test def test_substring_09() { runner2.runOneTest("substring_09") }
   @Test def test_substring_10() { runner2.runOneTest("substring_10") }
@@ -423,7 +423,7 @@ class TestDFDLExpressions {
   @Test def test_lowercase_02() { runner2.runOneTest("lowercase_02") }
   @Test def test_lowercase_03() { runner2.runOneTest("lowercase_03") }
   @Test def test_lowercase_04() { runner2.runOneTest("lowercase_04") }
-  //fails on build server 
+  //DFDL-1078 - fails on build server 
   //@Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
   // DFDL-1090

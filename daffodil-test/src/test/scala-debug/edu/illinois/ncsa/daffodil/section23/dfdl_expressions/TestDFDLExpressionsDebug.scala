@@ -147,13 +147,15 @@ class TestDFDLExpressionsDebug {
   //DFDL-1074
   @Test def test_not_11() { runner2.runOneTest("not_11") }
 
-  //fails on build server 
+  //DFDL-1078 - fails on build server 
   @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
 
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
+  @Test def test_exists_02() { runner2.runOneTest("exists_02") }
   //DFDL-1079
   @Test def test_empty_05() { runner2.runOneTest("empty_05") }
+  @Test def test_exists_05() { runner2.runOneTest("exists_05") }
   
   //DFDL-1085
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
@@ -196,8 +198,6 @@ class TestDFDLExpressionsDebug {
   // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  @Test def test_substring_07() { runner2.runOneTest("substring_07") }
 
   // DFDL-1090: DPath: fn:contains() Unsupported Function
   @Test def test_contains_01() { runner2.runOneTest("contains_01") }
