@@ -50,12 +50,16 @@ class TestInputValueCalcDebug {
   val tdml = testDir + "inputValueCalc.tdml"
 
   lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
+  //DFDL-1025
   @Test def test_InputValueCalc_refers_self() { runner.runOneTest("InputValueCalc_refers_self") }
   @Test def test_InputValueCalc_circular_ref() { runner.runOneTest("InputValueCalc_circular_ref") }
+  //DFDL-1024
   @Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
   @Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
   @Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
+  //DFDL-1027
   @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
+  //DFDL-1028
   @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 
   //DFDL-1059 - These two tests depend on the DPath parent:: and such notations working

@@ -1054,6 +1054,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1067,6 +1068,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

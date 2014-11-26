@@ -73,6 +73,10 @@ class TestVariables {
   @Test def test_varAsSeparator2() { runner.runOneTest("varAsSeparator2") }
   @Test def test_setVarBadScope2() { runner.runOneTest("setVarBadScope2") }
 
+  @Test def test_doubleEmptyDefault() { runner.runOneTest("doubleEmptyDefault") }
+  @Test def test_emptyDefault() { runner.runOneTest("emptyDefault") }
+  @Test def test_emptyDefault2() { runner.runOneTest("emptyDefault2") }
+
   val tdml_01 = testDir + "variables_01.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
