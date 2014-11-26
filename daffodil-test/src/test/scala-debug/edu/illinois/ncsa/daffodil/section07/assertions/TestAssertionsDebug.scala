@@ -43,13 +43,12 @@ class TestAssertionsDebug {
   val tdml = testDir + "assert.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 
-  @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
-  @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }
-
   @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
   @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
 
   //DFDL-998
+  @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
+  @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }
   @Test def test_testPatternFreeFormat() { runner.runOneTest("testPatternFreeFormat") }
   @Test def test_testPatternUnicode() { runner.runOneTest("testPatternUnicode") }
   @Test def test_testPatternUregexUword() { runner.runOneTest("testPatternUregexUword") }

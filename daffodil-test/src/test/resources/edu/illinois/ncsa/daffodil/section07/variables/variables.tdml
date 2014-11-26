@@ -790,10 +790,10 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <r1>
+        <r2>
           <one/>
 	  <two>test</two>
-        </r1>
+        </r2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
