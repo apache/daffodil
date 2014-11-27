@@ -55,16 +55,10 @@ class TestLengthPropertiesDebug {
   val tdml_02 = testDir_02 + "LengthProperties.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-  // Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
+  // DFDL-931 Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
   @Test def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }
-
-  // Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
   @Test def test_LengthProp_charVsBytes() { runner_02.runOneTest("LengthProp_charVsBytes") }
-
-  // Uses lengthUnits bytes with utf-8 and explicit lengthKind
   @Test def test_LengthProp_charVsBytes2() { runner_02.runOneTest("LengthProp_charVsBytes2") }
-
-  // Uses lengthKind explicit with utf-8 and lengthUnits bytes
   @Test def test_LengthProp_longByteLength() { runner_02.runOneTest("LengthProp_longByteLength") }
 
   // should just skip the 2 excess bytes
