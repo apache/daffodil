@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="SimpleTypes" description="Section 5 - simple types"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  xmlns:ex="http://example.com">
+  
+  <tdml:defineSchema name="Functions.dfdl.xsd">
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      separator="," terminator="" leadingSkip="0" trailingSkip="0"
+      textBidi="no" floating="no" byteOrder="bigEndian"
+      alignment="1" alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none" documentFinalTerminatorCanBeMissing="yes"
+      initiatedContent="no" separatorSuppressionPolicy="never" separatorPosition="infix" />
+    
+    <xs:element name="e_lowercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case('TÉST4!Ø') }" />
+    <xs:element name="e_lowercase5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
+          <xs:element name="lower" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case(../ex:one) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e_uppercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case('tèst4!ã') }" />
+    <xs:element name="e_uppercase5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
+          <xs:element name="upper" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case(../ex:one) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </xs:defineSchema>
+
+<!--
+    Test Name: lowercase_04
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase4
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+  <tdml:parserTestCase name="lowercase_04" root="e_lowercase4"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_lowercase4>tést4!ø</e_lowercase4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: lowercase_05
+       Schema: Functions.dfdl.xsd
+         Root: e_lowercase5
+      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
+-->
+
+  <tdml:parserTestCase name="lowercase_05" root="e_lowercase5"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
+
+    <tdml:document>`Ÿ A 8   O İ </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_lowercase5>
+          <one>`Ÿ A 8   O İ </one>
+          <lower>`ÿ a 8   o i̇ </lower>
+        </e_lowercase5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: uppercase_04
+       Schema: Functions.dfdl.xsd
+         Root: e_uppercase4
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+  <tdml:parserTestCase name="uppercase_04" root="e_uppercase4"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+    <tdml:document />
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_uppercase4>TÈST4!Ã</e_uppercase4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: upperCase_05
+       Schema: Functions.dfdl.xsd
+         Root: e_upperCase5
+      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
+-->
+
+  <tdml:parserTestCase name="uppercase_05" root="e_uppercase5"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
+
+    <tdml:document>`ÿ a 8   o ı </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_uppercase5>
+          <one>`ÿ a 8   o ı </one>
+          <upper>`Ÿ A 8   O I </upper>
+        </e_uppercase5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+</tdml:testSuite>

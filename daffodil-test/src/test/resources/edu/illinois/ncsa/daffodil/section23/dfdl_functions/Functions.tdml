@@ -350,28 +350,10 @@
     <xs:element name="e_uppercase1" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('test upper') }" />
     <xs:element name="e_uppercase2" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('TeSt UpPeR') }" />
     <xs:element name="e_uppercase3" type="xs:string" dfdl:inputValueCalc="{ fn:upper-case('') }" />
-    <xs:element name="e_uppercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case('tèst4!ã') }" />
-    <xs:element name="e_uppercase5">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
-          <xs:element name="upper" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:upper-case(../ex:one) }"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
 
     <xs:element name="e_lowercase1" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TEST LOWER') }" />
     <xs:element name="e_lowercase2" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('TeSt LoWeR') }" />
     <xs:element name="e_lowercase3" type="xs:string" dfdl:inputValueCalc="{ fn:lower-case('') }" />
-    <xs:element name="e_lowercase4" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case('TÉST4!Ø') }" />
-    <xs:element name="e_lowercase5">
-      <xs:complexType>
-        <xs:sequence>
-          <xs:element name="one" type="xs:string" dfdl:encoding="utf-8" />
-          <xs:element name="lower" type="xs:string" dfdl:encoding="utf-8" dfdl:inputValueCalc="{ fn:lower-case(../ex:one) }"/>
-        </xs:sequence>
-      </xs:complexType>
-    </xs:element>
 
     <xs:element name="e_contains1" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'quick') }" />
     <xs:element name="e_contains2" type="xs:boolean" dfdl:inputValueCalc="{ fn:contains('The quick brown fox.', 'slow') }" />
@@ -1130,44 +1112,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-<!--
-    Test Name: uppercase_04
-       Schema: Functions.dfdl.xsd
-         Root: e_uppercase4
-      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
--->
-
-  <tdml:parserTestCase name="uppercase_04" root="e_uppercase4"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
-
-    <tdml:document />
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e_uppercase4>TÈST4!Ã</e_uppercase4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-<!--
-    Test Name: upperCase_05
-       Schema: Functions.dfdl.xsd
-         Root: e_upperCase5
-      Purpose: This test demonstrates the use of the upper-case function to return the upper case value of the argument.
--->
-
-  <tdml:parserTestCase name="uppercase_05" root="e_uppercase5"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
-
-    <tdml:document>`ÿ a 8   o ı </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e_uppercase5>
-          <one>`ÿ a 8   o ı </one>
-          <upper>`Ÿ A 8   O I </upper>
-        </e_uppercase5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
 
 <!--
     Test Name: lowercase_01
@@ -1223,44 +1167,6 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-<!--
-    Test Name: lowercase_04
-       Schema: Functions.dfdl.xsd
-         Root: e_lowercase4
-      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
--->
-
-  <tdml:parserTestCase name="lowercase_04" root="e_lowercase4"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
-
-    <tdml:document />
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e_lowercase4>tést4!ø</e_lowercase4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
-
-<!--
-    Test Name: lowercase_05
-       Schema: Functions.dfdl.xsd
-         Root: e_lowercase5
-      Purpose: This test demonstrates the use of the lower-case function to return the lower case value of the argument.
--->
-
-  <tdml:parserTestCase name="lowercase_05" root="e_lowercase5"
-    model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:lower-case - DFDL-23-103R">
-
-    <tdml:document>`Ÿ A 8   O İ </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e_lowercase5>
-          <one>`Ÿ A 8   O İ </one>
-          <lower>`ÿ a 8   o i̇ </lower>
-        </e_lowercase5>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-  </tdml:parserTestCase>
 
 <!--
     Test Name: contains_01

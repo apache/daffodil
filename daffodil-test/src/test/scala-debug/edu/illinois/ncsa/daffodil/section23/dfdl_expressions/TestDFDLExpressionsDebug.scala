@@ -88,7 +88,9 @@ class TestDFDLExpressionsDebug {
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
+  val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
@@ -129,8 +131,12 @@ class TestDFDLExpressionsDebug {
   //DFDL-1124
   @Test def test_date_constructor_01() { runner2.runOneTest("date_constructor_01") }
 
+  //DFDL-1169
+  //@Test def test_lowercase_04() { runner2_utf8.runOneTest("lowercase_04") }
+  //@Test def test_uppercase_04() { runner2_utf8.runOneTest("uppercase_04") }
+  //@Test def test_uppercase_05() { runner2_utf8.runOneTest("uppercase_05") }
   //DFDL-1078 - fails on build server 
-  @Test def test_lowercase_05() { runner2.runOneTest("lowercase_05") }
+  //@Test def test_lowercase_05() { runner2_utf8.runOneTest("lowercase_05") }
 
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
