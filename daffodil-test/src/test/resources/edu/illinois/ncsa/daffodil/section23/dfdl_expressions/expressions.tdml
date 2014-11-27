@@ -206,6 +206,26 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e14">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 gt ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e15">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/> 
+          <xs:element name="string2" type="xs:string"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 lt ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -3164,6 +3184,94 @@ c' } "  />
           <ex:item>three</ex:item>
           <ex:p>one</ex:p>
         </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_23
+        Schema: comparisonOperators 
+          Root: e14
+       Purpose: This test demonstrates that lexicographic collation order is used for string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_23" root="e14"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>one2,one12</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e14>
+          <string1>one2</string1>
+          <string2>one12</string2>
+          <oneGTtwo>True</oneGTtwo>
+        </e14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_24
+        Schema: comparisonOperators 
+          Root: e14
+       Purpose: This test demonstrates that lexicographic collation order is used for string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_24" root="e14"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>125,4</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e14>
+          <string1>125</string1>
+          <string2>4</string2>
+          <oneGTtwo>False</oneGTtwo>
+        </e14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_25
+        Schema: comparisonOperators 
+          Root: e15
+       Purpose: This test demonstrates that lexicographic collation order is used for string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_25" root="e15"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>100,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e15>
+          <string1>100</string1>
+          <string2>2</string2>
+          <oneGTtwo>True</oneGTtwo>
+        </e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_26
+        Schema: comparisonOperators 
+          Root: e15
+       Purpose: This test demonstrates that lexicographic collation order is used for string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_26" root="e15"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>100000,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e15>
+          <string1>100000</string1>
+          <string2>2</string2>
+          <oneGTtwo>True</oneGTtwo>
+        </e15>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
