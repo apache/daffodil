@@ -66,6 +66,10 @@ class TestDFDLExpressionsDebug {
   @Test def test_comparison_operators_14() { runner.runOneTest("comparison_operators_14") }
   @Test def test_comparison_operators_18() { runner.runOneTest("comparison_operators_18") }
   @Test def test_comparison_operators_22() { runner.runOneTest("comparison_operators_22") }
+  
+  //DFDL-1035 - tests need better diagnostic
+  @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
 
   //DFDL-1171
   @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }

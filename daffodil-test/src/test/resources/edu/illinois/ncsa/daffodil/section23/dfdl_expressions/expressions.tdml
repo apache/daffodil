@@ -1570,37 +1570,19 @@ c' } "  />
     </xs:complexType>
   </tdml:defineSchema>
 
+<!-- 
+     Test Name: dfdlCheckConstraints
+     Schema: checkConstraints
+     Purpose: This test demonstrates that checkConstraints cannot reference an inputValueCalc-ed element because the value is being computed by inputValueCalc
+-->
+
   <tdml:parserTestCase name="dfdlCheckConstraints"
     root="e1" model="checkConstraints" description="DFDL-23-135R">
-    <!-- check constraints should return true as there are no constraints
-      on
-      the data as a result the data values should be '1' -->
     <tdml:document>6</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e1>
-          <cnt>6</cnt>
-          <a>
-            <v>1</v>
-          </a>
-          <a>
-            <v>1</v>
-          </a>
-          <a>
-            <v>1</v>
-          </a>
-          <a>
-            <v>1</v>
-          </a>
-          <a>
-            <v>1</v>
-          </a>
-          <a>
-            <v>1</v>
-          </a>
-        </e1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="checkConstraintsComplexTypeFails"
@@ -1613,16 +1595,18 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
 
+<!-- 
+     Test Name: dfdlCheckConstraints2
+     Schema: checkConstraints
+     Purpose: This test demonstrates that checkConstraints cannot reference an inputValueCalc-ed element because the value is being computed by inputValueCalc
+-->
   <tdml:parserTestCase name="dfdlCheckConstraints2" validation="on"
     root="e8" model="checkConstraints" description="DFDL-23-135R">
-    <!-- check constraints should return true as there are no constraints
-      on the data as a result the data value should be '1' -->
     <tdml:document></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <e8>1</e8>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <tdml:defineSchema name="repeatFlags">

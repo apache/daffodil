@@ -153,9 +153,10 @@ class TestDFDLExpressions {
 
   @Test def test_expresion_bad_path_to_element() { runner.runOneTest("expresion_bad_path_to_element") }
   @Test def test_ArrayOptElem_02() { runner.runOneTest("ArrayOptElem_02") }
-  // Tests incorrect see JIRA DFDL-1035
-  // @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
-  // @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
+
+  //DFDL-1035 - tests need better diagnostic
+  //@Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  //@Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
 
   // DFDL-1043
   // @Test def test_checkConstraintsComplexTypeFails() { runner.runOneTest("checkConstraintsComplexTypeFails") }
