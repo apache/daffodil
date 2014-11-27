@@ -56,7 +56,11 @@ class TestDFDLExpressionsDebug {
   @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
   @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
   @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
-  
+
+  //DFDL-1035 - tests need better diagnostic
+  @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
+  @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
+
   //DFDL-1171
   @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
   @Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
