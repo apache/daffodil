@@ -7,6 +7,35 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   
+  <tdml:defineSchema name="hiddenElem">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+    
+    <xs:group name="hiddenData">
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="password" type="xs:string" dfdl:initiator="pw:" minOccurs="0" maxOccurs="1" dfdl:lengthKind="delimited"/>
+      </xs:sequence>
+    </xs:group>    
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+          <xs:element name="hideme" type="xs:string" dfdl:inputValueCalc="{ fn:concat(fn:substring(/ex:e1/ex:password[1], 1, 1), '***') }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+          <xs:element name="unhideme" type="xs:string" dfdl:inputValueCalc="{ /ex:e2/ex:password[1] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="asterisk">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
 
@@ -3476,6 +3505,47 @@ c' } "  />
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>NaN</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: hiddenDataExpression
+        Schema: hiddenElem 
+          Root: e1
+       Purpose: This test demonstrates that expressions operate on the augmented infoset (which includes hidden elements) 
+  -->
+
+  <tdml:parserTestCase name="hiddenDataExpression" root="e1"
+    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
+
+    <tdml:document>p455w0rd</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <hideme>p***</hideme>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+             
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: hiddenDataExpression2
+        Schema: hiddenElem 
+          Root: e2
+       Purpose: This test demonstrates that expressions operate on the augmented infoset (which includes hidden elements) 
+  -->
+
+  <tdml:parserTestCase name="hiddenDataExpression2" root="e2"
+    model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
+
+    <tdml:document>p455w0rd</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <unhideme>p455w0rd</unhideme>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>
