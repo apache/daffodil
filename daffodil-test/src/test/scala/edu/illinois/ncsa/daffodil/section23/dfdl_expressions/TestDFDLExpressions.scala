@@ -72,6 +72,12 @@ class TestDFDLExpressions {
 
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
+  
+  @Test def test_sequenceReturned_01() { runner.runOneTest("sequenceReturned_01") }
+  @Test def test_sequenceReturned_02() { runner.runOneTest("sequenceReturned_02") }
+  @Test def test_sequenceReturned_03() { runner.runOneTest("sequenceReturned_03") }
+  @Test def test_longPath_01() { runner.runOneTest("longPath_01") }
+  @Test def test_longPath_02() { runner.runOneTest("longPath_02") }
 
   //DFDL-1188
   //@Test def test_hiddenDataExpression() { runner.runOneTest("hiddenDataExpression") }

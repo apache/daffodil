@@ -7,6 +7,121 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   
+  <tdml:defineSchema name="paths">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq" dfdl:separator=",">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e1/ex:seq/ex:item }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e2/ex:seq/../ex:seq/../ex:seq/ex:item[2] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq3">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=":">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e3/ex:seq/ex:item[2] + /ex:e3/ex:seq/../ex:seq2/ex:item[1] + /ex:e3/ex:seq3/../ex:seq2/../ex:seq/../ex:seq3/ex:item[4] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=".">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="seq3">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=":">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e4/ex:seq3/../ex:seq2/../ex:seq/ex:item/../../ex:seq3/ex:item }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" dfdl:terminator="!" minOccurs="1" maxOccurs="10">
+                  <xs:complexType>
+                    <xs:sequence dfdl:separator="+">
+                      <xs:element name="sub" type="xs:int" minOccurs="1" maxOccurs="2"/>
+                    </xs:sequence>
+                  </xs:complexType>
+                </xs:element>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="items" type="xs:string" dfdl:inputValueCalc="{ /ex:e5/ex:seq/ex:item/ex:sub[2] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+
   <tdml:defineSchema name="hiddenElem">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
     
@@ -3544,6 +3659,128 @@ c' } "  />
         <e2>
           <unhideme>p455w0rd</unhideme>
         </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: sequenceReturned_01
+        Schema: paths 
+          Root: e1
+       Purpose: This test demonstrates that DFDL expressions never return node-sequences 
+  -->
+
+  <tdml:parserTestCase name="sequenceReturned_01" root="e1"
+    model="paths" description="Section 23 - DFDL Expressions - DFDL-23-009R1">
+
+    <tdml:document>1,2,3,4,5</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Query-style paths not supported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: sequenceReturned_02
+        Schema: paths 
+          Root: e4
+       Purpose: This test demonstrates that DFDL expressions never return node-sequences 
+  -->
+
+  <tdml:parserTestCase name="sequenceReturned_02" root="e4"
+    model="paths" description="Section 23 - DFDL Expressions - DFDL-23-009R1">
+
+    <tdml:document>1,1,1,1,1.2|2|2|2|2.3:3:3:3:3:3:3:3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Query-style paths not supported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: sequenceReturned_03
+        Schema: paths 
+          Root: e5
+       Purpose: This test demonstrates that DFDL expressions never return node-sequences 
+  -->
+
+  <tdml:parserTestCase name="sequenceReturned_03" root="e5"
+    model="paths" description="Section 23 - DFDL Expressions - DFDL-23-009R1">
+
+    <tdml:document>1+3!</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Query-style paths not supported</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: longPath_01
+        Schema: paths 
+          Root: e2
+       Purpose: This test exercises DPath paths
+  -->
+
+  <tdml:parserTestCase name="longPath_01" root="e2"
+    model="paths" description="Section 23 - DFDL Expressions - DFDL-23-009R">
+
+    <tdml:document>1,2,3,4,5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <seq>
+            <item>1</item>
+            <item>2</item>
+            <item>3</item>
+            <item>4</item>
+            <item>5</item>
+          </seq>
+          <items>2</items>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: longPath_02
+        Schema: paths 
+          Root: e3
+       Purpose: This test exercises DPath paths
+  -->
+
+  <tdml:parserTestCase name="longPath_02" root="e3"
+    model="paths" description="Section 23 - DFDL Expressions - DFDL-23-009R">
+
+    <tdml:document>1,1,1,1,1.2|2|2|2|2.3:3:3:3:3:3:3:3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e3>
+          <seq>
+            <item>1</item>
+            <item>1</item>
+            <item>1</item>
+            <item>1</item>
+            <item>1</item>
+          </seq>
+          <seq2>
+            <item>2</item>
+            <item>2</item>
+            <item>2</item>
+            <item>2</item>
+            <item>2</item>
+          </seq2>
+          <seq3>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+            <item>3</item>
+          </seq3>
+          <items>6</items>
+        </e3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
