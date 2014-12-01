@@ -1251,9 +1251,12 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
 
       case (RefQName(_, "true", FUNC), Nil) => LiteralBooleanExpression(true)
       case (RefQName(_, "false", FUNC), Nil) => LiteralBooleanExpression(false)
-      
+
       case (RefQName(_, "count", FUNC), args) =>
         FNCountExpr(functionQNameString, functionQName, args)
+
+      case (RefQName(_, "exactly-one", FUNC), args) =>
+        FNExactlyOneExpr(functionQNameString, functionQName, args)
 
       case (RefQName(_, "year-from-dateTime", FUNC), args) => FNOneArgExprConversionDisallowed(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNYearFromDateTime(_, _))
       case (RefQName(_, "month-from-dateTime", FUNC), args) => FNOneArgExpr(functionQNameString, functionQName, args, NodeInfo.Long, NodeInfo.DateTime, FNMonthFromDateTime(_, _))
@@ -1410,15 +1413,18 @@ abstract class FunctionCallBase(functionQNameString: String,
     SDE("The %s function requires at least %s argument(s).", functionQName.toPrettyString, n)
   }
 }
+
 /**
  * Tells the sub-expression that we want an array out of it.
  */
-case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+abstract class FunctionCallArrayBase(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
   extends FunctionCallBase(nameAsParsed, fnQName, args) {
+
+  def funcName: String
 
   lazy val arrPath = args(0) match {
     case pe: PathExpression => pe
-    case _ => subsetError("The count function must contain a path.")
+    case _ => subsetError("The %s function must contain a path.", funcName)
   }
 
   override lazy val isTypeCorrect = {
@@ -1426,12 +1432,36 @@ case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expre
     arrPath.isPathToOneWholeArray
   }
 
-  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Long
   override def targetTypeForSubexpression(subExp: Expression): NodeInfo.Kind = NodeInfo.Array
+
+}
+/**
+ * Tells the sub-expression that we want an array out of it.
+ */
+case class FNCountExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+  extends FunctionCallArrayBase(nameAsParsed, fnQName, args) {
+
+  val funcName: String = "fn:count"
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.Long
 
   override lazy val compiledDPath = {
     checkArgCount(1)
     new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNCount) ++ conversions)
+  }
+}
+
+case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[Expression])
+  extends FunctionCallArrayBase(nameAsParsed, fnQName, args) {
+
+  val funcName: String = "fn:exactly-one"
+
+  override lazy val inherentType: NodeInfo.Kind = NodeInfo.AnyType
+
+  override lazy val compiledDPath = {
+    checkArgCount(1)
+    subsetError("fn:exactly-one not in subset")
+    new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNExactlyOne) ++ conversions)
   }
 }
 
