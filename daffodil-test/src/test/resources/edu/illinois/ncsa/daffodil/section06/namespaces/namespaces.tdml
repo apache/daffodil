@@ -266,7 +266,7 @@
 
   <tdml:parserTestCase name="multifile_cyclical"
     root="elem" model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
-    <tdml:document><![CDATA[1234]]></tdml:document>
+    <tdml:document><![CDATA[12*34]]></tdml:document>
     <tdml:errors>
       <tdml:error>Cyclical</tdml:error>
     </tdml:errors>
