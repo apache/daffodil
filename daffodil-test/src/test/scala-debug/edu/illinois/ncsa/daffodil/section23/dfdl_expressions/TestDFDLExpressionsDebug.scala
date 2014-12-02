@@ -61,12 +61,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
   @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
 
-  //DFDL-1171
-  @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
-  @Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
-  @Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
-  @Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
-
   @Test def test_regexCompatFail() { runner.runOneTest("regexCompatFail") }
 
   // lengthUnits bytes with variable-width charater set and specified lengthKind

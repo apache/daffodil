@@ -202,8 +202,8 @@ class DFDLPathExpressionParser(
   def AbbrevReverseStep = ".." ^^ { expr => Up(None) }
   // TODO support forward axis syntax some day
   // def ForwardAxis = ("child" ~ "::") | ("self" ~ "::") 
-  def EqualityComp = "eq" | "ne" | "!=" | "=" 
-  def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">" 
+  def EqualityComp = "eq" | "ne" | "!=" | "="
+  def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">"
   def Comp = EqualityComp | NumberComp
   //
   // we don't care if it has braces around it or not.
@@ -243,7 +243,7 @@ class DFDLPathExpressionParser(
         if (List("eq", "ne", "=", "!=").contains(vc))
           EqualityComparisonExpression(vc, List(a1, a2))
         else
-          NumberComparisonExpression(vc, List(a1, a2))
+          ComparisonExpression(vc, List(a1, a2))
       }
       case a1 ~ None => a1
     }
@@ -275,7 +275,7 @@ class DFDLPathExpressionParser(
   def RelativePathExpr: Parser[RelativePathExpression] = log(
     StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps => RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove) })("relativePath")
 
-  def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ {varRef => this.context.SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString)})("step")
+  def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ { varRef => this.context.SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString) })("step")
   def AxisStep: Parser[StepExpression] =
     ".." ~> Predicate.? ^^ { Up(_) } |
       "." ~> Predicate.? ^^ { Self(_) } |

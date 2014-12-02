@@ -221,10 +221,10 @@ trait BooleanExpression extends BinaryExpMixin {
 
 }
 
-case class NumberComparisonExpression(op: String, adds: List[Expression])
+case class ComparisonExpression(op: String, adds: List[Expression])
   extends ExpressionLists(adds) with BooleanExpression {
 
-  lazy val compareOp: NumberCompareOp = {
+  lazy val compareOp: CompareOpBase = {
     import NodeInfo.PrimType._
     import NodeInfo.ArrayIndex
     (op, convergedArgType) match {
@@ -232,6 +232,11 @@ case class NumberComparisonExpression(op: String, adds: List[Expression])
       case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
       case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
       case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
+
+      case ("lt", String) => LT_String
+      case ("gt", String) => GT_String
+      case ("le", String) => LE_String
+      case ("ge", String) => GE_String
 
       case ("lt", Decimal) => LT_Decimal
       case ("gt", Decimal) => GT_Decimal
@@ -311,21 +316,23 @@ case class NumberComparisonExpression(op: String, adds: List[Expression])
     val leftDPath = left.compiledDPath
     val rightDPath = right.compiledDPath
     val c = conversions
-    val res = new CompiledDPath(NumberCompareOperator(compareOp, leftDPath, rightDPath) +: c)
+    val res = new CompiledDPath(CompareOperator(compareOp, leftDPath, rightDPath) +: c)
     res
   }
 
   override def targetTypeForSubexpression(child: Expression): NodeInfo.Kind = convergedArgType
 
   lazy val (convergedArgType, _) = (left.inherentType, right.inherentType) match {
+    // String => Numeric conversions are not allowed for comparison Ops.
+    //
+    // See http://www.w3.org/TR/xpath20/#mapping
+    //
+    case (left: NodeInfo.String.Kind, right: NodeInfo.String.Kind) =>
+      (NodeInfo.String, NodeInfo.String)
     case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
       Conversion.numericBinaryOpTargetTypes(op, left, right)
-    case (left: NodeInfo.Numeric.Kind, r) =>
-      SDE("Right operand for operator '%s' must have numeric type. Type was: %s.", op, r)
-    case (l, r: NodeInfo.Numeric.Kind) =>
-      SDE("Left operand for operator '%s' must have numeric type. Type was: %s.", op, l)
     case (l, r) =>
-      SDE("Operands for operator '%s' must have numeric type. Types were: %s and %s.", op, l, r)
+      SDE("Cannot compare %s with %s for operator '%s'", l, r, op)
   }
 
 }

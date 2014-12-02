@@ -3193,7 +3193,7 @@ c' } "  />
         <e14>
           <string1>one2</string1>
           <string2>one12</string2>
-          <oneGTtwo>True</oneGTtwo>
+          <oneGTtwo>true</oneGTtwo>
         </e14>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3215,7 +3215,7 @@ c' } "  />
         <e14>
           <string1>125</string1>
           <string2>4</string2>
-          <oneGTtwo>False</oneGTtwo>
+          <oneGTtwo>false</oneGTtwo>
         </e14>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3237,7 +3237,7 @@ c' } "  />
         <e15>
           <string1>100</string1>
           <string2>2</string2>
-          <oneGTtwo>True</oneGTtwo>
+          <oneLTtwo>true</oneLTtwo>
         </e15>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3259,7 +3259,7 @@ c' } "  />
         <e15>
           <string1>100000</string1>
           <string2>2</string2>
-          <oneGTtwo>True</oneGTtwo>
+          <oneLTtwo>true</oneLTtwo>
         </e15>
       </tdml:dfdlInfoset>
     </tdml:infoset>

@@ -194,7 +194,7 @@ trait BinaryOpMixin { self: RecipeOp =>
   override def toXML: scala.xml.Node = toXML(new scala.xml.Text(op), left.toXML, right.toXML)
 }
 
-case class NumberCompareOperator(cop: NumberCompareOp, left: CompiledDPath, right: CompiledDPath)
+case class CompareOperator(cop: CompareOpBase, left: CompiledDPath, right: CompiledDPath)
   extends RecipeOp with BinaryOpMixin {
 
   override def op = Misc.getNameFromClass(cop)

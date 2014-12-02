@@ -4,12 +4,29 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import scala.collection.mutable.ListBuffer
 
-trait NumberCompareOp {
+trait CompareOpBase {
+  def operate(v1: Any, v2: Any): Any
+}
+
+trait NumberCompareOp extends CompareOpBase {
   /**
    * It is such a pain that there is no scala.math.Number base class above
    * all the numeric types.
    */
   def operate(v1: Any, v2: Any): Boolean
+}
+
+trait StringCompareOp extends CompareOpBase {
+  /**
+   * According to Scala spec the compare method
+   * returns x where:
+   * x < 0 when v1 < v2
+   * x == 0 when v1 == v2
+   * x > 0 when v1 > v2
+   *
+   * This mimics the fn:compare method closely.
+   */
+  def compare(v1: Any, v2: Any): Int = v1.asInstanceOf[String].compare(v2.asInstanceOf[String])
 }
 
 abstract class CompareOp

@@ -309,12 +309,12 @@ class TestDFDLExpressionTree extends Parsers {
         List(RelativePathExpression(List(NamedStep("a", None)), _),
           AndExpression(
             List(RelativePathExpression(List(NamedStep("b", None)), _),
-              NumberComparisonExpression("gt",
+              ComparisonExpression("gt",
                 List(RelativePathExpression(List(NamedStep("c", None)), _),
                   RelativePathExpression(List(NamedStep("d", None)), _)))
               )))) = pred
       val IfExpression(
-        List(NumberComparisonExpression("gt",
+        List(ComparisonExpression("gt",
           List(RelativePathExpression(List(NamedStep("c", None)), _),
             RelativePathExpression(List(NamedStep("d", None)), _))),
           AdditiveExpression("+",

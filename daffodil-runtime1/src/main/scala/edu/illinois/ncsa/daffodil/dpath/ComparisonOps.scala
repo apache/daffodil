@@ -27,6 +27,30 @@ import com.ibm.icu.util.DFDLDate
 import com.ibm.icu.util.DFDLTime
 import AsIntConverters._
 
+case object LT_String extends StringCompareOp {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val res = compare(v1, v2) < 0
+    res
+  }
+}
+case object GT_String extends StringCompareOp {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val res = compare(v1, v2) > 0
+    res
+  }
+}
+case object LE_String extends StringCompareOp {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val res = compare(v1, v2) <= 0
+    res
+  }
+}
+case object GE_String extends StringCompareOp {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val res = compare(v1, v2) >= 0
+    res
+  }
+}
 case object LT_Decimal extends NumberCompareOp {
   def operate(v1: Any, v2: Any): Boolean = { asBigDecimal(v1) < asBigDecimal(v2) }
 }
