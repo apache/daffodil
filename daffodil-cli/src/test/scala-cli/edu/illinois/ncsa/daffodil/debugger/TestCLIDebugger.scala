@@ -116,7 +116,7 @@ class TestCLIdebugger {
     shell.send("quit\n")
     shell.close()
   }
-/*
+
   @Test def test_1326_CLI_Debugger_displaysTesting() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
     val shell = Util.start(cmd)
@@ -137,7 +137,7 @@ class TestCLIdebugger {
     shell.send("enable display 1\n")
 
     shell.send("step\n")
-    shell.expect(contains("<tns:cell"))
+    shell.expect(contains("0"))
 
     shell.send("delete display 1\n")
     shell.send("step\n")
@@ -146,11 +146,11 @@ class TestCLIdebugger {
     shell.expect(contains("error: 1 is not a valid display id"))
 
     shell.send("continue\n")
-    shell.expect(contains("<tns:matrix"))
+    shell.expect(contains("matrix"))
     shell.send("quit\n")
     shell.close()
   }
-*/
+
   //  @Test def test_1331_CLI_Debugger_breakpointTesting4() {} //DFDL-600 CLI Debugger: Allow for duplicate breakpoints with different conditionals
 
   // See DFDL-973: Breakpoints not working in CLI
@@ -521,7 +521,7 @@ class TestCLIdebugger {
     shell.expect(contains("(debug)"))
 
     shell.send("break element.cell\n")
-    shell.send("step\n")
+    shell.send("continue\n")
     shell.send("info data\n")
     shell.expect(contains("0,1,2,3,4,5,6"))
 
@@ -535,6 +535,7 @@ class TestCLIdebugger {
 
     shell.send("set wrapLength 2\n")
     shell.send("info data\n")
+    //TODO: update to expect entire data stream, but each line should only contain 2 characters
     shell.expect(contains("1,"))
 
     shell.send("disable breakpoint 1\n")
