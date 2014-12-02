@@ -74,6 +74,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -1078,6 +1079,10 @@ object Main extends Logging {
         1
       }
       case e: DaffodilTunableParameters.TunableLimitExceededError => {
+        log(LogLevel.Error, "%s", e.getMessage)
+        1
+      }
+      case e: InvalidParserException => {
         log(LogLevel.Error, "%s", e.getMessage)
         1
       }

@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import java.util.zip.GZIPOutputStream
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -77,7 +78,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   override def getDiagnostics = ssrd.diagnostics
 
   def save(output: DFDL.Output): Unit = {
-    val oos = new ObjectOutputStream(Channels.newOutputStream(output))
+    val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
     oos.writeObject(this)
     oos.close()
   }

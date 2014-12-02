@@ -68,6 +68,7 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 
 
 /**
@@ -158,9 +159,14 @@ class Compiler {
    *
    * @param savedParser file of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
+   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
    */
   def reload(savedParser: File): DataProcessor = {
-    new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+    try {
+      new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+    } catch {
+      case ex: SInvalidParserException => throw new InvalidParserException(ex)
+    }
   }
 
   /**
@@ -168,9 +174,14 @@ class Compiler {
    *
    * @param savedParser [[java.nio.channels.ReadableByteChannel]] of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
+   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
    */
   def reload(savedParser: DFDL.Input): DataProcessor = {
-    new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+    try {
+       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
+    } catch {
+      case ex: SInvalidParserException => throw new InvalidParserException(ex)      
+    }
   }
 
   /**
@@ -498,3 +509,10 @@ class ParseResult(pr: SParseResult)
    */
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
 }
+
+/**
+ * This exception will be thrown as a result of attempting to reload a saved parser
+ * that is invalid (not a parser file, corrupt, etc.) or
+ * is not in the GZIP format.
+ */
+class InvalidParserException(cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())

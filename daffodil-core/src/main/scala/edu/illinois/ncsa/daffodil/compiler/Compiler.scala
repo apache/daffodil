@@ -61,6 +61,9 @@ import edu.illinois.ncsa.daffodil.processors.SchemaSetRuntimeData
 import edu.illinois.ncsa.daffodil.util.CheckJavaVersion
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.processors.VariableMap
+import java.util.zip.GZIPInputStream
+import java.util.zip.ZipException
+import java.io.StreamCorruptedException
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -159,6 +162,7 @@ trait HavingRootSpec extends Logging {
 
   }
 }
+class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 class Compiler(var validateDFDLSchemas: Boolean = true)
   extends DFDL.Compiler
@@ -244,24 +248,33 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
 
   def reload(savedParser: DFDL.Input): DFDL.DataProcessor = {
-    val objInput = new ObjectInputStream(Channels.newInputStream(savedParser)) {
+    try {
+      val objInput = new ObjectInputStream(new GZIPInputStream(Channels.newInputStream(savedParser))) {
 
-      ///
-      /// This override is here because of a bug in sbt where the wrong class loader is being
-      /// used when deserializing an object.
-      //  For more information, see https://github.com/sbt/sbt/issues/163
-      ///
-      override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
-        try { Class.forName(desc.getName, false, getClass.getClassLoader) }
-        catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
+        ///
+        /// This override is here because of a bug in sbt where the wrong class loader is being
+        /// used when deserializing an object.
+        //  For more information, see https://github.com/sbt/sbt/issues/163
+        ///
+        override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+          try { Class.forName(desc.getName, false, getClass.getClassLoader) }
+          catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
+        }
+      }
+
+      val dpObj = objInput.readObject()
+      objInput.close()
+      val dp = dpObj.asInstanceOf[DataProcessor]
+      CheckJavaVersion.checkJavaVersion(dp.ssrd)
+      dp
+    } catch {
+      case ex: ZipException => {
+        throw new InvalidParserException("The saved parser file is not the correct format.", ex)
+      }
+      case ex: StreamCorruptedException => {
+        throw new InvalidParserException("The saved parser file is not a valid parser.", ex)
       }
     }
-
-    val dpObj = objInput.readObject()
-    objInput.close()
-    val dp = dpObj.asInstanceOf[DataProcessor]
-    CheckJavaVersion.checkJavaVersion(dp.ssrd)
-    dp
   }
   /**
    * Compilation works entirely off of schema files because that allows XMLCatalogs
