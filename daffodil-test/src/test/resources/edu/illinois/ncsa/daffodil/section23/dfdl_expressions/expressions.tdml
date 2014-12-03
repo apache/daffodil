@@ -3265,4 +3265,222 @@ c' } "  />
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="and_or_schema">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 and fn:round(../ex:float1) = 1.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 and fn:round(../ex:float1) = 1.0 and fn:round(../ex:float2) = 2.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 or fn:round(../ex:float1) = 1.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e4">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 or fn:round(../ex:float1) = 1.0 or fn:round(../ex:float2) = 2.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: sequential_and_01
+        Schema: and_or_schema
+          Root: e1
+       Purpose: This test demonstrates that the and operator is evaluated sequentially, so it stops at the first false.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_01" root="e1"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>NaN</ex:float1>
+          <ex:and>false</ex:and>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_02
+        Schema: and_or_schema
+          Root: e2
+       Purpose: This test demonstrates that the and operator is evaluated sequentially, so it stops at the first false.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_02" root="e2"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,3.5,NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>abc</ex:string2>
+          <ex:float1>3.5</ex:float1>
+          <ex:float2>NaN</ex:float2>
+          <ex:and>false</ex:and>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_03
+        Schema: and_or_schema
+          Root: e2
+       Purpose: This test demonstrates that the and operator is evaluated sequentially, so it stops at the first false.
+          This test gets a Parse Error because the first expression evaluated to true so it continues to parse.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_03" root="e2"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,NaN,2</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_04
+        Schema: and_or_schema
+          Root: e2
+       Purpose: This test demonstrates that the and operator is evaluated sequentially, so it stops at the first false.
+          This test does not have a false so it continues parsing until the parse error.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_04" root="e2"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,1,NaN</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_or_01
+        Schema: and_or_schema
+          Root: e3
+       Purpose: This test demonstrates that the or operator is evaluated sequentially, so it stops at the first true.
+  -->
+
+  <tdml:parserTestCase name="sequential_or_01" root="e3"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>abc</ex:string2>
+          <ex:float1>NaN</ex:float1>
+          <ex:or>true</ex:or>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_or_02
+        Schema: and_or_schema
+          Root: e4
+       Purpose: This test demonstrates that the or operator is evaluated sequentially, so it stops at the first true.
+  -->
+
+  <tdml:parserTestCase name="sequential_or_02" root="e4"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,1.2,NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>1.2</ex:float1>
+          <ex:float2>NaN</ex:float2>
+          <ex:or>true</ex:or>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_or_03
+        Schema: and_or_schema
+          Root: e4
+       Purpose: This test demonstrates that the or operator is evaluated sequentially, so it stops at the first true.
+          This test gets a Parse Error because the first expression evaluated to false so it continues to parse.
+  -->
+
+  <tdml:parserTestCase name="sequential_or_03" root="e4"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,NaN,2</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_or_04
+        Schema: and_or_schema
+          Root: e4
+       Purpose: This test demonstrates that the or operator is evaluated sequentially, so it stops at the first true.
+          This test does not have a true so it continues parsing until the parse error.
+  -->
+
+  <tdml:parserTestCase name="sequential_or_04" root="e4"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,5.2,NaN</tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>NaN</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
