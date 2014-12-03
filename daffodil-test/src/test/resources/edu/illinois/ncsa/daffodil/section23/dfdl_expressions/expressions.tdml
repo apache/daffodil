@@ -3275,7 +3275,7 @@ c' } "  />
           <xs:element name="string1" type="xs:string"/>
           <xs:element name="string2" type="xs:string"/>
           <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
-          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 and fn:round(../ex:float1) = 1.0 }"/>
+          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 and fn:round(../ex:float1) eq 1.0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3287,7 +3287,7 @@ c' } "  />
           <xs:element name="string2" type="xs:string"/>
           <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
           <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
-          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 and fn:round(../ex:float1) = 1.0 and fn:round(../ex:float2) = 2.0 }"/>
+          <xs:element name="and" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 and fn:round(../ex:float1) eq 1.0 and fn:round(../ex:float2) eq 2.0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3298,7 +3298,7 @@ c' } "  />
           <xs:element name="string1" type="xs:string"/>
           <xs:element name="string2" type="xs:string"/>
           <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
-          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 or fn:round(../ex:float1) = 1.0 }"/>
+          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 or fn:round(../ex:float1) eq 1.0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -3310,7 +3310,7 @@ c' } "  />
           <xs:element name="string2" type="xs:string"/>
           <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
           <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
-          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 = ../ex:string2 or fn:round(../ex:float1) = 1.0 or fn:round(../ex:float2) = 2.0 }"/>
+          <xs:element name="or" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 or fn:round(../ex:float1) eq 1.0 or fn:round(../ex:float2) eq 2.0 }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
