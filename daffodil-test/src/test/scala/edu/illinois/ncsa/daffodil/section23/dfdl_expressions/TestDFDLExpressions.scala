@@ -198,6 +198,16 @@ class TestDFDLExpressions {
   //@Test def test_predicate_03() { runner.runOneTest("predicate_03") }
   @Test def test_predicate_04() { runner.runOneTest("predicate_04") }
 
+  //DFDL-1181 and DFDL-1182
+  //@Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
+  @Test def test_sequential_and_02() { runner.runOneTest("sequential_and_02") }
+  @Test def test_sequential_and_03() { runner.runOneTest("sequential_and_03") }
+  //@Test def test_sequential_and_04() { runner.runOneTest("sequential_and_04") }
+  //@Test def test_sequential_or_01() { runner.runOneTest("sequential_or_01") }
+  @Test def test_sequential_or_02() { runner.runOneTest("sequential_or_02") }
+  @Test def test_sequential_or_03() { runner.runOneTest("sequential_or_03") }
+  //@Test def test_sequential_or_04() { runner.runOneTest("sequential_or_04") }
+
 /////////////////////// FUNCTIONS ///////////////////////////
   
   val tdml2 = testDir + "functions.tdml"

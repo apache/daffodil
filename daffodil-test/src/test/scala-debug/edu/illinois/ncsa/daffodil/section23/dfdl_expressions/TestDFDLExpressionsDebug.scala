@@ -96,6 +96,14 @@ class TestDFDLExpressionsDebug {
   @Test def test_predicate_02() { runner.runOneTest("predicate_02") }
   @Test def test_predicate_03() { runner.runOneTest("predicate_03") }
 
+  //DFDL-1181
+  @Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
+  @Test def test_sequential_or_01() { runner.runOneTest("sequential_or_01") }
+
+  //DFDL-1182
+  @Test def test_sequential_and_04() { runner.runOneTest("sequential_and_04") }
+  @Test def test_sequential_or_04() { runner.runOneTest("sequential_or_04") }
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
