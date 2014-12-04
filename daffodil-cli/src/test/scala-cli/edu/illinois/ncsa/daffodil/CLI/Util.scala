@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.util._
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.echo.EchoOutput
+import java.io.File
+import java.nio.file.Paths
 
 object Util {
 
@@ -47,7 +49,7 @@ object Util {
 
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-  val binPath = "./daffodil-cli/target/universal/stage/bin/daffodil" + (if (isWindows) ".bat" else "")
+  val binPath = Paths.get(".", "daffodil-cli", "target", "universal", "stage", "bin", String.format("daffodil%s", (if (isWindows) ".bat" else ""))).toString()
 
   def getExpectedString(filename: String): String = {
     val rsrc = Misc.getRequiredResource(outputDir + filename)
@@ -70,6 +72,16 @@ object Util {
     }
     
     return getShell(cmd, spawnCmd, expectErr)
+  }
+
+  def startIncludeErrors(cmd: String): Expect = {
+    val spawnCmd = if (isWindows) {
+      "cmd /k" + cmdConvert(cmd)
+    } else {
+      "/bin/bash"
+    }
+    
+    return getShellWithErrors(cmd, spawnCmd)
   }
 
   // This function will be used if you are providing two separate commands
@@ -112,10 +124,34 @@ object Util {
     return shell
   }
 
+  // Return a shell object with two streams
+  // The inputStream will be at index 0
+  // The errorStream will be at index 1
+  def getShellWithErrors(cmd: String, spawnCmd: String): Expect = {
+    val process = Runtime.getRuntime().exec(spawnCmd)
+    val shell = new ExpectBuilder()
+        .withInputs(process.getInputStream(), process.getErrorStream())
+	.withOutput(process.getOutputStream())
+	.withEchoOutput(new EchoOutput() {
+	        @Override
+		def onReceive(input: Int, string: String) = {
+		    print(string)
+		}
+		@Override
+		def onSend(string: String) = {
+		    //print(string)
+		}
+	})
+	.withErrorOnTimeout(true)
+	.build();
+    if (!isWindows) {
+      shell.send(cmd)
+    }
+    return shell
+  }
+
   def cmdConvert(str: String): String = {
-    var newstr = str.replaceAll("""\\n?""", "")
-    newstr = newstr.replaceAll("/", """\\\\""")
-    return newstr
+    str.replaceAll("/", "\\\\")
   }
 
   def fileConvert(str: String): String = {

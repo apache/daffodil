@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.CLI.Util
 import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import java.nio.file.Files
 
 class TestCLISaveParser {
 
@@ -82,14 +83,28 @@ class TestCLISaveParser {
 
   @Test def test_3018_CLI_Saving_SaveParser_stdout() {
 
-    var cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/variables/variables_01.dfdl.xsd\n"
-    val shell = Util.start(cmd)
+    val shell = Util.startIncludeErrors("")
+    var savedParser = "external_variables.dfdl.xsd.bin"
+    var saveCmd = Util.cmdConvert(String.format("%s -v save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd > %s\n", Util.binPath, savedParser))
+    val parserFile = new File(savedParser)
 
-    shell.expect(contains("DataProcessor"))
-
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      shell.send(saveCmd)
+      shell.expectIn(1, (contains("[info] Time")))
+      assertTrue("save-parser failed", parserFile.exists())
+      var parseCmd = String.format("echo 0,1,2| %s parse --parser %s\n", Util.binPath, savedParser)
+      shell.send(parseCmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("<tns:cell>0</tns:cell>"))
+      shell.expect(contains("<tns:cell>-1</tns:cell>"))
+      shell.expect(contains("<tns:cell>-2</tns:cell>"))
+      shell.expect(contains("</tns:row>"))
+      shell.send("exit\n")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+      if (parserFile.exists()) parserFile.delete()
+    }
   }
 
   @Test def test_3019_CLI_Saving_SaveParser_withConfig() {
