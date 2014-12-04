@@ -1,8 +1,12 @@
 package edu.illinois.ncsa.daffodil.dpath
 
+import scala.collection.mutable.ListBuffer
+import scala.math.BigDecimal.int2bigDecimal
+import scala.math.BigInt.int2bigInt
+import scala.xml.NodeSeq.seqToNodeSeq
+
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
-import scala.collection.mutable.ListBuffer
 
 trait CompareOpBase {
   def operate(v1: Any, v2: Any): Any

@@ -234,6 +234,21 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
       case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
 
+      case ("lt", Date) => LT_Date
+      case ("gt", Date) => GT_Date
+      case ("le", Date) => LE_Date
+      case ("ge", Date) => GE_Date
+
+      case ("lt", Time) => LT_Time
+      case ("gt", Time) => GT_Time
+      case ("le", Time) => LE_Time
+      case ("ge", Time) => GE_Time
+
+      case ("lt", DateTime) => LT_DateTime
+      case ("gt", DateTime) => GT_DateTime
+      case ("le", DateTime) => LE_DateTime
+      case ("ge", DateTime) => GE_DateTime
+
       case ("lt", String) => LT_String
       case ("gt", String) => GT_String
       case ("le", String) => LE_String
@@ -332,6 +347,12 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       (NodeInfo.String, NodeInfo.String)
     case (left: NodeInfo.Numeric.Kind, right: NodeInfo.Numeric.Kind) =>
       Conversion.numericBinaryOpTargetTypes(op, left, right)
+    case (left: NodeInfo.Date.Kind, right: NodeInfo.Date.Kind) =>
+      (NodeInfo.Date, NodeInfo.Date)
+    case (left: NodeInfo.Time.Kind, right: NodeInfo.Time.Kind) =>
+      (NodeInfo.Time, NodeInfo.Time)
+    case (left: NodeInfo.DateTime.Kind, right: NodeInfo.DateTime.Kind) =>
+      (NodeInfo.DateTime, NodeInfo.DateTime)
     case (l, r) =>
       SDE("Cannot compare %s with %s for operator '%s'", l, r, op)
   }

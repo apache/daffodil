@@ -82,4 +82,41 @@ class TestDFDLExpressionsNew {
   @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
   @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
 
+  //DFDL-1171
+  @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
+  @Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
+  @Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
+  @Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
+
+  //DFDL-1180 
+  @Test def test_comparison_operators_27() { runner.runOneTest("comparison_operators_27") }
+  @Test def test_comparison_operators_28() { runner.runOneTest("comparison_operators_28") }
+  @Test def test_comparison_operators_29() { runner.runOneTest("comparison_operators_29") }
+  @Test def test_comparison_operators_30() { runner.runOneTest("comparison_operators_30") }
+  @Test def test_comparison_operators_31() { runner.runOneTest("comparison_operators_31") }
+  @Test def test_comparison_operators_32() { runner.runOneTest("comparison_operators_32") }
+  @Test def test_comparison_operators_33() { runner.runOneTest("comparison_operators_33") }
+  @Test def test_comparison_operators_34() { runner.runOneTest("comparison_operators_34") }
+  @Test def test_comparison_operators_35() { runner.runOneTest("comparison_operators_35") }
+  @Test def test_comparison_operators_36() { runner.runOneTest("comparison_operators_36") }
+  @Test def test_comparison_operators_37() { runner.runOneTest("comparison_operators_37") }
+  @Test def test_comparison_operators_38() { runner.runOneTest("comparison_operators_38") }
+  @Test def test_comparison_operators_39() { runner.runOneTest("comparison_operators_39") }
+  @Test def test_comparison_operators_40() { runner.runOneTest("comparison_operators_40") }
+  @Test def test_comparison_operators_41() { runner.runOneTest("comparison_operators_41") }
+  @Test def test_comparison_operators_42() { runner.runOneTest("comparison_operators_42") }
+  @Test def test_comparison_operators_43() { runner.runOneTest("comparison_operators_43") }
+  @Test def test_comparison_operators_44() { runner.runOneTest("comparison_operators_44") }
+  @Test def test_comparison_operators_45() { runner.runOneTest("comparison_operators_45") }
+  @Test def test_comparison_operators_46() { runner.runOneTest("comparison_operators_46") }
+
+  // DFDL-1180 from XPath Spec Sec 10.4.6.1 Examples
+  @Test def test_comparison_operators_47() { runner.runOneTest("comparison_operators_47") }
+  @Test def test_comparison_operators_48() { runner.runOneTest("comparison_operators_48") }
+  @Test def test_comparison_operators_49() { runner.runOneTest("comparison_operators_49") }
+  @Test def test_comparison_operators_50() { runner.runOneTest("comparison_operators_50") }
+  @Test def test_comparison_operators_51() { runner.runOneTest("comparison_operators_51") }
+  @Test def test_comparison_operators_52() { runner.runOneTest("comparison_operators_52") }
+  @Test def test_comparison_operators_53() { runner.runOneTest("comparison_operators_53") }
+
 }

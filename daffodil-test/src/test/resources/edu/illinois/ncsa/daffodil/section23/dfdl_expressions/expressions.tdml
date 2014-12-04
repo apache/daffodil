@@ -390,7 +390,217 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
+    <xs:element name="e18">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 gt ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e19">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 lt ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e20">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 ne ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e21">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 eq ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e22">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="lessThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 le ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e23">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="greaterThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 ge ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e24">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 gt ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e25">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 lt ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e26">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 ne ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e27">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date1" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="date2" type="xs:date" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:date1 eq ../ex:date2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e28">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="lessThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 le ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e29">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="greaterThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 ge ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e30">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 gt ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e31">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 lt ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e32">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 ne ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e33">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time1" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="time2" type="xs:time" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:time1 eq ../ex:time2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e34">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 lt ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e35">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ssXXXXX"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 lt ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e36">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ssXXXXX"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="uuuu-MM-dd'T'HH:mm:ssXXXXX"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 eq ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e37">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="lessThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 le ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e38">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime1" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="dateTime2" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy HH:mm:ss"/> 
+          <xs:element name="greaterThanEqualTo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:dateTime1 ge ../ex:dateTime2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
   </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
@@ -4745,4 +4955,610 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <!--
+     Test Name: comparison_operators_27
+        Schema: comparisonOperators 
+          Root: e37
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_27" root="e37"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:23,03-24-1988 04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e37>
+          <dateTime1>1988-03-24T04:55:23.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:24.000000+00:00</dateTime2>
+          <lessThanEqualTo>true</lessThanEqualTo>
+        </e37>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_28
+        Schema: comparisonOperators 
+          Root: e38
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_28" root="e38"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:24,03-24-1988 04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e38>
+          <dateTime1>1988-03-24T04:55:24.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:23.000000+00:00</dateTime2>
+          <greaterThanEqualTo>true</greaterThanEqualTo>
+        </e38>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_29
+        Schema: comparisonOperators 
+          Root: e18
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_29" root="e18"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:24,03-24-1988 04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e18>
+          <dateTime1>1988-03-24T04:55:24.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:23.000000+00:00</dateTime2>
+          <oneGTtwo>true</oneGTtwo>
+        </e18>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_30
+        Schema: comparisonOperators 
+          Root: e19
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_30" root="e19"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:23,03-24-1988 04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e19>
+          <dateTime1>1988-03-24T04:55:23.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:24.000000+00:00</dateTime2>
+          <oneLTtwo>true</oneLTtwo>
+        </e19>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_31
+        Schema: comparisonOperators 
+          Root: e20
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_31" root="e20"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:23,03-24-1988 04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e20>
+          <dateTime1>1988-03-24T04:55:23.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:24.000000+00:00</dateTime2>
+          <notEqual>true</notEqual>
+        </e20>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_32
+        Schema: comparisonOperators 
+          Root: e21
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_32" root="e21"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988 04:55:23,03-24-1988 04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e21>
+          <dateTime1>1988-03-24T04:55:23.000000+00:00</dateTime1>
+          <dateTime2>1988-03-24T04:55:23.000000+00:00</dateTime2>
+          <same>true</same>
+        </e21>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_33
+        Schema: comparisonOperators 
+          Root: e22
+       Purpose: This test demonstrates that comparison operators work for date
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_33" root="e22"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-23-1988,03-24-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e22>
+          <date1>1988-03-23+00:00</date1>
+          <date2>1988-03-24+00:00</date2>
+          <lessThanEqualTo>true</lessThanEqualTo>
+        </e22>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_34
+        Schema: comparisonOperators 
+          Root: e23
+       Purpose: This test demonstrates that comparison operators work for date
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_34" root="e23"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988,03-23-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e23>
+          <date1>1988-03-24+00:00</date1>
+          <date2>1988-03-23+00:00</date2>
+          <greaterThanEqualTo>true</greaterThanEqualTo>
+        </e23>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_35
+        Schema: comparisonOperators 
+          Root: e24
+       Purpose: This test demonstrates that comparison operators work for date
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_35" root="e24"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988,03-23-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e24>
+          <date1>1988-03-24+00:00</date1>
+          <date2>1988-03-23+00:00</date2>
+          <oneGTtwo>true</oneGTtwo>
+        </e24>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_36
+        Schema: comparisonOperators 
+          Root: e25
+       Purpose: This test demonstrates that comparison operators work for date
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_36" root="e25"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988,03-25-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e25>
+          <date1>1988-03-24+00:00</date1>
+          <date2>1988-03-25+00:00</date2>
+          <oneLTtwo>true</oneLTtwo>
+        </e25>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_37
+        Schema: comparisonOperators 
+          Root: e26
+       Purpose: This test demonstrates that comparison operators work for date
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_37" root="e26"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988,03-25-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e26>
+          <date1>1988-03-24+00:00</date1>
+          <date2>1988-03-25+00:00</date2>
+          <notEqual>true</notEqual>
+        </e26>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_38
+        Schema: comparisonOperators 
+          Root: e27
+       Purpose: This test demonstrates that comparison operators work for dateTime
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_38" root="e27"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[03-24-1988,03-24-1988]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e27>
+          <date1>1988-03-24+00:00</date1>
+          <date2>1988-03-24+00:00</date2>
+          <same>true</same>
+        </e27>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <!--
+     Test Name: comparison_operators_39
+        Schema: comparisonOperators 
+          Root: e28
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_39" root="e28"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:23,04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e28>
+          <time1>04:55:23.000000+00:00</time1>
+          <time2>04:55:24.000000+00:00</time2>
+          <lessThanEqualTo>true</lessThanEqualTo>
+        </e28>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_40
+        Schema: comparisonOperators 
+          Root: e29
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_40" root="e29"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:24,04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e29>
+          <time1>04:55:24.000000+00:00</time1>
+          <time2>04:55:23.000000+00:00</time2>
+          <greaterThanEqualTo>true</greaterThanEqualTo>
+        </e29>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_41
+        Schema: comparisonOperators 
+          Root: e30
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_41" root="e30"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:24,04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e30>
+          <time1>04:55:24.000000+00:00</time1>
+          <time2>04:55:23.000000+00:00</time2>
+          <oneGTtwo>true</oneGTtwo>
+        </e30>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_42
+        Schema: comparisonOperators 
+          Root: e31
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_42" root="e31"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:23,04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e31>
+          <time1>04:55:23.000000+00:00</time1>
+          <time2>04:55:24.000000+00:00</time2>
+          <oneLTtwo>true</oneLTtwo>
+        </e31>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_43
+        Schema: comparisonOperators 
+          Root: e32
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_43" root="e32"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:23,04:55:24]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e32>
+          <time1>04:55:23.000000+00:00</time1>
+          <time2>04:55:24.000000+00:00</time2>
+          <notEqual>true</notEqual>
+        </e32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_44
+        Schema: comparisonOperators 
+          Root: e33
+       Purpose: This test demonstrates that comparison operators work for time
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_44" root="e33"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[04:55:23,04:55:23]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e33>
+          <time1>04:55:23.000000+00:00</time1>
+          <time2>04:55:23.000000+00:00</time2>
+          <same>true</same>
+        </e33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_45
+        Schema: comparisonOperators 
+          Root: e34
+       Purpose: This test demonstrates that comparison operators work for dateTime
+       			Example taken from spec. Determinate example.
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_45" root="e34"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2000-01-15T00:00:00,2000-02-15T00:00:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e34>
+          <dateTime1>2000-01-15T00:00:00.000000+00:00</dateTime1>
+          <dateTime2>2000-02-15T00:00:00.000000+00:00</dateTime2>
+          <oneLTtwo>true</oneLTtwo>
+        </e34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: comparison_operators_46
+        Schema: comparisonOperators 
+          Root: e35
+       Purpose: This test demonstrates that comparison operators work for dateTime
+       			Example taken from spec. Indeterminate example.
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_46" root="e35"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2000-01-01T12:00:00,1999-12-31T23:00:00+00:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e35>
+          <dateTime1>2000-01-01T12:00:00.000000+00:00</dateTime1>
+          <dateTime2>1999-12-31T23:00:00.000000+00:00</dateTime2>
+          <oneLTtwo>false</oneLTtwo>
+        </e35>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_47
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_47" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2002-04-02T12:00:00-01:00,2002-04-02T17:00:00+04:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2002-04-02T12:00:00.000000-01:00</dateTime1>
+          <dateTime2>2002-04-02T17:00:00.000000+04:00</dateTime2>
+          <same>true</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_48
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_48" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2002-04-02T12:00:00-05:00,2002-04-02T23:00:00+06:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
+          <dateTime2>2002-04-02T23:00:00.000000+06:00</dateTime2>
+          <same>true</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_49
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_49" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2002-04-02T12:00:00-05:00,2002-04-02T17:00:00-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
+          <dateTime2>2002-04-02T17:00:00.000000-05:00</dateTime2>
+          <same>false</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_50
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_50" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2002-04-02T12:00:00-05:00,2002-04-02T12:00:00-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2002-04-02T12:00:00.000000-05:00</dateTime1>
+          <dateTime2>2002-04-02T12:00:00.000000-05:00</dateTime2>
+          <same>true</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_51
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_51" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2002-04-02T23:00:00-04:00,2002-04-03T02:00:00-01:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2002-04-02T23:00:00.000000-04:00</dateTime1>
+          <dateTime2>2002-04-03T02:00:00.000000-01:00</dateTime2>
+          <same>true</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_52
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+                
+                NOTE: 2000-01-01T00:00:00 == 1999-12-31T24:00:00, so it appears that 
+                2000-01-01T00:00:00 is printed instead.
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_52" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[1999-12-31T24:00:00-05:00,2000-01-01T00:00:00-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2000-01-01T00:00:00.000000-05:00</dateTime1>
+          <dateTime2>2000-01-01T00:00:00.000000-05:00</dateTime2>
+          <same>true</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_53
+        Schema: comparisonOperators 
+          Root: e36
+       Purpose: This test demonstrates that comparison operators work for dateTime
+                From XPath spec examples in sec 10.4.6.1 in http://www.w3.org/TR/xpath-functions/
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_53" root="e36"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[2005-04-04T24:00:00-05:00,2005-04-04T00:00:00-05:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e36>
+          <dateTime1>2005-04-05T00:00:00.000000-05:00</dateTime1>
+          <dateTime2>2005-04-04T00:00:00.000000-05:00</dateTime2>
+          <same>false</same>
+        </e36>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
 </tdml:testSuite>
