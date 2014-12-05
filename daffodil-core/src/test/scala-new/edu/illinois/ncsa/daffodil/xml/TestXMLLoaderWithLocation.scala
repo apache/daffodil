@@ -61,7 +61,7 @@ class TestXMLLoaderWithLocation {
           fw.write(testXML.toString())
       }
       val res = new File(tmpXMLFileName)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).loadFile(res)
+      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res.toURI)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)
@@ -90,7 +90,7 @@ class TestXMLLoaderWithLocation {
           fw.write(testXML.toString())
       }
       val res = new File(tmpXMLFileName)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).loadFile(res)
+      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res.toURI)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)

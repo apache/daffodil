@@ -23,7 +23,7 @@ class TestDFDLExpressionTree extends Parsers {
 
   def testExpr(testSchema: scala.xml.Elem, expr: String)(body: Expression => Unit) {
     val schemaCompiler = Compiler()
-    val (sset, _) = schemaCompiler.frontEnd(testSchema)
+    val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -35,7 +35,7 @@ class TestDFDLExpressionTree extends Parsers {
   }
   def testExpr2(testSchema: scala.xml.Elem, expr: String)(body: (Expression, ElementRuntimeData) => Unit) {
     val schemaCompiler = Compiler()
-    val (sset, _) = schemaCompiler.frontEnd(testSchema)
+    val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -277,7 +277,7 @@ class TestDFDLExpressionTree extends Parsers {
     val testSchema = dummySchema
 
     val schemaCompiler = Compiler()
-    val (sset, _) = schemaCompiler.frontEnd(testSchema)
+    val sset = schemaCompiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls

@@ -120,11 +120,6 @@ object DFDL {
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compile(schema: Node): ProcessorFactory
-
-    @deprecated("use compileSources and org.xml.sax.InputSource, not file.", "2014-12-03")
-    def compile(schemaFiles: File*): ProcessorFactory
-
     def compileSources(schemaSources: org.xml.sax.InputSource*): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor

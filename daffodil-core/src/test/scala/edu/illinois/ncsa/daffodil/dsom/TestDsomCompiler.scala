@@ -40,7 +40,7 @@ class TestDsomCompiler extends Logging {
       </xs:complexType>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -67,7 +67,7 @@ class TestDsomCompiler extends Logging {
 
     val compiler = Compiler()
     compiler.setCheckAllTopLevel(true)
-    val (sset, _) = compiler.frontEnd(sch)
+    val sset = compiler.compileNode(sch).sset
     assertTrue(sset.isError)
     val diagnostics = sset.getDiagnostics.asInstanceOf[Seq[Diagnostic]]
     val msgs = diagnostics.map { _.getMessage }
@@ -83,7 +83,7 @@ class TestDsomCompiler extends Logging {
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)
-    val (_, pf) = Compiler().compileInternal(sch)
+    val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     val hasErrorText = msg.contains("typeDoesNotExist");
@@ -98,7 +98,7 @@ class TestDsomCompiler extends Logging {
                         <sequence/>
                       </complexType>
                     </schema>
-    val (_, pf) = Compiler().compileInternal(sch)
+    val pf = Compiler().compileNode(sch)
     assertTrue(pf.isError)
     val msg = pf.getDiagnostics.toString
     println(msg)
@@ -118,7 +118,7 @@ class TestDsomCompiler extends Logging {
       </xs:element>)
     val compiler = Compiler()
     compiler.setCheckAllTopLevel(true)
-    val (sset, _) = Compiler().frontEnd(s)
+    val sset = Compiler().compileNode(s).sset
     sset.isError // forces compilation
     val diags = sset.getDiagnostics
     // diags.foreach { println(_) }
@@ -145,7 +145,7 @@ class TestDsomCompiler extends Logging {
         </xs:sequence>
       </xs:complexType>)
 
-    val (sset, _) = Compiler().frontEnd(sc)
+    val sset = Compiler().compileNode(sc).sset
 
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
@@ -198,7 +198,7 @@ class TestDsomCompiler extends Logging {
 
     val w = Utility.trim(testSchema)
 
-    val (sset, _) = Compiler().frontEnd(w)
+    val sset = Compiler().compileNode(w).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(decl) = schemaDoc.globalElementDecls

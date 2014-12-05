@@ -71,7 +71,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:simpleType>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -109,7 +109,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:simpleType>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -178,7 +178,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -269,7 +269,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -360,7 +360,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -450,7 +450,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -545,7 +545,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -652,7 +652,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -762,7 +762,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -901,7 +901,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1051,7 +1051,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1199,7 +1199,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1322,7 +1322,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1406,7 +1406,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1497,7 +1497,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -1624,7 +1624,7 @@ class TestDsomCompilerNew extends Logging {
       </xs:element>)
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls

@@ -12,7 +12,7 @@ abstract class PrimParser(contextArg: RuntimeData)
     "<" + Misc.getNameFromClass(this) + "/>"
   }
 
-  override def toString = toBriefXML(4)
+  override def toString = toBriefXML()
 
 }
 

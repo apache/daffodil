@@ -40,14 +40,17 @@ import java.util.Iterator;
 public class DebuggerRunnerForJAPITest extends DebuggerRunner {
 	ArrayList<String> lines;
 
-	ArrayList<String> commands = new ArrayList<String>() {{
-		add("display info parser");
-		add("display info bitPosition");
-		add("display info data");
-		add("display eval ..");
-		add("display info diff");
-		add("trace");
-	}};
+	@SuppressWarnings("serial")
+	ArrayList<String> commands = new ArrayList<String>() {
+		{
+			add("display info parser");
+			add("display info bitPosition");
+			add("display info data");
+			add("display eval ..");
+			add("display info diff");
+			add("trace");
+		}
+	};
 
 	Iterator<String> commandsIter;
 
@@ -63,7 +66,7 @@ public class DebuggerRunnerForJAPITest extends DebuggerRunner {
 		if (commandsIter.hasNext()) {
 			return commandsIter.next();
 		}
-	
+
 		// If the commandsIter commands are good this should never happen. The
 		// only time this would ever get hit is if something caused the
 		// debugger to break. But if this does happen, just keep running trace.

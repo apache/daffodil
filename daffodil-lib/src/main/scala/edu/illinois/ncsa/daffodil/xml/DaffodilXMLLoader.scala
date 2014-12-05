@@ -193,32 +193,20 @@ class DFDLCatalogResolver private ()
     res
   }
 
-  def resolveURI(uri: String, silent: Boolean): String = {
+  def resolveURI(uri: String): String = {
     init
-    val optURI = resolveCommon(uri, null, null, silent)
+    val optURI = resolveCommon(uri, null, null)
     optURI match {
       case None => null
       case Some(uri) => uri.toString
     }
   }
 
-  private def resolveCommon(nsURI: String, systemId: String, baseURIString: String, silent: Boolean = false): Option[URI] = {
+  private def resolveCommon(nsURI: String, systemId: String, baseURIString: String): Option[URI] = {
     init
     if (nsURI == null && systemId == null && baseURIString == null) return None
-    //
-    // These checks are useful, because a common situation when the resolving logic
-    // gets broken is that a schemaLocation like "xsd/foo.xsd" gets appended to 
-    // the stem of a base URI, "file:/.../foo/xsd/bar.xsd", and it doubles-up the xsd directory.
-    if (nsURI != null) Assert.usage(!nsURI.contains("xsd/xsd"))
-    if (systemId != null) Assert.usage(!systemId.contains("xsd/xsd"))
-    //
-    // In case of the baseURIString, it's ok that Xerces has doubled up the xsd dir
-    // in its attempt to determine the relative path, as that will simply not be found, b
-    // but then the systemId alone (e.g., "xsd/foo.xsd")
-    // will be tried on the class path.
-    // if (baseURIString != null) Assert.usage(!baseURIString.contains("xsd/xsd")) // it can contain this!
-    //
-    if (!silent) log(LogLevel.Resolver, "nsURI = %s, baseURI = %s, systemId = %s", nsURI, baseURIString, systemId)
+
+    log(LogLevel.Resolver, "nsURI = %s, baseURI = %s, systemId = %s", nsURI, baseURIString, systemId)
     val resolvedUri = delegate.resolveURI(nsURI)
     val resolvedSystem = delegate.resolveSystem(systemId)
 
@@ -239,8 +227,7 @@ class DFDLCatalogResolver private ()
       case (null, null) => {
         // This happens now in some unit tests.
         // Assert.invariantFailed("resolvedId and systemId were null.")
-        if (!silent)
-          log(LogLevel.Resolver, "Unable to resolve.")
+        log(LogLevel.Resolver, "Unable to resolve.")
         return None
       }
       case (null, sysId) =>
@@ -248,14 +235,13 @@ class DFDLCatalogResolver private ()
           val baseURI = if (baseURIString == null) None else Some(new URI(baseURIString))
           val optURI = Misc.getResourceRelativeOption(sysId, baseURI)
           optURI match {
-            case Some(uri) => if (!silent) log(LogLevel.Resolver, "Found on classpath: %s.", uri)
-            case None => if (!silent)
-              log(LogLevel.Info, "Unable to resolve.")
+            case Some(uri) => log(LogLevel.Resolver, "Found on classpath: %s.", uri)
+            case None => log(LogLevel.Info, "Unable to resolve.")
           }
           optURI
         }
       case (resolved, _) => {
-        if (!silent) log(LogLevel.Resolver, "Found via XML Catalog: %s.", resolved)
+        log(LogLevel.Resolver, "Found via XML Catalog: %s.", resolved)
         Some(new URI(resolved))
       }
     }
@@ -345,31 +331,6 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
 }
 
 /**
- * Changes the parser behavior for <![CDATA[...]]]>
- * by scanning for this construct, and special casing it.
- */
-trait CDataMixin { self: DFDLXMLLocationAwareAdapter =>
-  val cdataStart = """\<\!\[CDATA\["""
-  val cdataEnd = """\]\]\>"""
-  val TextWithCData = ("""(.*)""" + cdataStart + """(.*)""" + cdataEnd + """(.*)""").r
-
-  override def createText(text: String): Text = {
-
-    if (!text.contains("<![CDATA[")) return Text(text)
-    //
-    // There's CDATA tags. They could be in the middle of the text
-    // and their could be several.
-    // They only extend until a matching "]]>" is found.
-    text match {
-      case TextWithCData(before, cdataPart, after) =>
-        {
-
-        }
-        null
-    }
-  }
-}
-/**
  * An Adapter in SAX parsing is both an XMLLoader, and a handler of events.
  */
 class DFDLXMLLocationAwareAdapter
@@ -384,9 +345,9 @@ class DFDLXMLLocationAwareAdapter
   //
   with Logging {
 
-  var fileName: String = ""
+  protected var fileName: String = ""
 
-  var saxLocator: org.xml.sax.Locator = _
+  private var saxLocator: org.xml.sax.Locator = _
 
   // Get location
   override def setDocumentLocator(locator: org.xml.sax.Locator) {
@@ -407,7 +368,7 @@ class DFDLXMLLocationAwareAdapter
   // startElement saves locator information on stack
   val locatorStack = new scala.collection.mutable.Stack[Locator]
   // endElement pops it off into here
-  var elementStartLocator: Locator = _
+  private var elementStartLocator: Locator = _
 
   // create node then uses it.
   override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = {
@@ -602,39 +563,40 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
   // to the adapter.
   override def adapter = this
 
-  // these load/loadFile overrides so we can grab the filename and give it to our
-  // adapter that adds file attributes to the root XML Node.
-  @deprecated("Use uri or input source, not File", "2014-11-21")
-  override def loadFile(f: File) = {
-    adapter.fileName = f.getAbsolutePath()
-
-    val res = super.loadFile(f)
-    res
+  override def load(url: URL): Node = {
+    adapter.fileName = url.toString
+    super.load(url)
   }
 
-  @deprecated("Use uri or input source, not filename", "2014-11-21")
-  override def loadFile(filename: String) = loadFile(new File(filename))
-
-  def load(uri: URI) = {
-    adapter.fileName = uri.toASCIIString
-    val res = super.load(uri.toURL())
-    res
+  override def load(source: InputSource): Node = {
+    val sysId = source.getSystemId()
+    Assert.usage(sysId != null)
+    adapter.fileName = sysId
+    super.load(source)
   }
+
+  def load(uri: URI): Node = load(uri.toURL)
+  override def loadFile(f: File) = load(f.toURI)
+
+  // We disallow any of these except ones where we can definitely get an associated
+  // identifier or name from it. 
+  private def noWay = Assert.usageError("Operation is not supported. Use load(uri) or loadFile(file)")
+  override def loadFile(fd: java.io.FileDescriptor): Node = noWay
+  override def loadFile(name: String): Node = loadFile(new File(name))
+  override def load(is: InputStream): Node = noWay
+  override def load(reader: Reader): Node = noWay
+  override def load(sysID: String): Node = noWay
 
   //
   // This is the common routine called by all the load calls to actually 
   // carry out the loading of the schema.
   //
   override def loadXML(source: InputSource, p: SAXParser): Node = {
-    // System.err.println("loadXML")
+
     val xr = p.getXMLReader()
-    //    xr.setFeature("http://apache.org/xml/features/namespace-growth", true)
     xr.setErrorHandler(errorHandler)
-    // parse file
     scopeStack.push(TopScope)
-    // System.err.println("beginning parse")
     xr.parse(source)
-    // System.err.println("ending parse")
     scopeStack.pop
     rootElem.asInstanceOf[Elem]
   }

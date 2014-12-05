@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.example;
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.japi.*;
 import edu.illinois.ncsa.daffodil.japi.logger.*;
 
 import java.util.ArrayList;

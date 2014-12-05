@@ -80,7 +80,6 @@ class TestGeneral {
       runnerA_B.runOneTest("AB006")
     }
     val m = e.getMessage()
-    println(m)
     assertTrue(m.toLowerCase.contains("required resource"))
     assertTrue(m.contains("/test%20space/A%20BTinyData.tdml.dat"))
     assertTrue(m.toLowerCase.contains("not found"))
@@ -96,7 +95,6 @@ class TestGeneral {
       runner_ns.runOneTest("no_namespace_02")
     }
     val m = e.getMessage()
-    println(m)
     assertTrue(m.toLowerCase.contains("required resource"))
     assertTrue(m.contains("/test%20space/test%201/namespaces.tdml"))
     assertTrue(m.toLowerCase.contains("not found"))

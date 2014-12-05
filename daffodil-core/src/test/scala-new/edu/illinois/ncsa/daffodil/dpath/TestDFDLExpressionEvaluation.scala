@@ -22,7 +22,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
 
   def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: (Any, VariableMap) => Unit) {
     val schemaCompiler = Compiler()
-    val pf = schemaCompiler.compile(testSchema).asInstanceOf[ProcessorFactory]
+    val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     if (pf.isError) fail("pf compile errors")
     val dp = pf.onPath("/")
     val sset = pf.sset

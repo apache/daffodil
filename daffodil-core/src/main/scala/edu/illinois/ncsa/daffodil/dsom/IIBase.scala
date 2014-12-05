@@ -289,17 +289,18 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   lazy val iiSchemaFile: DFDLSchemaFile = iiSchemaFile_.value
   private val iiSchemaFile_ = LV('iiSchemaFile) {
     val res = new DFDLSchemaFile(schemaSet, resolvedLocation, this, seenBeforeThisFile)
+    res.node // force access to the data of the file.
     res
   }
 
   /**
    * For error message if we don't find a file/resource.
    */
-  lazy val classPathLines = classPathNotJars.mkString("\n")
+  lazy val classPathLines = classPath.mkString("\n")
 
-  lazy val classPathNotJars = Misc.classPath // .filterNot { _.endsWith(".jar") }
+  lazy val classPath = Misc.classPath
 
   lazy val whereSearched =
-    if (classPathNotJars.length == 0) " Classpath was empty."
+    if (classPath.length == 0) " Classpath was empty."
     else " Searched these classpath locations: \n" + classPathLines + "\n"
 }

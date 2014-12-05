@@ -106,7 +106,7 @@ abstract class Parser(val context: RuntimeData)
 class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
   def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
   override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
-  override def toString = toBriefXML(4)
+  override def toString = toBriefXML()
 }
 
 class ErrorParser(context: RuntimeData = null) extends Parser(context) {
@@ -138,7 +138,7 @@ trait ToBriefXMLImpl {
     }
   }
 
-  override def toString = toBriefXML(4) // pParser.toString + " ~ " + qParser.toString
+  override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
 class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser])

@@ -137,6 +137,8 @@ object Misc {
         // current file's literal systemId, so as to get 
         // the right base. 
         //
+        // JIRA issue DFDL-1183 is about figuring out something better than this.
+        //
         // So we can invert that logic.
         // This is just a heuristic, but probably does what people want.
         val parts = contextURI.toString.split("/")

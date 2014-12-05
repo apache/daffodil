@@ -164,18 +164,21 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
    */
   def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty) =
     this(
+      {
+        if (root == null) None else {
+          if (rootNamespace == null) Some(RootSpec(None, root))
+          else Some(RootSpec(Some(NS(rootNamespace)), root))
+        }
+      },
       extVars,
       {
-        val file = XMLUtils.convertNodeToTempFile(sch)
+        val file = new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString)
         val files = List(file)
         files
       },
       false,
-      if (root == null) None else {
-        if (rootNamespace == null) Some(RootSpec(None, root))
-        else Some(RootSpec(Some(NS(rootNamespace)), root))
-      },
-      false)
+      false,
+      null)
 
   /**
    * Registry used to map from infoset nodes back to the schema components

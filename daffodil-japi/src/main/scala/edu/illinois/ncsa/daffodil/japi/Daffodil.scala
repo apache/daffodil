@@ -145,15 +145,25 @@ class Compiler {
   /**
    * Compile DFDL schema files into a [[ProcessorFactory]]
    *
+   * To allow jar-file packaging, (where the schema files might be part of a jar),
+   * it is recommended to use [[Compile#compileSources]] instead.
+   *
    * @param schemaFiles array of DFDL schema files used to create a [[ProcessorFactory]].
-   * @return [[ProcessorFactory]] used to create [[DataProcessor]]'s. Must check [[ProcessorFactory#isError]] before using it.
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
-  def compile(schemaFiles: Array[File]): ProcessorFactory = {
-    val (_, pf) = sCompiler.compileFiles(schemaFiles.toSeq)
+  def compileFiles(schemaFiles: Array[File]): ProcessorFactory = {
+    val pf = sCompiler.compileFiles(schemaFiles: _*)
+    pf.isError
     new ProcessorFactory(pf)
   }
 
+  /**
+   * Compile DFDL schema sources into a [[ProcessorFactory]]
+   *
+   * @param sources array of org.xml.sax.InputSource of DFDL schema files used to create a [[ProcessorFactory]].
+   * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
+   */
   @throws(classOf[java.io.IOException])
   def compileSources(sources: Array[InputSource]): ProcessorFactory = {
     val pf = sCompiler.compileSources(sources: _*)
@@ -162,6 +172,10 @@ class Compiler {
 
   /**
    * Reload a saved parser from a file
+   *
+   * To allow jar-file packaging, (where the savedParser might be part of a jar),
+   * it is recommended to use the other version of [[Compiler#reload(DFDL.Input)]] where the argument is
+   * a [[java.nio.channels.ReadableByteChannel]] for a saved parser.
    *
    * @param savedParser file of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.

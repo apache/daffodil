@@ -451,8 +451,8 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setExternalDFDLVariables(externalVarBindings)
 
     val pf = sch match {
-      case node: Node => compiler.compile(node)
-      case theFile: File => compiler.compile(theFile)
+      case node: Node => compiler.compileNode(node)
+      case theFile: File => compiler.compileSources(new InputSource(theFile.toURI.toString))
       case source: InputSource => compiler.compileSources(source)
       case _ => Assert.invariantFailed("can only be Node or File")
     }
@@ -1207,7 +1207,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
     val url = uri.toURL
     if (url.getProtocol() == "file") {
       val file = new File(uri)
-      log(LogLevel.Info, "File size is %s", file.length())
+      log(LogLevel.Debug, "File size is %s", file.length())
     }
     val is = url.openStream()
     val rbc = Channels.newChannel(is)

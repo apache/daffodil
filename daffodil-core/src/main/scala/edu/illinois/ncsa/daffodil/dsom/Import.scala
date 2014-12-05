@@ -104,13 +104,6 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
 
   lazy val importElementNS = getAttributeOption("namespace").map { NS(_) }
 
-  //  override def iiSchemaDocument = iiSchemaDocument_.value
-  //  private val iiSchemaDocument_ = LV('iiSchemaDocument) {
-  //    checkedNS
-  //    log(Info("Imported Schema Namespace: %s from location %s.", checkedNS, resolvedLocation))
-  //    super_iiSchemaDocument
-  //  }
-
   override lazy val targetNamespace: NS = targetNamespace_.value
   private val targetNamespace_ = LV('targetNamespace) {
     val tns = importElementNS match {
@@ -134,7 +127,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         None
       }
       case Some(ns) => {
-        val uri = resolver.resolveURI(ns.toString, silent = true)
+        val uri = resolver.resolveURI(ns.toString)
         if (uri == null) None
         else {
           val res = URI.create(uri)
@@ -152,13 +145,25 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    */
   lazy val resolvedLocation = resolvedLocation_.value
   private val resolvedLocation_ = LV('resolvedLocation) {
-    // KEEP THESE PRINTLNs for a bit
-    //    println("Computing resolvedLocation")
-    //    println("\nimportElementNS='%s'\nresolvedNamespaceURI='%s'\nschemaLocationProperty='%s'\nresolvedSchemaLocation='%s'".format(
-    //      importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation))
+
+    log(LogLevel.Resolver, "Computing resolvedLocation")
+    log(LogLevel.Resolver, "\nimportElementNS='%s'\nresolvedNamespaceURI='%s'\nschemaLocationProperty='%s'\nresolvedSchemaLocation='%s'".format(
+      importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation))
+
     val rl = (importElementNS, resolvedNamespaceURI, schemaLocationProperty, resolvedSchemaLocation) match {
-      case (None, _, Some(sl), None) =>
-        schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, importNode)
+      case (None, _, Some(sl), None) => {
+        if (xsd.isBootStrapSD) {
+          //
+          // special case - one of the user-supplied files (that we wrap in a 
+          // fake import statement and a fake surrounding document
+          // doesn't exist.
+          // We don't want the message to discuss those fake things.
+          //
+          schemaDefinitionError("No schema document at location %s.", sl)
+        } else {
+          schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, importNode)
+        }
+      }
       case (Some(_), Some(rnURI), _, _) => rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
         schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s." + whereSearched, ns, catFiles, importNode)

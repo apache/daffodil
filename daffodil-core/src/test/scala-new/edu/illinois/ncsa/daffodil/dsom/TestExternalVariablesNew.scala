@@ -55,6 +55,7 @@ import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import java.io.File
 import edu.illinois.ncsa.daffodil.Implicits._
+import org.xml.sax.InputSource
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -184,14 +185,16 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val files: scala.collection.mutable.Queue[File] = scala.collection.mutable.Queue.empty
-    schs.foreach(sch => files.enqueue(XMLUtils.convertNodeToTempFile(sch)))
+    val sources = schs.map { sch =>
+      new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString)
+    }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val (sset, pf) = c.compileFiles(files)
+    val pf = c.compileSources2(sources)
+    val sset = pf.sset
 
     val finalVars = sset.variableMap.variables
 
@@ -232,14 +235,14 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val files: scala.collection.mutable.Queue[File] = scala.collection.mutable.Queue.empty
-    schs.foreach(sch => files.enqueue(XMLUtils.convertNodeToTempFile(sch)))
+    val sources = schs.map { sch => new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString) }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val (sset, pf) = c.compileFiles(files)
+    val pf = c.compileSources2(sources)
+    val sset = pf.sset
 
     val finalVars = sset.variableMap.variables
 
@@ -282,14 +285,13 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val files: scala.collection.mutable.Queue[File] = scala.collection.mutable.Queue.empty
-    schs.foreach(sch => files.enqueue(XMLUtils.convertNodeToTempFile(sch)))
+    val sources = schs.map { sch => new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString) }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
-    val (sset, pf) =
-      c.compileFiles(files)
+    val pf = c.compileSources2(sources)
+    val sset = pf.sset
     val msg = sset.getDiagnostics.mkString
     if (!msg.contains("var3 is ambiguous")) {
       println(msg)

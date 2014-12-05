@@ -217,6 +217,23 @@ object OOLAG extends Logging {
     /**
      * Used to check things that OOLAG doesn't protect against such as
      * index out of bounds.
+     *
+     * When we rationalized some of the try/catches so they catch less-broad
+     * catagories of exceptions, well now some things are ambiguous failures.
+     * If lazy val foo = schemas(0).schemaDocs(0) fails with index-out-of-range,
+     * is that a programmer error, or just the computation failing because
+     * there aren't any schemas, so the lazy val foo should fail, causing an
+     * OOLAG capture of the error.
+     *
+     * In the past, OOLAG would have caught this indexing exception,
+     * converted it to an SDE, and in the case where it was a programmer
+     * mistake, it would have masked that mistake.
+     *
+     * Now we've flipped it. Now OOLAG won't catch this, but we need a way to
+     * say explicitly, that we're assuming there are schemas, so schema(0)
+     * should work, and if it doesn't, OOLAG should catch this and abandon
+     * computing whatever attribute we were trying to compute, and put that
+     * attribute in the 'already been tried' state.
      */
     def assuming(pred: Boolean) = {
       if (!pred) throw OOLAG.AssumptionFailed
@@ -574,22 +591,12 @@ object OOLAG extends Logging {
         // Instead, pick off the exceptions we need to capture as compilation 
         // errors individually.
         // 
-        // Note that these should be captured closer to where they may occur
+        // Note that exceptions should be captured closer to where they may occur
         // otherwise we mask compiler bugs if these should occur outside
         // of the scope where we're expecting them.
-        // case ex: ArithmeticException => yikes(ex)
-        // case ex: IllegalArgumentException => yikes(ex)
       } finally {
         // nothing for now
       }
-    }
-
-    private def yikes(th: Throwable) = {
-      val re = th // debugger won't let you see the exception without this.
-      log(Error(catchMsg, descrip, re)) // tell us which lazy attribute it was
-      error(new Exception(re) with OOLAGDiagnosticMixin)
-      val ab = new Abort(re.toString)
-      throw ab
     }
 
     protected final def valueAsAny: Any = {

@@ -597,8 +597,9 @@ object Main extends Logging {
     // to also include the call to pf.onPath. (which is the last phase 
     // of compilation, where it asks for the parser)
     //
+    val schemaSources = schemaFiles.map { f => new org.xml.sax.InputSource(f.toURI.toString) }
     val pf = Timer.getResult("compiling", {
-      val processorFactory = compiler.compile(schemaFiles: _*)
+      val processorFactory = compiler.compileSources(schemaSources: _*)
       if (processorFactory.canProceed) {
         val processor = processorFactory.onPath(path.getOrElse("/"))
         displayDiagnostics(processor)
@@ -869,7 +870,7 @@ object Main extends Logging {
         dataLoader.setValidation(true) //TODO: make this flag an option. 
         val document = unparseOpts.infile.get match {
           case Some("-") | None => dataLoader.load(System.in)
-          case Some(file) => dataLoader.loadFile(file)
+          case Some(fileName) => dataLoader.load(fileName)
         }
         val rc = processor match {
           case None => 1

@@ -139,8 +139,8 @@ class DFDLSchemaFile(val sset: SchemaSet,
   lazy val loader = new DaffodilXMLLoader(this)
   lazy val resolver = schemaSet.resolver
 
-  lazy val loadedURI = loadedURI_.value
-  private val loadedURI_ = LV('loadedURI) {
+  lazy val loadedNode = loadedNode_.value
+  private val loadedNode_ = LV('loadedNode) {
     def die(e: Throwable) = {
       SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
     }
@@ -157,7 +157,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
   lazy val node =
     sourceOfSchema match {
       case schemaNode: scala.xml.Node => schemaNode
-      case _ => loadedURI
+      case _ => loadedNode
     }
 
   //  lazy val seenBeforePlusThis = {

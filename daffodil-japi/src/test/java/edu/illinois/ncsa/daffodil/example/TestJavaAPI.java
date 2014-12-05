@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.List;
 
 import org.jdom2.output.Format;
 import org.junit.Test;
@@ -84,7 +85,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -145,7 +146,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 
 		// Serialize the parser to memory, then deserialize for parsing.
@@ -211,7 +212,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myDataBroken.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -260,7 +261,7 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		pf.setDistinguishedRootNode("e3", null);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData16.dat");
@@ -295,7 +296,7 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		pf.setDistinguishedRootNode("e3", null);
 		DataProcessor dp = pf.onPath("/");
 
@@ -337,7 +338,7 @@ public class TestJavaAPI {
 	 * @Test public void testJavaAPI4() throws IOException { Compiler c =
 	 * Daffodil.compiler(); String[] schemaFileNames = new String[1];
 	 * schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
-	 * ProcessorFactory pf = c.compile(schemaFileNames);
+	 * ProcessorFactory pf = c.compileFiles(schemaFileNames);
 	 * pf.setDistinguishedRootNode("e4", null); DataProcessor dp =
 	 * pf.onPath("/"); java.io.File file = new
 	 * java.io.File(getResource("/test/japi/myData2.dat"));
@@ -362,7 +363,7 @@ public class TestJavaAPI {
 		File[] schemaFileNames = new File[1];
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null);
-		ProcessorFactory pf = c.compile(schemaFileNames);
+		ProcessorFactory pf = c.compileFiles(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData2.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -396,7 +397,7 @@ public class TestJavaAPI {
 		schemaFileNames[0] = getResource("/test/japi/mySchema3.dfdl.xsd");
 		c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
 												// element
-		ProcessorFactory pf = c.compile(schemaFileNames);
+		ProcessorFactory pf = c.compileFiles(schemaFileNames);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData3.dat"); // contains 5
 																	// bytes
@@ -439,21 +440,27 @@ public class TestJavaAPI {
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
-		java.io.File[] schemaFiles = new java.io.File[4];// String[]
-															// schemaFileNames =
-															// new String[2];
+		java.io.File[] schemaFiles = new java.io.File[4];
+		// String[] schemaFileNames = new String[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = new java.io.File("/test/japi/notHere1.dfdl.xsd");
 		schemaFiles[2] = getResource("/test/japi/mySchema2.dfdl.xsd");
 		schemaFiles[3] = new java.io.File("/test/japi/notHere2.dfdl.xsd");
-		try {
-			c.compile(schemaFiles);
-			fail("Expected a FileNotFoundException and didn't get one");
-		} catch (FileNotFoundException fnf) {
-			String msg = fnf.getMessage();
-			assertTrue(msg.contains("notHere1"));
-			assertTrue(msg.contains("notHere2"));
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
+		assertTrue(pf.isError());
+		List<Diagnostic> diags = pf.getDiagnostics();
+		boolean found1 = false;
+		boolean found2 = false;
+		for (Diagnostic d : diags) {
+			if (d.getMessage().contains("notHere1")) {
+				found1 = true;
+			}
+			if (d.getMessage().contains("notHere2")) {
+				found2 = true;
+			}
 		}
+		assertTrue(found1);
+		assertTrue(found2);
 
 		// reset the global logging state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -482,7 +489,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel", null);
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -534,7 +541,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -581,7 +588,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/TopLevel.xsd");
 		c.setDistinguishedRootNode("TopLevel2", null);
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/01very_simple.txt");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -618,7 +625,7 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema4.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData4.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -653,7 +660,7 @@ public class TestJavaAPI {
 		c.setValidateDFDLSchemas(false);
 		java.io.File[] schemaFiles = new java.io.File[1];
 		schemaFiles[0] = getResource("/test/japi/mySchema5.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData5.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -702,7 +709,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchema1.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -762,7 +769,7 @@ public class TestJavaAPI {
 		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
 		c.setExternalDFDLVariables(extVarsFile);
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 
 		DataProcessor dp = pf.onPath("/");
 
@@ -827,7 +834,7 @@ public class TestJavaAPI {
 		java.io.File[] schemaFiles = new java.io.File[2];
 		schemaFiles[0] = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
 		schemaFiles[1] = getResource("/test/japi/mySchema2.dfdl.xsd");
-		ProcessorFactory pf = c.compile(schemaFiles);
+		ProcessorFactory pf = c.compileFiles(schemaFiles);
 		DataProcessor dp = pf.onPath("/");
 		dp.setExternalVariables(extVarFile);
 

@@ -67,7 +67,7 @@ class TestInfoset1 {
     val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w></ex:list>
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -103,7 +103,7 @@ class TestInfoset1 {
     val xmlInfoset = <ex:list xmlns:ex={ ex }><w>4</w><c>7</c></ex:list>
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -149,7 +149,7 @@ class TestInfoset1 {
     val Seq(w1, w2) = wRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -197,7 +197,7 @@ class TestInfoset1 {
     val Seq(w1, w2) = wRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -243,7 +243,7 @@ class TestInfoset1 {
     val Seq(x1) = xRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -290,7 +290,7 @@ class TestInfoset1 {
     val Seq(x1) = xRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -339,7 +339,7 @@ class TestInfoset1 {
     val Seq(x1, x2) = xRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls
@@ -394,7 +394,7 @@ class TestInfoset1 {
     val Seq(x1, x2) = xRun
 
     val compiler = Compiler()
-    val (sset, _) = compiler.frontEnd(testSchema)
+    val sset = compiler.compileNode(testSchema).sset
     val Seq(schema) = sset.schemas
     val Seq(schemaDoc, _) = schema.schemaDocuments
     val Seq(declf) = schemaDoc.globalElementDecls

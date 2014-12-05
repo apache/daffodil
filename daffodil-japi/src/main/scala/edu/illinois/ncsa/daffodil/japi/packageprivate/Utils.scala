@@ -59,6 +59,7 @@ object LoggingConversions {
       case LogLevel.Warning => SLogLevel.Warning
       case LogLevel.Info => SLogLevel.Info
       case LogLevel.Compile => SLogLevel.Compile
+      case LogLevel.Resolver => SLogLevel.Resolver
       case LogLevel.Debug => SLogLevel.Debug
       case LogLevel.OOLAGDebug => SLogLevel.OOLAGDebug
       case LogLevel.DelimDebug => SLogLevel.DelimDebug

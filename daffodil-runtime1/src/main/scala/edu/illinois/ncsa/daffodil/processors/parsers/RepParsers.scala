@@ -268,7 +268,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
     res
   }
 
-  override def toString = toBriefXML(4) // "OccursCount(" + e.occursCount.prettyExpr + ")"
+  override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<OccursCount>" + occursCount.prettyExpr + "</OccursCount>"

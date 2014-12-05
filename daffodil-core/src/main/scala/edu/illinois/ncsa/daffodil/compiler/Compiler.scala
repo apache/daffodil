@@ -237,14 +237,6 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     checkAllTopLevel = flag
   }
 
-  /*
-   * for unit testing of front end
-   */
-  def frontEnd(xml: Node): (SchemaSet, GlobalElementDecl) = {
-    val pf = compile(xml)
-    (pf.asInstanceOf[ProcessorFactory].sset, null)
-  }
-
   def reload(savedParser: File) = reload(new FileInputStream(savedParser).getChannel())
 
   def reload(savedParser: DFDL.Input): DFDL.DataProcessor = {
@@ -277,27 +269,15 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     }
   }
   /**
-   * Compilation works entirely off of schema files because that allows XMLCatalogs
-   * to work for Xerces without (much) pain.
-   *
-   * This method exposes both the schema set and processor factory as results because
-   * our tests often want to do things on the schema set.
+   * Compilation returns a parser factory, which must be interrogated for diagnostics
+   * to see if compilation was successful or not.
    */
-  @deprecated("Use input sources, not Files", "2014-11-22")
-  def compileFiles(schemaFiles: Seq[File]): (SchemaSet, ProcessorFactory) = {
-    ExecutionMode.usingCompilerMode {
-      Assert.usage(schemaFiles.length >= 1)
-
-      val filesNotFound = schemaFiles.map { f => (f.exists(), f.getPath()) }.filter { case (exists, _) => !exists }.map { case (_, name) => name }
-      if (filesNotFound.length > 0) throw new java.io.FileNotFoundException("Failed to find the following file(s): " + filesNotFound.mkString(", "))
-      val sources = schemaFiles.map { f => new InputSource(f.toURL.toString) }
-      compileSources2(sources)
-    }
+  def compileFiles(files: File*): ProcessorFactory = {
+    val sources = files.map { f => new org.xml.sax.InputSource(f.toURI.toString) }
+    compileSources2(sources)
   }
 
-  def compile(schemaFiles: File*): DFDL.ProcessorFactory = compileFiles(schemaFiles)._2
-
-  def compileSources2(schemaSources: Seq[InputSource]): (SchemaSet, ProcessorFactory) = {
+  def compileSources2(schemaSources: Seq[InputSource]): ProcessorFactory = {
     val noParent = null // null indicates this is the root, and has no parent
     val sset = new SchemaSet(rootSpec, externalDFDLVariables, schemaSources, validateDFDLSchemas, checkAllTopLevel, noParent)
     val pf = new ProcessorFactory(sset)
@@ -305,32 +285,26 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     val diags = pf.getDiagnostics // might be warnings even if not isError
     if (err) {
       Assert.invariant(diags.length > 0)
-      log(Error("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+      log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
     } else {
       if (diags.length > 0) {
-        log(Info("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
-
+        log(Compile("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
       } else {
         log(Compile("ProcessorFactory completed with no errors."))
       }
     }
-    (sset, pf)
+    pf
   }
 
   /**
    * Varargs + Just hides the schema set, and returns the processor factory only.
    */
-  def compileSources(sources: InputSource*): DFDL.ProcessorFactory = compileSources2(sources)._2
+  def compileSources(sources: InputSource*): DFDL.ProcessorFactory = compileSources2(sources)
 
   /**
    * For convenient unit testing allow a literal XML node.
    */
-  def compile(xml: Node): DFDL.ProcessorFactory = {
-    val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
-    compileSources(new InputSource(tempSchemaFile.toURI.toString))
-  }
-
-  def compileInternal(xml: Node): (SchemaSet, ProcessorFactory) = {
+  def compileNode(xml: Node): ProcessorFactory = {
     val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
     compileSources2(Seq(new InputSource(tempSchemaFile.toURI.toString)))
   }
