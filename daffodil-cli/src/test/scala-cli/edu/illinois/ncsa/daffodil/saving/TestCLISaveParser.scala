@@ -85,8 +85,12 @@ class TestCLISaveParser {
 
     val shell = Util.startIncludeErrors("")
     var savedParser = "external_variables.dfdl.xsd.bin"
-    var saveCmd = Util.cmdConvert(String.format("%s -v save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd > %s\n", Util.binPath, savedParser))
     val parserFile = new File(savedParser)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    var saveCmd = String.format("%s -v save-parser -s %s > %s\n",
+        Util.binPath,
+        (if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile),
+        savedParser)
 
     try {
       shell.send(saveCmd)
