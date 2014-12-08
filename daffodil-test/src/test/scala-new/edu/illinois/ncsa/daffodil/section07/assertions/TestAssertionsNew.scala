@@ -38,23 +38,11 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestAssertionsDebug {
+class TestAssertionsNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
   val tdml = testDir + "assert.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 
-  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
-
-  //DFDL-998
-  @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
-  @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }
-  @Test def test_testPatternFreeFormat() { runner.runOneTest("testPatternFreeFormat") }
-  @Test def test_testPatternUnicode() { runner.runOneTest("testPatternUnicode") }
-  @Test def test_testPatternUregexUword() { runner.runOneTest("testPatternUregexUword") }
-
-  //This test passes but it's not actually checking for the warning - see DFDL-831
-  @Test def test_testPatternWordChar() { runner.runOneTest("testPatternWordChar") }
-
-  // DFDL-1043
-  @Test def test_assertFailShowsValue2() { runner.runOneTest("assertFailShowsValue2") }
+  //DFDL-1170
+  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
 }

@@ -95,6 +95,7 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     val rawTxt = (testKind, testBody, testAttrib, testPattern) match {
       case (TestKind.Expression, None, Some(txt), None) => txt
       case (TestKind.Expression, txt, None, None) => txt.get
+      case (TestKind.Pattern, _, _, Some("")) => SDE("The attribute testPattern must not be empty for testKind='pattern'")
       case (TestKind.Pattern, None, None, pat) => pat.get
       case (TestKind.Expression, Some(bdy), Some(attrib), _) => SDE("You may not specify both test attribute and a body expression.")
       case (TestKind.Expression, None, None, _) => SDE("You must specify either a test attribute or a body expression.")
