@@ -67,19 +67,19 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
     val savedNode = dstate.currentNode
     left.run(dstate)
     val leftValue = dstate.currentValue.asInstanceOf[Boolean] // convertToBoolean(dstate.currentValue, dstate.pstate)
-    dstate.setCurrentNode(savedNode)
-    right.run(dstate)
-    val rightValue = dstate.currentValue.asInstanceOf[Boolean] // convertToBoolean(dstate.currentValue, dstate.pstate)
-    val result = operateBoolean(op, leftValue, rightValue)
-    dstate.setCurrentValue(result)
-  }
 
-  def operateBoolean(op: String, left: Boolean, right: Boolean): Boolean = {
-    (op, left, right) match {
-      case ("and", v1, v2) => v1 && v2
-      case ("or", v1, v2) => v1 || v2
-      case _ => Assert.usageError("Not a boolean op")
-    }
+    val result =
+      if ((op == "and" && leftValue == false) ||
+          (op == "or" && leftValue == true)) {
+        leftValue
+      } else {
+        dstate.setCurrentNode(savedNode)
+        right.run(dstate)
+        val rightValue = dstate.currentValue.asInstanceOf[Boolean] // convertToBoolean(dstate.currentValue, dstate.pstate)
+        rightValue
+      }
+
+    dstate.setCurrentValue(result)
   }
 }
 case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe) {
