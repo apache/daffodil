@@ -68,11 +68,12 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   override lazy val schemaDocument = formatAnnotation.schemaDocument
   override lazy val fileName = xmlSchemaDocument.fileName
 
-  lazy val <dfdl:property>{ valueNodes }</dfdl:property> = xml
-
   // TODO: if we grab the value from here, then any qnames inside that value
   // have to be resolved by THIS Object
-  lazy val value = valueNodes.text
+  lazy val value = xml match {
+    case <dfdl:property/> => ""
+    case <dfdl:property>{ valueNodes }</dfdl:property> => valueNodes.text
+  }
 
   override lazy val name = getAttributeRequired("name")
 

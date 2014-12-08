@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.section08.property_scoping
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -43,12 +43,12 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestPropertyScopingDebug {
+class TestPropertyScopingNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
   val aa = testDir + "PropertyScoping.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  //DFDL-1036 (was fixed) now DFDL-1159
-  @Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
-
+  //DFDL-1037
+  @Test def test_defaultForm_04() { runner.runOneTest("defaultForm_04") }
 }
+
