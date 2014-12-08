@@ -1706,7 +1706,7 @@ case class DFDLOccursIndexExpr(nameAsParsed: String, fnQName: RefQName, args: Li
 case class DFDLTestBitExpr(nameAsParsed: String, fnQName: RefQName,
   args: List[Expression]) extends FunctionCallBase(nameAsParsed, fnQName, args) {
 
-  val List(data, bitPos) = { checkArgCount(2); args }
+  lazy val List(data, bitPos) = { checkArgCount(2); args }
 
   override lazy val inherentType = NodeInfo.Boolean
 

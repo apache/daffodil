@@ -2752,7 +2752,9 @@
       <tdml:documentPart type="bits">00000001</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
-      <tdml:error>Parse Error: Insufficient bits to create an xs:Byte</tdml:error>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:testBit</tdml:error>
+      <tdml:error>requires 2 argument</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

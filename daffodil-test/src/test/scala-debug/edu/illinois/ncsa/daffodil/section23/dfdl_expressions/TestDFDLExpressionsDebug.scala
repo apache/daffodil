@@ -170,9 +170,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_valueLength_0() { runner2.runOneTest("valueLength_0") }
   @Test def test_valueLength_1() { runner2.runOneTest("valueLength_1") }
 
-  //DFDL-1129
-  @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
-
   // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
