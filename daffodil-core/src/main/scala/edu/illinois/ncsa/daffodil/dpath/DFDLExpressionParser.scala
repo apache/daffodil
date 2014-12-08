@@ -228,13 +228,13 @@ class DFDLPathExpressionParser(
   def OrExpr: Parser[Expression] = log(
     AndExpr ~ ("or" ~> AndExpr).* ^^ {
       case a1 ~ Nil => a1
-      case a1 ~ aMore => OrExpression(a1 :: aMore)
+      case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => OrExpression(List(a, b)) }
     })("or")
 
   def AndExpr: Parser[Expression] = log(
     ComparisonExpr ~ ("and" ~> ComparisonExpr).* ^^ {
       case a1 ~ Nil => a1
-      case a1 ~ aMore => AndExpression(a1 :: aMore)
+      case a1 ~ aMore => aMore.foldLeft(a1) { case (a, b) => AndExpression(List(a, b)) }
     })("and")
 
   def ComparisonExpr = log(AdditiveExpr ~ (Comp ~ AdditiveExpr).? ^^ { x =>

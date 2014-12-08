@@ -199,6 +199,7 @@ abstract class ExpressionLists(val lst: List[Expression])
 }
 
 trait BinaryExpMixin { self: ExpressionLists =>
+  Assert.invariant(children.length == 2)
   def left = children(0)
   def right = children(1)
   def op: String
