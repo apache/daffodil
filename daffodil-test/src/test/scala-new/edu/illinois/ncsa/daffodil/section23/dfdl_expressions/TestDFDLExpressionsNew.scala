@@ -64,15 +64,6 @@ class TestDFDLExpressionsNew {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
-  // DFDL-1093: DPath: fn:starts-with() Unsupported Function
-  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
-  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
-  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
-  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
-  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
-  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
-  @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
-
   // DFDL-1090: DPath: fn:contains() Unsupported Function
   @Test def test_contains_01() { runner2.runOneTest("contains_01") }
   @Test def test_contains_02() { runner2.runOneTest("contains_02") }

@@ -465,14 +465,13 @@ class TestDFDLExpressions {
   //@Test def test_contains_06() { runner2.runOneTest("contains_06") }
   //@Test def test_contains_07() { runner2.runOneTest("contains_07") }
 
-  // DFDL-1093
-  //@Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
-  //@Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
-  //@Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
-  //@Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
-  //@Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
-  //@Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
-  //@Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
+  @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
+  @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
+  @Test def test_startswith_03() { runner2.runOneTest("startswith_03") }
+  @Test def test_startswith_04() { runner2.runOneTest("startswith_04") }
+  @Test def test_startswith_05() { runner2.runOneTest("startswith_05") }
+  @Test def test_startswith_06() { runner2.runOneTest("startswith_06") }
+  @Test def test_startswith_07() { runner2.runOneTest("startswith_07") }
 
   @Test def test_endswith_01() { runner2.runOneTest("endswith_01") }
   @Test def test_endswith_02() { runner2.runOneTest("endswith_02") }
