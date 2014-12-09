@@ -258,10 +258,9 @@ class TestDFDLExpressions {
 
   @Test def test_boolFlags_01() { runner2.runOneTest("boolFlags_01") }
   @Test def test_boolFlags_02() { runner2.runOneTest("boolFlags_02") }
-  //DFDL-1090
-  //@Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
-  //@Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
-  //@Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
+  @Test def test_boolFlags_03() { runner2.runOneTest("boolFlags_03") }
+  @Test def test_boolFlags_04() { runner2.runOneTest("boolFlags_04") }
+  @Test def test_boolFlags_05() { runner2.runOneTest("boolFlags_05") }
 
   @Test def test_not_01() { runner2.runOneTest("not_01") }
   @Test def test_not_02() { runner2.runOneTest("not_02") }
@@ -456,14 +455,13 @@ class TestDFDLExpressions {
   //DFDL-1078 - fails on build server 
   //@Test def test_lowercase_05() { runner2_utf8.runOneTest("lowercase_05") }
 
-  // DFDL-1090
-  //@Test def test_contains_01() { runner2.runOneTest("contains_01") }
-  //@Test def test_contains_02() { runner2.runOneTest("contains_02") }
-  //@Test def test_contains_03() { runner2.runOneTest("contains_03") }
-  //@Test def test_contains_04() { runner2.runOneTest("contains_04") }
-  //@Test def test_contains_05() { runner2.runOneTest("contains_05") }
-  //@Test def test_contains_06() { runner2.runOneTest("contains_06") }
-  //@Test def test_contains_07() { runner2.runOneTest("contains_07") }
+  @Test def test_contains_01() { runner2.runOneTest("contains_01") }
+  @Test def test_contains_02() { runner2.runOneTest("contains_02") }
+  @Test def test_contains_03() { runner2.runOneTest("contains_03") }
+  @Test def test_contains_04() { runner2.runOneTest("contains_04") }
+  @Test def test_contains_05() { runner2.runOneTest("contains_05") }
+  @Test def test_contains_06() { runner2.runOneTest("contains_06") }
+  @Test def test_contains_07() { runner2.runOneTest("contains_07") }
 
   @Test def test_startswith_01() { runner2.runOneTest("startswith_01") }
   @Test def test_startswith_02() { runner2.runOneTest("startswith_02") }
