@@ -92,7 +92,7 @@ class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         log(Debug("Included schema from %s into namespace %s.", rsl, ns))
         rsl
       }
-      case None => schemaDefinitionError("Included schema not found at location %s." + whereSearched, slText)
+      case None => schemaDefinitionError("Included schema not found at location %s. %s", slText, whereSearched)
     }
   }
 

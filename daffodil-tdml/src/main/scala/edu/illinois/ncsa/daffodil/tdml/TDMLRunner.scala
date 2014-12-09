@@ -81,6 +81,9 @@ import java.nio.charset.CoderResult
 import java.io.InputStream
 import edu.illinois.ncsa.daffodil.processors.charset.NonByteSizeCharsetEncoderDecoder
 import scala.language.postfixOps
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.Files
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -291,7 +294,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
    * directory as the tdml file, and some other variations.
    */
   def findTDMLResource(resName: String): Option[URI] = {
-    val resolvedURI = Misc.getResourceRelativeOption(resName, Some(tsURI))
+    val resPath = Paths.get(resName)
+    val resolvedURI =
+      if (Files.exists(resPath)) Some(resPath.toFile().toURI())
+      else Misc.getResourceRelativeOption(resName, Some(tsURI))
     val res = resolvedURI.orElse {
       // try ignoring the directory part
       val parts = resName.split("/")

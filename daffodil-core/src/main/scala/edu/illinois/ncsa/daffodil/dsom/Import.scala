@@ -161,12 +161,12 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           //
           schemaDefinitionError("No schema document at location %s.", sl)
         } else {
-          schemaDefinitionError("Unable to import a no-namespace schema from schema location %s." + whereSearched, importNode)
+          schemaDefinitionError("Unable to import a no-namespace schema from schema location %s. %s", importNode, whereSearched)
         }
       }
       case (Some(_), Some(rnURI), _, _) => rnURI // found it in the catalog based on namespace attribute
       case (Some(ns), None, Some(sl), None) =>
-        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s." + whereSearched, ns, catFiles, importNode)
+        schemaDefinitionError("Unable to import namespace %s from XML catalog(s) %s or schema location %s. %s", ns, catFiles, importNode, whereSearched)
       case (_, None, Some(sl), Some(rsl)) => rsl // found it by way of the schemaLocation
       case (Some(ns), None, None, None) => {
         schemaDefinitionError("Unable to import namespace %s using XML Catalog(s) %s", ns, catFiles)
