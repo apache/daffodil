@@ -114,14 +114,6 @@ class TestDFDLExpressionsNew {
   @Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
   @Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
 
-  //DFDL-1181
-  @Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
-  @Test def test_sequential_or_01() { runner.runOneTest("sequential_or_01") }
-
-  //DFDL-1182
-  @Test def test_sequential_and_04() { runner.runOneTest("sequential_and_04") }
-  @Test def test_sequential_or_04() { runner.runOneTest("sequential_or_04") }
-
   //DFDL-1129
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 }

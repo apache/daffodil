@@ -3459,6 +3459,66 @@ c' } "  />
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="andor" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 and fn:round(../ex:float1) eq 1.0 or fn:round(../ex:float2) eq 2.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="andor" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 or fn:round(../ex:float1) eq 1.0 and fn:round(../ex:float2) eq 2.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="andor" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq 'abc' or ../ex:string1 eq ../ex:string2 or fn:round(../ex:float1) eq 1.0 and fn:round(../ex:float2) eq 2.0 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="andor" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 or fn:round(../ex:float1) eq 1.0 and fn:round(../ex:float2) eq 2.0 or ../ex:string1 eq 'abc' }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e9">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string"/>
+          <xs:element name="string2" type="xs:string"/>
+          <xs:element name="float1" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="float2" type="xs:float" dfdl:lengthKind="delimited" dfdl:textStandardNaNRep="NaN" />
+          <xs:element name="andor" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 and fn:round(../ex:float1) eq 1.0 or fn:round(../ex:float2) eq 2.0 and ../ex:string1 eq 'abc' }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <!--
@@ -3545,6 +3605,30 @@ c' } "  />
   </tdml:parserTestCase>
 
   <!--
+     Test Name: sequential_and_05
+        Schema: and_or_schema
+          Root: e2
+       Purpose: This test demonstrates that multiple and operators can be used in an expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_05" root="e2"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,1,7.5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>abc</ex:string2>
+          <ex:float1>1.0</ex:float1>
+          <ex:float2>7.5</ex:float2>
+          <ex:and>false</ex:and>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
      Test Name: sequential_or_01
         Schema: and_or_schema
           Root: e3
@@ -3627,6 +3711,198 @@ c' } "  />
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <!--
+     Test Name: sequential_or_05
+        Schema: and_or_schema
+          Root: e4
+       Purpose: This test demonstrates that multiple or operators can be used in an expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_or_05" root="e4"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,4.6,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>4.6</ex:float1>
+          <ex:float2>2.0</ex:float2>
+          <ex:or>true</ex:or>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_01
+        Schema: and_or_schema
+          Root: e5
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_01" root="e5"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,4.6,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>abc</ex:string2>
+          <ex:float1>4.6</ex:float1>
+          <ex:float2>2.0</ex:float2>
+          <ex:andor>true</ex:andor>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_02
+        Schema: and_or_schema
+          Root: e6
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_02" root="e6"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,abc,1.0,5</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>abc</ex:string2>
+          <ex:float1>1.0</ex:float1>
+          <ex:float2>5.0</ex:float2>
+          <ex:andor>false</ex:andor>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_03
+        Schema: and_or_schema
+          Root: e6
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_03" root="e6"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,5,NaN</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>5.0</ex:float1>
+          <ex:float2>NaN</ex:float2>
+          <ex:andor>false</ex:andor>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_04
+        Schema: and_or_schema
+          Root: e7
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_04" root="e7"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,5,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>5.0</ex:float1>
+          <ex:float2>2.0</ex:float2>
+          <ex:andor>true</ex:andor>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_05
+        Schema: and_or_schema
+          Root: e7
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_05" root="e7"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,5,7</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>5.0</ex:float1>
+          <ex:float2>7.0</ex:float2>
+          <ex:andor>false</ex:andor>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_06
+        Schema: and_or_schema
+          Root: e8
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_06" root="e8"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>abc,def,5,7</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8>
+          <ex:string1>abc</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>5.0</ex:float1>
+          <ex:float2>7.0</ex:float2>
+          <ex:andor>true</ex:andor>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: sequential_and_or_07
+        Schema: and_or_schema
+          Root: e9
+       Purpose: This test demonstrates that and/or operators can be used in the same expression.
+  -->
+
+  <tdml:parserTestCase name="sequential_and_or_07" root="e9"
+    model="and_or_schema" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+
+    <tdml:document>def,def,1,2</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e9>
+          <ex:string1>def</ex:string1>
+          <ex:string2>def</ex:string2>
+          <ex:float1>1.0</ex:float1>
+          <ex:float2>2.0</ex:float2>
+          <ex:andor>false</ex:andor>
+        </ex:e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
   <!--
      Test Name: hiddenDataExpression
         Schema: hiddenElem 

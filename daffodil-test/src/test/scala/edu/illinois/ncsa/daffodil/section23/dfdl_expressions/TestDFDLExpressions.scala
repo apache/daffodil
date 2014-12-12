@@ -208,15 +208,23 @@ class TestDFDLExpressions {
   //@Test def test_predicate_03() { runner.runOneTest("predicate_03") }
   @Test def test_predicate_04() { runner.runOneTest("predicate_04") }
 
-  //DFDL-1181 and DFDL-1182
-  //@Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
+  @Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
   @Test def test_sequential_and_02() { runner.runOneTest("sequential_and_02") }
   @Test def test_sequential_and_03() { runner.runOneTest("sequential_and_03") }
-  //@Test def test_sequential_and_04() { runner.runOneTest("sequential_and_04") }
-  //@Test def test_sequential_or_01() { runner.runOneTest("sequential_or_01") }
+  @Test def test_sequential_and_04() { runner.runOneTest("sequential_and_04") }
+  @Test def test_sequential_and_05() { runner.runOneTest("sequential_and_05") }
+  @Test def test_sequential_or_01() { runner.runOneTest("sequential_or_01") }
   @Test def test_sequential_or_02() { runner.runOneTest("sequential_or_02") }
   @Test def test_sequential_or_03() { runner.runOneTest("sequential_or_03") }
-  //@Test def test_sequential_or_04() { runner.runOneTest("sequential_or_04") }
+  @Test def test_sequential_or_04() { runner.runOneTest("sequential_or_04") }
+  @Test def test_sequential_or_05() { runner.runOneTest("sequential_or_05") }
+  @Test def test_sequential_and_or_01() { runner.runOneTest("sequential_and_or_01") }
+  //@Test def test_sequential_and_or_02() { runner.runOneTest("sequential_and_or_02") }
+  @Test def test_sequential_and_or_03() { runner.runOneTest("sequential_and_or_03") }
+  @Test def test_sequential_and_or_04() { runner.runOneTest("sequential_and_or_04") }
+  //@Test def test_sequential_and_or_05() { runner.runOneTest("sequential_and_or_05") }
+  @Test def test_sequential_and_or_06() { runner.runOneTest("sequential_and_or_06") }
+  //@Test def test_sequential_and_or_07() { runner.runOneTest("sequential_and_or_07") }
 
   //DFDL-1059
   //@Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
