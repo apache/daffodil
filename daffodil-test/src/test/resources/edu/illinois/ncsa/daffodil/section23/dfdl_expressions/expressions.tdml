@@ -3777,7 +3777,7 @@ c' } "  />
           <ex:string2>abc</ex:string2>
           <ex:float1>1.0</ex:float1>
           <ex:float2>5.0</ex:float2>
-          <ex:andor>false</ex:andor>
+          <ex:andor>true</ex:andor>
         </ex:e6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3849,7 +3849,7 @@ c' } "  />
           <ex:string2>def</ex:string2>
           <ex:float1>5.0</ex:float1>
           <ex:float2>7.0</ex:float2>
-          <ex:andor>false</ex:andor>
+          <ex:andor>true</ex:andor>
         </ex:e7>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -3897,7 +3897,7 @@ c' } "  />
           <ex:string2>def</ex:string2>
           <ex:float1>1.0</ex:float1>
           <ex:float2>2.0</ex:float2>
-          <ex:andor>false</ex:andor>
+          <ex:andor>true</ex:andor>
         </ex:e9>
       </tdml:dfdlInfoset>
     </tdml:infoset>

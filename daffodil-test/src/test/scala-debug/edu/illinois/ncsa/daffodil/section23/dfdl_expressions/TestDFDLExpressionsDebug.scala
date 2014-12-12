@@ -80,11 +80,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_predicate_02() { runner.runOneTest("predicate_02") }
   @Test def test_predicate_03() { runner.runOneTest("predicate_03") }
 
-  //DFDL-1194
-  @Test def test_sequential_and_or_02() { runner.runOneTest("sequential_and_or_02") }
-  @Test def test_sequential_and_or_05() { runner.runOneTest("sequential_and_or_05") }
-  @Test def test_sequential_and_or_07() { runner.runOneTest("sequential_and_or_07") }
-
   //DFDL-1059
   @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
