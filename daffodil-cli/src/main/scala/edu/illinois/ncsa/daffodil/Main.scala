@@ -75,6 +75,9 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
+import java.net.URI
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import edu.illinois.ncsa.daffodil.api.InputStreamSchemaSource
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -597,7 +600,7 @@ object Main extends Logging {
     // to also include the call to pf.onPath. (which is the last phase 
     // of compilation, where it asks for the parser)
     //
-    val schemaSources = schemaFiles.map { f => new org.xml.sax.InputSource(f.toURI.toString) }
+    val schemaSources = schemaFiles.map { f => URISchemaSource(f.toURI) }
     val pf = Timer.getResult("compiling", {
       val processorFactory = compiler.compileSources(schemaSources: _*)
       if (processorFactory.canProceed) {
@@ -869,8 +872,8 @@ object Main extends Logging {
         val dataLoader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
         dataLoader.setValidation(true) //TODO: make this flag an option. 
         val document = unparseOpts.infile.get match {
-          case Some("-") | None => dataLoader.load(System.in)
-          case Some(fileName) => dataLoader.load(fileName)
+          case Some("-") | None => dataLoader.load(InputStreamSchemaSource(System.in, "standardInput", ".dfdl.xsd"))
+          case Some(fileName) => dataLoader.load(URISchemaSource(new URI(fileName)))
         }
         val rc = processor match {
           case None => 1

@@ -169,6 +169,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val schema: Schema = parent.schema
   lazy val schemaComponent: LookupLocation = this
   override lazy val fileName: String = parent.fileName
+  override lazy val fileNameForReloadingSchema: Option[String] = parent.fileNameForReloadingSchema
 
   override lazy val isHidden: Boolean = isHidden_.value
   private val isHidden_ = LV('isHidden) {

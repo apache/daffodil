@@ -56,19 +56,20 @@ class SchemaFileLocation(@transient context: SchemaFileLocatable) extends Locati
   val lineNumber = context.lineNumber
   val columnNumber = context.columnNumber
   val fileName: String = context.fileName
-  
+  val fileNameForReloadingSchema = context.fileNameForReloadingSchema
+
   override def lineDescription = lineNumber match {
     case Some(num) => " line " + num
     case None => ""
   }
-  
+
   override def columnDescription = columnNumber match {
     case Some(num) => " column " + num
     case None => ""
   }
 
   override val toString = context.toString()
-  
+
   override def fileDescription = " in " + URLDecoder.decode(fileName, "UTF-8")
 
   override def locationDescription = {
@@ -84,10 +85,10 @@ object NotLocatable extends SchemaFileLocatable {
   def columnAttribute: Option[String] = None
   def fileAttribute: Option[String] = None
   def fileName: String = "NotLocatable"
+  def fileNameForReloadingSchema: Option[String] = None
   def namespaces: scala.xml.NamespaceBinding = scala.xml.TopScope
   def SDE(id: String, args: Any*): Nothing = ???
 }
-
 
 trait SchemaFileLocatable extends LocationInSchemaFile
   with HasSchemaFileLocation {
@@ -143,6 +144,19 @@ trait SchemaFileLocatable extends LocationInSchemaFile
    * }}}
    */
   def fileName: String
+
+  /**
+   * Even at runtime, we may need the schema because we may need
+   * to do full validation, which means invoking Xerces and feeding
+   * it the DFDL Schema to use to validate the result infoset.
+   *
+   * Allows a different file to actually be holding the schema
+   * versus where diagnostic messages want to refer a user to.
+   *
+   * Tools like TDML runner, which synthesize a temp file schema
+   * don't want the name of the temp file being used for diagnostics
+   */
+  def fileNameForReloadingSchema: Option[String]
 
   lazy val fileNameFromAttribute = {
     fileAttribute match {

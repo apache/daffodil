@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.DiscriminatorPatternParser
 import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
 import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
+import java.util.regex.Pattern
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -214,7 +215,10 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   val kindString = "AssertPatternPrim"
 
-  def parser: DaffodilParser = new AssertPatternParser(eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.testTxt, stmt.message)
+  def parser: DaffodilParser = {
+    PatternChecker.checkPattern(stmt.testTxt, this)
+    new AssertPatternParser(eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.testTxt, stmt.message)
+  }
 
 }
 

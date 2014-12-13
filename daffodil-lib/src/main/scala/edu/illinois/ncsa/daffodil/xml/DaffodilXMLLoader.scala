@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.xml
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -63,6 +63,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import javax.xml.XMLConstants
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.validation.SchemaFactory
@@ -73,6 +74,7 @@ import java.io.Reader
 import java.io.FileInputStream
 import org.xml.sax.ext.DefaultHandler2
 import javax.xml.transform.sax.SAXSource
+import scala.collection.JavaConversions._
 
 /**
  * Resolves URI/URL/URNs to loadable files/streams.
@@ -333,8 +335,9 @@ class Input(var pubId: String, var sysId: String, var inputStream: BufferedInput
 /**
  * An Adapter in SAX parsing is both an XMLLoader, and a handler of events.
  */
-class DFDLXMLLocationAwareAdapter
+class DFDLXercesAdapter(val errorHandler: org.xml.sax.ErrorHandler)
   extends NoBindingFactoryAdapter
+  with SchemaAwareLoaderMixin
   //
   // We really want a whole XML Stack that is based on SAX2 DefaultHandler2 so that
   // we can handle CDATA elements right (we need events for them so we can 
@@ -345,112 +348,37 @@ class DFDLXMLLocationAwareAdapter
   //
   with Logging {
 
-  protected var fileName: String = ""
+  final val doValidation: Boolean = true
 
-  private var saxLocator: org.xml.sax.Locator = _
+  // everything interesting happens in the callbacks from the SAX parser
+  // to the adapter.
+  override def adapter = this
 
-  // Get location
-  override def setDocumentLocator(locator: org.xml.sax.Locator) {
-    //    println("setDocumentLocator line=%s col=%s sysID=%s, pubID=%s".format(
-    //      locator.getLineNumber, locator.getColumnNumber,
-    //      locator.getSystemId, locator.getPublicId))
-    this.saxLocator = locator
-    super.setDocumentLocator(locator)
+  def load(uri: URI): Node = load(uri.toURL)
+  override def loadFile(f: File) = load(f.toURI)
+
+  // We disallow any of these except ones where we can definitely get an associated
+  // identifier or name from it. 
+  private def noWay = Assert.usageError("Operation is not supported. Use load(uri) or loadFile(file)")
+  override def loadFile(fd: java.io.FileDescriptor): Node = noWay
+  override def loadFile(name: String): Node = loadFile(new File(name))
+  override def load(is: InputStream): Node = noWay
+  override def load(reader: Reader): Node = noWay
+  override def load(sysID: String): Node = noWay
+
+  //
+  // This is the common routine called by all the load calls to actually 
+  // carry out the loading of the schema.
+  //
+  override def loadXML(source: InputSource, p: SAXParser): Node = {
+
+    val xr = p.getXMLReader()
+    xr.setErrorHandler(errorHandler)
+    scopeStack.push(TopScope)
+    xr.parse(source)
+    scopeStack.pop
+    rootElem.asInstanceOf[Elem]
   }
-
-  case class Locator(line: Int, col: Int, sysID: String, pubID: String)
-
-  // Without a trick, locators will always provide the end position of an element
-  // and we want the start position.
-  // With this trick, the line and column will be of the ending ">" of the
-  // starting element tag.
-
-  // startElement saves locator information on stack
-  val locatorStack = new scala.collection.mutable.Stack[Locator]
-  // endElement pops it off into here
-  private var elementStartLocator: Locator = _
-
-  // create node then uses it.
-  override def createNode(pre: String, label: String, attrs: MetaData, scope: NamespaceBinding, children: List[Node]): Elem = {
-
-    // If we're the xs:schema node, then append attribute for _file_ as well.
-
-    val nsURI = NS(scope.getURI(pre))
-    val isXSSchemaNode = (label == "schema" && nsURI != NoNamespace &&
-      (nsURI == XMLUtils.XSD_NAMESPACE))
-    val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != NoNamespace &&
-      nsURI == XMLUtils.TDML_NAMESPACE)
-    val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode
-
-    // augment the scope with the dafint namespace binding but only
-    // for root nodes (to avoid clutter with the long xmlns:dafint="big uri")
-    // and only if it isn't already there.
-    //
-    // The above would be a nice idea, but it requires that we are recursively
-    // descending & ascending, carrying along that namespace definition so that
-    // we have encountered the root first, etc.
-    // Because Nodes are immutable, they don't point up at the scope toward
-    // the parent. 
-    // 
-    // So we append this NS binding regardless of whether it is root or not.
-    // Though we don't if it is already there.
-    // 
-    lazy val scopeWithDafInt =
-      if (scope.getPrefix(XMLUtils.INT_NS) == null) // && isFileRootNode
-        NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
-      else scope
-
-    val haveFileName = isFileRootNode && fileName != ""
-
-    val alreadyHasFile = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
-
-    // If there is already a _line_ attribute, then we're reloading something
-    // that was probably converted back into a string and written out. 
-    // The original line numbers are therefore the ones wanted, not any new
-    // line numbers, so we don't displace any line numbers that already existed.
-
-    val alreadyHasLine = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME) != None
-    val alreadyHasCol = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME) != None
-    Assert.invariant(alreadyHasLine == alreadyHasCol)
-
-    val newScope =
-      if (alreadyHasFile && alreadyHasLine && alreadyHasCol) scope
-      else scopeWithDafInt
-
-    val asIs = super.createNode(pre, label, attrs, newScope, children)
-
-    val lineAttr =
-      if (alreadyHasLine) Null
-      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Text(elementStartLocator.line.toString), Null)
-    val colAttr =
-      if (alreadyHasCol) Null
-      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Text(elementStartLocator.col.toString), Null)
-    val fileAttr =
-      if (alreadyHasFile || !haveFileName) Null
-      else {
-        val fileURIProtocolPrefix = if (fileName.startsWith("file:")) "" else "file:"
-        Attribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, Text(fileURIProtocolPrefix + fileName), Null)
-      }
-
-    // Scala XML note: The % operator creates a new element with updated attributes
-    val res = asIs % lineAttr % colAttr % fileAttr
-    // System.err.println("Create Node: " + res)
-    res
-  }
-
-  override def startElement(uri: String, _localName: String, qname: String, attributes: org.xml.sax.Attributes): Unit = {
-    // println("startElement")
-    val loc = Locator(saxLocator.getLineNumber, saxLocator.getColumnNumber, saxLocator.getSystemId, saxLocator.getPublicId)
-    locatorStack.push(loc)
-    super.startElement(uri, _localName, qname, attributes)
-  }
-
-  override def endElement(uri: String, _localName: String, qname: String): Unit = {
-    // println("endElement")
-    elementStartLocator = locatorStack.pop
-    super.endElement(uri, _localName, qname)
-  }
-
 }
 
 /**
@@ -461,7 +389,7 @@ class DFDLXMLLocationAwareAdapter
  */
 trait SchemaAwareLoaderMixin {
   // This is a single purpose trait
-  self: DaffodilXMLLoader =>
+  self: DFDLXercesAdapter =>
 
   protected def doValidation: Boolean
 
@@ -497,22 +425,18 @@ trait SchemaAwareLoaderMixin {
    * turned on, AND if you inform xerces that it is reading an XML Schema
    * (i.e., xsd).
    *
-   * We are using it differently than this. We are loading DFDL Schemas,
-   * which are being validated not as XML Schemas via xerces built-in
-   * mechanisms, but as XML documents having a schema that we provide, which
-   * enforces the subset of XML Schema that DFDL uses, etc.
+   * Detecting these requires that we do THREE passes
+   * 1) load the DFDL schema as an XML document. This validates it against the XML Schema
+   * for DFDL schemas.
+   * 2) load the DFDL schema as an XSD - xerces then does lots of more intensive checking
+   * of the schema
+   * 3) load the schema for our own consumption by Daffodil code. This uses the
+   * constructing parser so as to preserve CDATA regions (xerces just does the wrong
+   * thing with those,...fatally so). Then our own semantic checking is performed
+   * as part of compiling the DFDL schema.
    *
-   * The problem is that checks like UPA aren't expressible in a
-   * schema-for-DFDL-schemas. They are coded algorithmically right into Xerces.
-   *
-   * In order to get the UPA checks on DFDL schemas we have to do this in two
-   * passes in order for things to be compatible with the TDMLRunner because
-   * a TDML file is not a valid schema.
-   *
-   * First pass: The DFDL schema (or TDML file) is read as an XML document.
-   * Second pass: We specially load up the DFDL schemas (in the case
-   * of the TDMLRunner the DFDL Schema is extracted and loaded) treating them
-   * as XML schemas, just to get these UPA diagnostics.  This is accomplished by
+   * Checks like UPA are in step (2) above. They are coded algorithmically
+   * right into Xerces. This is accomplished by
    * using the below SchemaFactory and SchemaFactory.newSchema calls.  The
    * newSchema call is what forces schema validation to take place.
    */
@@ -525,8 +449,22 @@ trait SchemaAwareLoaderMixin {
     sf.newSchema(file)
   }
 
-  def validateSchema(source: InputSource) = {
-    val saxSource = new SAXSource(source)
+  /**
+   * This loads the DFDL schema as an XML Schema. This will
+   * check many more things about the DFDL schema other than
+   * just whether it validates against the XML Schema for DFDL schemas.
+   *
+   * Unfortunately, we don't have control over how Xerces loads up these schemas
+   * (other than the resolver anyway), so we can't really redirect the way
+   * it issues error messages so that it properly lays blame at say, the schema fragments
+   * inside an embedded schema of a TDML file.
+   *
+   * So if we want good file/line/column info from this, we have to give
+   * it a plain old file or resource, and not try to play games to get it to
+   * pick up the file/line/col information from attributes of the elements.
+   */
+  def validateSchema(source: DaffodilSchemaSource) = {
+    val saxSource = new SAXSource(source.newInputSource())
     sf.newSchema(saxSource)
   }
 
@@ -535,21 +473,54 @@ trait SchemaAwareLoaderMixin {
 /**
  * Our modified XML loader.
  *
- * It validates as it loads. (If you ask it to via setting a flag.)
+ * The saga of the XML Loaders in scala - it's a long story. Xerces is java code.
+ * It seems to be hopelessly broken in how it handles CDATA regions. It loses line
+ * information in them. Push comes to shove if an XML element contains syntax where
+ * line endings play a role. In DFDL, regular expressions that use the free-form comment
+ * syntax need the line-endings to be preserved. Xerces always loses them, so the line
+ * endings get lost and a free-form regex with a comment is hopelessly broken.
  *
- * It resolves xmlns URIs using an XML Catalog which
+ * Xerces doesn't preserve CDATA and create PCData nodes. Rather, it creates ordinary
+ * Text nodes. Nor does it give you any way to get control so
+ * that you can handle CDATA properly.  Hence, we use Xerces to validate XML files
+ * against XML Schemas, and that includes to validate DFDL schemas against the
+ * XML Schema for DFDL schemas. We also use it to validate DFDL schemas as XML Schemas
+ * since that checks many things more than just validity checking does.  And we use
+ * Xerces for "full validation" of the Infoset results from DFDL parsing, by converting
+ * them to XML and validating them as XML against the DFDL Schema (in that case being
+ * interpreted only as an XML Schema).
+ *
+ * A second issue: some DFDL schemas are created programatically from other files such
+ * as TDML files. It would be great if we could redirect Xerces to use file/line/col
+ * information from the TDML files instead of its own. But this has proven to be
+ * fragile and depends on much undocumented behavior, so was removed. One might get
+ * it to work for xml.load(...), but there's also the XSD validation of the schema,
+ * and there we have even less visibility to the parsing of the schema.
+ *
+ * Back to the CDATA issue: Unfortunately, in order to actually get the XML nodes we need for TDML or DFDL
+ * schemas where CDATA regions may be present, we can't use Xerces. So Daffodil has its
+ * own DaffodilConstructingLoader which uses the scala.xml.ConstructingParser
+ * for XML which does deal with CDATA regions properly. Daffodil extends
+ * the Scala library constructing parser so as to capture the file/line/col
+ * information needed for diagnostic messages.
+ *
+ * The DaffodilXMLLoader also resolves xmlns URIs using an XML Catalog which
  * can be extended to include user-defined catalogs. By way of a
  * CatalogManger.properties file anywhere on the classpath.
  *
- * It adds diagnostic file, line number, column number information
- * to the nodes.
+ * It adds the diagnostic file, line number, column number information
+ * to the nodes unless such info is already present.
  *
+ * The DaffodilConstructingLoader doesn't do any resolving of its own (it does not
+ * do any validation either), however, once Daffodil starts processing the
+ * DFDL schema nodes, it resolves references using the same one true XML catalog resolver.
  */
-class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
-  extends DFDLXMLLocationAwareAdapter
-  with SchemaAwareLoaderMixin {
+class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler) {
 
   def this() = this(RethrowSchemaErrorHandler)
+
+  val xercesAdapter = new DFDLXercesAdapter(errorHandler)
+
   //
   // Controls whether we setup Xerces for validation or not.
   // 
@@ -559,48 +530,29 @@ class DaffodilXMLLoader(val errorHandler: org.xml.sax.ErrorHandler)
     doValidation = flag
   }
 
-  // everything interesting happens in the callbacks from the SAX parser
-  // to the adapter.
-  override def adapter = this
-
-  override def load(url: URL): Node = {
-    adapter.fileName = url.toString
-    super.load(url)
+  /**
+   * Does (optional) validation,
+   */
+  def load(source: DaffodilSchemaSource): scala.xml.Node = {
+    var xercesNode: Node = null
+    if (doValidation) {
+      xercesNode = xercesAdapter.load(source.newInputSource()) // validates
+      if (xercesNode == null) return null
+      // Note: we don't call xercesAdapter.validateSchema(source)
+      // here, because this is an XML loader, not necessarily 
+      // just a DFDL schema loader. So for example the doValidation flag
+      // above could be telling us to validate a TDML file or not.
+    }
+    //
+    // To get reliable xml nodes including conversion of CDATA syntax into
+    // PCData nodes, we have to use a different loader.
+    //
+    val constructingLoader = new DaffodilConstructingLoader(source.uriForLoading, errorHandler)
+    val res = constructingLoader.load() // construct the XML objects for us.
+    res
   }
 
-  override def load(source: InputSource): Node = {
-    val sysId = source.getSystemId()
-    Assert.usage(sysId != null)
-    adapter.fileName = sysId
-    super.load(source)
-  }
-
-  def load(uri: URI): Node = load(uri.toURL)
-  override def loadFile(f: File) = load(f.toURI)
-
-  // We disallow any of these except ones where we can definitely get an associated
-  // identifier or name from it. 
-  private def noWay = Assert.usageError("Operation is not supported. Use load(uri) or loadFile(file)")
-  override def loadFile(fd: java.io.FileDescriptor): Node = noWay
-  override def loadFile(name: String): Node = loadFile(new File(name))
-  override def load(is: InputStream): Node = noWay
-  override def load(reader: Reader): Node = noWay
-  override def load(sysID: String): Node = noWay
-
-  //
-  // This is the common routine called by all the load calls to actually 
-  // carry out the loading of the schema.
-  //
-  override def loadXML(source: InputSource, p: SAXParser): Node = {
-
-    val xr = p.getXMLReader()
-    xr.setErrorHandler(errorHandler)
-    scopeStack.push(TopScope)
-    xr.parse(source)
-    scopeStack.pop
-    rootElem.asInstanceOf[Elem]
-  }
-
+  def validateSchema(source: DaffodilSchemaSource) = xercesAdapter.validateSchema(source)
 }
 
 /**

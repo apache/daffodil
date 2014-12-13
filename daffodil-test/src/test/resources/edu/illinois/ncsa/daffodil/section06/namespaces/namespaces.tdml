@@ -259,17 +259,24 @@
     Test name: multifile_cyclical
     Schema: cycle_base.dfdl.xsd
     Root: elem
-    Purpose: This test demonstrates the use of xs:import to create an infinite 
-    loop. The loop should be caught
-    and an error should be thrown.
+    Purpose: This test demonstrates the use of xs:import with two schemas
+    that mutually import each other. This is legal and should not lead to 
+    an infinite loop or error message.
   -->
 
-  <tdml:parserTestCase name="multifile_cyclical"
-    root="elem" model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
+  <tdml:parserTestCase name="multifile_cyclical" root="elem"
+    model="cycle_base.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document><![CDATA[12*34]]></tdml:document>
-    <tdml:errors>
-      <tdml:error>Cyclical</tdml:error>
-    </tdml:errors>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <elem>
+          <elsewhere>
+            <one>12</one>
+            <two>34</two>
+          </elsewhere>
+        </elem>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <!--
@@ -691,7 +698,7 @@
       <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
-      <tdml:error>Location line 30 column 109</tdml:error>                         
+      <tdml:error>Location line 30 column 10</tdml:error>                         
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2064,7 +2071,8 @@ jonesington,david,frederick,1986-02-19
     <tdml:document />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>line 15</tdml:error>
+      <tdml:error>junk-annotation-01.dfdl.xsd</tdml:error>
+      <tdml:error>line 2</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2093,10 +2101,11 @@ jonesington,david,frederick,1986-02-19
     <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Invalid dfdl annotation found: xs:format</tdml:error>
-        <tdml:error>Schema context: JunkComponent</tdml:error>
-        <tdml:error>Location line 10 column 71</tdml:error>
-        <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd.</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
+        <tdml:error>Location line 2 column 2</tdml:error>
+        <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2113,10 +2122,11 @@ jonesington,david,frederick,1986-02-19
     <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Invalid dfdl annotation found: xs:format</tdml:error>
-        <tdml:error>Schema context: JunkComponent</tdml:error>
-        <tdml:error>Location line 10 column 71</tdml:error>
-        <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd.</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
+        <tdml:error>Location line 2 column 2</tdml:error>
+        <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   

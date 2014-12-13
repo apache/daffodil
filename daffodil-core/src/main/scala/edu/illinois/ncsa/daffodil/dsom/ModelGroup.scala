@@ -70,6 +70,7 @@ object GroupFactory {
       }
       case <annotation>{ _* }</annotation> => Nil
       case textNode: Text => Nil
+      case _: Comment => Nil
       case _ => {
         parent.SDE("Unrecognized construct: %s", child)
       }
@@ -211,6 +212,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   def removeNonInteresting(child: Node) = {
     val childList: List[Node] = child match {
       case _: Text => Nil
+      case _: Comment => Nil
       case <annotation>{ _* }</annotation> => Nil
       case _ => List(child)
     }

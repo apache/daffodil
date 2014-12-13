@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuilder
+import org.apache.commons.io.IOUtils
 
 /**
  * Utilities for handling XML
@@ -888,16 +889,50 @@ Differences were (path, expected, actual):
    * infrastructure wants to be all file centric for diagnostic-message
    * reasons (line numbers for errors)
    */
-  def convertNodeToTempFile(xml: Node) = {
+  def convertNodeToTempFile(xml: Node, nameHint: String = "daffodil_tmp_") = {
     // Create temp file
-    val tmpSchemaFile = File.createTempFile("daffodil_tmp_", ".dfdl.xsd")
+    val prefix = nameHint.length match {
+      case 0 => "daffodil_tmp_"
+      case 1 => nameHint + "__"
+      case 2 => nameHint + "_"
+      case _ => nameHint
+    }
+    val tmpSchemaFile = File.createTempFile(prefix, ".dfdl.xsd")
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
+    //
+    // Note: we use our own pretty printer here because 
+    // Scala library one doesn't preserve/print CDATA properly.
+    //
+    val pp = new edu.illinois.ncsa.daffodil.xml.PrettyPrinter(200, 2)
+    val xmlString = pp.format(xml)
     val fw = new java.io.FileWriter(tmpSchemaFile)
-    fw.write(xml.toString())
+    fw.write(xmlString)
     fw.close()
     tmpSchemaFile
   }
+  
+  
+    def convertInputStreamToTempFile(is: java.io.InputStream, 
+        nameHint: String,
+        suffix : String) = {
+    // Create temp file
+    val prefix = nameHint.length match {
+      case 0 => "daffodil_tmp_"
+      case 1 => nameHint + "__"
+      case 2 => nameHint + "_"
+      case _ => nameHint
+    }
+    val tmpSchemaFile = File.createTempFile(prefix, suffix)
+    // Delete temp file when program exits
+    tmpSchemaFile.deleteOnExit
+
+    val fos= new java.io.FileOutputStream(tmpSchemaFile)
+    IOUtils.copy(is, fos)
+    fos.close()
+    tmpSchemaFile
+  }
+
 }
 
 trait GetAttributesMixin extends ThrowsSDE {

@@ -51,9 +51,10 @@ import edu.illinois.ncsa.daffodil.util.Error
 import edu.illinois.ncsa.daffodil.util.Warning
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
@@ -66,6 +67,7 @@ import java.util.zip.ZipException
 import java.io.StreamCorruptedException
 import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -274,11 +276,11 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * to see if compilation was successful or not.
    */
   def compileFiles(files: File*): ProcessorFactory = {
-    val sources = files.map { f => new org.xml.sax.InputSource(f.toURI.toString) }
+    val sources = files.map { f => URISchemaSource(f.toURI) }
     compileSources2(sources)
   }
 
-  def compileSources2(schemaSources: Seq[InputSource]): ProcessorFactory = {
+  def compileSources2(schemaSources: Seq[DaffodilSchemaSource]): ProcessorFactory = {
     val noParent = null // null indicates this is the root, and has no parent
     val sset = new SchemaSet(rootSpec, externalDFDLVariables, schemaSources, validateDFDLSchemas, checkAllTopLevel, noParent)
     val pf = new ProcessorFactory(sset)
@@ -301,14 +303,13 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   /**
    * Varargs + Just hides the schema set, and returns the processor factory only.
    */
-  def compileSources(sources: InputSource*): DFDL.ProcessorFactory = compileSources2(sources)
+  def compileSources(sources: DaffodilSchemaSource*): DFDL.ProcessorFactory = compileSources2(sources)
 
   /**
    * For convenient unit testing allow a literal XML node.
    */
   def compileNode(xml: Node): ProcessorFactory = {
-    val tempSchemaFile = XMLUtils.convertNodeToTempFile(xml)
-    compileSources2(Seq(new InputSource(tempSchemaFile.toURI.toString)))
+    compileSources2(Seq(UnitTestSchemaSource(xml, "anon")))
   }
 
 }

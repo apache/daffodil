@@ -41,14 +41,9 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
 import java.net.URL
 import java.io.File
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 class TestXMLLoaderWithLocation {
-
-  @Test def testBasic() {
-    val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).loadString("<a><b/></a>")
-    println(node)
-    assertTrue(node.toString.toLowerCase.contains("dafint:line"))
-  }
 
   @Test def testFile1() {
     val tmpXMLFileName = getClass.getName() + ".xml"
@@ -60,8 +55,8 @@ class TestXMLLoaderWithLocation {
         fw =>
           fw.write(testXML.toString())
       }
-      val res = new File(tmpXMLFileName)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res.toURI)
+      val res = new URISchemaSource(new File(tmpXMLFileName).toURI)
+      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)
@@ -89,8 +84,8 @@ class TestXMLLoaderWithLocation {
         fw =>
           fw.write(testXML.toString())
       }
-      val res = new File(tmpXMLFileName)
-      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res.toURI)
+      val res = new URISchemaSource(new File(tmpXMLFileName).toURI)
+      val node = (new DaffodilXMLLoader(BasicStderrErrorHandler)).load(res)
       assertTrue(node.toString.toLowerCase.contains("dafint:file"))
     } finally {
       val t = new java.io.File(tmpXMLFileName)

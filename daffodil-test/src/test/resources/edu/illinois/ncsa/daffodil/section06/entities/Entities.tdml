@@ -733,7 +733,7 @@ is multiple bytes in UTF-8 encoding that is used"
     description="Section 6.3 DFDL Character Entities - DFDL-6-036R"
     model="EscapesSchema" root="e6">
     <tdml:document>
-      <tdml:documentPart type="text"> |h |e |l |l |o</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[ |h |e |l |l |o]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

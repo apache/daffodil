@@ -773,7 +773,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">           0052    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[           0052    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -795,7 +795,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">        000052    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[        000052    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -817,7 +817,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    0052    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -839,7 +839,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">1234</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1234]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -860,7 +860,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    00003352    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    00003352    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -882,7 +882,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">00003352    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[00003352    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -904,7 +904,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">00003352</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[00003352]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -926,7 +926,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">03</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[03]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -948,7 +948,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">  03  </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[  03  ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -970,7 +970,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">  3  </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -992,7 +992,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">  3  </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[  3  ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1014,7 +1014,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">   3352     </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[   3352     ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1036,7 +1036,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">   03352     </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[   03352     ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1058,7 +1058,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    3352    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1080,7 +1080,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    3352    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    3352    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1102,7 +1102,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">          3352</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[          3352]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1125,7 +1125,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    0052    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    0052    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1148,7 +1148,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    52    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    52    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1171,7 +1171,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">052</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[052]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1194,7 +1194,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">    52    </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[    52    ]]></tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
@@ -1215,7 +1215,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">000000000005</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[000000000005]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1238,7 +1238,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">5</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[5]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -1261,7 +1261,7 @@
     description="Section 13.6 - textNumberCheckPolicy - DFDL-13-052R">
 
     <tdml:document>
-      <tdml:documentPart type="text">555</tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[555]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -3046,7 +3046,7 @@
     description="Section 13.6 - textStandardZeroRep - DFDL-13-058R">
 
     <tdml:document>
-      <tdml:documentPart type="text"> </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

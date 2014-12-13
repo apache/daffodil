@@ -46,6 +46,7 @@ import javax.xml.transform.stream.StreamSource
 import javax.xml.validation.SchemaFactory
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * TODO: This is all overkill. ConfigurationLoader doesn't need its own validator,
@@ -65,7 +66,7 @@ object ConfigurationLoader {
 
   def getConfiguration(uri: URI): Node = {
     Assert.usage(uri != null, "getConfiguration expects 'uri' to not be null!")
-    val node = loader.load(uri)
+    val node = loader.load(new URISchemaSource(uri))
     scala.xml.Utility.trim(node)
   }
 
@@ -76,13 +77,6 @@ object ConfigurationLoader {
   }
 
 }
-
-//object ConfigurationValidator {
-//
-//  final val configXsd = {
-//    val stream = this.getClass().getResourceAsStream("/xsd/dfdl-config-format.xsd")
-//    stream
-//  }
 //
 //  def validate(uri: URI): Either[java.lang.Throwable, _] = {
 //    try {

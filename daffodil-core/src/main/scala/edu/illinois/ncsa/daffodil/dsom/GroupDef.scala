@@ -33,6 +33,7 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import scala.xml.Node
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
@@ -41,11 +42,19 @@ class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
 
   def forGroupRef(gref: GroupRef, position: Int) = {
     trimmedXml match {
-      case <group><sequence>{ _* }</sequence></group> =>
-        new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
-      case <group><choice>{ _* }</choice></group> =>
-        new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
-    }
+      case <group>{ contents @ _* }</group> => {
+        val guts = contents.collect{ case e: scala.xml.Elem => e }
+        Assert.invariant(guts.length == 1)
+        guts(0) match {
+         case <sequence>{ _* }</sequence> =>
+            new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
+         case <choice>{ _* }</choice> =>
+            new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
+         case _ => Assert.invariantFailed("not a sequence or a choice.")
+      }
+      }
+      case _ => Assert.invariantFailed("not a group")
+  }
   }
 
 }

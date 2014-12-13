@@ -10,10 +10,11 @@ object DPathUtil {
    *
    * This function does not verify a string conforms to the DFDL subset of XPath
    */
-  def isExpression(expression: String): Boolean =
-    expression.startsWith("{") && expression.endsWith("}") &&
-      (expression(1) != '{')
-
+  def isExpression(expression: String): Boolean = {
+    val trimmed = expression.trim
+    trimmed.startsWith("{") && trimmed.endsWith("}") &&
+      (trimmed(1) != '{')
+  }
   /**
    * Returns the XPath expression contained in a DFDL expression (an XPath expression surrounded by brackets).
    *

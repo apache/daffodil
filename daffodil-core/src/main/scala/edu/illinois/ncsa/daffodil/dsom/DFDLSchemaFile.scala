@@ -38,6 +38,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
 import java.net.URL
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.api._
 import java.io.File
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
@@ -56,7 +57,7 @@ import org.xml.sax.InputSource
  * manages loading of it, and keeping track of validation errors
  */
 class DFDLSchemaFile(val sset: SchemaSet,
-  sourceOfSchema: => Any, // fileName, URL, or a scala.xml.Node
+  schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
   seenBeforeArg: IIMap)
   extends SchemaComponent(<file/>, sset)
@@ -83,18 +84,19 @@ class DFDLSchemaFile(val sset: SchemaSet,
     res
   }
 
-  override lazy val prettyName = uri.toString
+  override lazy val prettyName = schemaSource.uriForLoading.toString
 
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
 
   lazy val fakeURI = new File("tempFile.xsd").toURI
 
-  lazy val uri = sourceOfSchema match {
-    case fn: String => new File(fn).toURI
-    case uri: URI => uri
-    case n: scala.xml.Node => fakeURI
-    case _ => Assert.usageError("sourceOfSchema must be a fileName string, a URL or a schema node")
-  }
+  lazy val schemaSource = schemaSourceArg
+  // sourceOfSchema match {
+  //    case fn: String => new File(fn).toURI
+  //    case uri: URI => uri
+  //    case n: scala.xml.Node => fakeURI
+  //    case _ => Assert.usageError("sourceOfSchema must be a fileName string, a URL or a schema node")
+  //  }
 
   override lazy val enclosingComponent = None
 
@@ -145,8 +147,10 @@ class DFDLSchemaFile(val sset: SchemaSet,
       SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
     }
     val node = try {
-      log(LogLevel.Resolver, "Loading %s.", uri)
-      loader.load(uri)
+      log(LogLevel.Resolver, "Loading %s.", prettyName)
+      val node = loader.load(schemaSource)
+      schemaDefinitionUnless(node != null, "No XML Node could be loaded from %s.", schemaSource)
+      node
     } catch {
       case e: java.io.IOException => die(e)
       case e: SAXException => die(e)
@@ -154,11 +158,11 @@ class DFDLSchemaFile(val sset: SchemaSet,
     node
   }
 
-  lazy val node =
-    sourceOfSchema match {
-      case schemaNode: scala.xml.Node => schemaNode
-      case _ => loadedNode
-    }
+  lazy val node = loadedNode
+  //    sourceOfSchema match {
+  //      case schemaNode: scala.xml.Node => schemaNode
+  //      case _ => loadedNode
+  //    }
 
   //  lazy val seenBeforePlusThis = {
   //    val res = if (ii.notSeenThisBefore) {
@@ -187,7 +191,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before)
         sd
       }
-      case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", uri, node.label, node.namespace)
+      case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", prettyName, node.label, node.namespace)
     }
     sd
   }

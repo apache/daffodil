@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?> 
-<имен:schema xmlns:имен="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:b·="http://example.com" targetNamespace="http://example.com">
+<!-- Note that in b· that middle dot is exactly that. Unicode 0xB7. -->
+<!-- This middle doc character is expressly allowed by XML 1.0 syntax for namespace prefixes. -->
+<имен:schema 
+xmlns:имен="http://www.w3.org/2001/XMLSchema" 
+xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+xmlns:b·="http://example.com" 
+targetNamespace="http://example.com">
+
 
   <имен:include schemaLocation="xsd/built-in-formats.xsd"/>
       

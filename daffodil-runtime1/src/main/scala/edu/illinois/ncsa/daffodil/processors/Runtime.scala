@@ -232,7 +232,7 @@ abstract class ParseResult(dp: DataProcessor)
    */
   private def validateWithXerces(state: PState): Unit = {
     if (state.status == Success) {
-      val schemaFileNames = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaFileNames
+      val schemaFileNames = state.infoset.asInstanceOf[InfosetElement].runtimeData.schemaFileNamesForFullValidation
       Validator.validateXMLSources(schemaFileNames, result)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))

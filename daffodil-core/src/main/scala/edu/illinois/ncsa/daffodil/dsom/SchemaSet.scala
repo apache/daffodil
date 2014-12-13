@@ -37,10 +37,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.compiler.RootSpec
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
-import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationException
-import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationWarning
-import edu.illinois.ncsa.daffodil.xml.DFDLSchemaValidationError
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
@@ -55,6 +52,9 @@ import java.io.File
 import org.xml.sax.InputSource
 import java.net.URI
 import edu.illinois.ncsa.daffodil.xml.DFDLCatalogResolver
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * A schema set is exactly that, a set of schemas. Each schema has
@@ -81,7 +81,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   // very annoying, but had to change the order of args here because otherwise
   // both constructors have "same signature after erasure" problem.
   externalVariables: Seq[Binding],
-  schemaSourcesArg: Seq[InputSource],
+  schemaSourcesArg: Seq[DaffodilSchemaSource],
   validateDFDLSchemas: Boolean,
   checkAllTopLevelArg: Boolean,
   parent: SchemaComponent)
@@ -97,7 +97,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     parent: SchemaComponent = null) =
     this(rootSpec,
       externalVariables,
-      schemaFilesArg.map { f => new InputSource(f.toURL.toString) },
+      schemaFilesArg.map { f => URISchemaSource(f.toURL.toURI) },
       validateDFDLSchemas,
       checkAllTopLevelArg,
       parent)
@@ -119,13 +119,16 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
 
   override lazy val lineAttribute: Option[String] = None
 
+  lazy val schemaSources = schemaSourcesArg
+
   /**
    * Let's use the filename for the first schema document, rather than giving no information at all.
    *
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
    */
-  override lazy val fileName = schemaSourcesArg(0).getSystemId()
+  override lazy val fileName: String = schemaSources(0).uriForLoading.toString
+  override lazy val fileNameForReloadingSchema: Option[String] = Some(schemaSources(0).uriForLoading.toString)
 
   /**
    * We need to use the loader here to validate the DFDL Schema.
@@ -143,7 +146,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   private val _validateSchemaFiles = LV('validateSchemaFiles) {
     // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
     if (validateDFDLSchemas) {
-      schemaSourcesArg.foreach(f =>
+      schemaSources.foreach(f =>
         try {
           loader.validateSchema(f)
         } catch {
@@ -151,8 +154,6 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
         })
     }
   }
-
-  lazy val schemaURIs = schemaSourcesArg.map { source => new URI(source.getSystemId()) }
 
   lazy val checkAllTopLevel = checkAllTopLevelArg
 
@@ -171,11 +172,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
         }
       },
       extVars,
-      {
-        val file = new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString)
-        val files = List(file)
-        files
-      },
+      List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"))),
       false,
       false,
       null)

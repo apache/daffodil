@@ -759,8 +759,10 @@ this to validate when we load a DFDL Schema.
         <xsd:attributeGroup ref="sub:occurs" />
         <xsd:attribute name="default" type="xsd:string" />
         <xsd:attribute name="fixed" type="xsd:string" />
-        <xsd:attribute name="nillable" type="xsd:boolean"
-          use="optional" default="false" />
+        <!-- remove default="false" because Xerces is inserting that
+        as part of its parsing, and that ends up being incorrect since
+        element references cannot have nillable -->
+        <xsd:attribute name="nillable" type="xsd:boolean" />
         <!-- Not in DFDL v1.0
           <xsd:attribute name="abstract" type="xsd:boolean" use="optional" 
           default="false"/>

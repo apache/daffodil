@@ -74,8 +74,8 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 
     // Any time we synthesize xml we have to grab the namespace definitions and 
     // make sure we drag them along onto the new structures.
-    val fakeImportStatementsXML = schemaURIs.map { uri =>
-      <xs:import schemaLocation={ uri.toURL.toString } xmlns:xs={ xsd }/>
+    val fakeImportStatementsXML = schemaSources.map { ri =>
+      <xs:import schemaLocation={ ri.uriForLoading.toString } xmlns:xs={ xsd }/>
     }
 
     val fakeSchemaDocXML =

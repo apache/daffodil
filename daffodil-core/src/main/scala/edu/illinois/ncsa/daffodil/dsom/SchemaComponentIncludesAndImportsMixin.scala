@@ -70,7 +70,7 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
   }
 
   lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
-  
+
   val orElseURL: String = "file:??"
 
   /**
@@ -81,6 +81,9 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
   private val fileName_ = LV('fileName) {
     xmlSchemaDocument.fileName
   }
+
+  lazy val fileNameForReloadingSchema: Option[String] =
+    xmlSchemaDocument.fileNameForReloadingSchema
 
 }
 

@@ -268,6 +268,21 @@ class TestTDMLRunnerNew {
   }
 
   /**
+   * Scala's XML Literals don't do CDATA regions right.
+   *
+   * So to force the example tdml xml to have CDATA regions (which it would
+   * if these were being read from a file), we construct actual PCData
+   * xml nodes and splice them in where we would have written <![CDATA[...]]>
+   * in a real TDML file.
+   */
+  val cdataText = """(?x) # free form
+abc # a comment
+# a line with only a comment
+123 # another comment
+"""
+  val cdata = new scala.xml.PCData(cdataText)
+
+  /**
    * Test to make sure we can use freeform regex and also use the comment syntax.
    */
   @Test def testRegexWithFreeFormAndComments1() = {
@@ -279,11 +294,7 @@ class TestTDMLRunnerNew {
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
-                  <dfdl:property name="lengthPattern"><![CDATA[(?x) # free form
-                 abc # a comment
-                 # a line with only a comment
-                 123 # another comment It has to see this to fail the match resulting in zero length
-              ]]></dfdl:property>
+                  <dfdl:property name="lengthPattern">{ cdata }</dfdl:property>
                 </dfdl:element>
               </xsd:appinfo>
             </xsd:annotation>
@@ -314,11 +325,7 @@ class TestTDMLRunnerNew {
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- This assert passes only if free form works, and comments work. -->
-                <dfdl:assert testKind='pattern'><![CDATA[(?x) # free form
-                 abc # a comment
-                 # a line with only a comment
-                 123 # another comment
-              ]]></dfdl:assert>
+                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
@@ -339,7 +346,14 @@ class TestTDMLRunnerNew {
     ts.runOneTest("testRegex")
   }
 
+  /**
+   * Scala's xml literals read CDATA properly, but don't create a PCData node
+   * so if you write the data back out, the CDATA-non-normalized whitespace
+   * is lost. So in this test we forcibly construct the PCData node.
+   *
+   */
   @Test def testRegexWithFreeFormAndComments3() = {
+
     val testSuite =
       <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
         <tdml:defineSchema name="mySchema">
@@ -348,11 +362,42 @@ class TestTDMLRunnerNew {
             <xsd:annotation>
               <xsd:appinfo source="http://www.ogf.org/dfdl/">
                 <!-- This assert passes only if free form works, and comments work. -->
-                <dfdl:assert testKind='pattern'><![CDATA[(?x) # free form
-                 abc # a comment
-                 # a line with only a comment
-                 123 # another comment
-              ]]></dfdl:assert>
+                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
+              </xsd:appinfo>
+            </xsd:annotation>
+          </xsd:element>
+        </tdml:defineSchema>
+        <tdml:parserTestCase xmlns={ tdml } name="testRegex" root="data" model="mySchema">
+          <tdml:document>
+            <tdml:documentPart type="text"><![CDATA[abc123]]></tdml:documentPart>
+          </tdml:document>
+          <tdml:infoset>
+            <tdml:dfdlInfoset>
+              <data>abc123</data>
+            </tdml:dfdlInfoset>
+          </tdml:infoset>
+        </tdml:parserTestCase>
+      </tdml:testSuite>
+    val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testRegex")
+  }
+
+  @Test def testRegexWithFreeFormAndComments4() = {
+    val cdataText = """(?x) # free form
+abc # a comment
+# a line with only a comment
+123 # another comment
+"""
+    val cdata = new scala.xml.PCData(cdataText)
+    val testSuite =
+      <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+        <tdml:defineSchema name="mySchema">
+          <dfdl:format ref="tns:daffodilTest1"/>
+          <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited">
+            <xsd:annotation>
+              <xsd:appinfo source="http://www.ogf.org/dfdl/">
+                <!-- This assert passes only if free form works, and comments work. -->
+                <dfdl:assert testKind='pattern'>{ cdata }</dfdl:assert>
               </xsd:appinfo>
             </xsd:annotation>
           </xsd:element>
@@ -362,12 +407,11 @@ class TestTDMLRunnerNew {
             <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
           </tdml:document>
           <tdml:errors>
-            <tdml:error>assertion failed</tdml:error>
+            <tdml:error>{ cdataText.trim }</tdml:error>
           </tdml:errors>
         </tdml:parserTestCase>
       </tdml:testSuite>
-
-    lazy val ts = new DFDLTestSuite(testSuite)
+    val ts = new DFDLTestSuite(testSuite)
     ts.runOneTest("testRegex")
   }
 
@@ -383,5 +427,13 @@ class TestTDMLRunnerNew {
     val bits = docObj.documentBits
     val expected = List("00101010", "10000000", "00000000", "00000000", "00000000", "10100000")
     assertEquals(expected, bits)
+  }
+
+  @Test def testTDMLWithInvalidDFDLSchemaEmbedded() = {
+
+    val testDir = ""
+    val aa = testDir + "tdml-with-embedded-schema-errors.tdml"
+    lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = true)
+    runner.runOneTest("test1")
   }
 }

@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * This unit test cannot be in the regular daffodil-core library due
@@ -387,7 +388,8 @@ catalogs=testData_OnClassPath/testCatalog.xml
       }
     })
 
-    val elem = loader.loadFile(tmpDataFileName) // that should validate it.
+    val src = new URISchemaSource(tmpDataFileName.toURI)
+    val elem = loader.load(src) // that should validate it.
     // println(elem)
     true // returned to indicate that things worked
   }

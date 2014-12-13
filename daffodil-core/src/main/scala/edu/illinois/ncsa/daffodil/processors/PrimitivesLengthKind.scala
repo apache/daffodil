@@ -256,9 +256,11 @@ case class StringPatternMatched(e: ElementBase)
 
   val pattern = e.lengthPattern
 
-  def parser: DaffodilParser = new StringPatternMatchedParser(pattern, e.elementRuntimeData,
-    e.encodingInfo, justificationTrim, padChar)
-
+  def parser: DaffodilParser = {
+    PatternChecker.checkPattern(pattern, this)
+    new StringPatternMatchedParser(pattern, e.elementRuntimeData,
+      e.encodingInfo, justificationTrim, padChar)
+  }
 }
 
 trait HasEscapeScheme { self: StringDelimited =>

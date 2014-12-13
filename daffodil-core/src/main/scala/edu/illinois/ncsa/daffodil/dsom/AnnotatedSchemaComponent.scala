@@ -231,7 +231,7 @@ trait AnnotatedMixin
     dais.flatMap { dai =>
       {
         val children = dai.child
-        val res = children.filterNot { _.isInstanceOf[Text] }.map { child =>
+        val res = children.filter { _.isInstanceOf[scala.xml.Elem] }.map { child =>
           {
             annotationFactory(child)
           }

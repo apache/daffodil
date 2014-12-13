@@ -72,7 +72,34 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   // have to be resolved by THIS Object
   lazy val value = xml match {
     case <dfdl:property/> => ""
-    case <dfdl:property>{ valueNodes }</dfdl:property> => valueNodes.text
+    case <dfdl:property>{ valueNodes @ _* }</dfdl:property> => {
+      //
+      // We have to implement our own trim logic. 
+      // and that is somewhat subtle. E.g., textNumberPattern where
+      // spaces are meaningful active characters. lengthPattern,
+      // assert patterns, etc.
+      //
+      // Inside dfdl:property, since it is an element, XML's typical
+      // whitespace fungibility applies. So use CDATA if you care 
+      // about space inside these.
+      //
+      val values = valueNodes.flatMap { valueNode =>
+        valueNode match {
+          case scala.xml.PCData(s) => Some(valueNode)
+          case scala.xml.Text(s) => {
+            if (s.matches("""\s+""")) {
+              // all whitespace. So leave as is
+              Some(valueNode)
+            } else {
+              Some(scala.xml.Text(s.trim))
+            }
+          }
+          case scala.xml.Comment(_) => None
+        }
+      }
+      val res = values.map { _.text }.mkString
+      res
+    }
   }
 
   override lazy val name = getAttributeRequired("name")

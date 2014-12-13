@@ -121,7 +121,8 @@ abstract class Enum[A] extends EnumBase {
     val opt = _values.find(_.toString.toLowerCase() == str.toLowerCase)
     opt match {
       case Some(e) => e
-      case None => context.SDE("Unknown property value ", enumTypeName, str)
+      case None =>
+        context.SDE("Unknown property value ", enumTypeName, str)
     }
   }
   /**

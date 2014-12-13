@@ -138,7 +138,7 @@ object ExpressionCompiler extends ExpressionCompilerBase {
     // a literal string, that it has quotes around it. 
     //
     val exprForCompiling =
-      if (DPathUtil.isExpression(expr)) expr
+      if (DPathUtil.isExpression(expr)) expr.trim
       else {
         // not an expression. For some properties like delimiters, you can use a literal string 
         // whitespace separated list of literal strings, or an expression in { .... }

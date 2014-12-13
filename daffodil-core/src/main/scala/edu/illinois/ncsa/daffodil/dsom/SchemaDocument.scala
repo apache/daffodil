@@ -206,10 +206,10 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
         val prefix =
           if (node.prefix == null || node.prefix == "") ""
           else node.prefix + ":"
-        // we make a junk component so as to avail ourselves of
-        // a uniform way to do diagnostics, line numbers, etc.
-        val junk = new JunkComponent(node, this)
-        junk.SDE("Invalid dfdl annotation found: %s", prefix + node.label)
+        //        // we make a junk component so as to avail ourselves of
+        //        // a uniform way to do diagnostics, line numbers, etc.
+        //        val junk = new JunkComponent(node, this)
+        this.SDE("Invalid dfdl annotation found: %s", prefix + node.label)
       }
     }
   }

@@ -70,6 +70,8 @@ import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
 import org.xml.sax.InputSource
+import java.net.URI
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * API Suitable for Java programmers to use.
@@ -161,11 +163,12 @@ class Compiler {
   /**
    * Compile DFDL schema sources into a [[ProcessorFactory]]
    *
-   * @param sources array of org.xml.sax.InputSource of DFDL schema files used to create a [[ProcessorFactory]].
+   * @param uris array of URI of DFDL schema files used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
-  def compileSources(sources: Array[InputSource]): ProcessorFactory = {
+  def compileSources(uris: Array[URI]): ProcessorFactory = {
+    val sources = uris.map { URISchemaSource(_) }
     val pf = sCompiler.compileSources(sources: _*)
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }

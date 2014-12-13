@@ -42,8 +42,9 @@ import scala.collection.immutable.ListMap
 import org.apache.xerces.util.XMLResourceIdentifierImpl
 import java.io.IOException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Info
 import IIUtils._
@@ -94,7 +95,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
       // object by way of a factory without the final map parameter
       // (similarly, for DFDLSchemaDocument, the Import/Exports etc.)
       //
-      val sf = iiSchemaFile // new DFDLSchemaFile(sset, resolvedLocation, this, Map.empty)
+      val sf = iiSchemaFile
       val xsd = sf.iiXMLSchemaDocument
       val xsdtns = xsd.targetNamespace
       (xsdtns, resolvedLocation)
@@ -119,7 +120,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    * This will be Some(URL) for reading an imported schema,
    * if we resolved the namespace URI via the XML Catalog.
    */
-  lazy val resolvedNamespaceURI: Option[URI] = resolvedNamespaceURI_.value
+  lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] = resolvedNamespaceURI_.value
   private val resolvedNamespaceURI_ = LV('resolvedNamespaceURI) {
     importElementNS match {
       case None => {
@@ -130,7 +131,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         val uri = resolver.resolveURI(ns.toString)
         if (uri == null) None
         else {
-          val res = URI.create(uri)
+          val res = URISchemaSource(URI.create(uri))
           Some(res)
         }
       }
@@ -143,7 +144,7 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   /**
    * XML Catalog is tried first, then classpath
    */
-  lazy val resolvedLocation = resolvedLocation_.value
+  lazy val resolvedLocation: DaffodilSchemaSource = resolvedLocation_.value
   private val resolvedLocation_ = LV('resolvedLocation) {
 
     log(LogLevel.Resolver, "Computing resolvedLocation")

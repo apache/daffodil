@@ -162,8 +162,9 @@ trait SeparatorSuppressionPolicyMixin
   }
 }
 
-trait TextNumberFormatMixin extends PropertyMixin {
-  lazy val textStandardInfinityRep = {
+trait TextNumberFormatMixin extends PropertyMixin { self: OOLAGHost =>
+  lazy val textStandardInfinityRep = textStandardInfinityRep_.value
+  def textStandardInfinityRep_ = LV('textStandardInfinityRep) {
     val raw = getProperty("textStandardInfinityRep")
 
     this.schemaDefinitionUnless(raw.length() > 0, "textStandardInfinityRep cannot be empty!")
@@ -206,9 +207,10 @@ trait TextNumberFormatMixin extends PropertyMixin {
 }
 
 trait StringTextMixin extends PropertyMixin
-  with LengthUnitsMixin {
+  with LengthUnitsMixin { self: OOLAGHost =>
   lazy val textStringPadCharacterRaw = getProperty("textStringPadCharacter")
-  lazy val textStringPadCharacter = {
+  lazy val textStringPadCharacter = textStringPadCharacter_.value
+  def textStringPadCharacter_ = LV('textStringPadCharacter) {
     val raw = textStringPadCharacterRaw
 
     // Can be a literal character or DFDL entity

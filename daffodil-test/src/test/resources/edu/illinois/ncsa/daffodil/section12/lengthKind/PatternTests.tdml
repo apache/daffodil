@@ -662,7 +662,7 @@
     <tdml:document>input!</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Unclosed counted closure near index 12</tdml:error>
+      <tdml:error>Unclosed counted closure near index</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -679,7 +679,7 @@
     <tdml:document>input!</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Illegal repetition near index 8</tdml:error>
+      <tdml:error>Illegal repetition near index</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -696,7 +696,7 @@
     <tdml:document>input!</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Dangling meta character '*' near index 4</tdml:error>
+      <tdml:error>Dangling meta character '*' near index</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

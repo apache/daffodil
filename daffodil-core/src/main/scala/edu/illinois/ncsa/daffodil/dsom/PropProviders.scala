@@ -88,7 +88,29 @@ trait LeafPropProvider
     log(LogLevel.Debug, "%s leafFindProperty %s on %s", prettyName, pname, this)
     val mine = justThisOneProperties.get(pname)
     val res = mine match {
-      case Some((value, loc)) => Found(value, loc)
+      case Some((value, loc)) => {
+        //
+        // One downside of the ConstructingParser for XML - we lose the
+        // schema-aware processing that was trimming off whitespace
+        // from properties/attributes declared as xs:tokens automatically.
+        //
+        // Instead we have to implement our own trim logic. 
+        // and that is somewhat subtle. E.g., textNumberPattern where
+        // spaces are meaningful active characters. lengthPattern,
+        // assert patterns, etc.
+        //
+        val trimmedValue = value
+        //          if (value.matches("""\s+""")) {
+        //            // the value is all whitespace
+        //            // so we leave it alone
+        //            value
+        //          } else {
+        //            // not all whitespace, so we trim whitespace
+        //            // from beginning and end of it.
+        //            value.trim
+        //          }
+        Found(trimmedValue, loc)
+      }
       case None => NotFound(List(this), Nil)
     }
     log(LogLevel.Debug, "%s leafFindProperty %s ", prettyName, res)

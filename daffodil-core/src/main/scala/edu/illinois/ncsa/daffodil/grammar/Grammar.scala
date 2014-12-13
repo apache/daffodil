@@ -224,6 +224,7 @@ abstract class Terminal(contextArg: AnnotatedSchemaComponent, guard: Boolean)
   override def toString = path // dangerous. What if realSC.path fails?
 
   def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args: _*)
+  def SDW(str: String, args: Any*): Unit = realSC.SDW(str, args: _*)
 
 }
 

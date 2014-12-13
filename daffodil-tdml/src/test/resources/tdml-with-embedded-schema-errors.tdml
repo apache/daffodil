@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="theSuiteName"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+  <!-- This embedded schema has validation errors. -->
+  <tdml:defineSchema name="mySchema">
+    <xs:format ref="tns:daffodilTest1" />
+    <xs:element name="data" type="fn:string" dfdl:lengthKind="delimited" />
+  </tdml:defineSchema>
+  <tdml:parserTestCase name="test1" root="data"
+    model="mySchema">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[abcdef]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>xs:format</tdml:error>
+      <tdml:error>invalid dfdl annotation</tdml:error>
+      <tdml:error>fn:string</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+</tdml:testSuite>

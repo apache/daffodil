@@ -40,7 +40,7 @@ class ElementRuntimeData(
   override val defaultBitOrder: BitOrder,
   val optPrimType: Option[PrimType],
   val targetNamespace: NS,
-  val thisElementsNamespace: NS, 
+  val thisElementsNamespace: NS,
   val patternValues: Option[Seq[FacetTypes.FacetValueR]],
   val enumerationValues: Option[String],
   val minLength: Option[java.math.BigDecimal],
@@ -98,7 +98,9 @@ class ElementRuntimeData(
 
   def isSimpleType = optPrimType.isDefined
 
-  def schemaFileNames: Seq[String] = (schemaFileLocation.fileName +: childERDs.flatMap { _.schemaFileNames }).distinct
+  def schemaFileNamesForFullValidation = schemaFileNamesForFullValidation1.flatten.distinct
+  private def schemaFileNamesForFullValidation1: Seq[Option[String]] = (schemaFileLocation.fileNameForReloadingSchema +:
+    childERDs.flatMap { _.schemaFileNamesForFullValidation1 })
 
   def isDefaultable = defaultValue.isDefined
 

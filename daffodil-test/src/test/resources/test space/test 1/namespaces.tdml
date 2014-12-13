@@ -2012,10 +2012,11 @@ jonesington,david,frederick,1986-02-19
     <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Invalid dfdl annotation found: xs:format</tdml:error>
-        <tdml:error>Schema context: JunkComponent</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
         <tdml:error>Location line 10 column 71</tdml:error>
-        <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd.</tdml:error>
+        <tdml:error>section06/namespaces/multi_base_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
   
@@ -2032,10 +2033,11 @@ jonesington,david,frederick,1986-02-19
     <tdml:document><![CDATA[12345.123456.323|13222.764536.400]]></tdml:document>
       <tdml:errors>
         <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>Invalid dfdl annotation found: xs:format</tdml:error>
-        <tdml:error>Schema context: JunkComponent</tdml:error>
+        <tdml:error>Invalid dfdl annotation</tdml:error>
+        <tdml:error>xs:format</tdml:error>
+        <tdml:error>Schema context:</tdml:error>
         <tdml:error>Location line 10 column 71</tdml:error>
-        <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd.</tdml:error>
+        <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
 

@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.section06.namespaces
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,36 +32,48 @@ package edu.illinois.ncsa.daffodil.section06.namespaces
  * SOFTWARE.
  */
 
-import junit.framework.Assert._
-import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import junit.framework.Assert._
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.xml.NS
 
-class TestNamespacesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
-  val aa = testDir + "namespaces.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+class TestXMLLoader {
 
-  @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
-  @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }
-  @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") }
+  /**
+   * Characterize behavior of scala's xml loader w.r.t. CDATA preservation.
+   *
+   * At the time of this testing. The basic scala xml loader uses Xerces (java)
+   * under the hood. It seems hopelessly broken w.r.t CDATA region preservation.
+   */
+  @Test def test_scala_loader_cdata_bug() {
 
-  // These tests are being moved to debug because of ticket DFDL-714.
-  // We changed the error handling to escalate Xerces parser warning to SDE errors.
-  // Because of an imported schema that has errors in it for testing, all of these tests are now failing.
-  // They will need to be updated to import only the schemas necessary to properly test each case
-  // and not include those schemas that they do not use but are causing parser errors.
+    val data = """<x><![CDATA[a
+b&"<>]]></x>"""
+    val node = scala.xml.XML.loadString(data)
+    val <x>{ xbody @ _* }</x> = node
+    assertEquals(1, xbody.length)
+    val body = xbody(0)
+    val txt = body.text
+    assertTrue(txt.contains("a"))
+    assertTrue(txt.contains("b"))
+    //
+    // Note to developer - whomewever sees this test failing....
+    //
+    // IF this test fails, it means that the scala xml loader have been FIXED (hooray!)
+    // and our need for the ConstructingParser may have gone away.
+    //
+    assertFalse(txt.contains("<![CDATA[")) // wrong
+    assertFalse(txt.contains("]]>")) // wrong
+    assertTrue(txt.contains("a\nb")) // they preserve the contents
+    assertFalse(body.isInstanceOf[scala.xml.PCData]) // wrong - they don't preserve the object properly.
+    assertTrue(body.isInstanceOf[scala.xml.Text]) // wrong
+    assertTrue(txt.contains("""&"<>""")) // They get the right characters in there.
+    assertTrue(body.toString.contains("""&amp;&quot;&lt;&gt;""")) // wrong
+    assertFalse(body.toString.contains("""<![CDATA[a
+b&"<>]]>"""))
 
-  @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
-  @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
+  }
 
-  // No longer works. New loader won't accept character U+00B7 as a character
-  // in a prefix name. 
-  @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
 }

@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import java.io.File
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.xml.sax.InputSource
+import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -185,9 +186,7 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch =>
-      new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString)
-    }
+    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_figures_out_namespace_success") }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
@@ -235,7 +234,7 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch => new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString) }
+    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_no_namespace_success") }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
@@ -285,7 +284,7 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch => new InputSource(XMLUtils.convertNodeToTempFile(sch).toURI.toString) }
+    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_figures_out_namespace_failure") }
 
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)

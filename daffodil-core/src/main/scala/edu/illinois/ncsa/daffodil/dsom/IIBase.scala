@@ -50,12 +50,14 @@ import IIUtils._
 import java.io.File
 import java.net.URI
 import scala.xml.NodeSeq
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
 import java.net.URLDecoder
 import java.net.URLEncoder
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -141,7 +143,7 @@ import java.net.URLEncoder
  * ListMap is one of them.
  */
 object IIUtils {
-  type IIMap = Delay[ListMap[(NS, URI), IIBase]]
+  type IIMap = Delay[ListMap[(NS, DaffodilSchemaSource), IIBase]]
 }
 
 /**
@@ -203,14 +205,14 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * to the location of the including/importing file, etc.
    */
 
-  final lazy val resolvedSchemaLocation: Option[URI] = resolvedSchemaLocation_.value
+  final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] = resolvedSchemaLocation_.value
   private val resolvedSchemaLocation_ = LV('resolvedSchemaLocation) {
     val res = schemaLocationProperty.flatMap { slText =>
       // We need to determine if the URI is valid, if it's not we should attempt to encode it
       // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
       val encodedSLText = if (!isValidURI(slText)) URLEncoder.encode(slText, "UTF-8") else slText
       val uri: URI = URI.create(encodedSLText)
-      val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.uri }
+      val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
 
       val completeURI = enclosingSchemaURI.map { _.resolve(uri) }.getOrElse(uri)
       val protocol = {
@@ -229,19 +231,19 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
       //
       val resolved =
         if (protocol == "file" && (new File(completeURI)).exists)
-          Some(completeURI)
+          Some(URISchemaSource(completeURI))
         else if (protocol == "jar")
-          Some(completeURI) // jars are pre-resolved - we got the jar URI from the resolver
+          Some(URISchemaSource(completeURI)) // jars are pre-resolved - we got the jar URI from the resolver
         else {
           val res = Misc.getResourceRelativeOption(encodedSLText, enclosingSchemaURI)
-          res
+          res.map { URISchemaSource(_) }
         }
       resolved
     }
     res
   }
 
-  def mapPair: (NS, URI)
+  def mapPair: (NS, DaffodilSchemaSource)
 
   final lazy val mapTuple = mapTuple_.value
   private val mapTuple_ = LV('mapTuple) {
@@ -253,13 +255,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * Holds the location of the schema, whether that is from
    * the XML Catalog (import), or classpath (import or include).
    */
-  def resolvedLocation: URI
-
-  //  lazy val super_iiSchemaFile = super_iiSchemaFile_.value
-  //  private val super_iiSchemaFile_ = LV('super_iiSchemaFile) {
-  //    val f = new DFDLSchemaFile(sset, resolvedLocation, this, seenBeforeThisFile)
-  //    f
-  //  }
+  def resolvedLocation: DaffodilSchemaSource
 
   /**
    * Get the schema file if it isn't one we have seen before.

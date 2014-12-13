@@ -36,6 +36,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.api._
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
@@ -120,7 +121,7 @@ object DFDL {
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compileSources(schemaSources: org.xml.sax.InputSource*): ProcessorFactory
+    def compileSources(schemaSources: DaffodilSchemaSource*): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor
   }

@@ -43,7 +43,6 @@ import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.Utility
-import scala.xml.parsing.ConstructingParser
 import org.xml.sax.InputSource
 import com.ibm.icu.charset.CharsetICU
 import edu.illinois.ncsa.daffodil.Tak
@@ -51,6 +50,10 @@ import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
+import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
+import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
+import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import edu.illinois.ncsa.daffodil.api.EmbeddedSchemaSource
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
@@ -155,56 +158,36 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
    * our loader here accumulates load-time errors here on the
    * test suite object.
    */
+  private val augmentExistingLocationInfo = true
   val loader = new DaffodilXMLLoader(errorHandler)
   loader.setValidation(validateTDMLFile)
 
-  val (ts, tdmlFile, tsSysId, tsURI) = {
-
-    /**
-     * We have to use the ConstructingParser in order for Scala to preserve
-     * CDATA elements in the dfdl:infoset of the TDML tests.  However,
-     * ConstructingParser does not detect encoding and neither does scala.io.Source.
-     * We have to use EncodingHeuristics to detect this encoding for us.
-     *
-     * The other thing to note here is that we still need to perform some sort
-     * of validation against the TDML.  We do this by leaving the original
-     * loader.loadFile(file) call here.
-     */
-    val tuple = aNodeFileOrURL match {
-      case tsNode: Node => {
-        //
-        // We were passed a literal schema node. This is for unit testing
-        // purposes. We are not going to worry about CDATA regions in that
-        // case, so we just use the regular old validating loader.
-        //
-        val tempFile = XMLUtils.convertNodeToTempFile(tsNode)
-        val uri = tempFile.toURI()
-        val source1 = new InputSource(uri.toASCIIString())
-        val origNode = loader.load(source1)
-        //
-        // diagnostic messages are going to feature a temp file name.... grrr.
-        (origNode, null, source1.getSystemId(), uri)
-      }
-      case tdmlFile: File => {
-        log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
-        val uri = tdmlFile.toURI()
-        val ignore = loader.load(uri) // used for validation only
-        val newNode = ConstructingParser.fromFile(tdmlFile, true).document.docElem
-        val res = (newNode, tdmlFile, tdmlFile.getAbsolutePath(), uri)
-        log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
-        res
-      }
-      case tsURI: URI => {
-        val ignore = loader.load(tsURI) // used for validation only
-        val input = scala.io.Source.fromURL(tsURI.toURL)
-        val newNode = ConstructingParser.fromSource(input, true).document.docElem
-        val res = (newNode, null, tsURI.toURL.toString, tsURI)
-        res
-      }
-      case _ => Assert.usageError("not a Node, File, or URL")
+  val (ts, tsURI) = aNodeFileOrURL match {
+    case tsNode: Node => {
+      //
+      // We were passed a literal schema node. This is for unit testing
+      // purposes. 
+      //
+      val src = new UnitTestSchemaSource(tsNode, "")
+      val origNode = loader.load(src)
+      //
+      (origNode, src.uriForLoading)
     }
-    tuple
-  }
+    case tdmlFile: File => {
+      log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
+      val uri = tdmlFile.toURI()
+      val newNode = loader.load(new URISchemaSource(uri))
+      val res = (newNode, uri)
+      log(LogLevel.Debug, "done loading TDML file: %s", tdmlFile)
+      res
+    }
+    case uri: URI => {
+      val newNode = loader.load(new URISchemaSource(uri))
+      val res = (newNode, uri)
+      res
+    }
+    case _ => Assert.usageError("not a Node, File, or URL")
+  } // end match
 
   lazy val isTDMLFileValid = !this.isLoadingError
 
@@ -232,6 +215,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     embeddedSchemaGroups.foreach {
       case (name, Seq(sch)) => // ok
       case (name, seq) =>
+        // TDML XML schema has uniqueness check for this. Hence, this is just an Assert here
+        // since it means that the validation of the TDML file didn't catch the duplicate name.
         Assert.usageError("More than one definition for embedded schema " + name)
     }
     embeddedSchemasRaw
@@ -241,7 +226,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
-      log(Error("TDML file %s is not valid.", tsSysId))
+      log(Error("TDML file %s is not valid.", tsURI))
     }
   }
 
@@ -280,7 +265,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
         }
       }
     } else {
-      log(Error("TDML file %s is not valid.", tsSysId))
+      log(Error("TDML file %s is not valid.", tsURI))
       val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
       throw new Exception(msgs)
     }
@@ -312,13 +297,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     res
   }
 
-  def findEmbeddedSchema(modelName: String): Option[Node] = {
+  def findEmbeddedSchema(modelName: String): Option[DefinedSchema] = {
     // schemas defined with defineSchema take priority as names.
     val es = embeddedSchemas.find { defSch => defSch.name == modelName }
-    es match {
-      case Some(defschema) => Some(defschema.xsdSchema)
-      case None => None
-    }
+    es
   }
 
   def findSchemaFileName(modelName: String) = findTDMLResource(modelName)
@@ -372,8 +354,6 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
   val shouldValidate = validationMode != ValidationMode.Off
   val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
 
-  var suppliedSchema: Option[Node] = None
-
   protected def runProcessor(processor: DFDL.ProcessorFactory,
     data: Option[DFDL.Input],
     nBits: Option[Long],
@@ -400,32 +380,34 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     bindings
   }
 
-  def run(schema: Option[Node] = None): (Long, Long) = {
-    suppliedSchema = schema
-    val sch = schema match {
-      case Some(node) => {
+  def getSuppliedSchema(schemaArg: Option[Node]): DaffodilSchemaSource = {
+    val embeddedSchema = parent.findEmbeddedSchema(model)
+    val schemaURI = parent.findSchemaFileName(model)
+    val suppliedSchema = (schemaArg, embeddedSchema, schemaURI) match {
+      case (None, None, None) => throw new Exception("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
+      case (None, Some(_), Some(_)) => throw new Exception("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
+      case (Some(node), _, _) => {
+        // unit test case. There is no URI/file location
         if (model != "") throw new Exception("You supplied a model attribute, and a schema argument. Can't have both.")
-        node
+        // note that in this case, since a node was passed in, this node has no file/line/col information on it
+        // so error messages will end up being about some temp file. 
+        UnitTestSchemaSource(node, name)
       }
-      case None => {
-        if (model == "") throw new Exception("No model was specified.") // validation of the TDML should prevent writing this.
-        val schemaNode = parent.findEmbeddedSchema(model)
-        val schemaFileName = parent.findSchemaFileName(model)
-        val schemaNodeOrFileName = (schemaNode, schemaFileName) match {
-          case (None, None) => throw new Exception("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
-          case (Some(_), Some(_)) => throw new Exception("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
-          case (Some(node), None) => node
-          case (None, Some(uri)) => {
-            val url = uri.toURL
-            if (url.getProtocol() == "file") new File(uri)
-            else {
-              new InputSource(uri.toURL.toString)
-            }
-          }
-        }
-        schemaNodeOrFileName
+      case (None, Some(defSchema), None) => {
+        Assert.invariant(model != "") // validation of the TDML should prevent this
+        EmbeddedSchemaSource(defSchema.xsdSchema, defSchema.name)
       }
-    }
+      case (None, None, Some(uri)) => {
+        //
+        // In this case, we have a real TDML file (or resource) to open
+        URISchemaSource(uri)
+      }
+    } // end match
+    suppliedSchema
+  }
+
+  def run(schemaArg: Option[Node] = None): (Long, Long) = {
+    val suppliedSchema = getSuppliedSchema(schemaArg)
 
     val cfg: Option[DefinedConfig] = config match {
       case "" => None
@@ -456,12 +438,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
 
-    val pf = sch match {
-      case node: Node => compiler.compileNode(node)
-      case theFile: File => compiler.compileSources(new InputSource(theFile.toURI.toString))
-      case source: InputSource => compiler.compileSources(source)
-      case _ => Assert.invariantFailed("can only be Node or File")
-    }
+    val pf = compiler.compileSources(suppliedSchema)
 
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }
@@ -859,7 +836,10 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
   val defineVariables = (xml \ "defineVariable")
   val defineEscapeSchemes = (xml \ "defineEscapeScheme")
 
-  val globalElementDecls = (xml \ "element")
+  val globalElementDecls = {
+    val res = (xml \ "element")
+    res
+  }
   val globalSimpleTypeDefs = (xml \ "simpleType")
   val globalComplexTypeDefs = (xml \ "complexType")
   val globalGroupDefs = (xml \ "group")
@@ -962,6 +942,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
         case <documentPart>{ _* }</documentPart> => // ok
         case scala.xml.Text(s) if (s.matches("""\s+""")) => // whitespace text nodes ok
         case scala.xml.Comment(_) => // ok
+        case scala.xml.PCData(s) => // ok
         case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
       }
     }
@@ -1274,7 +1255,23 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     bo
   }
 
-  lazy val partRawContent = part.child.text
+  /**
+   * Only trim nodes that aren't PCData (aka <![CDATA[...]]>)
+   */
+  lazy val trimmedParts = part.child flatMap { childNode =>
+    childNode match {
+      case scala.xml.PCData(s) => Some(childNode)
+      case scala.xml.Text(s) => {
+        val trimmed = s.trim
+        if (trimmed.length == 0) None
+        else Some(scala.xml.Text(trimmed))
+      }
+      case scala.xml.Comment(_) => None
+      case _ => Assert.invariantFailed("unrecognized child part in TextDocumentPart: " + childNode)
+    }
+  }
+
+  lazy val partRawContent = trimmedParts.text
 
   lazy val replaceDFDLEntities: Boolean = {
     val res = (part \ "@replaceDFDLEntities")
