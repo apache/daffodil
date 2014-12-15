@@ -728,14 +728,13 @@ class TestDFDLExpressions {
   @Test def test_xsDateTime_constructor_04() { runner2.runOneTest("xsDateTime_constructor_04") }
   @Test def test_xsDateTime_constructor_05() { runner2.runOneTest("xsDateTime_constructor_05") }
 
-  //DFDL-1119
-  //@Test def test_double_constructor_01() { runner2.runOneTest("double_constructor_01") }
-  //@Test def test_double_constructor_02() { runner2.runOneTest("double_constructor_02") }
-  //@Test def test_double_constructor_03() { runner2.runOneTest("double_constructor_03") }
-  //@Test def test_double_constructor_04() { runner2.runOneTest("double_constructor_04") }
-  //@Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
+  @Test def test_double_constructor_01() { runner2.runOneTest("double_constructor_01") }
+  @Test def test_double_constructor_02() { runner2.runOneTest("double_constructor_02") }
+  @Test def test_double_constructor_03() { runner2.runOneTest("double_constructor_03") }
+  @Test def test_double_constructor_04() { runner2.runOneTest("double_constructor_04") }
+  @Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
   @Test def test_double_constructor_06() { runner2.runOneTest("double_constructor_06") }
-  //@Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
+  @Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
 
   @Test def test_float_constructor_01() { runner2.runOneTest("float_constructor_01") }
   @Test def test_float_constructor_02() { runner2.runOneTest("float_constructor_02") }

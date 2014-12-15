@@ -71,14 +71,6 @@ class TestDFDLExpressionsNew {
   @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
   @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
 
-  //DFDL-1119
-  @Test def test_double_constructor_01() { runner2.runOneTest("double_constructor_01") }
-  @Test def test_double_constructor_02() { runner2.runOneTest("double_constructor_02") }
-  @Test def test_double_constructor_03() { runner2.runOneTest("double_constructor_03") }
-  @Test def test_double_constructor_04() { runner2.runOneTest("double_constructor_04") }
-  @Test def test_double_constructor_05() { runner2.runOneTest("double_constructor_05") }
-  @Test def test_double_constructor_07() { runner2.runOneTest("double_constructor_07") }
-
   //DFDL-1074
   @Test def test_not_11() { runner2.runOneTest("not_11") }
 
