@@ -8169,6 +8169,16 @@
   
   <xs:element name="not12" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:hexBinary('EFB2')) }" />
   <xs:element name="not13" type="xs:boolean" dfdl:inputValueCalc="{ fn:not() }" />
+  
+  <xs:element name="not14">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="|">
+        <xs:element name="num" type="xs:float" dfdl:textStandardNaNRep="it%SP;isn't%SP;a%SP;number"/>
+        <xs:element name="numNotExist" type="xs:boolean" dfdl:inputValueCalc="{ fn:not(xs:float(../ex:num)) }"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
 
   </tdml:defineSchema>
 <!--
@@ -8705,6 +8715,29 @@
       <tdml:error>not</tdml:error>
       <tdml:error>argument</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: not_16
+       Schema: booleanFunctions
+         Root: not14
+      Purpose: This test demonstrates that if $arg is a value of any numeric type, fn:not returns true if the operand value is NaN.
+-->
+
+  <tdml:parserTestCase name="not_16" root="not14"
+    model="booleanFunctions" description="Section 23 - Functions - fn:not - DFDL-23-093R5">
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[it isn't a number]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <not14>
+          <num>NaN</num>     
+          <numNotExist>true</numNotExist>
+        </not14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 <!--

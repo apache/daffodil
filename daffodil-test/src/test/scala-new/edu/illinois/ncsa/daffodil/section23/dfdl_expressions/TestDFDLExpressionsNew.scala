@@ -71,9 +71,6 @@ class TestDFDLExpressionsNew {
   @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
   @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
 
-  //DFDL-1074
-  @Test def test_not_11() { runner2.runOneTest("not_11") }
-
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
 

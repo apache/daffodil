@@ -301,12 +301,12 @@ class TestDFDLExpressions {
   @Test def test_not_08() { runner2.runOneTest("not_08") }
   @Test def test_not_09() { runner2.runOneTest("not_09") }
   @Test def test_not_10() { runner2.runOneTest("not_10") }
-  //DFDL-1074
-  //@Test def test_not_11() { runner2.runOneTest("not_11") }
+  @Test def test_not_11() { runner2.runOneTest("not_11") }
   @Test def test_not_12() { runner2.runOneTest("not_12") }
   @Test def test_not_13() { runner2.runOneTest("not_13") }
   @Test def test_not_14() { runner2.runOneTest("not_14") }
   @Test def test_not_15() { runner2.runOneTest("not_15") }
+  @Test def test_not_16() { runner2.runOneTest("not_16") }
 
   @Test def test_xPathFunc_abs_01() { runner2.runOneTest("xPathFunc_abs_01") }
   @Test def test_xPathFunc_abs_02() { runner2.runOneTest("xPathFunc_abs_02") }
