@@ -1004,6 +1004,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>The attribute testPattern must not be empty for testKind='pattern'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

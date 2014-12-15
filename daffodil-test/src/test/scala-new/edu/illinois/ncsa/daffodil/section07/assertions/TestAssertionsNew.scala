@@ -43,6 +43,4 @@ class TestAssertionsNew {
   val tdml = testDir + "assert.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
 
-  //DFDL-1170
-  @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
 }
