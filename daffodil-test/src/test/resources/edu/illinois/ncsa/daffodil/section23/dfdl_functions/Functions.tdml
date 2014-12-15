@@ -3748,6 +3748,15 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="round-hte-6">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="num" dfdl:representation="binary" type="xs:float" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="4"/>
+          <xs:element name="roundval" type="xs:float" dfdl:inputValueCalc="{ fn:round-half-to-even(xs:double(../ex:num)) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="empty01">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
@@ -5455,6 +5464,54 @@
           <num>3.45</num>
           <roundval>3.0</roundval>
         </round-hte-5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: round_hte_15
+       Schema: XPathFunctions
+         Root: round-hte-6
+      Purpose: This test demonstrates the round-half-to-even function when the original input
+               was binary, and the fractional part is half
+-->
+
+  <tdml:parserTestCase name="round_hte_15" root="round-hte-6"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">40900000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte-6>
+          <num>4.5</num>
+          <roundval>4.0</roundval>
+        </round-hte-6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: round_hte_16
+       Schema: XPathFunctions
+         Root: round-hte-6
+      Purpose: This test demonstrates the round-half-to-even function when the original input
+               was binary, and the fractional part is half
+-->
+
+  <tdml:parserTestCase name="round_hte_16" root="round-hte-6"
+    model="XPathFunctions" description="Section 23.5.2 - Standard XPath Functions - round-half-to-even - DFDL-23-098R">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">40B00000</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <round-hte-6>
+          <num>5.5</num>
+          <roundval>6.0</roundval>
+        </round-hte-6>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

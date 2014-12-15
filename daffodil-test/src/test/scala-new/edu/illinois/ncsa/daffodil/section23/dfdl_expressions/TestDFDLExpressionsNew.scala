@@ -89,11 +89,6 @@ class TestDFDLExpressionsNew {
   @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
   @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
 
-  //DFDL-1122
-  @Test def test_xPathFunc_round_hte_02() { runner2.runOneTest("xPathFunc_round_hte_02") }
-  @Test def test_xPathFunc_round_hte_03() { runner2.runOneTest("xPathFunc_round_hte_03") }
-  @Test def test_xPathFunc_round_hte_05() { runner2.runOneTest("xPathFunc_round_hte_05") }
-
   //DFDL-1145
   @Test def test_comparison_operators_03() { runner.runOneTest("comparison_operators_03") }
   @Test def test_comparison_operators_04() { runner.runOneTest("comparison_operators_04") }
