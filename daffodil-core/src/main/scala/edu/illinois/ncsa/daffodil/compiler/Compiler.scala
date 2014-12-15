@@ -65,6 +65,7 @@ import java.util.zip.GZIPInputStream
 import java.util.zip.ZipException
 import java.io.StreamCorruptedException
 import org.xml.sax.InputSource
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -293,6 +294,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
         log(Compile("ProcessorFactory completed with no errors."))
       }
     }
+    log(Compile("Schema had %s elements.", ElementBase.count))
     pf
   }
 

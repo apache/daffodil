@@ -61,6 +61,9 @@ import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
  * classes for each instance type.
  */
 
+object ElementBase {
+  var count = 0
+}
 /**
  * Shared by all forms of elements, local or global or element reference.
  */
@@ -77,6 +80,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin {
+
+  ElementBase.count += 1 // how many elements in this schema.
 
   requiredEvaluations(typeDef)
   requiredEvaluations(isSimpleType)
@@ -135,8 +140,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       elementChildrenCompileInfo)
     eci
   }
-  
-  
+
   lazy val thisElementsNamespace: NS = this.namedQName.namespace
   lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
 

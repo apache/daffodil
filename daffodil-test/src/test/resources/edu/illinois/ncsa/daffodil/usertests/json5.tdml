@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="JSON5" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+
+  <tdml:parserTestCase name="json5_1" root="Json" model="json5.dfdl.xsd"
+    description="test json">
+    <tdml:document>
+      { "foo" : "bar" }
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Json>
+          <Structure>
+            <Object>
+              <NameValuePair>
+                <Name>foo</Name>
+                <Value><String>bar</String></Value>
+              </NameValuePair>
+            </Object>
+          </Structure>
+        </Json>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<tdml:parserTestCase name="json5_2" root="Json" model="json5.dfdl.xsd"
+    description="test json">
+    <tdml:document>
+      [ null , null ]
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Json>
+          <Structure>
+            <Array>
+              <Value xsi:nil="true"/>
+              <Value xsi:nil="true"/>
+            </Array>
+          </Structure>
+        </Json>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  
+  <tdml:parserTestCase name="json5_3" root="Json" model="json5.dfdl.xsd"
+    description="test json">
+    <tdml:document>
+      [null,null]
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Json>
+          <Structure>
+            <Array>
+              <Value xsi:nil="true"/>
+              <Value xsi:nil="true"/>
+            </Array>
+          </Structure>
+        </Json>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+    <tdml:parserTestCase name="json5_4" root="Json" model="json5.dfdl.xsd"
+    description="test json">
+    <tdml:document>
+      [500,501]
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Json>
+          <Structure>
+            <Array>
+              <Value><Integer>500</Integer></Value>
+              <Value><Integer>501</Integer></Value>
+            </Array>
+          </Structure>
+        </Json>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+</testSuite>
