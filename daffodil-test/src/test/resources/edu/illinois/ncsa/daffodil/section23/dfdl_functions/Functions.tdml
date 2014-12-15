@@ -4070,6 +4070,23 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="count03c">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="scores">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:sequenceKind="ordered">
+                <xs:element name="bobcats" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="B:" dfdl:lengthKind="delimited"/>
+                <xs:element name="pirates" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:initiator="P:" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="bobcatScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03c/ex:scores/ex:bobcats) }"/>
+          <xs:element name="pirateScoreCount" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count03c/ex:scores/ex:pirates) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="count04" type="xs:int" dfdl:inputValueCalc="{ fn:count() }"/>
     
@@ -4084,6 +4101,21 @@
             </xs:complexType>
           </xs:element>
           <xs:element name="numints" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count05/ex:ints/ex:int, /ex:count05/ex:ints/ex:int) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="count05b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="ints">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:sequenceKind="ordered">
+                <xs:element name="int" type="xs:int" minOccurs="0" maxOccurs="10" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="numints" type="xs:int" dfdl:inputValueCalc="{ fn:count(/ex:count05b/ex:ints/ex:int, /ex:count05b/ex:ints/ex:int) }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -9570,6 +9602,37 @@
   </tdml:parserTestCase>
 
 <!--
+    Test Name: count_05c
+       Schema: XPathFunctions
+         Root: count03c
+      Purpose: This test demonstrates the count() function.
+-->
+
+  <tdml:parserTestCase name="count_05c" root="count03c"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">B:6,B:1,B:6,B:2,P:3,P:3</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count03c>
+          <scores>
+            <bobcats>6</bobcats>
+            <bobcats>1</bobcats>
+            <bobcats>6</bobcats>
+            <bobcats>2</bobcats>
+            <pirates>3</pirates>
+            <pirates>3</pirates>
+          </scores>
+          <bobcatScoreCount>4</bobcatScoreCount>
+          <pirateScoreCount>2</pirateScoreCount>
+        </count03c>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
     Test Name: count_06
        Schema: XPathFunctions
          Root: count03
@@ -9593,6 +9656,34 @@
           <bobcatScoreCount>3</bobcatScoreCount>
           <pirateScoreCount>0</pirateScoreCount>
         </count03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: count_06b
+       Schema: XPathFunctions
+         Root: count03c
+      Purpose: This test demonstrates the count() function.
+-->
+
+  <tdml:parserTestCase name="count_06b" root="count03c"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">B:1,B:1,B:2</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count03c>
+          <scores>
+            <bobcats>1</bobcats>
+            <bobcats>1</bobcats>
+            <bobcats>2</bobcats>
+          </scores>
+          <bobcatScoreCount>3</bobcatScoreCount>
+          <pirateScoreCount>0</pirateScoreCount>
+        </count03c>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -9625,6 +9716,26 @@
 -->
 
   <tdml:parserTestCase name="count_08" root="count05"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1,2,3</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>count</tdml:error>
+      <tdml:error>argument</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: count_08b
+       Schema: XPathFunctions
+         Root: count05b
+      Purpose: This test demonstrates the count() function, and how it handles being passed too many arguments
+-->
+
+  <tdml:parserTestCase name="count_08b" root="count05b"
     model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
 
     <tdml:document>

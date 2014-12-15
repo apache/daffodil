@@ -418,11 +418,15 @@ class TestDFDLExpressions {
 
   @Test def test_count_01() { runner2.runOneTest("count_01") }
   @Test def test_count_02() { runner2.runOneTest("count_02") }
+  @Test def test_count_05c() { runner2.runOneTest("count_05c") }
+  @Test def test_count_06b() { runner2.runOneTest("count_06b") }
+  @Test def test_count_07() { runner2.runOneTest("count_07") }
+  @Test def test_count_08b() { runner2.runOneTest("count_08b") }
+  
   //DFDL-1116
   //@Test def test_count_03() { runner2.runOneTest("count_03") }
-  @Test def test_count_07() { runner2.runOneTest("count_07") }
 
-  //DFDL-1117, DFDL-1159 (unordered sequences)
+  //DFDL-1159 (unordered sequences)
   //@Test def test_count_05() { runner2.runOneTest("count_05") }
   //@Test def test_count_06() { runner2.runOneTest("count_06") }
   //@Test def test_count_08() { runner2.runOneTest("count_08") }

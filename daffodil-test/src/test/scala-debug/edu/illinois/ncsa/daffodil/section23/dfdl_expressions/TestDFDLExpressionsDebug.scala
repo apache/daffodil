@@ -119,7 +119,7 @@ class TestDFDLExpressionsDebug {
   //DFDL-1160
   @Test def test_count_04() { runner2.runOneTest("count_04") }
 
-  //DFDL-1117, DFDL-1159 (unordered sequences)
+  //DFDL-1159 (unordered sequences)
   @Test def test_count_05() { runner2.runOneTest("count_05") }
   @Test def test_count_06() { runner2.runOneTest("count_06") }
   @Test def test_count_08() { runner2.runOneTest("count_08") }
