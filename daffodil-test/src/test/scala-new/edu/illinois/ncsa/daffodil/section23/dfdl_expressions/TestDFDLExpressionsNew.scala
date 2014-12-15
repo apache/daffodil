@@ -103,12 +103,6 @@ class TestDFDLExpressionsNew {
   @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
 
-  //DFDL-1171
-  @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
-  @Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
-  @Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
-  @Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
-
   //DFDL-1129
   @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 }

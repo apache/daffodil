@@ -370,6 +370,26 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e16">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string2" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="oneEQtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 eq ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e17">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="string1" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="string2" type="xs:string" dfdl:representation="binary" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:length="5"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ ../ex:string1 lt ../ex:string2 }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -3405,6 +3425,54 @@ c' } "  />
           <string2>2</string2>
           <oneLTtwo>true</oneLTtwo>
         </e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_27
+        Schema: comparisonOperators 
+          Root: e16
+       Purpose: This test demonstrates that DPath supports string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_27" root="e16"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">7061696e73 2c 7061696e74</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e16>
+          <string1>pains</string1>
+          <string2>paint</string2>
+          <oneEQtwo>false</oneEQtwo>
+        </e16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_28
+        Schema: comparisonOperators 
+          Root: e17
+       Purpose: This test demonstrates that DPath supports string comparison 
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_28" root="e17"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document>
+      <tdml:documentPart type="byte">7061696e73 2c 7061696e74</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e17>
+          <string1>pains</string1>
+          <string2>paint</string2>
+          <oneLTtwo>true</oneLTtwo>
+        </e17>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

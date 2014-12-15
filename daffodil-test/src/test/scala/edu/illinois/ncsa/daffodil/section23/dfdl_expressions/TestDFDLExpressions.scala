@@ -116,12 +116,12 @@ class TestDFDLExpressions {
   @Test def test_comparison_operators_19() { runner.runOneTest("comparison_operators_19") }
   @Test def test_comparison_operators_20() { runner.runOneTest("comparison_operators_20") }
   @Test def test_comparison_operators_21() { runner.runOneTest("comparison_operators_21") }
-
-  //DFDL-1171 
-  //@Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
-  //@Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
-  //@Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
-  //@Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
+  @Test def test_comparison_operators_23() { runner.runOneTest("comparison_operators_23") }
+  @Test def test_comparison_operators_24() { runner.runOneTest("comparison_operators_24") }
+  @Test def test_comparison_operators_25() { runner.runOneTest("comparison_operators_25") }
+  @Test def test_comparison_operators_26() { runner.runOneTest("comparison_operators_26") }
+  @Test def test_comparison_operators_27() { runner.runOneTest("comparison_operators_27") }
+  @Test def test_comparison_operators_28() { runner.runOneTest("comparison_operators_28") }
 
   @Test def test_regexLookahead() { runner.runOneTest("regexLookahead") }
   @Test def test_regexLookaheadFail() { runner.runOneTest("regexLookaheadFail") }
