@@ -297,15 +297,14 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: S
       case Seq(sc) => Some(sc) // exactly one is good
       case s => {
         schemaSet.schemaDefinitionError(
-          "More than one definition for name: %s\n" +
-            "defined %s",
+          "More than one definition for name: %s. Defined in following locations:\n%s",
           name, s.map { thing =>
             thing match {
-              case df: DFDLDefiningAnnotation => df.asAnnotation.fileDescription
-              case sc: SchemaComponent => sc.fileDescription
+              case df: DFDLDefiningAnnotation => df.asAnnotation.locationDescription
+              case sc: SchemaComponent => sc.locationDescription
               case _ => Assert.invariantFailed("should only be a SchemaComponent or a DFDLDefiningAnnotation")
             }
-          }.mkString("\n and also "))
+          }.mkString("\n"))
       }
     }
   }
