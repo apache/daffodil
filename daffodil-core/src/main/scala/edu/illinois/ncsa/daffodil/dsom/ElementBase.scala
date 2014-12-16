@@ -271,7 +271,18 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val elementChildrenCompileInfo = elementChildren.map { _.dpathElementCompileInfo }
 
-  override lazy val isRepresented = inputValueCalcOption.isInstanceOf[NotFound]
+  override lazy val isRepresented = {
+    val isRep = inputValueCalcOption.isInstanceOf[NotFound]
+    if (!isRep) {
+      if (isOptional) {
+        SDE("inputValueCalc property can not appear on optional elements")
+      }
+      if (!isScalar) {
+        SDE("inputValueCalc property can not appear on array elements")
+      }
+    }
+    isRep
+  }
 
   override lazy val impliedRepresentation = {
     val rep = if (isSimpleType) {
