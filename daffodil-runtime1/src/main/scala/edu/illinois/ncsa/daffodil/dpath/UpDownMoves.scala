@@ -84,9 +84,7 @@ case class DownArrayOccurrence(info: DPathElementCompileInfo, indexRecipe: Compi
     val savedCurrentElement = dstate.currentComplex
     indexRecipe.run(dstate)
     val index = dstate.index
-    Assert.invariant(dstate.index > 0) // TODO PE?
-    val arr = savedCurrentElement.getChildArray(info.slotIndexInParent)
-    Assert.invariant(arr.isDefined) // TODO PE?
+    val arr = savedCurrentElement.getChildArray(info.slotIndexInParent, info.name, info.namedQName.namespace)
     val occurrence = arr.get.getOccurrence(index) // will throw on out of bounds
     dstate.setCurrentNode(occurrence.asInstanceOf[DIElement])
   }
@@ -104,7 +102,7 @@ case class DownArray(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info.slotIndexInParent)
+    val arr = now.getChildArray(info.slotIndexInParent, info.name, info.namedQName.namespace)
     Assert.invariant(arr.isDefined)
     dstate.setCurrentNode(arr.get.asInstanceOf[DIArray])
   }
@@ -119,7 +117,7 @@ case class DownArrayExists(info: DPathElementCompileInfo) extends RecipeOp {
 
   override def run(dstate: DState) {
     val now = dstate.currentComplex
-    val arr = now.getChildArray(info.slotIndexInParent)
+    val arr = now.getChildArray(info.slotIndexInParent, info.name, info.namedQName.namespace)
 
     if (!arr.isDefined || arr.get.length == 0) throw new InfosetNoSuchChildElementException("Array does not exist.")
   }

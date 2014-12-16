@@ -4620,5 +4620,129 @@ c' } "  />
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
+  <tdml:defineSchema name="array_index">
+
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:element name="data">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="|">
+                <xs:element name="arr" minOccurs='0' maxOccurs='unbounded' type="xs:string" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="idx" type="xs:int" />
+          <xs:element name="ivc" type="xs:string" dfdl:inputValueCalc="{ /ex:e1/ex:data/ex:arr[/ex:e1/ex:idx] }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <!--
+     Test Name: array_index_oob_01
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that array indexing works, can access the first element
+  -->
+  <tdml:parserTestCase name="array_index_oob_01" root="e1"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;1</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:data>
+            <ex:arr>a</ex:arr>
+            <ex:arr>b</ex:arr>
+            <ex:arr>c</ex:arr>
+          </ex:data>
+          <ex:idx>1</ex:idx>
+          <ex:ivc>a</ex:ivc>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: array_index_oob_02
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that array indexing works, can access the last element
+  -->
+  <tdml:parserTestCase name="array_index_oob_02" root="e1"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;3</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:data>
+            <ex:arr>a</ex:arr>
+            <ex:arr>b</ex:arr>
+            <ex:arr>c</ex:arr>
+          </ex:data>
+          <ex:idx>3</ex:idx>
+          <ex:ivc>c</ex:ivc>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: array_index_oob_03
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that accessing the 0th index of an array element causes an SDE
+  -->
+  <tdml:parserTestCase name="array_index_oob_03" root="e1"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;0</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>Value 0</tdml:error>
+      <tdml:error>arr</tdml:error>
+      <tdml:error>length 3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: array_index_oob_04
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that accessing beyond the last index of an array element causes an SDE
+  -->
+  <tdml:parserTestCase name="array_index_oob_04" root="e1"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;4</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>Value 4</tdml:error>
+      <tdml:error>arr</tdml:error>
+      <tdml:error>length 3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: array_index_oob_05
+        Schema: array_index
+          Root: e1
+       Purpose: This test demonstrates that accessing a negative index of an array element causes an SDE
+  -->
+  <tdml:parserTestCase name="array_index_oob_05" root="e1"
+    model="array_index" description="Section 23 - DFDL Expressions - DFDL-23-067R">
+    <tdml:document>a|b|c;-1</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Expression evaluation failed</tdml:error>
+      <tdml:error>Value -1</tdml:error>
+      <tdml:error>arr</tdml:error>
+      <tdml:error>length 3</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

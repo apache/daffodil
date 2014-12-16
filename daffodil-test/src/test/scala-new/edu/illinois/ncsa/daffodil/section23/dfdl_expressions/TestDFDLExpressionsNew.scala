@@ -81,4 +81,12 @@ class TestDFDLExpressionsNew {
   //DFDL-1079
   @Test def test_empty_05() { runner2.runOneTest("empty_05") }
   @Test def test_exists_05() { runner2.runOneTest("exists_05") }
+
+  //DFDL-1198
+  @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
+  @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }
+  @Test def test_array_index_oob_03() { runner.runOneTest("array_index_oob_03") }
+  @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
+  @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
+
 }

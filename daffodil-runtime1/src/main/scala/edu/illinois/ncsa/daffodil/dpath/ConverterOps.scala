@@ -169,9 +169,6 @@ case object LongToShort extends Converter {
 case object LongToArrayIndex extends Converter {
   override def computeValue(a: Any, dstate: DState) = {
     val res = asLong(a)
-    val upperLimit = DaffodilTunableParameters.maxOccursBounds
-    if (res < 0) throw new NumberFormatException("Negative value %s cannot be converted to an array index.".format(res))
-    if (res > upperLimit) throw new NumberFormatException("Value %s out of range for an array index\nThe current (tunable) maximum is %s.".format(res, upperLimit))
     res
   }
 }

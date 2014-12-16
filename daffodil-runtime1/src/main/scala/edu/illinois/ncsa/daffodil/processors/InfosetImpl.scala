@@ -39,7 +39,19 @@ class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
   // def this(slot: Int) = this("Child element with slot position %s does not exist.".format(slot))
   def this(name: String, namespace: NS, slot: Int) = this("Child named '" + name +
     (if (namespace == NoNamespace) "' " else "' in namespace '%s' ".format(namespace)) +
-    "(slot %s) does not exist.")
+    "(slot " + slot + ") does not exist.")
+
+  override def getMessage: String = msg
+}
+
+class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError {
+  def this(name: String, namespace: NS, slot: Long, length: Long ) = {
+    this("Value %d is out of range for the '%s' array%swith length %d".format(
+          slot,
+          name,
+          if (namespace == NoNamespace) " " else " in namespace '%s' ".format(namespace),
+          length))
+  }
 
   override def getMessage: String = msg
 }
@@ -130,7 +142,7 @@ sealed trait DIElement extends DINode with InfosetElement {
 // code, rather than letting all sorts of map/flatmap compositions,
 // which may or may not be optimized effectively.
 //
-final class DIArray extends DINode with InfosetArray {
+final class DIArray(name: String, namespace: NS) extends DINode with InfosetArray {
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
   //TODO: really this needs to be adaptive, and resize upwards reasonably. 
   //A non-copying thing - list like, may be better, but we do need access to be
@@ -144,7 +156,11 @@ final class DIArray extends DINode with InfosetArray {
     _contents.trimEnd(n)
   }
 
-  def getOccurrence(occursIndex: Long) = _contents(occursIndex.toInt - 1)
+  def getOccurrence(occursIndex: Long) = {
+    if (occursIndex > length || occursIndex < 1) throw new InfosetArrayIndexOutOfBoundsException(name, namespace, occursIndex, length)
+    _contents(occursIndex.toInt - 1)
+  }
+
   def apply(occursIndex: Long) = getOccurrence(occursIndex)
 
   def append(ie: InfosetElement): Unit = {
@@ -342,7 +358,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   final override def getChildArray(erd: ElementRuntimeData): Maybe[InfosetArray] = {
     Assert.usage(erd.isArray)
-    getChildArray(erd.slotIndexInParent)
+    getChildArray(erd.slotIndexInParent, erd.prettyName, erd.targetNamespace)
   }
 
   final def getChild(slot: Int, name: String, namespace: NS): InfosetElement = getChildMaybe(slot).getOrElse {
@@ -352,7 +368,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
     _slots(slot).map { _.asInstanceOf[InfosetElement] }
 
-  final def getChildArray(slot: Int): Maybe[DIArray] = {
+  final def getChildArray(slot: Int, name: String, namespace: NS): Maybe[DIArray] = {
     val slotVal = _slots(slot)
     if (slotVal.isDefined)
       slotVal.get match {
@@ -362,7 +378,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     else {
       // slot is Nope. There isn't even an array object yet.
       // create one (it will have zero entries)
-      val ia = One(new DIArray)
+      val ia = One(new DIArray(name, namespace))
       // no array there yet. So we have to create one.
       setChildArray(slot, ia)
       ia
@@ -385,7 +401,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       var ia: InfosetArray = null
       val arr = getChildArray(e.runtimeData)
       if (!arr.isDefined) {
-        ia = new DIArray
+        ia = new DIArray(e.runtimeData.name, e.runtimeData.targetNamespace)
         // no array there yet. So we have to create one.
         setChildArray(e.runtimeData, ia)
       } else {
@@ -715,7 +731,7 @@ object Infoset {
           // 
           // In this case, the current slot must be filled in with 
           // a DIArray 
-          val arr = new DIArray
+          val arr = new DIArray(childERD.prettyName, childERD.targetNamespace)
           val c = ie.asInstanceOf[DIComplex]
           c.setChildArray(childERD, arr)
 

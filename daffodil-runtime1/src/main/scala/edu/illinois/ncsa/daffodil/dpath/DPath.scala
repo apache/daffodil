@@ -124,6 +124,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
         // that error (which should be an abort, from an arithmetic exception 
         // due to an expression dividing by zero say. 
         case e: InfosetNoSuchChildElementException => doSDE(e, pstate)
+        case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, pstate)
         case e: IllegalArgumentException => doPE(e, pstate)
         case e: IllegalStateException => doPE(e, pstate)
         case e: NumberFormatException => doPE(e, pstate)
