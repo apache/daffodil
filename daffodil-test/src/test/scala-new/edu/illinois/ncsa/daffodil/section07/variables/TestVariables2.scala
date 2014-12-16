@@ -43,7 +43,5 @@ class TestVariables2 {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
-  // DFDL-989
-  @Test def test_doubleSetErr() { runner.runOneTest("doubleSetErr") }
     
 }

@@ -62,6 +62,22 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="r3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:v_no_default">{ 41 }</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:v_no_default">{ 42 }</dfdl:setVariable>
+              <dfdl:setVariable ref="ex:v_no_default">{ 43 }</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="d" type="xsd:int"
+            dfdl:inputValueCalc="{ $ex:v_no_default }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="a">
       <xs:complexType>
         <xs:sequence>
@@ -218,6 +234,21 @@
   <tdml:parserTestCase name="doubleSetErr" root="r1"
     model="v"
     description="Error to set the value of a variable instance twice - DFDL-7-130R">
+
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>variable</tdml:error>
+      <tdml:error>twice</tdml:error>
+      <tdml:error>v_no_default</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="multiSetErr" root="r3"
+    model="v"
+    description="Error to set the value of a variable instance more than once - DFDL-7-130R">
 
     <tdml:document />
 
