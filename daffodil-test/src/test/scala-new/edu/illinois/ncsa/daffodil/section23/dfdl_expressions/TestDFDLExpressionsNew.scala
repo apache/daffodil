@@ -74,10 +74,6 @@ class TestDFDLExpressionsNew {
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
 
-  //DFDL-1123
-  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
-  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
-
   @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
   @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }

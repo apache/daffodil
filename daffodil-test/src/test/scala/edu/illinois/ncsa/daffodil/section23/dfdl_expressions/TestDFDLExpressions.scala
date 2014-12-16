@@ -365,12 +365,10 @@ class TestDFDLExpressions {
   @Test def test_round_hte_10() { runner2.runOneTest("round_hte_10") }
   @Test def test_round_hte_11() { runner2.runOneTest("round_hte_11") }
   @Test def test_round_hte_12() { runner2.runOneTest("round_hte_12") }
+  @Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
+  @Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
   @Test def test_round_hte_15() { runner2.runOneTest("round_hte_15") }
   @Test def test_round_hte_16() { runner2.runOneTest("round_hte_16") }
-
-  //DFDL-1123
-  //@Test def test_round_hte_13() { runner2.runOneTest("round_hte_13") }
-  //@Test def test_round_hte_14() { runner2.runOneTest("round_hte_14") }
 
   //DFDL-1080
   //@Test def test_empty_02() { runner2.runOneTest("empty_02") }
