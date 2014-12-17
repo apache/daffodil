@@ -21,9 +21,16 @@ abstract class HexBinaryLengthInBytesParser(justificationTrim: TextJustification
     erd,
     new ISO8859EncodingInfo(erd)) {
 
+  val hexArray = "0123456789ABCDEF".toCharArray
+
   override def formatValue(value: String) = {
-    val hexStr = value.map(c => c.toByte.formatted("%02X")).mkString
-    hexStr
+    val sb = new StringBuilder(value.length * 2)
+    for (c <- value) {
+      val i = c.toInt
+      sb += hexArray(i >>> 4)
+      sb += hexArray(i & 0x0F)
+    }
+    sb.result
   }
 }
 
