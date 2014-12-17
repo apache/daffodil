@@ -40,7 +40,9 @@ import edu.illinois.ncsa.daffodil.processors.PState
 
 class OptionalInfixSepParser(contextArg: RuntimeData, sepParser: Parser) extends PrimParser(contextArg) {
 
-    override def toString = "<OptionalInfixSep>" + sepParser.toString() + "</OptionalInfixSep>"
+    override def toBriefXML(depthLimit: Int = -1): String = {
+      if (depthLimit == 0) "..." else "<OptionalInfixSep>" + sepParser.toBriefXML(depthLimit - 1) + "</OptionalInfixSep>"
+    }
 
     def parse(start: PState): PState = {
       if (start.mpstate.arrayPos > 1) sepParser.parse1(start, contextArg)
