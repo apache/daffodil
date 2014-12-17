@@ -581,7 +581,7 @@
     Test name: defaultForm_04
     Schema: defaultForm_04.dfdl.xsd
     Purpose: This test demonstrates that default properties can be specified in short, attribute
-             or element form. This test demonstrates that there is no way to specify an empty initiator when using element form
+             or element form.
   -->
 
   <tdml:parserTestCase name="defaultForm_04"
