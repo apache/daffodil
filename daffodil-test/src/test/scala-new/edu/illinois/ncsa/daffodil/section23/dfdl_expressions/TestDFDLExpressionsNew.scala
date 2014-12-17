@@ -78,6 +78,4 @@ class TestDFDLExpressionsNew {
   @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
 
-  //DFDL-1129
-  @Test def test_testBit_3() { runner2.runOneTest("testBit_3") }
 }

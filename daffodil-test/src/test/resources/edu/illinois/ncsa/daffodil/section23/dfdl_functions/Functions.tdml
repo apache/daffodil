@@ -66,6 +66,17 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="testBit4">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="byte" type="xs:byte"
+            dfdl:representation="binary" dfdl:lengthKind="implicit" />
+          <xs:element name="bit0" type="xs:boolean"
+            dfdl:lengthKind="implicit" dfdl:inputValueCalc="{ dfdl:testBit( ../ex:byte, 7, 1) }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="setBits">
       <xs:complexType>
         <xs:sequence>
@@ -2781,6 +2792,26 @@
         </testBit1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: testBit_5
+       Schema: Functions.dfdl.xsd
+         Root: testBit4
+      Purpose: This test demonstrates running the testBit function with too many arguments
+-->
+
+  <tdml:parserTestCase name="testBit_5" root="testBit4"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:testBit - DFDL-23-130R">
+
+    <tdml:document>
+      <tdml:documentPart type="bits">00000001</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dfdl:testBit</tdml:error>
+      <tdml:error>requires 2 argument</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
