@@ -64,13 +64,6 @@ class TestDFDLExpressionsNew {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
-  //DFDL-1096
-  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
-  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
-  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
-  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
-  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
-
   //DFDL-1116
   @Test def test_count_03() { runner2.runOneTest("count_03") }
 

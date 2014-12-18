@@ -429,12 +429,12 @@ class TestDFDLExpressions {
   //@Test def test_count_06() { runner2.runOneTest("count_06") }
   //@Test def test_count_08() { runner2.runOneTest("count_08") }
 
-  //DFDL-1096
-  //@Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
-  //@Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
-  //@Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
-  //@Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
-  //@Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  @Test def test_local_name_01() { runner2.runOneTest("local_name_01") }
+  @Test def test_local_name_02() { runner2.runOneTest("local_name_02") }
+  @Test def test_local_name_03() { runner2.runOneTest("local_name_03") }
+  @Test def test_local_name_04() { runner2.runOneTest("local_name_04") }
+  @Test def test_local_name_05() { runner2.runOneTest("local_name_05") }
+  //DFDL-1151
   //@Test def test_local_name_07() { runner2.runOneTest("local_name_07") }
 
   //DFDL-1101
