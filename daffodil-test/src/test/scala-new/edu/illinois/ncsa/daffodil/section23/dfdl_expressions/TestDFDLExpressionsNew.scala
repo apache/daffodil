@@ -118,5 +118,28 @@ class TestDFDLExpressionsNew {
   @Test def test_comparison_operators_51() { runner.runOneTest("comparison_operators_51") }
   @Test def test_comparison_operators_52() { runner.runOneTest("comparison_operators_52") }
   @Test def test_comparison_operators_53() { runner.runOneTest("comparison_operators_53") }
+  
+  @Test def test_comparison_operators_54() { runner.runOneTest("comparison_operators_54") }
+  @Test def test_comparison_operators_55() { runner.runOneTest("comparison_operators_55") }
+  @Test def test_comparison_operators_56() { runner.runOneTest("comparison_operators_56") }
+  @Test def test_comparison_operators_57() { runner.runOneTest("comparison_operators_57") }
+  @Test def test_comparison_operators_58() { runner.runOneTest("comparison_operators_58") }
+  @Test def test_comparison_operators_59() { runner.runOneTest("comparison_operators_59") }
+  @Test def test_comparison_operators_60() { runner.runOneTest("comparison_operators_60") }
+  @Test def test_comparison_operators_61() { runner.runOneTest("comparison_operators_61") }
+  @Test def test_comparison_operators_62() { runner.runOneTest("comparison_operators_62") }
+  @Test def test_comparison_operators_63() { runner.runOneTest("comparison_operators_63") }
+  @Test def test_comparison_operators_64() { runner.runOneTest("comparison_operators_64") }
+  @Test def test_comparison_operators_65() { runner.runOneTest("comparison_operators_65") }
+  @Test def test_comparison_operators_66() { runner.runOneTest("comparison_operators_66") }
+  @Test def test_comparison_operators_67() { runner.runOneTest("comparison_operators_67") }
+  @Test def test_comparison_operators_68() { runner.runOneTest("comparison_operators_68") }
+  @Test def test_comparison_operators_69() { runner.runOneTest("comparison_operators_69") }
+  @Test def test_comparison_operators_70() { runner.runOneTest("comparison_operators_70") }
+  @Test def test_comparison_operators_71() { runner.runOneTest("comparison_operators_71") }
+  @Test def test_comparison_operators_72() { runner.runOneTest("comparison_operators_72") }
+  @Test def test_comparison_operators_73() { runner.runOneTest("comparison_operators_73") }
+  @Test def test_comparison_operators_74() { runner.runOneTest("comparison_operators_74") }
+  @Test def test_comparison_operators_75() { runner.runOneTest("comparison_operators_75") }
 
 }

@@ -27,11 +27,36 @@ import com.ibm.icu.util.DFDLDate
 import com.ibm.icu.util.DFDLTime
 import AsIntConverters._
 
+case object LT_Boolean extends CompareOpBase {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val b1 = v1.asInstanceOf[Boolean]
+    val b2 = v2.asInstanceOf[Boolean]
+
+    val res = (!b1 && b2)
+    res
+  }
+}
+case object GT_Boolean extends CompareOpBase {
+  def operate(v1: Any, v2: Any): Boolean = {
+    val b1 = v1.asInstanceOf[Boolean]
+    val b2 = v2.asInstanceOf[Boolean]
+
+    val res = (b1 && !b2)
+    res
+  }
+}
+case object LE_Boolean extends CompareOpBase {
+  def operate(v1: Any, v2: Any): Boolean = { !GT_Boolean.operate(v1, v2) }
+}
+case object GE_Boolean extends CompareOpBase {
+  def operate(v1: Any, v2: Any): Boolean = { !LT_Boolean.operate(v1, v2) }
+}
+
 case object LT_Date extends CompareOpBase {
   def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDate] < v2.asInstanceOf[DFDLDate] }
 }
 case object GT_Date extends CompareOpBase {
-  def operate(v1: Any, v2: Any): Boolean = {v1.asInstanceOf[DFDLDate] > v2.asInstanceOf[DFDLDate] }
+  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDate] > v2.asInstanceOf[DFDLDate] }
 }
 case object LE_Date extends CompareOpBase {
   def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDate] <= v2.asInstanceOf[DFDLDate] }
@@ -49,19 +74,19 @@ case object LE_Time extends CompareOpBase {
   def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLTime] <= v2.asInstanceOf[DFDLTime] }
 }
 case object GE_Time extends CompareOpBase {
-  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLTime] >= v2.asInstanceOf[DFDLTime]}
+  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLTime] >= v2.asInstanceOf[DFDLTime] }
 }
 case object LT_DateTime extends CompareOpBase {
   def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] < v2.asInstanceOf[DFDLDateTime] }
 }
 case object GT_DateTime extends CompareOpBase {
-  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] > v2.asInstanceOf[DFDLDateTime]  }
+  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] > v2.asInstanceOf[DFDLDateTime] }
 }
 case object LE_DateTime extends CompareOpBase {
   def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] <= v2.asInstanceOf[DFDLDateTime] }
 }
 case object GE_DateTime extends CompareOpBase {
-  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] >= v2.asInstanceOf[DFDLDateTime]  }
+  def operate(v1: Any, v2: Any): Boolean = { v1.asInstanceOf[DFDLDateTime] >= v2.asInstanceOf[DFDLDateTime] }
 }
 
 case object LT_String extends StringCompareOp {

@@ -233,6 +233,11 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
       case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
       case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
+      
+      case ("lt", Boolean) => LT_Boolean
+      case ("gt", Boolean) => GT_Boolean
+      case ("le", Boolean) => LE_Boolean
+      case ("ge", Boolean) => GE_Boolean
 
       case ("lt", Date) => LT_Date
       case ("gt", Date) => GT_Date
@@ -353,6 +358,8 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       (NodeInfo.Time, NodeInfo.Time)
     case (left: NodeInfo.DateTime.Kind, right: NodeInfo.DateTime.Kind) =>
       (NodeInfo.DateTime, NodeInfo.DateTime)
+    case (left: NodeInfo.Boolean.Kind, right: NodeInfo.Boolean.Kind) =>
+      (NodeInfo.Boolean, NodeInfo.Boolean)
     case (l, r) =>
       SDE("Cannot compare %s with %s for operator '%s'", l, r, op)
   }

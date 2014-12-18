@@ -601,6 +601,66 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="e39">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="same" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) eq xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e40">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="oneLTtwo" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) lt xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e41">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="oneGTtwo" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) gt xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e42">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="oneLEtwo" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) le xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e43">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="oneGEtwo" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) ge xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e44">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="bool1" type="xs:string"/> 
+          <xs:element name="bool2" type="xs:string"/> 
+          <xs:element name="notEqual" type="xs:boolean" dfdl:inputValueCalc="{ xs:boolean(../ex:bool1) ne xs:boolean(../ex:bool2) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
   </tdml:defineSchema>
 
   <tdml:defineSchema name="newRegex">
@@ -5559,6 +5619,484 @@ c' } "  />
         </e36>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_54
+        Schema: comparisonOperators 
+          Root: e39
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_54" root="e39"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e39>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <same>true</same>
+        </e39>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_55
+        Schema: comparisonOperators 
+          Root: e39
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_55" root="e39"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e39>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <same>false</same>
+        </e39>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_56
+        Schema: comparisonOperators 
+          Root: e39
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_56" root="e39"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e39>
+          <bool1>false</bool1>
+          <bool2>false</bool2>
+          <same>true</same>
+        </e39>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_57
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_57" root="e40"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e40>
+          <bool1>false</bool1>
+          <bool2>true</bool2>
+          <oneLTtwo>true</oneLTtwo>
+        </e40>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_58
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_58" root="e40"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e40>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <oneLTtwo>false</oneLTtwo>
+        </e40>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_59
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_59" root="e40"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e40>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <oneLTtwo>false</oneLTtwo>
+        </e40>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_60
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_60" root="e40"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e40>
+          <bool1>false</bool1>
+          <bool2>false</bool2>
+          <oneLTtwo>false</oneLTtwo>
+        </e40>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_61
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_61" root="e41"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e41>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <oneGTtwo>true</oneGTtwo>
+        </e41>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_62
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_62" root="e41"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e41>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <oneGTtwo>false</oneGTtwo>
+        </e41>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_63
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_63" root="e41"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e41>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <oneGTtwo>true</oneGTtwo>
+        </e41>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_64
+        Schema: comparisonOperators 
+          Root: e40
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_64" root="e41"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e41>
+          <bool1>false</bool1>
+          <bool2>false</bool2>
+          <oneGTtwo>false</oneGTtwo>
+        </e41>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_65
+        Schema: comparisonOperators 
+          Root: e42
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_65" root="e42"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e42>
+          <bool1>false</bool1>
+          <bool2>false</bool2>
+          <oneLEtwo>true</oneLEtwo>
+        </e42>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_66
+        Schema: comparisonOperators 
+          Root: e42
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_66" root="e42"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e42>
+          <bool1>false</bool1>
+          <bool2>true</bool2>
+          <oneLEtwo>true</oneLEtwo>
+        </e42>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_67
+        Schema: comparisonOperators 
+          Root: e42
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_67" root="e42"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e42>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <oneLEtwo>false</oneLEtwo>
+        </e42>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_68
+        Schema: comparisonOperators 
+          Root: e42
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_68" root="e42"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e42>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <oneLEtwo>true</oneLEtwo>
+        </e42>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_69
+        Schema: comparisonOperators 
+          Root: e43
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_69" root="e43"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e43>
+          <bool1>true</bool1>
+          <bool2>false</bool2>
+          <oneGEtwo>true</oneGEtwo>
+        </e43>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_70
+        Schema: comparisonOperators 
+          Root: e43
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_70" root="e43"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e43>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <oneGEtwo>true</oneGEtwo>
+        </e43>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_71
+        Schema: comparisonOperators 
+          Root: e43
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_71" root="e43"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,false]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e43>
+          <bool1>false</bool1>
+          <bool2>false</bool2>
+          <oneGEtwo>true</oneGEtwo>
+        </e43>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_72
+        Schema: comparisonOperators 
+          Root: e43
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_72" root="e43"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e43>
+          <bool1>false</bool1>
+          <bool2>true</bool2>
+          <oneGEtwo>false</oneGEtwo>
+        </e43>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_73
+        Schema: comparisonOperators 
+          Root: e44
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_73" root="e44"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[true,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e44>
+          <bool1>true</bool1>
+          <bool2>true</bool2>
+          <notEqual>false</notEqual>
+        </e44>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_74
+        Schema: comparisonOperators 
+          Root: e44
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_74" root="e44"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[false,true]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e44>
+          <bool1>false</bool1>
+          <bool2>true</bool2>
+          <notEqual>true</notEqual>
+        </e44>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: comparison_operators_75
+        Schema: comparisonOperators 
+          Root: e44
+       Purpose: This test demonstrates that comparison operators work for boolean
+  -->
+
+  <tdml:parserTestCase name="comparison_operators_75" root="e44"
+    model="comparisonOperators" description="Section 23 - DFDL Expressions - DFDL-23-068R1">
+
+    <tdml:document><![CDATA[cray,false]]></tdml:document>
+    <tdml:errors>
+        <tdml:error>Value 'cray' is not a valid boolean value {true, false, 1, 0}.</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
   
 </tdml:testSuite>
