@@ -112,6 +112,8 @@ object DaffodilBuild extends Build {
   )
   cliOnlySettings ++= stageTaskSettings
 
+  cliOnlySettings ++= Seq(exportJars in Test := true)
+
   val managedGenerator = TaskKey[Unit]("gen-managed", "Generate managed sources and resources")
   lazy val managedgenSettings = managedGenerator <<= Seq(propertyGenerator in Compile, schemasGenerator in Compile).dependOn
 

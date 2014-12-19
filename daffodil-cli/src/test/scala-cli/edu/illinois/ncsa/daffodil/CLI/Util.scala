@@ -64,40 +64,40 @@ object Util {
     }
   }
 
-  def start(cmd: String, expectErr: Boolean = false): Expect = {
+  def start(cmd: String, expectErr: Boolean = false, envp: Array[String] = Array.empty[String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
     
-    return getShell(cmd, spawnCmd, expectErr)
+    return getShell(cmd, spawnCmd, expectErr, envp)
   }
 
-  def startIncludeErrors(cmd: String): Expect = {
+  def startIncludeErrors(cmd: String, envp: Array[String] = Array.empty[String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
     
-    return getShellWithErrors(cmd, spawnCmd)
+    return getShellWithErrors(cmd, spawnCmd, envp)
   }
 
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
-  def startNoConvert(cmd: String): Expect = {
+  def startNoConvert(cmd: String, envp: Array[String] = Array.empty[String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmd
     } else {
       "/bin/bash"
     }
 
-    return getShell(cmd, spawnCmd)
+    return getShell(cmd, spawnCmd, envp = envp)
   }
 
-  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false): Expect = {
-    val process = Runtime.getRuntime().exec(spawnCmd)
+  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Array[String] = Array.empty[String]): Expect = {
+    val process = Runtime.getRuntime().exec(spawnCmd, envp)
     val inputStream = if (expectErr) {
       process.getErrorStream()
     } else {
@@ -127,8 +127,8 @@ object Util {
   // Return a shell object with two streams
   // The inputStream will be at index 0
   // The errorStream will be at index 1
-  def getShellWithErrors(cmd: String, spawnCmd: String): Expect = {
-    val process = Runtime.getRuntime().exec(spawnCmd)
+  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Array[String] = Array.empty[String]): Expect = {
+    val process = Runtime.getRuntime().exec(spawnCmd, envp)
     val shell = new ExpectBuilder()
         .withInputs(process.getInputStream(), process.getErrorStream())
 	.withOutput(process.getOutputStream())

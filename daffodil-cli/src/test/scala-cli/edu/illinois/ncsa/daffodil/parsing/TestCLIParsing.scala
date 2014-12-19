@@ -559,4 +559,19 @@ class TestCLIparsing {
     shell.expect(eof())
     shell.close()
   }
+
+  @Test def test_DFDL_1203_schema_from_jar() {
+    val output = Util.getExpectedString("output_DFDL-714.txt")
+
+    val cmd = Util.binPath + " parse -s /edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
+    val shell = Util.start(cmd, envp = Array("DAFFODIL_CLASSPATH=daffodil-cli/target/scala-2.10/*"))
+    shell.expect(contains("<tns:elem"))
+    shell.expect(contains("<content"))
+    shell.expect(contains("Hello World"))
+    shell.expect(contains("</tns:elem>"))
+
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }
 }
