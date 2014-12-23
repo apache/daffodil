@@ -891,6 +891,7 @@ Differences were (path, expected, actual):
    */
   def convertNodeToTempFile(xml: Node, nameHint: String = "daffodil_tmp_") = {
     // Create temp file
+    // note that the prefix has a minimum length of 3.
     val prefix = nameHint.length match {
       case 0 => "daffodil_tmp_"
       case 1 => nameHint + "__"
@@ -904,19 +905,19 @@ Differences were (path, expected, actual):
     // Note: we use our own pretty printer here because 
     // Scala library one doesn't preserve/print CDATA properly.
     //
-    val pp = new edu.illinois.ncsa.daffodil.xml.PrettyPrinter(200, 2)
+    val pp = new edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter(200, 2)
     val xmlString = pp.format(xml)
     val fw = new java.io.FileWriter(tmpSchemaFile)
     fw.write(xmlString)
     fw.close()
     tmpSchemaFile
   }
-  
-  
-    def convertInputStreamToTempFile(is: java.io.InputStream, 
-        nameHint: String,
-        suffix : String) = {
+
+  def convertInputStreamToTempFile(is: java.io.InputStream,
+    nameHint: String,
+    suffix: String) = {
     // Create temp file
+    // note that the prefix has a minimum length of 3.
     val prefix = nameHint.length match {
       case 0 => "daffodil_tmp_"
       case 1 => nameHint + "__"
@@ -927,7 +928,7 @@ Differences were (path, expected, actual):
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
 
-    val fos= new java.io.FileOutputStream(tmpSchemaFile)
+    val fos = new java.io.FileOutputStream(tmpSchemaFile)
     IOUtils.copy(is, fos)
     fos.close()
     tmpSchemaFile

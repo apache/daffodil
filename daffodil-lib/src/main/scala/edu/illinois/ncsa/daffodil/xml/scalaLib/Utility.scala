@@ -1,15 +1,26 @@
 package edu.illinois.ncsa.daffodil.xml.scalaLib
 
-/* __ *\
-** ________ ___ / / ___ Scala API **
-** / __/ __// _ | / / / _ | (c) 2003-2013, LAMP/EPFL **
-** __\ \/ /__/ __ |/ /__/ __ | http://scala-lang.org/ **
-** /____/\___/_/ |_/____/_/ | | **
-** |/ **
-\* */
+/**
+ * Adapted from Scala libraries so their copyright is preserved here.
+ *
+ * Copyright (C) 2014, Tresys Technology. All rights reserved.
+ *
+ * This file exists to overcome a bug in the original scala libarary pretty printer
+ * which is illustrated in unit test test_scala_xml_pretty_printer_normalizes_whitespace_inside_cdata_bug.
+ */
+
+/*                     __                                               *\
+**     ________ ___   / /  ___     Scala API                            **
+**    / __/ __// _ | / /  / _ |    (c) 2003-2013, LAMP/EPFL             **
+**  __\ \/ /__/ __ |/ /__/ __ |    http://scala-lang.org/               **
+** /____/\___/_/ |_/____/_/ | |                                         **
+**                          |/                                          **
+\*                                                                      */
+import scala.xml._
 import scala.collection.mutable
 import parsing.XhtmlEntities
 import scala.language.implicitConversions
+
 /**
  * The `Utility` object provides utility functions for processing instances
  * of bound and not bound XML classes, as well as escaping text nodes.
@@ -18,9 +29,11 @@ import scala.language.implicitConversions
  */
 object Utility extends AnyRef with parsing.TokenTests {
   final val SU = '\u001A'
+
   // [Martin] This looks dubious. We don't convert StringBuilders to
   // Strings anywhere else, why do it here?
   implicit def implicitSbToString(sb: StringBuilder) = sb.toString()
+
   // helper for the extremely oft-repeated sequence of creating a
   // StringBuilder, passing it around, and then grabbing its String.
   private[xml] def sbToString(f: (StringBuilder) => Unit): String = {
@@ -29,22 +42,24 @@ object Utility extends AnyRef with parsing.TokenTests {
     sb.toString
   }
   private[xml] def isAtomAndNotText(x: Node) = x.isAtom && !x.isInstanceOf[Text]
+
   /**
    * Trims an element - call this method, when you know that it is an
-   * element (and not a text node) so you know that it will not be trimmed
-   * away. With this assumption, the function can return a `Node`, rather
-   * than a `Seq[Node]`. If you don't know, call `trimProper` and account
-   * for the fact that you may get back an empty sequence of nodes.
+   *  element (and not a text node) so you know that it will not be trimmed
+   *  away. With this assumption, the function can return a `Node`, rather
+   *  than a `Seq[Node]`. If you don't know, call `trimProper` and account
+   *  for the fact that you may get back an empty sequence of nodes.
    *
-   * Precondition: node is not a text node (it might be trimmed)
+   *  Precondition: node is not a text node (it might be trimmed)
    */
   def trim(x: Node): Node = x match {
     case Elem(pre, lab, md, scp, child @ _*) =>
       Elem(pre, lab, md, scp, (child flatMap trimProper): _*)
   }
+
   /**
    * trim a child of an element. `Attribute` values and `Atom` nodes that
-   * are not `Text` nodes are unaffected.
+   *  are not `Text` nodes are unaffected.
    */
   def trimProper(x: Node): Seq[Node] = x match {
     case Elem(pre, lab, md, scp, child @ _*) =>
@@ -54,6 +69,7 @@ object Utility extends AnyRef with parsing.TokenTests {
     case _ =>
       x
   }
+
   /** returns a sorted attribute list */
   def sort(md: MetaData): MetaData = if ((md eq Null) || (md.next eq Null)) md else {
     val key = md.key
@@ -61,19 +77,22 @@ object Utility extends AnyRef with parsing.TokenTests {
     val greater = sort(md.filter { m => m.key > key })
     smaller.foldRight(md copy greater)((x, xs) => x copy xs)
   }
+
   /**
    * Return the node with its attribute list sorted alphabetically
-   * (prefixes are ignored)
+   *  (prefixes are ignored)
    */
   def sort(n: Node): Node = n match {
     case Elem(pre, lab, md, scp, child @ _*) =>
       Elem(pre, lab, sort(md), scp, (child map sort): _*)
     case _ => n
   }
+
   /**
    * Escapes the characters &lt; &gt; &amp; and &quot; from string.
    */
   final def escape(text: String): String = sbToString(escape(text, _))
+
   object Escapes {
     /**
      * For reasons unclear escape and unescape are a long ways from
@@ -85,12 +104,13 @@ object Utility extends AnyRef with parsing.TokenTests {
       "amp" -> '&',
       "quot" -> '"' // enigmatic comment explaining why this isn't escaped --
       // is valid xhtml but not html, and IE doesn't know it, says jweb
-      // "apos" -> '\''
+      // "apos"  -> '\''
       )
     val escMap = pairs map { case (s, c) => c -> ("&%s;" format s) }
     val unescMap = pairs ++ Map("apos" -> '\'')
   }
   import Escapes.{ escMap, unescMap }
+
   /**
    * Appends escaped string to `s`.
    */
@@ -112,24 +132,28 @@ object Utility extends AnyRef with parsing.TokenTests {
         case '\t' => s.append('\t')
         case c => if (c >= ' ') s.append(c)
       }
+
       pos += 1
     }
     s
   }
+
   /**
    * Appends unescaped string to `s`, `amp` becomes `&amp;`,
    * `lt` becomes `&lt;` etc..
    *
-   * @return `'''null'''` if `ref` was not a predefined entity.
+   * @return    `'''null'''` if `ref` was not a predefined entity.
    */
   final def unescape(ref: String, s: StringBuilder): StringBuilder =
     ((unescMap get ref) map (s append _)).orNull
+
   /**
    * Returns a set of all namespaces used in a sequence of nodes
    * and all their descendants, including the empty namespaces.
    */
   def collectNamespaces(nodes: Seq[Node]): mutable.Set[String] =
     nodes.foldLeft(new mutable.HashSet[String]) { (set, x) => collectNamespaces(x, set); set }
+
   /**
    * Adds all namespaces in node to set.
    */
@@ -145,18 +169,20 @@ object Utility extends AnyRef with parsing.TokenTests {
         collectNamespaces(i, set)
     }
   }
+
   // def toXML(
-  // x: Node,
-  // pscope: NamespaceBinding = TopScope,
-  // sb: StringBuilder = new StringBuilder,
-  // stripComments: Boolean = false,
-  // decodeEntities: Boolean = true,
-  // preserveWhitespace: Boolean = false,
-  // minimizeTags: Boolean = false): String =
+  //   x: Node,
+  //   pscope: NamespaceBinding = TopScope,
+  //   sb: StringBuilder = new StringBuilder,
+  //   stripComments: Boolean = false,
+  //   decodeEntities: Boolean = true,
+  //   preserveWhitespace: Boolean = false,
+  //   minimizeTags: Boolean = false): String =
   // {
-  // toXMLsb(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
-  // sb.toString()
+  //   toXMLsb(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
+  //   sb.toString()
   // }
+
   /**
    * Serialize the provided Node to the provided StringBuilder.
    * <p/>
@@ -175,6 +201,7 @@ object Utility extends AnyRef with parsing.TokenTests {
     {
       serialize(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, if (minimizeTags) MinimizeMode.Always else MinimizeMode.Never)
     }
+
   /**
    * Serialize an XML Node to a StringBuilder.
    *
@@ -194,6 +221,15 @@ object Utility extends AnyRef with parsing.TokenTests {
     {
       x match {
         case c: Comment if !stripComments => c buildString sb
+        // 
+        // If it's plain Text node, then unless preserve whitespace we have to 
+        // normalize whitespace.
+        case s: Text =>
+          if (preserveWhitespace) s buildString sb
+          else sb.append(TextBuffer.fromString(s.toString).sb)
+        //
+        // other textual nodes (PCData, PI, etc.) we always preserve whitespace.
+        //
         case s: SpecialNode => s buildString sb
         case g: Group =>
           for (c <- g.nodes) serialize(c, g.scope, sb, minimizeTags = minimizeTags); sb
@@ -211,7 +247,12 @@ object Utility extends AnyRef with parsing.TokenTests {
           } else {
             // children, so use long form: <xyz ...>...</xyz>
             sb.append('>')
-            sequenceToXML(el.child, el.scope, sb, stripComments)
+            //
+            // changed here to pass the additional flags so this knows 
+            // what to do recursively with whitespace and entities.
+            //
+            sequenceToXML(el.child, el.scope, sb, stripComments,
+              decodeEntities, preserveWhitespace, minimizeTags)
             sb.append("</")
             el.nameToString(sb)
             sb.append('>')
@@ -219,6 +260,7 @@ object Utility extends AnyRef with parsing.TokenTests {
         case _ => throw new IllegalArgumentException("Don't know how to serialize a " + x.getClass.getName)
       }
     }
+
   def sequenceToXML(
     children: Seq[Node],
     pscope: NamespaceBinding = TopScope,
@@ -235,11 +277,12 @@ object Utility extends AnyRef with parsing.TokenTests {
         serialize(f, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
         while (it.hasNext) {
           val x = it.next
-          sb.append(' ')
+          if (!preserveWhitespace) sb.append(' ') // only if we're not preserving whitespace.
           serialize(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
         }
       } else children foreach { serialize(_, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags) }
     }
+
   /**
    * Returns prefix of qualified name if any.
    */
@@ -247,12 +290,15 @@ object Utility extends AnyRef with parsing.TokenTests {
     case -1 => None
     case i => Some(name.substring(0, i))
   }
+
   /**
    * Returns a hashcode for the given constituents of a node
    */
   def hashCode(pre: String, label: String, attribHashCode: Int, scpeHash: Int, children: Seq[Node]) =
     scala.util.hashing.MurmurHash3.orderedHash(label +: attribHashCode +: scpeHash +: children, pre.##)
+
   def appendQuoted(s: String): String = sbToString(appendQuoted(s, _))
+
   /**
    * Appends &quot;s&quot; if string `s` does not contain &quot;,
    * &apos;s&apos; otherwise.
@@ -261,6 +307,7 @@ object Utility extends AnyRef with parsing.TokenTests {
     val ch = if (s contains '"') '\'' else '"'
     sb.append(ch).append(s).append(ch)
   }
+
   /**
    * Appends &quot;s&quot; and escapes and &quot; i s with \&quot;
    */
@@ -273,6 +320,7 @@ object Utility extends AnyRef with parsing.TokenTests {
     }
     sb.append('"')
   }
+
   def getName(s: String, index: Int): String = {
     if (index >= s.length) null
     else {
@@ -281,6 +329,7 @@ object Utility extends AnyRef with parsing.TokenTests {
       else ""
     }
   }
+
   /**
    * Returns `'''null'''` if the value is a correct attribute value,
    * error message if it isn't.
@@ -304,10 +353,12 @@ object Utility extends AnyRef with parsing.TokenTests {
     }
     null
   }
+
   def parseAttributeValue(value: String): Seq[Node] = {
     val sb = new StringBuilder
     var rfb: StringBuilder = null
     val nb = new NodeBuffer()
+
     val it = value.iterator
     while (it.hasNext) {
       var c = it.next
@@ -349,10 +400,11 @@ object Utility extends AnyRef with parsing.TokenTests {
     }
     nb
   }
+
   /**
    * {{{
-   * CharRef ::= "&amp;#" '0'..'9' {'0'..'9'} ";"
-   * | "&amp;#x" '0'..'9'|'A'..'F'|'a'..'f' { hexdigit } ";"
+   *   CharRef ::= "&amp;#" '0'..'9' {'0'..'9'} ";"
+   *             | "&amp;#x" '0'..'9'|'A'..'F'|'a'..'f' { hexdigit } ";"
    * }}}
    * See [66]
    */
