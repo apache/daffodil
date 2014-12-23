@@ -59,40 +59,31 @@ case class InputStreamSchemaSource(is: java.io.InputStream, blameName: String, e
   override def uriForLoading = tempURI
 }
 
-case class UnitTestSchemaSource(node: Node, nameHint: String) extends DaffodilSchemaSource {
+protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String) extends DaffodilSchemaSource {
   lazy val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, nameHint)
   lazy val tempURI = tempSchemaFile.toURI
+  def blameName: String
   override def newInputSource() = {
     val is = new FileInputStream(tempSchemaFile)
     val inSrc = new InputSource(is)
-    // 
-    // unit tests will report errors w.r.t. 
-    val blameName =
-      if (nameHint != "") "unitTest:" + nameHint
-      else tempURI.toString
-    //
     inSrc.setSystemId(blameName)
     inSrc
   }
   override def uriForLoading = tempURI
 }
 
+case class UnitTestSchemaSource(node: Node, nameHint: String)
+  extends NodeSchemaSourceBase(node, nameHint) {
+  override val blameName =
+    if (nameHint != "") "unittest:" + nameHint
+    else tempURI.toString
+}
+
 /**
  * Used by TDML runner for embedded schemas- the schema node is constructed out of the TDML file
  * which in order to be able to validate repeatedly and such, is written to a temp file.
  */
-case class EmbeddedSchemaSource(node: Node, nameHint: String) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, nameHint)
-  lazy val tempURI = tempSchemaFile.toURI
-  override def newInputSource() = {
-    val is = new FileInputStream(tempSchemaFile)
-    val inSrc = new InputSource(is)
-    // 
-    // hammer the sysId to null since the temp filename isn't
-    // of interest for unit tests.
-    //
-    inSrc.setSystemId(tempURI.toString)
-    inSrc
-  }
-  override def uriForLoading = tempURI
+case class EmbeddedSchemaSource(node: Node, nameHint: String)
+  extends NodeSchemaSourceBase(node, nameHint) {
+  override val blameName = tempURI.toString
 }

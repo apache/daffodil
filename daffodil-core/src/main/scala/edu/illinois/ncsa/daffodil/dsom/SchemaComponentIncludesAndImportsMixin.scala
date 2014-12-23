@@ -77,13 +77,10 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
    * Used in diagnostic messages; hence, valueOrElse to avoid
    * problems when this can't get a value due to an error.
    */
-  lazy val fileName: String = fileName_.valueOrElse(orElseURL)
-  private val fileName_ = LV('fileName) {
-    xmlSchemaDocument.fileName
+  lazy val uriString: String = uriString_.valueOrElse(orElseURL)
+  private val uriString_ = LV('fileName) {
+    xmlSchemaDocument.uriString
   }
-
-  lazy val fileNameForReloadingSchema: Option[String] =
-    xmlSchemaDocument.fileNameForReloadingSchema
 
 }
 

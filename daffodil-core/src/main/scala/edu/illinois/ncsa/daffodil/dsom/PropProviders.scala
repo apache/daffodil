@@ -94,22 +94,13 @@ trait LeafPropProvider
         // schema-aware processing that was trimming off whitespace
         // from properties/attributes declared as xs:tokens automatically.
         //
-        // Instead we have to implement our own trim logic. 
-        // and that is somewhat subtle. E.g., textNumberPattern where
-        // spaces are meaningful active characters. lengthPattern,
-        // assert patterns, etc.
+        // Instead we have to implement our own trim logic on a 
+        // case by case basis. (which means not here)
+        // Ex: textNumberPattern spaces are significant and important to preserve
+        // AND tend to be leading or trailing in the string value. So if anyone
+        // does string.trim on that property value, they will be clobbering it.
         //
-        val trimmedValue = value
-        //          if (value.matches("""\s+""")) {
-        //            // the value is all whitespace
-        //            // so we leave it alone
-        //            value
-        //          } else {
-        //            // not all whitespace, so we trim whitespace
-        //            // from beginning and end of it.
-        //            value.trim
-        //          }
-        Found(trimmedValue, loc)
+        Found(value, loc)
       }
       case None => NotFound(List(this), Nil)
     }

@@ -98,9 +98,9 @@ class ElementRuntimeData(
 
   def isSimpleType = optPrimType.isDefined
 
-  def schemaFileNamesForFullValidation = schemaFileNamesForFullValidation1.flatten.distinct
-  private def schemaFileNamesForFullValidation1: Seq[Option[String]] = (schemaFileLocation.fileNameForReloadingSchema +:
-    childERDs.flatMap { _.schemaFileNamesForFullValidation1 })
+  def schemaURIStringsForFullValidation = schemaURIStringsForFullValidation1.distinct
+  private def schemaURIStringsForFullValidation1: Seq[String] = (schemaFileLocation.uriString +:
+    childERDs.flatMap { _.schemaURIStringsForFullValidation1 })
 
   def isDefaultable = defaultValue.isDefined
 

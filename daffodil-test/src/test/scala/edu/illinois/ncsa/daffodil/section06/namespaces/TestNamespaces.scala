@@ -100,7 +100,7 @@ class TestNamespaces {
 
   @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
 
-  // No longer works. New loader won't accept character U+00B7 as a character
+  // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name. 
   // @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
   @Test def test_namespaceSpecialChars2() { runner.runOneTest("namespaceSpecialChars2") }

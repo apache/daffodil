@@ -943,6 +943,8 @@ case class Document(d: NodeSeq, parent: TestCase) {
         case scala.xml.Text(s) if (s.matches("""\s+""")) => // whitespace text nodes ok
         case scala.xml.Comment(_) => // ok
         case scala.xml.PCData(s) => // ok
+        case scala.xml.EntityRef(_) => //ok
+        case _: scala.xml.Atom[_] => //ok. Things like &lt; come through as this. Should be EntityRef("lt")
         case x => Assert.usageError("Illegal TDML data document content '" + x + "'")
       }
     }
@@ -1262,11 +1264,17 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
     childNode match {
       case scala.xml.PCData(s) => Some(childNode)
       case scala.xml.Text(s) => {
-        val trimmed = s.trim
+        // can't just use s.trim here as that would remove explicit
+        // carriage returns like &#x0D; if they have already been 
+        // replaced by the corresponding character.
+        val trimmedEnd = s.replaceFirst("\\ +$", "") // spaces only
+        val trimmed = trimmedEnd.replaceFirst("^\\ +", "") // spaces only
         if (trimmed.length == 0) None
         else Some(scala.xml.Text(trimmed))
       }
       case scala.xml.Comment(_) => None
+      case scala.xml.EntityRef(_) => Some(childNode)
+      case _: scala.xml.Atom[_] => Some(childNode) // Things like &lt; come through as this. Should be EntityRef
       case _ => Assert.invariantFailed("unrecognized child part in TextDocumentPart: " + childNode)
     }
   }
@@ -1299,10 +1307,11 @@ case class Infoset(i: NodeSeq, parent: TestCase) {
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
+  lazy val children = di.child.filterNot { _.isInstanceOf[scala.xml.Comment] }
   lazy val Seq(contents) = {
-    Assert.usage(di.child.size == 1, "dfdlInfoset element must contain a single root element")
+    Assert.usage(children.size == 1, "dfdlInfoset element must contain a single root element")
 
-    val c = di.child(0)
+    val c = children(0)
     val expected = Utility.trim(c) // must be exactly one root element in here.
     val expectedNoAttrs = XMLUtils.removeAttributes(expected)
     //

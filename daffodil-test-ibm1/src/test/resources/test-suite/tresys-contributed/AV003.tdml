@@ -5,7 +5,7 @@
 
   <parserTestCase name="AV003" root="wholeFile" model="AV.dfdl.xsd"
     description="HR/CU Medical data">
-    <document>%#x1b;E%#x1b;(s5TTR0104                            CENTRAMAX.M                      Page:    1
+    <document><documentPart type="text" replaceDFDLEntities="true"><![CDATA[%#x1b;E%#x1b;(s5TTR0104                            CENTRAMAX.M                      Page:    1
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -61,7 +61,7 @@
                                VAGDISCH            1
                                VOMITING            5
                                WEAKNESS            2
-&#x0a;TR0104                            CENTRAMAX.M                      Page:    2
+%#x0a;%#x1b;E%#x1b;TR0104                            CENTRAMAX.M                      Page:    2
                                   Triage Calls
                        Call Summary by Presenting Symptom
                              Call Types: I O M T R N
@@ -71,7 +71,7 @@
                           Presenting Symptom   # Times
 -------------------------------------------------------------------------------
                          Grand Total:             89
-%#x0c;%#x1b;E</document>
+%#x0c;%#x1b;E]]></documentPart></document>
     <infoset>
       <dfdlInfoset>
         <wholeFile xmlns="http://www.example.org/example1/"

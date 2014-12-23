@@ -145,7 +145,8 @@ class PrettyPrinter(width: Int, step: Int) {
     test.length < width - cur
 
   private def doPreserve(node: Node) =
-    node.attribute(XML.namespace, XML.space).map(_.toString == XML.preserve) getOrElse false
+    node.isInstanceOf[PCData] ||
+      (node.attribute(XML.namespace, XML.space).map(_.toString == XML.preserve) getOrElse false)
 
   protected def traverse(node: Node, pscope: NamespaceBinding, ind: Int): Unit = node match {
 
@@ -169,6 +170,10 @@ class PrettyPrinter(width: Int, step: Int) {
         // content is (recursively), and whether the xml:space='preserve' 
         // attribute is present
         // 
+        // This trick, of trying to use the Utility.serialize form of the 
+        // data as the ruler to see if it fits appropriately within the indentation
+        // scheme.... can't work given that some content is multi-line (CDATA) and
+        // line breaks cannot be avoided in those cases. 
         Utility.serialize(node, pscope, sb,
           stripComments = false,
           decodeEntities = true,
@@ -181,6 +186,7 @@ class PrettyPrinter(width: Int, step: Int) {
         makeBox(ind, test)
       } else if (node.child.length > 0 &&
         node.child.exists { _.isInstanceOf[PCData] }) {
+        //
         // Some children are CDATA sections, but not all.
         //
         // In theory we can put line-breaks anywhere that
@@ -199,6 +205,7 @@ class PrettyPrinter(width: Int, step: Int) {
         // algorithm, we punt here and just output
         // the whole thing, not as pretty as it could be, but correct in that it
         // doesn't break anything about CDATA content.
+        // 
         makeBox(ind, test)
       } else if (childrenAreLeaves(node) && fits(test)) {
         makeBox(ind, test)

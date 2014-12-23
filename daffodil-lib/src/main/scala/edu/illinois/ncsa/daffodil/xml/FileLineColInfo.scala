@@ -43,7 +43,7 @@ class FileLineColInfo(pre: String, label: String,
   private val haveFileName = isFileRootNode && uriString != ""
 
   val lineAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
-  val colAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
+  val colAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME).map { _.text }
   val fileAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME).map { _.text }
 
   val alreadyHasLocation = lineAttr.isDefined || colAttr.isDefined

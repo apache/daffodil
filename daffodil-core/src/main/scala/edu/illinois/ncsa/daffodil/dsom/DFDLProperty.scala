@@ -66,7 +66,7 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
   override lazy val schemaComponent: LookupLocation = formatAnnotation.annotatedSC
 
   override lazy val schemaDocument = formatAnnotation.schemaDocument
-  override lazy val fileName = xmlSchemaDocument.fileName
+  override lazy val uriString = xmlSchemaDocument.uriString
 
   // TODO: if we grab the value from here, then any qnames inside that value
   // have to be resolved by THIS Object
@@ -88,13 +88,17 @@ class DFDLProperty(xmlArg: Node, formatAnnotation: DFDLFormatAnnotation)
           case scala.xml.PCData(s) => Some(valueNode)
           case scala.xml.Text(s) => {
             if (s.matches("""\s+""")) {
-              // all whitespace. So leave as is
-              Some(valueNode)
+              // all whitespace. Remove the node.
+              None
             } else {
-              Some(scala.xml.Text(s.trim))
+              val trimmed = s.trim
+              if (trimmed.length == 0) None
+              else Some(scala.xml.Text(trimmed))
             }
           }
           case scala.xml.Comment(_) => None
+          case scala.xml.EntityRef(_) => Some(valueNode)
+          case _: scala.xml.Atom[_] => Some(valueNode) // &lt; comes through as this... should be EntityRef
         }
       }
       val res = values.map { _.text }.mkString

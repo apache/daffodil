@@ -67,13 +67,12 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   lazy val seenBefore = seenBeforeArg
 
-  //  /**
-  //   * Delegate back to the include or import that references us.
-  //   * 
-  //   * This is the schema document we are contained in, not the one
-  //   * we are referring to.
-  //   */
-  // lazy val schemaDocument = Assert.invariantFailed("schemaDocument called on schemaFile. You wan't to call schemaDocument on the include/import object.")
+  /**
+   * Delegate back to the include or import that references us.
+   *
+   * This is the schema document we are contained in, not the one
+   * we are referring to.
+   */
   override lazy val schemaDocument = {
     // the one containing the reference to the file
     // Not the schema document in this file (that one is iiSchemaDocument).    
@@ -91,12 +90,6 @@ class DFDLSchemaFile(val sset: SchemaSet,
   lazy val fakeURI = new File("tempFile.xsd").toURI
 
   lazy val schemaSource = schemaSourceArg
-  // sourceOfSchema match {
-  //    case fn: String => new File(fn).toURI
-  //    case uri: URI => uri
-  //    case n: scala.xml.Node => fakeURI
-  //    case _ => Assert.usageError("sourceOfSchema must be a fileName string, a URL or a schema node")
-  //  }
 
   override lazy val enclosingComponent = None
 
@@ -159,17 +152,6 @@ class DFDLSchemaFile(val sset: SchemaSet,
   }
 
   lazy val node = loadedNode
-  //    sourceOfSchema match {
-  //      case schemaNode: scala.xml.Node => schemaNode
-  //      case _ => loadedNode
-  //    }
-
-  //  lazy val seenBeforePlusThis = {
-  //    val res = if (ii.notSeenThisBefore) {
-  //      seenBefore + ii.mapTuple
-  //    } else seenBefore
-  //    res
-  //  }
 
   lazy val iiXMLSchemaDocument = iiXMLSchemaDocument_.value
   val iiXMLSchemaDocument_ = LV('iiXMLSchemaDocument) {

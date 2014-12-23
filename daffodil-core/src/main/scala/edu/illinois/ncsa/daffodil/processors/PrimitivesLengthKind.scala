@@ -257,7 +257,7 @@ case class StringPatternMatched(e: ElementBase)
   val pattern = e.lengthPattern
 
   def parser: DaffodilParser = {
-    PatternChecker.checkPattern(pattern, this)
+    PatternChecker.checkPattern(pattern, e)
     new StringPatternMatchedParser(pattern, e.elementRuntimeData,
       e.encodingInfo, justificationTrim, padChar)
   }

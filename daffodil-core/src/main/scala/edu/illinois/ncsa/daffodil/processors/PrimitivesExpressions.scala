@@ -216,7 +216,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
   val kindString = "AssertPatternPrim"
 
   def parser: DaffodilParser = {
-    PatternChecker.checkPattern(stmt.testTxt, this)
+    PatternChecker.checkPattern(stmt.testTxt, decl)
     new AssertPatternParser(eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.testTxt, stmt.message)
   }
 

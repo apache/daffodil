@@ -45,8 +45,6 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
     source
   }, true) {
 
-  // val positionFactory = new PositionInDocument(uri)
-
   override def reportSyntaxError(pos: Int, msg: String) {
     val line = Position.line(pos)
     val col = Position.column(pos)
@@ -57,20 +55,18 @@ class DaffodilConstructingLoader(uri: URI, errorHandler: org.xml.sax.ErrorHandle
    * When elements are to be created, we append file/col/line number info
    * if it isn't already present.
    */
-  override def elem(pos: Int, pre: String, label: String, attrs: MetaData,
+  override def elem(posLineAndCol: Int, pre: String, label: String, attrs: MetaData,
     scope: NamespaceBinding, empty: Boolean, nodes: NodeSeq): NodeSeq = {
     //
-    // The pos argument is not an offset into the file. It is a single integer 
+    // The posLineAndCol argument is not an offset into the file. It is a single integer 
     // into which both col and line info are packed.
     // see scala.io.Position.
     //
 
-    // val position = positionFactory.PositionFromOffset(pos)
-
     val info = new FileLineColInfo(pre, label, scope, attrs,
-      Position.line(pos).toString, Position.column(pos).toString, uri.toString)
+      Position.line(posLineAndCol).toString, Position.column(posLineAndCol).toString, uri.toString)
 
-    val e = super.elem(pos, pre, label, attrs, info.newScope, empty, nodes).asInstanceOf[Elem]
+    val e = super.elem(posLineAndCol, pre, label, attrs, info.newScope, empty, nodes).asInstanceOf[Elem]
 
     val res = e % info.newLineAttr % info.newColAttr % info.newFileAttr
     res

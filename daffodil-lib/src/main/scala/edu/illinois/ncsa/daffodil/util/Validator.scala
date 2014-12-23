@@ -123,11 +123,15 @@ object Validator extends NoBindingFactoryAdapter {
     validateXML(schemaSource, document)
   }
 
-  def validateXMLSources(schemaFileNames: Seq[String], document: Node) = {
+  def validateXMLSources(schemaFileNames: Seq[String], document: Node): Unit = {
     val schemaSources: Seq[javax.xml.transform.Source] = schemaFileNames.map { fn =>
       {
         val uri = new URI(fn)
         val f = new File(uri)
+        if (!f.exists()) {
+          // we don't have the schema file, so we can't validate against it.
+          throw ValidationException("Unable to validate. File not found: " + f)
+        }
         val stream = new StreamSource(f)
         stream
       }

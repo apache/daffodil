@@ -1,16 +1,24 @@
 package edu.illinois.ncsa.daffodil.processors
 
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.exceptions.SavesErrorsAndWarnings
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import java.util.regex.PatternSyntaxException
 
+/**
+ * The purpose of this checker is to examine a regex and look for a situation
+ * one can run into if you try to use the free-form regex syntax, which allows
+ * a regex to be spread out over multiple lines with comments intersperced.
+ *
+ * Trouble is, such regex must be wrapped with CDATA bracketing, otherwise it
+ * will all end up on one line, and the comments are from a # to end of line, so
+ * this breaks the regex, and very commonly the regex will begin with a comment
+ * and so the effective regex is one that matches anything at all, but is
+ * completely legal as a regex, which makes it very very painful to debug.
+ */
 object PatternChecker {
   def checkPattern(pattern: String,
-    context: {
-      def SDE(string: String, others: Any*): Nothing
-      def SDW(string: String, others: Any*): Unit
-    }): Unit = {
+    context: SavesErrorsAndWarnings): Unit = {
     try {
       val pat = Pattern.compile(pattern)
       val m1 = pat.matcher("")

@@ -76,7 +76,7 @@ class TestXMLPrettyPrinter {
     import edu.illinois.ncsa._
     val pcdata = scala.xml.PCData("a\nb")
     val fragment = <x>{ pcdata }</x>
-    val pp = new daffodil.xml.PrettyPrinter(Int.MaxValue, 2)
+    val pp = new daffodil.xml.scalaLib.PrettyPrinter(Int.MaxValue, 2)
     val xmlString = pp.format(fragment)
     //
     // This verifies that our modified pretty printer does the right thing
@@ -100,7 +100,7 @@ bbbbb
           </zzzzz>
         </yyyyy>
       </xxxxx>
-    val pp = new daffodil.xml.PrettyPrinter(20, 2)
+    val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     val xmlString = pp.format(fragment)
     println(xmlString)
     assertTrue(xmlString.contains("""<xxxxx>
@@ -122,7 +122,7 @@ bbbbb
     import edu.illinois.ncsa._
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata }</zzzzz></yyyyy></xxxxx>
-    val pp = new daffodil.xml.PrettyPrinter(20, 2)
+    val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     val xmlString = pp.format(fragment)
     println(xmlString)
     //
@@ -147,7 +147,7 @@ bbbbb ]]></zzzzz>
     import edu.illinois.ncsa._
     val pcdata = scala.xml.PCData(" aaaaa\nbbbbb ")
     val fragment = <xxxxx><yyyyy><zzzzz>{ pcdata } xyzzy { pcdata }</zzzzz></yyyyy></xxxxx>
-    val pp = new daffodil.xml.PrettyPrinter(20, 2)
+    val pp = new daffodil.xml.scalaLib.PrettyPrinter(20, 2)
     var xmlString = pp.format(fragment)
     println(xmlString)
     //

@@ -87,7 +87,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
             sdTNSAttrib.map { tns =>
               schemaDefinitionUnless(inc.targetNamespace == tns,
                 "Included schema does not have the same namespace as the file %s including it.",
-                fileName)
+                uriString)
               tns
             }.getOrElse(inc.targetNamespace)
           }
@@ -133,8 +133,8 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     }
   }
 
-  override lazy val fileName = {
-    this.fileNameFromAttribute.getOrElse("file:unknown")
+  override lazy val uriString = {
+    this.uriStringFromAttribute.getOrElse("file:unknown")
   }
 
   def seenBefore: IIMap

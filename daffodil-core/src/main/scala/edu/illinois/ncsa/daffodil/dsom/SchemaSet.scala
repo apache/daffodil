@@ -122,13 +122,12 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   lazy val schemaSources = schemaSourcesArg
 
   /**
-   * Let's use the filename for the first schema document, rather than giving no information at all.
+   * Let's use the uri for the first schema document, rather than giving no information at all.
    *
    * It would appear that this is only used for informational purposes
    * and as such, doesn't need to be a URL.  Can just be String.
    */
-  override lazy val fileName: String = schemaSources(0).uriForLoading.toString
-  override lazy val fileNameForReloadingSchema: Option[String] = Some(schemaSources(0).uriForLoading.toString)
+  override lazy val uriString: String = schemaSources(0).uriForLoading.toString
 
   /**
    * We need to use the loader here to validate the DFDL Schema.
@@ -177,14 +176,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
       false,
       null)
 
-  /**
-   * Registry used to map from infoset nodes back to the schema components
-   * that made them.
-   */
-
-  lazy val schemaFileList = schemas.map(s => s.fileName)
-
-  //  lazy val schemaComponentRegistry = new SchemaComponentRegistry(schemaFileList)
+  lazy val schemaFileList = schemas.map(s => s.uriString)
 
   lazy val isValid = {
     val isV = OOLAG.keepGoing(false) {
@@ -379,7 +371,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
           val firstSchemaDocument = sDocs(0)
           val gdeclf = firstSchemaDocument.globalElementDecls
           val firstElement = {
-            schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.fileName)
+            schemaDefinitionUnless(gdeclf.length >= 1, "No global elements in: " + firstSchemaDocument.uriString)
             val rootElement = gdeclf(0).forRoot()
             rootElement
           }
