@@ -36,9 +36,6 @@ case object AnyAtomicToString extends Converter {
   }
 }
 
-case object TimeToDateTime extends Converter {
-  override def computeValue(a: Any, dstate: DState) = ??? // a.asInstanceOf[Time].toDateTime
-}
 trait XSDateTimeKind {
   val timeZoneID = "UTC"
   lazy val calendar = new ThreadLocal[Calendar] {
@@ -46,26 +43,30 @@ trait XSDateTimeKind {
       val cal = Calendar.getInstance()
       cal.clear()
       cal.setLenient(false)
-      cal.setTimeZone(new SimpleTimeZone(0, timeZoneID))
+      //
+      // We don't want to set a TimeZone here.  It should be 'parsed' if it's
+      // there.  If it's not, the TimeZone will be set to TimeZone.UNKNOWN_ZONE
+      // which will operate just like GMT/UTC
+      //
       cal
     }
   }
 
-  def defaultFormatter: ThreadLocal[SimpleDateFormat]
-  def acceptableFormats: Seq[SimpleDateFormat]
+  def defaultFormatter: ThreadLocal[DFDLDateFormat]
+  def acceptableFormats: Seq[DFDLDateFormat]
 
   def getNewCalendar: Calendar = calendar.get.clone().asInstanceOf[Calendar]
 
-  protected def createCalendar(str: String, inFormat: SimpleDateFormat,
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat, expectsTZ: Boolean,
     fncName: String, toType: String): DFDLCalendar
 
   def matchFormat(str: String, fncName: String, toType: String): DFDLCalendar = {
 
     acceptableFormats.foreach(f => {
-      val inFormat = f
+      val inFormat = f.getFormat
       inFormat.setCalendar(getNewCalendar)
       try {
-        val cal = createCalendar(str, inFormat, fncName, toType)
+        val cal = createCalendar(str, inFormat, f.expectsTimeZone, fncName, toType)
         // Here we've successfully created a calendar using the expected format
         // denoted by 'inFormat'. Return the calendar.
         return cal
@@ -79,57 +80,18 @@ trait XSDateTimeKind {
   }
 }
 
-trait DateTimeFormatters {
-  lazy val defaultFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
-      format
-    }
-  }
-
-  lazy val withFractNoTimeZoneFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss.SSSSSS")
-      format
-    }
-  }
-
-  lazy val withTimeZoneNoFractFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ssxxxxx")
-      format
-    }
-  }
-
-  lazy val noTimeZoneNoFractFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-dd'T'HH:mm:ss")
-      format
-    }
-  }
-
-  lazy val withTimeZoneFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-ddxxxxx")
-      format
-    }
-  }
-
-  lazy val dateOnlyFormatter = new ThreadLocal[SimpleDateFormat] {
-    override def initialValue = {
-      val format = new SimpleDateFormat("uuuu-MM-dd")
-      format
-    }
-  }
-}
-
 case object StringToDate extends Converter with XSDateTimeKind with DateFormatters {
   val name = "StringToDate"
 
+  /**
+   * A list of acceptable formats as specified by: http://www.w3.org/TR/NOTE-datetime
+   *
+   * Order matters here as we are also trying to determine if a time zone was parsed
+   */
   def acceptableFormats = Seq(defaultFormatter.get, withoutTimezoneFormatter.get)
 
-  protected def createCalendar(str: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLCalendar = {
-    Conversion.stringToDFDLDate(str, inFormat, fncName, toType)
+  protected def createCalendar(str: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLDate(str, inFormat, expectsTZ, fncName, toType)
   }
 
   override def computeValue(a: Any, dstate: DState): Any = {
@@ -146,13 +108,18 @@ case object StringToDateTime extends Converter
   with XSDateTimeKind with DateTimeFormatters {
   val name = "StringToDateTime"
 
+  /**
+   * A list of acceptable formats as specified by: http://www.w3.org/TR/NOTE-datetime
+   *
+   * Order matters here as we are also trying to determine if a time zone was parsed
+   */
   def acceptableFormats = Seq(defaultFormatter.get, withFractNoTimeZoneFormatter.get,
-    noTimeZoneNoFractFormatter.get, withTimeZoneFormatter.get,
-    withTimeZoneNoFractFormatter.get, dateOnlyFormatter.get)
+    withTimeZoneNoFractFormatter.get, noTimeZoneNoFractFormatter.get,
+    withTimeZoneFormatter.get, dateOnlyFormatter.get)
 
   protected def createCalendar(str: String, inFormat: SimpleDateFormat,
-    fncName: String, toType: String): DFDLCalendar = {
-    Conversion.stringToDFDLDateTime(str, inFormat, fncName, toType)
+    expectsTZ: Boolean, fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLDateTime(str, inFormat, expectsTZ, fncName, toType)
   }
 
   override def computeValue(a: Any, dstate: DState): Any = {
@@ -170,12 +137,17 @@ case object StringToDateTime extends Converter
 case object StringToTime extends Converter with XSDateTimeKind with TimeFormatters {
   val name = "StringToTime"
 
+  /**
+   * A list of acceptable formats as specified by: http://www.w3.org/TR/NOTE-datetime
+   *
+   * Order matters here as we are also trying to determine if a time zone was parsed
+   */
   def acceptableFormats = Seq(defaultFormatter.get, noTimeZoneFormatter.get,
-    noTimeZoneNoFractFormatter.get, withTimeZoneNoFractFormatter.get)
+    withTimeZoneNoFractFormatter.get, noTimeZoneNoFractFormatter.get)
 
   protected def createCalendar(str: String, inFormat: SimpleDateFormat,
-    fncName: String, toType: String): DFDLCalendar = {
-    Conversion.stringToDFDLTime(str, inFormat, fncName, toType)
+    expectsTZ: Boolean, fncName: String, toType: String): DFDLCalendar = {
+    Conversion.stringToDFDLTime(str, inFormat, expectsTZ, fncName, toType)
   }
 
   override def computeValue(a: Any, dstate: DState): Any = {

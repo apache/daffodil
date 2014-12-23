@@ -127,21 +127,32 @@ trait OrderedCalendar { self: DFDLCalendar =>
 }
 
 trait ToDateTimeMixin { self: DFDLCalendar =>
-  def toDateTime(): DFDLDateTime = new DFDLDateTime(calendar.clone().asInstanceOf[Calendar])
+  def toDateTime(): DFDLDateTime = new DFDLDateTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
 trait ToTimeMixin { self: DFDLCalendar =>
-  def toTime(): DFDLTime = new DFDLTime(calendar.clone().asInstanceOf[Calendar])
+  def toTime(): DFDLTime = new DFDLTime(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
 trait ToDateMixin { self: DFDLCalendar =>
-  def toDate(): DFDLDate = new DFDLDate(calendar.clone().asInstanceOf[Calendar])
+  def toDate(): DFDLDate = new DFDLDate(calendar.clone().asInstanceOf[Calendar], self.hasTimeZone)
 }
 
-case class DFDLDate(calendar: Calendar)
-  extends DFDLCalendar
+case class DFDLDate(calendar: Calendar, parsedTZ: Boolean)
+  extends DFDLCalendar(parsedTZ: Boolean)
   with ToDateTimeMixin with ToDateMixin {
-  val formattedStr: String = createFormatString(dateFormat)
+
+  /**
+   * This apply method supplies a way to just specify 'no time zone' when
+   * one was not expected.  This just so happens to be the same as GMT.
+   */
+  def apply(cal: Calendar, expectsTZ: Boolean) = {
+    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
+    new DFDLDate(cal, expectsTZ)
+  }
+
+  private val format = if (this.hasTimeZone) dateFormat else dateFormatNoTZ
+  val formattedStr: String = createFormatString(format)
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLDate => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -170,14 +181,25 @@ case class DFDLDate(calendar: Calendar)
     dateCal.clear(Calendar.HOUR_OF_DAY)
     dateCal.clear(Calendar.MINUTE)
     dateCal.clear(Calendar.SECOND)
-    new DFDLDateTime(dateCal)
+    new DFDLDateTime(dateCal, parsedTZ)
   }
 }
 
-case class DFDLTime(calendar: Calendar)
-  extends DFDLCalendar
+case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
+  extends DFDLCalendar(parsedTZ)
   with ToTimeMixin {
-  val formattedStr: String = createFormatString(timeFormat)
+
+  /**
+   * This apply method supplies a way to just specify 'no time zone' when
+   * one was not expected.  This just so happens to be the same as GMT.
+   */
+  def apply(cal: Calendar, expectsTZ: Boolean) = {
+    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
+    new DFDLTime(cal, expectsTZ)
+  }
+
+  private val format = if (this.hasTimeZone) timeFormat else timeFormatNoTZ
+  val formattedStr: String = createFormatString(format)
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLTime => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -209,15 +231,26 @@ case class DFDLTime(calendar: Calendar)
     timeCal.clear(Calendar.EXTENDED_YEAR)
     timeCal.clear(Calendar.MONTH)
     timeCal.clear(Calendar.DAY_OF_MONTH)
-    new DFDLDateTime(timeCal)
+    new DFDLDateTime(timeCal, parsedTZ)
   }
 
 }
 
-case class DFDLDateTime(calendar: Calendar)
-  extends DFDLCalendar
+case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
+  extends DFDLCalendar(parsedTZ)
   with ToDateTimeMixin with ToDateMixin with ToTimeMixin {
-  val formattedStr: String = createFormatString(dateTimeFormat)
+
+  /**
+   * This apply method supplies a way to just specify 'no time zone' when
+   * one was not expected.  This just so happens to be the same as GMT.
+   */
+  def apply(cal: Calendar, expectsTZ: Boolean) = {
+    if (!expectsTZ) cal.setTimeZone(TimeZone.UNKNOWN_ZONE)
+    new DFDLDateTime(cal, expectsTZ)
+  }
+
+  private val format = if (this.hasTimeZone) dateTimeFormat else dateTimeFormatNoTZ
+  val formattedStr: String = createFormatString(format)
 
   override def equals(other: Any) = other match {
     case that: DFDLDateTime => dateTimeEqual(this, that)
@@ -235,13 +268,13 @@ case class DFDLDateTime(calendar: Calendar)
 
   def getDateTimePlusFourteenHours: DFDLDateTime = {
     val adjustedCal = adjustTimeZone(normalizedCalendar, 14, 0)
-    val dt = new DFDLDateTime(adjustedCal)
+    val dt = new DFDLDateTime(adjustedCal, parsedTZ)
     dt
   }
 
   def getDateTimeMinusFourteenHours: DFDLDateTime = {
     val adjustedCal = adjustTimeZone(normalizedCalendar, -14, 0)
-    val dt = new DFDLDateTime(adjustedCal)
+    val dt = new DFDLDateTime(adjustedCal, parsedTZ)
     dt
   }
 
@@ -251,7 +284,10 @@ case class DFDLDateTime(calendar: Calendar)
   def normalizeCalendar(cal: Calendar): Calendar = {
     val newCal = cal.clone().asInstanceOf[Calendar]
 
-    if (cal.getTimeZone() == TimeZone.GMT_ZONE) return newCal
+    // TimeZone.UNKNOWN_ZONE behaves like GMT/UTC
+    //
+    if (cal.getTimeZone() == TimeZone.GMT_ZONE ||
+      cal.getTimeZone() == TimeZone.UNKNOWN_ZONE) { return newCal }
 
     // Need to multiply the offset by -1 to get the right
     // sign to 'add' to the millisecond field
@@ -277,7 +313,7 @@ case class DFDLDateTime(calendar: Calendar)
   }
 
   def getNormalizedCalendar(): DFDLDateTime = {
-    new DFDLDateTime(normalizedCalendar.clone().asInstanceOf[Calendar])
+    new DFDLDateTime(normalizedCalendar.clone().asInstanceOf[Calendar], parsedTZ)
   }
 
   /**
@@ -328,13 +364,18 @@ case class DFDLDateTime(calendar: Calendar)
   }
 }
 
-abstract class DFDLCalendar
+abstract class DFDLCalendar(containsTZ: Boolean)
   extends Calendar
   with OrderedCalendar {
 
+  /* Print formats */
+  final val dateTimeFormatNoTZ: String = "uuuu-MM-dd'T'HH:mm:ss.SSSSSS"
+  final val dateFormatNoTZ: String = "uuuu-MM-dd"
+  final val timeFormatNoTZ: String = "HH:mm:ss.SSSSSS"
   final val dateTimeFormat: String = "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx"
   final val dateFormat: String = "uuuu-MM-ddxxxxx"
   final val timeFormat: String = "HH:mm:ss.SSSSSSxxxxx"
+  final val tzFormat: String = "xxx" // -08:00 The ISO8601 extended format with hours and minutes fields.
 
   def calendar: Calendar
   def formattedStr: String
@@ -342,18 +383,48 @@ abstract class DFDLCalendar
   protected def handleComputeMonthStart(x$1: Int, x$2: Int, x$3: Boolean): Int = calendar.handleComputeMonthStart(x$1, x$2, x$3)
   protected def handleGetExtendedYear(): Int = calendar.handleGetExtendedYear()
   protected def handleGetLimit(x$1: Int, x$2: Int): Int = calendar.handleGetLimit(x$1, x$2)
+
   def getField(fieldIndex: Int): Int = calendar.get(fieldIndex)
   def isFieldSet(fieldIndex: Int): Boolean = calendar.isSet(fieldIndex)
   def hasTimeZone: Boolean = {
-    // It would appear that when a time zone is not present
-    // that the OlsonTimeZone object is created to represent the 
-    // time zone (local).
+    // There does not appear to really be a concept of 'no time zone'
+    // so we use a regex or other means of elimination to determine
+    // if a time zone was expected or parsed.  This is passed as a flag
+    // to the DFDLCalendar object.
     //
-    // If a time zone is present, SimpleTimeZone is created
+    // On a side note, it does appear that we can specify an 'unknown'
+    // time zone using TimeZone.UNKNOWN_ZONE.  However, this behaves like
+    // the GMT/UTC time zone.
     //
-    !calendar.getTimeZone().isInstanceOf[OlsonTimeZone]
+    // To be clear, when no time zone is present (or expected) we set
+    // the calendar time zone to TimeZone.UNKNOWN_ZONE and carry around
+    // this flag.  This avoids accessing calendar.getZone and comparing
+    // against TimeZone.UNKNOWN_ZONE, but allows the calendar object
+    // to somewhat represent 'no time zone'.
+    //
+    containsTZ
   }
 
+  /**
+   * Returns the TimeZone in the format of "+00:00"
+   */
+  def getTimeZoneString: String = {
+    val format = new SimpleDateFormat(tzFormat)
+    var formattedString: String = null
+    try {
+      formattedString = format.format(calendar)
+    } catch {
+      case ex: java.lang.IllegalArgumentException =>
+        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(tzFormat, ex.getMessage()))
+    }
+    formattedString
+  }
+
+  /**
+   * Returns the ICU Calendar object.
+   *
+   * We represent 'No time zone' by TimeZone.UNKNOWN_ZONE
+   */
   def getCalendar() = calendar
   override def toString(): String = formattedStr
 

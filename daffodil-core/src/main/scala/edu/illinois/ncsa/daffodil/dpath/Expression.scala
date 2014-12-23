@@ -233,7 +233,7 @@ case class ComparisonExpression(op: String, adds: List[Expression])
       case (">", _) => subsetError("Unsupported operation '%s'. Use 'gt' instead.", op)
       case ("<=", _) => subsetError("Unsupported operation '%s'. Use 'le' instead.", op)
       case (">=", _) => subsetError("Unsupported operation '%s'. Use 'ge' instead.", op)
-      
+
       case ("lt", Boolean) => LT_Boolean
       case ("gt", Boolean) => GT_Boolean
       case ("le", Boolean) => LE_Boolean
@@ -1361,6 +1361,19 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
       case (RefQName(_, "upper-case", FUNC), args) =>
         FNOneArgExpr(functionQNameString, functionQName, args,
           NodeInfo.String, NodeInfo.String, FNUpperCase(_, _))
+
+      case (RefQName(_, "timeZoneFromDateTime", DFDL), args) => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.DateTime, DFDLTimeZoneFromDFDLCalendar(_, _))
+      }
+      case (RefQName(_, "timeZoneFromDate", DFDL), args) => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.Date, DFDLTimeZoneFromDFDLCalendar(_, _))
+      }
+      case (RefQName(_, "timeZoneFromTime", DFDL), args) => {
+        FNOneArgExpr(functionQNameString, functionQName, args,
+          NodeInfo.String, NodeInfo.Time, DFDLTimeZoneFromDFDLCalendar(_, _))
+      }
 
       // conversion functions
       case (RefQName(_, "integer", XSD), args) =>

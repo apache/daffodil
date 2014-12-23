@@ -33,30 +33,29 @@ package edu.illinois.ncsa.daffodil.processors
  */
 
 import java.text.ParsePosition
+
 import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.{ Calendar, TimeZone, GregorianCalendar, ULocale }
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
-import edu.illinois.ncsa.daffodil.util.Misc
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.DFDLCalendar
-import edu.illinois.ncsa.daffodil.util.PreSerialization
+import com.ibm.icu.util.DFDLDate
 import com.ibm.icu.util.DFDLDateTime
 import com.ibm.icu.util.DFDLTime
-import com.ibm.icu.util.DFDLDate
+import com.ibm.icu.util.GregorianCalendar
+import com.ibm.icu.util.TimeZone
+import com.ibm.icu.util.ULocale
+
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   xsdType: String,
   prettyType: String,
   pattern: String,
+  hasTZ: Boolean,
   locale: ULocale,
   infosetPattern: String,
   firstDay: Int,
   calendarDaysInFirstWeek: Int,
   calendarCheckPolicy: Boolean,
-  calendarTz: TimeZone,
+  calendarTz: Option[TimeZone],
   tz: TimeZone)
   extends PrimParser(erd) {
 
@@ -66,7 +65,15 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     cal.setFirstDayOfWeek(firstDay)
     cal.setMinimalDaysInFirstWeek(calendarDaysInFirstWeek)
     cal.setLenient(calendarCheckPolicy)
-    cal.setTimeZone(calendarTz)
+    val tz = {
+      // If 'no time zone', then use UNKNOWN_ZONE
+      //
+      // UNKNOWN_ZONE behaves just like GMT/UTC and will
+      // preserve the Date/Time values.
+      //
+      calendarTz.getOrElse(TimeZone.UNKNOWN_ZONE)
+    }
+    cal.setTimeZone(tz)
     cal.clear
     cal
   }
@@ -125,9 +132,9 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     }
 
     val newCal = xsdType.toLowerCase() match {
-      case "time" => new DFDLTime(cal)
-      case "date" => new DFDLDate(cal)
-      case "datetime" => new DFDLDateTime(cal)
+      case "time" => new DFDLTime(cal, hasTZ)
+      case "date" => new DFDLDate(cal, hasTZ)
+      case "datetime" => new DFDLDateTime(cal, hasTZ)
       case _ => Assert.impossibleCase
     }
 

@@ -88,7 +88,7 @@ class TestSimpleTypes2 {
   @Test def test_timeStrictCheckPolicy01() { runner.runOneTest("timeStrictCheckPolicy01") }
   @Test def test_timeStrictCheckPolicy02() { runner.runOneTest("timeStrictCheckPolicy02") }
   @Test def test_timeFormatting5() { runner.runOneTest("timeFormatting5") }
-
+  
   ///////////////////////////////////////////////////////////////////////////////////
 
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }

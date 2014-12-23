@@ -228,9 +228,9 @@ case class FNSubstringAfter(recipes: List[CompiledDPath])
 case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
   val name = "FNDateTime"
 
-  private def calendarToDFDLDateTime(calendar: Calendar, formatString: String, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
+  private def calendarToDFDLDateTime(calendar: Calendar, hasTZ: Boolean, dstate: DState, fncName: String, toType: String): DFDLCalendar = {
     try {
-      val cal = new DFDLDateTime(calendar)
+      val cal = new DFDLDateTime(calendar, hasTZ)
       return cal
     } catch {
       case ex: java.lang.IllegalArgumentException =>
@@ -238,15 +238,17 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
     }
   }
   override def computeValue(arg1: Any, arg2: Any, dstate: DState) = {
+    val dateCalendar = arg1.asInstanceOf[DFDLCalendar]
+    val timeCalendar = arg2.asInstanceOf[DFDLCalendar]
 
-    val dateCal = arg1.asInstanceOf[DFDLCalendar].getCalendar
-    val timeCal = arg2.asInstanceOf[DFDLCalendar].getCalendar
+    val dateCal = dateCalendar.getCalendar
+    val timeCal = timeCalendar.getCalendar
 
     val year = dateCal.get(Calendar.YEAR)
     val day = dateCal.get(Calendar.DAY_OF_MONTH)
     val month = dateCal.get(Calendar.MONTH)
+    
     val dateTZ = dateCal.getTimeZone()
-
     val timeTZ = timeCal.getTimeZone()
 
     val newCal: Calendar = timeCal.clone().asInstanceOf[Calendar]
@@ -265,16 +267,23 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
      * If the two arguments have different timezones, an error
      * 	is raised:[err:FORG0008]
      */
-
-    (dateTZ, timeTZ) match {
-      case (null, null) => newCal.setTimeZone(null)
-      case (tz, null) => newCal.setTimeZone(tz)
-      case (null, tz) => newCal.setTimeZone(tz)
-      case (tz0, tz1) if tz0 != tz1 => dstate.pstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
-      case (tz0, tz1) => newCal.setTimeZone(tz0)
+    var hasTZ: Boolean = true
+    
+    (dateCalendar.hasTimeZone, timeCalendar.hasTimeZone) match {
+      case (false, false) => { 
+        // No concept of 'no time zone' so we will use TimeZone.UNKNOWN_ZONE instead
+        // this will behave just like GMT/UTC
+        //
+        newCal.setTimeZone(TimeZone.UNKNOWN_ZONE)
+        hasTZ = false
+      }
+      case (true, false) => newCal.setTimeZone(dateTZ)
+      case (false, true) => newCal.setTimeZone(timeTZ)
+      case (true, true) if dateTZ != timeTZ => dstate.pstate.SDE("The two arguments to fn:dateTime have inconsistent timezones")
+      case (true, true) => newCal.setTimeZone(dateTZ)
     }
 
-    val finalCal = calendarToDFDLDateTime(newCal, "uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx", dstate, name, "DateTime")
+    val finalCal = calendarToDFDLDateTime(newCal, hasTZ, dstate, name, "DateTime")
     finalCal
   }
 }

@@ -151,6 +151,7 @@ object Conversion {
       //
       //case (DateTime, Date) => List(DateTimeToDate)
       //case (DateTime, Time) => List(DateTimeToTime)
+      //case (Time, DateTime) => List(TimeToDateTime)
       case (Integer, Boolean) => IntegerToDecimal +: conversionOps(Decimal, tt, context)
       case (String, Double) => List(StringToDouble)
       case (String, Decimal) => List(StringToDecimal)
@@ -170,7 +171,6 @@ object Conversion {
       case (String, Time) => List(StringToTime)
       case (String, DateTime) => List(StringToDateTime)
       case (String, Boolean) => List(StringToBoolean)
-      case (Time, DateTime) => List(TimeToDateTime)
       case (Byte, Long) => List(ByteToLong)
 
       case (Long, Boolean) => List(LongToBoolean)
@@ -353,19 +353,19 @@ object Conversion {
     calendar
   }
 
-  def stringToDFDLDateTime(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLDateTime = {
+  def stringToDFDLDateTime(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLDateTime = {
     val calendar = constructCalendar(value, inFormat, fncName, toType)
-    new DFDLDateTime(calendar)
+    DFDLDateTime(calendar, expectsTZ)
   }
 
-  def stringToDFDLDate(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLDate = {
+  def stringToDFDLDate(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLDate = {
     val calendar = constructCalendar(value, inFormat, fncName, toType)
-    new DFDLDate(calendar)
+    DFDLDate(calendar, expectsTZ)
   }
 
-  def stringToDFDLTime(value: String, inFormat: SimpleDateFormat, fncName: String, toType: String): DFDLTime = {
+  def stringToDFDLTime(value: String, inFormat: SimpleDateFormat, expectsTZ: Boolean, fncName: String, toType: String): DFDLTime = {
     val calendar = constructCalendar(value, inFormat, fncName, toType)
-    new DFDLTime(calendar)
+    DFDLTime(calendar, expectsTZ)
   }
 
   /**

@@ -115,11 +115,37 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     case _ => e.calendarTimeZone
   }
 
-  val calendarTz = TimeZone.getTimeZone(tzStr)
-  if (calendarTz == TimeZone.UNKNOWN_ZONE) {
-    e.schemaDefinitionErrorDueToPropertyValue(
-      "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
-      "Unknown time zone '%s'", e.calendarTimeZone)
+  val calendarTz: Option[TimeZone] = {
+    if (tzStr.length == 0) None // Empty String, 'no time zone'
+    else {
+      val tz = TimeZone.getTimeZone(tzStr)
+      if (tz == TimeZone.UNKNOWN_ZONE) {
+        e.schemaDefinitionErrorDueToPropertyValue(
+          "calendarTimeZone", e.calendarTimeZone, e.calendarTimeZone_location, e,
+          "Unknown time zone '%s'", e.calendarTimeZone)
+      }
+      Some(tz) // Valid time zone
+    }
+  }
+  
+  lazy val hasTZ: Boolean = {
+    val tzPattern = "(?<!')((z{1,4}|Z{1,4})|(O{1}|O{4})|(v{1}|v{4})|(V{1,4})|(x{1,3}|X{1,3}))".r
+
+    val res = tzPattern.findFirstIn(pattern) match {
+      case None => {
+        // Check the calendar time zone property.
+        //
+        // If there should be 'no time zone' then false
+        // else true.
+        //
+        calendarTz match {
+          case None => false
+          case Some(_) => true
+        }
+      }
+      case Some(_) => true
+    }
+    res
   }
 
   def parser: Parser = new ConvertTextCalendarParser(
@@ -127,6 +153,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     xsdType,
     prettyType,
     pattern,
+    hasTZ,
     locale,
     infosetPattern,
     firstDay,

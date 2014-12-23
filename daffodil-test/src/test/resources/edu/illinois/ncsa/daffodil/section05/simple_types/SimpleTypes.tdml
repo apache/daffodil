@@ -3382,6 +3382,20 @@
     <xs:element name="date31" type="ex:explicDate" dfdl:calendarPattern="dd MM yyyy, mm:ss"/>
     
     <xs:element name="date32" type="ex:explicDate" dfdl:encoding="UTF-8" dfdl:calendarPattern="EEEE MMM yyyy" dfdl:calendarLanguage="ru-RU"/>
+    <xs:element name="date33">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd" dfdl:calendarTimeZone=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="date34">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd" dfdl:calendarTimeZone="UTC-05:00"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:simpleType name="explicDate" dfdl:calendarPatternKind="explicit" dfdl:lengthKind="delimited">
       <xs:restriction base="xs:date"/>
@@ -3435,6 +3449,20 @@
     <xs:element name="time28" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm.zzz" dfdl:calendarTimeZone="UTC+1:30"/>
     <xs:element name="time29" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSS"/>
     <xs:element name="time30" type="ex:strictExplicTime" dfdl:calendarPattern="hh:mm:ss.SSSSSSSSSS"/>
+    <xs:element name="time31">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" dfdl:calendarTimeZone="" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="time32">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="HH:mm:ss" dfdl:calendarTimeZone="UTC-05:00" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="dateTimeImp" type="xs:dateTime" dfdl:calendarPatternKind="implicit" dfdl:lengthKind="delimited" />
     <xs:element name="dateTime01" type="xs:dateTime" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="'It is 'hh:mmaa' on the 'dd'st of 'MMM', year 'yyyy"
@@ -3461,8 +3489,64 @@
     <xs:element name="dateTime12" type="xs:dateTime" dfdl:calendarCheckPolicy="lax" dfdl:calendarPatternKind="explicit" dfdl:textTrimKind="padChar"
                 dfdl:textCalendarJustification="right" dfdl:textCalendarPadCharacter="%HT;" dfdl:lengthKind="delimited" dfdl:calendarPattern="MM.dd.yyyy hh:mm:ssaa"/>
     <xs:element name="dateTime13" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="dd-MM-yyyy hh:mm:ss.SSSSSSSSSS"/>
-
+    <xs:element name="dateTime14"><!-- No Time Zone -->
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd HH:mm:ss" dfdl:calendarTimeZone=""/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="dateTime15"><!-- EST Time Zone -->
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="yyyy-MM-dd HH:mm:ss" dfdl:calendarTimeZone="UTC-05:00"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
   </tdml:defineSchema>
+  
+  <!--
+     Test Name: dateTime_calendarTimeZone_EmptyString
+        Schema: dateTimeSchema
+          Root: dateTime14
+       Purpose: This test demonstrates the xs:dateTime object can be constructed without
+                a time zone.
+                
+                calendarTimeZone="", no time zone present in result.
+  -->
+  
+  <tdml:parserTestCase name="dateTime_calendarTimeZone_EmptyString" root="dateTime14"
+    model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone Empty String - DFDL-13-XXXR">
+
+    <tdml:document><![CDATA[1995-03-24 01:30:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime14><dateTime>1995-03-24T01:30:00.000000</dateTime></dateTime14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: dateTime_calendarTimeZone_EST
+        Schema: dateTimeSchema
+          Root: dateTime15
+       Purpose: This test demonstrates the xs:dateTime object can be constructed without
+                a time zone.
+                
+                calendarTimeZone="UTC-05:00", -05:00 present in result.
+-->
+  
+  <tdml:parserTestCase name="dateTime_calendarTimeZone_EST" root="dateTime15"
+    model="dateTimeSchema" description="Section 13 Simple Types - xs:dateTime calendarTimeZone EST - DFDL-13-XXXR">
+
+    <tdml:document><![CDATA[1995-03-24 01:30:00]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime15><dateTime>1995-03-24T01:30:00.000000-05:00</dateTime></dateTime15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
 
 <!--
      Test Name: dateImplicitPattern
@@ -4952,6 +5036,8 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+
 
 <!--
      Test Name: timeTrim01
@@ -5089,6 +5175,106 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error: More than 9 fractional seconds unsupported in dfdl:calendarPattern for xs:time</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+    <!--
+    Test name: time_calendarTimeZone_EmptyString
+       Schema: dateTimeSchema
+         Root: time31
+      Purpose: This test demonstrates the ability to construct a xs:time object
+               without a time zone specified.
+               
+               calendarTimeZone="", no time zone expected in the result
+  -->
+
+  <tdml:parserTestCase name="time_calendarTimeZone_EmptyString" root="time31" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:time calendarTimeZone Empty String  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12:49:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time31>
+          <time>12:49:00.000000</time>
+        </time31>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: time_calendarTimeZone_EST
+       Schema: constructorSchema
+         Root: time32
+      Purpose: This test demonstrates the ability to construct a xs:time object
+               with a time zone specified.
+               
+               calendarTimeZone="UTC-05:00", -05:00 expected in result.
+  -->
+
+  <tdml:parserTestCase name="time_calendarTimeZone_EST" root="time32" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:time calendarTimeZone EST  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">12:49:00</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <time32>
+          <time>12:49:00.000000-05:00</time>
+        </time32>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_calendarTimeZone_EmptyString
+       Schema: dateTimeSchema
+         Root: date33
+      Purpose: This test demonstrates the ability to construct a xs:date object
+               with a time zone specified.
+               
+               calendarTimeZone="", expect no time zone in result
+  -->
+
+  <tdml:parserTestCase name="date_calendarTimeZone_EmptyString" root="date33" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:date calendarTimeZone Empty String  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date33>
+          <date>1991-03-04</date>
+        </date33>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: date_calendarTimeZone_EST
+       Schema: dateTimeSchema
+         Root: date34
+      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
+               construct a date from a string.
+               
+               calendarTimeZone="UTC-05:00", expect -05:00 in result
+  -->
+
+  <tdml:parserTestCase name="date_calendarTimeZone_EST" root="date34" model="dateTimeSchema"
+    description="Section 13 - Simple Types - xs:date calendarTimeZone EST  - DFDL-13-XXXR">
+
+    <tdml:document>
+      <tdml:documentPart type="text">1991-03-04</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <date34>
+          <date>1991-03-04-05:00</date>
+        </date34>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
 <!--
@@ -5462,6 +5648,8 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  
   
   <tdml:defineSchema name="HexBinary">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"

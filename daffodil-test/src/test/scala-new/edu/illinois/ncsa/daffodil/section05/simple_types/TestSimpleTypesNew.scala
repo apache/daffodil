@@ -43,6 +43,15 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 class TestSimpleTypesNew {
-  val testDir1 = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
 
+  val aa = testDir + "SimpleTypes.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_time_calendarTimeZone_EmptyString() { runner.runOneTest("time_calendarTimeZone_EmptyString") }
+  @Test def test_time_calendarTimeZone_EST() { runner.runOneTest("time_calendarTimeZone_EST") }
+  @Test def test_date_calendarTimeZone_EmptyString() { runner.runOneTest("date_calendarTimeZone_EmptyString") }
+  @Test def test_date_calendarTimeZone_EST() { runner.runOneTest("date_calendarTimeZone_EST") }
+  @Test def test_dateTime_calendarTimeZone_EmptyString() { runner.runOneTest("dateTime_calendarTimeZone_EmptyString") }
+  @Test def test_dateTime_calendarTimeZone_EST() { runner.runOneTest("dateTime_calendarTimeZone_EST") }
 }

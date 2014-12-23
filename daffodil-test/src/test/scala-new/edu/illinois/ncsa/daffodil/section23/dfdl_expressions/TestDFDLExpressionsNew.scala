@@ -118,7 +118,7 @@ class TestDFDLExpressionsNew {
   @Test def test_comparison_operators_51() { runner.runOneTest("comparison_operators_51") }
   @Test def test_comparison_operators_52() { runner.runOneTest("comparison_operators_52") }
   @Test def test_comparison_operators_53() { runner.runOneTest("comparison_operators_53") }
-  
+
   @Test def test_comparison_operators_54() { runner.runOneTest("comparison_operators_54") }
   @Test def test_comparison_operators_55() { runner.runOneTest("comparison_operators_55") }
   @Test def test_comparison_operators_56() { runner.runOneTest("comparison_operators_56") }
@@ -141,5 +141,13 @@ class TestDFDLExpressionsNew {
   @Test def test_comparison_operators_73() { runner.runOneTest("comparison_operators_73") }
   @Test def test_comparison_operators_74() { runner.runOneTest("comparison_operators_74") }
   @Test def test_comparison_operators_75() { runner.runOneTest("comparison_operators_75") }
+
+  // DFDL-1202
+  @Test def test_timezonefromdatetime_01() { runner2.runOneTest("timezonefromdatetime_01") }
+  @Test def test_timezonefromdatetime_02() { runner2.runOneTest("timezonefromdatetime_02") }
+  @Test def test_timezonefromdate_01() { runner2.runOneTest("timezonefromdate_01") }
+  @Test def test_timezonefromtime_01() { runner2.runOneTest("timezonefromtime_01") }
+  @Test def test_fnDateTime_constructor_06() { runner2.runOneTest("fnDateTime_constructor_06") }
+  @Test def test_fnDateTime_constructor_07() { runner2.runOneTest("fnDateTime_constructor_07") }
 
 }

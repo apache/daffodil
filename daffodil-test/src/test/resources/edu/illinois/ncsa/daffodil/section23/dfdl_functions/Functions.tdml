@@ -680,6 +680,11 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e_timezonefromdatetime1" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromDateTime(xs:dateTime('1999-05-31T13:20:00-05:00')) }" />
+    <xs:element name="e_timezonefromdatetime2" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromDateTime(xs:dateTime('1999-05-31T13:20:00')) }" />
+    <xs:element name="e_timezonefromdate1" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromDate(xs:date('1999-05-31-05:00')) }" />
+    <xs:element name="e_timezonefromtime1" type="xs:string" dfdl:inputValueCalc="{ dfdl:timeZoneFromTime(xs:time('13:20:00-05:00')) }" />
 
 </tdml:defineSchema>
   
@@ -5648,6 +5653,24 @@
     <xs:element name="dateTime07" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(xs:date('2014-10-23')) }"/> <!-- valid cast -->
     <xs:element name="dateTime08" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(xs:dateTime('2014-10-23T04:55:30')) }"/> <!-- valid cast -->
     <xs:element name="dateTime09" type="xs:dateTime" dfdl:inputValueCalc="{ xs:dateTime(1) }"/> <!-- invalid cast -->
+    <xs:element name="dateTime10"><!-- No Time Zone -->
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarTimeZone=""/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone=""/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    <xs:element name="dateTime11"><!-- EST Time Zone -->
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="date" type="xs:date" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="MM-dd-yyyy" dfdl:calendarTimeZone="UTC-05:00"/>
+          <xs:element name="time" type="xs:time" dfdl:lengthKind="delimited" dfdl:calendarPatternKind="explicit" dfdl:calendarPattern="hh:mm:ss" dfdl:calendarTimeZone="UTC-05:00"/>
+          <xs:element name="dateTime" type="xs:dateTime" dfdl:inputValueCalc="{ fn:dateTime(../ex:date, ../ex:time) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
     
     <xs:element name="time01">
       <xs:complexType>
@@ -6239,6 +6262,60 @@
       <tdml:error>Runtime Schema Definition Error</tdml:error>
       <tdml:error>The two arguments to fn:dateTime have inconsistent timezones</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_06
+       Schema: constructorSchema
+         Root: dateTime10
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime.
+               
+               calendarTimeZone="", so there should be no time zone in the result
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_06" root="dateTime10" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03-31-1996,04:55:30</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime10>
+          <date>1996-03-31</date>
+          <time>04:55:30.000000</time>
+          <dateTime>1996-03-31T04:55:30.000000</dateTime>
+        </dateTime10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: fnDateTime_constructor_07
+       Schema: constructorSchema
+         Root: dateTime11
+      Purpose: This test demonstrates the use of the fn:dateTime constructor function to convert an xs:date and an 
+               xs:time into an xs:dateTime.
+               
+               calendarTimeZone="UTC-05:00", the time zone in the result should be -05:00
+  -->
+
+  <tdml:parserTestCase name="fnDateTime_constructor_07" root="dateTime11" model="constructorSchema"
+    description="Section 23 - Constructor Functions - fn:dateTime()  - DFDL-23-089R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">03-31-1996,04:55:30</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <dateTime11>
+          <date>1996-03-31-05:00</date>
+          <time>04:55:30.000000-05:00</time>
+          <dateTime>1996-03-31T04:55:30.000000-05:00</dateTime>
+        </dateTime11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -7179,7 +7256,7 @@
       <tdml:dfdlInfoset>
         <dateTime04>
           <string>1996-02-04T12:30:34</string>
-          <dateTime>1996-02-04T12:30:34.000000+00:00</dateTime>
+          <dateTime>1996-02-04T12:30:34.000000</dateTime>
         </dateTime04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -7331,7 +7408,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<dateTime07>2014-10-23T00:00:00.000000+00:00</dateTime07>
+    		<dateTime07>2014-10-23T00:00:00.000000</dateTime07>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -7352,7 +7429,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<dateTime08>2014-10-23T04:55:30.000000+00:00</dateTime08>
+    		<dateTime08>2014-10-23T04:55:30.000000</dateTime08>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -7396,7 +7473,7 @@
       <tdml:dfdlInfoset>
         <time01>
           <string>12:49:00</string>
-          <time>12:49:00.000000+00:00</time>
+          <time>12:49:00.000000</time>
         </time01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -7480,7 +7557,7 @@
       <tdml:dfdlInfoset>
         <time02>
           <string>12:49:00</string>
-          <time>12:49:00.000000+00:00</time>
+          <time>12:49:00.000000</time>
         </time02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -7522,7 +7599,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<dfdl:time04>08:00:00.000000+00:00</dfdl:time04>
+    		<dfdl:time04>08:00:00.000000</dfdl:time04>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -7543,7 +7620,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:time05>08:00:00.000000+00:00</tdml:time05>
+    		<tdml:time05>08:00:00.000000</tdml:time05>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -7586,7 +7663,7 @@
       <tdml:dfdlInfoset>
         <date01>
           <string>1991-03-04</string>
-          <date>1991-03-04+00:00</date>
+          <date>1991-03-04</date>
         </date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -7629,7 +7706,7 @@
       <tdml:dfdlInfoset>
         <date01>
           <string>2013-03-04</string>
-          <date>2013-03-04+00:00</date>
+          <date>2013-03-04</date>
         </date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -10200,7 +10277,7 @@
       <tdml:dfdlInfoset>
         <date01>
           <string>2013-03-04</string>
-          <date>2013-03-04+00:00</date>
+          <date>2013-03-04</date>
         </date01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -10224,7 +10301,7 @@
       <tdml:dfdlInfoset>
         <date02>
           <string>2013-03-04</string>
-          <date>2013-03-04+00:00</date>
+          <date>2013-03-04</date>
         </date02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -10266,7 +10343,7 @@
     </tdml:document>
     <tdml:infoset>
     	<tdml:dfdlInfoset>
-    		<tdml:date04>2014-10-23+00:00</tdml:date04>
+    		<tdml:date04>2014-10-23</tdml:date04>
     	</tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -12584,6 +12661,78 @@
           <string>100</string>
           <ubyte>100</ubyte>
         </ubyte01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: timezonedatetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_timezonefromdatetime1
+      Purpose: This test demonstrates the use of the timeZoneFromDateTime function to return the time zone as a xs:string from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="timezonefromdatetime_01" root="e_timezonefromdatetime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromDateTime - DFDL-23-109R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_timezonefromdatetime1>-05:00</e_timezonefromdatetime1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: timezonedatetime_02
+       Schema: Functions.dfdl.xsd
+         Root: e_timezonefromdatetime1
+      Purpose: This test demonstrates the use of the timeZoneFromDateTime function to return the time zone as a xs:string from an xs:dateTime.
+-->
+
+  <tdml:parserTestCase name="timezonefromdatetime_02" root="e_timezonefromdatetime2"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromDateTime - DFDL-23-109R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_timezonefromdatetime2></e_timezonefromdatetime2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: timezonedate_01
+       Schema: Functions.dfdl.xsd
+         Root: e_timezonefromdate1
+      Purpose: This test demonstrates the use of the timeZoneFromDate function to return the time zone as a xs:string from an xs:date.
+-->
+
+  <tdml:parserTestCase name="timezonefromdate_01" root="e_timezonefromdate1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromDate - DFDL-23-109R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_timezonefromdate1>-05:00</e_timezonefromdate1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: timezonetime_01
+       Schema: Functions.dfdl.xsd
+         Root: e_timezonefromtime1
+      Purpose: This test demonstrates the use of the timeZoneFromTime function to return the time zone as a xs:string from an xs:time.
+-->
+
+  <tdml:parserTestCase name="timezonefromtime_01" root="e_timezonefromtime1"
+    model="Functions.dfdl.xsd" description="Section 23 - Functions - dfdl:timeZoneFromTime - DFDL-23-109R">
+
+    <tdml:document/>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e_timezonefromtime1>-05:00</e_timezonefromtime1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
