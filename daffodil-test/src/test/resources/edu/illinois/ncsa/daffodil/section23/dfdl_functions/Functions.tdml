@@ -9001,7 +9001,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>inputValueCalc</tdml:error>
+      <tdml:error>inputValueCalc property can not appear on array elements</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -9226,7 +9226,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>inputValueCalc</tdml:error>
+      <tdml:error>inputValueCalc property can not appear on array elements</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

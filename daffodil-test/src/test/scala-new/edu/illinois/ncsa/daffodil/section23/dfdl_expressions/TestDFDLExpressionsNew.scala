@@ -71,10 +71,6 @@ class TestDFDLExpressionsNew {
   @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
   @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
 
-  //DFDL-1079
-  @Test def test_empty_05() { runner2.runOneTest("empty_05") }
-  @Test def test_exists_05() { runner2.runOneTest("exists_05") }
-
   //DFDL-1198
   @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
   @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }
