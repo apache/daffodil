@@ -140,6 +140,15 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="e1b">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:sequence dfdl:hiddenGroupRef="ex:hiddenData"/>
+          <xs:element name="hideme" type="xs:string" dfdl:inputValueCalc="{ fn:concat(fn:substring(/ex:e1b/ex:password[-1], 1, 1), '***') }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
     <xs:element name="e2">
       <xs:complexType>
         <xs:sequence>
@@ -4260,6 +4269,44 @@ c' } "  />
       </tdml:dfdlInfoset>
     </tdml:infoset>
              
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayIndexOutOfBounds_01
+        Schema: hiddenElem 
+          Root: e1
+       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds 
+  -->
+
+  <tdml:parserTestCase name="arrayIndexOutOfBounds_01" root="e1"
+    model="hiddenElem" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>p455w0rd</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Expression evaluation failed</tdml:error>
+        <tdml:error>Value 1 is out of range</tdml:error>
+        <tdml:error>with length 0</tdml:error>
+      </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: arrayIndexOutOfBounds_02
+        Schema: hiddenElem 
+          Root: e1b
+       Purpose: This test demonstrates that a proper error occurs if an array index in an expression is out of bounds 
+  -->
+
+  <tdml:parserTestCase name="arrayIndexOutOfBounds_02" root="e1b"
+    model="hiddenElem" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>p455w0rd</tdml:document>
+      <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>Expression evaluation failed</tdml:error>
+        <tdml:error>Value -1 is out of range</tdml:error>
+        <tdml:error>with length 0</tdml:error>
+      </tdml:errors>
   </tdml:parserTestCase>
   
   <!--

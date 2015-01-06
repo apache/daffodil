@@ -81,6 +81,9 @@ class TestDFDLExpressions {
 
   @Test def test_hiddenDataExpression() { runner.runOneTest("hiddenDataExpression") }
   @Test def test_hiddenDataExpression2() { runner.runOneTest("hiddenDataExpression2") }
+  
+  @Test def test_arrayIndexOutOfBounds_01() { runner.runOneTest("arrayIndexOutOfBounds_01") }
+  @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
 
   //DFDL-1148
   //@Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
