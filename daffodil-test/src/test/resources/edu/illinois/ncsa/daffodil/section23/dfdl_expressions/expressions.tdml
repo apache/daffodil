@@ -4251,7 +4251,7 @@ c' } "  />
   <tdml:parserTestCase name="hiddenDataExpression" root="e1"
     model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
 
-    <tdml:document>p455w0rd</tdml:document>
+    <tdml:document>pw:p455w0rd</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e1>
@@ -4272,7 +4272,7 @@ c' } "  />
   <tdml:parserTestCase name="hiddenDataExpression2" root="e2"
     model="hiddenElem" description="Section 23 - DFDL Expressions - DFDL-23-010R">
 
-    <tdml:document>p455w0rd</tdml:document>
+    <tdml:document>pw:p455w0rd</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e2>

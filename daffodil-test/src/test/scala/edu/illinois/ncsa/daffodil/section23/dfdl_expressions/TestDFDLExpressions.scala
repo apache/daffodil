@@ -79,9 +79,8 @@ class TestDFDLExpressions {
   @Test def test_longPath_01() { runner.runOneTest("longPath_01") }
   @Test def test_longPath_02() { runner.runOneTest("longPath_02") }
 
-  //DFDL-1188
-  //@Test def test_hiddenDataExpression() { runner.runOneTest("hiddenDataExpression") }
-  //@Test def test_hiddenDataExpression2() { runner.runOneTest("hiddenDataExpression2") }
+  @Test def test_hiddenDataExpression() { runner.runOneTest("hiddenDataExpression") }
+  @Test def test_hiddenDataExpression2() { runner.runOneTest("hiddenDataExpression2") }
 
   //DFDL-1148
   //@Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
