@@ -828,7 +828,7 @@ object Main extends Logging {
             printf("max rate (files/sec): %f\n", rates.max)
             printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
 
-            numFailures
+            if (numFailures == 0) 0 else 1
           }
           case Some(processor) => 1
           case None => 1
