@@ -4073,6 +4073,16 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:element name="count02b">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="str" type="xs:string" dfdl:inputValueCalc="{ 'calculated string' }"/>
+          <xs:element name="calced" type="xs:string" dfdl:inputValueCalc="{ ../ex:str }"/>
+          <xs:element name="count" type="xs:int" dfdl:inputValueCalc="{ fn:count(../ex:calced) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:element name="count03">
       <xs:complexType>
         <xs:sequence dfdl:separator="|">
@@ -9618,6 +9628,30 @@
           <calced>calculated string</calced>
           <count>1</count>
         </count02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+    Test Name: count_03b
+       Schema: XPathFunctions
+         Root: count02b
+      Purpose: This test demonstrates the count() function.
+-->
+
+  <tdml:parserTestCase name="count_03b" root="count02b"
+    model="XPathFunctions" description="Section 23 - Functions - fn:count - DFDL-23-124R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <count02b>
+          <str>calculated string</str>
+          <calced>calculated string</calced>
+          <count>1</count>
+        </count02b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

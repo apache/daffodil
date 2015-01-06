@@ -5308,7 +5308,7 @@ c' } "  />
      Test Name: comparison_operators_38
         Schema: comparisonOperators 
           Root: e27
-       Purpose: This test demonstrates that comparison operators work for dateTime
+       Purpose: This test demonstrates that comparison operators work for date
   -->
 
   <tdml:parserTestCase name="comparison_operators_38" root="e27"
@@ -5825,7 +5825,7 @@ c' } "  />
   <!--
      Test Name: comparison_operators_61
         Schema: comparisonOperators 
-          Root: e40
+          Root: e41
        Purpose: This test demonstrates that comparison operators work for boolean
   -->
 
@@ -5847,7 +5847,7 @@ c' } "  />
   <!--
      Test Name: comparison_operators_62
         Schema: comparisonOperators 
-          Root: e40
+          Root: e41
        Purpose: This test demonstrates that comparison operators work for boolean
   -->
 
@@ -5869,7 +5869,7 @@ c' } "  />
   <!--
      Test Name: comparison_operators_63
         Schema: comparisonOperators 
-          Root: e40
+          Root: e41
        Purpose: This test demonstrates that comparison operators work for boolean
   -->
 
@@ -5891,7 +5891,7 @@ c' } "  />
   <!--
      Test Name: comparison_operators_64
         Schema: comparisonOperators 
-          Root: e40
+          Root: e41
        Purpose: This test demonstrates that comparison operators work for boolean
   -->
 
