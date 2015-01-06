@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://www.example.org/example1/" xmlns:ex="http://www.example.org/example1/"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <include schemaLocation="xsd/built-in-formats.xsd"/>
+
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="ex:daffodilTest1" initiator=""
+        leadingSkip="0" trailingSkip="0" separator=""
+        encoding="utf-8" occursCountKind="implicit" separatorSuppressionPolicy="anyEmpty"
+        textNumberRep="standard" ignoreCase="no" representation="text"
+        lengthUnits="characters" lengthKind="delimited" initiatedContent="no" />
+    </appinfo>
+  </annotation>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="infix">
+          <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+</schema>

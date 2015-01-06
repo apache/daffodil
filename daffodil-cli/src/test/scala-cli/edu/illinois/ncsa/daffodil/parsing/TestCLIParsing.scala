@@ -88,6 +88,17 @@ class TestCLIparsing {
     shell.expect(eof())
     shell.close()
   }
+  
+  @Test def test_3227_CLI_Parsing_SimpleParse_DFDL1197_fix() {
+    var cmd = "echo 1/3|" + Util.binPath + " -vv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd\n"
+    var shell = Util.start(cmd, true)
+
+    shell.expect(contains("<OptionalInfixSep><Sep>/ List()</Sep></OptionalInfixSep>"))
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+
+  }
 
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
