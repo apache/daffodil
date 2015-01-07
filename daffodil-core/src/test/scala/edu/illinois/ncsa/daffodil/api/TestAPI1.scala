@@ -116,48 +116,6 @@ class TestDFDLParser {
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
-  /* This test is in daffodil-test.
-  @Test def testParseSequence4() {
-    val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:initiator="[" dfdl:terminator="]">
-        <xs:complexType>
-          <xs:sequence dfdl:separator="," dfdl:initiator="{" dfdl:terminator="}">
-            <xs:element name="s1" type="xs:string" dfdl:initiator="(" dfdl:terminator=")" dfdl:lengthKind="explicit" dfdl:length="{ 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-    val actual = TestUtils.testString(sch, "[{(5),(6),(7)}]").result
-    val actualString = actual.toString
-    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>5</s1><s1>6</s1><s1>7</s1></e1>"))
-    val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
-  }*/
-
-  /**
-   * Shows that delimiters longer than 1 character work.
-   * Shows that simple expressions like 1 + 1 get evaluated to constants
-   * Shows that initiator and terminator work on a sequence as well as on elements.
-   */
-  /* This test is in daffodil-test.
-  @Test def testParseSequence5() {
-    val sch = SchemaUtils.dfdlTestSchema(
-      <dfdl:format separatorSuppressionPolicy="never" separatorPosition="infix" ref="tns:daffodilTest1"/>,
-      <xs:element name="e1" dfdl:initiator="[more[" dfdl:terminator="]nomore]">
-        <xs:complexType>
-          <xs:sequence dfdl:separator=",," dfdl:initiator="{{" dfdl:terminator="}}">
-            <xs:element name="s1" type="xs:string" dfdl:initiator="((" dfdl:terminator="))" dfdl:lengthKind="explicit" dfdl:length="{ 1 + 1 }" dfdl:occursCountKind="fixed" minOccurs="3" maxOccurs="3"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>)
-    val actual = TestUtils.testString(sch, "[more[{{((55)),,((66)),,((77))}}]nomore]").result
-    val actualString = actual.toString
-    assertTrue(actualString.contains("<e1")) // there might be xsi:type stuff in the tag, and namespace stuff
-    assertTrue(actualString.contains("><s1>55</s1><s1>66</s1><s1>77</s1></e1>"))
-    val expected = <e1><s1>55</s1><s1>66</s1><s1>77</s1></e1>
-    TestUtils.assertEqualsXMLElements(expected, actual)
-  }*/
 
   @Test def testInt1() {
     val sch = SchemaUtils.dfdlTestSchema(
@@ -317,22 +275,21 @@ class TestDFDLParser {
     assertTrue(e.getMessage().contains("xs:unsignedByte"))
   }
 
-  // TEST FAILS - SEE JIRA DFDL-184
-  //  @Test def testIntTooLong() {
-  //    val sch = SchemaUtils.dfdlTestSchema(
-  //      <dfdl:format ref="tns:daffodilTest1"/>,
-  //      <xs:element name="e1" dfdl:lengthKind="explicit">
-  //        <xs:complexType>
-  //          <xs:sequence>
-  //            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
-  //          </xs:sequence>
-  //        </xs:complexType>
-  //      </xs:element>)
-  //       val e = intercept[Exception]{
-  //      val actual = TestUtils.testString(sch, "55555555555555555555")
-  //    }
-  //    //println("ERROR!!!!!" + e.getMessage())//    assertTrue(e.getMessage().contains("xs:int"))
-  //  }
+  @Test def testIntTooLong() {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s1" type="xs:int" dfdl:lengthKind="explicit" dfdl:length="{ 20 }"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val e = intercept[Exception] {
+      val actual = TestUtils.testString(sch, "55555555555555555555")
+    }
+    assertTrue(e.getMessage().contains("xs:int"))
+  }
 
   @Test def testParseSequenceInt() {
     val sch = SchemaUtils.dfdlTestSchema(
