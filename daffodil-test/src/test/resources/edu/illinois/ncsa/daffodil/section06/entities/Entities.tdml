@@ -2,7 +2,8 @@
 <tdml:testSuite suiteName="EntitiesTests" description="Section 6 - Entities"
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com" xmlns:tns="http://example.com">
+  xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:ex="http://example.com" xmlns:tns="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
 
   <tdml:defineSchema name="Entities-Embedded.dfdl.xsd">
 
@@ -1064,6 +1065,76 @@ is multiple bytes in UTF-8 encoding that is used"
           <e1>1</e1>
           <e2>2</e2>
         </seq_04>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="EmptyStringEntityInExpression">
+  
+    <dfdl:format ref="ex:daffodilTest1" representation="text" encoding="US-ASCII" 
+      separator="" byteOrder="bigEndian" ignoreCase="no" textNumberRep="standard"
+      initiator="" initiatedContent="no" terminator="" />
+
+    <xs:element name="root" dfdl:lengthKind="implicit">
+      <xs:complexType>
+
+        <xs:group ref="ex:tString50" />
+
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:group name="tString50">
+      <xs:sequence>
+        <xs:element name="value" type="xs:string" dfdl:lengthKind="pattern"
+          dfdl:lengthPattern="[^END]{0,49}(?=END)|.{50}" dfdl:representation="text" />
+          <xs:sequence
+          dfdl:terminator="{if (fn:string-length(./ex:value) eq 50) then '%ES; %DEL;' else 'END'}" />
+          <!-- can replace %ES with WSP* if ES doesn't work, %ES cannot be alone in list. -->
+      </xs:sequence>
+    </xs:group>
+
+  </tdml:defineSchema>
+  
+    <!--
+    Test Name: emptyStringEntityTermInExpression_01
+       Schema: EmptyStringEntityInExpression
+      Purpose: This test demonstrates the ability for the %ES; entity to be used in an expression.
+               In this case, the value is 50 characters long so %ES; is a terminator.
+  -->
+
+  <tdml:parserTestCase name="emptyStringEntityTermInExpression_01" root="root" model="EmptyStringEntityInExpression"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[01234567890123456789012345678901234567890123456789]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <value>01234567890123456789012345678901234567890123456789</value>
+        </root>
+      </tdml:dfdlInfoset>
+
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: emptyStringEntityTermInExpression_02
+       Schema: EmptyStringEntityInExpression
+      Purpose: This test demonstrates the ability for the %ES; entity to be used in an expression.
+               In this case, the value is NOT 50 characters long so %ES; is NOT a terminator.
+  -->
+
+  <tdml:parserTestCase name="emptyStringEntityTermInExpression_02" root="root" model="EmptyStringEntityInExpression"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[012345678901234567890123456789012345678901END]]></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <value>012345678901234567890123456789012345678901</value>
+        </root>
       </tdml:dfdlInfoset>
 
     </tdml:infoset>
