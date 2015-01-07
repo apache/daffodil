@@ -109,9 +109,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1115
   @Test def test_xsDateTime_constructor_03() { runner2.runOneTest("xsDateTime_constructor_03") }
 
-  //DFDL-1160
-  @Test def test_count_04() { runner2.runOneTest("count_04") }
-
   //DFDL-1159 (unordered sequences)
   @Test def test_count_05() { runner2.runOneTest("count_05") }
   @Test def test_count_06() { runner2.runOneTest("count_06") }
