@@ -10,6 +10,8 @@ byte_entities_6_10
 dataDumpEncoding
 doubleNLseparator
 doubleNLterminator
+emptyStringEntityTermInExpression_01
+emptyStringEntityTermInExpression_02
 entityAndNonMix_01
 entityAndNonMix_02
 entityAndNonMix_03

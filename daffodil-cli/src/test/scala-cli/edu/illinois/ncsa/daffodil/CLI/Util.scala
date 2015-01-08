@@ -40,6 +40,7 @@ import net.sf.expectit.Expect
 import net.sf.expectit.echo.EchoOutput
 import java.io.File
 import java.nio.file.Paths
+import scala.collection.JavaConverters._
 
 object Util {
 
@@ -64,7 +65,7 @@ object Util {
     }
   }
 
-  def start(cmd: String, expectErr: Boolean = false, envp: Array[String] = Array.empty[String]): Expect = {
+  def start(cmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
@@ -74,7 +75,7 @@ object Util {
     return getShell(cmd, spawnCmd, expectErr, envp)
   }
 
-  def startIncludeErrors(cmd: String, envp: Array[String] = Array.empty[String]): Expect = {
+  def startIncludeErrors(cmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
@@ -86,7 +87,7 @@ object Util {
 
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
-  def startNoConvert(cmd: String, envp: Array[String] = Array.empty[String]): Expect = {
+  def startNoConvert(cmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmd
     } else {
@@ -96,8 +97,10 @@ object Util {
     return getShell(cmd, spawnCmd, envp = envp)
   }
 
-  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Array[String] = Array.empty[String]): Expect = {
-    val process = Runtime.getRuntime().exec(spawnCmd, envp)
+  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+    val newEnv = System.getenv().asScala ++ envp
+    val envAsArray = newEnv.toArray.map { case (k,v) => k + "=" + v }
+    val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val inputStream = if (expectErr) {
       process.getErrorStream()
     } else {
@@ -127,8 +130,10 @@ object Util {
   // Return a shell object with two streams
   // The inputStream will be at index 0
   // The errorStream will be at index 1
-  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Array[String] = Array.empty[String]): Expect = {
-    val process = Runtime.getRuntime().exec(spawnCmd, envp)
+  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+    val newEnv = System.getenv().asScala ++ envp
+    val envAsArray = newEnv.toArray.map { case (k,v) => k + "=" + v }
+    val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val shell = new ExpectBuilder()
         .withInputs(process.getInputStream(), process.getErrorStream())
 	.withOutput(process.getOutputStream())
