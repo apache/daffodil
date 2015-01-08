@@ -1509,7 +1509,7 @@ case class FNExactlyOneExpr(nameAsParsed: String, fnQName: RefQName, args: List[
 
   override lazy val compiledDPath = {
     checkArgCount(1)
-    subsetError("fn:exactly-one not in subset")
+    subsetError("fn:exactly-one is not supported.")
     new CompiledDPath((arrPath.compiledDPath.ops.toList :+ FNExactlyOne) ++ conversions)
   }
 }
