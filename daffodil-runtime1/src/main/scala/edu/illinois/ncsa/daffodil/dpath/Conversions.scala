@@ -36,14 +36,13 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import java.lang.NumberFormatException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import com.ibm.icu.util.DFDLCalendar
 import java.text.ParsePosition
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.DFDLDateTime
-import com.ibm.icu.util.DFDLTime
-import com.ibm.icu.util.DFDLDate
 import java.text.ParseException
+import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 /*
  * Casting chart taken from http://www.w3.org/TR/xpath-functions/#casting, with

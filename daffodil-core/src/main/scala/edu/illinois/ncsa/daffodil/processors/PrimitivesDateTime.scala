@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.processors
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -32,23 +32,16 @@ package edu.illinois.ncsa.daffodil.processors
  * SOFTWARE.
  */
 
-import java.text.ParsePosition
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.{ Calendar, TimeZone, GregorianCalendar, ULocale }
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar.Terminal
-import edu.illinois.ncsa.daffodil.grammar.Gram
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
-import edu.illinois.ncsa.daffodil.util.Misc
+
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.DFDLCalendar
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import com.ibm.icu.util.DFDLDateTime
-import com.ibm.icu.util.DFDLTime
-import com.ibm.icu.util.DFDLDate
+import com.ibm.icu.util.TimeZone
+import com.ibm.icu.util.ULocale
+
+import edu.illinois.ncsa.daffodil.dsom.ElementBase
+import edu.illinois.ncsa.daffodil.grammar.Terminal
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {

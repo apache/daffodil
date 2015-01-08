@@ -1,31 +1,10 @@
 package edu.illinois.ncsa.daffodil.dpath
 
-import edu.illinois.ncsa.daffodil.processors._
-import scala.collection.mutable.Stack
-import scala.collection.mutable.ListBuffer
-import edu.illinois.ncsa.daffodil.exceptions._
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.xml.RefQName
-import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.dsom._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.OnStack
-import edu.illinois.ncsa.daffodil.util.PreSerialization
-import com.ibm.icu.text.SimpleDateFormat
-import com.ibm.icu.util.Calendar
-import scala.math.BigDecimal.RoundingMode
-import edu.illinois.ncsa.daffodil.util.Bits
-import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import java.text.ParsePosition
-import com.ibm.icu.util.DFDLCalendar
-import com.ibm.icu.util.SimpleTimeZone
-import com.ibm.icu.util.TimeZone
-import java.nio.ByteBuffer
-import com.ibm.icu.util.DFDLDateTime
-import com.ibm.icu.util.DFDLDate
-import com.ibm.icu.util.DFDLTime
-import AsIntConverters._
+import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.DIArray
+import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.processors.InfosetNoSuchChildElementException
 
 case object ToRoot extends RecipeOp {
   override def run(dstate: DState) {

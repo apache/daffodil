@@ -18,14 +18,14 @@ import scala.math.BigDecimal.RoundingMode
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import java.text.ParsePosition
-import com.ibm.icu.util.DFDLCalendar
 import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
-import com.ibm.icu.util.DFDLDateTime
-import com.ibm.icu.util.DFDLDate
-import com.ibm.icu.util.DFDLTime
 import AsIntConverters._
+import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 case object AnyAtomicToString extends Converter {
   override def computeValue(a: Any, dstate: DState) = {

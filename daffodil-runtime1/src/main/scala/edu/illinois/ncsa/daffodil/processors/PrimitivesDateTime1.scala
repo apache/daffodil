@@ -33,17 +33,15 @@ package edu.illinois.ncsa.daffodil.processors
  */
 
 import java.text.ParsePosition
-
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
-import com.ibm.icu.util.DFDLDate
-import com.ibm.icu.util.DFDLDateTime
-import com.ibm.icu.util.DFDLTime
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.calendar.DFDLDateTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLTime
+import edu.illinois.ncsa.daffodil.calendar.DFDLDate
 
 case class ConvertTextCalendarParser(erd: ElementRuntimeData,
   xsdType: String,

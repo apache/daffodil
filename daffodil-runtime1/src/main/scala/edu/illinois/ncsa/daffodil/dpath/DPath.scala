@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import com.ibm.icu.util.Calendar
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 
 class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,
@@ -158,7 +159,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
             value
           }
           case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {
-            Assert.invariant(value.isInstanceOf[Calendar])
+            Assert.invariant(value.isInstanceOf[DFDLCalendar])
             value
           }
           case _: NodeInfo.String.Kind => {

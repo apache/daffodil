@@ -4,9 +4,9 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import com.ibm.icu.util.DFDLCalendar
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
+import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 
 /**
  * We need to have a data structure that lets us represent a type, and
