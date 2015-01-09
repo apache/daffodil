@@ -1674,7 +1674,7 @@
   -->
 
   <tdml:parserTestCase name="namespace_scope_01"
-    root="root5" model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    root="root5" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document>thisIsNotAnInteger</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
@@ -1696,7 +1696,7 @@
   -->
 
   <tdml:parserTestCase name="namespace_scope_02"
-    root="root6" model="multi_base_11.dfdl.xsd" description="import a schema - DFDL-6-007R">
+    root="root6" model="multi_base_11_valid.dfdl.xsd" description="import a schema - DFDL-6-007R">
     <tdml:document>7</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

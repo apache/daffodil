@@ -28,9 +28,9 @@ set CLASSPATH=%LIBDIR%\*
 set JOPTS=-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m
 
 if defined DAFFODIL_JAVA_OPTS (
-	set JOPTS="%DAFFODIL_JAVA_OPTS%"
+	set JOPTS=%DAFFODIL_JAVA_OPTS%
 ) else if defined JAVA_OPTS (
-	set JOPTS="%JAVA_OPTS%"
+	set JOPTS=%JAVA_OPTS%
 )
 
 java %JOPTS% -cp "%CLASSPATH%;%DAFFODIL_CLASSPATH%" %MAINCLASS% %*

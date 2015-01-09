@@ -132,6 +132,13 @@ sealed class NS protected (uriArg: URI) extends Serializable { // protected cons
   def isNoNamespace = false
   def isUnspecified = false
   override def hashCode() = toString.hashCode()
+  
+  final private def readObject (in: java.io.ObjectInputStream) : Unit = {
+    in.defaultReadObject();
+    val s = this.toString();
+    if (!NS.nsCache.contains(s)) NS.nsCache.put(s, this)
+  }
+  
   def equalsNS(other: NS): Boolean = {
     if (this eq other) return true
     Assert.invariant(this.toString != other.toString) // this fails if the cache isn't being used

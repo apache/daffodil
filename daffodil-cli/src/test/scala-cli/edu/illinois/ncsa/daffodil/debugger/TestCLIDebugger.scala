@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.CLI.debugger
+package edu.illinois.ncsa.daffodil.debugger
 
 import junit.framework.Assert._
 import org.junit.Test
@@ -49,675 +49,918 @@ import net.sf.expectit.matcher.Matchers.times
 
 class TestCLIdebugger {
 
+  val DAFFODIL_JAVA_OPTS = Map ("DAFFODIL_JAVA_OPTS" -> "-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
+//  Dubugging tests were not executing under Windows and especially under Eclipse 
+//  due to the use of a non-interactive console. 
+//  Set the DAFFODIL_JAVA_OPTS environment variable for Debugger tests to specify 
+//  the use of an unsupported terminal: -Djline.terminal=jline.UnsupportedTerminal 
+//  Also added a Java option to specify the character encoding: -Dfile.encoding=UTF-8
+
   @Test def test_3385_CLI_Debugger_invalidExpressions() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("eval (/invalid)\n")
-    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
-    shell.expect(contains("(debug)"))
-    
-    shell.send("eval (func())\n")
-    shell.expect(contains("error: expression evaluation failed: Schema Definition Error: Unsupported function:"))
-    shell.expect(contains("(debug)"))
-    
-    shell.send("eval (/invalid!)\n")
-    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
-    shell.expect(contains("(debug)"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("eval (!)\n")
-    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
-    shell.expect(contains("(debug)"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+           
+      shell.expect(contains("(debug)"))
 
-    shell.send("eval (././.\\/)\n")
-    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
-    shell.expect(contains("(debug)"))
+      shell.sendLine("eval (/invalid)")
+      shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+      shell.expect(contains("(debug)"))
 
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("eval (func())")
+      shell.expect(contains("error: expression evaluation failed: Schema Definition Error: Unsupported function:"))
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("eval (/invalid!)")
+      shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("eval (!)")
+      shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("eval (././.\\/)")
+      shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
-  
+
   @Test def test_3263_CLI_Debugger_occursBounds() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info occursBounds\n")
-    shell.expect(contains("(debug)"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("s\n")
-    shell.expect(contains("occursBounds: occurs bounds not set"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("complete\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("display info occursBounds")
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("s")
+      shell.expect(contains("occursBounds: occurs bounds not set"))
+
+      shell.sendLine("complete")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
-  
+
   @Test def test_3266_CLI_Debugger_occursBounds_shortForm() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info ob\n")
-    shell.expect(contains("(debug)"))
-    shell.send("info oc\n")
-    shell.expect(contains("error: undefined info command: oc"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("s\n")
-    shell.expect(contains("occursBounds: occurs bounds not set"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("complete\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("display info ob")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("info oc")
+      shell.expect(contains("error: undefined info command: oc"))
+
+      shell.sendLine("s")
+      shell.expect(contains("occursBounds: occurs bounds not set"))
+
+      shell.sendLine("complete")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1591_CLI_Debugger_invalidCommandError() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
-    shell.send("garbage\n")
-    shell.expect(contains("error: undefined command: garbage"))
-    shell.send("quit\n")
-    shell.close()
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("garbage")
+      shell.expect(contains("error: undefined command: garbage"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1336_CLI_Debugger_occursBounds() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r file daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info occursBounds\n")
-    shell.send("display info infoset\n")
-    shell.expect(contains("(debug)"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("break item\n")
+    try {
+      val cmd = String.format("%s -d parse -s %s -r file %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("occursBounds: 5"))
+      shell.sendLine("display info occursBounds")
+      shell.sendLine("display info infoset")
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("occursBounds: 5"))
+      shell.sendLine("break item")
 
-    shell.send("complete\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("occursBounds: 5"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("occursBounds: 5"))
+
+      shell.sendLine("complete")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_3398_CLI_Debugger_occursBounds_2() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r file daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input11.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input11.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info occursBounds\n")
-    shell.send("display info infoset\n")
-    shell.expect(contains("(debug)"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("break title\n")
-    shell.send("break item\n")
+    try {
+      val cmd = String.format("%s -d parse -s %s -r file %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("breakpoint 1: title"))
-    shell.expect(contains("occursBounds: 1024")) //occursCount is not set, so default is used
+      shell.sendLine("display info occursBounds")
+      shell.sendLine("display info infoset")
+      shell.expect(contains("(debug)"))
 
-    shell.send("disable breakpoint 1\n")
+      shell.sendLine("break title")
+      shell.sendLine("break item")
 
-    shell.send("continue\n")
-    shell.expect(contains("breakpoint 2: item"))
-    shell.expect(contains("occursBounds: 3"))
+      shell.sendLine("continue")
+      shell.expect(contains("breakpoint 1: title"))
+      shell.expect(contains("occursBounds: 1024")) //occursCount is not set, so default is used
 
-    shell.send("complete\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("disable breakpoint 1")
+
+      shell.sendLine("continue")
+      shell.expect(contains("breakpoint 2: item"))
+      shell.expect(contains("occursBounds: 3"))
+
+      shell.sendLine("complete")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1335_CLI_Debugger_dataAndWrapLength() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("debug"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("info data\n")
-    shell.expect(contains("0,1,2,3,4,5,6\n"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("set dataLength 5\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,1,2\n"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("debug"))
 
-    shell.send("set dataLength -938\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,1,2,3,4,5,6\n"))
+      shell.sendLine("info data")
+      shell.expect(contains("0,1,2,3,4,5,6\n"))
 
-    shell.send("set wrapLength 2\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6\n"))
-    
-    shell.send("continue")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("set dataLength 5")
+      shell.sendLine("info data")
+      shell.expect(contains("0,1,2\n"))
+
+      shell.sendLine("set dataLength -938")
+      shell.sendLine("info data")
+      shell.expect(contains("0,1,2,3,4,5,6\n"))
+
+      shell.sendLine("set wrapLength 2")
+      shell.sendLine("info data")
+      shell.expect(contains("0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6\n"))
+
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_982_CLI_Debugger_simpleDebugger() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1326_CLI_Debugger_displaysTesting() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display eval (.)\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("step\n")
-    shell.expect(contains("matrix"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("info displays\n")
-    shell.expect(contains("1: eval (.)"))
+      shell.sendLine("display eval (.)")
 
-    shell.send("disable display 1\n")
-    shell.send("info displays\n")
-    shell.expect(contains("1*: eval (.)"))
-    shell.send("step\n")
-    shell.send("enable display 1\n")
+      shell.sendLine("step")
+      shell.expect(contains("matrix"))
 
-    shell.send("step\n")
-    shell.expect(contains("0"))
+      shell.sendLine("info displays")
+      shell.expect(contains("1: eval (.)"))
 
-    shell.send("delete display 1\n")
-    shell.send("step\n")
+      shell.sendLine("disable display 1")
+      shell.sendLine("info displays")
+      shell.expect(contains("1*: eval (.)"))
+      shell.sendLine("step")
+      shell.sendLine("enable display 1")
 
-    shell.send("enable display 1\n")
-    shell.expect(contains("error: 1 is not a valid display id"))
+      shell.sendLine("step")
+      shell.expect(contains("0"))
 
-    shell.send("continue\n")
-    shell.expect(contains("matrix"))
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("delete display 1")
+      shell.sendLine("step")
+
+      shell.sendLine("enable display 1")
+      shell.expect(contains("error: 1 is not a valid display id"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("matrix"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1339_CLI_Debugger_removeHidden() {
-    val cmd = Util.binPath + " -d parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
-    val shell = Util.start(cmd)
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.expect(contains("(debug)"))
-    shell.send("set removeHidden false\n")
-    shell.send("display info infoset\n")
-    shell.send("break g\n")
-    shell.send("continue\n")
-    shell.expect(contains("<sneaky>5</sneaky>"))
-    shell.send("quit\n")
-    shell.close()
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains("(debug)"))
+      shell.sendLine("set removeHidden false")
+      shell.sendLine("display info infoset")
+      shell.sendLine("break g")
+      shell.sendLine("continue")
+      shell.expect(contains("<sneaky>5</sneaky>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
-  
-  @Test def test_3268_CLI_Debugger_removeHidden2() {
-    val cmd = Util.binPath + " -d parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
-    val shell = Util.start(cmd)
 
-    shell.expect(contains("(debug)"))
-    shell.send("set removeHidden false\n")
-    shell.send("display info infoset\n")
-    shell.send("break g\n")
-    shell.send("continue\n")
-    shell.expect(contains("<sneaky>5</sneaky>"))
-    shell.send("continue\n")
-    val result = shell.expect(contains("</ex:e>")).getBefore();
-    assert(!result.contains("sneaky"))
-    shell.close()
+  @Test def test_3268_CLI_Debugger_removeHidden2() {
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r e %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains("(debug)"))
+      shell.sendLine("set removeHidden false")
+      shell.sendLine("display info infoset")
+      shell.sendLine("break g")
+      shell.sendLine("continue")
+      shell.expect(contains("<sneaky>5</sneaky>"))
+      shell.sendLine("continue")
+      val result = shell.expect(contains("</ex:e>")).getBefore();
+      assert(!result.contains("sneaky"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1331_CLI_Debugger_breakpointTesting4() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("break cell\n")
-    shell.send("break cell\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("condition 1 dfdl:occursIndex() mod 2 eq 1\n")
-    shell.send("condition 2 dfdl:occursIndex() mod 2 eq 0\n")
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("info breakpoints\n")
-    shell.expect(contains("2: cell   dfdl:occursIndex() mod 2 eq 0"))
+      shell.sendLine("break cell")
+      shell.sendLine("break cell")
 
-    shell.send("display info arrayIndex\n")
+      shell.sendLine("condition 1 dfdl:occursIndex() mod 2 eq 1")
+      shell.sendLine("condition 2 dfdl:occursIndex() mod 2 eq 0")
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 1"))
+      shell.sendLine("info breakpoints")
+      shell.expect(contains("2: cell   dfdl:occursIndex() mod 2 eq 0"))
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 2"))
+      shell.sendLine("display info arrayIndex")
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 3"))
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 1"))
 
-    shell.send("disable breakpoint 2\n")
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 2"))
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 5"))
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 3"))
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 7"))
+      shell.sendLine("disable breakpoint 2")
 
-    shell.send("enable breakpoint 2\n")
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 5"))
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 8"))
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 7"))
 
-    shell.send("disable breakpoint 1\n")
-    shell.send("disable breakpoint 2\n")
+      shell.sendLine("enable breakpoint 2")
 
-    shell.send("continue\n")
-    shell.expect(contains("<tns:cell>3</tns:cell>"))
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 8"))
+
+      shell.sendLine("disable breakpoint 1")
+      shell.sendLine("disable breakpoint 2")
+
+      shell.sendLine("continue")
+      shell.expect(contains("<tns:cell>3</tns:cell>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1463_CLI_Debugger_breakOnValueOfElement() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("set breakOnlyOnCreation false\n")
-    shell.expect(contains("(debug)"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("display info infoset\n")
-    shell.expect(contains("(debug)"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("break cell\n")
-    shell.expect(contains("1: cell"))
-    shell.send("condition 1 xsd:string(.) eq '3'\n")
-    shell.expect(contains("1: cell   xsd:string(.) eq '3'"))
+      shell.sendLine("set breakOnlyOnCreation false")
+      shell.expect(contains("(debug)"))
 
-    shell.send("info breakpoints\n")
-    shell.expect(allOf(contains("breakpoints:"), contains("1: cell   xsd:string(.) eq '3'")))
+      shell.sendLine("display info infoset")
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("break cell")
+      shell.expect(contains("1: cell"))
+      shell.sendLine("condition 1 xsd:string(.) eq '3'")
+      shell.expect(contains("1: cell   xsd:string(.) eq '3'"))
 
-    shell.send("continue\n")
-    shell.expect(times(1, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(1, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(2, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(2, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(3, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(3, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(4, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(4, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(5, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(5, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(6, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(6, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(7, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(7, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.expect(times(8, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    shell.send("continue\n")
-    shell.expect(times(8, contains("<cell>3</cell>")))
-    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
-    
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("info breakpoints")
+      shell.expect(allOf(contains("breakpoints:"), contains("1: cell   xsd:string(.) eq '3'")))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(1, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(1, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(2, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(2, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(3, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(3, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(4, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(4, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(5, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(5, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(6, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(6, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(7, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(7, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.expect(times(8, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+      shell.sendLine("continue")
+      shell.expect(times(8, contains("<cell>3</cell>")))
+      shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
+
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
-  
+
   @Test def test_1338_CLI_Debugger_discriminatorInfo() {
-    val cmd = Util.binPath + " -d parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r Item2 daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("break e3\n")
-    shell.send("break e4\n")
-    shell.send("display info discriminator\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("discriminator: true"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r Item2 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("discriminator: true"))
+      shell.sendLine("break e3")
+      shell.sendLine("break e4")
+      shell.sendLine("display info discriminator")
 
-    shell.send("continue\n")
-    shell.expect(contains("<e4>400</e4>"))
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("discriminator: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("discriminator: true"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<e4>400</e4>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1328_CLI_Debugger_breakpointTesting() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info infoset\n")
-    shell.send("break cell\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("<cell/>"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("step\n")
-    shell.send("step\n")
-    shell.expect(contains("<cell>0</cell>"))
+      shell.sendLine("display info infoset")
+      shell.sendLine("break cell")
 
-    shell.send("continue\n")
-    shell.expect(contains("<cell/>"))
+      shell.sendLine("continue")
+      shell.expect(contains("<cell/>"))
 
-    shell.send("step\n")
-    shell.send("step\n")
-    shell.expect(contains("<cell>1</cell>"))
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("<cell>0</cell>"))
 
-    shell.send("delete breakpoint 1\n")
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("<cell/>"))
+
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("<cell>1</cell>"))
+
+      shell.sendLine("delete breakpoint 1")
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1329_CLI_Debugger_breakpointTesting2() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info infoset\n")
-    shell.send("break cell\n")
-    shell.send("condition 1 dfdl:occursIndex() eq 3\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("info breakpoints\n")
-    shell.expect(contains("1: cell   dfdl:occursIndex() eq 3"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("<cell/>"))
+      shell.sendLine("display info infoset")
+      shell.sendLine("break cell")
+      shell.sendLine("condition 1 dfdl:occursIndex() eq 3")
 
-    shell.send("step\n")
-    shell.send("step\n")
-    shell.expect(contains("<cell>2</cell>"))
+      shell.sendLine("info breakpoints")
+      shell.expect(contains("1: cell   dfdl:occursIndex() eq 3"))
 
-    shell.send("continue\n")
-    shell.expect(contains("<tns:cell>6</tns:cell>"))
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("<cell/>"))
+
+      shell.sendLine("step")
+      shell.sendLine("step")
+      shell.expect(contains("<cell>2</cell>"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<tns:cell>6</tns:cell>"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1330_CLI_Debugger_breakpointTesting3() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info arrayIndex\n")
-    shell.expect(contains("(debug)"))
-    shell.send("break cell\n")
-    shell.expect(contains("(debug)"))
-    shell.send("info breakpoints\n")
-    shell.expect(contains("1: cell"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 1"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("arrayIndex: 2"))
+      shell.sendLine("display info arrayIndex")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("break cell")
+      shell.expect(contains("(debug)"))
+      shell.sendLine("info breakpoints")
+      shell.expect(contains("1: cell"))
 
-    shell.send("disable breakpoint 1\n")
-    shell.send("info breakpoints\n")
-    shell.expect(contains("1*: cell"))
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 1"))
 
-    shell.send("info data\n")
-    shell.expect(contains("(2 to 2)"))
-    shell.expect(contains("0,1,2,3,4,5,6"))
+      shell.sendLine("continue")
+      shell.expect(contains("arrayIndex: 2"))
 
-    shell.send("continue\n")
-    shell.expect(contains("<tns:cell>6</tns:cell>"))
+      shell.sendLine("disable breakpoint 1")
+      shell.sendLine("info breakpoints")
+      shell.expect(contains("1*: cell"))
 
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("info data")
+      shell.expect(contains("(2 to 2)"))
+      shell.expect(contains("0,1,2,3,4,5,6"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("<tns:cell>6</tns:cell>"))
+
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1333_CLI_Debugger_settingInfosetLines() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info infoset\n")
-    shell.send("set infosetLines 1\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("break cell\n")
-    shell.send("continue\n")
-    shell.expect(contains("..."))
-    shell.expect(contains("</matrix>"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("set infosetLines 4\n")
-    shell.send("continue\n")
-    shell.expect(contains("..."))
-    shell.expect(contains("<cell>3</cell>"))
-    shell.expect(contains("</matrix>"))
+      shell.sendLine("display info infoset")
+      shell.sendLine("set infosetLines 1")
 
-    shell.send("set infosetLines 10\n")
-    shell.send("continue\n")
-    shell.expect(contains("""<matrix>"""))
+      shell.sendLine("break cell")
+      shell.sendLine("continue")
+      shell.expect(contains("..."))
+      shell.expect(contains("</matrix>"))
 
-    shell.send("set infosetLines -900\n")
-    shell.send("continue\n")
-    shell.expect(contains("""<matrix>"""))
-    shell.expect(contains("</matrix>"))
+      shell.sendLine("set infosetLines 4")
+      shell.sendLine("continue")
+      shell.expect(contains("..."))
+      shell.expect(contains("<cell>3</cell>"))
+      shell.expect(contains("</matrix>"))
 
-    shell.send("disable breakpoint 1\n")
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("set infosetLines 10")
+      shell.sendLine("continue")
+      shell.expect(contains("""<matrix>"""))
+
+      shell.sendLine("set infosetLines -900")
+      shell.sendLine("continue")
+      shell.expect(contains("""<matrix>"""))
+      shell.expect(contains("</matrix>"))
+
+      shell.sendLine("disable breakpoint 1")
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1334_CLI_Debugger_infoBitPosition() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info bitPosition\n")
-    shell.send("display info data\n")
-    shell.send("break cell\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("bitPosition: 0"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("bitPosition: 16"))
+      shell.sendLine("display info bitPosition")
+      shell.sendLine("display info data")
+      shell.sendLine("break cell")
 
-    shell.send("continue\n")
-    shell.expect(contains("bitPosition: 32"))
+      shell.sendLine("continue")
+      shell.expect(contains("bitPosition: 0"))
 
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("bitPosition: 16"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("bitPosition: 32"))
+
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1337_CLI_Debugger_childIndex() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input4.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input4.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("break cell\n")
-    shell.send("display info childIndex\n")
-    shell.send("display info infoset\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("childIndex: 1"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.expect(contains("childIndex: 2"))
+      shell.sendLine("break cell")
+      shell.sendLine("display info childIndex")
+      shell.sendLine("display info infoset")
 
-    shell.send("continue\n")
-    shell.expect(contains("childIndex: 1"))
+      shell.sendLine("continue")
+      shell.expect(contains("childIndex: 1"))
 
-    shell.send("disable breakpoint 1\n")
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("continue")
+      shell.expect(contains("childIndex: 2"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("childIndex: 1"))
+
+      shell.sendLine("disable breakpoint 1")
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1340_CLI_Debugger_infoPath() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
     val output1 = Util.getExpectedString("output1.txt")
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
 
-    shell.send("break cell\n")
-    shell.send("display info path\n")
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("continue\n")
-    shell.expect(contains("element.matrix::GlobalComplexTypeDef(matrixType)::sequence::element.row::LocalComplexTypeDef::sequence::element.cell"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("delete breakpoint 1\n")
-    shell.expect(contains("debug"))
-    shell.send("continue\n")
-    shell.expect(contains(output1))
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("break cell")
+      shell.sendLine("display info path")
+
+      shell.sendLine("continue")
+      shell.expect(contains("element.matrix::GlobalComplexTypeDef(matrixType)::sequence::element.row::LocalComplexTypeDef::sequence::element.cell"))
+
+      shell.sendLine("delete breakpoint 1")
+      shell.expect(contains("debug"))
+      shell.sendLine("continue")
+      shell.expect(contains(output1))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1382_CLI_Debugger_dataAndWrapLength2() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("break cell\n")
-    shell.send("continue\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,1,2,3,4,5,6"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("set dataLength 2\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("set dataLength -938\n")
-    shell.send("info data\n")
-    shell.expect(contains("0,1,2,3,4,5,6"))
+      shell.sendLine("break cell")
+      shell.sendLine("continue")
+      shell.sendLine("info data")
+      shell.expect(contains("0,1,2,3,4,5,6"))
 
-    shell.send("set wrapLength 2\n")
-    shell.send("info data\n")
-    shell.expect(contains("    0,"))
-    shell.expect(contains("    1,"))
-    shell.expect(contains("    2,"))
-    shell.expect(contains("    3,"))
-    shell.expect(contains("    4,"))
-    shell.expect(contains("    5,"))
-    shell.expect(contains("    6"))
+      shell.sendLine("set dataLength 2")
+      shell.sendLine("info data")
+      shell.expect(contains("0,"))
 
-    shell.send("disable breakpoint 1\n")
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("set dataLength -938")
+      shell.sendLine("info data")
+      shell.expect(contains("0,1,2,3,4,5,6"))
+
+      shell.sendLine("set wrapLength 2")
+      shell.sendLine("info data")
+      shell.expect(contains("    0,"))
+      shell.expect(contains("    1,"))
+      shell.expect(contains("    2,"))
+      shell.expect(contains("    3,"))
+      shell.expect(contains("    4,"))
+      shell.expect(contains("    5,"))
+      shell.expect(contains("    6"))
+
+      shell.sendLine("disable breakpoint 1")
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1863_CLI_Debugger_groupIndex01() {
-    val cmd = Util.binPath + " -d parse -r list -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info groupIndex\n")
-    shell.send("break price\n")
-    shell.expect(contains("1: price"))
-    shell.send("break comment\n")
-    shell.expect(contains("2: comment"))
-    
-    shell.send("continue\n")
-    shell.expect(contains("groupIndex: 2"))
-    shell.send("continue\n")
-    shell.expect(contains("groupIndex: 4"))
-    shell.send("continue\n")
-    shell.expect(contains("groupIndex: 2"))
-    shell.send("continue\n")
-    shell.expect(contains("groupIndex: 4"))
-    shell.send("continue\n")
-    shell.expect(contains("<ex:price>89.99</ex:price>"))
-    shell.close()
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -r list -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("display info groupIndex")
+      shell.sendLine("break price")
+      shell.expect(contains("1: price"))
+      shell.sendLine("break comment")
+      shell.expect(contains("2: comment"))
+
+      shell.sendLine("continue")
+      shell.expect(contains("groupIndex: 2"))
+      shell.sendLine("continue")
+      shell.expect(contains("groupIndex: 4"))
+      shell.sendLine("continue")
+      shell.expect(contains("groupIndex: 2"))
+      shell.sendLine("continue")
+      shell.expect(contains("groupIndex: 4"))
+      shell.sendLine("continue")
+      shell.expect(contains("<ex:price>89.99</ex:price>"))
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1029_CLI_Debugger_validation1() {
-    val cmd = Util.binPath + " -d parse -r list -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info dne1\n")
-    shell.expect(contains("error: undefined info command: dne1"))
-    shell.send("display info bitLimit dne2\n")
-    shell.expect(contains("error: undefined info command: dne2"))
-    shell.send("display break\n")
-    shell.expect(contains("error: undefined command: break"))
-    shell.send("quit\n")
-    shell.close()
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -r list -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("display info dne1")
+      shell.expect(contains("error: undefined info command: dne1"))
+      shell.sendLine("display info bitLimit dne2")
+      shell.expect(contains("error: undefined info command: dne2"))
+      shell.sendLine("display break")
+      shell.expect(contains("error: undefined command: break"))
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_3258_CLI_Debugger_infodata() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display info data\n")
-    shell.send("step\n")
-    shell.expect(contains("│ (0 to 0)"))
-    shell.expect(contains("0,1,2,3,4,5,6"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("break cell\n")
-    shell.send("condition 1 dfdl:occursIndex() eq 5\n")
-    shell.send("continue\n")
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.expect(contains("│ (8 to 8)"))
-    shell.expect(contains("    4,5,6"))
+      shell.sendLine("display info data")
+      shell.sendLine("step")
+      shell.expect(contains("│ (0 to 0)"))
+      shell.expect(contains("0,1,2,3,4,5,6"))
 
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("break cell")
+      shell.sendLine("condition 1 dfdl:occursIndex() eq 5")
+      shell.sendLine("continue")
+
+      shell.expect(contains("│ (8 to 8)"))
+      shell.expect(contains("    4,5,6"))
+
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_3264_CLI_Debugger_undefined_command() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("(debug)"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("display data\n")
-    shell.expect(contains("error: undefined command: data"))
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
 
-    shell.send("set breakonfailure true\n")
-    shell.expect(contains("error: undefined command: breakonfailure"))
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
 
-    shell.send("continue\n")
-    shell.send("quit\n")
-    shell.close()
+      shell.sendLine("display data")
+      shell.expect(contains("error: undefined command: data"))
+
+      shell.sendLine("set breakonfailure true")
+      shell.expect(contains("error: undefined command: breakonfailure"))
+
+      shell.sendLine("continue")
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
   }
 
 }

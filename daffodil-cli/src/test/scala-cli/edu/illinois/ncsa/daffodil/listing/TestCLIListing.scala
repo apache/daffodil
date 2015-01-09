@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.CLI.listing
+package edu.illinois.ncsa.daffodil.listing
 
 import junit.framework.Assert._
 import org.junit.Test
@@ -45,15 +45,24 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.CLI.Util
 import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
+import net.sf.expectit.matcher.Matchers.eof
 
 class TestCLIlisting {
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
-    val cmd = Util.binPath + " test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("byte_entities_6_08"))
-    shell.send("exit\n")
-    shell.close()
+    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml"
+    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s test -l %s byte_entities_6_08", Util.binPath, testTdmlFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("byte_entities_6_08"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
   /* 
   @Test def test_993_CLI_Executing_Listing_listAll() {
@@ -88,16 +97,21 @@ class TestCLIlisting {
 */
 
   @Test def test_1016_CLI_Executing_Listing_listVerbose() {
-    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("assertPatternAndExp"))
-    shell.send("exit\n")
-    shell.close()
-    val cmd2 = Util.binPath + " test -l -i --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml assertPattern.*\n"
-    val shell2 = Util.start(cmd2)
-    shell2.expect(contains("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"))
-    shell2.send("exit\n")
-    shell2.close()
-  }
+    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml"
+    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
+    val shell = Util.start("")
 
+    try {
+      shell.sendLine(String.format("%s test -l --regex %s assertPattern.*", Util.binPath, testTdmlFile))
+      shell.expect(contains("assertPatternAndExp"))
+
+      shell.sendLine(String.format("%s test -l -i --regex %s assertPattern.*", Util.binPath, testTdmlFile))
+      shell.expect(contains("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"))
+      
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
 }

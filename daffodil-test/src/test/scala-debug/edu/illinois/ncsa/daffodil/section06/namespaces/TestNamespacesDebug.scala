@@ -59,7 +59,6 @@ class TestNamespacesDebug {
   // and not include those schemas that they do not use but are causing parser errors.
 
   @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
-  @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
   // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name. 

@@ -27,11 +27,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.3.1.jar" sourcepath="lib_managed/srcs/net.sf.expectit/expectit-core/expectit-core-0.3.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.3.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.6.1.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

@@ -653,13 +653,15 @@ object Main extends Logging {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
-        val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
-        val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
 
         val processor = {
           if (parseOpts.parser.isDefined) {
-            createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validate)
+            val p = createProcessorFromParser(parseOpts.parser(), parseOpts.path.get, validate)
+            p.get.setExternalVariables(retrieveExternalVariables(parseOpts.vars, cfgFileNode))
+            p
           } else {
+            val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
+            val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
             createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
@@ -734,13 +736,15 @@ object Main extends Logging {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
-        val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode)
-        val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
 
         val processor = {
           if (performanceOpts.parser.isDefined) {
-            createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.get, validate)
+            val p = createProcessorFromParser(performanceOpts.parser(), performanceOpts.path.get, validate)
+            p.get.setExternalVariables(retrieveExternalVariables(performanceOpts.vars, cfgFileNode))
+            p
           } else {
+            val extVarsBindings = retrieveExternalVariables(performanceOpts.vars, cfgFileNode)
+            val tunables = retrieveTunables(performanceOpts.tunables, cfgFileNode)
             createProcessorFromSchema(performanceOpts.schema(), performanceOpts.rootNS.get, performanceOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
@@ -837,13 +841,15 @@ object Main extends Logging {
           case None => None
           case Some(pathToConfig) => Some(this.loadConfigurationFile(pathToConfig))
         }
-        val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode)
-        val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
 
         val processor = {
           if (unparseOpts.parser.isDefined) {
-            createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validate)
+            val p = createProcessorFromParser(unparseOpts.parser(), unparseOpts.path.get, validate)
+            p.get.setExternalVariables(retrieveExternalVariables(unparseOpts.vars, cfgFileNode))
+            p
           } else {
+            val extVarsBindings = retrieveExternalVariables(unparseOpts.vars, cfgFileNode)
+            val tunables = retrieveTunables(unparseOpts.tunables, cfgFileNode)
             createProcessorFromSchema(unparseOpts.schema(), unparseOpts.rootNS.get, unparseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }

@@ -23,18 +23,11 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
-	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.9-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.10/scallop_2.10-0.9.5.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.3.1.jar" sourcepath="lib_managed/srcs/net.sf.expectit/expectit-core/expectit-core-0.3.1-sources.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.3.1-javadoc.jar!/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1-unparser"/>
+	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.6.1.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.fusesource.jansi/jansi/jansi-1.11.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.performance
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
+import scala.sys.process._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
@@ -45,128 +46,161 @@ import junit.framework.Assert.assertEquals
 import java.io.File
 import edu.illinois.ncsa.daffodil.CLI.Util
 import net.sf.expectit.Expect
+import net.sf.expectit.ExpectIOException
 import net.sf.expectit.matcher.Matchers.contains
+import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.eof
+import net.sf.expectit.matcher.Matchers.anyString
+import scala.language.postfixOps
 
 class TestCLIPerformance {
 
   @Test def test_3393_CLI_Performance_2_Threads_2_Times() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    var cmd = Util.binPath + " performance -N 2 -t 2 -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
+    val shell = Util.startIncludeErrors("", timeout = 5)
 
-    val shell = Util.startIncludeErrors(cmd)
-
-    shell.expect(contains("total parse time (sec):"))
-    shell.expect(contains("avg rate (files/sec):"))
-    shell.expect(contains("\n"))
-
-    var errorFound = false
-    var error = ""
     try {
-      error = shell.expectIn(1, (contains("\n"))).getBefore()
-      errorFound = true
-    } catch {
-      case ae: AssertionError => //No error was found, which is correct
+      val cmd = String.format("%s performance -N 2 -t 2 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+          
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+          
+          val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
     }
-    if (errorFound) fail(error)
-
-    val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
-    shell.send(exitCodeCmd)
-    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
-    val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode.trim()))
-      fail("Tests failed. Exit code: " + exitCode)
-
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
   }
 
   @Test def test_3394_CLI_Performance_3_Threads_20_Times() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    var cmd = Util.binPath + " performance -N 20 -t 3 -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
+    val shell = Util.startIncludeErrors("", timeout = 5)
 
-    val shell = Util.startIncludeErrors(cmd)
-    shell.expect(contains("total parse time (sec):"))
-    shell.expect(contains("avg rate (files/sec):"))
-    shell.expect(contains("\n"))
-
-    var errorFound = false
-    var error = ""
     try {
-      error = shell.expectIn(1, (contains("\n"))).getBefore()
-      errorFound = true
-    } catch {
-      case ae: AssertionError => //No error was found, which is correct
+      val cmd = String.format("%s performance -N 20 -t 3 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+
+          val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
     }
-    if (errorFound) fail(error)
-
-    val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
-    shell.send(exitCodeCmd)
-    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
-    val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode.trim()))
-      fail("Tests failed. Exit code: " + exitCode)
-
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
   }
 
   @Test def test_3395_CLI_Performance_5_Threads_50_Times() {
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    var cmd = Util.binPath + " performance -N 50 -t 5 -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r Item2 daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt\n"
+    val shell = Util.startIncludeErrors("", timeout = 5)
 
-    val shell = Util.startIncludeErrors(cmd)
-
-    shell.expect(contains("total parse time (sec):"))
-    shell.expect(contains("avg rate (files/sec):"))
-    shell.expect(contains("\n"))
-
-    var errorFound = false
-    var error = ""
     try {
-      error = shell.expectIn(1, (contains("\n"))).getBefore()
-      errorFound = true
-    } catch {
-      case ae: AssertionError => //No error was found, which is correct
+      val cmd = String.format("%s performance -N 50 -t 5 -s %s -r Item2 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+
+    	  val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
     }
-    if (errorFound) fail(error)
-
-    val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
-    shell.send(exitCodeCmd)
-    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
-    val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode.trim()))
-      fail("Tests failed. Exit code: " + exitCode)
-
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
   }
 
   @Test def test_3396_CLI_Performance_2_Threads_2_Times_Negative() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    var cmd = Util.binPath + " performance -N 2 -t 2 -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt\n"
+    val shell = Util.startIncludeErrors("")
 
-    val shell = Util.startIncludeErrors(cmd)
+    try {
+      val cmd = String.format("%s performance -N 2 -t 2 -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total parse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+      shell.expectIn(1, (contains("error")))
 
-    shell.expectIn(1, (contains("error")))
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
+      
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
+    	  
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode == 0)
+        fail("Tests were successful when they were expected to fail. Exit code: " + exitCode)
 
-    shell.expect(contains("total parse time (sec):"))
-    shell.expect(contains("avg rate (files/sec):"))
-    shell.expect(contains("\n"))
-
-    val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
-    shell.send(exitCodeCmd)
-    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
-    val exitCode = shell.expect(contains("\n")).getBefore()
-    if ("0".equals(exitCode.trim()))
-      fail("Tests were successful when they were expected to fail. Exit code: " + exitCode)
-
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
   }
-
 }

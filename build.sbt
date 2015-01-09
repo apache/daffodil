@@ -21,12 +21,13 @@ resolvers in ThisBuild += "NCSA Sonatype Releases" at "https://opensource.ncsa.i
 libraryDependencies in ThisBuild := Seq(
   "junit" % "junit" % "4.11" % "test",
   "com.novocode" % "junit-interface" % "0.10" % "test",
-  "net.sf.expectit" % "expectit-core" % "0.3.1" % "test",
+  "net.sf.expectit" % "expectit-core" % "0.6.1" % "test",
   "org.jdom" % "jdom2" % "2.0.5",
   "com.ibm.icu" % "icu4j" % "51.1",// classifier "" classifier "charset" classifier "localespi",
   "xerces" % "xercesImpl" % "2.10.0",
   "xml-resolver" % "xml-resolver" % "1.2",
-  "jline" % "jline" % "2.9",
+  "jline" % "jline" % "2.12",
+  "org.fusesource.jansi" % "jansi" % "1.11",
   "org.rogach" %% "scallop" % "0.9.5",
   "commons-io" % "commons-io" % "2.4"
 )

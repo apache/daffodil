@@ -38,9 +38,11 @@ import edu.illinois.ncsa.daffodil.util._
 import net.sf.expectit.ExpectBuilder
 import net.sf.expectit.Expect
 import net.sf.expectit.echo.EchoOutput
+import net.sf.expectit.filter.Filters.replaceInString
 import java.io.File
 import java.nio.file.Paths
 import scala.collection.JavaConverters._
+import java.util.concurrent.TimeUnit
 
 object Util {
 
@@ -58,49 +60,44 @@ object Util {
     val source = scala.io.Source.fromFile(rsrc)
     var lines = source.mkString.trim()
     source.close()
-    if (isWindows) {
-      if(convertToDos) return fileConvertToDos(lines)
-      return fileConvert(lines)
-    } else {
-      return lines
-    }
+    fileConvert(lines)
   }
 
-  def start(cmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+  def start(cmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
+    val spawnCmd = if (isWindows) {
+      "cmd /k " + cmdConvert(cmd)
+    } else {
+      "/bin/bash"
+    }
+    
+    return getShell(cmd, spawnCmd, expectErr, envp, timeout)
+  }
+
+  def startIncludeErrors(cmd: String, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
     
-    return getShell(cmd, spawnCmd, expectErr, envp)
-  }
-
-  def startIncludeErrors(cmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
-    val spawnCmd = if (isWindows) {
-      "cmd /k" + cmdConvert(cmd)
-    } else {
-      "/bin/bash"
-    }
-    
-    return getShellWithErrors(cmd, spawnCmd, envp)
+    getShellWithErrors(cmd, spawnCmd, envp, timeout)
   }
 
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
-  def startNoConvert(cmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+  def startNoConvert(cmd: String, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmd
     } else {
       "/bin/bash"
     }
 
-    return getShell(cmd, spawnCmd, envp = envp)
+    return getShell(cmd, spawnCmd, envp = envp, timeout = timeout)
   }
 
-  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+  def getShell(cmd: String, spawnCmd: String, expectErr: Boolean = false, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
     val newEnv = System.getenv().asScala ++ envp
-    val envAsArray = newEnv.toArray.map { case (k,v) => k + "=" + v }
+    val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
     val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val inputStream = if (expectErr) {
       process.getErrorStream()
@@ -108,20 +105,14 @@ object Util {
       process.getInputStream()
     }
     val shell = new ExpectBuilder()
-        .withInputs(inputStream)
-	.withOutput(process.getOutputStream())
-	.withEchoOutput(new EchoOutput() {
-	        @Override
-		def onReceive(input: Int, string: String) = {
-		    print(string)
-		}
-		@Override
-		def onSend(string: String) = {
-		    //print(string)
-		}
-	})
-	.withErrorOnTimeout(true)
-	.build();
+      .withInputs(inputStream)
+      .withInputFilters(replaceInString("\r\n", "\n"))
+      .withOutput(process.getOutputStream())
+      .withEchoOutput(System.out)
+      .withEchoInput(System.out)
+      .withTimeout(timeout, TimeUnit.SECONDS)
+      .withExceptionOnFailure()
+      .build();
     if (!isWindows) {
       shell.send(cmd)
     }
@@ -131,25 +122,19 @@ object Util {
   // Return a shell object with two streams
   // The inputStream will be at index 0
   // The errorStream will be at index 1
-  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Map[String,String] = Map.empty[String,String]): Expect = {
+  def getShellWithErrors(cmd: String, spawnCmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long): Expect = {
     val newEnv = System.getenv().asScala ++ envp
-    val envAsArray = newEnv.toArray.map { case (k,v) => k + "=" + v }
+    val envAsArray = newEnv.toArray.map { case (k, v) => k + "=" + v }
     val process = Runtime.getRuntime().exec(spawnCmd, envAsArray)
     val shell = new ExpectBuilder()
-        .withInputs(process.getInputStream(), process.getErrorStream())
-	.withOutput(process.getOutputStream())
-	.withEchoOutput(new EchoOutput() {
-	        @Override
-		def onReceive(input: Int, string: String) = {
-		    print(string)
-		}
-		@Override
-		def onSend(string: String) = {
-		    //print(string)
-		}
-	})
-	.withErrorOnTimeout(true)
-	.build();
+      .withInputs(process.getInputStream(), process.getErrorStream())
+      .withInputFilters(replaceInString("\r\n", "\n"))
+      .withOutput(process.getOutputStream())
+      .withEchoOutput(System.out)
+      .withEchoInput(System.out)
+      .withTimeout(timeout, TimeUnit.SECONDS)
+      .withExceptionOnFailure()
+      .build();
     if (!isWindows) {
       shell.send(cmd)
     }
@@ -161,15 +146,7 @@ object Util {
   }
 
   def fileConvert(str: String): String = {
-    var newstr = str.replaceAll("\\r\\n", "\n")
+    var newstr = str.replaceAll("\r\n", "\n")
     return newstr
   }
-
-  def fileConvertToDos(str: String): String = {
-    var newstr = str.replaceAll("\\r\\n", "\n")
-    newstr = str.replaceAll("\\n", "\r\n")
-    return newstr
-  }
-
-
 }

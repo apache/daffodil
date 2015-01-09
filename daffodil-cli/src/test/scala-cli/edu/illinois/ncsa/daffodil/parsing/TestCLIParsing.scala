@@ -37,7 +37,6 @@ import org.junit.Test
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.CLI.Util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
@@ -61,239 +60,412 @@ class TestCLIparsing {
   val output11 = Util.getExpectedString("output11.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
-  //  See comment in DFDL-952
-  //  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
-  //
-  //    //var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -X daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
-  //    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row -D\"{http://example.com}var1=99\" -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml\n"
-  //
-  //    val shell = Util.start(cmd)
-  //
-  //    shell.expect(output11)
-  //
-  //    shell.send("exit\n")
-  //    shell.expectClose()
-  //  }
+  @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    val configFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
+    val (testSchemaFile, testConfigFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile)) else (schemaFile, configFile)
+
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo 0| %s parse -s %s -r row -D\"{http://example.com}var1=99\" -c %s", Util.binPath, testSchemaFile, testConfigFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<cell>99</cell>"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_2359_CLI_Parsing_SimpleParse_SaveParser_extVars() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    val configFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"      
+    val (testSchemaFile, testConfigFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile)) else (schemaFile, configFile)
+    
+    val savedParser = "test_2359.xsd.bin"
+    val parserFile = new File(savedParser)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      var cmd = String.format("%s -v save-parser -s %s -r row -D\"{http://example.com}var1=99\" -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParser)
+      shell.sendLine(cmd)
+      shell.expectIn(1, (contains("[info] Time (saving)")))
+      assertTrue("save-parser failed", parserFile.exists())
+
+      shell.sendLine();
+      cmd = String.format("echo 0| %s parse --parser %s\n", Util.binPath, savedParser)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<cell>99</cell>"))
+      
+      cmd = String.format("echo 0| %s parse --parser %s -D\"{http://example.com}var1=55\"", Util.binPath, savedParser)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<cell>55</cell>"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      if (parserFile.exists()) parserFile.delete()
+    }
+  }
 
   @Test def test_2360_CLI_Parsing_SimpleParse_stdOut_extVars2() {
 
-    //    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.xml\n"
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd -r row2 -c daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml\n"
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    val configFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"
+    val (testSchemaFile, testConfigFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile)) else (schemaFile, configFile)
 
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:row2"))
-    shell.expect(contains(output12))
+    val shell = Util.start("")
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r row2 -c %s", Util.binPath, testSchemaFile, testConfigFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row2"))
+      shell.expect(contains(output12))
+
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_2361_CLI_Parsing_SimpleParse_extVars2() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val savedParser = "test_2361.xsd.bin"
+    val parserFile = new File(savedParser)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      var cmd = String.format("%s -v save-parser -s %s -r row %s", Util.binPath, testSchemaFile, savedParser)
+      shell.sendLine(cmd)
+      shell.expectIn(1, (contains("[info] Time (saving)")))
+      assertTrue("save-parser failed", parserFile.exists())
+
+      cmd = String.format("echo 0| %s parse --parser %s", Util.binPath, savedParser)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<cell>-1</cell>"))
+
+      cmd = String.format("echo 0| %s parse --parser %s -D\"{http://example.com}var1=55\"", Util.binPath, savedParser)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row"))
+      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<cell>55</cell>"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      if (parserFile.exists()) parserFile.delete()
+    }
   }
 
   @Test def test_3227_CLI_Parsing_SimpleParse_DFDL1197_fix() {
-    var cmd = "echo 1/3|" + Util.binPath + " -vv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd\n"
-    var shell = Util.start(cmd, true)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
 
-    shell.expect(contains("<OptionalInfixSep><Sep>/ List()</Sep></OptionalInfixSep>"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo 1/3| %s -vv parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
 
+      shell.expect(contains("<OptionalInfixSep><Sep>/ List()</Sep></OptionalInfixSep>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1593_CLI_Parsing_MultifileSchema_noGlobalElem() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
-    var cmd = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/TopLevel.xsd -o " + tmp_filename + " daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/02nine_headers.txt\n"
-    var shell = Util.start(cmd)
-
-    //TODO:update
-    //val err = shell.getCurrentStandardErrContents()
-    //assertEquals(err, "")
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
-
-    //Remove the temporary output file
     val file = new File(tmp_filename)
-    assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/TopLevel.xsd"
+    val inputFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/02nine_headers.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -o %s %s", Util.binPath, testSchemaFile, tmp_filename, testInputFile)
+      shell.sendLine(cmd)
+
+      //TODO:update
+      //val err = shell.getCurrentStandardErrContents()
+      //assertEquals(err, "")
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      //Remove the temporary output file
+      assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
+    }
   }
 
   //  See comment in DFDL-952
-  //  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
-  //    var cmd = "echo test| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd\n"
-  //    var shell = Util.start(cmd)
-  //
-  //    shell.expect(contains(output9))
-  //    shell.send("exit\n")
-  //    shell.expect(eof())
-  //    shell.close()
-  //  }
+  @Test def test_1585_CLI_Parsing_MultifileSchema_methodImportSameDir() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_14.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains(output9))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
 
   @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
-    var cmd = "echo test| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
-    var shell = Util.start(cmd)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
 
-    shell.expect(contains("<rabbitHole"))
-    shell.expect(contains(output10))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains("<rabbitHole"))
+      shell.expect(contains(output10))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1587_CLI_Parsing_MultifileSchema_methodImportSameDir2() {
-    var cmd = "echo test| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_16.dfdl.xsd\n"
-    var shell = Util.start(cmd)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_16.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
 
-    shell.expect(contains("<rabbitHole"))
-    shell.expect(contains(output10))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      var cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains("<rabbitHole"))
+      shell.expect(contains(output10))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1317_IBMCompatibility_ABC_test_ibm_abc_cli() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
 
-    var cmd = "echo abcabcabc| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/ABC_IBM.xsd -r ABC\n"
-    val shell = Util.start(cmd)
+    try {
+      val cmd = String.format("echo abcabcabc| %s parse -s %s -r ABC", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
 
-    shell.expect(contains("<ABC"))
-    shell.expect(contains(output8))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+      shell.expect(contains("<ABC"))
+      shell.expect(contains(output8))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_977_CLI_Parsing_SimpleParse_stdOut() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
 
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
-    val shell = Util.start(cmd)
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
 
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_978_CLI_Parsing_SimpleParse_outFile() {
     val tmp_filename: String = (System.currentTimeMillis / 1000).toString()
-    val cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -o " + tmp_filename + "\n"
-    val shell = Util.start(cmd)
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
-
-    val linuxOpen = "cat " + tmp_filename + "\n"
-    val windowsOpen = "type " + tmp_filename + "\n"
-
-    val openCmd = if (Util.isWindows) windowsOpen else linuxOpen
-    val shell2 = Util.start(openCmd)
-    shell2.expect(contains("<tns:cell>2</tns:cell>"))
-
-    shell2.send("exit\n")
-    shell2.expect(eof())
-    shell2.close()
-
-    //Remove the temporary output file
     val file = new File(tmp_filename)
-    assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix -o %s", Util.binPath, testSchemaFile, tmp_filename)
+      shell.sendLine(cmd)
+
+      val catCmd = if (Util.isWindows) "type" else "cat"
+      val openCmd = String.format("%s %s", catCmd, tmp_filename)
+
+      shell.sendLine(openCmd)
+      shell.expect(contains("<tns:cell>2</tns:cell>"))
+
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      assertTrue("Failed to remove temporary file: %s".format(file), file.delete)
+    }
   }
 
   @Test def test_979_CLI_Parsing_SimpleParse_inFile() {
-    val cmd = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_980_CLI_Parsing_SimpleParse_stOutDash() {
-    val cmd = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -o - daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -r matrix -o - %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_981_CLI_Parsing_SimpleParse_stdInDash() {
-    val cmd = "echo 0,1,2,3| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output2))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("echo 0,1,2,3| %s parse -s %s -r matrix -", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output2))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_983_CLI_Parsing_SimpleParse_verboseMode() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    var cmd = "echo 0,1| " + Util.binPath + " -v parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    var shell = Util.start(cmd, true)
-    shell.expect(contains("[info]"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("", true)
 
-    cmd = "echo 0,1| " + Util.binPath + " -vv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    shell = Util.start(cmd, true)
-    shell.expect(contains("[compile]"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
 
-    cmd = "echo 0,1| " + Util.binPath + " -vvv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    shell = Util.start(cmd, true)
-    shell.expect(contains("[debug]"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+      shell.sendLine(String.format("echo 0,1| %s -v parse -s %s -r matrix -", Util.binPath, testSchemaFile))
+      shell.expect(contains("[info]"))
 
-    //    cmd = "echo 0,1| " + Util.binPath + " -vvvv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    //    shell = Util.start(cmd, true)
-    //    shell.expect(contains("[oolagdebug]"))
-    //    shell.send("exit\n")
-    //    shell.expect(eof())
-    //    shell.close()
+      shell.sendLine(String.format("echo 0,1| %s -vv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
+      shell.expect(contains("[compile]"))
+
+      shell.sendLine(String.format("echo 0,1| %s -vvv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
+      shell.expect(contains("[debug]"))
+
+      shell.sendLine(String.format("echo 0,1| %s -vvvv parse -s %s -r matrix -", Util.binPath, testSchemaFile))
+      shell.expect(contains("[oolagdebug]"))
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_984_CLI_Parsing_negativeTest() {
-    val cmd = "echo 0,1,2,3| " + Util.binPath + " parse\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("One of --schema or --parser must be defined"))
+    val shell = Util.start("", true)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo 0,1,2,3| %s parse", Util.binPath)
+      shell.sendLine(cmd)
+      shell.expect(contains("One of --schema or --parser must be defined"))
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_985_CLI_Parsing_SimpleParse_defaultRoot() {
-    val cmd = "echo 0,1,2,3| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output2))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("echo 0,1,2,3| %s parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output2))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_988_CLI_Parsing_SimpleParse_specifiedRoot() {
-    val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
-    val cmd = "echo 12| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp2\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:hcp2"))
-    shell.expect(contains("12"))
-    shell.expect(contains("</tns:hcp2>"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      //val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
+      val cmd = String.format("echo 12| %s parse -s %s -r hcp2", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:hcp2"))
+      shell.expect(contains("12"))
+      shell.expect(contains("</tns:hcp2>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   //  @Test def test_989_CLI_Parsing_negativeTest02() {
@@ -302,156 +474,248 @@ class TestCLIparsing {
   //    shell.expect(contains("--root must be defined if --namespace is defined"))
   //
   //    shell.send("exit\n")
-  //    shell.expect(eof())
+  //    shell.expect(eof)
   //    shell.close()
   //  }
 
   @Test def test_996_CLI_Parsing_negativeTest04() {
-    val cmd = "echo 12| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r unknown\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("No root element found for unknown in any available namespace"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo 12| %s parse -s %s -r unknown", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("No root element found for unknown in any available namespace"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_997_CLI_Parsing_multSchemas() {
-    val cmd = "echo 12| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r hcp2\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("Bad arguments for option 'schema'"))
+    val schemaFile1 = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val schemaFile2 = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd"
+    val (testSchemaFile1, testSchemaFile2) = if (Util.isWindows) (Util.cmdConvert(schemaFile1), Util.cmdConvert(schemaFile2)) else (schemaFile1, schemaFile2)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo 12| %s parse -s %s -s %s  -r hcp2", Util.binPath, testSchemaFile1, testSchemaFile2)
+      shell.sendLine(cmd)
+      shell.expect(contains("Bad arguments for option 'schema'"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1002_CLI_Parsing_negativeTest03() {
-    val cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -P parserThatDoesNotExist\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("Bad arguments for option 'parser': 'parserThatDoesNotExist' - file 'parserThatDoesNotExist' doesn't exist"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix -P parserThatDoesNotExist", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Bad arguments for option 'parser': 'parserThatDoesNotExist' - file 'parserThatDoesNotExist' doesn't exist"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1003_CLI_Parsing_SimpleParse_emptyNamespace() {
-    //This is one of those rare cases where we cannot make a command work for both Windows and Linux
-    val cmdWin = Util.binPath + """ parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r {}address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"""
-    val cmdLin = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -r {}address daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
-    val cmd = if (Util.isWindows) cmdWin else cmdLin
-    val shell = Util.start(cmd)
-    shell.expect(contains("<address"))
-    shell.expect(contains(output4))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -r {}address %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<address"))
+      shell.expect(contains(output4))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1004_CLI_Parsing_SimpleParse_namespaceUsed() {
-    val cmd = Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd -r {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output6))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output6))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt() {
-    val cmd = Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd --root {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output6))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s --root {target}matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output6))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1005_CLI_Parsing_SimpleParse_rootPath() {
-    val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
-    val cmdLinux = "echo -ne '12' | " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r hcp2 -p /\n"
-    val cmdWindows = """echo 12| """ + Util.binPath + """ parse -s daffodil-test\src\test\resources\edu\illinois\ncsa\daffodil\section06\entities\charClassEntities.dfdl.xsd -r hcp2 -p /"""
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    val cmd = if (Util.isWindows) cmdWindows else cmdLinux
+    val shell = Util.startNoConvert("")
 
-    val shell = Util.startNoConvert(cmd)
-    shell.expect(contains("<tns:hcp2"))
-    shell.expect(contains("12"))
-    shell.expect(contains("</tns:hcp2>"))
+    try {
+      //val expected = """<tns:hcp2 xmlns:tns="http://www.example.org/example1/">12</tns:hcp2>"""
+      val cmdLinux = String.format("echo -ne '12' | %s parse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
+      val cmdWindows = String.format("echo 12| %s parse -s %s -r hcp2 -p /", Util.binPath, testSchemaFile)
+      val cmd = if (Util.isWindows) cmdWindows else cmdLinux
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:hcp2"))
+      shell.expect(contains("12"))
+      shell.expect(contains("</tns:hcp2>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1015_CLI_Parsing_SimpleParse_defaultRootMultSchema() {
-    val cmd = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<address"))
-    shell.expect(contains(output4))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<address"))
+      shell.expect(contains(output4))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOn() {
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate on\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate on", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validation() {
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationLimited() {
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate limited\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate limited", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationOff() {
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix --validate off\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:matrix"))
-    shell.expect(contains(output1))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate off", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:matrix"))
+      shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_XXX_CLI_Parsing_SimpleSchema_basicTest_validationFooBar() {
-    var cmd = "echo 0,1,2| " + Util.binPath + " parse --validate FooBar -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("FooBar"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val shell = Util.start("", true)
+
+    try {
+      var cmd = String.format("echo 0,1,2| %s parse --validate FooBar -s %s -r matrix", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("FooBar"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }  
   }
 
   /*
@@ -462,104 +726,153 @@ class TestCLIparsing {
     shell.expect(contains("Parse Error: Assertion failed. Assertion failed for dfdl:checkConstraints(.)"))
     
     shell.send("exit\n")
-    shell.expect(eof())
+    shell.expect(eof)
     shell.close()
   }
 */
 
   @Test def test_1319_CLI_Parsing_invalidElementSDE() {
-    val cmd = "echo ababababbaacccccb| " + Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/ABC_IBM_invalid.xsd -r ABC\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("'fixed' is not a valid"))
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/ABC_IBM_invalid.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
-  }
-
-  @Test def test_1346_CLI_Parsing_SimpleParse_defaultRootMultSchemaMultiple() {
-    var x = 0
-    for (x <- 1 to 10) {
-      println("Run " + x + " of 10")
-      val cmd = Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
-      val shell = Util.start(cmd)
-      shell.expect(contains("<address"))
-      shell.expect(contains(output4))
-
-      shell.send("exit\n")
-      shell.expect(eof())
+    try {
+      val cmd = String.format("echo ababababbaacccccb| %s parse -s %s -r ABC", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("'fixed' is not a valid"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
       shell.close()
     }
   }
 
-  @Test def test_1386_CLI_Parsing_negativeTest05() {
-    val cmd = "echo 12| " + Util.binPath + "\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("subcommand"))
+  @Test def test_1346_CLI_Parsing_SimpleParse_defaultRootMultSchemaMultiple() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+
+    var x = 0
+    for (x <- 1 to 10) {
+      val shell = Util.start("")
+
+      try {
+        println("Run " + x + " of 10")
+        shell.sendLine(cmd)
+        shell.expect(contains("<address"))
+        shell.expect(contains(output4))
+        shell.sendLine("exit")
+        shell.expect(eof)
+      } finally {
+        shell.close()
+      }
+    }
+  }
+
+  @Test def test_1386_CLI_Parsing_negativeTest05() {
+    val cmd = String.format("echo 12| %s", Util.binPath)
+    val shell = Util.start("", true)
+
+    try {
+      shell.sendLine(cmd)
+      shell.expect(contains("subcommand"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1971_CLI_Parsing_traceMode01() {
-    val cmd = "echo test| " + Util.binPath + " -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo test| %s -t parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_1973_CLI_Parsing_traceMode03() {
-    val cmd = "echo 0,1,2,3,,,,| " + Util.binPath + " -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd\n"
-    val shell = Util.start(cmd, true)
-    shell.expect(contains("Left over data."))
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.startIncludeErrors("")
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
-    //assert(shell.getExitValue() == 1)
+    try {
+      val cmd = String.format("echo 0,1,2,3,,,,| %s -t parse -s %s", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expectIn(1, contains("Left over data."))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      //assert(shell.getExitValue() == 1)
+    }
   }
 
   @Test def test_1941_CLI_Parsing_SimpleParse_leftOverData() {
-    val cmd = "echo 1,2,3,4,,,| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
-    val shell = Util.start(cmd, true)
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("", true)
 
-    shell.expect(contains("Left over data"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("echo 1,2,3,4,,,| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Left over data"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_DFDL_714() {
-    val output = Util.getExpectedString("output_DFDL-714.txt")
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val cmd = Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains("<tns:elem"))
-    shell.expect(contains("<content"))
-    shell.expect(contains("Hello World"))
-    shell.expect(contains("</tns:elem>"))
+    val shell = Util.start("")
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:elem"))
+      shell.expect(contains("<content"))
+      shell.expect(contains("Hello World"))
+      shell.expect(contains("</tns:elem>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 
   @Test def test_DFDL_1203_schema_from_jar() {
-    val output = Util.getExpectedString("output_DFDL-714.txt")
+    val schemaFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val cmd = Util.binPath + " parse -s /edu/illinois/ncsa/daffodil/CLI/global_element.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/test_DFDL-714.txt\n"
-    val shell = Util.start(cmd, envp = Map("DAFFODIL_CLASSPATH" -> "daffodil-cli/target/scala-2.10/*"))
-    shell.expect(contains("<tns:elem"))
-    shell.expect(contains("<content"))
-    shell.expect(contains("Hello World"))
-    shell.expect(contains("</tns:elem>"))
+    val shell = Util.start("", envp = Map("DAFFODIL_CLASSPATH" -> "daffodil-cli/target/scala-2.10/*"))
 
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    try {
+      val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:elem"))
+      shell.expect(contains("<content"))
+      shell.expect(contains("Hello World"))
+      shell.expect(contains("</tns:elem>"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
   }
 }

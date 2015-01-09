@@ -56,6 +56,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * Tests for compiler-oriented XPath interface aka CompiledExpression
@@ -177,9 +178,13 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val s1 = source_no_ns.tempSchemaFile.toString
+    
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
+    val s2 = source.tempSchemaFile.toString
+    
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
       ("{}var2", "value2"), // NoNamespace
@@ -188,9 +193,9 @@ class TestExternalVariablesNew {
     val variables = ExternalVariablesLoader.getVariables(vars)
 
     val c = new Compiler()
+    c.setLoggingLevel(LogLevel.Debug)
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
-
     val pf = c.compileSource(source)
     pf.isError
     pf.diagnostics.foreach { d => println(d) }
@@ -229,7 +234,7 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
     val source = UnitTestSchemaSource(sch, "test_no_namespace_success")
 
     val vars = Map(
@@ -277,7 +282,7 @@ class TestExternalVariablesNew {
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
     }
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toURI.toString)
     val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(
