@@ -589,6 +589,8 @@ class TestDFDLExpressions {
   @Test def test_secondsfromdatetime_01() { runner2.runOneTest("secondsfromdatetime_01") }
   @Test def test_secondsfromdatetime_02() { runner2.runOneTest("secondsfromdatetime_02") }
   @Test def test_secondsfromdatetime_03() { runner2.runOneTest("secondsfromdatetime_03") }
+  @Test def test_timezonefromdatetime_01() { runner2.runOneTest("timezonefromdatetime_01") }
+  @Test def test_timezonefromdatetime_02() { runner2.runOneTest("timezonefromdatetime_02") }
 
   @Test def test_xfromdatetime_01() { runner2.runOneTest("xfromdatetime_01") }
   @Test def test_xfromdatetime_02() { runner2.runOneTest("xfromdatetime_02") }
@@ -602,6 +604,8 @@ class TestDFDLExpressions {
   @Test def test_monthfromdate_02() { runner2.runOneTest("monthfromdate_02") }
   @Test def test_dayfromdate_01() { runner2.runOneTest("dayfromdate_01") }
   @Test def test_dayfromdate_02() { runner2.runOneTest("dayfromdate_02") }
+  @Test def test_timezonefromdate_01() { runner2.runOneTest("timezonefromdate_01") }
+  @Test def test_timezonefromdate_02() { runner2.runOneTest("timezonefromdate_02") }
 
   @Test def test_xfromdate_01() { runner2.runOneTest("xfromdate_01") }
   @Test def test_xfromdate_02() { runner2.runOneTest("xfromdate_02") }
@@ -613,6 +617,9 @@ class TestDFDLExpressions {
   @Test def test_minutesfromtime_02() { runner2.runOneTest("minutesfromtime_02") }
   @Test def test_secondsfromtime_01() { runner2.runOneTest("secondsfromtime_01") }
   @Test def test_secondsfromtime_02() { runner2.runOneTest("secondsfromtime_02") }
+  @Test def test_timezonefromtime_01() { runner2.runOneTest("timezonefromtime_01") }
+  @Test def test_timezonefromtime_02() { runner2.runOneTest("timezonefromtime_02") }
+  @Test def test_timezonefromtime_03() { runner2.runOneTest("timezonefromtime_03") }
 
   @Test def test_xfromtime_01() { runner2.runOneTest("xfromtime_01") }
   @Test def test_xfromtime_02() { runner2.runOneTest("xfromtime_02") }
@@ -762,6 +769,7 @@ class TestDFDLExpressions {
   @Test def test_time_constructor_06() { runner2.runOneTest("time_constructor_06") }
   @Test def test_time_constructor_07() { runner2.runOneTest("time_constructor_07") }
   @Test def test_time_constructor_08() { runner2.runOneTest("time_constructor_08") }
+  @Test def test_time_constructor_09() { runner2.runOneTest("time_constructor_09") }
 
   @Test def test_time_constructor_01() { runner2.runOneTest("time_constructor_01") }
   @Test def test_time_constructor_02() { runner2.runOneTest("time_constructor_02") }
@@ -835,6 +843,11 @@ class TestDFDLExpressions {
   @Test def test_fnDateTime_constructor_03() { runner2.runOneTest("fnDateTime_constructor_03") }
   @Test def test_fnDateTime_constructor_04() { runner2.runOneTest("fnDateTime_constructor_04") }
   @Test def test_fnDateTime_constructor_05() { runner2.runOneTest("fnDateTime_constructor_05") }
+  @Test def test_fnDateTime_constructor_06() { runner2.runOneTest("fnDateTime_constructor_06") }
+  @Test def test_fnDateTime_constructor_07() { runner2.runOneTest("fnDateTime_constructor_07") }
+  @Test def test_fnDateTime_constructor_08() { runner2.runOneTest("fnDateTime_constructor_08") }
+  @Test def test_fnDateTime_constructor_09() { runner2.runOneTest("fnDateTime_constructor_09") }
+  @Test def test_fnDateTime_constructor_10() { runner2.runOneTest("fnDateTime_constructor_10") }
 
   @Test def test_integer_constructor_01() { runner2.runOneTest("integer_constructor_01") }
   @Test def test_integer_constructor_02() { runner2.runOneTest("integer_constructor_02") }

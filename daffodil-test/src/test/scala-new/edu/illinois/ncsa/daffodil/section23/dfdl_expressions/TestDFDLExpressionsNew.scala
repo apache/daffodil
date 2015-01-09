@@ -75,12 +75,4 @@ class TestDFDLExpressionsNew {
   @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
   @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
 
-  // DFDL-1202
-  @Test def test_timezonefromdatetime_01() { runner2.runOneTest("timezonefromdatetime_01") }
-  @Test def test_timezonefromdatetime_02() { runner2.runOneTest("timezonefromdatetime_02") }
-  @Test def test_timezonefromdate_01() { runner2.runOneTest("timezonefromdate_01") }
-  @Test def test_timezonefromtime_01() { runner2.runOneTest("timezonefromtime_01") }
-  @Test def test_fnDateTime_constructor_06() { runner2.runOneTest("fnDateTime_constructor_06") }
-  @Test def test_fnDateTime_constructor_07() { runner2.runOneTest("fnDateTime_constructor_07") }
-
 }
