@@ -165,7 +165,6 @@ class TestCLIexecuting {
       val numFile = Integer.parseInt((String.format("grep -c parserTestCase> %s", testTdmlFile) !!).trim())
 
       assertTrue("Number of tests run should match the number of tests in the file.", numTests == numFile)
-
       shell.sendLine("exit")
     } finally {
       shell.close()
