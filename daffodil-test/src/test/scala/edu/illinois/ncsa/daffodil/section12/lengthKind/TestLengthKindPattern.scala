@@ -47,7 +47,7 @@ class TestLengthKindPattern {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+
   @Test def test_invalid_pattern() { runner.runOneTest("invalid_pattern") }
   @Test def test_invalid_pattern2() { runner.runOneTest("invalid_pattern2") }
   @Test def test_invalid_pattern3() { runner.runOneTest("invalid_pattern3") }
@@ -64,8 +64,8 @@ class TestLengthKindPattern {
   @Test def test_LengthPatternIllegalBits_01() { runner.runOneTest("LengthPatternIllegalBits_01") }
   @Test def test_LengthPatternLegalBits_01() { runner.runOneTest("LengthPatternLegalBits_01") }
 
-  // Fails after implementation of Scanability check
-  //@Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
+  // DFDL-309
+  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace") }
 
   @Test def test_LengthPatternLegalBits_02() { runner.runOneTest("LengthPatternLegalBits_02") }
   @Test def test_lengthKindPatternFail() { runner.runOneTest("lengthKindPatternFail") }

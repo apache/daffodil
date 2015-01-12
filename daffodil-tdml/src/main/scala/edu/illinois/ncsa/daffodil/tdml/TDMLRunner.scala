@@ -259,7 +259,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     if (isTDMLFileValid) {
       val testCase = testCases.find(_.name == testName)
       testCase match {
-        case None => throw new Exception("test " + testName + " was not found.")
+        case None => throw new TDMLException("test " + testName + " was not found.")
         case Some(tc) => {
           return tc.run(schema)
         }
@@ -267,7 +267,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     } else {
       log(Error("TDML file %s is not valid.", tsURI))
       val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
-      throw new Exception(msgs)
+      throw new TDMLException(msgs)
     }
   }
 
@@ -384,11 +384,11 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val embeddedSchema = parent.findEmbeddedSchema(model)
     val schemaURI = parent.findSchemaFileName(model)
     val suppliedSchema = (schemaArg, embeddedSchema, schemaURI) match {
-      case (None, None, None) => throw new Exception("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
-      case (None, Some(_), Some(_)) => throw new Exception("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
+      case (None, None, None) => throw new TDMLException("Model '" + model + "' was not passed, found embedded in the TDML file, nor as a schema file.")
+      case (None, Some(_), Some(_)) => throw new TDMLException("Model '" + model + "' is ambiguous. There is an embedded model with that name, AND a file with that name.")
       case (Some(node), _, _) => {
         // unit test case. There is no URI/file location
-        if (model != "") throw new Exception("You supplied a model attribute, and a schema argument. Can't have both.")
+        if (model != "") throw new TDMLException("You supplied a model attribute, and a schema argument. Can't have both.")
         // note that in this case, since a node was passed in, this node has no file/line/col information on it
         // so error messages will end up being about some temp file. 
         UnitTestSchemaSource(node, name)
@@ -416,7 +416,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
         val cfgFileName = parent.findConfigFileName(configName)
         val optDefinedConfig = (cfgNode, cfgFileName) match {
           case (None, None) => None
-          case (Some(_), Some(_)) => throw new Exception("Config '" + config + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
+          case (Some(_), Some(_)) => throw new TDMLException("Config '" + config + "' is ambiguous. There is an embedded config with that name, AND a file with that name.")
           case (Some(definedConfig), None) => Some(definedConfig)
           case (None, Some(uri)) => {
             // Read file, convert to definedConfig
@@ -457,9 +457,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
 
   def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {
     val actualDiags = actual.getDiagnostics
-    if (actualDiags.length == 0 && expectedDiags.isDefined) {
-      throw new Exception("""No diagnostic objects found.""")
-    }
+    Assert.invariant(actualDiags.length > 0 && expectedDiags.isDefined)
     val actualDiagMsgs = actualDiags.map { _.toString }
     val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
     // must find each expected warning message within some actual warning message.
@@ -470,7 +468,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
             actual => actual.toLowerCase.contains(expected.toLowerCase)
           }
           if (!wasFound) {
-            throw new Exception("""Did not find diagnostic message """" +
+            throw new TDMLException("""Did not find diagnostic message """" +
               expected + """" in any of the actual diagnostic messages: """ + "\n" +
               actualDiagMsgs.mkString("\n"))
           }
@@ -482,7 +480,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     val actualDiags = actual.getDiagnostics.filter(d => d.isInstanceOf[ValidationError])
     if (actualDiags.length != 0) {
       val actualDiagMsgs = actualDiags.map { _.toString }
-      throw new Exception("Validation errors found where none were expected by the test case.\n" +
+      throw new TDMLException("Validation errors found where none were expected by the test case.\n" +
         actualDiagMsgs.mkString("\n"))
     }
   }
@@ -506,7 +504,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (optInfoset, optErrors) match {
       case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
       case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
-      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
+      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
     }
   }
 
@@ -541,7 +539,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case (Some(infoset), None) => {
         val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
         if (pf.isError) {
-          throw new Exception(diags)
+          throw new TDMLException(diags)
         }
 
         val processor = this.generateProcessor(pf, useSerializedParser)
@@ -556,7 +554,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         }
       }
 
-      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
+      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
     }
   }
 
@@ -621,7 +619,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
           } else {
             // We did not get an error!!
             // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new Exception("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+            throw new TDMLException("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
           }
         }
         actual
@@ -649,7 +647,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val diagObjs = processor.getDiagnostics
       if (diagObjs.length == 1) throw diagObjs(0)
       val diags = diagObjs.map(_.getMessage).mkString("\n")
-      throw new Exception(diags)
+      throw new TDMLException(diags)
     }
     processor.setValidationMode(validationMode)
     val actual = processor.parse(dataToParse, lengthLimitInBits)
@@ -659,7 +657,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val diagObjs = actual.getDiagnostics
       if (diagObjs.length == 1) throw diagObjs(0)
       val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+      throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
     }
 
     validationMode match {
@@ -676,7 +674,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val leftOverException = if (!loc.isAtEnd) {
       val leftOverMsg = "Left over data: " + loc.toString
       println(leftOverMsg)
-      Some(new Exception(leftOverMsg))
+      Some(new TDMLException(leftOverMsg))
     } else None
 
     verifyParseInfoset(actual, infoset)
@@ -684,7 +682,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (shouldValidate, expectsValidationError) match {
       case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
       case (true, false) => verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
-      case (false, true) => throw new Exception("Test case invalid. Validation is off but the test expects an error.")
+      case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
       case (false, false) => // Nothing to do here.
     }
 
@@ -725,7 +723,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     (optData, optErrors) match {
       case (Some(data), None) => runUnparserExpectSuccess(pf, data, infoset, warnings)
       case (_, Some(errors)) => runUnparserExpectErrors(pf, optData, infoset, errors, warnings)
-      case _ => throw new Exception("Invariant broken. Should be Some None, or None Some only.")
+      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
     }
 
   }
@@ -739,7 +737,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     if (readCount == -1) {
       // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
       if (actualBytes.length > 0) {
-        throw new Exception("Unexpected data was created.")
+        throw new TDMLException("Unexpected data was created.")
       }
       return // we're done. Nothing equals nothing.
     }
@@ -749,7 +747,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // compare expected data to what was output.
     val expectedBytes = inbuf.array().toList.slice(0, readCount)
     if (actualBytes.length != readCount) {
-      throw new Exception("output data length " + actualBytes.length + " for " + actualBytes.toList +
+      throw new TDMLException("output data length " + actualBytes.length + " for " + actualBytes.toList +
         " doesn't match expected value " + readCount + " for " + expectedBytes)
     }
 
@@ -758,7 +756,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       case ((expected, actual), index) =>
         if (expected != actual) {
           val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
-          throw new Exception(msg)
+          throw new TDMLException(msg)
         }
     }
   }
@@ -773,12 +771,12 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val node = infoset.contents
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(diags)
+      throw new TDMLException(diags)
     }
     val processor = pf.onPath("/")
     if (processor.isError) {
       val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(diags)
+      throw new TDMLException(diags)
     }
     val actual = processor.unparse(output, node)
     output.close()
@@ -809,7 +807,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val processor = pf.onPath("/")
     if (processor.isError) {
       val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new Exception(diags)
+      throw new TDMLException(diags)
     }
     val actual = processor.unparse(output, node)
     output.close()

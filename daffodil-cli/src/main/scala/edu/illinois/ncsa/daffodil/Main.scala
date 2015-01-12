@@ -79,6 +79,7 @@ import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.api.InputStreamSchemaSource
+import edu.illinois.ncsa.daffodil.tdml.TDMLException
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -1100,6 +1101,10 @@ object Main extends Logging {
       }
       case e: NotYetImplementedException => {
         nyiFound(e)
+      }
+      case e: TDMLException => {
+        log(LogLevel.Error, "%s", e.getMessage)
+        1
       }
       case e: Exception => {
         bugFound(e)

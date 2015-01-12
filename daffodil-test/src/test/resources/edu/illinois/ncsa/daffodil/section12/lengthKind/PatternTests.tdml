@@ -371,7 +371,7 @@
             dfdl:lengthKind="explicit" dfdl:length="{2}"
             dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
           <xs:element name="inner" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="{1}"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
             dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
           <xs:element name="last" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{2}"
@@ -468,7 +468,9 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="LengthPatternIllegalBits_02"
+  <!-- Note: The test below would make sense if dfdl:encodingErrorPolicy="error" but
+    not with dfdl:encodingErrorPolicy="replace" -->
+  <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Error"
     root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
     description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
     <tdml:document>
@@ -477,6 +479,23 @@
     <tdml:errors>
       <tdml:error>Malformed</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+  <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace"
+    root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
+    description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
+    <tdml:document>
+      <tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <def_04>
+          <first>!!</first>
+          <inner>&#xFFFD;&#xFFFD;</inner><!-- unicode replacement characters -->
+          <last>!!</last>
+        </def_04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="LengthPatternLegalBits_01"

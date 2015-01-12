@@ -102,7 +102,7 @@ class DFDLJavaIOStreamDecoder private (bitOffsetWithinAByte: Int, val bitLimit: 
   Assert.usage(bitOffsetWithinAByte >= 0)
   Assert.usage(bitOffsetWithinAByte <= 7)
 
-  val decoder = cs.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
+  val decoder = cs.newDecoder().onMalformedInput(CodingErrorAction.REPLACE)
 
   //
   // Now we deal with bit positioning. If the decoder is capable of dealing with a starting bit offset

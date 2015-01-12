@@ -41,12 +41,21 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
+import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 class TestLengthKindPatternDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  def dbg = {
+    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
+    Debugger.withTracing(false)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
 
-  // DFDL-309 Now fail due to scanability check 
-  @Test def test_LengthPatternIllegalBits_02() { runner.runOneTest("LengthPatternIllegalBits_02") }
+  // DFDL-935 dfdl:encodingErrorPolicy='error'
+  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { dbg; runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
 }
