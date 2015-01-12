@@ -377,7 +377,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
               |                        [-D[{namespace}]<variable>=<value>...] [-c <file>]
               |                        [-o <output>] [infile]
               |
-              |Unparse an infoset file, using either a DFDL schema or a saved paser
+              |Unparse an infoset file, using either a DFDL schema or a saved parser
               |
               |Unparse Options:""".stripMargin)
 
