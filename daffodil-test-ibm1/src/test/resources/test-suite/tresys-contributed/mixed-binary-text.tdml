@@ -41,7 +41,7 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="d" type="xsd:string" dfdl:terminator="," />
+    <xs:element name="d" type="xsd:string" dfdl:terminator="," dfdl:encodingErrorPolicy='error'/>
 
   </tdml:defineSchema>
 
@@ -129,43 +129,23 @@
   </tdml:parserTestCase>
 
 
-  <tdml:parserTestCase name="codingErrorAction"
-    root="d" model="v" description="CodingErrorAction.IGNORE should ignore.">
+  <tdml:parserTestCase name="encodingErrorPolicy_error"
+    root="d" model="v" description="encodingErrorPolicy of 'replace' should scan past.">
 
     <tdml:document>
       <tdml:documentPart type="text">abcd</tdml:documentPart>
       <!-- The point of this test is to understand character decoding, and 
-        errors
-        while decoding characters.
+        errors while decoding characters.
 
-        If scanning skips these next FF (illegal character
-        codes in utf-8) then this test will scan past them and find the 2c 
-        (comma)
-        delimiter that it wants. <d> will have value abcd.
+        If scanning replaces the errors with Unicode replacement chars
+        then this test will scan past them and find the 2c 
+        (comma) delimiter that it wants. <d> will have value abcd.. where
+        the '.' represents the unicode replacement character (U+FFFD).
 
-        But actually, correct
-        behavior is that it should error out on these illegal characters 
-        (due to
-        CodingErrorAction.REPORT in the DFDLCharReader)
-
-        Side note: If scanning converts
-        these illegals into substitution characters (CodingErrorAction.Replace),
-        then it will also find the comma, but the value will be abcd... (where 
-        the
-        "." is whatever the substitution character is.). That would also 
-        be incorrect
-        behavior.
-
-        The right behavior is that scanning should error on these illegal
-        FF bytes. CodingErrorAction.REPORT should do this. This terminates 
-        the scan
-        for the "," because of the error, then it will isolate abcd as the 
-        value
-        of the <d> element properly. But then it will pick up with trying 
-        to find
-        the "," delimiter in the bytes FFFFFF2c, and that will again fail, 
-        and it
-        will fail to find the delimiter. See http://docs.oracle.com/javase/1.5.0/docs/api/java/nio/charset/CodingErrorAction.html -->
+        The right behavior in this test is that scanning should error on these illegal
+        FF bytes. This error will cause backtracking, and the parse will fail.  
+  
+        See http://docs.oracle.com/javase/1.5.0/docs/api/java/nio/charset/CodingErrorAction.html -->
       <tdml:documentPart type="byte">FFFFFF2C
       </tdml:documentPart><!-- binary -212 -->
     </tdml:document>

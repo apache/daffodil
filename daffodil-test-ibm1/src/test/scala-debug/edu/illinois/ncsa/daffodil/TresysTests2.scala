@@ -126,4 +126,12 @@ class TresysTests2 {
   lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
   @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
 
+  val sq = testDir + "sequence.tdml"
+  lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
+  @Test def test_seq1() { runnerSQ.runOneTest("seq1") }
+
+  lazy val runnerMB = new DFDLTestSuite(Misc.getRequiredResource(testDir + "mixed-binary-text.tdml"))
+
+  // DFDL-935
+  @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
 }

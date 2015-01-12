@@ -137,7 +137,8 @@ class TresysTests {
   @Test def test_t2() { runnerMB.runOneTest("t2") }
   @Test def test_t3() { runnerMB.runOneTest("t3") }
 
-  @Test def test_codingErrorAction() { runnerMB.runOneTest("codingErrorAction") }
+  // DFDL-935
+  // @Test def test_encodingErrorPolicy_error() { runnerMB.runOneTest("encodingErrorPolicy_error") }
 
   val runnerNG = new DFDLTestSuite(Misc.getRequiredResource(testDir + "nested_group_ref.tdml"))
   @Test def test_nested_group_refs() { runnerNG.runOneTest("nestedGroupRefs") }
