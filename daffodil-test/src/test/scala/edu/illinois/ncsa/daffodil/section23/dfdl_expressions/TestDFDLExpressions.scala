@@ -258,6 +258,7 @@ class TestDFDLExpressions {
   //@Test def test_predicate_02() { runner.runOneTest("predicate_02") }
   //@Test def test_predicate_03() { runner.runOneTest("predicate_03") }
   @Test def test_predicate_04() { runner.runOneTest("predicate_04") }
+  @Test def test_predicate_05() { runner.runOneTest("predicate_05") }
 
   @Test def test_sequential_and_01() { runner.runOneTest("sequential_and_01") }
   @Test def test_sequential_and_02() { runner.runOneTest("sequential_and_02") }
