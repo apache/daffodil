@@ -55,7 +55,7 @@ class TestContentFramingProperties {
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
-  
+
   // Commented out due to 4byte char decode issue when implementing DFDL-951 - DFDL-965
   // @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
   // @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
@@ -87,4 +87,11 @@ class TestContentFramingProperties {
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
   @Test def test_encodingErrorReplace() { runner2.runOneTest("encodingErrorReplace") }
+
+  // DFDL-958
+  @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
+  @Test def test_encodingErrorReplace2() { runner2.runOneTest("encodingErrorReplace2") }
+  @Test def test_encodingErrorReplace3() { runner2.runOneTest("encodingErrorReplace3") }
+  @Test def test_encodingErrorReplace4() { runner2.runOneTest("encodingErrorReplace4") }
+
 }

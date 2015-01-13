@@ -621,7 +621,7 @@
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        <ee2>d�g</ee2>
+        <ee2>d��g</ee2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
