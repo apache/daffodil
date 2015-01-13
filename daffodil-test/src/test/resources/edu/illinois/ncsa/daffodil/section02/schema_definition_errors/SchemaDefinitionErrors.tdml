@@ -129,4 +129,25 @@
 
   </tdml:parserTestCase>
 
+<!--
+    Test Name: schema_line_number
+       Schema: lineNumber.dfdl.xsd
+         Root: e1
+      Purpose: This test demonstrates that error messages will display the correct line number
+               when the schema is in a separate file.
+-->
+
+  <tdml:parserTestCase name="schema_line_number" root="e1"
+    model="lineNumber.dfdl.xsd"
+    description="">
+    <tdml:document />
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>lineNumber.dfdl.xsd</tdml:error>
+      <tdml:error>lineNumber: 18</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
