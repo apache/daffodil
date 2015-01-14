@@ -581,7 +581,12 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- This test has a 4 byte utf-8 character and passes as expected -->
+  <!--
+    Test name: encodingNoError
+    Schema:    ContentFramingProperties-Embedded.dfdl.xsd
+    Root:      ee2
+    Purpose:   This test has a 4 byte utf-8 character and no replacement character is needed.
+  -->
   <tdml:parserTestCase name="encodingNoError" root="ee2"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
 
@@ -596,7 +601,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- This test has the same character above but is missing the last byte, so I was expecting the replacement character -->
+  <!--
+    Test name: encodingErrorReplace2
+    Schema:    ContentFramingProperties-Embedded.dfdl.xsd
+    Root:      ee2
+    Purpose:   This test demonstrates that when the encodingErrorPolicy is "replace" any error when decoding characters
+        results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
+  -->
   <tdml:parserTestCase name="encodingErrorReplace2" root="ee2"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
 
@@ -611,7 +622,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
-  <!-- This test has invalid utf-8 -->
+  <!--
+    Test name: encodingErrorReplace3
+    Schema:    ContentFramingProperties-Embedded.dfdl.xsd
+    Root:      ee2
+    Purpose:   This test demonstrates that when the encodingErrorPolicy is "replace" any error when decoding characters
+        results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
+  -->
   <tdml:parserTestCase name="encodingErrorReplace3" root="ee2"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
 
@@ -626,7 +643,13 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
-  <!-- This test also has invaild utf-8 -->
+  <!--
+    Test name: encodingErrorReplace4
+    Schema:    ContentFramingProperties-Embedded.dfdl.xsd
+    Root:      ee2
+    Purpose:   This test demonstrates that when the encodingErrorPolicy is "replace" any error when decoding characters
+        results in the insertion of the Unicode Replacement Character (U+FFFD) as the replacement for that error.
+  -->
   <tdml:parserTestCase name="encodingErrorReplace4" root="ee2"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Section 11 encoding - DFDL-11-002R">
 

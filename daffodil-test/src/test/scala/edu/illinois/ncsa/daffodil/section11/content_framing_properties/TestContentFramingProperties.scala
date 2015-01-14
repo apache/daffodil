@@ -87,8 +87,6 @@ class TestContentFramingProperties {
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
   @Test def test_encodingErrorReplace() { runner2.runOneTest("encodingErrorReplace") }
-
-  // DFDL-958
   @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
   @Test def test_encodingErrorReplace2() { runner2.runOneTest("encodingErrorReplace2") }
   @Test def test_encodingErrorReplace3() { runner2.runOneTest("encodingErrorReplace3") }
