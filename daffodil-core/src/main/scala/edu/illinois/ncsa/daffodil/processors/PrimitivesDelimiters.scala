@@ -62,6 +62,8 @@ abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: T
 abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
   extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
   with DelimiterText {
+  
+  val isInitiator: Boolean = false
 
   Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
@@ -70,7 +72,7 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
   lazy val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
   lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  lazy val parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo)
+  lazy val parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo, isInitiator)
 }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
@@ -215,10 +217,12 @@ abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: S
   extends Text(e, e, guard)
   with DelimiterText {
 
+  val  isInitiator: Boolean = false // overridden in iniitator-related classes
+  
   lazy val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
   lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  lazy val parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo)
+  lazy val parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo, isInitiator)
 
 }
 
@@ -228,20 +232,26 @@ abstract class DynamicDelimiter(kindString: String, delimExpr: CompiledExpressio
 //case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
 case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e, e) {
   Assert.invariant(e.hasInitiator)
+  
+  override val isInitiator: Boolean = true
   lazy val unparserDelim = e.initiator.constantAsString.split("""\s""").head
 }
 //case class StaticTerminator(e : Term) extends StaticDelimiter(e.terminator.constantAsString, e)
 case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminator.constantAsString, e, e) {
   Assert.invariant(e.hasTerminator)
+
   lazy val unparserDelim = e.terminator.constantAsString.split("""\s""").head
 }
-case class DynamicInitiator(e: Term) extends DynamicDelimiter("Init", e.initiator, e)
+case class DynamicInitiator(e: Term) extends DynamicDelimiter("Init", e.initiator, e){
+  override val isInitiator: Boolean = true
+}
 case class DynamicTerminator(e: Term) extends DynamicDelimiter("Term", e.terminator, e)
 
 // Note: for a static separator, we pass s, the sequence, because that is where
 // the charset encoding comes from. 
 case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, s, t) {
   Assert.invariant(s.hasSeparator)
+
   lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
 }
 case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep", s.separator, s)

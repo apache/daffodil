@@ -55,6 +55,17 @@ class TestJSON5 {
     Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
     Debugger.withTracing(true)
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+
   }
+
+  @Test def test_json5_1() { runner.runOneTest("json5_1") }
+  @Test def test_json5_2() { runner.runOneTest("json5_2") }
+  @Test def test_json5_3() { runner.runOneTest("json5_3") }
+  @Test def test_json5_4() { runner.runOneTest("json5_4") }
+
+  val bb = testDir + "testWSPStar.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
+
+  @Test def test_json5_5() { runner2.runOneTest("json5_5") }
 
 }

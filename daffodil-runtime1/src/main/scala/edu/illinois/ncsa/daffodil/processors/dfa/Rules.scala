@@ -406,23 +406,19 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], 
         if (!compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get) && escEsc != EC.get) {
           // EC != EEC != PTERM0
           rules_Unambiguous
-        }
-        else if (EC.get == escEsc && compiledDelims.couldBeFirstChar(escEsc)) {
+        } else if (EC.get == escEsc && compiledDelims.couldBeFirstChar(escEsc)) {
           // EC == EEC == PTERM0
           rules_EC_EEC_TERM_SAME
-        }
-        else if (compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get)) {
+        } else if (compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get)) {
           // (EEC == PTERM0) != EC
           rules_EEC_TERM_SAME_NOT_EC
-        }
-        else if (!compiledDelims.couldBeFirstChar(escEsc) && compiledDelims.couldBeFirstChar(EC.get)) {
+        } else if (!compiledDelims.couldBeFirstChar(escEsc) && compiledDelims.couldBeFirstChar(EC.get)) {
           // (EC == PTERM0) != EEC
           rules_EC_TERM_SAME_NOT_EEC
-        }
-        else if (EC.get == escEsc && !compiledDelims.couldBeFirstChar(escEsc)) {
+        } else if (EC.get == escEsc && !compiledDelims.couldBeFirstChar(escEsc)) {
           // (EC == EEC) != PTERM0
           rules_EEC_EC_SAME_NOT_TERM
-        } else throw new Exception("Unexpected case.")	
+        } else throw new Exception("Unexpected case.")
       } else throw new Exception("Unexpected case.")
     }
     result
@@ -438,11 +434,45 @@ trait DelimsMatcher {
 
   def couldBeFirstChar(charIn: Char): Boolean = {
     // looking at data0
-    delims.foreach(d => {
-      val pTerm0 = d.states(0).asInstanceOf[DelimStateBase]
-      if (pTerm0.checkMatch(charIn)) return true
-    })
+    delims.foreach(d => if (couldBeFirstChar(charIn, d)) return true)
     false
+  }
+
+  /**
+   * Determines if the supplied character (charIn) could be
+   * the start of this delimiter.
+   *
+   * This should only ever be called from DFAField.
+   *
+   * In the case of WSPStar, if charIn is not a whitespace then
+   * we must compare charIn to the next character in the delimiter
+   * if it's present.
+   *
+   */
+  private def couldBeFirstChar(charIn: Char, d: DFADelimiter): Boolean = {
+    val states = d.states
+    val pTerm0 = states(0)
+    val res =
+      if (pTerm0.isInstanceOf[WSPStarState]) {
+        val wspStar = pTerm0.asInstanceOf[WSPStarState]
+        if (wspStar.checkMatch(charIn)) { true } // Was a space 
+        else if (wspStar.nextState == DFA.FinalState) {
+          // WSP* is not allowed to appear by itself as a terminator
+          // or separator.
+          //
+          Assert.impossibleCase
+        } else {
+          // Wasn't a space, this is OK because it can be optional. 
+          // The character must match the next state in order for it to
+          // be the start of a delimiter.
+          //
+          val pTerm1 = states(1).asInstanceOf[DelimStateBase]
+          pTerm1.checkMatch(charIn)
+        }
+      } else {
+        pTerm0.asInstanceOf[DelimStateBase].checkMatch(charIn)
+      }
+    res
   }
 }
 

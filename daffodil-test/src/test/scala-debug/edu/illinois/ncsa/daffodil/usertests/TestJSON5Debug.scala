@@ -56,11 +56,9 @@ class TestJSON5Debug {
     Debugger.withTracing(true)
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   }
-  // fails - WSP* not really allowing the whitespace to be optional.
-  // Also compilation of schema is painfully slow.
-  @Test def test_json5_1() { dbg; runner.runOneTest("json5_1") }
-  @Test def test_json5_2() { runner.runOneTest("json5_2") }
-  @Test def test_json5_3() { runner.runOneTest("json5_3") }
-  @Test def test_json5_4() { runner.runOneTest("json5_4") }
+  
+  val bb = testDir + "testWSPStar.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
+  
 
 }

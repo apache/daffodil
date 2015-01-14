@@ -65,7 +65,7 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
 
 case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
   extends LiteralNilInBytesBase(e, "LiteralNilKnown") {
-
+  
   final def computeLength(start: PState) = {
     (lengthInBytes, start.variableMap)
   }

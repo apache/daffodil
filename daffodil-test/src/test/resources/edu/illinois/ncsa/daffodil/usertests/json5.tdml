@@ -34,8 +34,8 @@
         <Json>
           <Structure>
             <Array>
-              <Value xsi:nil="true"/>
-              <Value xsi:nil="true"/>
+              <Value><Null xsi:nil="true"/></Value>
+              <Value><Null xsi:nil="true"/></Value>
             </Array>
           </Structure>
         </Json>
@@ -54,8 +54,8 @@
         <Json>
           <Structure>
             <Array>
-              <Value xsi:nil="true"/>
-              <Value xsi:nil="true"/>
+              <Value><Null xsi:nil="true"/></Value>
+              <Value><Null xsi:nil="true"/></Value>
             </Array>
           </Structure>
         </Json>

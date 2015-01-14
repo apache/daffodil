@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite suiteName="JSON5" xmlns="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
+  
+  <tdml:parserTestCase name="json5_5" root="Json" model="testWSPStar.dfdl.xsd"
+    description="test json">
+    <tdml:document>
+      { "foo" : 1X 2 X 3 }
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <Json>
+          <Structure>
+            <Object>
+              <NameValuePair>
+                <Name>foo</Name>
+                <Value><ArrayInt><Int>1</Int><Int>2</Int><Int>3</Int></ArrayInt></Value>
+              </NameValuePair>
+            </Object>
+          </Structure>
+        </Json>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+</testSuite>

@@ -130,9 +130,16 @@ This avoids the need for the checkConstraints stuff. -->
           else daf:error()
           }" />
       </xsd:sequence>
-      <xsd:element name="Null" type="xsd:int" nillable="true" dfdl:nilValue="null" dfdl:nilKind="literalValue" />
+      <xsd:element name="Null" type="xsd:int" nillable="true" dfdl:nilValue="null" dfdl:nilKind="literalValue"/>
       <xsd:element name="String" type="xsd:string" dfdl:initiator='"'
         dfdl:terminator='"' dfdl:escapeSchemeRef="backslash" />
+      <xsd:element name="ArrayInt"  >
+        <xsd:complexType>
+          <xsd:sequence dfdl:separator="%WSP*;X%WSP*;"  dfdl:separatorPosition="infix">
+            <xsd:element name="Int" type="xsd:int" minOccurs="3" maxOccurs="3" dfdl:lengthKind="delimited" dfdl:occursCountKind='implicit'  />
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
     </xsd:choice>
   </xsd:group>
   

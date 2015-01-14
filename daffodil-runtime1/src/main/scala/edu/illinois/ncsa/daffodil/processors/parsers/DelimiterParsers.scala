@@ -217,7 +217,8 @@ class StaticTextParser(
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,
-  encInfo: EncodingInfo)
+  encInfo: EncodingInfo,
+  isInitiator: Boolean)
   extends DelimiterTextParser(rd, encInfo)
   with TextReader
   with RuntimeEncodingMixin {
@@ -243,7 +244,7 @@ class StaticTextParser(
 
     val reader = getReader(dcharset.charset, start.bitPos, start)
 
-    if (!start.mpstate.foundDelimiter.isDefined) {
+    if (isInitiator || !start.mpstate.foundDelimiter.isDefined) {
 
       textParser.delims = delimValues.delims
       val result = textParser.parse(reader, true)
@@ -331,7 +332,8 @@ class DynamicTextParser(
   textParser: TextParser,
   positionalInfo: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  encInfo: EncodingInfo)
+  encInfo: EncodingInfo,
+  isInitiator: Boolean)
   extends DelimiterTextParser(rd, encInfo)
   with TextReader
   with RuntimeEncodingMixin {
@@ -388,7 +390,7 @@ class DynamicTextParser(
 
     val reader = getReader(dcharset.charset, start.bitPos, postEvalState)
 
-    if (!start.mpstate.foundDelimiter.isDefined) {
+    if (isInitiator || !start.mpstate.foundDelimiter.isDefined) {
       val allDynamicDelims = {
         val localDynamicDelims = if (delimValues.constantLocalDelimsCooked.isDefined) { Seq.empty } else { localDelimsCooked }
         localDynamicDelims.toSet.union(dynamicDelimsCooked.toSet)
