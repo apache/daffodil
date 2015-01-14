@@ -56,7 +56,13 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 
+/**
+ * Unlike say GlobalElementDecl, Defining annotations don't have a factory, because they
+ * don't have any characteristics that depend
+ * on context, i.e., that have to access the referring context to compute.
+ */
 abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaComponent)
   extends DFDLAnnotation(xmlArg, annotatedSCArg)
   with NamedMixin { self: DFDLAnnotation =>
@@ -66,9 +72,9 @@ abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSch
   // DFDLAnnotation class
   lazy val asAnnotation = self
 
-  @deprecated("use globalQName", "2014-09-18")
-  lazy val expandedNCNameToQName = XMLUtils.expandedQName(context.targetNamespace, name)
+  def globalQName = namedQName.asInstanceOf[GlobalQName]
 
-  lazy val globalQName: GlobalQName = QName.createGlobal(name, context.targetNamespace)
+  override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace)
+
 }
 

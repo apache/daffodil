@@ -2,7 +2,11 @@ package edu.illinois.ncsa.daffodil.xml
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.equality._
 import scala.language.reflectiveCalls
+import edu.illinois.ncsa.daffodil.api.Diagnostic
+import java.net.URISyntaxException
 
 /**
  * Please centralize QName handling here.
@@ -81,12 +85,39 @@ import scala.language.reflectiveCalls
 /*
  * Use this factory to create the right kinds of QNames.
  */
-object QName {
+object QName extends QNameRegexMixin {
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding) =
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Option[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope)
 
-  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding) =
+  private val NSFormat = """\{([^\{\}]*)\}(.+)""".r
+
+  /**
+   * Specialized getQName function for handling
+   * manually specified variables via the CLI.
+   *
+   * Variables will be of the format:
+   *
+   * 1. {nsURI}varName=value
+   * 2. {}varName=value       // explicitly means NoNamespace
+   * 3. varName=value         // unspecified namespace, i.e., might default
+   */
+  def refQNameFromExtendedSyntax(extSyntax: String): Either[Throwable, RefQName] = {
+    val res =
+      try {
+        extSyntax match {
+          case NSFormat("", varName) => Right(RefQName(None, varName, NoNamespace))
+          case NSFormat(uriString, varName) => Right(RefQName(None, varName, NS(uriString)))
+          case NCNameRegex(local) => Right(RefQName(None, local, UnspecifiedNamespace))
+          case _ => Left(new ExtendedQNameSyntaxException(Some(extSyntax), None))
+        }
+      } catch {
+        case ex: URISyntaxException => Left(new ExtendedQNameSyntaxException(None, Some(ex)))
+      }
+    res
+  }
+
+  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding): Option[StepQName] =
     StepQNameFactory.resolveRef(qnameString, scope)
 
   def createLocal(name: String, targetNamespace: NS, isQualified: Boolean,
@@ -109,7 +140,28 @@ object QName {
   }
 }
 
-trait QNameBase {
+protected sealed abstract class QNameSyntaxExceptionBase(kind: String, offendingSyntax: Option[String], cause: Option[Throwable])
+  extends Exception(offendingSyntax.getOrElse(null), cause.getOrElse(null)) {
+
+  override def getMessage = {
+    val intro = "Invalid syntax for " + kind + " "
+    val details = (offendingSyntax, cause) match {
+      case (Some(syntax), Some(cause)) => "'%s'. Caused by: '%s'".format(syntax, cause)
+      case (None, Some(cause)) => "'%s'".format(cause.getMessage())
+      case (Some(syntax), None) => "'%s'.".format(syntax)
+      case _ => Assert.usageError("supply either offendingSyntax, or cause or both")
+    }
+    intro + details
+  }
+}
+
+class ExtendedQNameSyntaxException(offendingSyntax: Option[String], cause: Option[Throwable])
+  extends QNameSyntaxExceptionBase("extended QName", offendingSyntax, cause)
+
+class QNameSyntaxException(offendingSyntax: Option[String], cause: Option[Throwable])
+  extends QNameSyntaxExceptionBase("QName", offendingSyntax, cause)
+
+protected trait QNameBase {
 
   /**
    * The prefix is not generally involved in matching, but they
@@ -122,12 +174,28 @@ trait QNameBase {
 
   override def toString = toPrettyString
 
+  /**
+   * For purposes of hashCode and equals, we disregard the prefix
+   */
+  override lazy val hashCode = namespace.hashCode + local.hashCode
+
+  override def equals(other: Any) = {
+    val res = other match {
+      case qn: QNameBase => (local =:= qn.local && namespace =:= qn.namespace)
+      case _ => false
+    }
+    res
+  }
+
   def toPrettyString: String = {
     (prefix, local, namespace) match {
-      case (None, local, ns) if ns.isNoNamespace => local
-      case (Some(pre), local, ns) if ns.isNoNamespace => pre + ":" + local
+      case (Some(pre), local, NoNamespace) => Assert.invariantFailed("QName has prefix, but NoNamespace")
+      case (Some(pre), local, UnspecifiedNamespace) => Assert.invariantFailed("QName has prefix, but unspecified namespace")
+
+      case (None, local, NoNamespace) => "{}" + local
+      case (None, local, UnspecifiedNamespace) => local
       case (None, local, ns) => "{" + ns + "}" + local
-      case (Some(pre), local, ns) => pre + ":" + local + "{xmlns:" + pre + "='" + ns + "'}"
+      case (Some(pre), local, ns) => pre + ":" + local
     }
   }
 
@@ -135,10 +203,11 @@ trait QNameBase {
    * expanded name looks like {...uri...}local.
    * The prefix isn't part of it.
    */
-  def toExpandedName: String = {
-    if (namespace.isNoNamespace) local
-    else "{" + namespace.uri + "}" + local
-  }
+  //  def toExpandedName: String = {
+  //    if (namespace.isNoNamespace) "{}" + local
+  //    else if (namespace.isUnspecified) local
+  //    else "{" + namespace.uri + "}" + local
+  //  }
 
   def matches[Q <: QNameBase](other: Q): Boolean
 }
@@ -146,15 +215,18 @@ trait QNameBase {
 /**
  * common base trait for named things, both global and local
  */
-trait NamedQName
+sealed trait NamedQName
   extends QNameBase {
-
+  if (prefix.isDefined) {
+    Assert.usage(!namespace.isNoNamespace)
+    Assert.usage(!namespace.isUnspecified)
+  }
 }
 
 /**
  * QName for a local declaration.
  */
-case class LocalDeclQName(prefix: Option[String], local: String, namespace: NS)
+final case class LocalDeclQName(prefix: Option[String], local: String, namespace: NS)
   extends NamedQName {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
@@ -188,7 +260,7 @@ case class LocalDeclQName(prefix: Option[String], local: String, namespace: NS)
 /**
  * QName for a global declaration or definition (of element, type, group, format, etc.)
  */
-case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
+final case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
   extends NamedQName {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
@@ -210,13 +282,16 @@ case class GlobalQName(prefix: Option[String], local: String, namespace: NS)
 /**
  * base trait for Qnames that reference other things
  */
-trait RefQNameBase extends QNameBase
+protected sealed trait RefQNameBase extends QNameBase
 
 /**
- * A qname as found in a ref="foo:bar" attribute.
+ * A qname as found in a ref="foo:bar" attribute, or a type="foo:barType" attribute.
+ * Or a variable reference e.g., \$foo:barVar in an expression.
+ *
+ * These are references to globally defined things.
  */
-case class RefQName(prefix: Option[String], local: String, namespace: NS)
-  extends QNameBase {
+final case class RefQName(prefix: Option[String], local: String, namespace: NS)
+  extends RefQNameBase {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other match {
@@ -224,6 +299,8 @@ case class RefQName(prefix: Option[String], local: String, namespace: NS)
       case _ => Assert.usageError("other must be a GlobalQName")
     }
   }
+
+  def toGlobalQName = QName.createGlobal(this.local, this.namespace)
 }
 
 /**
@@ -232,8 +309,8 @@ case class RefQName(prefix: Option[String], local: String, namespace: NS)
  * Differs from RefQName in that it has to match up to LocalDeclQNames
  * properly.
  */
-case class StepQName(prefix: Option[String], local: String, namespace: NS)
-  extends QNameBase {
+final case class StepQName(prefix: Option[String], local: String, namespace: NS)
+  extends RefQNameBase {
 
   override def matches[Q <: QNameBase](other: Q): Boolean = {
     other match {
@@ -260,17 +337,16 @@ case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
 }
 
-trait RefQNameFactoryBase[T] {
+protected trait RefQNameFactoryBase[T] extends QNameRegexMixin {
 
   protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding): Option[String]
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
   def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Option[T] = {
-    val (prefix, local) = qnameString.split(":").toSeq match {
-      case Seq(local) => (None, local)
-      case Seq(prefix, local) => (Some(prefix), local)
-      case _ => Assert.impossibleCase()
+    val (prefix, local) = qnameString match {
+      case QNameRegex(prefix, local) => (Option(prefix), local)
+      case _ => throw new QNameSyntaxException(Some(qnameString), None)
     }
     // note that the prefix, if defined, can never be ""
     val optURI = prefix match {
@@ -305,3 +381,28 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
     None // don't consider default namespace
 }
 
+trait QNameRegexMixin {
+  private val xC0_D6 = ("""[\x{C0}-\x{D6}]""")
+  private val xD8_F6 = """[\x{D8}-\x{F6}]"""
+  private val xF8_2FF = """[\x{F8}-\x{2FF}]"""
+  private val x370_37D = """[\x{370}-\x{37D}]"""
+  private val x37F_1FFF = """[\x{37F}-\x{1FFF}]"""
+  private val x200C_200D = """\x{200c}|\x{200d}"""
+  private val x2070_218F = """[\x{2070}-\x{218F}]"""
+  private val x2C00_2FEF = """[\x{2C00}-\x{2FEF}]"""
+  private val x3001_D7FF = """[\x{3001}-\x{D7FF}]"""
+  private val xF900_FDCF = """[\x{F900}-\x{FDCF}]"""
+  private val xFDF0_FFFD = """[\x{FDF0}-\x{FFFD}]"""
+  private val x10000_EFFFF = """[\x{10000}-\x{EFFFF}]"""
+  private val range0_9 = """[0-9]"""
+  private val xB7 = """\xB7"""
+  private val x0300_036F = """[\x{0300}-\x{036F}]"""
+  private val x203F_2040 = """[\x{203F}-\x{2040}]"""
+
+  private val ncNameStartChar = """[A-Z]|_|[a-z]""" + "|" + xC0_D6 + "|" + xD8_F6 + "|" + xF8_2FF + "|" + x37F_1FFF + "|" + x200C_200D + "|" +
+    x2070_218F + "|" + x2C00_2FEF + "|" + x3001_D7FF + "|" + xF900_FDCF + "|" + xFDF0_FFFD + "|" + x10000_EFFFF
+  private val ncNameChar = ncNameStartChar + "|" + "\\-" + "|" + "\\." + "|" + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
+  private val NCNameRegexString = "((?:" + ncNameStartChar + ")(?:(?:" + ncNameChar + ")*))"
+  val NCNameRegex = NCNameRegexString.r
+  val QNameRegex = ("(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString).r
+}

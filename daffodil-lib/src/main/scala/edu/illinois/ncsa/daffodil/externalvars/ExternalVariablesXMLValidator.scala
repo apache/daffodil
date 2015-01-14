@@ -11,7 +11,6 @@ import edu.illinois.ncsa.daffodil.util.Misc
 object ExternalVariablesValidator {
 
   final val extVarXsd = {
-    //val uri = Misc.getRequiredResource("/xsd/dafext.xsd")
     val stream = this.getClass().getResourceAsStream("/xsd/dafext.xsd")
     stream
   }
@@ -25,7 +24,6 @@ object ExternalVariablesValidator {
       validator.validate(new StreamSource(xmlFile))
     } catch {
       case ex: SAXException => Left(ex)
-      case ex: Exception => Left(ex)
     }
     Right(true)
   }

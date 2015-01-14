@@ -83,26 +83,15 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.RefQName
-
-sealed abstract class VariableState extends Serializable
-
-case object VariableUndefined extends VariableState
-case object VariableDefined extends VariableState
-case object VariableSet extends VariableState
-case object VariableRead extends VariableState
-
-/**
- * Core tuple of a pure functional "state" for variables.
- */
-case class Variable(state: VariableState, value: Maybe[AnyRef], rd: VariableRuntimeData, defaultValueExpr: Maybe[CompiledExpression]) extends Serializable
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
 
 /**
  * Factory for Variable objects
  */
 object VariableFactory {
   def create(defv: DFDLDefineVariable,
-    expandedName: String,
-    extType: String,
+    globalQName: GlobalQName,
+    primType: NodeInfo.PrimType,
     defaultValue: Maybe[String],
     external: Boolean,
     doc: SchemaDocument) = {
@@ -111,7 +100,8 @@ object VariableFactory {
       if (!defaultValue.isDefined) VariableUndefined
       else VariableDefined
 
-    val compilationTargetType = DPathUtil.convertTypeString(extType)
+    val compilationTargetType = primType
+
     val defaultValExpr = defaultValue.map { e =>
       ExpressionCompiler.compile(compilationTargetType, Found(e, defv.dpathCompileInfo))
     }
@@ -130,206 +120,13 @@ object VariableFactory {
       defv.runtimeData,
       defaultValExpr)
     var_
-
   }
-
-}
-
-object EmptyVariableMap extends VariableMap()
-
-/**
- * Pure functional data structure for implementing DFDL's variables.
- *
- * Key concepts: DFDL variables are single-assignment. Once they have been set, they may not be set again.
- * Furthermore, they have default values, and if the default value has been read, then they may not
- * subsequently be set.
- *
- * These constraints insure that the variables do NOT become a sneaky way to get generalized accumulators and hence turing-complete
- * semantics (and complexity) into designing and debugging DFDL schemas. They also allow for parallel implementations since
- * order of evaluation does not matter.
- *
- * What makes this tricky to implement is that we're using the JDOM representation for the DFDL Infoset. This gives us
- * XPath expression evaluation as part of the implementation; however, that implementation must be made to implement the
- * no-set-after-default-value-has-been-read behavior. This requires that reading the variables causes a state transition.
- * Our "pure functional" desire lives in tension with this.
- */
-class VariableMap(val variables: Map[String, List[List[Variable]]] = Map.empty)
-  extends WithParseErrorThrowing
-  with Serializable {
-
-  override def toString(): String = {
-    "VariableMap(" + variables.mkString(" | ") + ")"
-  }
-
-  def getVariableRuntimeData(qName: RefQName): Option[VariableRuntimeData] = {
-    val extName = qName.toExpandedName
-    val optLists = variables.get(extName)
-    optLists match {
-      case None => None // no such variable.
-      case Some(lists) => {
-        val flatLists = lists.flatten
-        Assert.invariant(flatLists.length > 0)
-        val varObj = flatLists.head
-        Some(varObj.rd)
-      }
-    }
-  }
-
-  var currentPState: Maybe[PState] = Nope
-
-  def context = Assert.invariantFailed("unused.")
-
-  private def mkVMap(newVar: Variable, firstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val newMap = variables + ((newVar.rd.extName, (newVar :: firstTier) :: enclosingScopes))
-    new VariableMap(newMap)
-  }
-
-  /**
-   * Convenient method of updating the entry of the Variable and returning a new VMap.
-   */
-  private def mkVMap(expandedName: String, updatedFirstTier: List[Variable], enclosingScopes: List[List[Variable]]) = {
-    val updatableMap = scala.collection.mutable.Map(variables.toSeq: _*)
-    updatableMap(expandedName) = updatedFirstTier :: enclosingScopes
-    new VariableMap(updatableMap.toMap)
-  }
-
-  /**
-   * Returns the value of a variable, constructing also a modified variable map which
-   * shows that the variable has been read (state VariableRead), when the variable hadn't
-   * previously been read yet.
-   */
-  def readVariable(expandedName: String, referringContext: ThrowsSDE): (AnyRef, VariableMap) = {
-    val lists = variables.get(expandedName)
-    lists match {
-
-      case Some(firstTier :: enclosingScopes) =>
-        firstTier match {
-
-          case Variable(VariableRead, v, ctxt, _) :: rest if (v.isDefined) => (v.get, this)
-
-          case Variable(st, v, ctxt, defExpr) :: rest if ((v.isDefined) && (st == VariableDefined || st == VariableSet)) => {
-            val newVar = Variable(VariableRead, One(v.get), ctxt, defExpr)
-            val vmap = mkVMap(newVar, firstTier, enclosingScopes)
-            val converted = v.get // already converted
-            (converted, vmap)
-          }
-
-          case _ => {
-            // Fix DFDL-766
-            val msg = "Variable map (runtime): variable %s has no value. It was not set, and has no default value."
-            // Runtime error:
-            if (currentPState.isDefined) currentPState.get.SDE(msg, expandedName)
-            // Compile time error:
-            else referringContext.SDE(msg, expandedName)
-          }
-        }
-
-      case Some(Nil) => Assert.invariantFailed()
-
-      case None => {
-        // Runtime error:
-        if (currentPState.isDefined) currentPState.get.SDE("Variable map (runtime): unknown variable %s", expandedName)
-        // Compile time error:
-        else referringContext.SDE("Variable map (compilation): unknown variable %s", expandedName)
-      }
-    }
-  }
-
-  /**
-   * Assigns a variable, returning a new VariableMap which shows the state of the variable.
-   */
-  def setVariable(expandedName: String, newValue: Any, referringContext: RuntimeData): VariableMap = {
-    variables.get(expandedName) match {
-
-      case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)
-
-      // There should always be a list with at least one tier in it (the global tier).
-      case x @ Some(firstTier :: enclosingScopes) => {
-        firstTier match {
-
-          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
-            mkVMap(newVar, firstTier, enclosingScopes)
-          }
-
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
-            val newVar = Variable(VariableSet, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
-            mkVMap(newVar, firstTier, enclosingScopes)
-          }
-
-          case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.schemaDefinitionError("Cannot set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-          }
-
-          case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            PE(referringContext.schemaFileLocation, "Cannot set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-          }
-
-          case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)
-        }
-      }
-      case x => Assert.invariantFailed("variables data structure not as expected. Should not be " + x)
-    }
-  }
-
-  /**
-   * Assigns a variable, returning a new VariableMap which shows the state of the variable.
-   */
-  def setExtVariable(expandedName: String, newValue: Any, referringContext: ThrowsSDE): VariableMap = {
-    variables.get(expandedName) match {
-
-      case None => referringContext.schemaDefinitionError("unknown variable %s", expandedName)
-
-      // There should always be a list with at least one tier in it (the global tier).
-      case x @ Some(firstTier :: enclosingScopes) => {
-        firstTier match {
-
-          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined && ctxt.external) => {
-            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
-            val newFirstTier = newVar :: rest
-            mkVMap(expandedName, newFirstTier, enclosingScopes)
-          }
-          case Variable(VariableDefined, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot set variable %s externally. State was: %s. Existing value: %s.", ctxt.extName, VariableDefined, v.get)
-            // this // Unaltered VMap
-          }
-
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest if ctxt.external => {
-            val newVar = Variable(VariableDefined, One(VariableUtils.convert(newValue.toString, ctxt)), ctxt, defaultExpr)
-            val newFirstTier = newVar :: rest
-            mkVMap(expandedName, newFirstTier, enclosingScopes)
-          }
-
-          case Variable(VariableUndefined, Nope, ctxt, defaultExpr) :: rest => {
-            referringContext.SDE("Cannot set variable %s externally. State was: %s.", ctxt.extName, VariableUndefined)
-            // this // Unaltered VMap
-          }
-
-          case Variable(VariableSet, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            // Shouldn't this be an impossible case? External variables should be defined before parsing.
-            // Parsing is the only point at which Set can be called?
-            referringContext.SDE("Cannot externally set variable %s twice. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-            // this // Unaltered VMap
-          }
-
-          case Variable(VariableRead, v, ctxt, defaultExpr) :: rest if (v.isDefined) => {
-            referringContext.SDE("Cannot externally set variable %s after reading the default value. State was: %s. Existing value: %s", ctxt.extName, VariableSet, v.get)
-            // this // Unaltered VMap
-          }
-
-          case _ => Assert.invariantFailed("variable map internal list structure not as expected: " + x)
-        }
-      }
-      case x => Assert.invariantFailed("variables data structure not as expected. Should not be " + x)
-    }
-  }
-
 }
 
 object VariableMapFactory {
 
   def create(dvs: Seq[DFDLDefineVariable]): VariableMap = {
-    val pairs = dvs.map { dv => (dv.extName, List(List(dv.newVariableInstance))) }
+    val pairs = dvs.map { dv => (dv.globalQName, List(List(dv.newVariableInstance))) }
     val hmap = pairs.toMap
     val vmap = new VariableMap(hmap)
     vmap
@@ -337,7 +134,7 @@ object VariableMapFactory {
 
   def setExternalVariables(currentVMap: VariableMap, bindings: Seq[Binding], referringContext: ThrowsSDE) = {
     var newVMap = currentVMap
-    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.extName, b.varValue, referringContext))
+    bindings.foreach(b => newVMap = newVMap.setExtVariable(b.globalQName, b.varValue, referringContext))
     newVMap
   }
 }

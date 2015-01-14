@@ -7,6 +7,10 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.SimpleTypeBase
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml.RefQName
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -38,6 +42,8 @@ sealed abstract class TypeNode(parent: TypeNode, childrenArg: => List[TypeNode])
       n.toLowerCase() == typeName.toLowerCase())
     list.size > 0
   }
+
+  lazy val globalQName: GlobalQName = QName.createGlobal(name, XMLUtils.XSD_NAMESPACE)
 }
 
 /*
@@ -328,6 +334,10 @@ object NodeInfo extends Enum {
    * enum.
    */
   object PrimType {
+
+    def fromRefQName(refQName: RefQName): Option[PrimType] = {
+      allPrims.find { prim => refQName.matches(prim.globalQName) }
+    }
 
     def fromNameString(name: String): Option[PrimType] = {
       val m: Option[PrimType] = allPrims.find { _.pname.toLowerCase == name.toLowerCase }

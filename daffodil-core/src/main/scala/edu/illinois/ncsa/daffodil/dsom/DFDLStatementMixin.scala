@@ -94,7 +94,7 @@ trait DFDLStatementMixin extends ThrowsSDE { self: AnnotatedSchemaComponent =>
   }
 
   final def checkDistinctVariableNames(svs: Seq[DFDLSetVariable]) = {
-    val names = svs.map { _.defv.extName }
+    val names = svs.map { _.defv.globalQName }
     val areAllDistinct = names.distinct.size == names.size
     schemaDefinitionUnless(areAllDistinct, "Variable names must all be distinct at the same location: %s", names)
     svs

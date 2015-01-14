@@ -31,9 +31,9 @@ class FileLineColInfo(pre: String, label: String,
   // has the dafint binding in it already, we don't add it again.
   // 
   private lazy val scopeWithDafInt = {
-    val intPre = scope.getPrefix(XMLUtils.INT_NS)
+    val intPre = scope.getPrefix(XMLUtils.INT_NS.toString)
     if (intPre == null)
-      NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
+      NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS.toString, scope)
     else {
       Assert.usage(intPre == XMLUtils.INT_PREFIX) // can't deal with some other binding for dafint.
       scope
@@ -42,9 +42,9 @@ class FileLineColInfo(pre: String, label: String,
 
   private val haveFileName = isFileRootNode && uriString != ""
 
-  val lineAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
-  val colAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME).map { _.text }
-  val fileAttr = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME).map { _.text }
+  val lineAttr = attrs.get(XMLUtils.INT_NS.toString, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
+  val colAttr = attrs.get(XMLUtils.INT_NS.toString, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME).map { _.text }
+  val fileAttr = attrs.get(XMLUtils.INT_NS.toString, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME).map { _.text }
 
   val alreadyHasLocation = lineAttr.isDefined || colAttr.isDefined
 

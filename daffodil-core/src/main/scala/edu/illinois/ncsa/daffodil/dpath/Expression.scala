@@ -1088,7 +1088,11 @@ case class VariableRef(val qnameString: String)
   }
   override def text = "$" + qnameString
 
-  lazy val theQName: RefQName = resolveRef(qnameString)
+  lazy val theQName: GlobalQName = {
+    val refQ = resolveRef(qnameString)
+    val global = QName.createGlobal(refQ.local, refQ.namespace)
+    global
+  }
 
   lazy val vrd = compileInfo.variableMap.getVariableRuntimeData(theQName).getOrElse(
     SDE("Undefined variable: %s", text))
@@ -1136,7 +1140,7 @@ case class FunctionCallExpression(functionQNameString: String, expressions: List
     val DFDL = XMLUtils.DFDL_NAMESPACE
     val FUNC = XMLUtils.XPATH_FUNCTION_NAMESPACE
     val XSD = XMLUtils.XSD_NAMESPACE
-    val DAF = XMLUtils.DAFFODIL_EXTENSION_NAMESPACE
+    val DAF = XMLUtils.EXT_NS
     val funcObj = (functionQName, expressions) match {
 
       case (RefQName(_, "trace", DAF), args) =>

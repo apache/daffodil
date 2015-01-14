@@ -49,7 +49,7 @@ abstract class DFDLConstructorFunction(recipe: CompiledDPath, argType: NodeInfo.
  * complement implementation of the type of the
  * argument. Digits 0-9, A-F are used.
  * The number of digits produced depends on the
- * type of $arg, being 2, 4, 8 or 16. If $arg is a
+ * type of \$arg, being 2, 4, 8 or 16. If \$arg is a
  * literal number then the type is the smallest
  * signed type (long, int, short, byte) that can
  * contain the value.

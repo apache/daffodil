@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
+import edu.illinois.ncsa.daffodil.xml.RefQName
 
 /**
  * Base class for annotations that carry format properties
@@ -74,8 +75,8 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   // to a namespace binding that is in force right here on this object
   // So we can resolve the QName relative to this.
   //
-  lazy val refPair = ref.map { resolveQName(_) }
-  lazy val referencedDefineFormat = refPair.flatMap { case (ns, name) => schemaSet.getDefineFormat(ns, name) }
+  lazy val qns = ref.map { resolveQName(_) }
+  lazy val referencedDefineFormat = qns.flatMap { case qn => schemaSet.getDefineFormat(qn) }
   lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
 
   /**
@@ -111,16 +112,16 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   }
 
   // The ListMap collection preserves insertion order.
-  type NamedFormatMap = ListMap[(NS, String), DFDLFormat]
+  type NamedFormatMap = ListMap[RefQName, DFDLFormat]
 
-  val emptyNamedFormatMap = ListMap[(NS, String), DFDLFormat]()
+  val emptyNamedFormatMap = ListMap[RefQName, DFDLFormat]()
   /**
    * build up map of what we have 'seen' as we go so we can detect cycles
    */
   private def getFormatRefs(seen: NamedFormatMap): NamedFormatMap = {
     val res =
-      refPair.map {
-        case pair @ (ns, ln) =>
+      qns.map {
+        case qn =>
           // first we have to adjust the namespace
           // because a file with no target namespace, 
           // can reference something in another file, which also has no target 
@@ -131,24 +132,23 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
           // so just because we had <dfdl:format ref="someFormat"/> and the
           // ref has no namespace prefix on it, doesn't mean that the 
           // defineFormat we're seeking is in no namespace. 
-          val adjustedNS = adjustNamespace(ns)
-          val newPair = (adjustedNS, ln)
-          val notSeenIt = seen.get(newPair) == None
+          val adjustedNS = adjustNamespace(qn.namespace)
+          val adjustedQN = RefQName(None, qn.local, adjustedNS)
+          val notSeenIt = seen.get(adjustedQN) == None
           schemaDefinitionUnless(notSeenIt, "Format ref attributes form a cycle: \n%s\n%s",
-            (newPair, locationDescription),
-            seen.map { case (pair, fmtAnn) => (pair, fmtAnn.locationDescription) }.mkString("\n"))
-          val defFmt = schemaSet.getDefineFormat(adjustedNS, ln).getOrElse(
-            schemaDefinitionError("defineFormat with name {%s}%s, was not found.", newPair._1, newPair._2))
-          log(LogLevel.Debug, "found defineFormat named: %s", newPair)
+            (adjustedQN, locationDescription),
+            seen.map { case (qn, fmtAnn) => (qn, fmtAnn.locationDescription) }.mkString("\n"))
+          val defFmt = schemaSet.getDefineFormat(adjustedQN).getOrElse {
+            schemaDefinitionError("defineFormat with name '%s', was not found.", adjustedQN.toString)
+          }
+          log(LogLevel.Debug, "found defineFormat named: %s", adjustedQN)
           val fmt = defFmt.formatAnnotation
-          val newSeen = seen + (newPair -> fmt)
-          // println("seen now: " + newSeen)
+          val newSeen = seen + (adjustedQN -> fmt)
           val moreRefs = fmt.getFormatRefs(newSeen)
-          // println("final seen: " + moreRefs)
           moreRefs
       }.getOrElse({
         lazy val seenStrings = seen.map {
-          case ((ns, name), v) => name // + " is " + v.xml 
+          case (qn, v) => qn.local // + " is " + v.xml 
         }.toSeq
         log(LogLevel.Debug, "Property sources are: %s", seenStrings.mkString("\n"))
         seen
@@ -162,7 +162,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   final lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
 
   def getFormatChain(): ChainPropProvider = {
-    val formatAnnotations = formatRefMap.map { case ((_, _), fa) => fa }.toSeq
+    val formatAnnotations = formatRefMap.map { case (_, fa) => fa }.toSeq
     val withMe = (this +: formatAnnotations).distinct
     val res = new ChainPropProvider(withMe, this.prettyName)
     res
@@ -173,7 +173,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * priority meaning at the front of the list.
    */
   lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
-    val fmts = formatRefMap.map { case ((ns, ln), fmt) => fmt }
+    val fmts = formatRefMap.map { case (_, fmt) => fmt }
     log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
     val seq = Seq(this) ++ fmts
     seq

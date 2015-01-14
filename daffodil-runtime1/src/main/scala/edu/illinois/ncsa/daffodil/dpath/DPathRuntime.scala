@@ -12,7 +12,7 @@ import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.xml.RefQName
+import edu.illinois.ncsa.daffodil.xml._
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -122,14 +122,12 @@ abstract class RecipeOpWithSubRecipes(recipes: List[CompiledDPath]) extends Reci
 
 }
 
-case class VRef(qn: RefQName, context: ThrowsSDE)
+case class VRef(qn: GlobalQName, context: ThrowsSDE)
   extends RecipeOp {
-
-  val expName = qn.toExpandedName
 
   override def run(dstate: DState) {
     Assert.invariant(dstate.vmap != null)
-    val (res, newVMap) = dstate.vmap.readVariable(expName, context)
+    val (res, newVMap) = dstate.vmap.readVariable(qn, context)
     dstate.setVMap(newVMap)
     dstate.setCurrentValue(res)
   }

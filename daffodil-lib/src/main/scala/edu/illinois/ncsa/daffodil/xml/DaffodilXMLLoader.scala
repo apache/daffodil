@@ -444,11 +444,6 @@ trait SchemaAwareLoaderMixin {
   sf.setResourceResolver(resolver)
   sf.setErrorHandler(errorHandler)
 
-  @deprecated("use input sources, not Files", "2014-11-21")
-  def validateSchemaFile(file: File) = {
-    sf.newSchema(file)
-  }
-
   /**
    * This loads the DFDL schema as an XML Schema. This will
    * check many more things about the DFDL schema other than

@@ -76,8 +76,8 @@ trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent
       }
       case Found("", _) => None // empty string means no escape scheme
       case Found(qName, loc) => {
-        val (nsURI, name) = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
-        val defESFactory = schemaSet.getDefineEscapeScheme(nsURI, name)
+        val qn = loc.resolveQName(qName) // loc is where we resolve the QName prefix.
+        val defESFactory = schemaSet.getDefineEscapeScheme(qn)
         //
         // We have escape scheme factories because an escape schema can have 
         // expressions (for escapeCharacter and escapeEscapeCharacter), and 

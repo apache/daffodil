@@ -40,7 +40,6 @@ import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.xml.RefQName
 import scala.util.parsing.input.CharSequenceReader
 
 /**
@@ -61,7 +60,7 @@ class DFDLPathExpressionParser(
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean = false) extends DebugRegexParsers {
+  isEvaluatedAbove: Boolean = false) extends DebugRegexParsers with QNameRegexMixin {
 
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
@@ -364,29 +363,5 @@ class DFDLPathExpressionParser(
       else sl.substring(1, sl.length - 1) // 2nd arg is endPos, not how many chars.
     }
   }
-
-  val xC0_D6 = ("""[\x{C0}-\x{D6}]""")
-  val xD8_F6 = """[\x{D8}-\x{F6}]"""
-  val xF8_2FF = """[\x{F8}-\x{2FF}]"""
-  val x370_37D = """[\x{370}-\x{37D}]"""
-  val x37F_1FFF = """[\x{37F}-\x{1FFF}]"""
-  val x200C_200D = """\x{200c}|\x{200d}"""
-  val x2070_218F = """[\x{2070}-\x{218F}]"""
-  val x2C00_2FEF = """[\x{2C00}-\x{2FEF}]"""
-  val x3001_D7FF = """[\x{3001}-\x{D7FF}]"""
-  val xF900_FDCF = """[\x{F900}-\x{FDCF}]"""
-  val xFDF0_FFFD = """[\x{FDF0}-\x{FFFD}]"""
-  val x10000_EFFFF = """[\x{10000}-\x{EFFFF}]"""
-  val range0_9 = """[0-9]"""
-  val xB7 = """\xB7"""
-  val x0300_036F = """[\x{0300}-\x{036F}]"""
-  val x203F_2040 = """[\x{203F}-\x{2040}]"""
-
-  val ncNameStartChar = """[A-Z]|_|[a-z]""" + "|" + xC0_D6 + "|" + xD8_F6 + "|" + xF8_2FF + "|" + x37F_1FFF + "|" + x200C_200D + "|" +
-    x2070_218F + "|" + x2C00_2FEF + "|" + x3001_D7FF + "|" + xF900_FDCF + "|" + xFDF0_FFFD + "|" + x10000_EFFFF
-  val ncNameChar = ncNameStartChar + "|" + "\\-" + "|" + "\\." + "|" + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
-  val NCNameRegexString = ("(" + ncNameStartChar + ")((" + ncNameChar + ")*)")
-  val NCNameRegex = NCNameRegexString.r
-  val QNameRegex = (NCNameRegexString + ":" + NCNameRegexString).r
 
 }

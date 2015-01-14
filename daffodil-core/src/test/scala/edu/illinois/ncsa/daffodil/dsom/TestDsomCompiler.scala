@@ -472,7 +472,8 @@ class TestDsomCompiler extends Logging {
 
     val gs1 = gs1f.forElement(e1) // Global Simple Type - aType
 
-    assertEquals("ex:aaType", gs1.restrictionBase)
+    assertEquals("ex", gs1.restrictionBase.prefix.get)
+    assertEquals("aaType", gs1.restrictionBase.local)
 
     // println(gs1.properties)
     assertTrue(gs1.verifyPropValue("alignmentUnits", "bytes")) // SimpleType - Local
@@ -633,7 +634,9 @@ class TestDsomCompiler extends Logging {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
 
-    val (nsURI, localName) = ge1.formatAnnotation.resolveQName("tns:ref1")
+    val qn = ge1.formatAnnotation.resolveQName("tns:ref1")
+    val nsURI = qn.namespace
+    val localName = qn.local
 
     // println(nsURI + ", " + localName)
     assertEquals("ref1", localName)

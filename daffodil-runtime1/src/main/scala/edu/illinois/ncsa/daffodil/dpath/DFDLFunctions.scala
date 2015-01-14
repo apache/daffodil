@@ -104,13 +104,13 @@ case class DFDLContainsDFDLEntities(recipe: CompiledDPath, argType: NodeInfo.Kin
 }
 
 /**
- * Returns the timezone component, if any, of $arg as an xs:string.  The $arg
+ * Returns the timezone component, if any, of \$arg as an xs:string.  The \$arg
  * is of type xs:dateTime, xs:date, or xs:time.
  *
- * If $arg has a timezone component, then the result is a string in the
+ * If \$arg has a timezone component, then the result is a string in the
  * format of an ISO Time zone designator.  Interpreted as an offset from UTC,
  * its value may range from +14:00 to -14:00 hours, both inclusive.  The UTC
- * time zone is represented as "+00:00".  If the $arg has no timezone
+ * time zone is represented as "+00:00".  If the \$arg has no timezone
  * component, then "" (empty string) is returned.
  */
 case class DFDLTimeZoneFromDFDLCalendar(recipe: CompiledDPath, argType: NodeInfo.Kind)

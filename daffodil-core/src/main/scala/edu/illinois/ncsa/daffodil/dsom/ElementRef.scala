@@ -89,7 +89,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   // Need to go get the Element we are referencing
   lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
   private val referencedElement_ = LV('referencedElement) {
-    val ged = this.schemaSet.getGlobalElementDecl(namespace, localName)
+    val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
@@ -108,7 +108,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   lazy val (ns, localName) = {
     val qname = resolveQName(ref)
-    qname
+    (qname.namespace, qname.local)
   }
 
   override lazy val namespace = ns

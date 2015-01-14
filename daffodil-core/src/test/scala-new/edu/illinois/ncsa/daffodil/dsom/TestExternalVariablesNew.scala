@@ -151,7 +151,7 @@ class TestExternalVariablesNew {
   }
 
   def checkResult(vmap: VariableMap, keyToFind: String, expectedValue: String) = {
-    vmap.variables.find { case (key, value) => key == keyToFind } match {
+    vmap.variables.find { case (qn, value) => qn.toString == keyToFind } match {
       case None => fail("Did not find " + keyToFind + " in the VariableMap.")
       case Some((key, value)) => {
         // Found var1 but is the value correct?
@@ -193,6 +193,10 @@ class TestExternalVariablesNew {
     c.setValidateDFDLSchemas(false)
 
     val pf = c.compileSources2(sources)
+    pf.isError
+    pf.diagnostics.foreach { d => println(d) }
+    assertFalse(pf.isError)
+
     val sset = pf.sset
 
     val finalVars = sset.variableMap.variables
@@ -201,7 +205,7 @@ class TestExternalVariablesNew {
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")
 
     // var2's namespace was NoNamespace, so we expect to find it
-    checkResult(sset.variableMap, "var2", "value2")
+    checkResult(sset.variableMap, "{}var2", "value2")
 
     // var3's namespace was not given so we needed to figure it out.
     // We need to determine if we successfully figured out the namespace
@@ -249,7 +253,7 @@ class TestExternalVariablesNew {
     checkResult(sset.variableMap, "{http://example.com}var1", "value1")
 
     // var2's namespace was NoNamespace, so we expect to find it
-    checkResult(sset.variableMap, "var2", "value2")
+    checkResult(sset.variableMap, "{}var2", "value2")
 
     // The other var2's namespace was http://example.com, so we expect
     // it to be unchanged.

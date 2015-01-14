@@ -352,8 +352,8 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   }
 
   /**
-   * Returns true if and only if the value of $arg1 is equal to the value
-   * of $arg2 according to the algorithm defined in section 3.2.7.4 of
+   * Returns true if and only if the value of $v1 is equal to the value
+   * of $v2 according to the algorithm defined in section 3.2.7.4 of
    * [XML Schema Part 2: Datatypes Second Edition] "Order relation on dateTime"
    *  for xs:dateTime values with timezones. Returns false otherwise.
    *
@@ -368,8 +368,8 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   }
 
   /**
-   * Returns true if and only if the value of $arg1 is less than the value
-   * of $arg2 according to the algorithm defined in section 3.2.7.4
+   * Returns true if and only if the value of $v1 is less than the value
+   * of $v2 according to the algorithm defined in section 3.2.7.4
    * of [XML Schema Part 2: Datatypes Second Edition]
    * "Order relation on dateTime" for xs:dateTime values with timezones.
    * Returns false otherwise.
@@ -384,8 +384,8 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
   }
 
   /**
-   * Returns true if and only if the value of $arg1 is greater than the
-   * value of $arg2 according to the algorithm defined in section 3.2.7.4 of
+   * Returns true if and only if the value of $v1 is greater than the
+   * value of $v2 according to the algorithm defined in section 3.2.7.4 of
    * [XML Schema Part 2: Datatypes Second Edition] "Order relation on dateTime"
    * for xs:dateTime values with timezones. Returns false otherwise.
    *

@@ -71,25 +71,16 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
-  @deprecated("Use real QNames system.", "2014-10-29")
-  lazy val extName = expandedNCNameToQName
-
-  @deprecated("Use real QNames system.", "2014-10-29")
-  lazy val (typeURI, typeLocalName) = XMLUtils.QName(node.scope, typeQNameString, this)
-
-  @deprecated("Use real QNames system.", "2014-10-29")
-  lazy val extType = XMLUtils.expandedQName(typeURI, typeLocalName)
-
   lazy val typeQName = QName.resolveRef(typeQNameString, namespaces).getOrElse(
     SDE("Variables must have primitive types. Type is '%s'.", typeQNameString))
 
   lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
-  lazy val newVariableInstance = VariableFactory.create(this, extName, extType, defaultValue, external, doc)
+  lazy val newVariableInstance = VariableFactory.create(this, globalQName, primType, defaultValue, external, doc)
 
   // So that we can display the namespace information associated with
   // the variable when toString is called.
-  override lazy val prettyName = Misc.getNameFromClass(this) + "(" + extName + ")"
+  override lazy val prettyName = this.namedQName.toPrettyString
 
   override lazy val runtimeData = variableRuntimeData
 
@@ -100,35 +91,38 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     this.namespaces,
     this.external,
     this.defaultValue,
-    this.extName,
-    this.extType,
-    this.globalQName,
+    this.typeQName,
+    this.namedQName.asInstanceOf[GlobalQName],
     this.primType)
 }
 
+abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
+  extends DFDLStatement(node, decl) {
+  lazy val ref = getAttributeRequired("ref")
+  lazy val varQName = resolveQName(ref)
+
+  def variableRuntimeData = defv.runtimeData
+
+  lazy val defv = decl.schemaSet.getDefineVariable(varQName).getOrElse(
+    this.schemaDefinitionError("Variable definition not found: %s", ref))
+}
+
 class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
-  extends DFDLStatement(node, decl) // with NewVariableInstance_AnnotationMixin 
+  extends VariableReference(node, decl) // with NewVariableInstance_AnnotationMixin 
   {
   requiredEvaluations(endGram)
-  lazy val ref = getAttributeRequired("ref")
   lazy val defaultValue = getAttributeOption("defaultValue")
 
   lazy val gram: Gram = NewVariableInstanceStart(decl, this)
   lazy val endGram: Gram = NewVariableInstanceEnd(decl, this)
-
-  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument)
-  lazy val expName = XMLUtils.expandedQName(uri, localName)
-  lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
-    this.schemaDefinitionError("Variable not found: %s", ref))
 
   lazy val newVariableInstance = defv.newVariableInstance
 
 }
 
 class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
-  extends DFDLStatement(node, decl) // with SetVariable_AnnotationMixin 
+  extends VariableReference(node, decl) // with SetVariable_AnnotationMixin 
   {
-  lazy val ref = getAttributeRequired("ref")
   lazy val attrValue = getAttributeOption("value")
   lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
   lazy val eltValue = eltChildren.text.trim
@@ -138,10 +132,6 @@ class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (Some(v), ev) if (ev != "") => decl.SDE("Cannot have both a value attribute and an element value: %s", node)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
-
-  lazy val (uri, localName) = XMLUtils.QName(decl.namespaces, ref, decl.schemaDocument.runtimeData)
-  lazy val defv = decl.schemaSet.getDefineVariable(uri, localName).getOrElse(
-    schemaDefinitionError("Unknown variable: %s", ref))
 
   lazy val gram = gram_.value
   private val gram_ = LV('gram) {

@@ -91,7 +91,7 @@
         defaultValue="2003年08月27日" /> <!-- use of Russian, and Japanese Kanji in string literals -->
     </appinfo>
 
-    <appinfo source="not DFDL as a source">
+    <appinfo source="urn:not_DFDL_as_a_source">
       This is other appinfo. The requirement for
       DFDL is just that it not mind
       that this is here. It must be ignored.

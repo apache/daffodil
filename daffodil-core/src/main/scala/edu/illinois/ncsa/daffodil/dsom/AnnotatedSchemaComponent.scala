@@ -40,6 +40,8 @@ import scala.xml.Text
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Shared characteristics of any annotated schema component.
@@ -202,17 +204,26 @@ trait AnnotatedMixin
         ai.attribute("source") match {
           case None => false
           case Some(n) => {
-            val str = n.text
+            val sourceNS = NS(n.text)
             //
             // Keep in mind. As the DFDL standard evolves, and new versions
             // come out, this code may change to tolerate different source
             // attributes that call out distinct versions of the standard.
             //
-            val officialAppinfoSourceAttribute = XMLUtils.dfdlAppinfoSource
-            val hasRightSource = (str == officialAppinfoSourceAttribute)
-            val isAcceptable = str.contains("ogf") && str.contains("dfdl")
+            val officialAppinfoSourceAttributeNS = XMLUtils.dfdlAppinfoSource
+            //
+            // Note: use of the strongly typed =:= operator below.
+            // 
+            // I got sick of mysterious behavior where turns out we are
+            // comparing two things of different types.
+            //
+            // This fixes a bug where we were comparing a string to a NS 
+            // and getting false, where the types should have been the same.
+            //
+            val hasRightSource = (sourceNS =:= officialAppinfoSourceAttributeNS)
+            val isAcceptable = sourceNS.toString.contains("ogf") && sourceNS.toString.contains("dfdl")
             schemaDefinitionWarningWhen(!hasRightSource && isAcceptable,
-              "The xs:appinfo source attribute value '%s' should be '%s'.", str, officialAppinfoSourceAttribute)
+              "The xs:appinfo source attribute value '%s' should be '%s'.", sourceNS, officialAppinfoSourceAttributeNS)
             (hasRightSource || isAcceptable)
           }
         }

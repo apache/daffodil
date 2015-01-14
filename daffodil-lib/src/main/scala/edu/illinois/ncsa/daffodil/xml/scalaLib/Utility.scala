@@ -54,7 +54,7 @@ object Utility extends AnyRef with parsing.TokenTests {
    */
   def trim(x: Node): Node = x match {
     case Elem(pre, lab, md, scp, child @ _*) =>
-      Elem(pre, lab, md, scp, (child flatMap trimProper): _*)
+      Elem(pre, lab, md, scp, true, (child flatMap trimProper): _*)
   }
 
   /**
@@ -63,7 +63,7 @@ object Utility extends AnyRef with parsing.TokenTests {
    */
   def trimProper(x: Node): Seq[Node] = x match {
     case Elem(pre, lab, md, scp, child @ _*) =>
-      Elem(pre, lab, md, scp, (child flatMap trimProper): _*)
+      Elem(pre, lab, md, scp, true, (child flatMap trimProper): _*)
     case Text(s) =>
       new TextBuffer().append(s).toText
     case _ =>
@@ -84,7 +84,7 @@ object Utility extends AnyRef with parsing.TokenTests {
    */
   def sort(n: Node): Node = n match {
     case Elem(pre, lab, md, scp, child @ _*) =>
-      Elem(pre, lab, sort(md), scp, (child map sort): _*)
+      Elem(pre, lab, sort(md), scp, true, (child map sort): _*)
     case _ => n
   }
 
@@ -182,25 +182,6 @@ object Utility extends AnyRef with parsing.TokenTests {
   //   toXMLsb(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, minimizeTags)
   //   sb.toString()
   // }
-
-  /**
-   * Serialize the provided Node to the provided StringBuilder.
-   * <p/>
-   * Note that calling this source-compatible method will result in the same old, arguably almost universally unwanted,
-   * behaviour.
-   */
-  @deprecated("Please use `serialize` instead and specify a `minimizeTags` parameter", "2.10.0")
-  def toXML(
-    x: Node,
-    pscope: NamespaceBinding = TopScope,
-    sb: StringBuilder = new StringBuilder,
-    stripComments: Boolean = false,
-    decodeEntities: Boolean = true,
-    preserveWhitespace: Boolean = false,
-    minimizeTags: Boolean = false): StringBuilder =
-    {
-      serialize(x, pscope, sb, stripComments, decodeEntities, preserveWhitespace, if (minimizeTags) MinimizeMode.Always else MinimizeMode.Never)
-    }
 
   /**
    * Serialize an XML Node to a StringBuilder.

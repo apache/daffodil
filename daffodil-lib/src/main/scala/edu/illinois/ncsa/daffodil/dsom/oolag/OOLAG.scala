@@ -553,7 +553,7 @@ object OOLAG extends Logging {
         // can tolerate errors and go on with compilation.
         case eah: ErrorAlreadyHandled => {
           log(OOLAGDebug(catchMsg, descrip, eah))
-          oolagAction(eah)
+          throw eah // oolagAction(eah)
         }
         //
         // Already tried means we got to this same OOLAG value evaluation again, 

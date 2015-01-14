@@ -295,7 +295,7 @@ catalogs=testData_OnClassPath/testCatalog.xml
   // This is one of our internal namespaces. Let's make a schema that uses it
   // and see whose gets loaded, this one, or our internal one.
 
-  val ns = XMLUtils.DAFFODIL_INTERNAL_NAMESPACE
+  val ns = XMLUtils.INT_NS
   val xsd = XMLUtils.XSD_NAMESPACE
   val ex = XMLUtils.EXAMPLE_NAMESPACE
 

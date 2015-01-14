@@ -148,7 +148,7 @@ class Compiler {
    * Compile DFDL schema files into a [[ProcessorFactory]]
    *
    * To allow jar-file packaging, (where the schema files might be part of a jar),
-   * it is recommended to use [[Compile#compileSources]] instead.
+   * it is recommended to use [[Compiler#compileSources]] instead.
    *
    * @param schemaFiles array of DFDL schema files used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
@@ -289,7 +289,9 @@ class Compiler {
 /**
  * Factory to create [[DataProcessor]]'s, used for parsing data
  *
- * Do not use the [[ProcessorFactory#ProcessorFactory(edu.illinois.ncsa.daffodil.compiler.ProcessorFactory)]] constructor to create a [[ProcessorFactory]]. Instead, use [[Compiler#compile(File[])]]
+ * Do not use the [[ProcessorFactory#ProcessorFactory(edu.illinois.ncsa.daffodil.compiler.ProcessorFactory)]]
+ * constructor to create a [[ProcessorFactory]].
+ * Instead, use [[Compiler#compileFiles(File[])]]
  */
 class ProcessorFactory(pf: SProcessorFactory)
   extends WithDiagnostics(pf) {

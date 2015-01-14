@@ -268,7 +268,12 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   def getGlobalComplexTypeDef(name: String) = globalComplexTypeDefs.find { _.name == name }
   def getGlobalGroupDef(name: String) = globalGroupDefs.find { _.name == name }
 
-  def getDefineFormat(name: String) = defineFormats.find { _.name == name }
+  def getDefineFormat(name: String) = defineFormats.find {
+    df =>
+      val dfName = df.namedQName.local
+      val res = dfName == name
+      res
+  }
   def getDefineVariable(name: String) = {
     val res = defineVariables.find { _.name == name }
     res

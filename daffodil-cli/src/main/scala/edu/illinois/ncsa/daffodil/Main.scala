@@ -73,6 +73,7 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.Await
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.compiler.InvalidParserException
@@ -224,7 +225,20 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[(Option[NS], String)]((s: String) => XMLUtils.getQName(s))
+  def qnameConvert(s: String): (Option[NS], String) = {
+    val eQN = QName.refQNameFromExtendedSyntax(s)
+    eQN match {
+      case Left(th) => throw th
+      case Right(qn) => {
+        val optNS =
+          if (qn.namespace.isUnspecified) None
+          else Some(qn.namespace)
+        (optNS, qn.local)
+      }
+    }
+  }
+
+  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[(Option[NS], String)](qnameConvert _)
 
   implicit def fileResourceURIConverter = singleListArgConverter[URI]((s: String) => {
     val file = new File(s)

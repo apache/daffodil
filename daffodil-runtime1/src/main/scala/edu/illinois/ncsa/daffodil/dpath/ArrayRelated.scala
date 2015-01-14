@@ -9,7 +9,7 @@ case object FNCount extends RecipeOp {
 }
 
 /**
- * Returns $arg if it contains exactly one item. Otherwise, raises an error
+ * Returns \$arg if it contains exactly one item. Otherwise, raises an error
  */
 case object FNExactlyOne extends RecipeOp {
   override def run(dstate: DState) {

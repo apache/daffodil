@@ -32,7 +32,7 @@ package edu.illinois.ncsa.daffodil.externalvars
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.util._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 
 class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -93,8 +94,10 @@ class TestExternalVariablesLoader extends Logging {
       <dfdl:defineVariable name="v_with_default" type="xs:int" external="true" defaultValue="42"/>
     }
 
-    val v_no_default = "{http://example.com}v_no_default"
-    val v_with_default = "{http://example.com}v_with_default"
+    val Right(v_no_default) =
+      QName.refQNameFromExtendedSyntax("{http://example.com}v_no_default").right.map { _.toGlobalQName }
+    val Right(v_with_default) =
+      QName.refQNameFromExtendedSyntax("{http://example.com}v_with_default").right.map { _.toGlobalQName }
 
     val (sd, sset) = generateSD(topLevelAnnotations)
     val initialVMap = sset.variableMap
@@ -126,7 +129,7 @@ class TestExternalVariablesLoader extends Logging {
   @Test def test_ext_var_not_match_defined_var() = {
     val extVarFile1 = Misc.getRequiredResource("/test/external_vars_1.xml")
 
-    val e = intercept[Exception] {
+    val e = intercept[SchemaDefinitionError] {
       // fakeSD does not contain any defineVariables
       // Because we are trying to load external variables and none are defined we should SDE.
       val vmap = ExternalVariablesLoader.loadVariables(extVarFile1, Fakes.fakeSD, EmptyVariableMap)

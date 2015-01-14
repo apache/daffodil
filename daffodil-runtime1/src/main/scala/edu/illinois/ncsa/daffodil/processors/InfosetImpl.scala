@@ -45,12 +45,12 @@ class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
 }
 
 class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError {
-  def this(name: String, namespace: NS, slot: Long, length: Long ) = {
+  def this(name: String, namespace: NS, slot: Long, length: Long) = {
     this("Value %d is out of range for the '%s' array%swith length %d".format(
-          slot,
-          name,
-          if (namespace == NoNamespace) " " else " in namespace '%s' ".format(namespace),
-          length))
+      slot,
+      name,
+      if (namespace == NoNamespace) " " else " in namespace '%s' ".format(namespace),
+      length))
   }
 
   override def getMessage: String = msg
@@ -575,35 +575,40 @@ object Infoset {
    */
   // TODO: consolidate into the NodeInfo object where there is already similar
   // code. Or maybe consolidates into the DPath Conversions.scala code?
-  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): Any = {
+  def convertToInfosetRepType(primType: PrimType, value: String, context: ThrowsSDE): AnyRef = {
     import NodeInfo.PrimType._
-    primType match {
+    val res = primType match {
       case String => value
-      case Int => java.lang.Integer.parseInt(value)
-      case Byte => java.lang.Byte.parseByte(value)
-      case Short => java.lang.Short.parseShort(value)
-      case Long => java.lang.Long.parseLong(value)
+      case Int => value.toInt
+      case Byte => value.toByte
+      case Short => value.toShort
+      case Long => value.toLong
       case Integer => new java.math.BigInteger(value)
       case Decimal => new java.math.BigDecimal(value)
       case UnsignedInt => {
         val res = java.lang.Long.parseLong(value)
         context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+        res
       }
       case UnsignedByte => {
         val res = java.lang.Short.parseShort(value)
         context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+        res
       }
       case UnsignedShort => {
         val res = java.lang.Integer.parseInt(value)
         context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
+        res
       }
       case UnsignedLong => {
         val res = new java.math.BigInteger(value)
         context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
+        res
       }
       case NonNegativeInteger => {
         val res = new java.math.BigInteger(value)
         context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
+        res
       }
       case Double => java.lang.Double.parseDouble(value)
       case Float => java.lang.Float.parseFloat(value)
@@ -632,6 +637,7 @@ object Infoset {
         cal
       }
     }
+    res.asInstanceOf[AnyRef]
   }
 
   /**

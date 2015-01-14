@@ -74,7 +74,6 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
     this(decl, foundProp.value, foundProp.location.namespaces, decl, msg, discrim, assertKindName)
 
   override val baseName = assertKindName
-  override lazy val expandedTypeName = XMLUtils.XSD_BOOLEAN
   override lazy val exprText = exprWithBraces
   override lazy val exprNamespaces = namespacesForNamespaceResolution
   override lazy val exprComponent = scWherePropertyWasLocated
@@ -118,23 +117,21 @@ case class InitiatedContent(
 case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   extends ExpressionEvaluatorBase(decl) {
 
-  val baseName = "SetVariable[" + stmt.localName + "]"
+  val baseName = "SetVariable[" + stmt.varQName.local + "]"
 
   override lazy val exprText = stmt.value
   override lazy val exprNamespaces = stmt.xml.scope
   override lazy val exprComponent = stmt
 
-  lazy val expandedTypeName = stmt.defv.extType
+  //  lazy val expandedTypeName = stmt.defv.extType
+  //
+  override lazy val nodeKind = stmt.defv.primType
 
-  override lazy val nodeKind = DPathUtil.convertTypeString(expandedTypeName)
-
-  def parser: DaffodilParser = new SetVariableParser(expr, decl.runtimeData, stmt.defv.extName)
+  def parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends Terminal(decl, true) {
-  val (uri, localName) = XMLUtils.QName(decl.namespaces, stmt.ref, decl.schemaDocument)
-  val expName = XMLUtils.expandedQName(uri, localName)
 }
 
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
@@ -168,7 +165,6 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   def baseName: String
   def exprNamespaces: scala.xml.NamespaceBinding
   def exprComponent: SchemaComponent
-  def expandedTypeName: String
   def exprText: String
 
   def nodeKind: NodeInfo.Kind
@@ -196,7 +192,6 @@ case class InputValueCalc(e: ElementBase)
   lazy val pt = e.primType //.typeRuntimeData
   override lazy val nodeKind = pt
   lazy val ptn = pt.name
-  lazy val expandedTypeName = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, ptn)
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
 }

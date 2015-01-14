@@ -4,8 +4,7 @@ organization in ThisBuild := "edu.illinois.ncsa"
 
 scalaVersion in ThisBuild := "2.10.4"
 
-// removed -Xfatal-warnings for this branch - want to leave a few things to fix later 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings")
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings")
 
 parallelExecution in ThisBuild := false
 

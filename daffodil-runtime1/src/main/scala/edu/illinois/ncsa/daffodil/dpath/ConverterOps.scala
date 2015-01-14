@@ -251,21 +251,21 @@ case object StringToUnsignedLong extends Converter {
 }
 
 /**
- * Summary: Computes the effective boolean value of the sequence $arg.
+ * Summary: Computes the effective boolean value of the sequence \$arg.
  *
- * If $arg is the empty sequence, fn:boolean returns false.
+ * If \$arg is the empty sequence, fn:boolean returns false.
  *
- * If $arg is a sequence whose first item is a node, fn:boolean returns true.
+ * If \$arg is a sequence whose first item is a node, fn:boolean returns true.
  *
- * If $arg is a singleton value of type xs:boolean or a derived from
- * xs:boolean, fn:boolean returns $arg.
+ * If \$arg is a singleton value of type xs:boolean or a derived from
+ * xs:boolean, fn:boolean returns \$arg.
  *
- * If $arg is a singleton value of type xs:string or a type derived from
+ * If \$arg is a singleton value of type xs:string or a type derived from
  * xs:string, xs:anyURI or a type derived from xs:anyURI or xs:untypedAtomic,
  * fn:boolean returns false if the operand value has zero length; otherwise
  * it returns true.
  *
- * If $arg is a singleton value of any numeric type or a type derived
+ * If \$arg is a singleton value of any numeric type or a type derived
  * from a numeric type, fn:boolean returns false if the operand value
  * is NaN or is numerically equal to zero; otherwise it returns true.
  *

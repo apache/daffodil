@@ -32,7 +32,6 @@ package edu.illinois.ncsa.daffodil.externalvars
  * SOFTWARE.
  */
 
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -41,48 +40,47 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.dsom.SchemaSet
-import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.xml.NoNamespace
+import edu.illinois.ncsa.daffodil.xml._
 
 class TestExternalVariablesNew extends Logging {
-  val xsd = XMLUtils.XSD_NAMESPACE
-  val dfdl = XMLUtils.DFDL_NAMESPACE
-  val xsi = XMLUtils.XSI_NAMESPACE
-  val example = XMLUtils.EXAMPLE_NAMESPACE
-
-  val dummyGroupRef = null // just because otherwise we have to construct too many things.
-
-  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:daffodilTest1"/>) = {
-    lazy val sch = SchemaUtils.dfdlTestSchema(
-      topLevelAnnotations,
-      <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
-      <xs:element name="fake2" type="tns:fakeCT"/>
-      <xs:complexType name="fakeCT">
-        <xs:sequence>
-          <xs:group ref="tns:fakeGroup"/>
-          <xs:element ref="tns:fake"/>
-        </xs:sequence>
-      </xs:complexType>
-      <xs:group name="fakeGroup">
-        <xs:choice>
-          <xs:sequence/>
-        </xs:choice>
-      </xs:group>)
-    lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
-    lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
-    lazy val fakeSD = xsd_schema.schemaDocuments(0)
-    (fakeSD, xsd_sset)
-  }
-
-  def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
-    val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
-      case Some(_) => true
-      case None => false
-    }
-    found
-  }
+  //  val xsd = XMLUtils.XSD_NAMESPACE
+  //  val dfdl = XMLUtils.DFDL_NAMESPACE
+  //  val xsi = XMLUtils.XSI_NAMESPACE
+  //  val example = XMLUtils.EXAMPLE_NAMESPACE
+  //
+  //  val dummyGroupRef = null // just because otherwise we have to construct too many things.
+  //
+  //  def generateSD(topLevelAnnotations: Seq[Node] = <dfdl:format ref="tns:daffodilTest1"/>) = {
+  //    lazy val sch = SchemaUtils.dfdlTestSchema(
+  //      topLevelAnnotations,
+  //      <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
+  //      <xs:element name="fake2" type="tns:fakeCT"/>
+  //      <xs:complexType name="fakeCT">
+  //        <xs:sequence>
+  //          <xs:group ref="tns:fakeGroup"/>
+  //          <xs:element ref="tns:fake"/>
+  //        </xs:sequence>
+  //      </xs:complexType>
+  //      <xs:group name="fakeGroup">
+  //        <xs:choice>
+  //          <xs:sequence/>
+  //        </xs:choice>
+  //      </xs:group>)
+  //    lazy val xsd_sset = new SchemaSet(sch, "http://example.com", "fake")
+  //    lazy val xsd_schema = xsd_sset.getSchema(NS("http://example.com")).get
+  //    lazy val fakeSD = xsd_schema.schemaDocuments(0)
+  //    (fakeSD, xsd_sset)
+  //  }
+  //
+  //  def FindValue(collection: Map[String, String], key: String, value: String): Boolean = {
+  //    val found: Boolean = Option(collection.find(x => x._1 == key && x._2 == value)) match {
+  //      case Some(_) => true
+  //      case None => false
+  //    }
+  //    found
+  //  }
 
   @Test def testQNameForIndividualVars() = {
     // This test just verifies that we're getting back
@@ -95,20 +93,20 @@ class TestExternalVariablesNew extends Logging {
     val varNoNS = "{}varNoNS"
     val varGuessNS = "varGuessNS"
 
-    val (varWithNS_NS, varWithNS_localName) = XMLUtils.getQName(varWithNS)
-    val (varNoNS_NS, varNoNS_localName) = XMLUtils.getQName(varNoNS)
-    val (varGuessNS_NS, varGuessNS_localName) = XMLUtils.getQName(varGuessNS)
+    val Right(qWithNS) = QName.refQNameFromExtendedSyntax(varWithNS)
+    val Right(qNoNS) = QName.refQNameFromExtendedSyntax(varNoNS)
+    val Right(qGuessNS) = QName.refQNameFromExtendedSyntax(varGuessNS)
 
-    assertTrue(varWithNS_NS.isDefined)
-    assertEquals(varWithNS_NS.get, NS("someNS"))
-    assertEquals("varWithNS", varWithNS_localName)
+    assertEquals(NS("someNS"), qWithNS.namespace)
+    assertEquals("varWithNS", qWithNS.local)
+    assertEquals(varWithNS, qWithNS.toString)
 
-    assertTrue(varNoNS_NS.isDefined)
-    assertEquals(varNoNS_NS.get, NoNamespace)
-    assertEquals("varNoNS", varNoNS_localName)
+    assertEquals(NoNamespace, qNoNS.namespace)
+    assertEquals("varNoNS", qNoNS.local)
+    assertEquals(varNoNS, qNoNS.toString)
 
-    assertFalse(varGuessNS_NS.isDefined)
-    assertEquals("varGuessNS", varGuessNS_localName)
+    assertEquals(UnspecifiedNamespace, qGuessNS.namespace)
+    assertEquals("varGuessNS", qGuessNS.local)
   }
 
 }

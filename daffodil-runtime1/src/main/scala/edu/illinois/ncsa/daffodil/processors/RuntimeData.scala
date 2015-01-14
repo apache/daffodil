@@ -9,7 +9,7 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.dsom.DPathCompileInfo
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
@@ -18,6 +18,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
+import edu.illinois.ncsa.daffodil.dpath._
 
 trait RuntimeData
   extends ImplementsThrowsSDE
@@ -129,10 +130,9 @@ class VariableRuntimeData(
   override val namespaces: NamespaceBinding,
   val external: Boolean,
   val defaultValue: Option[String],
-  @deprecated("use globalQName", "2014-09-18") val extName: String,
-  @deprecated("use globalQName", "2014-09-18") val extType: String,
+  val typeRef: RefQName,
   val globalQName: GlobalQName,
-  val primType: PrimType)
+  val primType: NodeInfo.PrimType)
   extends NonTermRuntimeData(
     null, // no variable map
     sfl,
@@ -140,4 +140,6 @@ class VariableRuntimeData(
     path,
     namespaces,
     None)
-  with Serializable
+  with Serializable {
+
+}

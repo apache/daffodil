@@ -81,7 +81,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val nonDefaultPropertySources = group.nonDefaultPropertySources
   lazy val defaultPropertySources = group.defaultPropertySources
 
-  lazy val prettyBaseName = "group.ref." + localName
+  lazy val prettyBaseName = "group.ref." + refQName.local
 
   lazy val myPeers = groupRefPeers
 
@@ -90,7 +90,6 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   lazy val qname = resolveQName(ref)
-  lazy val (namespace, localName) = qname
 
   def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
@@ -116,7 +115,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   lazy val groupDef = groupDef_.value
   private val groupDef_ = LV('groupDef) {
-    this.schemaSet.getGlobalGroupDef(namespace, localName) match {
+    this.schemaSet.getGlobalGroupDef(qname) match {
       case None => SDE("Referenced group definition not found: %s", this.ref)
       case Some(x) => x.forGroupRef(this, position)
     }

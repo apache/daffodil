@@ -62,7 +62,6 @@ object SchemaUtils {
   def dfdlTestSchemaUnqualified(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = ""): Elem =
     dfdlTestSchema(topLevelAnnotations, contentElements, fileName, elementFormDefault = "unqualified")
 
-  @deprecated(msg, "2014-10-01")
   def dfdlTestSchemaWithTarget(
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],

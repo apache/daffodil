@@ -50,7 +50,7 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
     }
 }
 
-class SetVariableParser(expr: CompiledExpression, decl: RuntimeData, name: String)
+class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
   extends ExpressionEvaluationParser(expr, decl) {
 
   def parse(start: PState): PState =
@@ -63,7 +63,7 @@ class SetVariableParser(expr: CompiledExpression, decl: RuntimeData, name: Strin
           case ps: PState => return ps;
           case _ => /*fall through*/ }
         if (start.status.isInstanceOf[Failure]) return start
-        val newVMap2 = newVMap.setVariable(name, res, decl)
+        val newVMap2 = newVMap.setVariable(decl.globalQName, res, decl)
         val postState = start.withVariables(newVMap2)
         postState
       }

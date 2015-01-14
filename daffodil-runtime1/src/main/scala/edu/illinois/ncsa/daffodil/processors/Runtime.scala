@@ -281,7 +281,7 @@ abstract class ParseResult(dp: DataProcessor)
       val xmlClean = {
         val nodeSeq = postParseState.infoset.toXML
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
-        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden, Seq(XMLUtils.INT_NS_OBJECT))
+        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden, Seq(XMLUtils.INT_NS))
         eNoAttribs
       }
       xmlClean

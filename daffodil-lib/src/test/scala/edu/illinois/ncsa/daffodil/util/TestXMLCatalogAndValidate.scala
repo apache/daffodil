@@ -53,6 +53,8 @@ import scala.language.reflectiveCalls
 import java.net.URI
 import java.net.URL
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 object Implicits {
   /**
@@ -62,6 +64,7 @@ object Implicits {
    */
   def using[A <: { def close(): Unit }, B](param: A)(f: A => B): B =
     try { f(param) } finally { param.close() }
+
 }
 
 /**
@@ -79,14 +82,14 @@ object Implicits {
  */
 class TestXMLCatalogAndValidate {
 
-  val tdml = XMLUtil.TDML_NAMESPACE
-  val dfdl = XMLUtil.DFDL_NAMESPACE
-  val xsi = XMLUtil.XSI_NAMESPACE
-  val xsd = XMLUtil.XSD_NAMESPACE
+  val tdml = XMLUtils.TDML_NAMESPACE
+  val dfdl = XMLUtils.DFDL_NAMESPACE
+  val xsi = XMLUtils.XSI_NAMESPACE
+  val xsd = XMLUtils.XSD_NAMESPACE
   val example = "http://www.example.com/"
   val ex1 = example + "1"
   val ex2 = example + "2"
-  // val sub = XMLUtil.DFDL_XMLSCHEMASUBSET_NAMESPACE
+  // val sub = XMLUtils.DFDL_XMLSCHEMASUBSET_NAMESPACE
 
   // In this test, the schema says the data must be an int.
   // The data is 'abc' so this should fail to validate.
@@ -348,45 +351,45 @@ class SchemaAwareFactoryAdapter()
     // If we're the xs:schema node, then append attribute for _file_ as well.
     val nsURI = scope.getURI(pre)
     val isXSSchemaNode = (label == "schema" && nsURI != null &&
-      (nsURI == XMLUtil.XSD_NAMESPACE))
+      (nsURI == XMLUtils.XSD_NAMESPACE))
     val isTDMLTestSuiteNode = (label == "testSuite" && nsURI != null &&
-      nsURI == XMLUtil.TDML_NAMESPACE)
+      nsURI == XMLUtils.TDML_NAMESPACE)
     val isFileRootNode = isXSSchemaNode || isTDMLTestSuiteNode
 
     // augment the scope with the dafint namespace binding but only
     // for root nodes (to avoid clutter with the long xmlns:dafint="big uri")
     // and only if it isn't already there.
     val scopeWithDafInt =
-      if (scope.getPrefix(XMLUtil.INT_NS) == null
+      if (scope.getPrefix(XMLUtils.INT_NS) == null
         && isFileRootNode)
-        NamespaceBinding(XMLUtil.INT_PREFIX, XMLUtil.INT_NS, scope)
+        NamespaceBinding(XMLUtils.INT_PREFIX, XMLUtils.INT_NS, scope)
       else scope
 
     val haveFileName = isFileRootNode && fileName != ""
 
     val asIs = super.createNode(pre, label, attrs, scopeWithDafInt, children)
 
-    val alreadyHasFile = attrs.get(XMLUtil.INT_NS, scopeWithDafInt, XMLUtil.FILE_ATTRIBUTE_NAME) != None
+    val alreadyHasFile = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.FILE_ATTRIBUTE_NAME) != None
 
     // If there is already a _line_ attribute, then we're reloading something
     // that was probably converted back into a string and written out. 
     // The original line numbers are therefore the ones wanted, not any new
     // line numbers, so we don't displace any line numbers that already existed.
 
-    val alreadyHasLine = attrs.get(XMLUtil.INT_NS, scopeWithDafInt, XMLUtil.LINE_ATTRIBUTE_NAME) != None
-    val alreadyHasCol = attrs.get(XMLUtil.INT_NS, scopeWithDafInt, XMLUtil.COLUMN_ATTRIBUTE_NAME) != None
+    val alreadyHasLine = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.LINE_ATTRIBUTE_NAME) != None
+    val alreadyHasCol = attrs.get(XMLUtils.INT_NS, scopeWithDafInt, XMLUtils.COLUMN_ATTRIBUTE_NAME) != None
     Assert.invariant(alreadyHasLine == alreadyHasCol)
 
     val lineAttr =
       if (alreadyHasLine) Null
-      else Attribute(XMLUtil.INT_PREFIX, XMLUtil.LINE_ATTRIBUTE_NAME, Text(elementStartLocator.line.toString), Null)
+      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.LINE_ATTRIBUTE_NAME, Text(elementStartLocator.line.toString), Null)
     val colAttr =
       if (alreadyHasCol) Null
-      else Attribute(XMLUtil.INT_PREFIX, XMLUtil.COLUMN_ATTRIBUTE_NAME, Text(elementStartLocator.col.toString), Null)
+      else Attribute(XMLUtils.INT_PREFIX, XMLUtils.COLUMN_ATTRIBUTE_NAME, Text(elementStartLocator.col.toString), Null)
     val fileAttr =
       if (alreadyHasFile || !haveFileName) Null
       else {
-        Attribute(XMLUtil.INT_PREFIX, XMLUtil.FILE_ATTRIBUTE_NAME, Text(fileName), Null)
+        Attribute(XMLUtils.INT_PREFIX, XMLUtils.FILE_ATTRIBUTE_NAME, Text(fileName), Null)
       }
 
     // % operator creates a new element with updated attributes
@@ -543,30 +546,3 @@ class MyResolver()
     null
   }
 }
-
-/**
- * We're in daffodil-lib. Until we move XMLUtil here, we need this.
- */
-object XMLUtil {
-  private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
-  val DAFFODIL_EXTENSION_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext"
-  val DAFFODIL_INTERNAL_NAMESPACE = DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int"
-  val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE
-  val EXT_PREFIX = "daf"
-  val EXT_NS_OBJECT = NS(EXT_PREFIX, EXT_NS)
-  val INT_NS = DAFFODIL_INTERNAL_NAMESPACE
-  val INT_PREFIX = "dafint"
-  val INT_NS_OBJECT = NS(INT_PREFIX, INT_NS)
-
-  val FILE_ATTRIBUTE_NAME = "file"
-  val LINE_ATTRIBUTE_NAME = "line"
-  val COLUMN_ATTRIBUTE_NAME = "col"
-  val XSD_NAMESPACE = "http://www.w3.org/2001/XMLSchema" // removed trailing slash (namespaces care)
-  val XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
-  val DFDL_NAMESPACE = "http://www.ogf.org/dfdl/dfdl-1.0/" // dfdl ns does have a trailing slash
-  val TDML_NAMESPACE = "http://www.ibm.com/xmlns/dfdl/testData"
-  // val DFDL_XMLSCHEMASUBSET_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
-  val EXAMPLE_NAMESPACE = "http://example.com"
-  // val DFDL_SUBSET_NAMESPACE = "http://www.w3.org/2001/XMLSchema"
-}
-

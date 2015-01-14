@@ -149,10 +149,10 @@ case class FNSubstring2(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
   with SubstringKind {
   /**
-   * The two argument version of the function assumes that $length is infinite
-   * and returns the characters in $sourceString whose position $p obeys:
+   * The two argument version of the function assumes that \$length is infinite
+   * and returns the characters in \$sourceString whose position \$p obeys:
    *
-   * fn:round($startingLoc) <= $p < fn:round(INF)
+   * fn:round(\$startingLoc) <= \$p < fn:round(INF)
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
@@ -172,9 +172,9 @@ case class FNSubstring3(recipes: List[CompiledDPath])
 
   /**
    * More specifically, the three argument version of the function returns the
-   * characters in $sourceString whose position $p obeys:
+   * characters in \$sourceString whose position \$p obeys:
    *
-   * fn:round($startingLoc) <= $p < fn:round($startingLoc) + fn:round($length)
+   * fn:round(\$startingLoc) <= \$p < fn:round(\$startingLoc) + fn:round(\$length)
    *
    * See: http://www.w3.org/TR/xpath-functions/#func-substring
    */
@@ -247,7 +247,7 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
     val year = dateCal.get(Calendar.YEAR)
     val day = dateCal.get(Calendar.DAY_OF_MONTH)
     val month = dateCal.get(Calendar.MONTH)
-    
+
     val dateTZ = dateCal.getTimeZone()
     val timeTZ = timeCal.getTimeZone()
 
@@ -268,9 +268,9 @@ case class FNDateTime(recipes: List[CompiledDPath]) extends FNTwoArgs(recipes) {
      * 	is raised:[err:FORG0008]
      */
     var hasTZ: Boolean = true
-    
+
     (dateCalendar.hasTimeZone, timeCalendar.hasTimeZone) match {
-      case (false, false) => { 
+      case (false, false) => {
         // No concept of 'no time zone' so we will use TimeZone.UNKNOWN_ZONE instead
         // this will behave just like GMT/UTC
         //
@@ -338,14 +338,29 @@ trait FNRoundHalfToEvenKind {
     // The conversions code should be enforcing this, if not we
     // have a serious issue.
     //
+    def roundIt = {
+      val unroundedValue = unrounded(value)
+      val roundedValue = toBaseNumericType(round(unroundedValue, precision), value)
+      roundedValue
+    }
+
     val result = value match {
       case f: Float if (f.isNaN() || f == 0 || f.isPosInfinity || f.isNegInfinity) => f
       case d: Double if (d.isNaN() || d == 0 || d.isPosInfinity || d.isNegInfinity) => d
-      case _: Float | _: Double | _: BigDecimal | _: BigInt | _: Long | _: Int | _: Byte | _: Short => {
-        val unroundedValue = unrounded(value)
-        val roundedValue = toBaseNumericType(round(unroundedValue, precision), value)
-        roundedValue
-      }
+      //
+      // This used to be a single big case like:
+      // case _:Float | _: Double | ... | _: Short => ....
+      // but unfortunately, the scala compiler spit out a warning (about analyzing cases)
+      // so this is equivalent, but avoids the warning.
+      //
+      case _: Float => roundIt
+      case _: Double => roundIt
+      case _: BigDecimal => roundIt
+      case _: BigInt => roundIt
+      case _: Long => roundIt
+      case _: Int => roundIt
+      case _: Byte => roundIt
+      case _: Short => roundIt
       case _ => Assert.invariantFailed("Unrecognized numeric type. Must be xs:float, xs:double, xs:decimal, xs:integer or a type derived from these.")
     }
     result
@@ -377,10 +392,10 @@ trait FNRoundHalfToEvenKind {
   }
 
   /**
-   * If the type of $arg is one of the four numeric types xs:float, xs:double,
-   * xs:decimal or xs:integer the type of the result is the same as the type of $arg.
+   * If the type of \$arg is one of the four numeric types xs:float, xs:double,
+   * xs:decimal or xs:integer the type of the result is the same as the type of \$arg.
    *
-   * If the type of $arg is a type derived from one of the numeric types, the
+   * If the type of \$arg is a type derived from one of the numeric types, the
    * result is an instance of the base numeric type.
    */
   private def toBaseNumericType(value: BigDecimal, origValue: Any): Any = {
@@ -398,14 +413,14 @@ trait FNRoundHalfToEvenKind {
 
 /**
  * The value returned is the nearest (that is, numerically closest) value
- * to $arg that is a multiple of ten to the power of minus $precision.
+ * to \$arg that is a multiple of ten to the power of minus \$precision.
  *
  * If two such values are equally near (e.g. if the fractional part
- * in $arg is exactly .500...), the function returns the one whose least
+ * in \$arg is exactly .500...), the function returns the one whose least
  * significant digit is even.
  *
  * This particular function expects a single argument which is a Numeric.
- * $precision is assumed 0.
+ * \$precision is assumed 0.
  */
 case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
   extends FNOneArg(recipe, argType)
@@ -419,13 +434,13 @@ case class FNRoundHalfToEven1(recipe: CompiledDPath, argType: NodeInfo.Kind)
 
 /**
  * The value returned is the nearest (that is, numerically closest) value
- * to $arg that is a multiple of ten to the power of minus $precision.
+ * to \$arg that is a multiple of ten to the power of minus \$precision.
  *
  * If two such values are equally near (e.g. if the fractional part
- * in $arg is exactly .500...), the function returns the one whose least
+ * in \$arg is exactly .500...), the function returns the one whose least
  * significant digit is even.
  *
- * This particular function expects a two arguments: $arg and $precision.
+ * This particular function expects a two arguments: \$arg and \$precision.
  */
 case class FNRoundHalfToEven2(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes)
@@ -502,7 +517,7 @@ case class FNEmpty(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 /**
- * Returns the local part of the name of $arg as an xs:string
+ * Returns the local part of the name of \$arg as an xs:string
  * that will either be the zero-length string or will have the
  * lexical form of an xs:NCName
  *
@@ -528,7 +543,7 @@ case class FNLocalName0(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 /**
- * Returns the local part of the name of $arg as an xs:string
+ * Returns the local part of the name of \$arg as an xs:string
  * that will either be the zero-length string or will have the
  * lexical form of an xs:NCName
  */
@@ -748,17 +763,17 @@ case class FNSecondsFromTime(recipe: CompiledDPath, argType: NodeInfo.Kind)
 case class FNContains(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
-   * Returns an xs:boolean indicating whether or not the value of $arg1 contains
-   * (at the beginning, at the end, or anywhere within) $arg2.
+   * Returns an xs:boolean indicating whether or not the value of \$arg1 contains
+   * (at the beginning, at the end, or anywhere within) \$arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
     val valueString = arg2.asInstanceOf[String]
 
-    // If the value of $arg2 is the zero-length string, then the function returns true.
+    // If the value of \$arg2 is the zero-length string, then the function returns true.
     if (valueString.isEmpty()) return true
 
-    // If the value of $arg1 is the zero-length string, the function returns false.
+    // If the value of \$arg1 is the zero-length string, the function returns false.
     if (sourceString.isEmpty()) return false
 
     val res = sourceString.contains(valueString)
@@ -770,17 +785,17 @@ case class FNStartsWith(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
    *  Returns an xs:boolean indicating whether or not the
-   *  value of $arg1 starts with $arg2.
+   *  value of \$arg1 starts with \$arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
     val prefixString = arg2.asInstanceOf[String]
 
-    // If the value of $arg2 is the zero-length string, then the function returns true.
+    // If the value of \$arg2 is the zero-length string, then the function returns true.
     if (prefixString.isEmpty()) return true
 
-    // If the value of $arg1 is the zero-length string and the value 
-    // of $arg2 is not the zero-length string, then the function returns false.
+    // If the value of \$arg1 is the zero-length string and the value 
+    // of \$arg2 is not the zero-length string, then the function returns false.
     if (sourceString.isEmpty()) return false
 
     val res = sourceString.startsWith(prefixString)
@@ -792,16 +807,16 @@ case class FNEndsWith(recipes: List[CompiledDPath])
   extends FNTwoArgs(recipes) {
   /**
    * Returns an xs:boolean indicating whether or not the
-   * value of $arg1 ends with $arg2.
+   * value of \$arg1 ends with \$arg2.
    */
   override def computeValue(arg1: Any, arg2: Any, dstate: DState): Any = {
     val sourceString = arg1.asInstanceOf[String]
     val postfixString = arg2.asInstanceOf[String]
 
-    // If the value of $arg2 is the zero-length string, then the function returns true.
+    // If the value of \$arg2 is the zero-length string, then the function returns true.
     if (postfixString.isEmpty()) return true
 
-    // If the value of $arg1 is the zero-length string and the value of $arg2 
+    // If the value of \$arg1 is the zero-length string and the value of \$arg2 
     // is not the zero-length string, then the function returns false.
     if (sourceString.isEmpty()) return false
 

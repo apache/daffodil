@@ -154,7 +154,7 @@ class TestXMLUtils {
     val xml = <test:bar xmlns:test="http://test/" xmlns:test2="http://test2/" xmlns:dafint={ XMLUtils.INT_NS } xmlns:xsi={ XMLUtils.XSI_NAMESPACE }>
                 <test2:foo dafint:qaz="qaz" test:raz="raz" xsi:nil="true"/>
               </test:bar>
-    val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), NS(XMLUtils.INT_NS)))
+    val res = XMLUtils.removeAttributes(xml, Seq(NS("http://test2/"), XMLUtils.INT_NS))
     println(res)
     assertEquals(<test:bar xmlns:test="http://test/" xmlns:xsi={ XMLUtils.XSI_NAMESPACE }><foo test:raz="raz" xsi:nil="true"/></test:bar>, Utility.trim(res))
   }

@@ -312,14 +312,14 @@ object Prod {
 
   // If there is a guard, then delay evaluating the gram until we know if 
   // the guard is satisfied. That's why we pass gram by-name.
-  //@deprecated("use prod(nameArg, sc, guard) {...body...} form", "2013-10-01")
+  //TODO: cleanup grammar rules - e.g., @deprecated("use prod(nameArg, sc, guard) {...body...} form", "2013-10-01")
   def apply(nameArg: String, sc: Term, guard: Boolean, gram: => Gram): Prod = new Prod(nameArg, sc, guard, gram)
 
   // there is no guard in this apply signature
   // here, so in principle there is no reason to pass by-name the
   // gram. However, keeping it this way insures uniform behavior if you are say,
   // walking through productions in a debugger. 
-  //@deprecated("use prod(nameArg, sc) {...body...} form", "2013-10-01")
+  //TODO: cleanup grammar rules - e.g., @deprecated("use prod(nameArg, sc) {...body...} form", "2013-10-01")
   def apply(nameArg: String, sc: Term, gram: => Gram): Prod = new Prod(nameArg, sc, true, gram)
 
 }

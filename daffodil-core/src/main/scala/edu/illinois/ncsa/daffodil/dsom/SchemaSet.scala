@@ -88,20 +88,6 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   extends SchemaComponent(<schemaSet/>, parent) // a fake schema component
   with SchemaSetIncludesAndImportsMixin {
 
-  @deprecated("Use input sources, not Files", "2014-11-22")
-  def this(externalVariables: Seq[Binding],
-    schemaFilesArg: Seq[File],
-    validateDFDLSchemas: Boolean,
-    rootSpec: Option[RootSpec] = None,
-    checkAllTopLevelArg: Boolean = false,
-    parent: SchemaComponent = null) =
-    this(rootSpec,
-      externalVariables,
-      schemaFilesArg.map { f => URISchemaSource(f.toURL.toURI) },
-      validateDFDLSchemas,
-      checkAllTopLevelArg,
-      parent)
-
   requiredEvaluations(isValid)
   if (checkAllTopLevel) {
     requiredEvaluations(checkForDuplicateTopLevels())
@@ -322,7 +308,8 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   def getGlobalElement(rootSpec: RootSpec) = {
     rootSpec match {
       case RootSpec(Some(rootNamespaceName), rootElementName) => {
-        val geFactory = getGlobalElementDecl(rootNamespaceName, rootElementName)
+        val qn = RefQName(None, rootElementName, rootNamespaceName)
+        val geFactory = getGlobalElementDecl(qn)
         val ge = geFactory match {
           case None => schemaDefinitionError("No global element found for %s", rootSpec)
           case Some(f) => f.forRoot()
@@ -407,39 +394,37 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
    *
    * These all return factories for the objects, not the objects themselves.
    */
-  def getGlobalElementDecl(namespace: NS, name: String) = {
-    // getSchema(namespace).flatMap { _.getGlobalElementDecl(name) }
-    val s = getSchema(namespace)
+  def getGlobalElementDecl(refQName: RefQName) = {
+    val s = getSchema(refQName.namespace)
     val res = s.flatMap { s =>
       {
-        val ged = s.getGlobalElementDecl(name)
+        val ged = s.getGlobalElementDecl(refQName.local)
         ged
       }
     }
     res
   }
-  def getGlobalSimpleTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalSimpleTypeDef(name) }
-  def getGlobalComplexTypeDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalComplexTypeDef(name) }
-  def getGlobalGroupDef(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getGlobalGroupDef(name) }
+  def getGlobalSimpleTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalSimpleTypeDef(refQName.local) }
+  def getGlobalComplexTypeDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalComplexTypeDef(refQName.local) }
+  def getGlobalGroupDef(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getGlobalGroupDef(refQName.local) }
 
   /**
    * DFDL Schema top-level global objects
    */
-  def getDefaultFormat(namespace: NS, name: String) = getSchema(namespace).flatMap { x => Some(x.getDefaultFormat) }
-  def getDefineFormat(namespace: NS, name: String) = {
-    val s = getSchema(namespace)
-    s.flatMap { _.getDefineFormat(name) }
+  def getDefineFormat(refQName: RefQName) = {
+    val s = getSchema(refQName.namespace)
+    s.flatMap { _.getDefineFormat(refQName.local) }
   }
   def getDefineFormats(namespace: NS, context: ThrowsSDE) = getSchema(namespace) match {
     case None => context.schemaDefinitionError("Failed to find a schema for namespace:  " + namespace)
     case Some(sch) => sch.getDefineFormats()
   }
-  def getDefineVariable(namespace: NS, name: String) = {
-    val res = getSchema(namespace).flatMap { _.getDefineVariable(name) }
+  def getDefineVariable(refQName: RefQName) = {
+    val res = getSchema(refQName.namespace).flatMap { _.getDefineVariable(refQName.local) }
     val finalResult = res match {
       case None => {
         val optRes = this.predefinedVars.find(dfv => {
-          dfv.namespace == namespace && dfv.name == name
+          dfv.namespace == refQName.namespace && dfv.name == refQName.local
         })
         optRes
       }
@@ -447,13 +432,13 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     }
     finalResult
   }
-  def getDefineEscapeScheme(namespace: NS, name: String) = getSchema(namespace).flatMap { _.getDefineEscapeScheme(name) }
+  def getDefineEscapeScheme(refQName: RefQName) = getSchema(refQName.namespace).flatMap { _.getDefineEscapeScheme(refQName.local) }
 
-  def getPrimType(ns: NS, localName: String) = {
-    if (ns != XMLUtils.XSD_NAMESPACE) // must check namespace
+  def getPrimType(refQName: RefQName) = {
+    if (refQName.namespace != XMLUtils.XSD_NAMESPACE) // must check namespace
       None
     else
-      NodeInfo.PrimType.fromNameString(localName)
+      NodeInfo.PrimType.fromNameString(refQName.local)
   }
 
   /**
@@ -468,7 +453,6 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   private def generateDefineVariable(theName: String, theType: String, theDefaultValue: String, nsURI: String, sdoc: SchemaDocument) = {
     val dfv = new DFDLDefineVariable(
       <dfdl:defineVariable name={ theName } type={ theType } defaultValue={ theDefaultValue } xmlns:xs={ XMLUtils.XSD_NAMESPACE.toString }/>, sdoc) {
-      override lazy val expandedNCNameToQName = "{" + nsURI + "}" + theName
       override lazy val namespace = NS(nsURI)
       override lazy val targetNamespace = NS(nsURI)
     }
@@ -495,7 +479,6 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
 
   // We'll declare these here at the SchemaSet level since they're global.
   lazy val predefinedVars = {
-    val extType = XMLUtils.expandedQName(XMLUtils.XSD_NAMESPACE, "string")
     val nsURI = XMLUtils.DFDL_NAMESPACE.toStringOrNullIfNoNS
 
     val encDFV = generateDefineVariable("encoding", "xs:string", "UTF-8", nsURI, schemaDocForGlobalVars)
@@ -526,19 +509,23 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     extVarsWithNS.foreach(b => finalExternalVariables.enqueue(b))
 
     extVarsWithoutNS.foreach(v => {
-      val matchingDVs = allDefinedVariables.filter(dv => dv.name == v.varName)
+      Assert.invariant(v.varQName.namespace.isUnspecified)
+      val matchingDVs = allDefinedVariables.filter { dv =>
+        // just compare local names. We're searching for an unambiguous match
+        v.varQName.local == dv.namedQName.local
+      }
 
       matchingDVs.length match {
-        case 0 => this.SDE("Could not find the externaly defined variable %s.", v.varName)
+        case 0 => this.SDE("Could not find the externally defined variable %s.", v.varQName)
         case x: Int if x > 1 =>
           this.SDE("The externally defined variable %s is ambiguous.  " +
             "A namespace is required to resolve the ambiguity.\nFound:\t%s",
-            v.varName, matchingDVs.mkString(", "))
+            v.varQName, matchingDVs.mkString(", "))
         case _ => // This is OK, we have exactly 1 match
       }
 
       val newNS = matchingDVs.head.namespace
-      val newBinding = Binding(v.varName, Some(newNS), v.varValue)
+      val newBinding = Binding(v.varQName.local, Some(newNS), v.varValue)
       finalExternalVariables.enqueue(newBinding)
     })
     finalExternalVariables

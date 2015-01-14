@@ -311,14 +311,12 @@ object XMLUtils {
    * These definitions must match their XSD counterparts in dafint.xsd and dafext.xsd
    */
   private val DAFFODIL_EXTENSIONS_NAMESPACE_ROOT = "urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012" // TODO: finalize syntax of this URN
-  val DAFFODIL_EXTENSION_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext")
-  val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int")
-  val EXT_NS = DAFFODIL_EXTENSION_NAMESPACE.toString
+  private val DAFFODIL_EXTENSION_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":ext")
+  private val DAFFODIL_INTERNAL_NAMESPACE = NS(DAFFODIL_EXTENSIONS_NAMESPACE_ROOT + ":int")
   val EXT_PREFIX = "daf"
-  val EXT_NS_OBJECT = NS(EXT_PREFIX, EXT_NS)
-  val INT_NS = DAFFODIL_INTERNAL_NAMESPACE.toString
+  val EXT_NS = NS(DAFFODIL_EXTENSION_NAMESPACE.uri)
   val INT_PREFIX = "dafint"
-  val INT_NS_OBJECT = NS(INT_PREFIX, INT_NS)
+  val INT_NS = NS(DAFFODIL_INTERNAL_NAMESPACE.uri)
 
   val FILE_ATTRIBUTE_NAME = "file"
   val LINE_ATTRIBUTE_NAME = "line"
@@ -327,76 +325,14 @@ object XMLUtils {
   val CONFIG_NAMESPACE = EXT_NS
 
   // shorter forms, to make constructing XML literals,... make the lines shorter.
-  //  val DFDLSubsetURI = DFDL_SUBSET_NAMESPACE
   val xsdURI = XSD_NAMESPACE
   val dfdlURI = DFDL_NAMESPACE
-  val dfdlAppinfoSource = "http://www.ogf.org/dfdl/"
+  val dfdlAppinfoSource = NS("http://www.ogf.org/dfdl/")
   val targetNS = EXAMPLE_NAMESPACE // we use this for tests.
   val xsiURI = XSI_NAMESPACE
   val fnURI = XPATH_FUNCTION_NAMESPACE
   val dafintURI = DAFFODIL_INTERNAL_NAMESPACE
 
-  //  val PCDATA = "#PCDATA"
-  //  val REM = "#REM"
-
-  //  val SCHEMA = XSD_NAMESPACE+"/"+"schema"
-  //  val COMPLEX_TYPE = XSD_NAMESPACE+"/"+"complexType"
-  //  val SIMPLE_TYPE = XSD_NAMESPACE+"/"+"simpleType"
-  //  val GROUP = XSD_NAMESPACE+"/"+"group"
-  //  val SEQUENCE = XSD_NAMESPACE+"/"+"sequence"
-  //  val ALL = XSD_NAMESPACE+"/"+"all"
-  //  val XSD_CHOICE = XSD_NAMESPACE+"/"+"choice"
-  //  val ELEMENT = XSD_NAMESPACE+"/"+"element"
-  //  val ATTRIBUTE = XSD_NAMESPACE+"/"+"attribute"
-  //  val ATTRIBUTE_GROUP = XSD_NAMESPACE+"/"+"attributeGroup"
-  //  val ANNOTATION = XSD_NAMESPACE+"/"+"annotation"
-  //  val APP_INFO = XSD_NAMESPACE+"/"+"appinfo"
-  //
-  //  val DFDL_ASSERT = DFDL_NAMESPACE+"assert"
-  //  val DFDL_CALENDAR_FORMAT = DFDL_NAMESPACE+"calendarFormat"
-  //  val DFDL_CHOICE = DFDL_NAMESPACE+"choice"
-  //  val DFDL_DISCRIMINATOR = DFDL_NAMESPACE+"discriminator"
-  //  val DFDL_DEFINE_CALENDAR_FORMAT = DFDL_NAMESPACE+"defineCalendarFormat"
-  //  val DFDL_DEFINE_FORMAT = DFDL_NAMESPACE+"defineFormat"
-  //  val DFDL_DEFINE_ESCAPE_SCHEME = DFDL_NAMESPACE+"defineEscapeScheme"
-  //  val DFDL_DEFINE_TEXT_NUMBER_FORMAT = DFDL_NAMESPACE+"defineTextNumberFormat"
-  //  val DFDL_DEFINE_VARIABLE = DFDL_NAMESPACE+"defineVariable"
-  //  val DFDL_ELEMENT = DFDL_NAMESPACE+"element"
-  //  val DFDL_ESCAPE_SCHEMA = DFDL_NAMESPACE+"escapeScheme"
-  //  val DFDL_FORMAT = DFDL_NAMESPACE+"format"
-  //  val DFDL_GROUP = DFDL_NAMESPACE+"group"
-  //  val DFDL_HIDDEN = DFDL_NAMESPACE+"hidden"
-  //  val DFDL_NEW_VARIABLE_INSTANCE = DFDL_NAMESPACE+"newVariableInstance"
-  //  val DFDL_PROPERTY = DFDL_NAMESPACE+"property"
-  //  val DFDL_SET_VARIABLE = DFDL_NAMESPACE+"setVariable"
-  //  val DFDL_SEQUENCE = DFDL_NAMESPACE+"sequence"
-  //  val DFDL_SIMPLE_TYPE = DFDL_NAMESPACE+"simpleType"
-  //  val DFDL_TEXT_NUMBER_FORMAT = DFDL_NAMESPACE+"textNumberFormat"
-  //  val DFDL_RECURSIVE = DFDL_NAMESPACE+"recursive"
-  //
-  //
-  //  //XSD data types
-  //
-  val XSD_STRING = expandedQName(XSD_NAMESPACE, "string")
-  val XSD_FLOAT = expandedQName(XSD_NAMESPACE, "float")
-  val XSD_DOUBLE = expandedQName(XSD_NAMESPACE, "double")
-  val XSD_DECIMAL = expandedQName(XSD_NAMESPACE, "decimal")
-  val XSD_INTEGER = expandedQName(XSD_NAMESPACE, "integer")
-  val XSD_LONG = expandedQName(XSD_NAMESPACE, "long")
-  val XSD_INT = expandedQName(XSD_NAMESPACE, "int")
-  val XSD_SHORT = expandedQName(XSD_NAMESPACE, "short")
-  val XSD_BYTE = expandedQName(XSD_NAMESPACE, "byte")
-  val XSD_UNSIGNED_LONG = expandedQName(XSD_NAMESPACE, "unsignedLong")
-  val XSD_UNSIGNED_INT = expandedQName(XSD_NAMESPACE, "unsignedInt")
-  val XSD_NON_NEGATIVE_INTEGER = expandedQName(XSD_NAMESPACE, "nonNegativeInteger")
-  val XSD_UNSIGNED_SHORT = expandedQName(XSD_NAMESPACE, "unsignedShort")
-  val XSD_UNSIGNED_BYTE = expandedQName(XSD_NAMESPACE, "unsignedByte")
-  val XSD_BOOLEAN = expandedQName(XSD_NAMESPACE, "boolean")
-  val XSD_DATE = expandedQName(XSD_NAMESPACE, "date")
-  val XSD_TIME = expandedQName(XSD_NAMESPACE, "time")
-  val XSD_DATE_TIME = expandedQName(XSD_NAMESPACE, "dateTime")
-  val XSD_HEX_BINARY = expandedQName(XSD_NAMESPACE, "hexBinary")
-  //
   val DFDL_SIMPLE_BUILT_IN_TYPES =
     List("string",
       "float",
@@ -419,82 +355,6 @@ object XMLUtils {
       "hexBinary")
 
   def slashify(s: String): String = if (s == "" || s.endsWith("/")) s else s + "/"
-
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def expandedQName(qName: JQName): String = {
-    val uri = NS(qName.getNamespaceURI)
-    val localName = qName.getLocalPart
-    expandedQName(uri, localName)
-  }
-
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def expandedQName(uri: NS, localName: String): String = {
-    Assert.usage(uri != null)
-    Assert.usage(localName != null)
-    val nsPart =
-      if (uri == NoNamespace) ""
-      else "{" + uri + "}"
-    val expName = nsPart + localName
-    expName
-  }
-
-  /**
-   * returns null to indicate no prefix mapping that
-   * we can use to qualify this name
-   */
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def expandNCNameToQName(qName: String, xml: Node): String = {
-    val pair @ (ns, local) = getQName(qName, xml)
-    if (ns != null) expandedQName(ns, local)
-    else null
-  }
-
-  /**
-   * If there is no default namespace (that is, no xmlns="..." at all), then getQName("foo") should return ("", "foo").
-   * If there is a default namespace with URI "defNS", then getQName("foo") should return ("defNS", "foo")
-   * If there is no namespace definition for prefix bar, then getQName("bar:foo") should return (null, "foo")
-   * which indicates that the prefix was unmapped. (Caller will likely issue a error.)
-   * If there is a namespace definition for prefix bar of "barNS", then getQName("bar:foo") should return ("barNS", "foo")
-   */
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def getQName(qName: String, xml: Node): (NS, String) = getQName(qName, xml.scope)
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def getQName(qName: String, scope: NamespaceBinding): (NS, String) = {
-    val parts = qName.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => (null, local)
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = scope.getURI(prefix) // should work even when there is no namespace prefix.
-
-    if (nsURI == null && prefix == null)
-      (NoNamespace, localName)
-    else if (nsURI == null)
-      (null, localName) // indicates prefix was unmapped.
-    else
-      (NS(nsURI), localName)
-  }
-
-  val NSFormat = """\{([^\{\}]*)\}(.+)""".r
-
-  /**
-   * Specialized getQName function for handling
-   * manually specified variables via the CLI.
-   *
-   * Variables will be of the format:
-   *
-   * 1. {nsURI}varName=value
-   * 2. {}varName=value
-   * 3. varName=value
-   */
-  @deprecated("QName functionality is being centralized in daffodil.xml.QName", "2014-08-27")
-  def getQName(name: String): (Option[NS], String) = {
-    name match {
-      case NSFormat(nsURI, varName) => (Some(NS(nsURI)), varName)
-      case _ => (None, name)
-    }
-  }
 
   /**
    * Annoying, but namespace bindings are never a collection you can process like a normal collection.
@@ -536,7 +396,7 @@ object XMLUtils {
   }
 
   def isHidden(n: Node): Boolean = {
-    val attr = n.attribute(INT_NS, "hidden")
+    val attr = n.attribute(INT_NS.uri.toString, "hidden")
     val res = attr match {
       case Some(Text(s)) => {
         Assert.usage(s == "true", "hidden attribute should have value true or not be present at all.")
@@ -754,7 +614,6 @@ object XMLUtils {
     if (trimmedExpected != actualNoAttrs) {
       val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
       if (diffs.length > 0) {
-        //throw new Exception("Comparison failed. Expected: " + expected + " but got " + actualNoAttrs)
         throw new Exception("""
 Comparison failed.
 Expected 
@@ -860,28 +719,6 @@ Differences were (path, expected, actual):
       }
       res
     }
-  }
-
-  /**
-   * Translates a qualified name into a pair of a namespace uri, and a local name part.
-   *
-   * Currently makes an effort to take unqualified names into the targetNamespace of the schema,
-   */
-  @deprecated("use daffodil.xml.QName object", "2014-08-28")
-  def QName(nsBindings: NamespaceBinding, nom: String, loc: LookupLocation): (NS, String) = {
-    val parts = nom.split(":").toList
-    val (prefix, localName) = parts match {
-      case List(local) => (null, local) // use null not "" for no prefix
-      case List(pre, local) => (pre, local)
-      case _ => Assert.impossibleCase()
-    }
-    val nsURI = nsBindings.getURI(prefix) // should work even when there is no namespace prefix.
-    if (nsURI == null && prefix != null) {
-      // no resolution to this non-null prefix
-      throw new QNamePrefixNotInScopeException(prefix, loc)
-    }
-    val finalURI = NS(nsURI)
-    (finalURI, localName)
   }
 
   /**

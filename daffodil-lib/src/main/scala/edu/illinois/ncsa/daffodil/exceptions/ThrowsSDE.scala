@@ -68,15 +68,6 @@ trait ThrowsSDE {
 
   final def schemaDefinitionError(str: String, args: Any*): Nothing = SDE(str, args: _*) // long form synonym
 
-  /**
-   * Nobody gets the sense of the boolean test right here. So rename to
-   * schemaDefinitionWhen, and schemaDefinitionUnless
-   */
-  @deprecated(message = "use schemaDefinitionUnless(...) or schemaDefinitionWhen(...) instead", since = "2013-03-25")
-  def schemaDefinition(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
-    schemaDefinitionUnless(testThatWillThrowIfFalse, str, args: _*)
-  }
-
   final def schemaDefinitionUnless(testThatWillThrowIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillThrowIfFalse)
       SDE(str, args: _*)
@@ -104,11 +95,6 @@ trait SavesErrorsAndWarnings {
   def SDEButContinue(str: String, args: Any*): Unit
 
   def schemaDefinitionErrorButContinue(str: String, args: Any*): Unit = SDEButContinue(str, args: _*)
-
-  @deprecated(message = "use schemaDefinitionWarningUnless(...) or schemaDefinitionWarningWhen(...) instead", since = "2013-03-25")
-  def schemaDefinitionWarning(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
-    schemaDefinitionWarningUnless(testThatWillWarnIfFalse, str, args: _*)
-  }
 
   def schemaDefinitionWarningUnless(testThatWillWarnIfFalse: => Boolean, str: String, args: Any*) {
     if (!testThatWillWarnIfFalse) SDW(str, args: _*)

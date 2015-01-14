@@ -33,10 +33,8 @@ package edu.illinois.ncsa.daffodil.dsom
  */
 
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.xml.GetAttributesMixin
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -44,18 +42,12 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 /**
  * Element references and Group References use this.
  */
-trait HasRefMixin extends GetAttributesMixin {
-  // TODO: Consolidate this and the xsdRef attributes that do QName stuff
-  //From GroupRef.
+trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
+
   private lazy val xsdRef = getAttributeRequired("ref")
   lazy val ref = xsdRef
 
-  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
-  lazy val (refPrefix, refLocalName) = xsdRef.split(":").toSeq match {
-    case Seq(pre, local) => (pre, local)
-    case Seq(local) => (null, local)
-    case _ => Assert.impossible("split has to produce one or two things")
-  }
+  lazy val refQName = resolveQName(ref)
 }
 
 trait ResolvesQNames
@@ -63,20 +55,21 @@ trait ResolvesQNames
   def namespaces: scala.xml.NamespaceBinding
 
   /**
-   * If prefix of name is unmapped, SDE, otherwise break into NS and local part.
+   * If prefix of name is unmapped, SDE
    */
-  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
-  def resolveQName(name: String): (NS, String) = {
-    val pair @ (ns, localName) = XMLUtils.getQName(name, namespaces)
-    schemaDefinitionUnless(ns != null, "In QName '%s', the prefix was not defined.", name)
-    pair
+  def resolveQName(qnString: String): RefQName = {
+    val optQN = QName.resolveRef(qnString, namespaces)
+    val res = optQN.getOrElse {
+      SDE("QName '%s' has undefined namespace prefix, or\nhas no namespace prefix but with no default namespace in scope.", qnString)
+    }
+    res
   }
 
   /**
-   * Just chop off the prefix
+   * Just chop off the prefix.
    */
-  @deprecated("use real QName objects, not pairs of strings.", "2014-10-29")
   def removePrefix(prefixedValue: String): String = {
+    Assert.usage(prefixedValue.contains(":"))
     prefixedValue.split(":").last
   }
 }

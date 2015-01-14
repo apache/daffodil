@@ -119,23 +119,23 @@ trait ElementDeclMixin
   private val namedTypeDef_ = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
-      case Some(RefQName(_, localpart, ns)) => {
+      case Some(qn) => {
 
         val ss = schemaSet
-        val prim = ss.getPrimType(ns, localpart)
+        val prim = ss.getPrimType(qn)
         //
         if (prim != None) prim
         else {
-          val gstd = ss.getGlobalSimpleTypeDef(ns, localpart)
-          val gctd = ss.getGlobalComplexTypeDef(ns, localpart)
+          val gstd = ss.getGlobalSimpleTypeDef(qn)
+          val gctd = ss.getGlobalComplexTypeDef(qn)
           val res = (gstd, gctd) match {
             case (Some(gstdFactory), None) => Some(gstdFactory.forElement(this))
             case (None, Some(gctdFactory)) => Some(gctdFactory.forElement(this))
             // Note: Validation of the DFDL Schema doesn't necessarily check referential integrity
             // or other complex constraints like conflicting names.
             // So we check it here explicitly.
-            case (None, None) => schemaDefinitionError("No type definition found for '%s' (%s).", typeName.get, ns)
-            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for " + typeName.get + ".")
+            case (None, None) => schemaDefinitionError("No type definition found for '%s'.", namedTypeQName)
+            case (Some(_), Some(_)) => schemaDefinitionError("Both a simple and a complex type definition found for '%s'", namedTypeQName)
           }
           res
         }

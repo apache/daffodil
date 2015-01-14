@@ -58,7 +58,7 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
 
   requiredEvaluations(minOccurs, maxOccurs)
 
-  override def namedQName = {
+  override lazy val namedQName = {
     val isQualified = elementFormDefault == "qualified"
     QName.createLocal(name, targetNamespace, isQualified, namespaces)
   }

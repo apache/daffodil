@@ -34,8 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import scala.collection.mutable.Queue
-import edu.illinois.ncsa.daffodil.xml.NS
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
@@ -95,21 +94,22 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   // Returns name of base class in the form of QName
   //
-  lazy val restrictionBase: String = {
+  lazy val restrictionBase: RefQName = {
     val rsb = xml \\ "restriction" \ "@base"
     if (rsb.length != 1) {
       context.SDE("Restriction base was not found.")
     }
-    rsb.head.text
+    val qnString = rsb.head.text
+    val res = resolveQName(qnString)
+    res
   }
 
   lazy val optPrimType: Option[PrimType] = {
-    val (nsURI, localName) = baseTypeQName
-    if (nsURI == XMLUtils.XSD_NAMESPACE) {
+    if (restrictionBase.namespace == XMLUtils.XSD_NAMESPACE) {
       // XSD namespace
-      val prim = schemaDocument.schemaSet.getPrimType(nsURI, localName)
+      val prim = schemaDocument.schemaSet.getPrimType(restrictionBase)
       schemaDefinitionUnless(prim != None,
-        "Type {%s}%s is not an XSD primitive type.", nsURI, localName)
+        "Type %s is not an XSD primitive type.", restrictionBase)
       prim
     } else None
   }
@@ -120,10 +120,8 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   }
 
   lazy val myBaseTypeFactory = {
-    Assert.invariant(restrictionBase.length() != 0)
-    val (nsURI, localName) = baseTypeQName
     Assert.invariant(optPrimType == None)
-    val factory = schemaDocument.schemaSet.getGlobalSimpleTypeDef(nsURI, localName)
+    val factory = schemaDocument.schemaSet.getGlobalSimpleTypeDef(restrictionBase)
     factory
   }
 
@@ -136,15 +134,13 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     myBaseType.primitiveType
   }
 
-  lazy val baseTypeQName = XMLUtils.QName(this.namespaces, restrictionBase, schemaDocument)
-
   lazy val myBaseType: SimpleTypeBase = {
     optPrimType match {
       case Some(pt) => pt
       case None => {
         val bt = myBaseTypeFactory.map { _.forDerivedType(this) }
         bt match {
-          case None => schemaDefinitionError("No type found for base: " + baseTypeQName)
+          case None => schemaDefinitionError("No type found for base: " + restrictionBase)
           case Some(bt) => bt
         }
       }
