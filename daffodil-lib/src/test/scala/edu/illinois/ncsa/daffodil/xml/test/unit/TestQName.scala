@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.xml.test.unit
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -32,46 +32,24 @@ package edu.illinois.ncsa.daffodil.dsom
  * SOFTWARE.
  */
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.exceptions.Assert
+import scala.xml._
+import junit.framework.Assert.assertEquals
+import org.junit.Test
+import edu.illinois.ncsa.daffodil.xml.QNameRegex
 
-/**
- * Element references and Group References use this.
- */
-trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
+class TestQName {
 
-  private lazy val xsdRef = getAttributeRequired("ref")
-  lazy val ref = xsdRef
+  @Test def testQNameLongPrefix() {
+    val bigPrefix = ("a" * 6000)
+    val data = <xs:element name="one" type={ bigPrefix + ":b" }/>
+    val qntext = (data \ "@type").text
 
-  lazy val refQName = resolveQName(ref)
-}
-
-trait ResolvesQNames
-  extends ThrowsSDE {
-  def namespaces: scala.xml.NamespaceBinding
-
-  /**
-   * If prefix of name is unmapped, SDE
-   */
-  def resolveQName(qnString: String): RefQName = {
-    val eQN = QName.resolveRef(qnString, namespaces)
-    // we don't want to just throw the exception, we want to 
-    // convert to an SDE, so we use recover
-    val res = eQN.recover { ThrowSDE }.get
-    res
-  }
-
-  /**
-   * Just chop off the prefix.
-   */
-  def removePrefix(prefixedValue: String): String = {
-    prefixedValue match {
-      case QNameRegex.QName(pre, local) => local
-      case _ => Assert.usageError("The argument was not in QName syntax: '%s'".format(prefixedValue))
+    println("length of type attribute = " + qntext.length)
+    qntext match {
+      case QNameRegex.QName(pre, local) => {
+        println(pre)
+        println(local)
+      }
     }
   }
 }

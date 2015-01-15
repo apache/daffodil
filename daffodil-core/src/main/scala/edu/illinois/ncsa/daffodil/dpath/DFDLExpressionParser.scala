@@ -60,7 +60,7 @@ class DFDLPathExpressionParser(
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean = false) extends DebugRegexParsers with QNameRegexMixin {
+  isEvaluatedAbove: Boolean = false) extends DebugRegexParsers {
 
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
@@ -309,8 +309,8 @@ class DFDLPathExpressionParser(
 
   def QualifiedName: Parser[String] = PrefixedName | UnprefixedName
 
-  def PrefixedName = QNameRegex
-  def UnprefixedName = NCNameRegex
+  def PrefixedName = QNameRegex.QName
+  def UnprefixedName = QNameRegex.NCName
 
   def IntegerLiteral: Parser[BigInt] = Digits ^^ { BigInt(_) }
 

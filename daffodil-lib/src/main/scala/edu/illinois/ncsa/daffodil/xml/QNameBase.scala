@@ -88,7 +88,7 @@ import scala.util.Success
 /*
  * Use this factory to create the right kinds of QNames.
  */
-object QName extends QNameRegexMixin {
+object QName {
 
   def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope)
@@ -107,11 +107,11 @@ object QName extends QNameRegexMixin {
     val res =
       try {
         extSyntax match {
-          case ExtQNameRegex("", local) =>
+          case QNameRegex.ExtQName("", local) =>
             RefQName(None, local, NoNamespace)
-          case ExtQNameRegex(null, local) =>
+          case QNameRegex.ExtQName(null, local) =>
             RefQName(None, local, UnspecifiedNamespace)
-          case ExtQNameRegex(uriString, local) if isURISyntax(uriString) =>
+          case QNameRegex.ExtQName(uriString, local) if QNameRegex.isURISyntax(uriString) =>
             RefQName(None, local, NS(uriString))
           case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
         }
@@ -334,7 +334,7 @@ final case class StepQName(prefix: Option[String], local: String, namespace: NS)
 
 }
 
-protected trait RefQNameFactoryBase[T] extends QNameRegexMixin {
+protected trait RefQNameFactoryBase[T] {
 
   protected def resolveDefaultNamespace(scope: scala.xml.NamespaceBinding): Option[String]
 
@@ -342,7 +342,7 @@ protected trait RefQNameFactoryBase[T] extends QNameRegexMixin {
 
   def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[T] = Try {
     qnameString match {
-      case QNameRegex(pre, local) => {
+      case QNameRegex.QName(pre, local) => {
         val prefix = Option(pre)
         // note that the prefix, if defined, can never be ""
         val optURI = prefix match {
@@ -380,31 +380,35 @@ object StepQNameFactory extends RefQNameFactoryBase[StepQName] {
     None // don't consider default namespace
 }
 
-trait QNameRegexMixin {
-  private val xC0_D6 = ("""[\x{C0}-\x{D6}]""")
-  private val xD8_F6 = """[\x{D8}-\x{F6}]"""
-  private val xF8_2FF = """[\x{F8}-\x{2FF}]"""
-  private val x370_37D = """[\x{370}-\x{37D}]"""
-  private val x37F_1FFF = """[\x{37F}-\x{1FFF}]"""
+object QNameRegex {
+  private val xC0_D6 = ("""\x{C0}-\x{D6}""")
+  private val xD8_F6 = """\x{D8}-\x{F6}"""
+  private val xF8_2FF = """\x{F8}-\x{2FF}"""
+  private val x370_37D = """\x{370}-\x{37D}"""
+  private val x37F_1FFF = """\x{37F}-\x{1FFF}"""
   private val x200C_200D = """\x{200c}|\x{200d}"""
-  private val x2070_218F = """[\x{2070}-\x{218F}]"""
-  private val x2C00_2FEF = """[\x{2C00}-\x{2FEF}]"""
-  private val x3001_D7FF = """[\x{3001}-\x{D7FF}]"""
-  private val xF900_FDCF = """[\x{F900}-\x{FDCF}]"""
-  private val xFDF0_FFFD = """[\x{FDF0}-\x{FFFD}]"""
-  private val x10000_EFFFF = """[\x{10000}-\x{EFFFF}]"""
-  private val range0_9 = """[0-9]"""
+  private val x2070_218F = """\x{2070}-\x{218F}"""
+  private val x2C00_2FEF = """\x{2C00}-\x{2FEF}"""
+  private val x3001_D7FF = """\x{3001}-\x{D7FF}"""
+  private val xF900_FDCF = """\x{F900}-\x{FDCF}"""
+  private val xFDF0_FFFD = """\x{FDF0}-\x{FFFD}"""
+  private val x10000_EFFFF = """\x{10000}-\x{EFFFF}"""
+  private val range0_9 = """0-9"""
   private val xB7 = """\xB7"""
-  private val x0300_036F = """[\x{0300}-\x{036F}]"""
-  private val x203F_2040 = """[\x{203F}-\x{2040}]"""
+  private val x0300_036F = """\x{0300}-\x{036F}"""
+  private val x203F_2040 = """\x{203F}-\x{2040}"""
 
-  private val ncNameStartChar = """[A-Z]|_|[a-z]""" + "|" + xC0_D6 + "|" + xD8_F6 + "|" + xF8_2FF + "|" + x37F_1FFF + "|" + x200C_200D + "|" +
-    x2070_218F + "|" + x2C00_2FEF + "|" + x3001_D7FF + "|" + xF900_FDCF + "|" + xFDF0_FFFD + "|" + x10000_EFFFF
-  private val ncNameChar = ncNameStartChar + "|" + "\\-" + "|" + "\\." + "|" + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
-  private val NCNameRegexString = "((?:" + ncNameStartChar + ")(?:(?:" + ncNameChar + ")*))"
-  val NCNameRegex = NCNameRegexString.r
-  val QNameRegex = ("(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString).r
-  val ExtQNameRegex = ("""(?:\{(.*)\})?""" + NCNameRegexString).r
+  private val ncNameStartChar = "A-Z_a-z" + xC0_D6 + xD8_F6 + xF8_2FF + x37F_1FFF + x200C_200D +
+    x2070_218F + x2C00_2FEF + x3001_D7FF + xF900_FDCF + xFDF0_FFFD + x10000_EFFFF
+  private val ncNameChar = ncNameStartChar + "\\-" + "\\." + range0_9 // + "|" + xB7 + "|" + x0300_036F + "|" + x203F_2040
+  private val NCNameRegexString = "([" + ncNameStartChar + "](?:[" + ncNameChar + "])*)"
+  private val QNameRegexString = "(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString
+  lazy val NCName = NCNameRegexString.r
+  lazy val QName = QNameRegexString.r
+
+  private val URIPartRegexString = """(?:\{(.*)\})"""
+  private val ExtQNameRegexString = URIPartRegexString + "?" + NCNameRegexString
+  lazy val ExtQName = ExtQNameRegexString.r
 
   def isURISyntax(s: String): Boolean = {
     try {

@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
  *
  * Import this object. I.e., import edu.illinois.ncsa.daffodil.xml.NS._
  */
-object NS extends QNameRegexMixin {
+object NS {
 
   /**
    * Import these implicit conversions for convenience if you like

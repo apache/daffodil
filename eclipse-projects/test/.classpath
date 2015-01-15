@@ -11,7 +11,7 @@
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="testData_OnClassPath"/>
-	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
+	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="/home/mbeckerle/dataiti/git/daffodil/lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/junit/junit/junit-4.11-javadoc.jar!/"/>
 		</attributes>

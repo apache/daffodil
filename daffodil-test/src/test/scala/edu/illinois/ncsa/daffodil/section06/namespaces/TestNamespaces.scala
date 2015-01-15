@@ -98,7 +98,9 @@ class TestNamespaces {
   @Test def test_namespaces_qnames2() { runner.runOneTest("namespaces_qnames2") }
   @Test def test_namespaces_qnames3() { runner.runOneTest("namespaces_qnames3") }
 
-  @Test def test_namespaceLimit() { runner.runOneTest("namespaceLimit") }
+  @Test def test_namespaceLimit() {
+    runner.runOneTest("namespaceLimit")
+  }
 
   // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name. 
