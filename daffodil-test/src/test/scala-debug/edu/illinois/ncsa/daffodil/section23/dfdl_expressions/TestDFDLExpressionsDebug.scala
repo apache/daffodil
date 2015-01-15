@@ -147,11 +147,12 @@ class TestDFDLExpressionsDebug {
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   @Test def test_exists_02() { runner2.runOneTest("exists_02") }
  
-  //DFDL-1085
+  //DFDL-1189
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   @Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
   @Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
   @Test def test_exactly_one_06() { runner2.runOneTest("exactly_one_06") }
+
   //DFDL-1087
   @Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
   @Test def test_exactly_one_03() { runner2.runOneTest("exactly_one_03") }

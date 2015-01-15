@@ -460,7 +460,7 @@ class TestDFDLExpressions {
   //DFDL-1120
   //@Test def test_exists_10() { runner2.runOneTest("exists_10") }
 
-  //DFDL-1085
+  //DFDL-1189
   //@Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   //@Test def test_exactly_one_04() { runner2.runOneTest("exactly_one_04") }
   //@Test def test_exactly_one_05() { runner2.runOneTest("exactly_one_05") }
