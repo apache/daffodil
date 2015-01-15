@@ -46,7 +46,6 @@ import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import javax.xml.xpath.XPathException
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerBase
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
@@ -225,16 +224,16 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
     val context = state.getContext()
     val namespaces = context.namespaces
-    val compiledExpr = eCompiler.compile(
-      NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo, false)
     try {
+      val compiledExpr = eCompiler.compile(
+        NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo, false)
       val (res, vars) = compiledExpr.evaluate(state)
       res match {
         case b: Boolean => b
         case _ => false
       }
     } catch {
-      case e: XPathException => false
+      case e: Throwable => false
     }
   }
 
@@ -873,11 +872,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           if (!DPathUtil.isExpression(adjustedExpression)) "{ " + adjustedExpression + " }"
           else adjustedExpression
         val isEvaluatedAbove = false
-        val compiledExpression = eCompiler.compile(
-          NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
-          isEvaluatedAbove)
         try {
-
+          val compiledExpression = eCompiler.compile(
+            NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
+            isEvaluatedAbove)
           val (res, vmap) = compiledExpression.evaluate(state)
           res match {
             case ie: InfosetElement => debugPrettyPrintXML(ie)
@@ -890,7 +888,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             case _ => debugPrintln(res)
           }
         } catch {
-          case e: XPathException => {
+          case e: Throwable => {
             val ex = if (e.getMessage() == null) e.getCause() else e
             throw new DebugException("expression evaluation failed: %s".format(ex))
           }
