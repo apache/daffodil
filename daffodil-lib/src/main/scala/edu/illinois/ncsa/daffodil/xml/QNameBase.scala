@@ -7,6 +7,9 @@ import edu.illinois.ncsa.daffodil.equality._
 import scala.language.reflectiveCalls
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import java.net.URISyntaxException
+import java.net.URI
+import scala.util.Try
+import scala.util.Success
 
 /**
  * Please centralize QName handling here.
@@ -87,10 +90,8 @@ import java.net.URISyntaxException
  */
 object QName extends QNameRegexMixin {
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Option[RefQName] =
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[RefQName] =
     RefQNameFactory.resolveRef(qnameString, scope)
-
-  private val NSFormat = """\{([^\{\}]*)\}(.+)""".r
 
   /**
    * Specialized getQName function for handling
@@ -102,22 +103,25 @@ object QName extends QNameRegexMixin {
    * 2. {}varName=value       // explicitly means NoNamespace
    * 3. varName=value         // unspecified namespace, i.e., might default
    */
-  def refQNameFromExtendedSyntax(extSyntax: String): Either[Throwable, RefQName] = {
+  def refQNameFromExtendedSyntax(extSyntax: String): Try[RefQName] = Try {
     val res =
       try {
         extSyntax match {
-          case NSFormat("", varName) => Right(RefQName(None, varName, NoNamespace))
-          case NSFormat(uriString, varName) => Right(RefQName(None, varName, NS(uriString)))
-          case NCNameRegex(local) => Right(RefQName(None, local, UnspecifiedNamespace))
-          case _ => Left(new ExtendedQNameSyntaxException(Some(extSyntax), None))
+          case ExtQNameRegex("", local) =>
+            RefQName(None, local, NoNamespace)
+          case ExtQNameRegex(null, local) =>
+            RefQName(None, local, UnspecifiedNamespace)
+          case ExtQNameRegex(uriString, local) if isURISyntax(uriString) =>
+            RefQName(None, local, NS(uriString))
+          case _ => throw new ExtendedQNameSyntaxException(Some(extSyntax), None)
         }
       } catch {
-        case ex: URISyntaxException => Left(new ExtendedQNameSyntaxException(None, Some(ex)))
+        case ex: URISyntaxException => throw new ExtendedQNameSyntaxException(None, Some(ex))
       }
     res
   }
 
-  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding): Option[StepQName] =
+  def resolveStep(qnameString: String, scope: scala.xml.NamespaceBinding): Try[StepQName] =
     StepQNameFactory.resolveRef(qnameString, scope)
 
   def createLocal(name: String, targetNamespace: NS, isQualified: Boolean,
@@ -161,6 +165,9 @@ class ExtendedQNameSyntaxException(offendingSyntax: Option[String], cause: Optio
 class QNameSyntaxException(offendingSyntax: Option[String], cause: Option[Throwable])
   extends QNameSyntaxExceptionBase("QName", offendingSyntax, cause)
 
+class QNameUndefinedPrefixException(pre: String)
+  extends Exception("Undefined QName prefix '%s'".format(pre))
+
 protected trait QNameBase {
 
   /**
@@ -198,16 +205,6 @@ protected trait QNameBase {
       case (Some(pre), local, ns) => pre + ":" + local
     }
   }
-
-  /**
-   * expanded name looks like {...uri...}local.
-   * The prefix isn't part of it.
-   */
-  //  def toExpandedName: String = {
-  //    if (namespace.isNoNamespace) "{}" + local
-  //    else if (namespace.isUnspecified) local
-  //    else "{" + namespace.uri + "}" + local
-  //  }
 
   def matches[Q <: QNameBase](other: Q): Boolean
 }
@@ -343,23 +340,25 @@ protected trait RefQNameFactoryBase[T] extends QNameRegexMixin {
 
   protected def constructor(prefix: Option[String], local: String, namespace: NS): T
 
-  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Option[T] = {
-    val (prefix, local) = qnameString match {
-      case QNameRegex(prefix, local) => (Option(prefix), local)
+  def resolveRef(qnameString: String, scope: scala.xml.NamespaceBinding): Try[T] = Try {
+    qnameString match {
+      case QNameRegex(pre, local) => {
+        val prefix = Option(pre)
+        // note that the prefix, if defined, can never be ""
+        val optURI = prefix match {
+          case None => resolveDefaultNamespace(scope)
+          case Some(pre) => Option(scope.getURI(pre))
+        }
+        val ns = (prefix, optURI) match {
+          case (None, None) => NoNamespace
+          case (Some(pre), None) => throw new QNameUndefinedPrefixException(pre)
+          case (_, Some(ns)) => NS(ns)
+        }
+        val res = constructor(prefix, local, ns)
+        res
+      }
       case _ => throw new QNameSyntaxException(Some(qnameString), None)
     }
-    // note that the prefix, if defined, can never be ""
-    val optURI = prefix match {
-      case None => resolveDefaultNamespace(scope)
-      case Some(pre) => Option(scope.getURI(pre))
-    }
-    val optNS = (prefix, optURI) match {
-      case (None, None) => Some(NoNamespace)
-      case (Some(pre), None) => None // Error. Unresolvable Prefix
-      case (_, Some(ns)) => Some(NS(ns))
-    }
-    val res = optNS map { constructor(prefix, local, _) }
-    res
   }
 }
 
@@ -405,4 +404,14 @@ trait QNameRegexMixin {
   private val NCNameRegexString = "((?:" + ncNameStartChar + ")(?:(?:" + ncNameChar + ")*))"
   val NCNameRegex = NCNameRegexString.r
   val QNameRegex = ("(?:" + NCNameRegexString + "\\:)?" + NCNameRegexString).r
+  val ExtQNameRegex = ("""(?:\{(.*)\})?""" + NCNameRegexString).r
+
+  def isURISyntax(s: String): Boolean = {
+    try {
+      new URI(s)
+      true
+    } catch {
+      case _: URISyntaxException => false
+    }
+  }
 }

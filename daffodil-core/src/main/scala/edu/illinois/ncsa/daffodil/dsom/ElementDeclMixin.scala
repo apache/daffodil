@@ -107,10 +107,11 @@ trait ElementDeclMixin
 
   lazy val typeName = getAttributeOption("type")
 
-  lazy val namedTypeQName = namedTypeQName_.value
+  lazy val namedTypeQName: Option[RefQName] = namedTypeQName_.value
   private val namedTypeQName_ = LV('namedTypeQName) {
     typeName match {
-      case Some(tname) => QName.resolveRef(tname, namespaces)
+      case Some(tname) =>
+        Some(QName.resolveRef(tname, namespaces).get)
       case None => None
     }
   }

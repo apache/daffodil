@@ -591,12 +591,12 @@ object Infoset {
         res
       }
       case UnsignedByte => {
-        val res = java.lang.Short.parseShort(value)
+        val res = value.toShort
         context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
         res
       }
       case UnsignedShort => {
-        val res = java.lang.Integer.parseInt(value)
+        val res = value.toInt
         context.schemaDefinitionUnless(res >= 0, "Cannot convert %s to %s.", value, primType.name)
         res
       }
@@ -610,8 +610,8 @@ object Infoset {
         context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
         res
       }
-      case Double => java.lang.Double.parseDouble(value)
-      case Float => java.lang.Float.parseFloat(value)
+      case Double => value.toDouble
+      case Float => value.toFloat
       case HexBinary => Misc.hex2Bytes(value) // convert hex constant into byte array
       case Boolean => {
         if (value == "true") true

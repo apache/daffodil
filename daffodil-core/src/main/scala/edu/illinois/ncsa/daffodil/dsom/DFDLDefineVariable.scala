@@ -71,8 +71,14 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
-  lazy val typeQName = QName.resolveRef(typeQNameString, namespaces).getOrElse(
-    SDE("Variables must have primitive types. Type is '%s'.", typeQNameString))
+  lazy val typeQName = {
+    val eQN = QName.resolveRef(typeQNameString, namespaces)
+    val res = eQN.recover {
+      case _: Throwable =>
+        SDE("Variables must have primitive types. Type is '%s'.", typeQNameString)
+    }.get
+    res
+  }
 
   lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))

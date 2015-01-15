@@ -81,6 +81,8 @@ import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.api.InputStreamSchemaSource
 import edu.illinois.ncsa.daffodil.tdml.TDMLException
+import edu.illinois.ncsa.daffodil.xml.RefQName
+import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -225,20 +227,12 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
   }
 
-  def qnameConvert(s: String): (Option[NS], String) = {
+  def qnameConvert(s: String): RefQName = {
     val eQN = QName.refQNameFromExtendedSyntax(s)
-    eQN match {
-      case Left(th) => throw th
-      case Right(qn) => {
-        val optNS =
-          if (qn.namespace.isUnspecified) None
-          else Some(qn.namespace)
-        (optNS, qn.local)
-      }
-    }
+    eQN.get
   }
 
-  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[(Option[NS], String)](qnameConvert _)
+  implicit def rootNSConverter = org.rogach.scallop.singleArgConverter[RefQName](qnameConvert _)
 
   implicit def fileResourceURIConverter = singleListArgConverter[URI]((s: String) => {
     val file = new File(s)
@@ -308,7 +302,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     helpWidth(76)
 
     val schemas = opt[List[URI]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")
-    val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
@@ -360,7 +354,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     helpWidth(76)
 
     val schemas = opt[List[URI]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")
-    val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "The total number of files to parse.")
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
@@ -399,7 +393,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     helpWidth(76)
 
     val schemas = opt[List[URI]]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")
-    val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to file. If not given or is -, output is written to standard output.")
@@ -451,7 +445,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     helpWidth(76)
 
     val schemas = opt[List[URI]]("schema", argName = "file", required = true, descr = "the annotated DFDL schema to use to create the parser. May be supplied multiple times for multi-schema support.")
-    val rootNS = opt[(Option[NS], String)]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
+    val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
     val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
@@ -607,7 +601,7 @@ object Main extends Logging {
     combined
   }
 
-  def createProcessorFromSchemas(schemas: List[URI], rootNS: Option[(Option[NS], String)], path: Option[String],
+  def createProcessorFromSchemas(schemas: List[URI], rootNS: Option[RefQName], path: Option[String],
     extVars: Seq[Binding],
     tunables: Map[String, String],
     mode: ValidationMode.Type) = {
@@ -618,8 +612,7 @@ object Main extends Logging {
 
     rootNS match {
       case None => // nothing
-      case Some((None, root)) => compiler.setDistinguishedRootNode(root, null)
-      case Some((Some(ns), root)) => compiler.setDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
+      case Some(RefQName(_, root, ns)) => compiler.setDistinguishedRootNode(root, ns.toStringOrNullIfNoNS)
     }
 
     // Wrap timing around the whole of compilation

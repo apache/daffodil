@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.xml._
+import scala.util.Success
 
 class TestExternalVariablesNew extends Logging {
   //  val xsd = XMLUtils.XSD_NAMESPACE
@@ -93,9 +94,9 @@ class TestExternalVariablesNew extends Logging {
     val varNoNS = "{}varNoNS"
     val varGuessNS = "varGuessNS"
 
-    val Right(qWithNS) = QName.refQNameFromExtendedSyntax(varWithNS)
-    val Right(qNoNS) = QName.refQNameFromExtendedSyntax(varNoNS)
-    val Right(qGuessNS) = QName.refQNameFromExtendedSyntax(varGuessNS)
+    val Success(qWithNS) = QName.refQNameFromExtendedSyntax(varWithNS)
+    val Success(qNoNS) = QName.refQNameFromExtendedSyntax(varNoNS)
+    val Success(qGuessNS) = QName.refQNameFromExtendedSyntax(varGuessNS)
 
     assertEquals(NS("someNS"), qWithNS.namespace)
     assertEquals("varWithNS", qWithNS.local)

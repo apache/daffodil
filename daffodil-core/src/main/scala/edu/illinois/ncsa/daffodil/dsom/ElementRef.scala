@@ -106,18 +106,13 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   lazy val isDefaultable: Boolean = referencedElement.isDefaultable
   lazy val defaultValueAsString = referencedElement.defaultValueAsString
 
-  lazy val (ns, localName) = {
-    val qname = resolveQName(ref)
-    (qname.namespace, qname.local)
-  }
-
-  override lazy val namespace = ns
+  override lazy val namespace = namedQName.namespace
 
   /**
    * valueOrElse....not just .value because when trying to get a diagnostic message out about
    * something, but then you get another failure just trying to get the
    * name of the thing that was causing the original diagnostic, so you
-   * end up getting a completely insrutable situation.
+   * end up getting a completely inscrutable situation.
    *
    * So I made key things that are part of diagnostic messages have this
    * "always creates some value" behavior.
@@ -132,7 +127,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
    */
   override lazy val name = nameFromRef
   private lazy val nameFromRef = nameFromRef_.valueOrElse("?name?")
-  private val nameFromRef_ = LV('nameFromRef) { localName }
+  private val nameFromRef_ = LV('nameFromRef) { namedQName.local }
 
   // TODO: perhaps many members of ElementRef are unused. 
   // Consider removing some. Although consider that

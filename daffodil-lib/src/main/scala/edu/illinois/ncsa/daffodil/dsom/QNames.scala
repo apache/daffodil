@@ -51,17 +51,18 @@ trait HasRefMixin extends GetAttributesMixin with ResolvesQNames {
 }
 
 trait ResolvesQNames
-  extends ThrowsSDE {
+  extends ThrowsSDE
+  with QNameRegexMixin {
   def namespaces: scala.xml.NamespaceBinding
 
   /**
    * If prefix of name is unmapped, SDE
    */
   def resolveQName(qnString: String): RefQName = {
-    val optQN = QName.resolveRef(qnString, namespaces)
-    val res = optQN.getOrElse {
-      SDE("QName '%s' has undefined namespace prefix, or\nhas no namespace prefix but with no default namespace in scope.", qnString)
-    }
+    val eQN = QName.resolveRef(qnString, namespaces)
+    // we don't want to just throw the exception, we want to 
+    // convert to an SDE, so we use recover
+    val res = eQN.recover { ThrowSDE }.get
     res
   }
 
@@ -69,7 +70,9 @@ trait ResolvesQNames
    * Just chop off the prefix.
    */
   def removePrefix(prefixedValue: String): String = {
-    Assert.usage(prefixedValue.contains(":"))
-    prefixedValue.split(":").last
+    prefixedValue match {
+      case QNameRegex(pre, local) => local
+      case _ => Assert.usageError("The argument was not in QName syntax: '%s'".format(prefixedValue))
+    }
   }
 }

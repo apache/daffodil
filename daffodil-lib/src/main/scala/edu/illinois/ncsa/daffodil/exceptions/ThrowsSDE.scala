@@ -1,6 +1,7 @@
 package edu.illinois.ncsa.daffodil.exceptions
 
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -56,6 +57,9 @@ import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 trait ThrowsSDE {
 
   def SDE(id: String, args: Any*): Nothing
+  final def SDE(th: Throwable): Nothing = SDE(DiagnosticUtils.getSomeMessage(th).get)
+
+  def ThrowSDE = PartialFunction[Throwable, Nothing] { case th: Throwable => SDE(th) }
 
   def schemaFileLocation: SchemaFileLocation
 

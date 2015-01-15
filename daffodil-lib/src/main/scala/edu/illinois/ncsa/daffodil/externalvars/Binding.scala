@@ -3,6 +3,8 @@ package edu.illinois.ncsa.daffodil.externalvars
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.xml._
+import scala.util.Success
+import scala.util.Failure
 
 class Binding(val varQName: RefQName, val varValue: String) {
 
@@ -34,18 +36,15 @@ object Binding {
    * extSyntax is {uri}ncName, or {}ncName, or ncName
    */
   def apply(extSyntax: String, value: String): Binding = {
-    val maybeRefQName = QName.refQNameFromExtendedSyntax(extSyntax)
-    maybeRefQName match {
-      case Right(refQName) => new Binding(refQName, value)
-      case Left(th) => throw th
-    }
+    val tryRefQName = QName.refQNameFromExtendedSyntax(extSyntax)
+    new Binding(tryRefQName.get, value)
   }
 
   def apply(node: Node): Binding = {
     val name = (node \ "@name").head.text
-    val refQName = QName.resolveRef(name, node.scope).get
+    val refQName = QName.resolveRef(name, node.scope)
     val value = node.text
-    new Binding(refQName, value)
+    new Binding(refQName.get, value)
   }
 
   def apply(name: String, namespace: Option[NS], value: String): Binding = {

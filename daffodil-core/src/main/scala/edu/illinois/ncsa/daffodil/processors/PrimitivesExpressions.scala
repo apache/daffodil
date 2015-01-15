@@ -123,8 +123,6 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   override lazy val exprNamespaces = stmt.xml.scope
   override lazy val exprComponent = stmt
 
-  //  lazy val expandedTypeName = stmt.defv.extType
-  //
   override lazy val nodeKind = stmt.defv.primType
 
   def parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)

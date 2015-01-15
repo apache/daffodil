@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.Implicits._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import scala.util.Success
 
 class TestExternalVariablesLoader extends Logging {
   val xsd = XMLUtils.XSD_NAMESPACE
@@ -94,10 +95,10 @@ class TestExternalVariablesLoader extends Logging {
       <dfdl:defineVariable name="v_with_default" type="xs:int" external="true" defaultValue="42"/>
     }
 
-    val Right(v_no_default) =
-      QName.refQNameFromExtendedSyntax("{http://example.com}v_no_default").right.map { _.toGlobalQName }
-    val Right(v_with_default) =
-      QName.refQNameFromExtendedSyntax("{http://example.com}v_with_default").right.map { _.toGlobalQName }
+    val Success(v_no_default) =
+      QName.refQNameFromExtendedSyntax("{http://example.com}v_no_default").map { _.toGlobalQName }
+    val Success(v_with_default) =
+      QName.refQNameFromExtendedSyntax("{http://example.com}v_with_default").map { _.toGlobalQName }
 
     val (sd, sset) = generateSD(topLevelAnnotations)
     val initialVMap = sset.variableMap

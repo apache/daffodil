@@ -41,6 +41,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import scala.util.{ Success, Failure }
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -187,9 +188,10 @@ abstract class Expression extends OOLAGHost
   def inherentType: NodeInfo.Kind
 
   def resolveRef(qnameString: String) = {
-    QName.resolveRef(qnameString, namespaces).getOrElse {
-      SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
-    }
+    QName.resolveRef(qnameString, namespaces).recover {
+      case _: Throwable =>
+        SDE("The prefix of '%s' has no corresponding namespace definition.", qnameString)
+    }.get
   }
 }
 
@@ -771,8 +773,12 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
 
   override def hashCode() = super.hashCode()
 
-  lazy val stepQName = QName.resolveStep(step, namespaces).getOrElse {
-    SDE("Step %s prefix has no corresponding namespace.", step)
+  lazy val stepQName = {
+    val e = QName.resolveStep(step, namespaces)
+    e match {
+      case Failure(th) => SDE("Step %s prefix has no corresponding namespace.", step)
+      case Success(v) => v
+    }
   }
 
   override lazy val children = pred.toList
