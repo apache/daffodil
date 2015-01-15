@@ -108,6 +108,8 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   override lazy val namespace = namedQName.namespace
 
+  override lazy val prettyName = "element." + name
+
   /**
    * valueOrElse....not just .value because when trying to get a diagnostic message out about
    * something, but then you get another failure just trying to get the

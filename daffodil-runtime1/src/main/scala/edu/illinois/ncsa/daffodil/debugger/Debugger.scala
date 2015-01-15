@@ -10,6 +10,7 @@ abstract class Debugger {
   def after(before: PState, after: PState, parser: Parser) {}
   def beforeRepetition(state: PState, parser: Parser) {}
   def afterRepetition(before: PState, after: PState, parser: Parser) {}
+  def startElement(state: PState, parser: Parser) {}
   def fini(parser: Parser) {}
 }
 
@@ -77,6 +78,10 @@ object Debugger {
 
   def afterRepetition(before: PState, after: PState, parser: Parser) {
     if (areDebugging) { debugger.afterRepetition(before, after, parser) }
+  }
+
+  def startElement(state: PState, parser: Parser) {
+    if (areDebugging) { debugger.startElement(state, parser) }
   }
 
   def fini(parser: Parser) {

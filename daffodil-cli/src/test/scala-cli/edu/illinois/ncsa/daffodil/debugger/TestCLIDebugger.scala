@@ -61,7 +61,7 @@ class TestCLIdebugger {
 
   // See DFDL-605 - occursBounds isn't working correctly
   // Also might want to change the title of this bug to occursBounds
-  /*@Test def test_1336_CLI_Debugger_occursCount() {
+  @Test def test_1336_CLI_Debugger_occursCount() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input10.txt\n"
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
@@ -70,7 +70,7 @@ class TestCLIdebugger {
     shell.send("display info infoset\n")
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
 
     shell.send("continue\n")
     shell.expect(contains("occursBounds: ")) //What number should this be?
@@ -81,7 +81,7 @@ class TestCLIdebugger {
     shell.send("complete\n")
     shell.send("quit\n")
     shell.close()
-  }*/
+  }
 
   @Test def test_1335_CLI_Debugger_dataAndWrapLength() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
@@ -151,36 +151,35 @@ class TestCLIdebugger {
     shell.close()
   }
 
-  //  @Test def test_1331_CLI_Debugger_breakpointTesting4() {} //DFDL-600 CLI Debugger: Allow for duplicate breakpoints with different conditionals
-
-  // See DFDL-973: Breakpoints not working in CLI
-  /* @Test def test_1339_CLI_Debugger_removeHidden() {
+  /* DFDL-604 DFDL-1110
+  @Test def test_1339_CLI_Debugger_removeHidden() {
     val cmd = Util.binPath + " -d parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
     val shell = Util.start(cmd)
 
     shell.expect(contains("(debug)"))
     shell.send("set removeHidden false\n")
     shell.send("display info infoset\n")
-    shell.send("break element.g\n")
+    shell.send("break g\n")
     shell.send("continue\n")
     shell.expect(contains("<ex:sneaky>5</ex:sneaky>"))
     shell.send("quit\n")
     shell.close()
   }
+  */
 
   @Test def test_1331_CLI_Debugger_breakpointTesting4() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
+    shell.send("break cell\n")
 
-    shell.send("condition 1 dfdl:occursIndex() mod 2 = 1\n")
-    shell.send("condition 2 dfdl:occursIndex() mod 2 = 0\n")
+    shell.send("condition 1 dfdl:occursIndex() mod 2 eq 1\n")
+    shell.send("condition 2 dfdl:occursIndex() mod 2 eq 0\n")
 
     shell.send("info breakpoints\n")
-    shell.expect(contains("2: element.cell   dfdl:occursIndex() mod 2 = 0"))
+    shell.expect(contains("2: cell   dfdl:occursIndex() mod 2 eq 0"))
 
     shell.send("display info arrayIndex\n")
 
@@ -226,74 +225,74 @@ class TestCLIdebugger {
     shell.send("display info infoset\n")
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
-    shell.expect(contains("1: element.cell"))
-    shell.send("condition 1 ./text() = 3\n")
-    shell.expect(contains("1: element.cell   ./text() = 3"))
+    shell.send("break cell\n")
+    shell.expect(contains("1: cell"))
+    shell.send("condition 1 xsd:string(.) eq '3'\n")
+    shell.expect(contains("1: cell   xsd:string(.) eq '3'"))
 
     shell.send("info breakpoints\n")
-    shell.expect(allOf(contains("breakpoints:"), contains("1: element.cell   ./text() = 3")))
+    shell.expect(allOf(contains("breakpoints:"), contains("1: cell   xsd:string(.) eq '3'")))
 
     shell.send("continue\n")
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
 
     shell.send("continue\n")
-    shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(1, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(1, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(1, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(2, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(2, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(2, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(2, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(3, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(3, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(3, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(3, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(4, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(4, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(4, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(4, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(5, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(5, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(5, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(5, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(6, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(6, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(6, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(6, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(7, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(7, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(7, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(7, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
-    shell.expect(times(8, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(8, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     shell.send("continue\n")
-    shell.expect(times(8, contains("<tns:cell>3</tns:cell>")))
-    shell.expect(contains("<tns:cell>3</tns:cell>\n      </tns:row>\n    </tns:matrix>"))
+    shell.expect(times(8, contains("<cell>3</cell>")))
+    shell.expect(contains("<cell>3</cell>\n      </row>\n    </matrix>"))
     
     shell.send("continue\n")
     shell.send("quit\n")
@@ -305,8 +304,8 @@ class TestCLIdebugger {
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.e3\n")
-    shell.send("break element.e4\n")
+    shell.send("break e3\n")
+    shell.send("break e4\n")
     shell.send("display info discriminator\n")
 
     shell.send("continue\n")
@@ -316,7 +315,7 @@ class TestCLIdebugger {
     shell.expect(contains("discriminator: true"))
 
     shell.send("continue\n")
-    shell.expect(contains("<ex:e4>400</ex:e4>"))
+    shell.expect(contains("<e4>400</e4>"))
     shell.send("quit\n")
     shell.close()
   }
@@ -327,23 +326,21 @@ class TestCLIdebugger {
     shell.expect(contains("(debug)"))
 
     shell.send("display info infoset\n")
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
 
     shell.send("continue\n")
-    //shell.expect(("<tns:cell></tns:cell>")) // scala 2.9 output
-    shell.expect(contains("<tns:cell/>")) // scala 2.10 output
+    shell.expect(contains("<cell/>"))
 
     shell.send("step\n")
     shell.send("step\n")
-    shell.expect(contains("<tns:cell>0</tns:cell>"))
+    shell.expect(contains("<cell>0</cell>"))
 
     shell.send("continue\n")
-    //shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
-    shell.expect(contains("<tns:cell/>")) // scala 2.10 output
+    shell.expect(contains("<cell/>"))
 
     shell.send("step\n")
     shell.send("step\n")
-    shell.expect(contains("<tns:cell>1</tns:cell>"))
+    shell.expect(contains("<cell>1</cell>"))
 
     shell.send("delete breakpoint 1\n")
     shell.send("continue\n")
@@ -357,19 +354,18 @@ class TestCLIdebugger {
     shell.expect(contains("(debug)"))
 
     shell.send("display info infoset\n")
-    shell.send("break element.cell\n")
-    shell.send("condition 1 dfdl:occursIndex() = 3\n")
+    shell.send("break cell\n")
+    shell.send("condition 1 dfdl:occursIndex() eq 3\n")
 
     shell.send("info breakpoints\n")
-    shell.expect(contains("1: element.cell   dfdl:occursIndex() = 3"))
+    shell.expect(contains("1: cell   dfdl:occursIndex() eq 3"))
 
     shell.send("continue\n")
-    //shell.expect("<tns:cell></tns:cell>") // scala 2.9 output
-    shell.expect(contains("<tns:cell/>")) // scala 2.10 output
+    shell.expect(contains("<cell/>"))
 
     shell.send("step\n")
     shell.send("step\n")
-    shell.expect(contains("<tns:cell>2</tns:cell>"))
+    shell.expect(contains("<cell>2</cell>"))
 
     shell.send("continue\n")
     shell.expect(contains("<tns:cell>6</tns:cell>"))
@@ -383,9 +379,11 @@ class TestCLIdebugger {
     shell.expect(contains("(debug)"))
 
     shell.send("display info arrayIndex\n")
-    shell.send("break element.cell\n")
-    shell.send("info breakpoints")
-    shell.expect(contains("1: element.cell"))
+    shell.expect(contains("(debug)"))
+    shell.send("break cell\n")
+    shell.expect(contains("(debug)"))
+    shell.send("info breakpoints\n")
+    shell.expect(contains("1: cell"))
 
     shell.send("continue\n")
     shell.expect(contains("arrayIndex: 1"))
@@ -395,7 +393,7 @@ class TestCLIdebugger {
 
     shell.send("disable breakpoint 1\n")
     shell.send("info breakpoints\n")
-    shell.expect(contains("1*: element.cell"))
+    shell.expect(contains("1*: cell"))
 
     shell.send("info data\n")
     shell.expect(contains("(2 to 2)"))
@@ -416,25 +414,25 @@ class TestCLIdebugger {
     shell.send("display info infoset\n")
     shell.send("set infosetLines 1\n")
 
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
     shell.send("continue\n")
     shell.expect(contains("..."))
-    shell.expect(contains("</tns:matrix>"))
+    shell.expect(contains("</matrix>"))
 
     shell.send("set infosetLines 4\n")
     shell.send("continue\n")
     shell.expect(contains("..."))
-    shell.expect(contains("<tns:cell>3</tns:cell>"))
-    shell.expect(contains("</tns:matrix>"))
+    shell.expect(contains("<cell>3</cell>"))
+    shell.expect(contains("</matrix>"))
 
     shell.send("set infosetLines 10\n")
     shell.send("continue\n")
-    shell.expect(contains("""<tns:matrix xmlns:tns="http://www.example.org/example1/">"""))
+    shell.expect(contains("""<matrix>"""))
 
     shell.send("set infosetLines -900\n")
     shell.send("continue\n")
-    shell.expect(contains("""<tns:matrix xmlns:tns="http://www.example.org/example1/">"""))
-    shell.expect(contains("</tns:matrix>"))
+    shell.expect(contains("""<matrix>"""))
+    shell.expect(contains("</matrix>"))
 
     shell.send("disable breakpoint 1\n")
     shell.send("continue\n")
@@ -449,7 +447,7 @@ class TestCLIdebugger {
 
     shell.send("display info bitPosition\n")
     shell.send("display info data\n")
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
 
     shell.send("continue\n")
     shell.expect(contains("bitPosition: 0"))
@@ -472,7 +470,7 @@ class TestCLIdebugger {
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
     shell.send("display info childIndex\n")
     shell.send("display info infoset\n")
 
@@ -501,7 +499,7 @@ class TestCLIdebugger {
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
     shell.send("display info path\n")
 
     shell.send("continue\n")
@@ -520,7 +518,7 @@ class TestCLIdebugger {
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("break element.cell\n")
+    shell.send("break cell\n")
     shell.send("continue\n")
     shell.send("info data\n")
     shell.expect(contains("0,1,2,3,4,5,6"))
@@ -550,10 +548,10 @@ class TestCLIdebugger {
     shell.expect(contains("(debug)"))
 
     shell.send("display info groupIndex\n")
-    shell.send("break element.price\n")
-    shell.expect(contains("1: element.price"))
-    shell.send("break element.comment\n")
-    shell.expect(contains("2: element.comment"))
+    shell.send("break price\n")
+    shell.expect(contains("1: price"))
+    shell.send("break comment\n")
+    shell.expect(contains("2: comment"))
     
     shell.send("continue\n")
     shell.expect(contains("groupIndex: 2"))
@@ -566,6 +564,6 @@ class TestCLIdebugger {
     shell.send("continue\n")
     shell.expect(contains("<ex:price>89.99</ex:price>"))
     shell.close()
-  }*/
+  }
 
 }

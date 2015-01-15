@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
+import edu.illinois.ncsa.daffodil.debugger._
 
 abstract class StatementElementParserBase(
   rd: RuntimeData,
@@ -93,6 +94,10 @@ abstract class StatementElementParserBase(
     val postElementStartState = parseBegin(beforeEState)
 
     if (postElementStartState.status != Success) return postElementStartState
+
+    // We just successfully created the element in the infoset. Notify the
+    // debugger of this so it can do things like check for break points
+    Debugger.startElement(postElementStartState, this)
 
     val postEState = eParser.map { eParser =>
       eParser.parse1(postElementStartState, rd)

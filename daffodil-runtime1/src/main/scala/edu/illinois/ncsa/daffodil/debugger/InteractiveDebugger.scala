@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.debugger
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.processors.parsers._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.ExecutionMode
@@ -138,15 +139,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     runner.fini
   }
 
-  override def after(before: PState, after: PState, parser: Parser) {
-    if (!isInteresting(parser)) {
-      return
-    }
-
+  def debugStep(before: PState, after: PState, parser: Parser, ignoreBreakpoints: Boolean) {
     ExecutionMode.usingUnrestrictedMode {
       debugState = debugState match {
         case _ if (after.status != Success && DebuggerConfig.breakOnFailure) => DebugState.Pause
-        case DebugState.Continue | DebugState.Trace => {
+        case DebugState.Continue | DebugState.Trace if !ignoreBreakpoints => {
           findBreakpoint(after, parser) match {
             case Some(bp) => {
               debugPrintln("breakpoint %s: %s   %s".format(bp.id, bp.breakpoint, bp.condition.getOrElse("")))
@@ -181,28 +178,28 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     }
   }
 
-  private def isInteresting(parser: Parser): Boolean = true
-  // TODO: Until the debugger is fixed, this conditional stuff removed as
-  // we need to see more info. Eventually something that removes excess noise
-  // should go back in.
-  //
-  //  {
-  //    parser.toString match {
-  //      case "Sequence" => false
-  //      case "ComplexType" => false
-  //      case _ => {
-  //        if (parser.toString.startsWith("<seq>")) {
-  //          false
-  //        } else if (parser.toString.startsWith("RepExactlyN")) {
-  //          false
-  //        } else if (parser.toString.startsWith("RepAtMostTotalN")) {
-  //          false
-  //        } else {
-  //          true
-  //        }
-  //      }
-  //    }
-  //  }
+  private def isInteresting(parser: Parser): Boolean = {
+    val interesting = parser match {
+      case _: ComplexTypeParser => false
+      case _: SeqCompParser => false
+      case _: SequenceCombinatorParser => false
+      case _: AltCompParser => false
+      case _: RepParser => false
+      case _: OptionalInfixSepParser => false
+      case _ => true
+    }
+    interesting
+  }
+
+  override def startElement(state: PState, parser: Parser) {
+    debugStep(state, state, parser, false)
+  }
+
+  override def after(before: PState, after: PState, parser: Parser) {
+    if (isInteresting(parser)) {
+      debugStep(before, after, parser, DebuggerConfig.breakOnlyOnCreation)
+    }
+  }
 
   private def readCmd(): Seq[String] = {
     val input = runner.getCommand.trim
@@ -238,36 +235,21 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   }
 
   private def findBreakpoint(state: PState, parser: Parser): Option[Breakpoint] = {
-    // TODO: detecting if the parser is an ElementBegin parser is a little
-    // tricky because of anonymous parsers. So solve this, make sure the parser
-    // is an instance of PrimParser, then check if the primitive representing
-    // the prim parser is an instance of ElementBegin. This should be changed
-    // if we ever get rid of anonymous parsers.
-    //
-    // UPDATE:  ElementBegin parser was removed during update to RuntimeData and ElementRuntimeData
-    //
-    // Note: we use strings and getClass.getName here to get late binding. The ElementBegin class isn't defined
-    // in the same module this is. (Layering structure issue.)
-    //
-    if (!DebuggerConfig.breakOnlyOnCreation) {
-      val foundBreakpoint =
-        DebuggerConfig.breakpoints
-          .filter(_.enabled)
-          .filter { bp =>
-            bp.breakpoint == parser.context.prettyName ||
-              bp.breakpoint == parser.context.path ||
-              "element." + bp.breakpoint == parser.context.prettyName
+    val foundBreakpoint =
+      DebuggerConfig.breakpoints
+        .filter(_.enabled)
+        .filter { bp =>
+          bp.breakpoint == parser.context.prettyName ||
+            bp.breakpoint == parser.context.path ||
+            "element." + bp.breakpoint == parser.context.prettyName
+        }
+        .find { bp =>
+          bp.condition match {
+            case Some(expression) => evaluateBooleanExpression(expression, state, parser)
+            case None => true
           }
-          .find { bp =>
-            bp.condition match {
-              case Some(expression) => evaluateBooleanExpression(expression, state, parser)
-              case None => true
-            }
-          }
-      foundBreakpoint
-    } else {
-      None
-    }
+        }
+    foundBreakpoint
   }
 
   private def runCommand(cmd: Seq[String], before: PState, after: PState, parser: Parser): DebugState.Type = {
@@ -488,7 +470,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Create a breakpoint, causing the debugger to stop when the element
                         |with the <element_id> name is created.
                         |
-                        |Example: break element.foo""".stripMargin
+                        |Example: break foo""".stripMargin
       def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         if (args.length != 1) {
           throw new DebugException("break command requires a single argument")
@@ -1081,7 +1063,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
               val dumpLoc = ((prestate.bitPos >> 6) << 6) / 8;
 
               val numPrespaces = (math.max(prestate.charPos, 0L) - dumpLoc).toInt
-              val numSpaces = (state.charPos - dumpLoc).toInt
+              val numSpaces = (math.max(state.charPos, 0L) - dumpLoc).toInt
 
               val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
 
@@ -1324,7 +1306,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Change a debugger setting, the list of settings are below.
                         |
-                        |Example: set breakOnlyOnCreate false
+                        |Example: set breakOnlyOnCreation false
                         |         set dataLength 100""".stripMargin
       override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetRepresentation, SetWrapLength)
       override lazy val short = "set"
