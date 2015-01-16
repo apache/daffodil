@@ -532,7 +532,10 @@
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[1]]></tdml:document>
     <tdml:errors>
-      <tdml:error>placeholder</tdml:error>
+      <tdml:error>Failed to populate</tdml:error>
+      <tdml:error>ex:a[2]</tdml:error>
+      <tdml:error>Expected 2 items</tdml:error>
+      <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -564,7 +567,10 @@
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(1)]]></tdml:document>
     <tdml:errors>
-      <tdml:error>placeholder</tdml:error>
+      <tdml:error>Failed to populate</tdml:error>
+      <tdml:error>ex:a[2]</tdml:error>
+      <tdml:error>Expected 2 items</tdml:error>
+      <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

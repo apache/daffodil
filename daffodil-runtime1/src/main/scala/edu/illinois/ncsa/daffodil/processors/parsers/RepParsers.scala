@@ -119,7 +119,10 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
         Debugger.beforeRepetition(pResult, this)
         val pNext = rParser.parse1(pResult, context)
         Debugger.afterRepetition(pResult, pNext, this)
-        if (pNext.status != Success) return pNext // they all must succeed, otherwise we fail here.
+        if (pNext.status != Success) {
+          return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+            context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+        }
         pstate.mpstate.moveOverOneArrayIndexOnly
         pResult = pNext
       }
@@ -154,7 +157,9 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         if (pNext.discriminator == true) {
           // we fail the whole RepUnbounded, because there was a discriminator set 
           // before the failure.
-          return pNext.withRestoredPointOfUncertainty
+          val pNextNext = PE(pNext, "Failed to populate %s:%s[%s].  Expected at most %s items.",
+            erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+          return pNextNext.withRestoredPointOfUncertainty
         }
         //
         // backout any element appended as part of this attempt.
@@ -173,7 +178,13 @@ class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeDa
   extends RepParser(n, rParser, context, "ExactlyTotalN") {
 
   def parseAllRepeats(pstate: PState): PState = {
-    Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
+    val pNext = Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
+
+    if (pNext.status != Success) {
+      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+        context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+    }
+    pNext
   }
 }
 
@@ -280,7 +291,12 @@ class RepAtMostOccursCountParser(rParser: Parser, intN: Long, erd: ElementRuntim
   def parseAllRepeats(pstate: PState): PState = {
     // repeat either n times, or occursCount times if that's less than n.
     val n = math.min(pstate.mpstate.occursBounds, erd.minOccurs.get)
-    Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
+    val pNext = Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
+    if (pNext.status != Success) {
+      return PE(pNext, "Failed to populate %s:%s[%s].  Expected at most %s items.",
+        erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+    }
+    pNext
   }
 }
 
@@ -288,6 +304,11 @@ class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(-1, rParser, erd, "ExactlyTotalOccursCount") {
   def parseAllRepeats(pstate: PState): PState = {
     val ocInt = pstate.mpstate.occursBounds.toInt
-    Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
+    val pNext = Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
+    if (pNext.status != Success) {
+      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+        erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
+    }
+    pNext
   }
 }
