@@ -867,4 +867,10 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     assertTrue(exc.getMessage().contains("bitOrder"))
   }
 
+  @Test def test_tdmlNamespaces1() {
+    val testDir = "/test/tdml/"
+    val t0 = testDir + "tdmlNamespaces.tdml"
+    lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
+    r.runOneTest("tdmlNamespaces1")
+  }
 }
