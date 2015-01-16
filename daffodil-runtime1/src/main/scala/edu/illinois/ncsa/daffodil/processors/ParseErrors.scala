@@ -95,7 +95,7 @@ class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, detail
     val currentElem = state.infoset
 
     val parsedValue =
-      "\nParsed value was: " + currentElem.toXML.toString
+      "\nParsed value was: " + currentElem.toXML().toString
 
     val finalString =
       if (details.isDefined) "\nDetails: " + details.get + parsedValue

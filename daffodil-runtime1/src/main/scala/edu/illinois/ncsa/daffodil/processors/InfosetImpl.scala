@@ -26,7 +26,7 @@ import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 sealed trait DINode extends {
-  def toXML: scala.xml.NodeSeq
+  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
 }
 
 /**
@@ -64,7 +64,7 @@ class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError
 final class FakeDINode extends DISimple(null) {
   private def die = throw new java.lang.IllegalStateException("No infoset at compile time.")
 
-  override def toXML: scala.xml.NodeSeq = die
+  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = die
   override def captureState(): InfosetElementState = die
   override def removeHiddenElements(): InfosetElement = die
   override def restoreState(state: InfosetElementState): Unit = die
@@ -169,8 +169,8 @@ final class DIArray(name: String, namespace: NS) extends DINode with InfosetArra
 
   final def length: Long = _contents.length
 
-  final def toXML: scala.xml.NodeSeq = {
-    _contents.flatMap { _.toXML }
+  final def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
+    _contents.flatMap { _.toXML(removeHidden) }
   }
 }
 
@@ -254,8 +254,8 @@ sealed class DISimple(val erd: ElementRuntimeData)
 
   override def removeHiddenElements(): InfosetElement = this
 
-  override def toXML: scala.xml.NodeSeq = {
-    if (isHidden) Nil //TODO: provide control over whether to display these or not.
+  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
+    if (isHidden && removeHidden) Nil
     else {
       val elem =
         if (erd.nilledXML.isDefined && isNilled) {
@@ -502,14 +502,14 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       new DIComplexState(isNilled, validity, slotsInfo(slots))
   }
 
-  override def toXML: scala.xml.NodeSeq = {
-    if (isHidden) Nil
+  override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
+    if (isHidden && removeHidden) Nil
     else {
       val elem =
         if (erd.nilledXML.isDefined && isNilled) {
           erd.nilledXML.get
         } else {
-          val children = _slots.flatMap { _ map { slot => slot.toXML } }.toSeq.flatten
+          val children = _slots.flatMap { _ map { slot => slot.toXML(removeHidden) } }.toSeq.flatten
           scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.namespaces, true, children: _*)
         }
       elem
@@ -542,8 +542,8 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
     root
   }
 
-  override def toXML =
-    if (root != null) root.toXML
+  override def toXML(removeHidden: Boolean = true) =
+    if (root != null) root.toXML(removeHidden)
     else <document/>
 }
 

@@ -50,14 +50,14 @@ abstract class StatementElementParserBase(
 
     val resultState = DFDLCheckConstraintsFunction.validate(pstate) match {
       case Right(boolVal) => {
-        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML)
+        log(LogLevel.Debug, "Validation succeeded for %s", currentElement.toXML())
         currentElement.setValid(true)
         pstate // Success, do not mutate state.
       }
       case Left(failureMessage) => {
         log(LogLevel.Debug,
           "Validation failed for %s due to %s. The element value was %s.",
-          context.toString, failureMessage, currentElement.toXML)
+          context.toString, failureMessage, currentElement.toXML())
         pstate.withValidationError("%s failed dfdl:checkConstraints due to %s",
           context.toString, failureMessage)
         currentElement.setValid(false)

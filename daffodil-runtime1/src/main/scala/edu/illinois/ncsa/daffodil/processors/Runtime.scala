@@ -279,7 +279,7 @@ abstract class ParseResult(dp: DataProcessor)
   lazy val resultAsScalaXMLElement =
     if (postParseState.status == Success) {
       val xmlClean = {
-        val nodeSeq = postParseState.infoset.toXML
+        val nodeSeq = postParseState.infoset.toXML()
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
         val eNoAttribs = XMLUtils.removeAttributes(eNoHidden, Seq(XMLUtils.INT_NS))
         eNoAttribs

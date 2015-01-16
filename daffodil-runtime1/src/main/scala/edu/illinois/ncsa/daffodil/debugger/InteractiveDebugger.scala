@@ -273,11 +273,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   }
 
   private def debugPrettyPrintXML(ie: InfosetElement) {
-    val xml = if (DebuggerConfig.removeHidden) {
-      ie.removeHiddenElements().toXML
-    } else {
-      ie.toXML
-    }
+    val xml = ie.toXML(DebuggerConfig.removeHidden)
     if (xml.length == 0) {
       debugPrintln("Nil"); {
         return
@@ -1217,13 +1213,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
               currentNode
             }
 
-          val xmlNode = rootNode.toXML
-          val xmlNoHidden = if (DebuggerConfig.removeHidden) {
-            XMLUtils.removeHiddenElements(xmlNode)
-          } else {
-            xmlNode
-          }
-          val xmlClean = XMLUtils.removeAttributes(xmlNoHidden(0))
+          val xmlNode = rootNode.toXML(DebuggerConfig.removeHidden)
+          val xmlClean = XMLUtils.removeAttributes(xmlNode(0))
           xmlClean
         }
 

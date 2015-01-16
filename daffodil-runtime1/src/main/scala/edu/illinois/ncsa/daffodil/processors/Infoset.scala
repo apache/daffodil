@@ -54,7 +54,7 @@ trait InfosetArray {
 
   def length: Long
 
-  def toXML: scala.xml.NodeSeq
+  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
 }
 
 trait InfosetElement extends InfosetItem {
@@ -130,12 +130,12 @@ trait InfosetSimpleElement extends InfosetElement {
 }
 
 trait InfosetDocument extends InfosetItem {
-  def toXML: scala.xml.NodeSeq
+  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
   def getRootElement(): InfosetElement
   def setRootElement(root: InfosetElement): Unit
 }
 
 trait InfosetItem {
-  override def toString = toXML.toString
-  def toXML: scala.xml.NodeSeq
+  override def toString = toXML().toString
+  def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
 }
