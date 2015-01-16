@@ -13,7 +13,7 @@
 
 <dfdl:format ref="ex:daffodilTest1"/>
 
-<element name="e1" type="string"/>
+<element name="e1" type="string" dfdl:lengthKind="explicit" dfdl:length="9"/>
 
 </t:defineSchema>
 

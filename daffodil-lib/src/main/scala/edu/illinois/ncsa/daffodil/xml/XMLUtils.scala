@@ -440,7 +440,8 @@ object XMLUtils {
         // unnecessary.
         //
         val outerWithoutDuplicate = removeBindings(NamespaceBinding(pre, uri, TopScope), outer)
-        NamespaceBinding(pre, uri, combineScopes(moreBindings, outerWithoutDuplicate))
+        val moreBindingsWithoutConflict = removeBindings(NamespaceBinding(pre, uri, TopScope), moreBindings)
+        NamespaceBinding(pre, uri, combineScopes(moreBindingsWithoutConflict, outerWithoutDuplicate))
       }
     }
   }

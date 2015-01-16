@@ -852,7 +852,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case None => ""
   }
   lazy val xsdSchema =
-    SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName)
+    SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName = fileName, schemaScope = xml.scope)
 }
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {

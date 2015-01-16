@@ -60,7 +60,7 @@ object SchemaUtils {
   private val msg = """Eliminate proliferation of these convenience methods. Use the primary dfdlTestSchema method"""
 
   def dfdlTestSchemaUnqualified(topLevelAnnotations: Seq[Node], contentElements: Seq[Node], fileName: String = ""): Elem =
-    dfdlTestSchema(topLevelAnnotations, contentElements, fileName, elementFormDefault = "unqualified")
+    dfdlTestSchema(topLevelAnnotations, contentElements, fileName = fileName, elementFormDefault = "unqualified")
 
   def dfdlTestSchemaWithTarget(
     topLevelAnnotations: Seq[Node],
@@ -87,6 +87,7 @@ object SchemaUtils {
   def dfdlTestSchema(
     topLevelAnnotations: Seq[Node],
     contentElements: Seq[Node],
+    schemaScope: NamespaceBinding = TopScope, // from the defineSchema node
     fileName: String = "",
     targetNamespace: NS = XMLUtils.targetNS,
     defaultNamespace: NS = XMLUtils.targetNS,
@@ -97,9 +98,8 @@ object SchemaUtils {
     val targetNamespaceAttrib =
       if (targetNamespace == NoNamespace) Null
       else Attribute(None, "targetNamespace", Text(targetNamespace.uri.toString), Null)
-    val someTopLevelElement = contentElements(0)
     var scope =
-      if (someTopLevelElement.scope != TopScope) someTopLevelElement.scope
+      if (schemaScope != TopScope) schemaScope
       else {
         import XMLUtils._
         <ignore xmlns:xsd={ xsdURI } xmlns:dfdl={ dfdlURI } xmlns:xsi={ xsiURI } xmlns:fn={ fnURI } xmlns:dafint={ dafintURI }/>.scope
@@ -117,7 +117,15 @@ object SchemaUtils {
             { topLevelAnnotations }
           </xs:appinfo>
         </xs:annotation>
-        { contentElements.map { case e: Elem => e.copy(scope = XMLUtils.combineScopes(e.scope, scope)) } }
+        {
+          contentElements.map {
+            case e: Elem => {
+              val combined = XMLUtils.combineScopes(e.scope, scope)
+              val res = e.copy(scope = combined)
+              res
+            }
+          }
+        }
       </xs:schema>.copy(scope = scope) % targetNamespaceAttrib % fileAttrib
     //
     // Note: no longer needs to write out and re-load to get namespaces 

@@ -436,4 +436,12 @@ abc # a comment
     lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = true)
     runner.runOneTest("test1")
   }
+
+  // DFDL-347
+  @Test def test_tdmlNamespaces1() {
+    val testDir = "/test/tdml/"
+    val t0 = testDir + "tdmlNamespaces.tdml"
+    lazy val r = new DFDLTestSuite(Misc.getRequiredResource(t0))
+    r.runOneTest("tdmlNamespaces1")
+  }
 }
