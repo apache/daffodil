@@ -107,9 +107,19 @@ class TestUTF8AndUTF16Conversions {
       0xED.toByte, 0xA0.toByte, 0xB5.toByte, 0xED.toByte, 0xB3.toByte, 0x90.toByte)
     val decodedAlt = new String(alternateOldRep, "utf-8")
     assertEquals(2, decodedAlt.length)
-    assertEquals(d835, decodedAlt(0).toInt)
-    assertEquals(dcd0, decodedAlt(1).toInt)
 
+    assertEquals(d835, 0xD835)
+    assertEquals(dcd0, 0xDCD0)
+
+    if (scala.util.Properties.isJavaAtLeast("1.8")) {
+      // Java 1.8 removed support for modified UTF-8, and so deocdedAlt is just
+      // the two unicode replacement characters
+      assertEquals(0xFFFD, decodedAlt(0).toInt)
+      assertEquals(0xFFFD, decodedAlt(1).toInt)
+    } else {
+      assertEquals(d835, decodedAlt(0).toInt)
+      assertEquals(dcd0, decodedAlt(1).toInt)
+    }
   }
 
 }
