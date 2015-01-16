@@ -82,7 +82,7 @@ class TestSchemaUtils {
   @Test def testDFDLTestSchema1() {
     val anns = test1 \\ "format"
     val elems = test1 \\ "element"
-    val sch = SchemaUtils.dfdlTestSchema(anns, elems)
+    val sch = SchemaUtils.dfdlTestSchema(anns, elems, schemaScope = test1.scope)
     val scope = sch.scope
     assertTrue(sameScopeEverywhere(sch, scope))
   }
