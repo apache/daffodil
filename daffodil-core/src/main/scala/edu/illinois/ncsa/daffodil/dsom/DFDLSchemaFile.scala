@@ -173,7 +173,10 @@ class DFDLSchemaFile(val sset: SchemaSet,
         val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before)
         sd
       }
-      case _ => schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s in namespace %s.", prettyName, node.label, node.namespace)
+      case _ => {
+        val ns = NS(node.namespace)
+        schemaDefinitionError("The file %s did not contain a schema element as the document element. Found %s %s.", prettyName, node.label, ns.explainForMsg)
+      }
     }
     sd
   }

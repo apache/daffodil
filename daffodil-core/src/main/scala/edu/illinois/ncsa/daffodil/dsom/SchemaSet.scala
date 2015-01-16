@@ -294,7 +294,13 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
     schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
     schemaDefinitionUnless(candidates.length <= 1, "Root element %s is ambiguous. Candidates are %s.",
-      candidates.map { gef => gef.name + " in namespace: " + gef.schemaDocument.targetNamespace })
+      candidates.map { gef =>
+        {
+          val tns = gef.schemaDocument.targetNamespace
+          Assert.invariant(!tns.isUnspecified)
+          gef.name + " " + tns.explainForMsg
+        }
+      })
     Assert.invariant(candidates.length == 1)
     val gef = candidates(0)
     val re = gef.forRoot()
@@ -367,14 +373,6 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
         case _ => Assert.invariantFailed("illegal combination of root element specifications")
       }
     rootElemOpt = Some(re)
-    //
-    // Show root as either "{...ns...}name" 
-    // or if there is no namespace just "name (in no namespace)"
-    //
-    val (nsSpecifier, comment) =
-      if (re.targetNamespace == NoNamespace) ("", " (in no namespace)")
-      else ("{" + re.targetNamespace + "}", "")
-    // log(Info("Found root element %s%s%s", nsSpecifier, re.name, comment))
     re
   }
 

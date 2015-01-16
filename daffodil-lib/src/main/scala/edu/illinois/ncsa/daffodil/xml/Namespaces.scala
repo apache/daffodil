@@ -106,6 +106,8 @@ object NoNamespace extends NS(null) {
   override def uri = Assert.usageError("No-namespace has no URI.")
   override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
   override def equalsNS(other: NS) = this eq other
+  override def explainForMsg = "in no namespace"
+
 }
 
 /**
@@ -119,6 +121,8 @@ object UnspecifiedNamespace extends NS(null) {
   override def uri = Assert.usageError("UnspecifiedNamespace has no URI.")
   override def toStringOrNullIfNoNS: String = null // most places in Java APIs, no namespace is represented by null.
   override def equalsNS(other: NS) = this eq other
+  override def explainForMsg = "with unspecified namespace"
+
 }
 
 sealed class NS protected (uriArg: URI) extends Serializable { // protected constructor. Must use factory.
@@ -139,4 +143,5 @@ sealed class NS protected (uriArg: URI) extends Serializable { // protected cons
       case _ => false
     }
   }
+  def explainForMsg = "in namespace " + toString
 }

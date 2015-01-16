@@ -218,5 +218,14 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:parserTestCase name="check_no_namespace_message" root="root"
+    model="no_namespace_message.dfdl.xsd" description="SDE should say 'in no namespace'">
 
+    <tdml:document/>
+    <tdml:errors>
+        <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>foo</tdml:error>
+        <tdml:error>in no namespace</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
 </tdml:testSuite>

@@ -57,4 +57,6 @@ class TestGeneralNew {
   //
   //@Test def test_check_escape_separator_distinct_fail() { runner.runOneTest("check_escape_separator_distinct_fail") }
 
+  // DFDL-662
+  @Test def test_check_no_namespace_message() { runner.runOneTest("check_no_namespace_message") }
 }
