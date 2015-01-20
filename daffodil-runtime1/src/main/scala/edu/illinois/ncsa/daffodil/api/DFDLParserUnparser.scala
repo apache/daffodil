@@ -41,6 +41,7 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -164,7 +165,7 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    final def unparse(output: Output, node: scala.xml.Node): UnparseResult = ???
+    final def unparse(output: Output, node: scala.xml.Node): UnparseResult = Assert.notYetImplemented("Unparsing")
 
     /**
      * Returns an object which contains the result, and/or diagnostic information.

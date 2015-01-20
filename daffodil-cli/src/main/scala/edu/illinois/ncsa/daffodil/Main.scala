@@ -858,10 +858,7 @@ object Main extends Logging {
       case Some(conf.unparse) => {
         val unparseOpts = conf.unparse
 
-        val validate = unparseOpts.validate.get match {
-          case None => ValidationMode.Off
-          case Some(vMode) => vMode
-        }
+        val validate = unparseOpts.validate.get.get
 
         val cfgFileNode = unparseOpts.config.get match {
           case None => None
@@ -891,7 +888,7 @@ object Main extends Logging {
         dataLoader.setValidation(true) //TODO: make this flag an option. 
         val document = unparseOpts.infile.get match {
           case Some("-") | None => dataLoader.load(InputStreamSchemaSource(System.in, "standardInput", ".dfdl.xsd"))
-          case Some(fileName) => dataLoader.load(URISchemaSource(new URI(fileName)))
+          case Some(fileName) => dataLoader.load(URISchemaSource(new File(fileName).toURI))
         }
         val rc = processor match {
           case None => 1
@@ -907,10 +904,7 @@ object Main extends Logging {
       case Some(conf.save) => {
         val saveOpts = conf.save
 
-        val validate = saveOpts.validate.get match {
-          case None => ValidationMode.Off
-          case Some(vMode) => vMode
-        }
+        val validate = saveOpts.validate.get.get
 
         val cfgFileNode = saveOpts.config.get match {
           case None => None
