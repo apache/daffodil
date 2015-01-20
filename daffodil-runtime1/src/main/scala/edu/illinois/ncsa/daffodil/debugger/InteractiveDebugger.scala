@@ -300,7 +300,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     val subcommands: Seq[DebugCommand] = Seq()
     val hidden = false
 
-    def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type
+    def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      validate(args)
+      act(args, prestate, state, parser)
+    }
+
+    def validate(args: Seq[String]): Unit
+
+    def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type
 
     override def equals(that: Any): Boolean = {
       that match {
@@ -358,6 +365,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
     class DebugCommandCompleter(dc: DebugCommand) extends Completer {
       val subcommandsCompleter = new AggregateCompleter(dc.subcommands.sortBy(_.name).map(_.completer): _*)
+
+      def getCompleteString(args: String) = {
+        // just remove leading whitespace
+        val trimmed = args.replaceAll("^\\s+", "")
+        trimmed
+      }
+
       def complete(buffer: String, cursor: Int, candidates: java.util.List[CharSequence]): Int = {
         val cmds = buffer.replaceAll("^\\s+", "").split("(?= )", 2).toList
         val (cmd, args) = cmds match {
@@ -371,12 +385,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
         if (args != "") {
           if (dc == cmd) {
-            val trimArgs = args.replaceAll("^\\s+", "")
+            val completeString = getCompleteString(args)
             val subcandidates = new java.util.ArrayList[CharSequence]
-            val newCursor = subcommandsCompleter.complete(trimArgs, cursor, subcandidates)
+            val newCursor = subcommandsCompleter.complete(completeString, cursor, subcandidates)
             val seq = scala.collection.JavaConversions.asScalaBuffer(subcandidates)
             seq.foreach(c => candidates.add(c))
-            buffer.lastIndexOf(trimArgs) + newCursor
+            buffer.lastIndexOf(completeString) + newCursor
           } else {
             -1
           }
@@ -420,28 +434,85 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
   //DebugCommandBase.checkNameConflicts
 
-  object DebugCommandBase extends DebugCommand {
+  trait DebugCommandValidateSubcommands { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.size == 0) {
+        throw new DebugException("no command specified")
+      }
+      val subcmd = args.head
+      val subcmdArgs = args.tail
+      subcommands.find(_ == subcmd) match {
+        case Some(c) => c.validate(subcmdArgs)
+        case None => {
+          throw new DebugException("undefined command: %s".format(subcmd))
+        }
+      }
+    }
+  }
+
+  trait DebugCommandValidateZeroArgs { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.length != 0) {
+        throw new DebugException("%s command requires zero arguments".format(name))
+      }
+    }
+  }
+
+  trait DebugCommandValidateSingleArg { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.length != 1) {
+        throw new DebugException("%s command requires a single argument".format(name))
+      }
+    }
+  }
+
+  trait DebugCommandValidateBoolean { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.size != 1) {
+        throw new DebugException("%s command requires a single argument".format(name))
+      } else {
+        val state = args.head
+        if (state != "true" && state != "1" && state != "false" && state != "0") {
+          throw new DebugException("argument must be true/false or 1/0")
+        }
+      }
+    }
+  }
+
+  trait DebugCommandValidateInt { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.size != 1) {
+        throw new DebugException("%s command requires a single argument".format(name))
+      } else {
+        try {
+          args.head.toInt
+        } catch {
+          case _: Throwable => throw new DebugException("integer argument is required")
+        }
+      }
+    }
+  }
+
+  trait DebugCommandValidateOptionalArg { self: DebugCommand =>
+    override def validate(args: Seq[String]) {
+      if (args.size > 1) {
+        throw new DebugException("%s command zero or one arguments".format(name))
+      }
+    }
+  }
+
+
+  object DebugCommandBase extends DebugCommand with DebugCommandValidateSubcommands {
     val name = ""
     val desc = ""
     val longDesc = ""
     override lazy val short = ""
     override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, Help, History, Info, Quit, Set, Step, Trace)
-    def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-      val newState = args.size match {
-        case 0 => {
-          throw new DebugException("no command specified")
-        }
-        case _ => {
-          val subcmd = args.head
-          val subcmdArgs = args.tail
-          subcommands.find(_ == subcmd) match {
-            case Some(c) => c(subcmdArgs, prestate, state, parser)
-            case None => {
-              throw new DebugException("undefined command: %s".format(subcmd))
-            }
-          }
-        }
-      }
+
+    def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      val subcmd = args.head
+      val subcmdArgs = args.tail
+      val newState = subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
       newState
     }
 
@@ -458,7 +529,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       }
     }
 
-    object Break extends DebugCommand {
+    object Break extends DebugCommand with DebugCommandValidateSingleArg {
       val name = "break"
       val desc = "create a breakpoint"
       val longDesc = """|Usage: b[reak] <element_id>
@@ -467,27 +538,25 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |with the <element_id> name is created.
                         |
                         |Example: break foo""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        if (args.length != 1) {
-          throw new DebugException("break command requires a single argument")
-        } else {
-          val bp = new Breakpoint(DebuggerConfig.breakpointIndex, args.head)
-          DebuggerConfig.breakpoints += bp
-          debugPrintln("%s: %s".format(bp.id, bp.breakpoint))
-          DebuggerConfig.breakpointIndex += 1
-        }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val bp = new Breakpoint(DebuggerConfig.breakpointIndex, args.head)
+        DebuggerConfig.breakpoints += bp
+        debugPrintln("%s: %s".format(bp.id, bp.breakpoint))
+        DebuggerConfig.breakpointIndex += 1
         DebugState.Pause
       }
     }
 
-    object Clear extends DebugCommand {
+    object Clear extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "clear"
       val desc = "clear the screen"
       val longDesc = """|Usage: cl[ear]
                         |
                         |Clear the screen.""".stripMargin
       override lazy val short = "cl"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         print(27: Char)
         print('[')
         print("2J")
@@ -499,7 +568,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       }
     }
 
-    object Complete extends DebugCommand {
+    object Complete extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "complete"
       val desc = "disable all debugger actions and continue"
       val longDesc = """|Usage: comp[lete]
@@ -507,7 +576,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Continue parsing the input data until parsing is complete. All
                         |breakpoints are ignored.""".stripMargin
       override lazy val short = "comp"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         DebuggerConfig.breakpoints.foreach(_.disable)
         DebuggerConfig.displays.foreach(_.disable)
         DebugState.Continue
@@ -526,40 +596,48 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Example: condition 1 dfdl:occursIndex() = 3""".stripMargin
       override lazy val short = "cond"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      override def validate(args: Seq[String]) {
         if (args.length < 2) {
-          throw new DebugException("command requires a breakpoint id and a DFDL expression")
+          throw new DebugException("condition command requires a breakpoint id and a DFDL expression")
         }
-        try {
-          val id = args.head.toInt
-          val expression = args.tail.mkString(" ")
-          DebuggerConfig.breakpoints.find(_.id == id) match {
-            case Some(b) => {
-              b.condition = Some(expression)
-              debugPrintln("%s: %s   %s".format(b.id, b.breakpoint, expression))
-            }
-            case None => throw new DebugException("breakpoint %i not found".format(id))
-          }
+
+        val idArg = args.head
+        val id = try {
+          idArg.toInt
         } catch {
-          case _: Throwable => throw new DebugException("not a valid breakpoint id")
+          case _: Throwable => throw new DebugException("integer argument required")
         }
+
+        DebuggerConfig.breakpoints.find(_.id == id).getOrElse {
+          throw new DebugException("breakpoint %d not found".format(id))
+        }
+      }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val id = args.head.toInt
+        val expression = args.tail.mkString(" ")
+        val b = DebuggerConfig.breakpoints.find(_.id == id).get
+        b.condition = Some(expression)
+        debugPrintln("%s: %s   %s".format(b.id, b.breakpoint, expression))
         DebugState.Pause
       }
     }
 
-    object Continue extends DebugCommand {
+    object Continue extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "continue"
       val desc = "continue parsing until a breakpoint is found"
       val longDesc = """|Usage: c[ontinue]
                         |
                         |Continue parsing the input data until a breakpoint is encountered. At
                         |which point, pause parsing and display a debugger console to the user.""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         DebugState.Continue
       }
     }
 
-    object Delete extends DebugCommand {
+    object Delete extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "delete"
       val desc = "delete breakpoints and displays"
       val longDesc = """|Usage: d[elete] <type> <id>
@@ -570,22 +648,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Example: delete breakpoint 1
                         |         delete display 1""".stripMargin
       override val subcommands = Seq(DeleteBreakpoint, DeleteDisplay)
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        args.size match {
-          case 0 => throw new DebugException("one or more commands are required")
-          case _ => {
-            val subcmd = args.head
-            val subcmdArgs = args.tail
-            subcommands.find(_ == subcmd) match {
-              case Some(c) => c(subcmdArgs, prestate, state, parser)
-              case None => throw new DebugException("undefined delete command: %s".format(subcmd))
-            }
-          }
-        }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val subcmd = args.head
+        val subcmdArgs = args.tail
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
         DebugState.Pause
       }
 
-      object DeleteBreakpoint extends DebugCommand {
+      object DeleteBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "delete a breakpoint"
         val longDesc = """|Usage: d[elete] b[reakpoint] <breakpoint_id>
@@ -593,24 +664,18 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Remove a breakpoint created using the 'breakpoint' command.
                           |
                           |Example: delete breakpoint 1""".stripMargin
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("delete breakpoint command requires a single argument")
-          }
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.breakpoints.find(_.id == id) match {
-              case Some(b) => DebuggerConfig.breakpoints -= b
-              case None => throw new DebugException("breakpoint %i not found".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("not a valid breakpoint id")
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.breakpoints.find(_.id == id) match {
+            case Some(b) => DebuggerConfig.breakpoints -= b
+            case None => throw new DebugException("breakpoint %d not found".format(id))
           }
           DebugState.Pause
         }
       }
 
-      object DeleteDisplay extends DebugCommand {
+      object DeleteDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "delete a display"
         val longDesc = """|Usage: d[elete] di[splay] <display_id>
@@ -619,26 +684,19 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: delete display 1""".stripMargin
         override lazy val short = "di"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("delete display command requires a single argument")
-          }
 
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.displays.find(d => d.id == id) match {
-              case Some(d) => DebuggerConfig.displays -= d
-              case None => throw new DebugException("display %i not found".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("not a valid display id")
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.displays.find(d => d.id == id) match {
+            case Some(d) => DebuggerConfig.displays -= d
+            case None => throw new DebugException("display %d not found".format(id))
           }
           DebugState.Pause
         }
       }
     }
 
-    object Disable extends DebugCommand {
+    object Disable extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "disable"
       val desc = "disable breakpoints and displays"
       val longDesc = """|Usage: dis[able] <type> <id>
@@ -650,22 +708,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |         disable display 1""".stripMargin
       override lazy val short = "dis"
       override val subcommands = Seq(DisableBreakpoint, DisableDisplay)
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        args.size match {
-          case 0 => throw new DebugException("one or more commands are required")
-          case _ => {
-            val subcmd = args.head
-            val subcmdArgs = args.tail
-            subcommands.find(_ == subcmd) match {
-              case Some(c) => c(subcmdArgs, prestate, state, parser)
-              case None => throw new DebugException("undefined disable command: %s".format(subcmd))
-            }
-          }
-        }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val subcmd = args.head
+        val subcmdArgs = args.tail
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
         DebugState.Pause
       }
 
-      object DisableBreakpoint extends DebugCommand {
+      object DisableBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "disable a breakpoint"
         val longDesc = """|Usage: dis[able] b[reakpoint] <breakpoint_id>
@@ -674,24 +725,18 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |to be skipped during debugging.
                           |
                           |Example: disable breakpoint 1""".stripMargin
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("disable breakpoint command requires a single argument")
-          }
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.breakpoints.find(_.id == id) match {
-              case Some(b) => b.disable
-              case None => throw new DebugException("%i is not a valid breakpoint id".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.breakpoints.find(_.id == id) match {
+            case Some(b) => b.disable
+            case None => throw new DebugException("%d is not a valid breakpoint id".format(id))
           }
           DebugState.Pause
         }
       }
 
-      object DisableDisplay extends DebugCommand {
+      object DisableDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "disable a display"
         val longDesc = """|Usage: d[isable] di[splay] <display_id>
@@ -701,46 +746,38 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: disable display 1""".stripMargin
         override lazy val short = "di"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("disable display command requires a single argument")
-          }
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.displays.find(_.id == id) match {
-              case Some(d) => d.disable
-              case None => throw new DebugException("%i is not a valid display id".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("%s is not a valid display id".format(args.head))
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.displays.find(_.id == id) match {
+            case Some(d) => d.disable
+            case None => throw new DebugException("%d is not a valid display id".format(id))
           }
           DebugState.Pause
         }
       }
     }
 
-    object Display extends DebugCommand {
+    object Display extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "display"
       val desc = "show value of expression each time program stops"
       val longDesc = """|Usage: di[splay] <debugger_command>
                         |
-                        |Execute a debugger command every time a debugger console is displayed
-                        |to the user.
+                        |Execute a debugger command (limited to eval or info) every time a debugger
+                        |console is displayed to the user.
                         |
                         |Example: display info infoset""".stripMargin
       override lazy val short = "di"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        if (args.length == 0) {
-          throw new DebugException("expression required for display command")
-        } else {
-          DebuggerConfig.displays += new Display(DebuggerConfig.displayIndex, args)
-          DebuggerConfig.displayIndex += 1
-        }
+      override val subcommands = Seq(Eval, Info)
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        DebuggerConfig.displays += new Display(DebuggerConfig.displayIndex, args)
+        DebuggerConfig.displayIndex += 1
         DebugState.Pause
       }
     }
 
-    object Enable extends DebugCommand {
+    object Enable extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "enable"
       val desc = "enable breakpoints and displays"
       val longDesc = """|Usage: e[nable] <type> <id>
@@ -751,22 +788,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Example: enable breakpoint 1
                         |         enable display 1""".stripMargin
       override val subcommands = Seq(EnableBreakpoint, EnableDisplay)
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        args.size match {
-          case 0 => throw new DebugException("one or more commands are required")
-          case _ => {
-            val subcmd = args.head
-            val subcmdArgs = args.tail
-            subcommands.find(_ == subcmd) match {
-              case Some(c) => c(subcmdArgs, prestate, state, parser)
-              case None => throw new DebugException("undefined enable command: %s".format(subcmd))
-            }
-          }
-        }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val subcmd = args.head
+        val subcmdArgs = args.tail
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
         DebugState.Pause
       }
 
-      object EnableBreakpoint extends DebugCommand {
+      object EnableBreakpoint extends DebugCommand with DebugCommandValidateInt {
         val name = "breakpoint"
         val desc = "enable a breakpoint"
         val longDesc = """|Usage: e[nable] b[reakpoint] <breakpoint_id>
@@ -775,24 +805,18 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |to be evaluated during debugging.
                           |
                           |Example: enable breakpoint 1""".stripMargin
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("enable breakpoint command requires a single argument")
-          }
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.breakpoints.find(_.id == id) match {
-              case Some(b) => b.enable
-              case None => throw new DebugException("%i is not a valid breakpoint id".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("%s is not a valid breakpoint id".format(args.head))
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.breakpoints.find(_.id == id) match {
+            case Some(b) => b.enable
+            case None => throw new DebugException("%d is not a valid breakpoint id".format(id))
           }
           DebugState.Pause
         }
       }
 
-      object EnableDisplay extends DebugCommand {
+      object EnableDisplay extends DebugCommand with DebugCommandValidateInt {
         val name = "display"
         val desc = "enable a display"
         val longDesc = """|Usage: e[nable] di[splay] <display_id>
@@ -801,18 +825,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |to be run during debugging.
                           |
                           |Example: enable display 1""".stripMargin
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.length != 1) {
-            throw new DebugException("enable display command requires a single argument")
-          }
-          try {
-            val id = args.head.toInt
-            DebuggerConfig.displays.find(_.id == id) match {
-              case Some(d) => d.enable
-              case None => throw new DebugException("%i is not a valid display id".format(id))
-            }
-          } catch {
-            case _: Throwable => throw new DebugException("%s is not a valid display id".format(args.head))
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val id = args.head.toInt
+          DebuggerConfig.displays.find(_.id == id) match {
+            case Some(d) => d.enable
+            case None => throw new DebugException("%d is not a valid display id".format(id))
           }
           DebugState.Pause
         }
@@ -828,10 +846,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Evaluate a DFDL expression. 
                         |
                         |Example: eval dfdl:occursIndex()""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      override def validate(args: Seq[String]) {
         if (args.size == 0) {
           throw new DebugException("eval requires a DFDL expression")
         }
+      }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         val expressionList = args
         val expression = expressionList.mkString(" ")
 
@@ -884,13 +906,19 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |to that command and its subcommands.
                         |
                         |Example: help info""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, History, Info, Quit, Set, Step, Trace)
+
+      override def validate(args: Seq[String]) {
+        // no validation
+      }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         DebugCommandBase.help(args)
         DebugState.Pause
       }
     }
 
-    object History extends DebugCommand {
+    object History extends DebugCommand with DebugCommandValidateOptionalArg {
       val name = "history"
       override lazy val short = "hi"
       val desc = "display the history of commands"
@@ -902,7 +930,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Example: history
                         |         history out.txt""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         args.size match {
           case 0 => {
             debugPrintln("%s:".format(name))
@@ -932,7 +961,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
               case e: Throwable => throw new DebugException("failed to write history file: " + e.getMessage)
             }
           }
-          case _ => throw new DebugException("too many arguments specified")
         }
         DebugState.Pause
       }
@@ -948,27 +976,50 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Example: info data infoset""".stripMargin
       override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoPath)
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        args.size match {
-          case 0 => throw new DebugException("one or more commands are required")
-          case _ => {
-            args.foreach(arg => {
-              subcommands.find(_ == arg) match {
-                case Some(c) => c(Seq(), prestate, state, parser)
-                case None => throw new DebugException("undefined info command: %s".format(arg))
-              }
-            })
-          }
+ 
+      override def validate(args: Seq[String]) {
+        if (args.size == 0) {
+          throw new DebugException("one or more commands are required")
         }
+        args.foreach(arg => {
+          subcommands.find(_ == arg) match {
+            case Some(c) => c.validate(Seq())
+            case None => throw new DebugException("undefined info command: %s".format(arg))
+          }
+        })
+      }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        args.foreach(arg => {
+          subcommands.find(_ == arg).get.act(Seq(), prestate, state, parser)
+        })
         DebugState.Pause
       }
 
-      object InfoArrayIndex extends DebugCommand {
+      override def completer = new InfoCommandCompleter(this)
+
+      class InfoCommandCompleter(dc: DebugCommand) extends DebugCommandCompleter(dc) {
+        override def getCompleteString(args: String) = {
+          val lastInfoCommand =
+            if (args.endsWith(" ")) {
+              "" // this allows the subcommand completers to match anything
+            } else {
+              // otherwise, it will only match against the last info argument,
+              // so 'info foo bar inf\t' will match 'inf' to infoset. The
+              // default getComplteString would match against 'foo bar inf',
+              // which wouldn't find anything
+              args.split("\\s+").last
+            }
+          lastInfoCommand
+        }
+      }
+
+      object InfoArrayIndex extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "arrayIndex"
         override lazy val short = "ai"
         val desc = "display the current array limit"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.mpstate.arrayPos != -1) {
             debugPrintln("%s: %d".format(name, state.mpstate.arrayPos))
           } else {
@@ -978,12 +1029,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoBitLimit extends DebugCommand {
+      object InfoBitLimit extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "bitLimit"
         override lazy val short = "bl"
         val desc = "display the current bit limit"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.bitLimit0b != -1) {
             debugPrintln("%s: %d".format(name, state.bitLimit0b))
           } else {
@@ -993,12 +1044,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoBitPosition extends DebugCommand {
+      object InfoBitPosition extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "bitPosition"
         override lazy val short = "bp"
         val desc = "display the current bit position"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.bitPos != -1) {
             debugPrintln("%s: %d".format(name, state.bitPos))
           } else {
@@ -1008,11 +1059,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoBreakpoints extends DebugCommand {
+      object InfoBreakpoints extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "breakpoints"
         val desc = "display the current breakpoints"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (DebuggerConfig.breakpoints.size == 0) {
             debugPrintln("%s: no breakpoints set".format(name))
           } else {
@@ -1028,12 +1079,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoChildIndex extends DebugCommand {
+      object InfoChildIndex extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "childIndex"
         override lazy val short = "ci"
         val desc = "display the current child index"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.mpstate.childPos != -1) {
             debugPrintln("%s: %d".format(name, state.mpstate.childPos))
           } else {
@@ -1043,7 +1094,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoData extends DebugCommand {
+      object InfoData extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "data"
         val desc = "display the input data"
         val longDesc = desc
@@ -1096,7 +1147,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           }
         }
 
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s:".format(name))
           val rep = if (args.size > 0) {
             args(0).toLowerCase match {
@@ -1123,12 +1174,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoDiff extends DebugCommand {
+      object InfoDiff extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "diff"
         override lazy val short = "diff"
         val desc = "display the differences from the previous state"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s:".format(name))
           var diff = false
           if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
@@ -1146,23 +1197,23 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoDiscriminator extends DebugCommand {
+      object InfoDiscriminator extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "discriminator"
         override lazy val short = "dis"
         val desc = "display whether or not a discriminator is set"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s: %b".format(name, state.discriminator))
           DebugState.Pause
         }
       }
 
-      object InfoDisplays extends DebugCommand {
+      object InfoDisplays extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "displays"
         override lazy val short = "di"
         val desc = "display the current 'display' expressions"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (DebuggerConfig.displays.size == 0) {
             debugPrintln("%s: no displays set".format(name))
           } else {
@@ -1178,12 +1229,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoGroupIndex extends DebugCommand {
+      object InfoGroupIndex extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "groupIndex"
         override lazy val short = "gi"
         val desc = "display the current group index"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.mpstate.groupPos != -1) {
             debugPrintln("%s: %d".format(name, state.mpstate.groupPos))
           } else {
@@ -1193,7 +1244,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoInfoset extends DebugCommand {
+      object InfoInfoset extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "infoset"
         val desc = "display the current infoset"
         val longDesc = desc
@@ -1218,7 +1269,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           xmlClean
         }
 
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           val infoset = getInfoset(state.infoset)
           val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
           val pp = new scala.xml.PrettyPrinter(wrap, 2)
@@ -1241,12 +1292,12 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoOccursBounds extends DebugCommand {
+      object InfoOccursBounds extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "occursBounds"
         override lazy val short = "oc"
         val desc = "display the current occurs bounds"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           if (state.mpstate.occursBounds != -1) {
             debugPrintln("%s: %d".format(name, state.mpstate.occursBounds))
           } else {
@@ -1256,41 +1307,41 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoParser extends DebugCommand {
+      object InfoParser extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "parser"
         val desc = "display the current Daffodil parser"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s: %s".format(name, parser.toBriefXML(2))) // only 2 levels of output, please!
           DebugState.Pause
         }
       }
 
-      object InfoPath extends DebugCommand {
+      object InfoPath extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "path"
         override lazy val short = "path"
         val desc = "display the current schema component designator/path"
         val longDesc = desc
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           debugPrintln("%s: %s".format(name, parser.context.path))
           DebugState.Pause
         }
       }
     }
 
-    object Quit extends DebugCommand {
+    object Quit extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "quit"
       val desc = "immediately abort all processing"
       val longDesc = """|Usage: q[uit]
                         |
                         |Immediately abort all processing.""".stripMargin
       override lazy val short = "q"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         sys.exit(1)
       }
     }
 
-    object Set extends DebugCommand {
+    object Set extends DebugCommand with DebugCommandValidateSubcommands {
       val name = "set"
       val desc = "modify debugger configuration"
       val longDesc = """|Usage: set <setting> <value>
@@ -1301,22 +1352,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |         set dataLength 100""".stripMargin
       override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetRepresentation, SetWrapLength)
       override lazy val short = "set"
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-        args.size match {
-          case 0 => throw new DebugException("a subcommand is reuiqred")
-          case _ => {
-            val subcmd = args.head
-            val subcmdArgs = args.tail
-            subcommands.find(_ == subcmd) match {
-              case Some(c) => c(subcmdArgs, prestate, state, parser)
-              case None => throw new DebugException("undefined set command: %s".format(subcmd))
-            }
-          }
-        }
+
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        val subcmd = args.head
+        val subcmdArgs = args.tail
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
         DebugState.Pause
       }
 
-      object SetBreakOnlyOnCreation extends DebugCommand {
+      object SetBreakOnlyOnCreation extends DebugCommand with DebugCommandValidateBoolean {
         val name = "breakOnlyOnCreation"
         val desc = "whether or not breakpoints should occur only on element creation, or always (default: true)"
         val longDesc = """|Usage: set breakOnlyOnCreation|booc <value>
@@ -1328,25 +1372,20 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: set breakOnlyOnCreation false""".stripMargin
         override lazy val short = "booc"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            val state = args.head
-            DebuggerConfig.breakOnlyOnCreation =
-              if (state == "true" || state == "1") {
-                true
-              } else if (state == "false" || state == "0") {
-                false
-              } else {
-                throw new DebugException("argument must be true/false or 1/0")
-              }
-          }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val state = args.head
+          DebuggerConfig.breakOnlyOnCreation =
+            if (state == "true" || state == "1") {
+              true
+            } else {
+              false
+            }
           DebugState.Pause
         }
       }
 
-      object SetBreakOnFailure extends DebugCommand {
+      object SetBreakOnFailure extends DebugCommand with DebugCommandValidateBoolean {
         val name = "breakOnFailure"
         val desc = "whether or not stop break on failures (default: false)"
         val longDesc = """|Usage: set breakOnFailure|bof <value>
@@ -1358,25 +1397,20 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: set breakOnFailure true""".stripMargin
         override lazy val short = "bof"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            val state = args.head
-            DebuggerConfig.breakOnFailure =
-              if (state == "true" || state == "1") {
-                true
-              } else if (state == "false" || state == "0") {
-                false
-              } else {
-                throw new DebugException("argument must be true/false or 1/0")
-              }
-          }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val state = args.head
+          DebuggerConfig.breakOnFailure =
+            if (state == "true" || state == "1") {
+              true
+            } else {
+              false
+            }
           DebugState.Pause
         }
       }
 
-      object SetDataLength extends DebugCommand {
+      object SetDataLength extends DebugCommand with DebugCommandValidateInt {
         val name = "dataLength"
         val desc = "set the maximum number of bytes of the data to display. If negative, display all input data (default: 70)"
         val longDesc = """|Usage: set dataLength|dl <value>
@@ -1388,22 +1422,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set dataLength 100
                           |         set dataLength -1""".stripMargin
         override lazy val short = "dl"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            try {
-              val len = args.head.toInt
-              DebuggerConfig.dataLength = len
-            } catch {
-              case _: Throwable => throw new DebugException("an integer argument is required")
-            }
-          }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          DebuggerConfig.dataLength = args.head.toInt
           DebugState.Pause
         }
       }
 
-      object SetInfosetLines extends DebugCommand {
+      object SetInfosetLines extends DebugCommand with DebugCommandValidateInt{
         val name = "infosetLines"
         val desc = "set the maximum number of lines of the infoset to display (default: -1)"
         val longDesc = """|Usage: set infosetLines|il <value>
@@ -1415,22 +1441,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: set infosetLines 25""".stripMargin
         override lazy val short = "il"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            try {
-              val len = args.head.toInt
-              DebuggerConfig.infosetLines = len
-            } catch {
-              case _: Throwable => throw new DebugException("an integer argument is required")
-            }
-          }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          DebuggerConfig.infosetLines = args.head.toInt
           DebugState.Pause
         }
       }
 
-      object SetRemoveHidden extends DebugCommand {
+      object SetRemoveHidden extends DebugCommand with DebugCommandValidateBoolean {
         val name = "removeHidden"
         val desc = "set whether or not to remove Daffodil internal attributes when displaying the infoset (default: false)"
         val longDesc = """|Usage: set removeHidden|rh <value>
@@ -1442,21 +1460,15 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: set removeHidden true""".stripMargin
         override lazy val short = "rh"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            val state = args.head
-            DebuggerConfig.removeHidden =
-              if (state == "true" || state == "1") {
-                true
-              } else if (state == "false" || state == "0") {
-                false
-              } else {
-                throw new DebugException("argument must be true/false or 1/0")
-              }
 
-          }
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          val state = args.head
+          DebuggerConfig.removeHidden =
+            if (state == "true" || state == "1") {
+              true
+            } else {
+              false
+            }
           DebugState.Pause
         }
       }
@@ -1472,21 +1484,29 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: set representation binary""".stripMargin
         override lazy val short = "rp"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+
+        override def validate(args: Seq[String]) {
           if (args.size != 1) {
             throw new DebugException("a single argument is required")
           } else {
-            DebuggerConfig.representation = args.head.toLowerCase match {
-              case "text" => Representation.Text
-              case "binary" => Representation.Binary
+            args.head.toLowerCase match {
+              case "text" => 
+              case "binary" => 
               case _ => throw new DebugException("argument must be either 'text' or 'binary'")
             }
+          }
+        }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          DebuggerConfig.representation = args.head.toLowerCase match {
+            case "text" => Representation.Text
+            case "binary" => Representation.Binary
           }
           DebugState.Pause
         }
       }
 
-      object SetWrapLength extends DebugCommand {
+      object SetWrapLength extends DebugCommand with DebugCommandValidateInt {
         val name = "wrapLength"
         val desc = "set the maximum number of bytes to display before wrapping (default: 80)"
         val longDesc = """|Usage: set wrapLength|wl <value>
@@ -1498,35 +1518,27 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set wrapLength 100
                           |         set wrapLength -1""".stripMargin
         override lazy val short = "wl"
-        def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (args.size != 1) {
-            throw new DebugException("a single argument is required")
-          } else {
-            try {
-              val len = args.head.toInt
-              DebuggerConfig.wrapLength = len
-            } catch {
-              case _: Throwable => throw new DebugException("an integer argument is required")
-            }
-          }
+
+        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+          DebuggerConfig.wrapLength = args.head.toInt
           DebugState.Pause
         }
       }
     }
 
-    object Step extends DebugCommand {
+    object Step extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "step"
       val desc = "execute a single parser step"
       val longDesc = """|Usage: s[tep]
                         |
                         |Perform a single parse action, pause parsing, and display a debugger
                         |prompt.""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         DebugState.Step
       }
     }
 
-    object Trace extends DebugCommand {
+    object Trace extends DebugCommand with DebugCommandValidateZeroArgs {
       val name = "trace"
       val desc = "same as continue, but runs display commands during every step"
       val longDesc = """|Usage: t[race]
@@ -1535,7 +1547,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |while running display commands after every parse step. When a
                         |breakpoint is encountered, pause parsing and display a debugger
                         |console to the user.""".stripMargin
-      def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
         DebugState.Trace
       }
     }

@@ -564,4 +564,19 @@ class TestCLIdebugger {
     shell.close()
   }
 
+  @Test def test_1029_CLI_Debugger_validation1() {
+    val cmd = Util.binPath + " -d parse -r list -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema_03.dfdl.xsd daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input9.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("(debug)"))
+
+    shell.send("display info dne1\n")
+    shell.expect(contains("error: undefined info command: dne1"))
+    shell.send("display info bitLimit dne2\n")
+    shell.expect(contains("error: undefined info command: dne2"))
+    shell.send("display break\n")
+    shell.expect(contains("error: undefined command: break"))
+    shell.send("quit\n")
+    shell.close()
+  }
+
 }
