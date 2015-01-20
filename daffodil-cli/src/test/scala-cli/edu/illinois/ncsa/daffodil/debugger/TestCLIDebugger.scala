@@ -59,24 +59,22 @@ class TestCLIdebugger {
     shell.close()
   }
 
-  // See DFDL-605 - occursBounds isn't working correctly
-  // Also might want to change the title of this bug to occursBounds
-  @Test def test_1336_CLI_Debugger_occursCount() {
-    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input10.txt\n"
+  @Test def test_1336_CLI_Debugger_occursBounds() {
+    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r file daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
 
-    shell.send("display info occursBounds\n") //This was changed from occursCount
+    shell.send("display info occursBounds\n")
     shell.send("display info infoset\n")
     shell.expect(contains("(debug)"))
 
-    shell.send("break cell\n")
+    shell.send("break item\n")
 
     shell.send("continue\n")
-    shell.expect(contains("occursBounds: ")) //What number should this be?
+    shell.expect(contains("occursBounds: 5"))
 
     shell.send("continue\n")
-    shell.expect(contains("occursBounds: ")) //What number should this be?
+    shell.expect(contains("occursBounds: 5"))
 
     shell.send("complete\n")
     shell.send("quit\n")

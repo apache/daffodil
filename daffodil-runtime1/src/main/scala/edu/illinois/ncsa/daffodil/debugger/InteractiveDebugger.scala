@@ -1294,14 +1294,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
       object InfoOccursBounds extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "occursBounds"
-        override lazy val short = "oc"
+        override lazy val short = "ob"
         val desc = "display the current occurs bounds"
         val longDesc = desc
         def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.mpstate.occursBounds != -1) {
-            debugPrintln("%s: %d".format(name, state.mpstate.occursBounds))
-          } else {
-            debugPrintln("%s: occurs count not set".format(name))
+          state.mpstate.occursBoundsStack.headOption match {
+            case Some(ob) => debugPrintln("%s: %d".format(name, ob))
+            case None => debugPrintln("%s: occurs bounds not set".format(name))
           }
           DebugState.Pause
         }
