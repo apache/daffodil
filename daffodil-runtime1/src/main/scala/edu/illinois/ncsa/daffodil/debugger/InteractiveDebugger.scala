@@ -591,7 +591,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Set a condition on a specified breakpoint. When a breakpoint
                         |is encountered, the debugger only pauses if the DFDL expression
-                        |evaluates to true. If the result of the DFDL expressions is not
+                        |evaluates to true. If the result of the DFDL expression is not
                         |a boolean value, it is treated as false.
                         |
                         |Example: condition 1 dfdl:occursIndex() = 3""".stripMargin
@@ -642,8 +642,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       val desc = "delete breakpoints and displays"
       val longDesc = """|Usage: d[elete] <type> <id>
                         |
-                        |Remove a breakpoint or display. Valid values for <type> are "breakpoint"
-                        |and "display".
+                        |Remove a breakpoint or display.
                         |
                         |Example: delete breakpoint 1
                         |         delete display 1""".stripMargin
@@ -1389,7 +1388,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         val desc = "whether or not stop break on failures (default: false)"
         val longDesc = """|Usage: set breakOnFailure|bof <value>
                           |
-                          |Set whether or the debugger should break on failures. If set to false
+                          |Set whether or not the debugger should break on failures. If set to false
                           |the normal processing occurs. If set to true, any errors cause a break.
                           |Note that due to the backtracking behavior, not all failures are fatal.
                           |Defaults to false.
