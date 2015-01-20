@@ -53,6 +53,8 @@ class TestGeneral {
   val aa = testDir + "general.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  @Test def test_check_no_namespace_message() { runner.runOneTest("check_no_namespace_message") }
+
   @Test def test_capitalization() { runner.runOneTest("capitalization") }
 
   @Test def test_litNil1() { runner.runOneTest("litNil1") }
