@@ -438,7 +438,7 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
 
-    val pf = compiler.compileSources(suppliedSchema)
+    val pf = compiler.compileSource(suppliedSchema)
 
     val data = document.map { _.data }
     val nBits = document.map { _.nBits }

@@ -110,9 +110,10 @@ class TestExternalVariablesNew {
     sch
   }
 
-  def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String) = {
+  def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
       topLevelAnnotations,
+      <xs:import schemaLocation={ importSchemaLocation } namespace="" />
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
       <xs:complexType name="fakeCT">
@@ -165,18 +166,20 @@ class TestExternalVariablesNew {
     // a namespace that Daffodil is able to figure
     // out what it should be if there is no ambiguity.
     //
+    val tla_no_ns = {
+      <dfdl:format ref="daffodilTest1"/>
+      <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
+    }
+    val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
+    val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_success_no_ns")
+
     val tla = {
       <dfdl:format ref="tns:daffodilTest1"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3"/>
     }
-    val tla_no_ns = {
-      <dfdl:format ref="daffodilTest1"/>
-      <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
-    }
-
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE)
-    val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_success")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
@@ -185,14 +188,11 @@ class TestExternalVariablesNew {
 
     val variables = ExternalVariablesLoader.getVariables(vars)
 
-    val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_figures_out_namespace_success") }
-
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val pf = c.compileSources2(sources)
+    val pf = c.compileSource(source)
     pf.isError
     pf.diagnostics.foreach { d => println(d) }
     assertFalse(pf.isError)
@@ -218,18 +218,20 @@ class TestExternalVariablesNew {
     // are defined with different namespaces that we can
     // set the correct one.
     //
+    val tla_no_ns = {
+      <dfdl:format ref="daffodilTest1"/>
+      <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.2"/>
+    }
+    val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
+    val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_no_namespace_success_no_ns")
+
     val tla = {
       <dfdl:format ref="tns:daffodilTest1"/>
       <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.1"/>
     }
-    val tla_no_ns = {
-      <dfdl:format ref="daffodilTest1"/>
-      <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2.2"/>
-    }
-
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE)
-    val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val source = UnitTestSchemaSource(sch, "test_no_namespace_success")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
@@ -237,14 +239,11 @@ class TestExternalVariablesNew {
 
     val variables = ExternalVariablesLoader.getVariables(vars)
 
-    val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_no_namespace_success") }
-
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
 
-    val pf = c.compileSources2(sources)
+    val pf = c.compileSource(source)
     val sset = pf.sset
 
     val finalVars = sset.variableMap.variables
@@ -266,19 +265,21 @@ class TestExternalVariablesNew {
     // in separate namespaces.  This test should fail
     // stating that var3 is ambiguous.
     //
-    val tla = {
-      <dfdl:format ref="tns:daffodilTest1"/>
-      <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
-      <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
-    }
     val tla_no_ns = {
       <dfdl:format ref="daffodilTest1"/>
       <dfdl:defineVariable name="var2" type="xs:string" external="true" defaultValue="default2"/>
       <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.2"/>
     }
-
-    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE)
     val sch_no_ns = generateTestSchemaNoTarget(tla_no_ns)
+    val source_no_ns = UnitTestSchemaSource(sch_no_ns, "test_figures_out_namespace_failure_no_ns")
+
+    val tla = {
+      <dfdl:format ref="tns:daffodilTest1"/>
+      <dfdl:defineVariable name="var1" type="xs:string" external="true" defaultValue="default1"/>
+      <dfdl:defineVariable name="var3" type="xs:string" external="true" defaultValue="default3.1"/>
+    }
+    val sch = generateTestSchemaWithTarget(tla, XMLUtils.EXAMPLE_NAMESPACE, source_no_ns.tempSchemaFile.toString)
+    val source = UnitTestSchemaSource(sch, "test_figures_out_namespace_failure")
 
     val vars = Map(
       ("{http://example.com}var1", "value1"), // Namespace defined
@@ -287,13 +288,10 @@ class TestExternalVariablesNew {
 
     val variables = ExternalVariablesLoader.getVariables(vars)
 
-    val schs = Seq(sch, sch_no_ns)
-    val sources = schs.map { sch => UnitTestSchemaSource(sch, "test_figures_out_namespace_failure") }
-
     val c = new Compiler()
     c.setExternalDFDLVariables(variables)
     c.setValidateDFDLSchemas(false)
-    val pf = c.compileSources2(sources)
+    val pf = c.compileSource(source)
     val sset = pf.sset
     val msg = sset.getDiagnostics.mkString
     if (!msg.contains("var3 is ambiguous")) {

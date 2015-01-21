@@ -145,31 +145,31 @@ class Compiler {
   private val sCompiler = SCompiler()
 
   /**
-   * Compile DFDL schema files into a [[ProcessorFactory]]
+   * Compile DFDL schema file into a [[ProcessorFactory]]
    *
-   * To allow jar-file packaging, (where the schema files might be part of a jar),
-   * it is recommended to use [[Compiler#compileSources]] instead.
+   * To allow jar-file packaging, (where schema files might be part of a jar),
+   * it is recommended to use [[Compiler#compileSource]] instead.
    *
-   * @param schemaFiles array of DFDL schema files used to create a [[ProcessorFactory]].
+   * @param schemaFile DFDL schema file used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
-  def compileFiles(schemaFiles: Array[File]): ProcessorFactory = {
-    val pf = sCompiler.compileFiles(schemaFiles: _*)
+  def compileFile(schemaFile: File): ProcessorFactory = {
+    val pf = sCompiler.compileFile(schemaFile)
     pf.isError
     new ProcessorFactory(pf)
   }
 
   /**
-   * Compile DFDL schema sources into a [[ProcessorFactory]]
+   * Compile DFDL schema source into a [[ProcessorFactory]]
    *
-   * @param uris array of URI of DFDL schema files used to create a [[ProcessorFactory]].
+   * @param uri URI of DFDL schema file used to create a [[ProcessorFactory]].
    * @return [[ProcessorFactory]] used to create [[DataProcessor]](s). Must check [[ProcessorFactory#isError]] before using it.
    */
   @throws(classOf[java.io.IOException])
-  def compileSources(uris: Array[URI]): ProcessorFactory = {
-    val sources = uris.map { URISchemaSource(_) }
-    val pf = sCompiler.compileSources(sources: _*)
+  def compileSource(uri: URI): ProcessorFactory = {
+    val source = URISchemaSource(uri)
+    val pf = sCompiler.compileSource(source)
     new ProcessorFactory(pf.asInstanceOf[SProcessorFactory])
   }
 
@@ -177,7 +177,7 @@ class Compiler {
    * Reload a saved parser from a file
    *
    * To allow jar-file packaging, (where the savedParser might be part of a jar),
-   * it is recommended to use the other version of [[Compiler#reload(DFDL.Input)]] where the argument is
+   * it is recommended to use the other version of [[Compiler#reload(java.nio.channels.ReadableByteChannel)]] where the argument is
    * a [[java.nio.channels.ReadableByteChannel]] for a saved parser.
    *
    * @param savedParser file of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
@@ -291,7 +291,7 @@ class Compiler {
  *
  * Do not use the [[ProcessorFactory#ProcessorFactory(edu.illinois.ncsa.daffodil.compiler.ProcessorFactory)]]
  * constructor to create a [[ProcessorFactory]].
- * Instead, use [[Compiler#compileFiles(File[])]]
+ * Instead, use [[Compiler#compileFile(File)]]
  */
 class ProcessorFactory(pf: SProcessorFactory)
   extends WithDiagnostics(pf) {

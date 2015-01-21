@@ -122,7 +122,7 @@ object DFDL {
      * Compilation returns a parser factory, which must be interrogated for diagnostics
      * to see if compilation was successful or not.
      */
-    def compileSources(schemaSources: DaffodilSchemaSource*): ProcessorFactory
+    def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory
 
     def reload(savedParser: File): DataProcessor
   }

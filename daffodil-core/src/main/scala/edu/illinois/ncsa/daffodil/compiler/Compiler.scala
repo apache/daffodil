@@ -275,14 +275,14 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
    * Compilation returns a parser factory, which must be interrogated for diagnostics
    * to see if compilation was successful or not.
    */
-  def compileFiles(files: File*): ProcessorFactory = {
-    val sources = files.map { f => URISchemaSource(f.toURI) }
-    compileSources2(sources)
+  def compileFile(file: File): ProcessorFactory = {
+    val source = URISchemaSource(file.toURI)
+    compileSource(source)
   }
 
-  def compileSources2(schemaSources: Seq[DaffodilSchemaSource]): ProcessorFactory = {
+  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory = {
     val noParent = null // null indicates this is the root, and has no parent
-    val sset = new SchemaSet(rootSpec, externalDFDLVariables, schemaSources, validateDFDLSchemas, checkAllTopLevel, noParent)
+    val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent)
     val pf = new ProcessorFactory(sset)
     val err = pf.isError
     val diags = pf.getDiagnostics // might be warnings even if not isError
@@ -301,15 +301,10 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   }
 
   /**
-   * Varargs + Just hides the schema set, and returns the processor factory only.
-   */
-  def compileSources(sources: DaffodilSchemaSource*): DFDL.ProcessorFactory = compileSources2(sources)
-
-  /**
    * For convenient unit testing allow a literal XML node.
    */
   def compileNode(xml: Node): ProcessorFactory = {
-    compileSources2(Seq(UnitTestSchemaSource(xml, "anon")))
+    compileSource(UnitTestSchemaSource(xml, "anon"))
   }
 
 }

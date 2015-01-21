@@ -167,12 +167,9 @@ class TestCLISaveParser {
   @Test def test_3022_CLI_Saving_SaveParser_MultSchema() {
 
     var cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/defineFormat/defineFormat.dfdl.xsd -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd savedParser.xml\n"
-    val shell = Util.start(cmd)
+    val shell = Util.start(cmd, true)
 
-    val cmd2 = Util.binPath + " parse --parser savedParser.xml daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input7.txt\n"
-    shell.send(cmd2)
-    shell.expect(contains("<address"))
-    shell.expect(contains(output4))
+    shell.expect(contains("Bad arguments for option 'schema'"))
 
     shell.send("exit\n")
     shell.expect(eof())
