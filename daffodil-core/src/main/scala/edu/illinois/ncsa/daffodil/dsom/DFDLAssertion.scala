@@ -56,6 +56,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
+import com.ibm.icu.impl.UnicodeRegex
+import java.util.regex.PatternSyntaxException
+import java.util.regex.Pattern
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
@@ -79,7 +82,26 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
     case txt => Some(txt.trim())
   } // package visible for unit testing
 
-  private lazy val testPattern = getAttributeOption("testPattern")
+  private lazy val testPattern = {
+    val optPattern = getAttributeOption("testPattern")
+    if (optPattern.isDefined) {
+      val thePattern = optPattern.get
+
+      try {
+        val icu = UnicodeRegex.compile(thePattern) // Check against ICU
+        val java = Pattern.compile(thePattern) // Check against Java
+      } catch { case e: PatternSyntaxException => SDE("The pattern contained invalid syntax: %s", e.getMessage()) }
+
+      val hasWord = thePattern.contains("\\w")
+
+      if (decl.encodingInfo.knownEncodingIsUnicode && hasWord) {
+        SDW("The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
+          decl.encodingInfo.knownEncodingName, thePattern)
+      }
+    }
+
+    optPattern
+  }
   lazy val testKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
     case None => TestKind.Expression

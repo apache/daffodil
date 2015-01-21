@@ -153,8 +153,8 @@
     <xs:element name="e13" type="xs:string" dfdl:lengthKind="delimited">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
-          <dfdl:assert testKind="pattern" testPattern="\Uhhhhhhhh"
-            message="Assertion failed for pattern '\Uhhhhhhhh'" />
+          <dfdl:assert testKind="pattern" testPattern="\Ubaadf00d"
+            message="Assertion failed for pattern '\Ubaadf00d'" />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
@@ -186,7 +186,7 @@
       </xs:annotation>
     </xs:element>
 
-    <xs:element name="e17" type="xs:string" dfdl:lengthKind="delimited">
+    <xs:element name="e17" type="xs:string" dfdl:lengthKind="delimited" dfdl:encoding="UTF-8">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
           <dfdl:assert testKind="pattern" testPattern="\w"
@@ -1055,7 +1055,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>The pattern contained invalid syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1069,7 +1069,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>The pattern contained invalid syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1083,7 +1083,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>The pattern contained invalid syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1097,7 +1097,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>The pattern contained invalid syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1111,7 +1111,7 @@
     <tdml:document>test</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>The pattern contained invalid syntax</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

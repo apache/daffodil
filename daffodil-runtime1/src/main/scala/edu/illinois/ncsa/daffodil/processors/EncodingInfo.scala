@@ -189,6 +189,11 @@ class EncodingInfo(
       res
     }
   }
+  
+  lazy val knownEncodingIsUnicode = {
+    if (!isKnownEncoding) { false }
+    else { knownEncodingName.toUpperCase.startsWith("UTF") }
+  }
 
   lazy val mustBeAnEncodingWith8BitAlignment = {
     !isKnownEncoding || knownEncodingAlignmentInBits == 8

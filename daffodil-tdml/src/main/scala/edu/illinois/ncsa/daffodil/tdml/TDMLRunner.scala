@@ -476,6 +476,32 @@ abstract class TestCase(ptc: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
+  def verifyAllDiagnosticsFound(actualDiags: Seq[edu.illinois.ncsa.daffodil.api.Diagnostic], expectedDiags: Option[ErrorWarningBase]) = {
+
+    val actualDiagMsgs = actualDiags.map { _.toString }
+    val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
+
+    if (expectedDiags.isDefined && actualDiags.length == 0) {
+      throw new TDMLException(""""Diagnostic message(s) were expected but not found."""" +
+        "\n" + """Expected: """ + expectedDiagMsgs.mkString("\n"))
+    }
+
+    // must find each expected warning message within some actual warning message.
+    expectedDiagMsgs.foreach {
+      expected =>
+        {
+          val wasFound = actualDiagMsgs.exists {
+            actual => actual.toLowerCase.contains(expected.toLowerCase)
+          }
+          if (!wasFound) {
+            throw new TDMLException("""Did not find diagnostic message """" +
+              expected + """" in any of the actual diagnostic messages: """ + "\n" +
+              actualDiagMsgs.mkString("\n"))
+          }
+        }
+    }
+  }
+
   def verifyNoValidationErrorsFound(actual: WithDiagnostics) = {
     val actualDiags = actual.getDiagnostics.filter(d => d.isInstanceOf[ValidationError])
     if (actualDiags.length != 0) {
@@ -605,8 +631,8 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) {
 
-    val objectToDiagnose = {
-      if (processor.isError) processor
+    val diagnostics = {
+      if (processor.isError) processor.getDiagnostics
       else {
         val actual = processor.parse(dataToParse, lengthLimitInBits)
         if (actual.isError) actual
@@ -622,16 +648,15 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             throw new TDMLException("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
           }
         }
-        actual
+        processor.getDiagnostics ++ actual.getDiagnostics
       }
     }
 
     // check for any test-specified errors
-    verifyAllDiagnosticsFound(objectToDiagnose, Some(errors))
+    verifyAllDiagnosticsFound(diagnostics, Some(errors))
 
-    // TODO Implement Warnings
     // check for any test-specified warnings
-    // verifyAllDiagnosticsFound(objectToDiagnose, warnings)
+    verifyAllDiagnosticsFound(diagnostics, warnings)
 
   }
 
@@ -690,7 +715,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     // TODO: Implement Warnings
     // check for any test-specified warnings
-    // verifyAllDiagnosticsFound(actual, warnings)
+    //verifyAllDiagnosticsFound(actual, warnings)
+
+    val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
+    verifyAllDiagnosticsFound(allDiags, warnings)
 
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.

@@ -43,9 +43,12 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestSDEDebug {
+class TestSDENew {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
   val aa = testDir + "SchemaDefinitionErrors.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
+  @Test def test_schema_warning() { runner.runOneTest("schema_warning") }
 
 }
