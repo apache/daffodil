@@ -393,7 +393,7 @@ class TestCLIdebugger {
 
     shell.send("info data\n")
     shell.expect(contains("(2 to 2)"))
-    //    shell.expect("0,1,2,3,4,5,6")
+    shell.expect(contains("0,1,2,3,4,5,6"))
 
     shell.send("continue\n")
     shell.expect(contains("<tns:cell>6</tns:cell>"))
@@ -459,8 +459,6 @@ class TestCLIdebugger {
     shell.close()
   }
 
-  //  @Test def test_1335_CLI_Debugger_dataAndWrapLength() - in scala-debug (DFDL-650 "info data broken")
-
   @Test def test_1337_CLI_Debugger_childIndex() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input4.txt\n"
     val shell = Util.start(cmd)
@@ -484,10 +482,6 @@ class TestCLIdebugger {
     shell.send("quit\n")
     shell.close()
   }
-
-  //  @Test def test_1338_CLI_Debugger_discriminatorInfo() {} - in scala-debug (DFDL-603 "CLI: Debugger 'descriminator' command should be 'discriminator'")
-
-  //  @Test def test_1339_CLI_Debugger_removeHidden() {
 
   @Test def test_1340_CLI_Debugger_infoPath() {
     val output1 = Util.getExpectedString("output1.txt")
@@ -529,8 +523,13 @@ class TestCLIdebugger {
 
     shell.send("set wrapLength 2\n")
     shell.send("info data\n")
-    //TODO: update to expect entire data stream, but each line should only contain 2 characters
-    shell.expect(contains("1,"))
+    shell.expect(contains("    0,"))
+    shell.expect(contains("    1,"))
+    shell.expect(contains("    2,"))
+    shell.expect(contains("    3,"))
+    shell.expect(contains("    4,"))
+    shell.expect(contains("    5,"))
+    shell.expect(contains("    6"))
 
     shell.send("disable breakpoint 1\n")
     shell.send("continue\n")
@@ -573,6 +572,28 @@ class TestCLIdebugger {
     shell.expect(contains("error: undefined info command: dne2"))
     shell.send("display break\n")
     shell.expect(contains("error: undefined command: break"))
+    shell.send("quit\n")
+    shell.close()
+  }
+
+  @Test def test_3258_CLI_Debugger_infodata() {
+    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("(debug)"))
+
+    shell.send("display info data\n")
+    shell.send("step\n")
+    shell.expect(contains("│ (0 to 0)"))
+    shell.expect(contains("0,1,2,3,4,5,6"))
+
+    shell.send("break cell\n")
+    shell.send("condition 1 dfdl:occursIndex() eq 5\n")
+    shell.send("continue\n")
+
+    shell.expect(contains("│ (8 to 8)"))
+    shell.expect(contains("    4,5,6"))
+
+    shell.send("continue\n")
     shell.send("quit\n")
     shell.close()
   }
