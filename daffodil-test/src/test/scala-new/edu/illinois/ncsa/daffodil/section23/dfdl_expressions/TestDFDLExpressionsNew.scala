@@ -64,10 +64,6 @@ class TestDFDLExpressionsNew {
   @Test def test_xPathFunc_round_14() { runner2.runOneTest("xPathFunc_round_14") }
   @Test def test_xPathFunc_round_15() { runner2.runOneTest("xPathFunc_round_15") }
 
-  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
-  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
-  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
-
   //DFDL-1198
   @Test def test_array_index_oob_01() { runner.runOneTest("array_index_oob_01") }
   @Test def test_array_index_oob_02() { runner.runOneTest("array_index_oob_02") }

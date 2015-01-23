@@ -97,6 +97,14 @@ class TestDFDLExpressionsDebug {
   //DFDL-711
   @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
 
+  /* DFDL-749: TDML Runner does not take whitespace into account
+  *  Note: These tests should be failing because the whitespace in the expected output is NOT
+  *  correct. Once these tests are failing, we can correct the expected output.
+  */
+  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
+  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
+  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
