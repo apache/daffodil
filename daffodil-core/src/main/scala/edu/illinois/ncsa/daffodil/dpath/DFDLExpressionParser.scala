@@ -197,10 +197,18 @@ class DFDLPathExpressionParser(
    * are simpler and so a simpler grammar will suffice.
    */
 
-  def ContextItemExpr = "." ^^ { expr => Self(None) }
-  def AbbrevReverseStep = ".." ^^ { expr => Up(None) }
-  // TODO support forward axis syntax some day
-  // def ForwardAxis = ("child" ~ "::") | ("self" ~ "::") 
+  def ContextItemExpr = "."
+  def AbbrevReverseStep = ".."
+
+  def SupportedForwardAxis = (("child" ~ "::") | ("self" ~ "::")) ^^ { case name ~ _ => name}
+  def UnsupportedForwardAxis = (("descendant" ~ "::") | ("attribute" ~ "::") | ("descendant-or-self" ~ "::") |
+    ("following-sibling" ~ "::") | ("following" ~ "::") |
+    ("namespace" ~ "::"))
+  def SupportedReverseAxis = ("parent" ~ "::") ^^ { case name ~ _ =>  name }
+  def UnsupportedReverseAxis = (("ancestor" ~ "::") |
+    ("preceding-sibling" ~ "::") | ("preceding" ~ "::") |
+    ("ancestor-or-self" ~ "::")) ^^ { case name ~ _ => name }
+
   def EqualityComp = "eq" | "ne" | "!=" | "="
   def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">"
   def Comp = EqualityComp | NumberComp
@@ -267,18 +275,31 @@ class DFDLPathExpressionParser(
   def ValueExpr = log(PrimaryExpr | PathExpr)("value")
 
   def PathExpr: Parser[PathExpression] = log(
-    ("/" ~> RelativePathExpr) ^^ { r => RootPathExpression(Some(r)) } |
+    ("//" ~> RelativePathExpr) ^^ { _ => context.SDE("'//' is unsupported in DFDL Expression Syntax.") } |
+      ("/" ~> RelativePathExpr) ^^ { r => RootPathExpression(Some(r)) } |
       ("/") ^^ { r => RootPathExpression(None) } |
       RelativePathExpr)("path")
 
   def RelativePathExpr: Parser[RelativePathExpression] = log(
-    StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps => RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove) })("relativePath")
+    StepExpr ~ ("/" ~> StepExpr).* ^^ { case s1 ~ moreSteps => RelativePathExpression(s1 :: moreSteps, isEvaluatedAbove) } |
+      StepExpr ~ ("//" ~> StepExpr).* ^^ { _ => context.SDE("'//' is unsupported in DFDL Expression Syntax.") })("relativePath")
 
   def StepExpr: Parser[StepExpression] = log(AxisStep | VarRef ^^ { varRef => this.context.SDE("Variables cannot be used in path expressions.  Error: $%s", varRef.qnameString) })("step")
+
   def AxisStep: Parser[StepExpression] =
-    ".." ~> Predicate.? ^^ { Up(_) } |
-      "." ~> Predicate.? ^^ { Self(_) } |
-      StepName ~ Predicate.? ^^ { case qn ~ p => { NamedStep(qn, p) } }
+    Reverse | Forward
+
+  def Reverse = AbbrevReverseStep ~> Predicate.? ^^ { Up(_) } |
+    (SupportedReverseAxis ~> NodeTest) ~ Predicate.? ^^ { case qn ~ p => { Up2(qn, p) } } |
+    (UnsupportedReverseAxis ~ NodeTest) ~ Predicate.? ^^ { case name ~ _ => context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name) }
+
+  def Forward = ContextItemExpr ~> Predicate.? ^^ { Self(_) } |
+    SupportedForwardAxis ~ NodeTest ~ Predicate.? ^^ {
+      case "self" ~ qn ~ p => Self2(qn, p)
+      case "child" ~ qn ~ p => NamedStep(qn, p)
+    } |
+    UnsupportedForwardAxis ~ Predicate.? ^^ { case name ~ _ => context.SDE("'%s::' is an unsupported axis in DFDL Expression Syntax.", name) } |
+    NodeTest ~ Predicate.? ^^ { case qn ~ p => { NamedStep(qn, p) } }
 
   def Predicate: Parser[PredicateExpression] = log(
     "[" ~> Expr <~ "]" ^^ { PredicateExpression(_) })("predicate")
@@ -303,7 +324,19 @@ class DFDLPathExpressionParser(
     "(" ~ ")" ^^ { _ => Nil } |
       "(" ~> (ExprSingle ~ (("," ~> ExprSingle).*)) <~ ")" ^^ { case e1 ~ moreEs => e1 :: moreEs })("argList")
 
-  def StepName = log(QualifiedName)("stepName")
+  def StepName = log(QualifiedName |
+    Wildcard ^^ { wc => context.SDE("Wildcard is unsupported in DFDL Expression Syntax. Offending value was '%s'.", wc) })("stepName")
+
+  def Wildcard = "*" |
+    (QNameRegex.NCName ~ ":" ~ "*") ^^ { case ncname ~ c ~ wc => ncname + c + wc } |
+    ("*" ~ ":" ~ QNameRegex.NCName) ^^ { case wc ~ c ~ ncname => wc + c + ncname }
+  def NodeTest = KindTest | NameTest
+  def NameTest = StepName // aka QName | Wildcard
+  def KindTest = log(ProcessingInstructionTest | CommentTest | TextTest | AnyKindTest)("kindTest")
+  def ProcessingInstructionTest = log("processing-instruction" ~ "(" ~ StringLiteral.? ~ ")" ^^ { _ => context.SDE("Use of processing-instruction() is unsupported in DFDL Expression Syntax.") })("processingInstructionTest")
+  def CommentTest = log("comment" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of comment() is unsupported in DFDL Expression Syntax.") })("commentTest")
+  def TextTest = log("text" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of text() is unsupported in DFDL Expression Syntax.") })("textTest")
+  def AnyKindTest = log("node" ~ "(" ~ ")" ^^ { _ => context.SDE("Use of node() is unsupported in DFDL Expression Syntax.") })("anyKindTest")
 
   def RefName = log(QualifiedName)("refName")
 

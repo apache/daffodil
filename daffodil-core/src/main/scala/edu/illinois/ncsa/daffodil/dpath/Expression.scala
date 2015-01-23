@@ -878,6 +878,33 @@ case class Self(predArg: Option[PredicateExpression]) extends StepExpression(nul
     }
 }
 
+/**
+ * Different from Self in that it verifies the qName (s) is
+ * the name of the context.
+ */
+case class Self2(s: String, predArg: Option[PredicateExpression])
+  extends StepExpression(s, predArg) {
+
+  requiredEvaluations(stepQName)
+
+  override lazy val compiledDPath = new CompiledDPath(SelfMove +: conversions)
+
+  override def text = "."
+
+  override lazy val stepElement: DPathElementCompileInfo = {
+    val ci = priorStep.map { _.stepElement }.getOrElse {
+      //  no prior step, so we're the first step 
+      this.compileInfo.elementCompileInfo.getOrElse {
+        SDE("Relative path .. past root element.")
+      }
+    }
+    if (!ci.namedQName.matches(stepQName))
+      ci.noMatchError(stepQName)
+    ci
+  }
+
+}
+
 case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null, predArg) {
   override lazy val compiledDPath = new CompiledDPath(UpMove)
 
@@ -912,6 +939,53 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
       }
       ps5
     }
+  }
+}
+
+/**
+ * Different from Up in that it verifies the qName (s) is the
+ * name of the parent node.
+ */
+case class Up2(s: String, predArg: Option[PredicateExpression])
+  extends StepExpression(s, predArg) {
+  override lazy val compiledDPath = new CompiledDPath(UpMove)
+
+  requiredEvaluations(stepQName)
+
+  override def text = ".." // + "{" + stepElement.path + "}"
+
+  override lazy val stepElement: DPathElementCompileInfo = {
+    val ci = if (isFirstStep) {
+      Assert.invariant(!isAbsolutePath)
+      val rpe = this.relPathParent
+      val sc = this.compileInfo
+      // if we are some component inside an element then we 
+      // need to get the element surrounding first, then go up one.
+      val e = sc.elementCompileInfo
+      val e1 = e.getOrElse {
+        SDE("No enclosing element.")
+      }
+      val e2 = e1.enclosingElementCompileInfo
+      val e3 = e2.getOrElse {
+        SDE("Relative path .. past root element.")
+      }
+      e3
+    } else {
+      // not first, so 
+      val ps = priorStep
+      val ps2 = ps.map { _.stepElement }
+      val ps3 = ps2.getOrElse {
+        SDE("Relative path .. past root element.")
+      }
+      val ps4 = ps3.enclosingElementCompileInfo
+      val ps5 = ps4.getOrElse {
+        SDE("Relative path .. past root element.")
+      }
+      ps5
+    }
+    if (!ci.namedQName.matches(stepQName))
+      ci.noMatchError(stepQName)
+    ci
   }
 }
 

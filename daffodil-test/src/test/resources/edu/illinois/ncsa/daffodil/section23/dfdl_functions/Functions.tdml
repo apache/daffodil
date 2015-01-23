@@ -2693,7 +2693,7 @@
     <tdml:document>text</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Use of text() is unsupported</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -2710,7 +2710,7 @@
     <tdml:document>text</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Use of text() is unsupported</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

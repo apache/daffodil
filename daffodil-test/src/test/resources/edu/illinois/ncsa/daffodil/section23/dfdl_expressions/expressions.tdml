@@ -4496,7 +4496,7 @@ c' } "  />
       <xs:complexType>
         <xs:sequence dfdl:separator=",">
           <xs:element name="c1" type="xs:string" />
-          <xs:element name="c2" dfdl:terminator="{ self::*/../ex:c1 }">
+          <xs:element name="c2" dfdl:terminator="{ self::ex:c2/../ex:c1 }">
             <xs:complexType>
               <xs:sequence dfdl:separator="/" >
                 <xs:element name="d1" type="xs:string"/>
@@ -4651,7 +4651,7 @@ c' } "  />
           <xs:element name="c2">
             <xs:complexType>
               <xs:sequence dfdl:separator="/" >
-                <xs:element name="d1" type="xs:string" dfdl:inputValueCalc="{ self::ex:d1/parent::*/parent::ex:e14/child::ex:c1 }"/>
+                <xs:element name="d1" type="xs:string" dfdl:inputValueCalc="{ self::ex:d1/parent::ex:c2/parent::ex:e14/child::ex:c1 }"/>
                 <xs:element name="d2" type="xs:string" dfdl:inputValueCalc="{ parent::ex:d1 }" />
               </xs:sequence>
             </xs:complexType>
@@ -4733,7 +4733,7 @@ c' } "  />
   <tdml:parserTestCase name="child_axis_01" root="e3"
     model="axes" description="Section 23 - DFDL Expressions - DFDL-23-067R">
 
-    <tdml:document>abc;test,</tdml:document>
+    <tdml:document>abc;test</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e3>

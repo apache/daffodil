@@ -48,15 +48,6 @@ class TestDFDLExpressionsDebug {
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
   
-  //DFDL-1148
-  @Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
-  @Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
-
-  //DFDL-1146
-  @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
-  @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
-  @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
-
   //DFDL-1035 - tests need better diagnostic
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
   @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
@@ -77,22 +68,9 @@ class TestDFDLExpressionsDebug {
   @Test def test_predicate_03() { runner.runOneTest("predicate_03") }
 
   //DFDL-1059
-  @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
-  @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
   @Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   @Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
-  //DFDL-1191
-  @Test def test_ancestor_axis_01() { runner.runOneTest("ancestor_axis_01") }
-  @Test def test_ancestor_or_self_axis_01() { runner.runOneTest("ancestor_or_self_axis_01") }
-  @Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
-  @Test def test_descendant_axis_01() { runner.runOneTest("descendant_axis_01") }
-  @Test def test_descendant_or_self_axis_01() { runner.runOneTest("descendant_or_self_axis_01") }
-  @Test def test_following_axis_01() { runner.runOneTest("following_axis_01") }
-  @Test def test_following_sibling_axis_01() { runner.runOneTest("following_sibling_axis_01") }
-  @Test def test_namespace_axis_01() { runner.runOneTest("namespace_axis_01") }
-  @Test def test_preceding_axis_01() { runner.runOneTest("preceding_axis_01") }
-  @Test def test_preceding_sibling_axis_01() { runner.runOneTest("preceding_sibling_axis_01") }
 
   //DFDL-711
   @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
@@ -190,10 +168,6 @@ class TestDFDLExpressionsDebug {
   // DFDL-578
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
-
-  // DFDL-1111: Inadequate diagnostic message from DPath Expression parser
-  @Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
-  @Test def test_fn_text_02() { runner2.runOneTest("fn_text_02") }
 
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
