@@ -51,7 +51,4 @@ class TestEntitiesNew {
   val tdml_02 = testDir + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
-  @Test def test_emptyStringEntityTermInExpression_01() { runner_01.runOneTest("emptyStringEntityTermInExpression_01") }
-  @Test def test_emptyStringEntityTermInExpression_02() { runner_01.runOneTest("emptyStringEntityTermInExpression_02") }
-
 }

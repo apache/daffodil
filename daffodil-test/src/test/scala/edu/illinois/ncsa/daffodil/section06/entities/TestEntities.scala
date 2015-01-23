@@ -100,6 +100,9 @@ class TestEntities {
   @Test def test_whitespace_09() { runner_01.runOneTest("whitespace_09") }
   @Test def test_whitespace_10() { runner_01.runOneTest("whitespace_10") }
 
+  @Test def test_emptyStringEntityTermInExpression_01() { runner_01.runOneTest("emptyStringEntityTermInExpression_01") }
+  @Test def test_emptyStringEntityTermInExpression_02() { runner_01.runOneTest("emptyStringEntityTermInExpression_02") }
+
   val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml_02 = testDir_02 + "dpaext1.tdml"
   lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
