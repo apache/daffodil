@@ -49,6 +49,5 @@ class TestSDENew {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
-  @Test def test_schema_warning() { runner.runOneTest("schema_warning") }
 
 }

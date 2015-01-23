@@ -53,4 +53,5 @@ class TestSDE {
   //  @Test def test_schema_component_err() { runner.runOneTest("schema_component_err") }
 
   @Test def test_schema_line_number() { runner.runOneTest("schema_line_number") }
+  @Test def test_schema_warning() { runner.runOneTest("schema_warning") }
 }

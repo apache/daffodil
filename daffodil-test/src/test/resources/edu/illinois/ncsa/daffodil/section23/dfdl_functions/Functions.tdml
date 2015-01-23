@@ -9784,7 +9784,6 @@
         </count02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <!-- This test currently passes but it does not check for the warning. -->
     <tdml:warnings>
       <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
       <tdml:warning>fn:exists</tdml:warning>
@@ -9813,7 +9812,6 @@
         </count02b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <!-- This test currently passes but it does not check for the warning. -->
     <tdml:warnings>
       <tdml:warning>Runtime Schema Definition Warning</tdml:warning>
       <tdml:warning>fn:exists</tdml:warning>
