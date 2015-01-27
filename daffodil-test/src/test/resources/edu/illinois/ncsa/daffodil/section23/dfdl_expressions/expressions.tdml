@@ -4761,6 +4761,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>ancestor</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4778,6 +4779,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>ancestor-or-self</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4795,6 +4797,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>attribute</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4812,6 +4815,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>descendant</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4829,6 +4833,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>descendant-or-self</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4846,6 +4851,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>following</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4863,6 +4869,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>following-sibling</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4880,6 +4887,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>namespace</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4897,6 +4905,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>preceding</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -4914,6 +4923,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>preceding-sibling</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

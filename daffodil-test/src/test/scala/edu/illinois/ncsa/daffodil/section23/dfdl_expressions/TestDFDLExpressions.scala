@@ -284,17 +284,16 @@ class TestDFDLExpressions {
   //@Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   //@Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
-  //DFDL-1191
-  //@Test def test_ancestor_axis_01() { runner.runOneTest("ancestor_axis_01") }
-  //@Test def test_ancestor_or_self_axis_01() { runner.runOneTest("ancestor_or_self_axis_01") }
-  //@Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
-  //@Test def test_descendant_axis_01() { runner.runOneTest("descendant_axis_01") }
-  //@Test def test_descendant_or_self_axis_01() { runner.runOneTest("descendant_or_self_axis_01") }
-  //@Test def test_following_axis_01() { runner.runOneTest("following_axis_01") }
-  //@Test def test_following_sibling_axis_01() { runner.runOneTest("following_sibling_axis_01") }
-  //@Test def test_namespace_axis_01() { runner.runOneTest("namespace_axis_01") }
-  //@Test def test_preceding_axis_01() { runner.runOneTest("preceding_axis_01") }
-  //@Test def test_preceding_sibling_axis_01() { runner.runOneTest("preceding_sibling_axis_01") }
+  @Test def test_ancestor_axis_01() { runner.runOneTest("ancestor_axis_01") }
+  @Test def test_ancestor_or_self_axis_01() { runner.runOneTest("ancestor_or_self_axis_01") }
+  @Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
+  @Test def test_descendant_axis_01() { runner.runOneTest("descendant_axis_01") }
+  @Test def test_descendant_or_self_axis_01() { runner.runOneTest("descendant_or_self_axis_01") }
+  @Test def test_following_axis_01() { runner.runOneTest("following_axis_01") }
+  @Test def test_following_sibling_axis_01() { runner.runOneTest("following_sibling_axis_01") }
+  @Test def test_namespace_axis_01() { runner.runOneTest("namespace_axis_01") }
+  @Test def test_preceding_axis_01() { runner.runOneTest("preceding_axis_01") }
+  @Test def test_preceding_sibling_axis_01() { runner.runOneTest("preceding_sibling_axis_01") }
 
   //DFDL-711
   //@Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
