@@ -700,8 +700,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       val desc = "disable breakpoints and displays"
       val longDesc = """|Usage: dis[able] <type> <id>
                         |
-                        |Disable a breakpoint or display. Valid values for <type> are "breakpoint"
-                        |and "display".
+                        |Disable a breakpoint or display.
                         |
                         |Example: disable breakpoint 1
                         |         disable display 1""".stripMargin
@@ -781,8 +780,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       val desc = "enable breakpoints and displays"
       val longDesc = """|Usage: e[nable] <type> <id>
                         |
-                        |Enable a breakpoint or display. Valid values for <type> are "breakpoint"
-                        |and "display".
+                        |Enable a breakpoint or display.
                         |
                         |Example: enable breakpoint 1
                         |         enable display 1""".stripMargin
@@ -1385,7 +1383,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
       object SetBreakOnFailure extends DebugCommand with DebugCommandValidateBoolean {
         val name = "breakOnFailure"
-        val desc = "whether or not stop break on failures (default: false)"
+        val desc = "whether or not the debugger should break on failures (default: false)"
         val longDesc = """|Usage: set breakOnFailure|bof <value>
                           |
                           |Set whether or not the debugger should break on failures. If set to false
