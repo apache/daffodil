@@ -614,4 +614,20 @@ class TestCLIdebugger {
     shell.close()
   }
 
+  @Test def test_3264_CLI_Debugger_undefined_command() {
+    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("(debug)"))
+
+    shell.send("display data\n")
+    shell.expect(contains("error: undefined command: data"))
+
+    shell.send("set breakonfailure true\n")
+    shell.expect(contains("error: undefined command: breakonfailure"))
+
+    shell.send("continue\n")
+    shell.send("quit\n")
+    shell.close()
+  }
+
 }
