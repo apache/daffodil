@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:daffodilTest1" />
+      <dfdl:defineVariable name="var1" external="true">defaultValue</dfdl:defineVariable>
+    </appinfo>
+  </annotation>
+  
+  <include schemaLocation="xsd/built-in-formats.xsd"/>   
+
+  <include schemaLocation="mySchema2.dfdl.xsd"/>
+
+  <element name="e1">
+    <complexType>
+      <sequence>
+        <element name="var1Value" dfdl:inputValueCalc="{ $tns:var1 }" type="xsd:string" dfdl:lengthKind="delimited"/>
+        <element ref="tns:e2"/>
+      </sequence>
+    </complexType>
+  </element>
+  
+</schema>

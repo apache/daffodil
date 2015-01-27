@@ -27,7 +27,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, runtime1, core, tdml, testIBM1, cli, test, examples, japi)
+                    .aggregate(propgen, lib, io, runtime1, core, tdml, testIBM1, cli, test, examples, japi, sapi)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
@@ -55,6 +55,11 @@ object DaffodilBuild extends Build {
                              .dependsOn(runtime1)
 
   lazy val japi    = Project(id = "daffodil-japi", base = file("daffodil-japi"), settings = s ++ genJavaDocSettings)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(core)
+
+  lazy val sapi    = Project(id = "daffodil-sapi", base = file("daffodil-sapi"), settings = s ++ sapiSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
@@ -294,6 +299,9 @@ object DaffodilBuild extends Build {
     mappings in Universal += baseDirectory.value / "README" -> "README",
     mappings in Universal <+= (packageBin in japi in Compile, name in japi in Compile, organization, version) map {
       (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
+    },
+    mappings in Universal <+= (packageBin in sapi in Compile, name in sapi in Compile, organization, version) map {
+      (bin, n, o, v) => bin -> "lib/%s.%s-%s.jar".format(o, n, v)
     }
   )
   cliOnlySettings ++= packageSettings
@@ -400,7 +408,11 @@ object DaffodilBuild extends Build {
     packageDoc in Compile <<= packageDoc in GenJavaDoc,
     sources in GenJavaDoc <<= (target, compile in Compile, sources in Compile) map ((t, c, s) => (t / "java" ** "*.java").get.filterNot(f => f.toString.contains('$') || f.toString.contains("packageprivate")) ++ s.filter(_.getName.endsWith(".java"))),
     artifactName in packageDoc in GenJavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
-    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-quiet", "-windowtitle", "Daffodil-" + v +"  Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
+    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-quiet", "-windowtitle", "Daffodil-" + v + " Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
+  )
+
+  lazy val sapiSettings = Seq(
+    scalacOptions in (Compile, doc) <<= (version, baseDirectory) map ((v,b) => Seq("-doc-title", "Daffodil-" + v + " Scala API", "-doc-root-content", b + "/root-doc.txt"))
   )
 
   def createRecursiveMapping(dir: File, newDir: String): Seq[(File,String)] = {

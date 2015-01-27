@@ -1,15 +1,15 @@
-package edu.illinois.ncsa.daffodil.japi.packageprivate
+package edu.illinois.ncsa.daffodil.sapi.packageprivate
 // The compiler plugin that converts Scala code to Java code for Javadoc
 // generation has no concept of package private. So if there is anything that
 // should be package private and thus not part of the public API (e.g.
 // utilities for converting from Scala to Java), there isn't a way to exclude
 // them from Javadocs. So, when we generate Javadocs, we manually exclude
-// anything in the japiexclude package. So anything that should be package
+// anything in the sapiexclude package. So anything that should be package
 // private should go in this package.
 
-import edu.illinois.ncsa.daffodil.japi._
-import edu.illinois.ncsa.daffodil.japi.logger._
-import edu.illinois.ncsa.daffodil.japi.debugger._
+import edu.illinois.ncsa.daffodil.sapi._
+import edu.illinois.ncsa.daffodil.sapi.logger._
+import edu.illinois.ncsa.daffodil.sapi.debugger._
 import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
 import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
 import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
@@ -51,9 +51,9 @@ import scala.collection.JavaConversions._
  * SOFTWARE.
  */
 
-private[japi] object LoggingConversions {
+private[sapi] object LoggingConversions {
 
-  def levelToScala(lvl: LogLevel): SLogLevel.Type = {
+  def levelToScala(lvl: LogLevel.Value): SLogLevel.Type = {
     val slvl: SLogLevel.Type = lvl match {
       case LogLevel.Error => SLogLevel.Error
       case LogLevel.Warning => SLogLevel.Warning
@@ -67,8 +67,8 @@ private[japi] object LoggingConversions {
     slvl
   }
 
-  def levelFromScala(slvl: SLogLevel.Type): LogLevel = {
-    val lvl: LogLevel = slvl match {
+  def levelFromScala(slvl: SLogLevel.Type): LogLevel.Value = {
+    val lvl: LogLevel.Value = slvl match {
       case SLogLevel.Error => LogLevel.Error
       case SLogLevel.Warning => LogLevel.Warning
       case SLogLevel.Info => LogLevel.Info
@@ -82,9 +82,9 @@ private[japi] object LoggingConversions {
   }
 }
 
-private[japi] object ValidationConversions {
+private[sapi] object ValidationConversions {
 
-  def modeToScala(mode: ValidationMode): SValidationMode.Type = {
+  def modeToScala(mode: ValidationMode.Value): SValidationMode.Type = {
     val smode: SValidationMode.Type = mode match {
       case ValidationMode.Off => SValidationMode.Off
       case ValidationMode.Limited => SValidationMode.Limited
@@ -93,8 +93,8 @@ private[japi] object ValidationConversions {
     smode
   }
 
-  def modeFromScala(smode: SValidationMode.Type): ValidationMode = {
-    val mode: ValidationMode = smode match {
+  def modeFromScala(smode: SValidationMode.Type): ValidationMode.Value = {
+    val mode: ValidationMode.Value = smode match {
       case SValidationMode.Off => ValidationMode.Off
       case SValidationMode.Limited => ValidationMode.Limited
       case SValidationMode.Full => ValidationMode.Full
@@ -106,7 +106,7 @@ private[japi] object ValidationConversions {
 /* A wrapper log writer that scala logging can talk to, which is then forwarded
  * onto the java LogWriter, if a user implements their own log writer in java.
  */
-private[japi] class JavaLogWriter(logWriter: LogWriter)
+private[sapi] class JavaLogWriter(logWriter: LogWriter)
   extends SLogWriter {
 
   protected def write(msg: String): Unit = {}
@@ -122,7 +122,7 @@ private[japi] class JavaLogWriter(logWriter: LogWriter)
  * then forwarded onto the java interactive debugger, if a user implements
  * their own debugger in java.
  */
-private[japi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
+private[sapi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
   extends SInteractiveDebuggerRunner {
   def init(id: SInteractiveDebugger): Unit = dr.init
   def getCommand(): String = dr.getCommand

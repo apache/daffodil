@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+targetNamespace="http://example.com"
+xmlns:tns="http://example.com">
+	<annotation>
+		<appinfo source="http://www.ogf.org/dfdl/">
+			<dfdl:defineEscapeScheme name="DefaultPropertiesEscapeScheme">
+				<dfdl:escapeScheme escapeBlockEnd="&quot;" escapeBlockStart="&quot;"
+					escapeCharacter="&quot;" escapeEscapeCharacter="&quot;" escapeKind="escapeBlock"
+					extraEscapedCharacters=", %#x0D; %#x0A;" generateEscapeBlock="whenNeeded"
+				> </dfdl:escapeScheme>
+			</dfdl:defineEscapeScheme>
+			<dfdl:defineFormat name="DefaultPropertiesFormat">
+				<dfdl:format alignment="1" alignmentUnits="bytes" binaryBooleanFalseRep="0"
+					binaryBooleanTrueRep="1" binaryCalendarRep="bcd" binaryDecimalVirtualPoint="0"
+					binaryFloatRep="ieee" binaryNumberCheckPolicy="lax" binaryNumberRep="binary"
+					binaryPackedSignCodes="C D F C" byteOrder="bigEndian"
+                    bitOrder="mostSignificantBitFirst"
+                    calendarCenturyStart="53"
+					calendarCheckPolicy="lax" calendarDaysInFirstWeek="4"
+					calendarFirstDayOfWeek="Monday" calendarLanguage="en-US"
+					calendarObserveDST="yes" calendarPattern="yyyy-MM-dd'T'HH:mm:ss"
+					calendarPatternKind="implicit" calendarTimeZone="UTC"
+					choiceLengthKind="implicit" decimalSigned="yes"
+					documentFinalTerminatorCanBeMissing="yes" emptyValueDelimiterPolicy="none"
+					encoding="UTF-8" encodingErrorPolicy="replace" 
+					escapeSchemeRef="" fillByte="0" floating="no" ignoreCase="no"
+					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
+					lengthUnits="characters" nilKind="literalValue" nilValueDelimiterPolicy="none"
+					occursCountKind="fixed" outputNewLine="%CR;%LF;" prefixIncludesPrefixLength="no"
+					representation="text" separator="," separatorPolicy="required"
+					separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no"
+					textBooleanFalseRep="false" textBooleanJustification="left"
+					textBooleanPadCharacter="%SP;" textBooleanTrueRep="true"
+					textCalendarJustification="left" textCalendarPadCharacter="%SP;"
+					textNumberCheckPolicy="lax" textNumberJustification="right"
+					textNumberPadCharacter="%SP;" textNumberRep="standard"
+					textNumberRounding="pattern" textNumberRoundingMode="roundUp" textPadKind="none"
+					textStandardBase="10" textStandardDecimalSeparator="."
+					textStandardExponentRep="E" textStandardGroupingSeparator=","
+					textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textStandardZeroRep=""
+					textStringJustification="left" textStringPadCharacter="%SP;" textTrimKind="none"
+					textZonedSignStyle="asciiStandard" trailingSkip="0"
+					truncateSpecifiedLengthString="no" useNilForDefault="no" utf16Width="fixed"
+				> </dfdl:format>
+			</dfdl:defineFormat>
+		</appinfo>
+	</annotation>
+</schema>

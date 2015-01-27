@@ -1,4 +1,4 @@
-package edu.illinois.ncsa.daffodil.japi
+package edu.illinois.ncsa.daffodil.sapi
 
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
@@ -34,20 +34,18 @@ package edu.illinois.ncsa.daffodil.japi
 
 import edu.illinois.ncsa.daffodil.compiler.{ Compiler => SCompiler }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.japi.debugger._
-import edu.illinois.ncsa.daffodil.japi.logger._
-import edu.illinois.ncsa.daffodil.japi.packageprivate._
+import edu.illinois.ncsa.daffodil.sapi.debugger._
+import edu.illinois.ncsa.daffodil.sapi.logger._
+import edu.illinois.ncsa.daffodil.sapi.packageprivate._
 import edu.illinois.ncsa.daffodil.debugger.{ Debugger => SDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
 import edu.illinois.ncsa.daffodil.debugger.{ TraceDebuggerRunner => STraceDebuggerRunner }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
-import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.api.DFDL
 import java.io.File
 import java.io.IOException
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
-import scala.collection.JavaConversions.seqAsJavaList
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.{ DataLocation => SDataLocation }
 import edu.illinois.ncsa.daffodil.api.{ Diagnostic => SDiagnostic }
@@ -73,15 +71,15 @@ import org.xml.sax.InputSource
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 
-/**
- * API Suitable for Java programmers to use.
- */
-class Daffodil private {
+private class Daffodil private {
   // Having this empty but private companion class removes the constructor from
-  // JAPI Javadocs, as well as prevents the creation of a Daffodil class,
+  // Scaladocs, as well as prevents the creation of a Daffodil class,
   // forcing one to use the static methods on the Daffodil object
 }
 
+/**
+ * Factory object to create a [[Compiler]] and set global configurations
+ */
 object Daffodil {
 
   /** Create a new object used to compiled DFDL schemas */
@@ -99,14 +97,14 @@ object Daffodil {
   }
 
   /** Set the maximum logging level */
-  def setLoggingLevel(lvl: LogLevel): Unit = {
+  def setLoggingLevel(lvl: LogLevel.Value): Unit = {
     SLoggingDefaults.setLoggingLevel(LoggingConversions.levelToScala(lvl))
   }
 
   /**
    * Enable/disable debugging.
    *
-   * Before enabling, [[Daffodil#setDebugger(DebuggerRunner)]] must be called with a non-null debugger.
+   * Before enabling, [[Daffodil$#setDebugger]] must be called with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */
@@ -136,11 +134,19 @@ object Daffodil {
 }
 
 /**
- * Compile DFDL schemas into [[ProcessorFactory]]'s or reload saved parsers into [[DataProcessor]]'s.
- *
- * Do not use the Compiler constructor to create a Compiler. Instead, use [[Daffodil#compiler()]].
+ * Validation modes for validating the resulting infoset against the DFDL schema
  */
-class Compiler private[japi] () {
+object ValidationMode extends Enumeration {
+  type ValidationMode = Value
+  val Off = Value(10)
+  val Limited = Value(20)
+  val Full = Value(30)
+}
+
+/**
+ * Compile DFDL schemas into [[ProcessorFactory]]'s or reload saved parsers into [[DataProcessor]]'s.
+ */
+class Compiler private[sapi] () {
 
   private val sCompiler = SCompiler()
 
@@ -239,8 +245,8 @@ class Compiler private[japi] () {
    *                   then no namespace is used. With not preceded by "{namespace}",
    *                   then Daffodil will figure out the namespace.
    */
-  def setExternalDFDLVariables(extVarsMap: java.util.AbstractMap[String, String]): Unit = {
-    val extVars = ExternalVariablesLoader.getVariables(extVarsMap.toMap)
+  def setExternalDFDLVariables(extVarsMap: Map[String, String]): Unit = {
+    val extVars = ExternalVariablesLoader.getVariables(extVarsMap)
     sCompiler.setExternalDFDLVariables(extVars)
   }
 
@@ -281,18 +287,15 @@ class Compiler private[japi] () {
    *
    * @param tunables a map of key/value pairs, where the key is the tunable name and the value is the value to set it to
    */
-  def setTunables(tunables: java.util.AbstractMap[String, String]): Unit = {
+  def setTunables(tunables: Map[String, String]): Unit = {
     sCompiler.setTunables(tunables.toMap)
   }
 }
 
 /**
  * Factory to create [[DataProcessor]]'s, used for parsing data
- *
- * Do not use the ProcessorFactry constructor to create a [[ProcessorFactory]].
- * Instead, use [[Compiler#compileFile(java.io.File)]]
  */
-class ProcessorFactory private[japi] (pf: SProcessorFactory)
+class ProcessorFactory private[sapi] (pf: SProcessorFactory)
   extends WithDiagnostics(pf) {
 
   /**
@@ -327,7 +330,7 @@ class ProcessorFactory private[japi] (pf: SProcessorFactory)
  * class, aside from those functions in [[WithDiagnostics]], is invalid and
  * will result in an Exception.
  */
-abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
+abstract class WithDiagnostics private[sapi] (wd: SWithDiagnostics) {
 
   /**
    * Determine if any errors occurred in the creation of the parent object.
@@ -348,13 +351,13 @@ abstract class WithDiagnostics private[japi] (wd: SWithDiagnostics) {
    *
    * @return list of [[Diagnostic]]'s. May contain errors or warnings, and so may be non-empty even if [[WithDiagnostics#isError]] is false or [[WithDiagnostics#canProceed]] is true.
    */
-  def getDiagnostics: java.util.List[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) } // implicitly converts to the Java collection
+  def getDiagnostics: Seq[Diagnostic] = wd.getDiagnostics.map { new Diagnostic(_) }
 }
 
 /**
  * Class containing diagnostic information
  */
-class Diagnostic private[japi] (d: SDiagnostic) {
+class Diagnostic private[sapi] (d: SDiagnostic) {
 
   /**
    * Get the diagnostic message
@@ -372,7 +375,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    *
    * @return list of [[DataLocation]]'s related to this diagnostic
    */
-  def getDataLocations: java.util.List[DataLocation] = d.getDataLocations.map { new DataLocation(_) }
+  def getDataLocations: Seq[DataLocation] = d.getDataLocations.map { new DataLocation(_) }
 
   /**
    * Get schema location information relevant to this diagnostic object.
@@ -381,7 +384,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
    *
    * @return list of [[LocationInSchemaFile]]'s related to this diagnostic.
    */
-  def getLocationsInSchemaFiles: java.util.List[LocationInSchemaFile] =
+  def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] =
     d.getLocationsInSchemaFiles.map { new LocationInSchemaFile(_) }
 
   /**
@@ -402,7 +405,7 @@ class Diagnostic private[japi] (d: SDiagnostic) {
 /**
  * Information related to a location in data
  */
-class DataLocation private[japi] (dl: SDataLocation) {
+class DataLocation private[sapi] (dl: SDataLocation) {
   override def toString() = dl.toString
 
   /**
@@ -426,7 +429,7 @@ class DataLocation private[japi] (dl: SDataLocation) {
 /**
  * Information related to locations in DFDL schema files
  */
-class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
+class LocationInSchemaFile private[sapi] (lsf: SLocationInSchemaFile) {
   /**
    * Get the description of the location file, for example, containing file and line number information
    */
@@ -436,7 +439,7 @@ class LocationInSchemaFile private[japi] (lsf: SLocationInSchemaFile) {
 /**
  * Compiled version of a DFDL Schema, used to parse data and get the DFDL infoset
  */
-class DataProcessor private[japi] (dp: SDataProcessor)
+class DataProcessor private[sapi] (dp: SDataProcessor)
   extends WithDiagnostics(dp) {
 
   /**
@@ -444,7 +447,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
    *
    * @param mode mode to control validation
    */
-  def setValidationMode(mode: ValidationMode): Unit = dp.setValidationMode(ValidationConversions.modeToScala(mode))
+  def setValidationMode(mode: ValidationMode.Value): Unit = dp.setValidationMode(ValidationConversions.modeToScala(mode))
 
   /**
    * Read external variables from a Daffodil configuration file
@@ -510,7 +513,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
  * the resulting infoset, any diagnostic information, and the final data
  * location
  */
-class ParseResult private[japi] (pr: SParseResult)
+class ParseResult private[sapi] (pr: SParseResult)
   extends WithDiagnostics(pr) {
 
   /**
@@ -519,13 +522,10 @@ class ParseResult private[japi] (pr: SParseResult)
    * @throws [[IllegalStateException]] if you call this when isError is true
    *         because in that case there is no result document.
    *
-   * @return a jdom2 Document representing the DFDL infoset for the parsed data
+   * @return a scala xml Node representing the DFDL infoset for the parsed data
    */
-  def result(): org.jdom2.Document = {
-    val doc = new org.jdom2.Document()
-    val rootElement = JDOMUtils.elem2Element(pr.result)
-    doc.setRootElement(rootElement)
-    doc
+  def result(): scala.xml.Node = {
+    pr.result
   }
 
   /**
@@ -539,4 +539,4 @@ class ParseResult private[japi] (pr: SParseResult)
  * that is invalid (not a parser file, corrupt, etc.) or
  * is not in the GZIP format.
  */
-class InvalidParserException private[japi] (cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+class InvalidParserException private[sapi] (cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())

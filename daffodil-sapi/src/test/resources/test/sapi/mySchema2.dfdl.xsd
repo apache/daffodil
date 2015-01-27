@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="http://example.com" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://example.com">
+  
+  <annotation>
+    <appinfo source="http://www.ogf.org/dfdl/">
+      <dfdl:format ref="tns:daffodilTest1" />
+    </appinfo>
+  </annotation>
+  
+  <include schemaLocation="xsd/built-in-formats.xsd"/>   
+  
+  <element name="e2" type="xsd:int" dfdl:lengthKind="delimited"/>
+  
+</schema>
