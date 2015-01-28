@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/scala"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
