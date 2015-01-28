@@ -4,6 +4,39 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:ex="http://example.com">
+  
+  <tdml:defineSchema name="lengthPatternsUnmatched">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+    <xs:element name="seq1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="\d\d\d"/>
+          <xs:element name="leftover" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="seq2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="literal"/>
+          <xs:element name="leftover" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="seq3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" type="xs:string" dfdl:lengthKind="pattern" dfdl:lengthPattern="[0-9]"/>
+          <xs:element name="leftover" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
 
   <tdml:defineSchema name="lengthKindPattern-Embedded.dfdl.xsd">
 
@@ -717,6 +750,72 @@
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>Dangling meta character '*' near index</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unmatchedPattern01
+         Schema: lengthPatternsUnmatched
+           Root: seq1
+    Description: This test demonstrates that if a lengthPattern does not match at all, the length is 0
+-->
+
+  <tdml:parserTestCase name="unmatchedPattern01"
+    root="seq1" model="lengthPatternsUnmatched" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>nope</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq1>
+          <e1></e1>
+          <leftover>nope</leftover>
+        </seq1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unmatchedPattern02
+         Schema: lengthPatternsUnmatched
+           Root: seq2
+    Description: This test demonstrates that if a lengthPattern does not match at all, the length is 0
+-->
+
+  <tdml:parserTestCase name="unmatchedPattern02"
+    root="seq2" model="lengthPatternsUnmatched" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>figurative</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq2>
+          <e1></e1>
+          <leftover>figurative</leftover>
+        </seq2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unmatchedPattern03
+         Schema: lengthPatternsUnmatched
+           Root: seq3
+    Description: This test demonstrates that if a lengthPattern does not match at all, the length is 0
+-->
+
+  <tdml:parserTestCase name="unmatchedPattern03"
+    root="seq3" model="lengthPatternsUnmatched" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+
+    <tdml:document>three</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <seq3>
+          <e1></e1>
+          <leftover>three</leftover>
+        </seq3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
   </tdml:parserTestCase>
 
 </tdml:testSuite>

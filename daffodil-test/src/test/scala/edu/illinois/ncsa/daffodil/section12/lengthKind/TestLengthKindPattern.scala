@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.section12.lengthKind
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -47,6 +47,10 @@ class TestLengthKindPattern {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
   val aa = testDir + "PatternTests.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  @Test def test_unmatchedPattern01() { runner.runOneTest("unmatchedPattern01") }
+  @Test def test_unmatchedPattern02() { runner.runOneTest("unmatchedPattern02") }
+  @Test def test_unmatchedPattern03() { runner.runOneTest("unmatchedPattern03") }
 
   @Test def test_invalid_pattern() { runner.runOneTest("invalid_pattern") }
   @Test def test_invalid_pattern2() { runner.runOneTest("invalid_pattern2") }
