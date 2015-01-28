@@ -120,6 +120,8 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val validateDFDLSchemas: Boolean = true)
   extends Logging {
 
+  val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
+
   aNodeFileOrURL match {
     case _: URI => // ok
     case _: File => // ok
@@ -168,7 +170,10 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
       // We were passed a literal schema node. This is for unit testing
       // purposes. 
       //
-      val src = new UnitTestSchemaSource(tsNode, "")
+      val tmpDir = new File(TMP_DIR, "daffodil")
+      tmpDir.mkdirs()
+
+      val src = new UnitTestSchemaSource(tsNode, "", Some(tmpDir))
       val origNode = loader.load(src)
       //
       (origNode, src.uriForLoading)

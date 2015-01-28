@@ -56,6 +56,48 @@ class TestDsomCompiler3 {
   val xsi = XMLUtils.XSI_NAMESPACE
   val example = XMLUtils.EXAMPLE_NAMESPACE
 
+  @Test def testTmpDirProvided() {
+    val sc = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+
+      <xs:element name="list" type="tns:example1">
+        <xs:annotation>
+          <xs:appinfo source={ dfdl }>
+            <dfdl:element encoding="US-ASCII" alignmentUnits="bytes"/>
+          </xs:appinfo>
+        </xs:annotation>
+      </xs:element>
+      <xs:complexType name="example1">
+        <xs:sequence dfdl:separator="">
+          <xs:element name="w" type="xs:int" dfdl:length="1" dfdl:lengthKind="explicit"/>
+        </xs:sequence>
+      </xs:complexType>)
+
+    val tmpDir = new File("./dfdl_tmp")
+    tmpDir.mkdirs
+    tmpDir.deleteOnExit()
+    
+    val sset = Compiler().compileNode(sc, Some(tmpDir)).sset
+    
+    val list = tmpDir.list()
+    assertEquals(1, list.length)
+    
+    val fileName = list(0)
+    assertTrue(fileName.contains(".dfdl.xsd"))
+
+    // Verify things still work using specified tmpDir
+    //
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val Seq(declFactory) = schemaDoc.globalElementDecls
+    val decl = declFactory.forRoot()
+    val Seq(ct) = schemaDoc.globalComplexTypeDefs
+    assertEquals("example1", ct.name)
+
+    val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
+    assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
+  }
+  
   @Test def testSlots1() {
     val testSchema = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,

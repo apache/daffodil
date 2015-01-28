@@ -5,6 +5,7 @@ import scala.xml.Node
 import java.io.FileInputStream
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
+import java.io.File
 
 /**
  * Our abstraction of the source of a schema.
@@ -40,8 +41,8 @@ case class URISchemaSource(fileOrResource: URI) extends DaffodilSchemaSource {
 /**
  * For stdin, or other anonymous pipe-like source of schema.
  */
-case class InputStreamSchemaSource(is: java.io.InputStream, blameName: String, extension: String) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile = XMLUtils.convertInputStreamToTempFile(is, blameName, extension)
+case class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File], blameName: String, extension: String) extends DaffodilSchemaSource {
+  lazy val tempSchemaFile = XMLUtils.convertInputStreamToTempFile(is, tmpDir.getOrElse(null), blameName, extension)
   lazy val tempURI = tempSchemaFile.toURI
   lazy val csName = {
     val xmlStream = new XmlStreamReader(tempSchemaFile)
@@ -59,8 +60,8 @@ case class InputStreamSchemaSource(is: java.io.InputStream, blameName: String, e
   override def uriForLoading = tempURI
 }
 
-protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String) extends DaffodilSchemaSource {
-  lazy val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, nameHint)
+protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: String, tmpDir: Option[File]) extends DaffodilSchemaSource {
+  lazy val tempSchemaFile = XMLUtils.convertNodeToTempFile(node, tmpDir.getOrElse(null), nameHint)
   lazy val tempURI = tempSchemaFile.toURI
   def blameName: String
   override def newInputSource() = {
@@ -72,8 +73,8 @@ protected sealed abstract class NodeSchemaSourceBase(node: Node, nameHint: Strin
   override def uriForLoading = tempURI
 }
 
-case class UnitTestSchemaSource(node: Node, nameHint: String)
-  extends NodeSchemaSourceBase(node, nameHint) {
+case class UnitTestSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
+  extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
   override val blameName =
     if (nameHint != "") "unittest:" + nameHint
     else tempURI.toString
@@ -83,7 +84,7 @@ case class UnitTestSchemaSource(node: Node, nameHint: String)
  * Used by TDML runner for embedded schemas- the schema node is constructed out of the TDML file
  * which in order to be able to validate repeatedly and such, is written to a temp file.
  */
-case class EmbeddedSchemaSource(node: Node, nameHint: String)
-  extends NodeSchemaSourceBase(node, nameHint) {
+case class EmbeddedSchemaSource(node: Node, nameHint: String, optTmpDir: Option[File] = None)
+  extends NodeSchemaSourceBase(node, nameHint, optTmpDir) {
   override val blameName = tempURI.toString
 }

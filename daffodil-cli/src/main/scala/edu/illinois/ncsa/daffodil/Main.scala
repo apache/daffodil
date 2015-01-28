@@ -864,7 +864,8 @@ object Main extends Logging {
         val dataLoader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
         dataLoader.setValidation(true) //TODO: make this flag an option. 
         val document = unparseOpts.infile.get match {
-          case Some("-") | None => dataLoader.load(InputStreamSchemaSource(System.in, "standardInput", ".dfdl.xsd"))
+          // TODO: Change None to optTmpDir for InputStreamSchemaSource
+          case Some("-") | None => dataLoader.load(InputStreamSchemaSource(System.in, None, "standardInput", ".dfdl.xsd"))
           case Some(fileName) => dataLoader.load(URISchemaSource(new File(fileName).toURI))
         }
         val rc = processor match {

@@ -727,7 +727,7 @@ Differences were (path, expected, actual):
    * infrastructure wants to be all file centric for diagnostic-message
    * reasons (line numbers for errors)
    */
-  def convertNodeToTempFile(xml: Node, nameHint: String = "daffodil_tmp_") = {
+  def convertNodeToTempFile(xml: Node, tmpDir: File, nameHint: String = "daffodil_tmp_") = {
     // Create temp file
     // note that the prefix has a minimum length of 3.
     val prefix = nameHint.length match {
@@ -736,7 +736,7 @@ Differences were (path, expected, actual):
       case 2 => nameHint + "_"
       case _ => nameHint
     }
-    val tmpSchemaFile = File.createTempFile(prefix, ".dfdl.xsd")
+    val tmpSchemaFile = File.createTempFile(prefix, ".dfdl.xsd", tmpDir)
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
     //
@@ -751,7 +751,8 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
-  def convertInputStreamToTempFile(is: java.io.InputStream,
+  def convertInputStreamToTempFile(is: java.io.InputStream, 
+      tmpDir: File,
     nameHint: String,
     suffix: String) = {
     // Create temp file
@@ -762,7 +763,7 @@ Differences were (path, expected, actual):
       case 2 => nameHint + "_"
       case _ => nameHint
     }
-    val tmpSchemaFile = File.createTempFile(prefix, suffix)
+    val tmpSchemaFile = File.createTempFile(prefix, suffix, tmpDir)
     // Delete temp file when program exits
     tmpSchemaFile.deleteOnExit
 

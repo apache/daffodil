@@ -303,8 +303,8 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
   /**
    * For convenient unit testing allow a literal XML node.
    */
-  def compileNode(xml: Node): ProcessorFactory = {
-    compileSource(UnitTestSchemaSource(xml, "anon"))
+  def compileNode(xml: Node, optTmpDir: Option[File] = None): ProcessorFactory = {
+    compileSource(UnitTestSchemaSource(xml, "anon", optTmpDir))
   }
 
 }

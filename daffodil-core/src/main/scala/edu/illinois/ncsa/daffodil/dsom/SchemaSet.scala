@@ -148,7 +148,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   /**
    * This constructor for unit testing only
    */
-  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty) =
+  def this(sch: Node, rootNamespace: String = null, root: String = null, extVars: Seq[Binding] = Seq.empty, optTmpDir: Option[File] = None) =
     this(
       {
         if (root == null) None else {
@@ -157,7 +157,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
         }
       },
       extVars,
-      List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"))),
+      List(UnitTestSchemaSource(sch, Option(root).getOrElse("anon"), optTmpDir)),
       false,
       false,
       null)
