@@ -76,10 +76,6 @@ class TestDFDLExpressionsNew {
   @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
   @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
 
-  //DFDL-1148
-  @Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
-  @Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
-
   // DFDL-1111
   @Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
   @Test def test_fn_text_02() { runner2.runOneTest("fn_text_02") }

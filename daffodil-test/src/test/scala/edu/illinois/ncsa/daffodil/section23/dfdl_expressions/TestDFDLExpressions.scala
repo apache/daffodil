@@ -85,9 +85,9 @@ class TestDFDLExpressions {
   @Test def test_arrayIndexOutOfBounds_01() { runner.runOneTest("arrayIndexOutOfBounds_01") }
   @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
 
-  //DFDL-1148
-  //@Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
-  //@Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
+  @Test def test_asterisk_01() { runner.runOneTest("asterisk_01") }
+  @Test def test_asterisk_02() { runner.runOneTest("asterisk_02") }
+  @Test def test_asterisk_03() { runner.runOneTest("asterisk_03") }
 
   //DFDL-1146
   //@Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
