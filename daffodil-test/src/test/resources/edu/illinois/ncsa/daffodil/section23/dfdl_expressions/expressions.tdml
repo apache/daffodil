@@ -3484,6 +3484,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>attribute</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3501,6 +3502,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>attribute</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3518,6 +3520,7 @@ c' } "  />
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>attribute</tdml:error>
+      <tdml:error>unsupported axis</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

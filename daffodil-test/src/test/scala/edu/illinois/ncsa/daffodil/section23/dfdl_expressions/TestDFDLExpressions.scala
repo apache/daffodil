@@ -292,9 +292,10 @@ class TestDFDLExpressions {
   //@Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   //@Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
 
+  @Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
+
   @Test def test_ancestor_axis_01() { runner.runOneTest("ancestor_axis_01") }
   @Test def test_ancestor_or_self_axis_01() { runner.runOneTest("ancestor_or_self_axis_01") }
-  @Test def test_attribute_axis_04() { runner.runOneTest("attribute_axis_04") }
   @Test def test_descendant_axis_01() { runner.runOneTest("descendant_axis_01") }
   @Test def test_descendant_or_self_axis_01() { runner.runOneTest("descendant_or_self_axis_01") }
   @Test def test_following_axis_01() { runner.runOneTest("following_axis_01") }

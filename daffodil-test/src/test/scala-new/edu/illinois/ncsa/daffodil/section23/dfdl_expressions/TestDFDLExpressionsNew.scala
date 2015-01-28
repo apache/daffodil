@@ -71,11 +71,6 @@ class TestDFDLExpressionsNew {
   @Test def test_array_index_oob_04() { runner.runOneTest("array_index_oob_04") }
   @Test def test_array_index_oob_05() { runner.runOneTest("array_index_oob_05") }
 
-  //DFDL-1146
-  @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
-  @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
-  @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
-
   //DFDL-1059
   @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
