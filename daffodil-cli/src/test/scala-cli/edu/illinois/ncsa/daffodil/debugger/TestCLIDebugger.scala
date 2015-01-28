@@ -64,6 +64,24 @@ class TestCLIdebugger {
     shell.send("quit\n")
     shell.close()
   }
+  
+  @Test def test_3266_CLI_Debugger_occursBounds_shortForm() {
+    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("(debug)"))
+
+    shell.send("display info ob\n")
+    shell.expect(contains("(debug)"))
+    shell.send("info oc\n")
+    shell.expect(contains("error: undefined info command: oc"))
+
+    shell.send("s\n")
+    shell.expect(contains("occursBounds: occurs bounds not set"))
+
+    shell.send("complete\n")
+    shell.send("quit\n")
+    shell.close()
+  }
 
   @Test def test_1591_CLI_Debugger_invalidCommandError() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
