@@ -196,6 +196,22 @@ class TestCLIdebugger {
     shell.send("quit\n")
     shell.close()
   }
+  
+  @Test def test_3268_CLI_Debugger_removeHidden2() {
+    val cmd = Util.binPath + " -d parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd -r e daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input6.txt\n"
+    val shell = Util.start(cmd)
+
+    shell.expect(contains("(debug)"))
+    shell.send("set removeHidden false\n")
+    shell.send("display info infoset\n")
+    shell.send("break g\n")
+    shell.send("continue\n")
+    shell.expect(contains("<sneaky>5</sneaky>"))
+    shell.send("continue\n")
+    val result = shell.expect(contains("</ex:e>")).getBefore();
+    assert(!result.contains("sneaky"))
+    shell.close()
+  }
 
   @Test def test_1331_CLI_Debugger_breakpointTesting4() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input3.txt\n"
