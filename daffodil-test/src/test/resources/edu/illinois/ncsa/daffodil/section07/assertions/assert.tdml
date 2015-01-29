@@ -1118,7 +1118,7 @@
   <!--
     Test name: testPatternWordChar
     Schema: s1
-    Purpose: This uses a schema that contains a regular expression construct that is not common to both ICU and Java 7. A schema definition error is expected.
+    Purpose: This test uses the word character construct (\w) with an encoding of 'UTF-8'.  A schema definition warning is expected.
   -->
   <tdml:parserTestCase name="testPatternWordChar"
     root="e17" model="s1" description="Section 7 - assert as a value">
@@ -1130,6 +1130,7 @@
     </tdml:infoset>
     <tdml:warnings>
       <tdml:warning>Schema Definition Warning</tdml:warning>
+      <tdml:warning>encoding is 'UTF-8' and \w was detected</tdml:warning>
     </tdml:warnings>
   </tdml:parserTestCase>
 
