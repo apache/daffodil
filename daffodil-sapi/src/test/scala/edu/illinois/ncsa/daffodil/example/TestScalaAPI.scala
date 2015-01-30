@@ -36,7 +36,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -45,10 +44,8 @@ import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.nio.channels.WritableByteChannel
 import java.util.List
-
 import org.jdom2.output.Format
 import org.junit.Test
-
 import edu.illinois.ncsa.daffodil.sapi.Daffodil
 import edu.illinois.ncsa.daffodil.sapi.DataProcessor
 import edu.illinois.ncsa.daffodil.sapi.Diagnostic
@@ -57,6 +54,8 @@ import edu.illinois.ncsa.daffodil.sapi.ParseResult
 import edu.illinois.ncsa.daffodil.sapi.ProcessorFactory
 import edu.illinois.ncsa.daffodil.sapi.logger.ConsoleLogWriter
 import edu.illinois.ncsa.daffodil.sapi.logger.LogLevel
+import edu.illinois.ncsa.daffodil.sapi.ValidationMode
+import edu.illinois.ncsa.daffodil.sapi.InvalidUsageException
 
 class TestScalaAPI {
 
@@ -786,6 +785,48 @@ class TestScalaAPI {
     assertTrue(debugger.lines
         .contains("----------------------------------------------------------------- 1\n"))
 
+    // reset the global logging and debugger state
+    Daffodil.setLogWriter(new ConsoleLogWriter())
+    Daffodil.setLoggingLevel(LogLevel.Info)
+    Daffodil.setDebugger(null)
+    Daffodil.setDebugging(false)
+  }
+  
+  // This is a duplicate of test testJavaAPI1 that serializes the parser
+  // before executing the test.
+  // Demonstrates that setting validation to Full for a saved parser fails.
+  //
+  @Test
+  def testJavaAPI1_A_FullFails() {
+    val lw = new LogWriterForSAPITest()
+    val debugger = new DebuggerRunnerForSAPITest()
+
+    Daffodil.setLogWriter(lw)
+    Daffodil.setLoggingLevel(LogLevel.Debug)
+    Daffodil.setDebugger(debugger)
+    Daffodil.setDebugging(true)
+
+    val c = Daffodil.compiler()
+    c.setValidateDFDLSchemas(false)
+    val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
+    val pf = c.compileFile(schemaFile)
+    val dp = pf.onPath("/")
+
+    // Serialize the parser to memory, then deserialize for parsing.
+    val os = new ByteArrayOutputStream()
+    val output = Channels.newChannel(os)
+    dp.save(output)
+
+    val is = new ByteArrayInputStream(os.toByteArray())
+    val input = Channels.newChannel(is)
+    val compiler = Daffodil.compiler()
+    val parser = compiler.reload(input)
+    
+    try {
+      parser.setValidationMode(ValidationMode.Full)
+      fail()
+    } catch { case e: InvalidUsageException => assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage())}
+    
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)

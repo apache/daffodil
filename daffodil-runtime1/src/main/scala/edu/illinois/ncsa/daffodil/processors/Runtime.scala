@@ -50,6 +50,19 @@ trait WithDiagnosticsImpl extends WithDiagnostics {
   //  }
 }
 
+class InvalidUsageException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
+
+/**
+ * This is the DataProcessor constructed from a saved Parser.
+ */
+class SerializableDataProcessor(val data: SchemaSetRuntimeData)
+  extends DataProcessor(data) {
+  override def setValidationMode(mode: ValidationMode.Type): Unit = {
+    if (mode == ValidationMode.Full) { throw new InvalidUsageException("'Full' validation not allowed when using a restored parser.") }
+    super.setValidationMode(mode)
+  }
+}
+
 /**
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
@@ -79,7 +92,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def save(output: DFDL.Output): Unit = {
     val oos = new ObjectOutputStream(new GZIPOutputStream(Channels.newOutputStream(output)))
-    oos.writeObject(this)
+    oos.writeObject(new SerializableDataProcessor(ssrd))
     oos.close()
   }
 

@@ -240,6 +240,22 @@ class TestCLISaveParser {
     shell.expect(eof())
     shell.close()
   }
+  
+  @Test def test_DFDL_1205_CLI_FullValidation_SavedParser_Incompatible() {
+
+    val cmd = Util.binPath + " save-parser -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd -r {target}matrix savedParser.xml\n"
+    val shell = Util.start(cmd, true)
+
+    var cmd2 = Util.binPath + " parse --parser savedParser.xml --validate daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
+    shell.send(cmd2)
+    
+    shell.expect(contains("[error]"))
+    shell.expect(contains("The validation mode 'Full' is invalid when using a saved parser."))
+
+    shell.send("exit\n")
+    shell.expect(eof())
+    shell.close()
+  }
 
   // See DFDL-1147
   /*@Test def test_3063_CLI_Saving_SaveParser_validate() {

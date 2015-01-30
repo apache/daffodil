@@ -68,6 +68,7 @@ import java.io.StreamCorruptedException
 import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -259,7 +260,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
 
       val dpObj = objInput.readObject()
       objInput.close()
-      val dp = dpObj.asInstanceOf[DataProcessor]
+      val dp = dpObj.asInstanceOf[SerializableDataProcessor]
       CheckJavaVersion.checkJavaVersion(dp.ssrd)
       dp
     } catch {

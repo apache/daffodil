@@ -283,19 +283,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
     val output = opt[String](argName = "file", descr = "write output to a given file. If not given or is -, output is written to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = {
-      val converter = optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map { x =>
-        x match {
-          case None => ValidationMode.Full
-          case Some(mode) => mode
-        }
-      }
-      val res = opt[ValidationMode.Type](short = 'V',
-        default = Some(ValidationMode.Off),
-        argName = "mode",
-        descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(converter)
-      res
-    }
+    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
+      case None => ValidationMode.Full
+      case Some(mode) => mode
+    })
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -310,6 +301,11 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (None, None, _) => Left("One of --schema or --parser must be defined")
       case (Some(_), Some(_), _) => Left("Only one of --parser and --schema may be defined")
       case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
+      case _ => Right(Unit)
+    }
+    
+    validateOpt(parser, validate){
+      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode 'Full' is invalid when using a saved parser.")
       case _ => Right(Unit)
     }
   }

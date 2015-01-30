@@ -562,7 +562,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) = {
 
-    val useSerializedParser = true
+    val useSerializedParser = if (validationMode == ValidationMode.Full ) false else true
     val nBits = lengthLimitInBits.get
     val dataToParse = data.get
 

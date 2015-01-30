@@ -55,8 +55,10 @@ import edu.illinois.ncsa.daffodil.japi.Diagnostic;
 import edu.illinois.ncsa.daffodil.japi.LocationInSchemaFile;
 import edu.illinois.ncsa.daffodil.japi.ParseResult;
 import edu.illinois.ncsa.daffodil.japi.ProcessorFactory;
+import edu.illinois.ncsa.daffodil.japi.ValidationMode;
 import edu.illinois.ncsa.daffodil.japi.logger.ConsoleLogWriter;
 import edu.illinois.ncsa.daffodil.japi.logger.LogLevel;
+import edu.illinois.ncsa.daffodil.japi.InvalidUsageException;
 
 public class TestJavaAPI {
 
@@ -187,6 +189,48 @@ public class TestJavaAPI {
 		assertTrue(debugger.lines
 				.contains("----------------------------------------------------------------- 1\n"));
 		assertTrue(debugger.getCommand().equals("trace"));
+
+		// reset the global logging and debugger state
+		Daffodil.setLogWriter(new ConsoleLogWriter());
+		Daffodil.setLoggingLevel(LogLevel.Info);
+		Daffodil.setDebugger(null);
+		Daffodil.setDebugging(false);
+	}
+
+	// This is a duplicate of test testJavaAPI1 that serializes the parser
+	// before executing the test.
+	@Test
+	public void testJavaAPI1_A_FullFails() throws IOException {
+		LogWriterForJAPITest lw = new LogWriterForJAPITest();
+		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
+
+		Daffodil.setLogWriter(lw);
+		Daffodil.setLoggingLevel(LogLevel.Debug);
+		Daffodil.setDebugger(debugger);
+		Daffodil.setDebugging(true);
+
+		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
+		c.setValidateDFDLSchemas(false);
+		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
+		ProcessorFactory pf = c.compileFile(schemaFile);
+		DataProcessor dp = pf.onPath("/");
+
+		// Serialize the parser to memory, then deserialize for parsing.
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		WritableByteChannel output = Channels.newChannel(os);
+		dp.save(output);
+
+		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
+		ReadableByteChannel input = Channels.newChannel(is);
+		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
+		DataProcessor parser = compiler.reload(input);
+
+		try {
+			parser.setValidationMode(ValidationMode.Full);
+			fail();
+		} catch (InvalidUsageException e) {
+			assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage());
+		}
 
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
@@ -429,7 +473,8 @@ public class TestJavaAPI {
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
-		java.io.File schemaFile = new java.io.File("/test/japi/notHere1.dfdl.xsd");
+		java.io.File schemaFile = new java.io.File(
+				"/test/japi/notHere1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		assertTrue(pf.isError());
 		List<Diagnostic> diags = pf.getDiagnostics();

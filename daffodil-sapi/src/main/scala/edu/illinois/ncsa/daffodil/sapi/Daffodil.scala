@@ -67,6 +67,7 @@ import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.compiler.{ InvalidParserException => SInvalidParserException }
+import edu.illinois.ncsa.daffodil.processors.{ InvalidUsageException => SInvalidUsageException }
 import org.xml.sax.InputSource
 import java.net.URI
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
@@ -447,7 +448,10 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
    *
    * @param mode mode to control validation
    */
-  def setValidationMode(mode: ValidationMode.Value): Unit = dp.setValidationMode(ValidationConversions.modeToScala(mode))
+  def setValidationMode(mode: ValidationMode.Value): Unit = {
+    try { dp.setValidationMode(ValidationConversions.modeToScala(mode)) }
+    catch { case e: SInvalidUsageException => throw new InvalidUsageException(e) }
+  }
 
   /**
    * Read external variables from a Daffodil configuration file
@@ -540,3 +544,8 @@ class ParseResult private[sapi] (pr: SParseResult)
  * is not in the GZIP format.
  */
 class InvalidParserException private[sapi] (cause: edu.illinois.ncsa.daffodil.compiler.InvalidParserException) extends Exception(cause.getMessage(), cause.getCause())
+
+/**
+ * This exception will be thrown as a result of an invalid usage of the Daffodil API
+ */
+class InvalidUsageException private[sapi] (cause: edu.illinois.ncsa.daffodil.processors.InvalidUsageException) extends Exception(cause.getMessage(), cause.getCause())
