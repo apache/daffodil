@@ -55,6 +55,7 @@ class CLIDebuggerRunner(cmdsIter: Iterator[String]) extends InteractiveDebuggerR
     val r = new ConsoleReader()
     r.setPrompt("(debug) ")
     r.addCompleter(id.DebugCommandBase.completer)
+    r.setExpandEvents(false)
     reader = Some(r)
   }
 
