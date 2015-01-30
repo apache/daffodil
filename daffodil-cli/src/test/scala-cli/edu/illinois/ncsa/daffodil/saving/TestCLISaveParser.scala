@@ -274,13 +274,13 @@ class TestCLISaveParser {
       shell.sendLine(cmd)
 
       shell.expect(contains("[error]"))
-      shell.expect(contains("The validation mode 'on' is invalid when using a saved parser."))
+      shell.expect(contains("The validation mode must be 'limited' or 'off' when using a saved parser."))
 
       val cmd2 = String.format("%s parse --parser %s --validate on %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd2)
 
       shell.expect(contains("[error]"))
-      shell.expect(contains("The validation mode 'on' is invalid when using a saved parser."))
+      shell.expect(contains("The validation mode must be 'limited' or 'off' when using a saved parser."))
 
       shell.sendLine("exit")
       shell.expect(eof())

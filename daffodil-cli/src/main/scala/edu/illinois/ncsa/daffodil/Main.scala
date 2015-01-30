@@ -322,13 +322,12 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
       case _ => Right(Unit)
     }
-
-    validateOpt(parser, validate) {
-      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode 'on' is invalid when using a saved parser.")
+    
+    validateOpt(parser, validate){
+      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(Unit)
     }
-    
-    
+
   }
 
   // Performance Subcommand Options
@@ -427,7 +426,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val save = new scallop.Subcommand("save-parser") {
     banner("""|Usage: daffodil save-parser -s <schema> [-r [{namespace}]<root>]
               |                            [-p <path>]
-              |                            [--validate [mode]] 
               |                            [-D[{namespace}]<variable>=<value>...]
               |                            [-c <file>] [outfile]
               |
@@ -442,10 +440,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val outfile = trailArg[String](required = false, descr = "output file to save parser. If not specified, or a value of -, writes to stdout.")
-    val validate: ScallopOption[ValidationMode.Type] = opt[ValidationMode.Type](short = 'V', default = Some(ValidationMode.Off), argName = "mode", descr = "the validation mode. 'on', 'limited' or 'off'. Defaults to 'on' if mode is not supplied.")(optionalValueConverter[ValidationMode.Type](a => validateConverter(a)).map {
-      case None => ValidationMode.Full
-      case Some(mode) => mode
-    })
     val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used.")
     val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
@@ -904,7 +898,7 @@ object Main extends Logging {
       case Some(conf.save) => {
         val saveOpts = conf.save
 
-        val validate = saveOpts.validate.get.get
+        val validate = ValidationMode.Off
 
         val cfgFileNode = saveOpts.config.get match {
           case None => None
