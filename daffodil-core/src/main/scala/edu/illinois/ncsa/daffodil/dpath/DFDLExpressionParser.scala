@@ -200,14 +200,14 @@ class DFDLPathExpressionParser(
   def ContextItemExpr = "."
   def AbbrevReverseStep = ".."
 
-  def SupportedForwardAxis = (("child" ~ "::") | ("self" ~ "::")) ^^ { case name ~ _ => name}
-  def UnsupportedForwardAxis = (("descendant" ~ "::") | ("attribute" ~ "::") | ("descendant-or-self" ~ "::") |
-    ("following-sibling" ~ "::") | ("following" ~ "::") |
-    ("namespace" ~ "::"))
-  def SupportedReverseAxis = ("parent" ~ "::") ^^ { case name ~ _ =>  name }
-  def UnsupportedReverseAxis = (("ancestor" ~ "::") |
-    ("preceding-sibling" ~ "::") | ("preceding" ~ "::") |
-    ("ancestor-or-self" ~ "::")) ^^ { case name ~ _ => name }
+  def SupportedForwardAxis = (("child" <~ "::") | ("self" <~ "::"))
+  def UnsupportedForwardAxis = (("descendant" <~ "::") | ("attribute" <~ "::") | ("descendant-or-self" <~ "::") |
+    ("following-sibling" <~ "::") | ("following" <~ "::") |
+    ("namespace" <~ "::"))
+  def SupportedReverseAxis = ("parent" <~ "::") 
+  def UnsupportedReverseAxis = (("ancestor" <~ "::") |
+    ("preceding-sibling" <~ "::") | ("preceding" <~ "::") |
+    ("ancestor-or-self" <~ "::")) 
 
   def EqualityComp = "eq" | "ne" | "!=" | "="
   def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">"
