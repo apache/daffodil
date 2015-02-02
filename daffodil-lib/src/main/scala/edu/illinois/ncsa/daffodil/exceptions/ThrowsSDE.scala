@@ -1,9 +1,4 @@
-package edu.illinois.ncsa.daffodil.exceptions
-
-import edu.illinois.ncsa.daffodil.dsom.LookupLocation
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
-
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -34,7 +29,11 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
-//
+
+package edu.illinois.ncsa.daffodil.exceptions
+
+import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 
 /**
  * ThrowsSDE has *only* termination semantics. I.e., SDE just throws. This

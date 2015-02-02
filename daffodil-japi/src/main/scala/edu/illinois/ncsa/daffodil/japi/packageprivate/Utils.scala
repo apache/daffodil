@@ -1,24 +1,3 @@
-package edu.illinois.ncsa.daffodil.japi.packageprivate
-// The compiler plugin that converts Scala code to Java code for Javadoc
-// generation has no concept of package private. So if there is anything that
-// should be package private and thus not part of the public API (e.g.
-// utilities for converting from Scala to Java), there isn't a way to exclude
-// them from Javadocs. So, when we generate Javadocs, we manually exclude
-// anything in the japiexclude package. So anything that should be package
-// private should go in this package.
-
-import edu.illinois.ncsa.daffodil.japi._
-import edu.illinois.ncsa.daffodil.japi.logger._
-import edu.illinois.ncsa.daffodil.japi.debugger._
-import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
-import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
-import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
-import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
-import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
-
-import scala.collection.JavaConversions._
-
 /* Copyright (c) 2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -50,6 +29,28 @@ import scala.collection.JavaConversions._
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.japi.packageprivate
+// The compiler plugin that converts Scala code to Java code for Javadoc
+// generation has no concept of package private. So if there is anything that
+// should be package private and thus not part of the public API (e.g.
+// utilities for converting from Scala to Java), there isn't a way to exclude
+// them from Javadocs. So, when we generate Javadocs, we manually exclude
+// anything in the japiexclude package. So anything that should be package
+// private should go in this package.
+
+import edu.illinois.ncsa.daffodil.japi._
+import edu.illinois.ncsa.daffodil.japi.logger._
+import edu.illinois.ncsa.daffodil.japi.debugger._
+import edu.illinois.ncsa.daffodil.api.{ ValidationMode => SValidationMode }
+import edu.illinois.ncsa.daffodil.util.{ LogLevel => SLogLevel }
+import edu.illinois.ncsa.daffodil.util.{ LogWriter => SLogWriter }
+import edu.illinois.ncsa.daffodil.util.{ Glob => SGlob }
+import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebugger => SInteractiveDebugger }
+import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInteractiveDebuggerRunner }
+
+import scala.collection.JavaConversions._
+
 
 private[japi] object LoggingConversions {
 

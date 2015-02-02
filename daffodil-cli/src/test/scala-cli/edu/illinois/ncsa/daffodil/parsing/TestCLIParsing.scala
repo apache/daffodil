@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.parsing
-
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.parsing
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.parsing
 
 import junit.framework.Assert._
 import org.junit.Test

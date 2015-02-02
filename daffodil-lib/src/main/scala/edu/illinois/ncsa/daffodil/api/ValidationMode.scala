@@ -1,11 +1,4 @@
-package edu.illinois.ncsa.daffodil.api
-
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.Enum
-
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -36,6 +29,14 @@ import edu.illinois.ncsa.daffodil.util.Enum
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.api
+
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.Enum
+
 
 object ValidationMode extends Enum {
   sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {

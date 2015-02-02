@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.CLI
-
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.CLI
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.CLI
 
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._

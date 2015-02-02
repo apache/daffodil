@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.saving
-
 /* Copyright (c) 2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.saving
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.saving
 
 import junit.framework.Assert._
 import org.junit.Test
