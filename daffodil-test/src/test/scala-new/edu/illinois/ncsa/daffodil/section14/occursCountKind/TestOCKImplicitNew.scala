@@ -45,11 +45,6 @@ class TestOCKImplicitNew {
   val res = Misc.getRequiredResource(aa)
   lazy val runner = new DFDLTestSuite(res)
   
-  // Waiting on DFDL-703 for clearer error message
-  @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }
-  // Waiting on DFDL-703 for clearer error message
-  @Test def test_ockImplicit4() { runner.runOneTest("ockImplicit4") }
-
   //Needs proper implementation of runtime check to generate SDE
   //@Test def test_ockImplicit14() { runner.runOneTest("ockImplicit14") }
 

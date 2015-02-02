@@ -49,13 +49,9 @@ class TestOCKImplicit {
   lazy val runner = new DFDLTestSuite(res)
 
   @Test def test_ockImplicit1() { runner.runOneTest("ockImplicit1") }
-
-  // Waiting on DFDL-703 for clearer error message
-  // @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }
-  // @Test def test_ockImplicit4() { runner.runOneTest("ockImplicit4") }
-
+  @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }
   @Test def test_ockImplicit3() { runner.runOneTest("ockImplicit3") }
-
+  @Test def test_ockImplicit4() { runner.runOneTest("ockImplicit4") }
   @Test def test_ockImplicit5() { runner.runOneTest("ockImplicit5") }
   @Test def test_ockImplicit6() { runner.runOneTest("ockImplicit6") }
   @Test def test_ockImplicit7() { runner.runOneTest("ockImplicit7") }
