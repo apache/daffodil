@@ -625,9 +625,8 @@ class TestDFDLExpressions {
   @Test def test_xfromtime_02() { runner2.runOneTest("xfromtime_02") }
   @Test def test_xfromtime_03() { runner2.runOneTest("xfromtime_03") }
 
-  // DFDL-1111
-  //@Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
-  //@Test def test_fn_text_02() { runner2.runOneTest("fn_text_02") }
+  @Test def test_fn_text_01() { runner2.runOneTest("fn_text_01") }
+  @Test def test_fn_text_02() { runner2.runOneTest("fn_text_02") }
 
   @Test def test_ubyte_constructor_01() { runner2.runOneTest("ubyte_constructor_01") }
   @Test def test_ubyte_constructor_02() { runner2.runOneTest("ubyte_constructor_02") }
