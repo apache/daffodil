@@ -7,6 +7,56 @@
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"  
   xmlns:fn="http://www.w3.org/2005/xpath-functions">
   
+  <tdml:defineSchema name="diagnostics">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
+
+    <xs:element name="e1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="inval" type="xs:string" dfdl:inputValueCalc="{ /invalid! }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="inval" type="xs:string" dfdl:inputValueCalc="{ ! }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="e3">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="1" maxOccurs="10"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="inval" type="xs:string" dfdl:inputValueCalc="{ ././.\\/ }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
   <tdml:defineSchema name="paths">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"/>
 
@@ -6258,6 +6308,57 @@ c' } "  />
     <tdml:document>1,2,3</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: diagnostics_01
+        Schema: diagnostics 
+          Root: e1
+       Purpose: This test demonstrates that DFDL will provide meaningful diagnostics for invalid path expressions 
+  -->
+
+  <tdml:parserTestCase name="diagnostics_01" root="e1"
+    model="diagnostics" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+     Test Name: diagnostics_02
+        Schema: diagnostics 
+          Root: e2
+       Purpose: This test demonstrates that DFDL will provide meaningful diagnostics for invalid path expressions 
+  -->
+
+  <tdml:parserTestCase name="diagnostics_02" root="e2"
+    model="diagnostics" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+
+  <!--
+     Test Name: diagnostics_03
+        Schema: diagnostics 
+          Root: e3
+       Purpose: This test demonstrates that DFDL will provide meaningful diagnostics for invalid path expressions 
+  -->
+
+  <tdml:parserTestCase name="diagnostics_03" root="e3"
+    model="diagnostics" description="Section 23 - DFDL Expressions">
+
+    <tdml:document>1,2,3</tdml:document>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Invalid</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
