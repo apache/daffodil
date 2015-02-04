@@ -47,6 +47,11 @@ class TestDFDLExpressionsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  
+  //DFDL-1146
+  @Test def test_attribute_axis_01() { runner.runOneTest("attribute_axis_01") }
+  @Test def test_attribute_axis_02() { runner.runOneTest("attribute_axis_02") }
+  @Test def test_attribute_axis_03() { runner.runOneTest("attribute_axis_03") }
 
   //DFDL-1111
   @Test def test_diagnostics_01() { runner.runOneTest("diagnostics_01") }
