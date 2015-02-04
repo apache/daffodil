@@ -72,6 +72,9 @@ class TestDFDLExpressions {
 
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
+
+  //DFDL-1221
+  //@Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
   
   @Test def test_sequenceReturned_01() { runner.runOneTest("sequenceReturned_01") }
   @Test def test_sequenceReturned_02() { runner.runOneTest("sequenceReturned_02") }

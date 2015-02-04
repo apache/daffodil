@@ -47,6 +47,9 @@ class TestDFDLExpressionsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
   val tdml = testDir + "expressions.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  //DFDL-1221
+  @Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
   
   //DFDL-1035 - tests need better diagnostic
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
