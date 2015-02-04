@@ -49,6 +49,35 @@ import net.sf.expectit.matcher.Matchers.times
 
 class TestCLIdebugger {
 
+  @Test def test_3385_CLI_Debugger_invalidExpressions() {
+    val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("(debug)"))
+
+    shell.send("eval (/invalid)\n")
+    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+    shell.expect(contains("(debug)"))
+    
+    shell.send("eval (func())\n")
+    shell.expect(contains("error: expression evaluation failed: Schema Definition Error: Unsupported function:"))
+    shell.expect(contains("(debug)"))
+    
+    shell.send("eval (/invalid!)\n")
+    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+    shell.expect(contains("(debug)"))
+
+    shell.send("eval (!)\n")
+    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+    shell.expect(contains("(debug)"))
+
+    shell.send("eval (././.\\/)\n")
+    shell.expect(contains("error: expression evaluation failed: Schema Definition Error:"))
+    shell.expect(contains("(debug)"))
+
+    shell.send("quit\n")
+    shell.close()
+  }
+  
   @Test def test_3263_CLI_Debugger_occursBounds() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
