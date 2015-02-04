@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.japi.logger
-
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.japi.logger
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.japi.logger
 
 import java.io.File
 import edu.illinois.ncsa.daffodil.japi.packageprivate._

@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.util
-
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.util
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.util
 
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.exceptions._

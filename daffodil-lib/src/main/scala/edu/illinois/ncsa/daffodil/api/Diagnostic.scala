@@ -1,8 +1,4 @@
-package edu.illinois.ncsa.daffodil.api
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
-import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -33,6 +29,11 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.api
+
+import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
+import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 
 /**
  * Base trait for all error, warning, info, and other sorts of objects

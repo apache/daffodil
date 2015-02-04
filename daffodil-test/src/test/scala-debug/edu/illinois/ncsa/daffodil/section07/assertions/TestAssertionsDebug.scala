@@ -1,6 +1,4 @@
-package edu.illinois.ncsa.daffodil.section07.assertions
-
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.section07.assertions
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.section07.assertions
 
 import org.junit.Test
 import junit.framework.Assert._

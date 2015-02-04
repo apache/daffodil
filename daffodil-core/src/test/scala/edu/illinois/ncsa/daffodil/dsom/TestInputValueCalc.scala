@@ -1,6 +1,4 @@
-package edu.illinois.ncsa.daffodil.dsom
-
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.dsom
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.compiler._

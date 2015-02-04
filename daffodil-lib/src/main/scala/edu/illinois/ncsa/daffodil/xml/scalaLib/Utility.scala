@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.xml.scalaLib
-
 /**
  * Adapted from Scala libraries so their copyright is preserved here.
  *
@@ -16,6 +14,9 @@ package edu.illinois.ncsa.daffodil.xml.scalaLib
 ** /____/\___/_/ |_/____/_/ | |                                         **
 **                          |/                                          **
 \*                                                                      */
+
+package edu.illinois.ncsa.daffodil.xml.scalaLib
+
 import scala.xml._
 import scala.collection.mutable
 import parsing.XhtmlEntities
@@ -32,6 +33,7 @@ object Utility extends AnyRef with parsing.TokenTests {
 
   // [Martin] This looks dubious. We don't convert StringBuilders to
   // Strings anywhere else, why do it here?
+
   implicit def implicitSbToString(sb: StringBuilder) = sb.toString()
 
   // helper for the extremely oft-repeated sequence of creating a

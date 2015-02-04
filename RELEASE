@@ -24,16 +24,4 @@ STEPS TO RELEASE
 
 5) Publish to NCSA servers
 
-	$ sbt publish-signed
-
-6) Build the release tar/zip
-
-	$ sbt universal:packageBin
-	$ sbt universal:packageZipTarball
-
-7) Upload pack files to wiki at https://opensource.ncsa.illinois.edu/confluence/display/DFDL/Getting+Daffodil
-
-	$ cd daffodil-cli/target/universal/
-	$ gunzip --stdout *.tgz | bzip2 > $(basename *.tgz .tgz).tar.bz2
-	$ rm *.tgz
-	$ sha256sum daffodil-*
+	$ sbt publishSigned

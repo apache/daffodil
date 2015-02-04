@@ -1,7 +1,3 @@
-package edu.illinois.ncsa.daffodil.processors
-
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
-
 /* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -69,6 +65,11 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
  * Created By: Alejandro Rodriguez < alejandr @ ncsa . uiuc . edu >
  * Date: 2010
  */
+
+package edu.illinois.ncsa.daffodil.processors
+
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+
 
 /**
  * The resulting state after invoking a BasicProcessor

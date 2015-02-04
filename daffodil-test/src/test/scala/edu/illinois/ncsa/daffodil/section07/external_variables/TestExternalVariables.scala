@@ -1,5 +1,3 @@
-package edu.illinois.ncsa.daffodil.section07.external_variables
-
 /* Copyright (c) 2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -31,6 +29,8 @@ package edu.illinois.ncsa.daffodil.section07.external_variables
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
  * SOFTWARE.
  */
+
+package edu.illinois.ncsa.daffodil.section07.external_variables
 
 import edu.illinois.ncsa.daffodil.xml._
 import junit.framework.Assert._
