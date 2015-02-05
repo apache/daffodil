@@ -61,6 +61,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.dpath.DState
+import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
+import scala.collection.mutable.ArrayStack
 
 case class MPState() {
 
@@ -85,6 +87,24 @@ case class MPState() {
     occursBoundsStack.push(ob)
   }
   def occursBounds = occursBoundsStack.top
+
+  val escapeSchemeStack = new ArrayStack[EscapeSchemeStackNodeBase]
+  def pushEscapeScheme(node: EscapeSchemeStackNodeBase) = escapeSchemeStack.push(node)
+  def popEscapeScheme() = escapeSchemeStack.pop
+  def currentEscapeScheme = {
+    escapeSchemeStack.top match {
+      case s: EscapeSchemeStackNode => One(s.scheme)
+      case _: EscapeKindNoneStackNode => Nope
+    }
+  }
+
+  val delimiterStack = new ArrayStack[DelimiterStackNode]()
+  def pushDelimiters(node: DelimiterStackNode) = delimiterStack.push(node)
+  def popDelimiters() = delimiterStack.pop
+  def localDelimiters = delimiterStack.top
+  def remoteDelimiters = delimiterStack.tail
+  def getAllTerminatingMarkup = delimiterStack.iterator.flatMap { _.getTerminatingMarkup }.toSeq
+  def getAllDelimitersWithPos = delimiterStack.iterator.flatMap { _.getDelimitersWithPos }.toSeq
 
   var foundDelimiter: Maybe[FoundDelimiterText] = Nope
 

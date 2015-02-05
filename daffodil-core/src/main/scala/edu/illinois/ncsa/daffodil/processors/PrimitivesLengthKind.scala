@@ -49,11 +49,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterMatcher
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.Registers
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
@@ -64,7 +60,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.processors.dfa.DelimsMatcher
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInBytesParser
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
@@ -82,14 +77,13 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsParser
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryStatic
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryDynamic
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.parsers.HasPadding
 import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringFixedLengthInBytesFixedWidthCharactersUnparser
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -346,12 +340,7 @@ abstract class StringDelimited(e: ElementBase)
     else Some(new TextPaddingParser(pad.get, e.runtimeData, e.encodingInfo))
   }
 
-  lazy val escapeSchemeFactory = createEscSchemeFactory
-  lazy val delimiterFactory = createDelimiterFactory
-  lazy val fieldFactory = createFieldFactory
-  lazy val parserFactory = createParserFactory
-
-  def createEscSchemeFactory: Option[EscapeSchemeFactoryBase] = {
+  lazy val isEscapeSchemeConstant = {
     if (es.isDefined) {
       val scheme = es.get
       val isConstant = scheme.escapeKind match {
@@ -366,51 +355,41 @@ abstract class StringDelimited(e: ElementBase)
               scheme.optionEscapeEscapeCharacter.get.isConstant)
         }
       }
+      isConstant
+    } else false
+  }
+
+  lazy val escapeSchemeFactory = createEscSchemeFactory
+  lazy val fieldFactory = createFieldFactory
+  lazy val parserFactory = createParserFactory
+
+  def createEscSchemeFactory: Option[EscapeSchemeFactoryBase] = {
+    if (es.isDefined) {
+      val scheme = es.get
 
       val theScheme = {
-        if (isConstant) new EscapeSchemeFactoryStatic(scheme.escapeScheme, context.runtimeData)
-        else new EscapeSchemeFactoryDynamic(scheme.escapeScheme, context.runtimeData)
+        if (isEscapeSchemeConstant) EscapeSchemeFactoryStatic(scheme.escapeScheme, context.runtimeData)
+        else EscapeSchemeFactoryDynamic(scheme.escapeScheme, context.runtimeData)
       }
 
       Some(theScheme)
     } else None
   }
 
-  def createDelimiterFactory: DelimiterFactoryBase = {
-    val factory =
-      if (hasDynamicDelims) {
-        new DelimiterFactoryDynamic(e.allTerminatingMarkup, context.runtimeData)
-      } else {
-        new DelimiterFactoryStatic(e.allTerminatingMarkup, context.runtimeData)
-      }
-    factory
-  }
-
   def createFieldFactory: FieldFactoryBase = {
-    val hasDynamicEscapeScheme =
-      escapeSchemeFactory.getOrElse(false).isInstanceOf[EscapeSchemeFactoryDynamic]
+    val fieldDFAFact = {
+      if (escapeSchemeFactory.isDefined) {
+        if (isEscapeSchemeConstant) FieldFactoryStatic(escapeSchemeFactory, context.runtimeData)
+        else FieldFactoryDynamic(escapeSchemeFactory, context.runtimeData)
+      } else { FieldFactoryStatic(escapeSchemeFactory, context.runtimeData) }
+    }
 
-    val fieldDFAFact =
-      if (!hasDynamicDelims && !hasDynamicEscapeScheme)
-        new FieldFactoryStatic(escapeSchemeFactory.asInstanceOf[Option[EscapeSchemeFactoryStatic]],
-          delimiterFactory.asInstanceOf[DelimiterFactoryStatic], context.runtimeData)
-      else new FieldFactoryDynamic(escapeSchemeFactory, delimiterFactory, context.runtimeData)
     fieldDFAFact
   }
 
-  def createParserFactory: TextDelimitedParserFactoryBase = {
-    val theParserFact = fieldFactory match {
-      case ffs: FieldFactoryStatic => {
-        val pStatic = new TextDelimitedParserFactoryStatic(
-          justificationTrim, pad, e.encodingInfo, ffs, context.runtimeData)
-        pStatic
-      }
-      case ffd: FieldFactoryDynamic => {
-        val pDynamic = new TextDelimitedParserFactoryDynamic(
-          justificationTrim, pad, e.encodingInfo, ffd, context.runtimeData)
-        pDynamic
-      }
-    }
+  def createParserFactory: TextDelimitedParserFactory = {
+    val theParserFact = TextDelimitedParserFactory(
+      justificationTrim, pad, e.encodingInfo, fieldFactory, escapeSchemeFactory, context.runtimeData)
     theParserFact
   }
 
@@ -434,7 +413,6 @@ abstract class StringDelimited(e: ElementBase)
     fieldFactory,
     parserFactory,
     isDelimRequired,
-    e.allTerminatingMarkup,
     e.encodingInfo)
 
   //def unparser: Unparser = new DummyUnparser(e)
@@ -455,7 +433,6 @@ abstract class HexBinaryDelimited(e: ElementBase)
     fieldFactory,
     parserFactory,
     isDelimRequired,
-    e.allTerminatingMarkup,
     e.encodingInfo)
 
 }
@@ -479,7 +456,6 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       pad,
       fieldFactory,
       parserFactory,
-      eb.allTerminatingMarkup,
       nilValuesCooked,
       eb.encodingInfo)
 

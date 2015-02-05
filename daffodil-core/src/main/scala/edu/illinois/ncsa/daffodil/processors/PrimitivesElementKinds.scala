@@ -49,6 +49,45 @@ import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
+import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeStackParser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
+
+case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
+  val isLengthKindDelimited =
+    if (sq.enclosingElement.isDefined) { sq.enclosingElement.get.lengthKind == LengthKind.Delimited }
+    else false
+
+  def parser: DaffodilParser = new DelimiterStackParser(Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
+    sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, isLengthKindDelimited, sq.runtimeData, body.parser)
+}
+
+case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Terminal(ch, !body.isEmpty) {
+  val isLengthKindDelimited =
+    if (ch.enclosingElement.isDefined) { ch.enclosingElement.get.lengthKind == LengthKind.Delimited }
+    else false
+
+  def parser: DaffodilParser = new DelimiterStackParser(Some(ch.initiator), None, Some(ch.terminator),
+    ch.initiatorLoc, None, ch.terminatorLoc, isLengthKindDelimited, ch.runtimeData, body.parser)
+}
+
+case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+  val isLengthKindDelimited = e.lengthKind == LengthKind.Delimited
+
+  def parser: DaffodilParser = new DelimiterStackParser(Some(e.initiator), None, Some(e.terminator),
+    e.initiatorLoc, None, e.terminatorLoc, isLengthKindDelimited, e.runtimeData, body.parser)
+}
+
+case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+
+  val schemeOpt = e.optionEscapeScheme.map{_.escapeScheme}
+
+  def parser: DaffodilParser = new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
+  override def unparser: DaffodilUnparser = new EscapeSchemeStackUnparser(schemeOpt, e.runtimeData, body.unparser)
+}
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 

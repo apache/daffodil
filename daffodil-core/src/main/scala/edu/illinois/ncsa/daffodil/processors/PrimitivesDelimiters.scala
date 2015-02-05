@@ -30,52 +30,42 @@
  * SOFTWARE.
  */
 
+
 package edu.illinois.ncsa.daffodil.processors
 
 import java.nio.ByteBuffer
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.grammar.Gram
+
+import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.compiler._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
-import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import scala.util.parsing.input.{ Reader }
+import edu.illinois.ncsa.daffodil.grammar.Gram
+import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextParser
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.processors.parsers.DynamicTextDelimiterValues
-import edu.illinois.ncsa.daffodil.processors.parsers.DynamicTextParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StaticTextDelimiterValues
-import edu.illinois.ncsa.daffodil.processors.parsers.StaticTextParser
+import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 
-abstract class StaticDelimiter(kindString: String, delim: String, e: Term, eb: Term, guard: Boolean = true)
-  extends StaticText(delim, e, eb, kindString, guard)
-
-abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
-  extends Text(e, eb, guard) //extends DelimParserBase(e, guard)
-  with DelimiterText {
-  
-  val isInitiator: Boolean = false
-
-  Assert.invariant(delim != "") // shouldn't be here at all in this case.
-
-  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
-
-  lazy val delimValues = new StaticTextDelimiterValues(delim, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
-  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
-
-  lazy val parser: DaffodilParser = new StaticTextParser(e.runtimeData, delimValues, kindString, textParser, positionalInfo, e.encodingInfo, isInitiator)
+trait ComputesValueFoundInstead {
+  def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
+    val dl = state.currentLocation.asInstanceOf[DataLoc]
+    val foundInstead = dl.utf8Dump(maxDelimiterLength)
+    foundInstead
+  }
 }
 
 abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(es, guard) {
+
   lazy val oes = {
     val oes = e.optionEscapeScheme
     oes.foreach { es =>
@@ -182,79 +172,42 @@ abstract class Text(es: Term, e: Term, guard: Boolean) extends DelimParserBase(e
 
 }
 
-trait DelimiterText {
+// NOTE: LiteralNil still uses this as it can only be Static/Constant
+//
+abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, guard: Boolean = true)
+  extends Text(e, eb, guard) with ComputesValueFoundInstead {
 
-  val maxLengthForVariableLengthDelimiter = DaffodilTunableParameters.maxLengthForVariableLengthDelimiterDisplay
+  Assert.invariant(delim != "") // shouldn't be here at all in this case.
 
-  def computeMaxDelimiterLength(allDelims: Set[String]): Int = {
-    val variableLengthDelims = allDelims.filter(d => d.contains("%WSP*;") || d.contains("%WSP+;"))
-    val allDelimsMinusVariableLength = allDelims -- variableLengthDelims
+  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-    val maxLengthDelim = {
-      val lengths = allDelimsMinusVariableLength.map(_.length)
-      val vLengths = variableLengthDelims.map(_.length)
-
-      (variableLengthDelims.size, lengths.size) match {
-        case (0, 0) => maxLengthForVariableLengthDelimiter
-        case (0, _) => lengths.max
-        case (_, 0) => maxLengthForVariableLengthDelimiter
-        case (_, _) if vLengths.max > lengths.max => maxLengthForVariableLengthDelimiter
-        case (_, _) if vLengths.max <= lengths.max => lengths.max
-        case _ => maxLengthForVariableLengthDelimiter
-      }
-    }
-    maxLengthDelim
-  }
-
-  def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    val dl = state.currentLocation.asInstanceOf[DataLoc]
-    val foundInstead = dl.utf8Dump(maxDelimiterLength)
-    foundInstead
-  }
+  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 }
 
-abstract class DynamicText(delimExpr: CompiledExpression, e: Term, kindString: String, guard: Boolean = true)
-  extends Text(e, e, guard)
-  with DelimiterText {
-
-  val  isInitiator: Boolean = false // overridden in iniitator-related classes
+abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression, e: Term, eb: Term, guard: Boolean = true)
+  extends Text(e, eb, guard) with ComputesValueFoundInstead {
   
-  lazy val delimValues = new DynamicTextDelimiterValues(delimExpr, e.allTerminatingMarkup, e.encodingInfo, e.runtimeData)
+   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+
   lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
 
-  lazy val parser: DaffodilParser = new DynamicTextParser(e.runtimeData, delimExpr, delimValues, kindString, textParser, positionalInfo, e.allTerminatingMarkup, e.encodingInfo, isInitiator)
+  def delimiterType: DelimiterTextType.Type
 
+  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.runtimeData, delimExpr, kindString, textParser, positionalInfo, e.encodingInfo, delimiterType)
 }
 
-abstract class DynamicDelimiter(kindString: String, delimExpr: CompiledExpression, e: Term, guard: Boolean = true)
-  extends DynamicText(delimExpr, e, kindString, guard)
-
-//case class StaticInitiator(e: Term) extends StaticDelimiter(e.initiator.constantAsString, e)
-case class StaticInitiator(e: Term) extends StaticDelimiter("Init", e.initiator.constantAsString, e, e) {
+case class Initiator(e: Term) extends DelimiterText("Init", e.initiator, e, e) {
   Assert.invariant(e.hasInitiator)
-  
-  override val isInitiator: Boolean = true
-  lazy val unparserDelim = e.initiator.constantAsString.split("""\s""").head
+  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Initiator
 }
-//case class StaticTerminator(e : Term) extends StaticDelimiter(e.terminator.constantAsString, e)
-case class StaticTerminator(e: Term) extends StaticDelimiter("Term", e.terminator.constantAsString, e, e) {
-  Assert.invariant(e.hasTerminator)
-
-  lazy val unparserDelim = e.terminator.constantAsString.split("""\s""").head
-}
-case class DynamicInitiator(e: Term) extends DynamicDelimiter("Init", e.initiator, e){
-  override val isInitiator: Boolean = true
-}
-case class DynamicTerminator(e: Term) extends DynamicDelimiter("Term", e.terminator, e)
-
-// Note: for a static separator, we pass s, the sequence, because that is where
-// the charset encoding comes from. 
-case class StaticSeparator(s: Sequence, t: Term) extends StaticDelimiter("Sep", s.separator.constantAsString, s, t) {
+case class Separator(s: Sequence, t: Term) extends DelimiterText("Sep", s.separator, s, t) {
   Assert.invariant(s.hasSeparator)
-
-  lazy val unparserDelim = s.separator.constantAsString.split("""\s""").head
+  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Separator
 }
-case class DynamicSeparator(s: Sequence, t: Term) extends DynamicDelimiter("Sep", s.separator, s)
+case class Terminator(e: Term) extends DelimiterText("Term", e.terminator, e, e) {
+  Assert.invariant(e.hasTerminator)
+  val delimiterType: DelimiterTextType.Type = DelimiterTextType.Terminator
+}
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"

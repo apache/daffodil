@@ -42,13 +42,16 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 class TextPaddingParser(val padChar: Char,
   override val context: RuntimeData,
   override val encodingInfo: EncodingInfo)
-  extends Parser with RuntimeEncodingMixin {
+  extends Parser {
+  
+  lazy val name: String = "TextPaddingParser"
+  lazy val info: String =  "padChar='" + padChar + "'"
 
   val paddingDFA = CreatePaddingDFA(padChar)
 
-  def parse(input: DFDLCharReader): Maybe[ParseResult] = {
+  def parse(input: DFDLCharReader, delims: Seq[DFADelimiter]): Maybe[ParseResult] = {
 
-    val paddingReg: Registers = new Registers
+    val paddingReg: Registers = new Registers(delims)
 
     paddingReg.reset(input, 0)
 

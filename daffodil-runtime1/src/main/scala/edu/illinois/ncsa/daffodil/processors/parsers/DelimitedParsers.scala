@@ -51,14 +51,13 @@ import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.dfa.DelimsMatcher
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
+import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
@@ -68,19 +67,12 @@ class StringDelimitedParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactoryBase,
+  pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean,
-  allTerminatingMarkup: List[(CompiledExpression, String, String)],
   override val encodingInfo: EncodingInfo)
   extends PrimParser(erd)
   with TextReader
   with RuntimeEncodingMixin {
-
-  lazy val delimListForPrint = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue.prettyExpr }
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    "<" + erd.prettyName + " " + delimListForPrint + "/>"
-  }
-  override def toString = erd.prettyName + "(" + delimListForPrint + ")"
 
   val dp = new DFDLDelimParser(erd, encodingInfo)
 
@@ -109,7 +101,7 @@ class StringDelimitedParser(
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val (postEvalState, textParser, delimsCooked) = pf.getParser(start)
+    val (postEvalState, textParser, delims, delimsCooked, fieldDFA, scheme) = pf.getParser(start)
 
     val bytePos = (postEvalState.bitPos >> 3).toInt
 
@@ -119,7 +111,12 @@ class StringDelimitedParser(
     start.mpstate.clearDelimitedText
 
     val result = try {
-      textParser.parse(reader, isDelimRequired)
+      if (scheme.isDefined) {
+        scheme.get match {
+          case s: EscapeSchemeBlock => textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(reader, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+          case s: EscapeSchemeChar => textParser.parse(reader, fieldDFA, delims, isDelimRequired)
+        }
+      } else textParser.parse(reader, fieldDFA, delims, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
         throw new ParseError(One(erd.schemaFileLocation), Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
@@ -133,11 +130,10 @@ class LiteralNilDelimitedEndOfDataParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactoryBase,
-  allTerminatingMarkup: List[(CompiledExpression, String, String)],
+  pf: TextDelimitedParserFactory,
   nilValues: Seq[String],
   encInfo: EncodingInfo)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, allTerminatingMarkup, encInfo) {
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, encInfo) {
 
   val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
@@ -181,11 +177,10 @@ class HexBinaryDelimitedParser(
   justificationTrim: TextJustificationType.Type,
   pad: Maybe[Char],
   ff: FieldFactoryBase,
-  pf: TextDelimitedParserFactoryBase,
+  pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean,
-  allTerminatingMarkup: List[(CompiledExpression, String, String)],
   encInfo: EncodingInfo)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, allTerminatingMarkup, encInfo) {
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, encInfo) {
 
   override lazy val dcharset = new DFDLCharset("ISO-8859-1")
 

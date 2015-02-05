@@ -447,7 +447,7 @@ johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
 ]]></document>
    <errors>
-     <error>Parse Error: Sep('%NL;') - sequence: Delimiter not found!</error>
+     <error>Parse Error: Sep('CompiledExpression(%NL;)') - sequence: Delimiter not found!</error>
      <error>Was looking for (%NL;) but found "03-2" instead.</error>
    </errors>
   </parserTestCase>

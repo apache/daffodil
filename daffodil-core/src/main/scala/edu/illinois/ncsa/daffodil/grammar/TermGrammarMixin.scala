@@ -132,13 +132,10 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
   def hasES = nearestEnclosingSequence != None
   def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
-  lazy val staticSeparator = Prod("staticSeparator", this, !ignoreES && hasES && es.separator.isConstant,
-    StaticSeparator(es, self))
+  lazy val separatorItself = Prod("separator", this, !ignoreES && hasES ,
+    Separator(es, self))
 
-  lazy val dynamicSeparator = Prod("dynamicSeparator", this, !ignoreES && hasES && !es.separator.isConstant,
-    DynamicSeparator(es, self))
-
-  lazy val sepRule = staticSeparator | dynamicSeparator
+  lazy val sepRule = separatorItself
 
   lazy val prefixSep = Prod("prefixSep", this,
     {

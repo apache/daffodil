@@ -649,7 +649,9 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[$A$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!-- Not sure we can do this anymore as we're using CompiledExpression if anything
+    	 It'll look like Sep('CompiledExpression($)') instead of Sep('$') -->
+    <!--  <tdml:error>Parse Error: Sep('$')</tdml:error> -->
     <tdml:error>after element.A and before element.B</tdml:error>
     <tdml:error>Found delimiter ($$) for element.E1 when looking for Sep($) for element.E1::LocalComplexTypeDef::sequence</tdml:error>
     </tdml:errors>
@@ -659,7 +661,9 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!-- Not sure we can do this anymore as we're using CompiledExpression if anything
+    	 It'll look like Sep('CompiledExpression($)') instead of Sep('$') -->
+    <!-- <tdml:error>Parse Error: Sep('$')</tdml:error> -->
     <tdml:error>after element.A and before element.B</tdml:error>
     <tdml:error>Found delimiter ($$) for element.E2 when looking for Sep($) for element.E2::LocalComplexTypeDef::sequence</tdml:error>
     </tdml:errors>
@@ -669,7 +673,9 @@
     model="ReqFieldMissingAndSepIsPrefixOfTerminator">
     <tdml:document><![CDATA[A$$B$$]]></tdml:document>
     <tdml:errors>
-    <tdml:error>Parse Error: Sep('$')</tdml:error>
+    <!-- Not sure we can do this anymore as we're using CompiledExpression if anything
+    	 It'll look like Sep('CompiledExpression($)') instead of Sep('$') -->
+    <!-- <tdml:error>Parse Error: Sep('$')</tdml:error> -->
     <tdml:error>before element.B</tdml:error>
     <tdml:error>Found delimiter ($$) for element.E3 when looking for Sep($) for element.E3::LocalComplexTypeDef::sequence</tdml:error>
     </tdml:errors>

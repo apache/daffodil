@@ -50,6 +50,7 @@ trait SequenceGrammarMixin { self: Sequence =>
   }
 
   lazy val orderedSequenceContent = Prod("sequenceContent", this, SequenceCombinator(this, terms.foldRight(mt)(folder)))
+
   lazy val unorderedSequenceContent = {
     val uoseq = self.unorderedSeq.get
     Prod("unorderedSequenceContent", this, SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))

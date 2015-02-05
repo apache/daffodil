@@ -38,151 +38,30 @@ import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.dsom._
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
+import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteralES
+import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
-import edu.illinois.ncsa.daffodil.processors.dfa.DFA
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
-import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterMatcher
-import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.Registers
-import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
-import edu.illinois.ncsa.daffodil.processors.dfa.TextPaddingParser
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
-import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.util.Logging
-import edu.illinois.ncsa.daffodil.processors.dfa.DelimsMatcher
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInBytesFixedWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInBytesVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInBytesVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsParser
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryStatic
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryDynamic
-import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactoryBase
-import edu.illinois.ncsa.daffodil.processors.parsers.HasPadding
-import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
-
-class Delimiters(delimDFAs: DFADelimiter, delims: List[String])
-
-/**
- * Here allTerminatingMarkup is a List[(CompiledExpression, ElementName, ElementPath)]
- */
-sealed abstract class DelimiterFactoryBase(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE) extends Logging with Serializable {
-
-  // These static delims are used whether we're static or dynamic
-  // because even a dynamic can have some static from enclosing scopes.
-  val staticDelimsRaw = allTerminatingMarkup.filter {
-    case (delimValue, _, _) => delimValue.isConstant
-  }.map {
-    case (delimValue, _, _) => delimValue.constantAsString
-  }
-
-  val dynamicDelimsRaw = allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }
-
-  val staticDelimsCooked = staticDelimsRaw.map(raw => { new ListOfStringValueAsLiteral(raw.toString, context).cooked }).flatten
-  val staticDelimsDFAs = { CreateDelimiterDFA(staticDelimsCooked) }
-
-  /**
-   * Called at compile time in static case, at runtime for dynamic case.
-   */
-  def errorIfDelimsHaveWSPStar(delims: List[String], ctxt: ThrowsSDE): Unit = {
-    if (delims.filter(x => x == "%WSP*;").length > 0) {
-      // We cannot detect this error until expressions have been evaluated!
-      log(LogLevel.Debug, "%s - Failed due to WSP* detected as a delimiter for lengthKind=delimited.", context.toString())
-      ctxt.schemaDefinitionError("WSP* cannot be used as a delimiter when lengthKind=delimited.")
-    }
-  }
-
-  protected def constEval(knownValue: String) = {
-    val l = new StringValueAsLiteral(knownValue, context)
-    val constValue = l.cooked
-    constValue
-  }
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap])
-
-}
-
-case class DelimiterFactoryStatic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE)
-  extends DelimiterFactoryBase(allTerminatingMarkup, context) {
-
-  errorIfDelimsHaveWSPStar(staticDelimsCooked, context)
-
-  val delimsMatcher = CreateDelimiterMatcher(staticDelimsDFAs)
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
-    (staticDelimsDFAs, delimsMatcher, staticDelimsCooked, Some(pstate.variableMap))
-  }
-}
-
-case class DelimiterFactoryDynamic(allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  context: ThrowsSDE)
-  extends DelimiterFactoryBase(allTerminatingMarkup, context)
-  with Dynamic {
-
-  val tmCE = allTerminatingMarkup.map { case (delimValue, _, _) => delimValue }
-  val dynamicDelimsCached: List[CachedDynamic[String]] = cacheConstantExpression(tmCE) {
-    (a: Any) => constEval(a.asInstanceOf[String])
-  }
-
-  def getDelimValue(knownValue: String, state: PState): String = {
-    val l = new StringValueAsLiteral(knownValue, state)
-    l.cooked
-  }
-
-  def getDelims(pstate: PState): (Seq[DFADelimiter], DelimsMatcher, List[String], Option[VariableMap]) = {
-
-    // Evaluate dynamic delimiters if they exist
-    val (afterDelimEval, dynamicDelimsCooked) = evalWithConversion(pstate, dynamicDelimsCached) {
-      (s: PState, c: Any) =>
-        {
-          getDelimValue(c.asInstanceOf[String], s)
-        }
-    }
-    val vars = afterDelimEval.variableMap
-
-    // Combine dynamic and with static delims if they exist
-    val delimsCooked = dynamicDelimsCooked.union(staticDelimsCooked)
-
-    errorIfDelimsHaveWSPStar(delimsCooked, pstate)
-
-    val dynamicDelimsDFAs = CreateDelimiterDFA(dynamicDelimsCooked)
-    val delimDFAs = dynamicDelimsDFAs.union(staticDelimsDFAs)
-    val delimsMatcher = CreateDelimiterMatcher(delimDFAs)
-
-    (delimDFAs, delimsMatcher, delimsCooked, Some(vars))
-  }
-
-}
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
+import edu.illinois.ncsa.daffodil.util.Maybe.One
+import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 
 sealed abstract class EscapeScheme
 case class EscapeSchemeChar(private val escChar: Maybe[String], private val escEscChar: Maybe[String])
   extends EscapeScheme {
   val ec: Maybe[Char] = if (escChar.isDefined) One(escChar.get.charAt(0)) else Nope
   val eec: Maybe[Char] = if (escEscChar.isDefined) One(escEscChar.get.charAt(0)) else Nope
+
+  override def toString() = "<EscapeSchemeChar escapeChar='" + escChar.getOrElse("") +
+    "' escapeEscapeChar='" + escEscChar.getOrElse("") + "'/>"
 }
 case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
   blockStart: String,
@@ -195,9 +74,10 @@ case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
   val eec: Maybe[Char] = if (escEscChar.isDefined) One(escEscChar.get.charAt(0)) else Nope
   val blockStartDFA: DFADelimiter = CreateDelimiterDFA(blockStart)
   val blockEndDFA: DFADelimiter = CreateDelimiterDFA(blockEnd)
-  val blockEndMatcher = CreateDelimiterMatcher(Seq(blockEndDFA))
-  val fieldEscDFA = CreateFieldDFA(blockEndMatcher, eec)
+  val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
 
+  override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + escEscChar.getOrElse("") +
+    "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "'/>"
 }
 
 /**
@@ -218,73 +98,61 @@ case class EscapeSchemeBlock(private val escEscChar: Maybe[String],
  * dependencies.
  */
 sealed abstract class FieldFactoryBase(ef: Option[EscapeSchemeFactoryBase],
-  df: DelimiterFactoryBase,
   context: ThrowsSDE) extends Serializable {
 
-  def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme])
+  def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeScheme])
 }
-case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryStatic],
-  df: DelimiterFactoryStatic,
-  context: ThrowsSDE)
-  extends FieldFactoryBase(ef, df, context) {
 
-  val fieldDFA = {
-    val dfa =
-      if (ef.isDefined) {
-        val scheme = ef.get.theScheme
-        val res = scheme match {
-          case s: EscapeSchemeBlock => CreateFieldDFA(df.delimsMatcher)
-          case s: EscapeSchemeChar => CreateFieldDFA(df.delimsMatcher, s.ec, s.eec)
-        }
-        res
-      } else {
-        CreateFieldDFA(df.delimsMatcher)
+case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryBase], context: ThrowsSDE)
+  extends FieldFactoryBase(ef, context) {
+
+  lazy val fieldDFA = {
+    val res = if (ef.isDefined) {
+      val scheme = ef.get
+      val (_, theScheme) = scheme.getEscapeScheme(null)
+      theScheme match {
+        case s: EscapeSchemeBlock => CreateFieldDFA()
+        case s: EscapeSchemeChar => CreateFieldDFA(s.ec, s.eec)
       }
-    dfa
+
+    } else {
+      CreateFieldDFA()
+    }
+    res
   }
 
-  def getFieldDFA(state: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme]) = {
-    val theScheme = if (ef.isDefined) {
-      Some(ef.get.theScheme)
-    } else None
-    (state, df.staticDelimsDFAs, df.delimsMatcher, df.staticDelimsCooked, fieldDFA, theScheme)
+  def getFieldDFA(start: PState) = {
+    val scheme = if (ef.isDefined) start.mpstate.currentEscapeScheme else Nope
+    val delimsCooked = start.mpstate.getAllTerminatingMarkup.map(d => d.lookingFor).toList
+    val delimDFAs = start.mpstate.getAllTerminatingMarkup
+
+    (start, delimDFAs, delimsCooked, fieldDFA, scheme)
   }
 }
+
 case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
-  df: DelimiterFactoryBase,
   context: ThrowsSDE)
-  extends FieldFactoryBase(ef, df, context) {
+  extends FieldFactoryBase(ef, context) {
 
-  def getFieldDFA(start: PState): (PState, Seq[DFADelimiter], DelimsMatcher, List[String], DFAField, Option[EscapeScheme]) = {
-    val (postEscapeSchemeEvalState, scheme) = {
-      if (ef.isDefined) {
-        val factory = ef.get
-        val (state, escScheme) = factory.getEscapeScheme(start)
-        (state, Some(escScheme))
-      } else (start, None)
-    }
+  def getFieldDFA(start: PState): (PState, Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeScheme]) = {
 
-    val (delims, delimsMatcher, delimsCooked, vars) = df.getDelims(postEscapeSchemeEvalState)
-
-    // We must feed variable context out of one evaluation and into the next.
-    // So that the resulting variable map has the updated status of all evaluated variables.
-    val postEvalState = vars match {
-      case Some(v) => postEscapeSchemeEvalState.withVariables(v)
-      case None => postEscapeSchemeEvalState
-    }
+    val scheme = start.mpstate.currentEscapeScheme
+    val delimsCooked = start.mpstate.getAllTerminatingMarkup.map(d => d.lookingFor).toList
+    val delimDFAs = start.mpstate.getAllTerminatingMarkup
 
     val fieldDFA =
       if (scheme.isDefined) {
         val theScheme = scheme.get
         val res = theScheme match {
-          case s: EscapeSchemeBlock => CreateFieldDFA(delimsMatcher)
-          case s: EscapeSchemeChar => CreateFieldDFA(delimsMatcher, s.ec, s.eec)
+          case s: EscapeSchemeBlock => CreateFieldDFA()
+          case s: EscapeSchemeChar => CreateFieldDFA(s.ec, s.eec)
         }
         res
       } else {
-        CreateFieldDFA(delimsMatcher)
+        CreateFieldDFA()
       }
-    (postEvalState, delims, delimsMatcher, delimsCooked, fieldDFA, scheme)
+
+    (start, delimDFAs, delimsCooked, fieldDFA, scheme)
   }
 }
 
@@ -292,6 +160,8 @@ abstract class EscapeSchemeFactoryBase(
   escapeSchemeObject: EscapeSchemeObject,
   context: ThrowsSDE)
   extends Serializable {
+
+  def escapeKind = escapeSchemeObject.escapeKind
 
   protected def constEval(knownValue: Option[String]) = {
     val optConstValue = knownValue match {
@@ -360,7 +230,7 @@ abstract class EscapeSchemeFactoryBase(
   def getEscapeScheme(state: PState): (PState, EscapeScheme)
 
 }
-class EscapeSchemeFactoryStatic(
+case class EscapeSchemeFactoryStatic(
   escapeSchemeObject: EscapeSchemeObject,
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(escapeSchemeObject, context) {
@@ -383,7 +253,7 @@ class EscapeSchemeFactoryStatic(
   }
 }
 
-class EscapeSchemeFactoryDynamic(
+case class EscapeSchemeFactoryDynamic(
   escapeSchemeObject: EscapeSchemeObject,
   context: ThrowsSDE)
   extends EscapeSchemeFactoryBase(escapeSchemeObject, context) with Dynamic {

@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 
 // This is the block of mutable things
 // including the source of characters.
-class Registers extends Serializable {
+class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
 
   var numCharsRead: Int = 0
   var numCharsReadUntilDelim: Int = 0
@@ -199,272 +199,8 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
 
   def printStr(): String = states.mkString
   override def toString(): String = stateName + "_" + stateNum
-}
 
-// The delimiter compiler still has to select and instantiate all the appropriate states
-// Note that there is no reason why a state has to have a fixed static set of rules.
-// The compiler could create rule objects and add them to the rules. This is what
-// we would expect when compiling a delimiter, which can mean any terminating markup
-// each of which is specified as a list of individual delimiters. Each of those
-// can have char class entities like WSP+ in it, and so on. 
-// 
-
-/**
- * Ambiguity Truth Table
- * 0 means not same, 1 means same
- * ------------------------------------
- * EC		EEC		PTERM	Ambiguous?
- * 0		1		1		Y
- * 1		0		1		Y
- * 1		1		0		Y
- * 1		1		1		Y
- */
-class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Maybe[Char], EC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states) {
-
-  val stateName: String = "StartState"
-  val rules = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && EC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => EC.isDefined && r.data0 == EC.get } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance()
-        Right(StartState)
-      }
-    })
-
-}
-
-class StartState(states: => ArrayBuffer[State],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states) {
-
-  val stateName: String = "StartState"
-  val rules = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance()
-        Right(StartState)
-      }
-    })
-
-}
-
-class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
-  extends State(states) {
-
-  val stateName = "StartState"
-  val stateNum: Int = 0
-  val rules = ArrayBuffer(
-    Rule { (r: Registers) => { r.data0 == padChar } } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance()
-        Right(StartState)
-      }
-    },
-    Rule { (r: Registers) => true } { (r: Registers) => { Right(DFA.FinalState) } })
-}
-
-/**
- * StartState for Field portion of EscapeBlock.
- * Here compiledDelims should only contain the endBlock DFADelimiter.
- */
-class StartStateEscapeBlock(states: => ArrayBuffer[State], val EEC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states) {
-  val stateName: String = "StartState"
-
-  val rules = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-}
-
-class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
-  extends State(states) {
-
-  val stateName: String = "StartState"
-
-  val rules_NO_EEC_BUT_EC_TERM_SAME = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => { Right(DFA.EndOfData) } },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-  val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != EC.get } } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-  val rules_EEC_TERM_SAME_NOT_EC = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => { Left(StateKind.Paused) } },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-  val rules_EC_TERM_SAME_NOT_EEC = ArrayBuffer(
-    Rule { (r: Registers) => { r.data0 == EC.get && r.data1 == EC.get } } { (r: Registers) =>
-      {
-        // EC followed by EC, first EC gets dropped
-        r.dropChar(r.data0)
-        r.appendToField(r.data1)
-        r.advance
-        r.advance
-        Right(StartState)
-      }
-    },
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-  val rules_EC_EEC_TERM_SAME = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EEC.get } } {
-      (r: Registers) => Right(EECState)
-    },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != DFA.EndOfDataChar } } {
-      (r: Registers) =>
-        {
-          // EEC followed by something not a PTERM[2]
-          r.dropChar(r.data0)
-          r.appendToField(r.data1)
-          r.advance
-          r.advance
-          Right(StartState)
-        }
-    },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == DFA.EndOfDataChar } } {
-      (r: Registers) => Right(ECState)
-    },
-    Rule { (r: Registers) => r.data0 == DFA.EndOfDataChar } { (r: Registers) => { Right(DFA.EndOfData) } },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance
-        Right(StartState)
-      }
-    })
-
-  val rules_Unambiguous = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
-    Rule { (r: Registers) => { EC.isDefined && r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance()
-        Right(StartState)
-      }
-    })
-
-  val rules_NoEscaping = ArrayBuffer(
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } { (r: Registers) => Left(StateKind.Paused) },
-    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
-    Rule { (r: Registers) => true } { (r: Registers) =>
-      {
-        r.appendToField(r.data0)
-        r.advance()
-        Right(StartState)
-      }
-    })
-
-  /**
-   * Determines what rules to execute based on combinations of EC/EEC
-   */
-  def getRules: ArrayBuffer[Rule] = {
-
-    val result = {
-      if (!EEC.isDefined) {
-        if (!EC.isDefined) {
-          // No Escaping
-          rules_NoEscaping
-        } else {
-          if (compiledDelims.couldBeFirstChar(EC.get)) {
-            // EC == PTERM0
-            rules_NO_EEC_BUT_EC_TERM_SAME
-          } else {
-            // Unambiguous
-            rules_Unambiguous
-          }
-        }
-      } else if (EEC.isDefined && EC.isDefined) {
-        val escEsc = EEC.get
-        if (!compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get) && escEsc != EC.get) {
-          // EC != EEC != PTERM0
-          rules_Unambiguous
-        } else if (EC.get == escEsc && compiledDelims.couldBeFirstChar(escEsc)) {
-          // EC == EEC == PTERM0
-          rules_EC_EEC_TERM_SAME
-        } else if (compiledDelims.couldBeFirstChar(escEsc) && !compiledDelims.couldBeFirstChar(EC.get)) {
-          // (EEC == PTERM0) != EC
-          rules_EEC_TERM_SAME_NOT_EC
-        } else if (!compiledDelims.couldBeFirstChar(escEsc) && compiledDelims.couldBeFirstChar(EC.get)) {
-          // (EC == PTERM0) != EEC
-          rules_EC_TERM_SAME_NOT_EEC
-        } else if (EC.get == escEsc && !compiledDelims.couldBeFirstChar(escEsc)) {
-          // (EC == EEC) != PTERM0
-          rules_EEC_EC_SAME_NOT_TERM
-        } else throw new Exception("Unexpected case.")
-      } else throw new Exception("Unexpected case.")
-    }
-    result
-  }
-
-  lazy val rules = getRules
-
-}
-
-trait DelimsMatcher {
-  def r: Registers
-  def delims: Seq[DFADelimiter]
-
-  def couldBeFirstChar(charIn: Char): Boolean = {
+  def couldBeFirstChar(charIn: Char, delims: Seq[DFADelimiter]): Boolean = {
     // looking at data0
     delims.foreach(d => if (couldBeFirstChar(charIn, d)) return true)
     false
@@ -508,12 +244,283 @@ trait DelimsMatcher {
   }
 }
 
-class DelimsMatcherImpl(val delims: Seq[DFADelimiter]) extends DelimsMatcher with Serializable {
-  val r: Registers = new Registers()
+// The delimiter compiler still has to select and instantiate all the appropriate states
+// Note that there is no reason why a state has to have a fixed static set of rules.
+// The compiler could create rule objects and add them to the rules. This is what
+// we would expect when compiling a delimiter, which can mean any terminating markup
+// each of which is specified as a list of individual delimiters. Each of those
+// can have char class entities like WSP+ in it, and so on. 
+// 
+
+/**
+ * Ambiguity Truth Table
+ * 0 means not same, 1 means same
+ * ------------------------------------
+ * EC		EEC		PTERM	Ambiguous?
+ * 0		1		1		Y
+ * 1		0		1		Y
+ * 1		1		0		Y
+ * 1		1		1		Y
+ */
+class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Maybe[Char], EC: Maybe[Char], val stateNum: Int)
+  extends State(states) {
+
+  val stateName: String = "StartState"
+  val rules = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && EC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => EC.isDefined && r.data0 == EC.get } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
+    })
+
 }
 
-class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
+class StartState(states: => ArrayBuffer[State], val stateNum: Int)
+  extends State(states) {
+
+  val stateName: String = "StartState"
+  val rules = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
+    })
+
+}
+
+class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
+  extends State(states) {
+
+  val stateName = "StartState"
+  val stateNum: Int = 0
+  val rules = ArrayBuffer(
+    Rule { (r: Registers) => { r.data0 == padChar } } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
+    },
+    Rule { (r: Registers) => true } { (r: Registers) => { Right(DFA.FinalState) } })
+}
+
+/**
+ * StartState for Field portion of EscapeBlock.
+ * Here compiledDelims should only contain the endBlock DFADelimiter.
+ */
+class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADelimiter, val EEC: Maybe[Char], val stateNum: Int)
+  extends State(states) {
+  val stateName: String = "StartState"
+
+  val rules = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, Seq(blockEnd)) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && (r.data0 == EEC.get) } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+}
+
+class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char], val stateNum: Int)
+  extends State(states) {
+
+  val stateName: String = "StartState"
+
+  val rules_NO_EEC_BUT_EC_TERM_SAME = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => { Right(DFA.EndOfData) } },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+  val rules_EEC_EC_SAME_NOT_TERM = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+  val rules_EEC_TERM_SAME_NOT_EC = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => { Left(StateKind.Paused) } },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+  val rules_EC_TERM_SAME_NOT_EEC = ArrayBuffer(
+    Rule { (r: Registers) => { r.data0 == EC.get && r.data1 == EC.get } } { (r: Registers) =>
+      {
+        // EC followed by EC, first EC gets dropped
+        r.dropChar(r.data0)
+        r.appendToField(r.data1)
+        r.advance
+        r.advance
+        Right(StartState)
+      }
+    },
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+  val rules_EC_EEC_TERM_SAME = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == EEC.get } } {
+      (r: Registers) => Right(EECState)
+    },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 != DFA.EndOfDataChar } } {
+      (r: Registers) =>
+        {
+          // EEC followed by something not a PTERM[2]
+          r.dropChar(r.data0)
+          r.appendToField(r.data1)
+          r.advance
+          r.advance
+          Right(StartState)
+        }
+    },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get && r.data1 == DFA.EndOfDataChar } } {
+      (r: Registers) => Right(ECState)
+    },
+    Rule { (r: Registers) => r.data0 == DFA.EndOfDataChar } { (r: Registers) => { Right(DFA.EndOfData) } },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance
+        Right(StartState)
+      }
+    })
+
+  val rules_Unambiguous = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { EEC.isDefined && r.data0 == EEC.get } } { (r: Registers) => Right(EECState) },
+    Rule { (r: Registers) => { EC.isDefined && r.data0 == EC.get } } { (r: Registers) => Right(ECState) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
+    })
+
+  val rules_NoEscaping = ArrayBuffer(
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } { (r: Registers) => Left(StateKind.Paused) },
+    Rule { (r: Registers) => { r.data0 == DFA.EndOfDataChar } } { (r: Registers) => Right(DFA.EndOfData) },
+    Rule { (r: Registers) => true } { (r: Registers) =>
+      {
+        r.appendToField(r.data0)
+        r.advance()
+        Right(StartState)
+      }
+    })
+
+  /**
+   * A state executes by evaluating guarded actions.
+   * if rules(n).test() evaluates to true, then take
+   * action by rules(n).act().
+   */
+  override def run(actNum: Int, r: Registers): Either[DFAStatus, Int] = {
+    var actionNum = actNum //0
+    val rules = getRules(r.delimiters)
+    while (actionNum < rules.length) {
+      if (rules(actionNum).test(r)) {
+        val res = rules(actionNum).act(r)
+        res match {
+          case Right(nextStateNum) => return Right(nextStateNum)
+          case Left(status) => return Left(new DFAStatus(stateNum, actionNum, status))
+        }
+      }
+      actionNum = actionNum + 1
+    }
+    Left(new DFAStatus(stateNum, actionNum, StateKind.Failed))
+  }
+
+  /**
+   * Determines what rules to execute based on combinations of EC/EEC
+   */
+  def getRules(delims: Seq[DFADelimiter]): ArrayBuffer[Rule] = {
+
+    val result = {
+      if (!EEC.isDefined) {
+        if (!EC.isDefined) {
+          // No Escaping
+          rules_NoEscaping
+        } else {
+          if (couldBeFirstChar(EC.get, delims)) {
+            // EC == PTERM0
+            rules_NO_EEC_BUT_EC_TERM_SAME
+          } else {
+            // Unambiguous
+            rules_Unambiguous
+          }
+        }
+      } else if (EEC.isDefined && EC.isDefined) {
+        val escEsc = EEC.get
+        if (!couldBeFirstChar(escEsc, delims) && !couldBeFirstChar(EC.get, delims) && escEsc != EC.get) {
+          // EC != EEC != PTERM0
+          rules_Unambiguous
+        } else if (EC.get == escEsc && couldBeFirstChar(escEsc, delims)) {
+          // EC == EEC == PTERM0
+          rules_EC_EEC_TERM_SAME
+        } else if (couldBeFirstChar(escEsc, delims) && !couldBeFirstChar(EC.get, delims)) {
+          // (EEC == PTERM0) != EC
+          rules_EEC_TERM_SAME_NOT_EC
+        } else if (!couldBeFirstChar(escEsc, delims) && couldBeFirstChar(EC.get, delims)) {
+          // (EC == PTERM0) != EEC
+          rules_EC_TERM_SAME_NOT_EEC
+        } else if (EC.get == escEsc && !couldBeFirstChar(escEsc, delims)) {
+          // (EC == EEC) != PTERM0
+          rules_EEC_EC_SAME_NOT_TERM
+        } else throw new Exception("Unexpected case.")
+      } else throw new Exception("Unexpected case.")
+    }
+    result
+  }
+
+  var rules: ArrayBuffer[Rule] = ArrayBuffer.empty
+
+}
+
+class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char], val stateNum: Int)
   extends State(states) {
 
   val stateName = "ECState"
@@ -547,8 +554,7 @@ class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char],
     })
 }
 
-class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
+class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char], val stateNum: Int)
   extends State(states) {
 
   val stateName = "EECState"
@@ -560,7 +566,7 @@ class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Mayb
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, r.delimiters) } {
       (r: Registers) => Left(StateKind.Paused) //PTERMState
     },
     Rule { (r: Registers) => { EC.isDefined && r.data1 == EC.get } } { (r: Registers) =>
@@ -591,8 +597,7 @@ class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Mayb
     })
 }
 
-class EECStateBlock(states: => ArrayBuffer[State], val EEC: Maybe[Char],
-  compiledDelims: DelimsMatcher, val stateNum: Int)
+class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val EEC: Maybe[Char], val stateNum: Int)
   extends State(states) {
 
   val stateName = "EECState"
@@ -604,10 +609,10 @@ class EECStateBlock(states: => ArrayBuffer[State], val EEC: Maybe[Char],
     //
     // We've already encountered EEC as data0 here
     //
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data0) } {
+    Rule { (r: Registers) => couldBeFirstChar(r.data0, Seq(blockEnd)) } {
       (r: Registers) => Left(StateKind.Paused) //PTERMState
     },
-    Rule { (r: Registers) => compiledDelims.couldBeFirstChar(r.data1) } { (r: Registers) =>
+    Rule { (r: Registers) => couldBeFirstChar(r.data1, Seq(blockEnd)) } { (r: Registers) =>
       {
         // EEC followed by possible blockEnd
         r.dropChar(r.data0)

@@ -37,18 +37,23 @@ import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
-trait Parser {
-  def parse(input: DFDLCharReader): Maybe[ParseResult]
+/**
+ * Parent class of all DFA text parsers.
+ */
+abstract class Parser extends RuntimeEncodingMixin with Serializable {
+  def name: String
+  def info: String
+
+  override def toString(): String = name + "(context='" + context + "', " + info + ")"
 }
 
-trait DelimitedParser extends Parser with HasLongestMatch {
-  def parse(input: DFDLCharReader): Maybe[ParseResult] = parse(input, false)
-  def parse(input: DFDLCharReader, isDelimiterRequired: Boolean): Maybe[ParseResult]
-}
-
-trait HasLongestMatch {
-
+/**
+ * Parent class for 'delimited' DFA text parsers.  Needs 'longest match'
+ * functionality.
+ */
+abstract class DelimitedParser extends Parser {
   /**
    * This function takes in a list of matches (in an ArrayBuffer for constant
    * append and random access) and returns the match that starts earliest in
@@ -71,7 +76,7 @@ trait HasLongestMatch {
       val currMatch = matches(currIndex)
       val (_, currReg) = currMatch
       if (currReg.matchStartPos < firstLongestRegSoFar.matchStartPos ||
-         (currReg.matchStartPos == firstLongestRegSoFar.matchStartPos && currReg.delimString.length > firstLongestRegSoFar.delimString.length)) {
+        (currReg.matchStartPos == firstLongestRegSoFar.matchStartPos && currReg.delimString.length > firstLongestRegSoFar.delimString.length)) {
         firstLongestRegSoFar = currReg
         firstLongestMatchSoFar = currMatch
       }

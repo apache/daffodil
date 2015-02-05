@@ -71,14 +71,10 @@ trait InitiatedTerminatedMixin
   lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
 
   lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, initiatorItself ~ initiatorDiscriminator)
-  lazy val initiatorItself = {
-    if (initiator.isConstant) StaticInitiator(this)
-    else DynamicInitiator(this)
-  }
+  lazy val initiatorItself = Initiator(this)
+  
 
-  lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator,
-    if (terminator.isConstant) StaticTerminator(this)
-    else DynamicTerminator(this))
+  lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, Terminator(this))
 
   /**
    * True if this term has initiator, terminator, or separator that are either statically

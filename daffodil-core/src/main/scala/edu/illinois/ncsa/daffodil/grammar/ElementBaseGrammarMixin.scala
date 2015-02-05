@@ -653,9 +653,9 @@ trait ElementBaseGrammarMixin
     empty ~ TheDefaultValue(this))
 
   lazy val nilElementInitiator = Prod("nilElementInitiator", this, hasNilValueInitiator,
-    if (initiator.isConstant) StaticInitiator(this) else DynamicInitiator(this))
+    Initiator(this))
   lazy val nilElementTerminator = Prod("nilElementTerminator", this, hasNilValueTerminator,
-    if (terminator.isConstant) StaticTerminator(this) else DynamicTerminator(this))
+    Terminator(this))
 
   lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator, EmptyGram)
   lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator, EmptyGram)
@@ -666,12 +666,17 @@ trait ElementBaseGrammarMixin
   lazy val nilLit = {
     Prod("nilLit", this,
       isNillable && nilKind == NilKind.LiteralValue,
-      nilElementInitiator ~ nilLitContent ~ nilElementTerminator)
+      if (hasDelimiters)
+        DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitContent ~ nilElementTerminator)
+      else
+        nilLitContent)
   }
 
   lazy val nilLitSpecifiedLength = {
     Prod("nilLitSpecifiedLength", this, isNillable && nilKind == NilKind.LiteralValue, {
-      nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator
+      if (hasDelimiters)
+        DelimiterStackCombinatorElement(this, nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator)
+      else specifiedLength(nilLitContent)
     })
   }
 
@@ -706,13 +711,19 @@ trait ElementBaseGrammarMixin
 
   lazy val scalarDefaultableSimpleContent = {
     val res = Prod("scalarDefaultableSimpleContent", this,
-      isSimpleType, nilLit | emptyDefaulted | parsedNil | parsedValue)
+      isSimpleType,
+      if (hasDelimiters)
+        DelimiterStackCombinatorElement(this, nilLit | emptyDefaulted | parsedNil | parsedValue)
+      else nilLit | emptyDefaulted | parsedNil | parsedValue)
     res
   }
 
   lazy val scalarNonDefaultSimpleContent = {
     val res = Prod("scalarNonDefaultSimpleContent", this,
-      isSimpleType, nilLit | parsedNil | parsedValue)
+      isSimpleType,
+      if (hasDelimiters)
+        DelimiterStackCombinatorElement(this, nilLit | parsedNil | parsedValue)
+      else nilLit | parsedNil | parsedValue)
     res
   }
 
@@ -735,16 +746,24 @@ trait ElementBaseGrammarMixin
   }
 
   lazy val complexContentSpecifiedLength = Prod("complexContentSpecifiedLength", this, isComplexType,
-    initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion)
+    if (hasDelimiters)
+      DelimiterStackCombinatorElement(this, initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion)
+    else specifiedLength(complexContent))
 
   lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType,
     nilLitSpecifiedLength | complexContentSpecifiedLength)
 
+  lazy val hasEscapeScheme = this.optionEscapeScheme.isDefined
+
   // Note: there is no such thing as defaultable complex content because you can't have a 
   // default value for a complex type element.
-  lazy val scalarDefaultableContent = Prod("scalarDefaultableContent", this, scalarDefaultableSimpleContent | scalarComplexContent)
+  lazy val scalarDefaultableContent = Prod("scalarDefaultableContent", this,
+    if (hasEscapeScheme) { EscapeSchemeStackCombinatorElement(this, scalarDefaultableSimpleContent | scalarComplexContent) }
+    else { scalarDefaultableSimpleContent | scalarComplexContent })
 
-  lazy val scalarNonDefaultContent = Prod("scalarNonDefaultContent", this, scalarNonDefaultSimpleContent | scalarComplexContent)
+  lazy val scalarNonDefaultContent = Prod("scalarNonDefaultContent", this,
+    if (hasEscapeScheme) { EscapeSchemeStackCombinatorElement(this, scalarNonDefaultSimpleContent | scalarComplexContent) }
+    else { scalarNonDefaultSimpleContent | scalarComplexContent })
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator

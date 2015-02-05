@@ -43,6 +43,23 @@ import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Processor
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
+import scala.collection.mutable.Queue
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicText
+import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
+import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
+import edu.illinois.ncsa.daffodil.processors.EscapeScheme
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryStatic
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
+import edu.illinois.ncsa.daffodil.processors.EscapeKindNoneStackNode
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeStackNode
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeChar
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlock
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd) {
@@ -58,6 +75,126 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   }
 }
 
+/**
+ * This parser should only ever be called when delimiters exist.
+ *
+ * The purpose of this parser is to create/evaluate delimiter DFAs
+ * and push them to the delimiter stack (bring them in scope) for
+ * subsequent (internal/body) parse steps.  Then on the way out pop
+ * the delimiter DFAs (bring them out of scope) after
+ * the internal/body parser has completed.
+ */
+class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
+  separatorOpt: Option[CompiledExpression],
+  terminatorOpt: Option[CompiledExpression],
+  initiatorLoc: (String, String),
+  separatorLocOpt: Option[(String, String)],
+  terminatorLoc: (String, String),
+  isLengthKindDelimited: Boolean,
+  rd: RuntimeData, bodyParser: Parser)
+  extends PrimParser(rd)
+  with EvaluatesStaticDynamicText {
+
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    if (depthLimit == 0) "..." else
+      "<DelimiterStack initiator='" + initiatorOpt +
+        "' separator='" + separatorOpt +
+        "' terminator='" + terminatorOpt + "'>" +
+        bodyParser.toBriefXML(depthLimit - 1) +
+        "</DelimiterStack>"
+  }
+
+  val (staticInits, dynamicInits) = getStaticAndDynamicText(initiatorOpt, context)
+  val (staticSeps, dynamicSeps) = getStaticAndDynamicText(separatorOpt, context, isLengthKindDelimited)
+  val (staticTerms, dynamicTerms) = getStaticAndDynamicText(terminatorOpt, context, isLengthKindDelimited)
+
+  def parse(start: PState): PState = {
+
+    // Evaluate Delimiters
+    val (dynamicInitsSeq, afterInits) = evaluateDynamicText(dynamicInits, start, context, false)
+    val (dynamicSepsSeq, afterSeps) = evaluateDynamicText(dynamicSeps, afterInits, context, isLengthKindDelimited)
+    val (dynamicTermsSeq, afterTerms) = evaluateDynamicText(dynamicTerms, afterSeps, context, isLengthKindDelimited)
+    val afterDynamicEval = afterTerms
+
+    val allInits: Seq[DFADelimiter] = combineStaticAndDynamic(staticInits, dynamicInitsSeq)
+    val allSeps: Seq[DFADelimiter] = combineStaticAndDynamic(staticSeps, dynamicSepsSeq)
+    val allTerms: Seq[DFADelimiter] = combineStaticAndDynamic(staticTerms, dynamicTermsSeq)
+
+    val node = DelimiterStackNode(allInits,
+      allSeps,
+      allTerms,
+      { if (allInits.isEmpty) Nope else One(initiatorLoc) },
+      separatorLocOpt,
+      { if (allTerms.isEmpty) Nope else One(terminatorLoc) })
+
+    // Push Delimiters
+    afterDynamicEval.mpstate.pushDelimiters(node)
+
+    // Parse
+    val parseState = bodyParser.parse1(start, rd)
+
+    // Pop Delimiters
+    parseState.mpstate.popDelimiters
+
+    parseState
+  }
+}
+
+/***
+ * This parser should only ever be called when an escape scheme exists.
+ * 
+ * Evaluates the escape scheme and brings it in and out of scope.
+ */
+class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
+  rd: RuntimeData, bodyParser: Parser)
+  extends Parser(rd)
+  with EvaluatesStaticDynamicText {
+  
+  override lazy val childProcessors = Seq(bodyParser)
+
+  val scheme =  { 
+    {
+      val isConstant = escapeScheme.escapeKind match {
+        case EscapeKind.EscapeBlock => {
+          (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
+            escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+        case EscapeKind.EscapeCharacter => {
+          (escapeScheme.optionEscapeCharacter.isEmpty ||
+            escapeScheme.optionEscapeCharacter.get.isConstant) &&
+            (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
+              escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+      }
+      val theScheme = {
+        if (isConstant) EscapeSchemeFactoryStatic(escapeScheme, rd)
+        else EscapeSchemeFactoryDynamic(escapeScheme, rd)
+      }
+      theScheme
+    }
+  }
+
+  def parse(start: PState): PState = {
+    // Evaluate
+    val (afterEval, node) = {
+      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeScheme(start)
+
+      (afterDynamicEval, new EscapeSchemeStackNode(evaluatedScheme))
+    }
+
+    // Push Escape Scheme
+    afterEval.mpstate.pushEscapeScheme(node)
+
+    // Parse
+    val parseState = bodyParser.parse1(start, rd)
+
+    // Pop EscapeScheme
+    parseState.mpstate.popEscapeScheme
+
+    parseState
+  }
+}
+
 class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd) {
   override def nom = "Sequence"
@@ -66,9 +203,11 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 
   def parse(start: PState): PState = {
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
+
     val parseState = bodyParser.parse1(start, rd)
-    start.mpstate.groupIndexStack.pop()
-    start.mpstate.moveOverOneGroupIndexOnly()
+
+    parseState.mpstate.groupIndexStack.pop()
+    parseState.mpstate.moveOverOneGroupIndexOnly()
     parseState
   }
 }

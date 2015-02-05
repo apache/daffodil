@@ -42,12 +42,6 @@ import edu.illinois.ncsa.daffodil.processors.WSPDelim
 import edu.illinois.ncsa.daffodil.processors.WSPPlusDelim
 import edu.illinois.ncsa.daffodil.processors.WSPStarDelim
 
-object CreateDelimiterMatcher {
-  def apply(delimiters: Seq[DFADelimiter]): DelimsMatcher = {
-    new DelimsMatcherImpl(delimiters)
-  }
-}
-
 object CreateDelimiterDFA {
 
   /**

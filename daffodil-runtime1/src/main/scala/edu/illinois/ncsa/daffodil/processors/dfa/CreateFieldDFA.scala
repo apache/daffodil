@@ -55,11 +55,11 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object without EscapeSchemeKind.None
    */
-  def apply(compiledDelims: DelimsMatcher): DFAField = {
+  def apply(): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val startState = new StartState(allStates, compiledDelims, 0)
+    val startState = new StartState(allStates, 0)
 
     allStates.insert(0, startState)
 
@@ -69,14 +69,14 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscapeSchemeKind.Character
    */
-  def apply(compiledDelims: DelimsMatcher,
+  def apply(
     EC: Maybe[Char], EEC: Maybe[Char]): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val ecState = new ECState(allStates, EC, compiledDelims, 1)
-    val eecState = new EECState(allStates, EEC, EC, compiledDelims, 2)
-    val startState = new StartStateEscapeChar(allStates, EEC, EC, compiledDelims, 0)
+    val ecState = new ECState(allStates, EC, 1)
+    val eecState = new EECState(allStates, EEC, EC, 2)
+    val startState = new StartStateEscapeChar(allStates, EEC, EC, 0)
 
     allStates.insert(0, eecState)
     allStates.insert(0, ecState)
@@ -88,13 +88,13 @@ object CreateFieldDFA {
   /**
    * Constructs a DFAField object with EscpaeSchemeKind.Block
    */
-  def apply(compiledDelims: DelimsMatcher,
+  def apply(blockEnd: DFADelimiter,
     EEC: Maybe[Char]): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
-    val eecState = new EECStateBlock(allStates, EEC, compiledDelims, 1)
-    val startState = new StartStateEscapeBlock(allStates, EEC, compiledDelims, 0)
+    val eecState = new EECStateBlock(allStates, blockEnd, EEC, 1)
+    val startState = new StartStateEscapeBlock(allStates, blockEnd, EEC, 0)
 
     allStates.insert(0, eecState)
     allStates.insert(0, startState)

@@ -101,6 +101,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     }
     c
   }
+  lazy val initiatorLoc = (this.prettyName, this.path)
 
   lazy val terminator = _terminator.value
   private val _terminator = LV('terminator) {

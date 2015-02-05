@@ -1,3 +1,5 @@
+package edu.illinois.ncsa.daffodil.section16.array_optional_elem
+
 /* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -30,8 +32,6 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section16.array_optional_elem
-
 import junit.framework.Assert._
 import org.junit.Test
 import scala.xml._
@@ -42,11 +42,13 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestArrayOptionalElemDebug {
+class TestArrayOptionalElemNew {
+
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
   val aa = testDir + "ArrayOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
+  // DFDL-886
+  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
 }

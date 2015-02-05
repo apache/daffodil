@@ -40,6 +40,9 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.InitiatedTerminatedMixin
 import edu.illinois.ncsa.daffodil.dsom.ModelGroup
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.dsom.Sequence
+import edu.illinois.ncsa.daffodil.dsom.Choice
 
 trait ModelGroupGrammarMixin
   extends InitiatedTerminatedMixin
@@ -47,16 +50,28 @@ trait ModelGroupGrammarMixin
   with HasStatementsGrammarMixin
   with GroupCommonAGMixin { self: ModelGroup =>
 
-  lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill ~ initiatorRegion)
-  lazy val groupRightFraming = Prod("groupRightFraming", this, terminatorRegion ~ trailingSkipRegion)
+  lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill)
+  lazy val groupRightFraming = Prod("groupRightFraming", this, trailingSkipRegion)
 
   // I believe we can have the same grammar rules whether we're directly inside a complex type, or
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
   lazy val termContentBody = prod("termContentBody", this) {
-    bitOrderChange ~ dfdlStatementEvaluations ~
-      groupLeftFraming ~ groupContent ~ groupRightFraming
+    bitOrderChange ~ dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
+  }
+
+  lazy val _content = prod("_content", this) {
+    val content = initiatorRegion ~ groupContent ~ terminatorRegion
+
+    val finalContent =
+      if (hasDelimiters) {
+        self match {
+          case c: Choice => DelimiterStackCombinatorChoice(c, content)
+          case s: Sequence => DelimiterStackCombinatorSequence(s, content)
+        }
+      } else { groupContent }
+    finalContent
   }
 
   def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below

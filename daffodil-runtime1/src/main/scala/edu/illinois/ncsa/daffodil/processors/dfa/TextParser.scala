@@ -43,16 +43,17 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 class TextParser(
   override val context: RuntimeData,
   override val encodingInfo: EncodingInfo)
-  extends DelimitedParser with RuntimeEncodingMixin with Serializable {
+  extends DelimitedParser {
+  
+  lazy val name: String = "TextParser"
+  lazy val info: String = "" // Nothing additional to add here
 
-  var delims: Seq[DFADelimiter] = Seq.empty
-
-  def parse(input: DFDLCharReader, isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(input: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     val initialCharPos = input.characterPos
 
     delims.foreach(d => {
-      val reg = new Registers()
+      val reg = new Registers(delims)
       reg.reset(input, 0)
 
       val dfaStatus = d.run(0, reg)
