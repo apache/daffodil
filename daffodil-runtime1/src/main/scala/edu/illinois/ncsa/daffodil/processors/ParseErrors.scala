@@ -58,7 +58,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 
-abstract class ProcessingError extends Exception with DiagnosticImplMixin
+abstract class ProcessingError extends Exception with ThinThrowable with DiagnosticImplMixin
 
 class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind: String, args: Any*)
   extends ProcessingError {

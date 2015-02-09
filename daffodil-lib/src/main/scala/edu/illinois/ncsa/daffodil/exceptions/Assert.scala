@@ -36,6 +36,18 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
 
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
+trait ThinThrowable { self: Throwable =>
+  // Sometimes we want to use Exceptions/Throwables in try/catch as a form of
+  // flow control (yeah, usually not that great of an idea), for example with
+  // ProcessingError and withParseErrorThrowing. Unfortunately, the problem
+  // with this is that Exceptions are pretty heavy to create, mostly do to the
+  // building of stack traces. But, in cases where we use Exceptions for flow
+  // control, we don't need all this extra baggage of the stack traces. So
+  // override the fillInStackTrace method so that stack traces aren't
+  // generated, resulting in a big performance gain when used.
+  override def fillInStackTrace(): Throwable = null
+}
+
 abstract class UnsuppressableException(m: String) extends Exception(m) {
   def this() = this("") // no arg constructor also.
 }
