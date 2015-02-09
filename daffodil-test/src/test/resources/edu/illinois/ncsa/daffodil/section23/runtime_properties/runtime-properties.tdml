@@ -209,7 +209,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Unknown Property Value</tdml:error>
+      <tdml:error>Unknown value for byteOrder property: middleEndian</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -503,7 +503,7 @@
     </tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Unknown property value</tdml:error>
+      <tdml:error>Unknown value for byteOrder property: fatEndian</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

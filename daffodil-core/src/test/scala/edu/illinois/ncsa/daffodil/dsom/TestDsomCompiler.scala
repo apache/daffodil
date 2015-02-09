@@ -261,7 +261,7 @@ class TestDsomCompiler extends Logging {
     val e2 = e2f.forRoot()
     val e3 = e3f.forRoot()
     assertEquals(
-      ByteOrder.BigEndian.toString().toLowerCase(),
+      ByteOrder.BigEndian.toString.toLowerCase(),
       e1.formatAnnotation.asInstanceOf[DFDLElement].getProperty("byteOrder").toLowerCase())
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
