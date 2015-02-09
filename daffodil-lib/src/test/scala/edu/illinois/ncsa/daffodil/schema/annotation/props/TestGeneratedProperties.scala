@@ -121,11 +121,7 @@ class TestGeneratedProperties {
   }
 
   def comparePropValue(prop: Any, value: String) = {
-    if (prop.isInstanceOf[EnumValueBase]) {
-      val withInitialUpcase = initialUpperCase(value)
-      assertEquals(withInitialUpcase, prop.toString)
-    } else
-      assertEquals(value, prop.toString)
+    assertEquals(value, prop.toString)
   }
 
   @Test
@@ -154,7 +150,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.textBidiSymmetric, "yes")
     comparePropValue(hasProps.textBidiTextShaped, "no")
     comparePropValue(hasProps.textBidiNumeralShapes, "nominal")
-    comparePropValue(hasProps.textBidiOrientation, "RTL")
+    comparePropValue(hasProps.textBidiOrientation, "rTL")
     comparePropValue(hasProps.textStringJustification, "left")
     //comparePropValue(hasProps.textStringPadCharacter, "%SP;")
     comparePropValue(hasProps.truncateSpecifiedLengthString, "no")
@@ -187,7 +183,7 @@ class TestGeneratedProperties {
     comparePropValue(hasProps.calendarCheckPolicy, "lax")
     comparePropValue(hasProps.calendarTimeZone, "UTC")
     comparePropValue(hasProps.calendarObserveDST, "yes")
-    comparePropValue(hasProps.calendarFirstDayOfWeek, "Monday")
+    comparePropValue(hasProps.calendarFirstDayOfWeek, "monday")
     comparePropValue(hasProps.calendarDaysInFirstWeek, "4")
     comparePropValue(hasProps.calendarCenturyStart, "53")
     comparePropValue(hasProps.calendarLanguage, "en-US")

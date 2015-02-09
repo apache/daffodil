@@ -500,7 +500,7 @@ trait ElementBaseGrammarMixin
 
   lazy val binary = {
     subset(lengthKind == LengthKind.Explicit, "Currently only lengthKind='explicit' is supported.")
-    LengthKind(lengthKind.toString(), this)
+    LengthKind(lengthKind.toString, this)
   }
 
   val bin = BinaryNumberRep.Binary // shorthands for table dispatch

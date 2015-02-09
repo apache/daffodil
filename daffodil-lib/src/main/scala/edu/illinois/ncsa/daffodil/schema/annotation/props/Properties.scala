@@ -104,31 +104,29 @@ abstract class EnumValueBase extends Serializable
 abstract class Enum[A] extends EnumBase {
   class Value extends EnumValueBase { self: A => {
       val theVal = this
-      _values :+= theVal
+      _values += (getNameFromClass(this).toLowerCase -> theVal)
       _values
     }
-  }
-
-  def toPropName(prop: A) = {
-    val s = prop.toString
-    val capS = s.substring(0, 1).toLowerCase()
-    val propName = capS + s.substring(1)
-    propName
-  }
-
-  private var _values = List.empty[A]
-  def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE) = {
-    val opt = _values.find(_.toString.toLowerCase() == str.toLowerCase)
-    opt match {
-      case Some(e) => e
-      case None =>
-        context.SDE("Unknown property value ", enumTypeName, str)
+    override val toString = {
+      val s = getNameFromClass(this)
+      val capS = s.substring(0, 1).toLowerCase()
+      val propName = capS + s.substring(1)
+      propName
     }
   }
+
+  def toPropName(prop: A) = prop.toString
+
+  private var _values = scala.collection.mutable.Map[String, A]()
+  def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE) = {
+    val opt = _values.getOrElse(str.toLowerCase, context.SDE("Unknown value for %s property: %s", enumTypeName, str))
+    opt
+  }
+
   /**
    * Useful for diagnostic messages where you want to say "must be one of ...." and list the possibilities.
    */
-  def allValues = _values
+  def allValues = _values.toList.map { case (k, v) => v }
 
   /**
    * Scala delays construction of case objects (presumably because many programs don't use them at all)

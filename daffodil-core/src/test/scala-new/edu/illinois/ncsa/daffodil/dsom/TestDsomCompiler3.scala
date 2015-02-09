@@ -74,28 +74,37 @@ class TestDsomCompiler3 {
       </xs:complexType>)
 
     val tmpDir = new File("./dfdl_tmp")
-    tmpDir.mkdirs
-    tmpDir.deleteOnExit()
-    
-    val sset = Compiler().compileNode(sc, Some(tmpDir)).sset
-    
-    val list = tmpDir.list()
-    assertEquals(1, list.length)
-    
-    val fileName = list(0)
-    assertTrue(fileName.contains(".dfdl.xsd"))
+    if (tmpDir.exists) {
+      tmpDir.listFiles.foreach(_.delete)
+      tmpDir.delete
+    }
+    try {
+      tmpDir.mkdirs
+      val sset = Compiler().compileNode(sc, Some(tmpDir)).sset
+      
+      val list = tmpDir.list()
+      assertEquals(1, list.length)
+      
+      val fileName = list(0)
+      assertTrue(fileName.contains(".dfdl.xsd"))
 
-    // Verify things still work using specified tmpDir
-    //
-    val Seq(schema) = sset.schemas
-    val Seq(schemaDoc, _) = schema.schemaDocuments
-    val Seq(declFactory) = schemaDoc.globalElementDecls
-    val decl = declFactory.forRoot()
-    val Seq(ct) = schemaDoc.globalComplexTypeDefs
-    assertEquals("example1", ct.name)
+      // Verify things still work using specified tmpDir
+      //
+      val Seq(schema) = sset.schemas
+      val Seq(schemaDoc, _) = schema.schemaDocuments
+      val Seq(declFactory) = schemaDoc.globalElementDecls
+      val decl = declFactory.forRoot()
+      val Seq(ct) = schemaDoc.globalComplexTypeDefs
+      assertEquals("example1", ct.name)
 
-    val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
-    assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
+      val fa = decl.formatAnnotation.asInstanceOf[DFDLElement]
+      assertEquals(AlignmentUnits.Bytes, decl.alignmentUnits)
+    } finally {
+      if (tmpDir.exists) {
+        tmpDir.listFiles.foreach(_.delete)
+        tmpDir.delete
+      }
+    }
   }
   
   @Test def testSlots1() {
