@@ -325,7 +325,7 @@
     <xsd:union>
       <xsd:simpleType>
         <xsd:restriction base="xsd:string">
-          <xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?)" />
+          <xsd:pattern value="(UTC)([+\-]([01]\d|\d)((([:][0-5]\d){1,2})?))?" />
         </xsd:restriction>
       </xsd:simpleType>
       <xsd:simpleType>
