@@ -397,7 +397,25 @@
 
     <xs:element name="def_04" dfdl:lengthKind="pattern"
       dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
-      dfdl:encoding="utf-8">
+      dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="replace">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="first" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+          <xs:element name="inner" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+          <xs:element name="last" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{2}"
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="def_05" dfdl:lengthKind="pattern"
+      dfdl:lengthPattern="!!.*!!" dfdl:lengthUnits="characters"
+      dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="error">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="first" type="xs:string"
@@ -501,19 +519,32 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <!-- Note: The test below would make sense if dfdl:encodingErrorPolicy="error" but
-    not with dfdl:encodingErrorPolicy="replace" -->
+  <!--
+       Test Name: LengthPatternIllegalBits_02_EncodingErrorPolicy_Error
+          Schema: DFDL-207-Embedded.dfdl.xsd
+            Root: def_05
+         Purpose: This test demonstrates that illegal bits with encodingErrorPolicy = 'error'
+                  results in an error.
+  -->
   <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Error"
-    root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
+    root="def_05" model="DFDL-207-Embedded.dfdl.xsd"
     description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
     <tdml:document>
       <tdml:documentPart type="byte">2121c2c22121</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
+      <tdml:error>Placeholder</tdml:error>
       <tdml:error>Malformed</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <!--
+       Test Name: LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace
+          Schema: DFDL-207-Embedded.dfdl.xsd
+            Root: def_04
+         Purpose: This test demonstrates that the replacement character is used for illegal bits
+                  with encodingErrorPolicy = 'replace'.
+  -->
   <tdml:parserTestCase name="LengthPatternIllegalBits_02_EncodingErrorPolicy_Replace"
     root="def_04" model="DFDL-207-Embedded.dfdl.xsd"
     description="Section 12 lengthKind-pattern -c2c2 is an invalid code point in utf-8 - DFDL-12-088R">
