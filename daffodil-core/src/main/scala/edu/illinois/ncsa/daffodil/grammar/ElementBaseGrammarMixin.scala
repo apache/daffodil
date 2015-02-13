@@ -779,6 +779,14 @@ trait ElementBaseGrammarMixin
       case _: Found => inputValueCalcElement
     })
 
+  lazy val unparserScalarDefaultable = Prod("unparserScalarDefaultable", this,
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
+      case (_: NotFound, _: Found) => outputValueCalcElement
+      case (_: Found, _: NotFound) => Nada(this)
+      case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
+    })
+
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,
     inputValueCalcOption match {
       case _: NotFound => scalarNonDefaultPhysical
@@ -794,7 +802,12 @@ trait ElementBaseGrammarMixin
     isSimpleType && inputValueCalcOption.isInstanceOf[Found],
     // No framing surrounding inputValueCalc elements.
     new ElementCombinator(this, dfdlScopeBegin ~
-      InputValueCalc(self), dfdlScopeEnd))
+      ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd))
+
+  lazy val outputValueCalcElement = Prod("outputValueCalcElement", this,
+    isSimpleType && outputValueCalcOption.isInstanceOf[Found],
+    new ElementCombinator(this, dfdlScopeBegin ~
+      ValueCalc("outputValueCalc", self, outputValueCalcOption), dfdlScopeEnd))
 
   lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
     if (this.isParentUnorderedSequence)

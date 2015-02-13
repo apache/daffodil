@@ -75,6 +75,10 @@ abstract class Expression extends OOLAGHost
 
   def text: String
 
+  def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
+    children.exists(_.hasReferenceTo(elem))
+  }
+
   /**
    * TODO: get more precise line and column information for
    * pointing at sub-regions of large DPath expressions
@@ -772,6 +776,10 @@ sealed abstract class StepExpression(val step: String, val pred: Option[Predicat
   }
 
   override def hashCode() = super.hashCode()
+
+  override def hasReferenceTo(elem: DPathElementCompileInfo): Boolean = {
+    stepElement == elem
+  }
 
   lazy val stepQName = {
     val e = QName.resolveStep(step, namespaces)

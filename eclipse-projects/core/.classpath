@@ -40,5 +40,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1-unparser"/>
 	<classpathentry kind="output" path="target/eclipse"/>
 </classpath>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/scala"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar" sourcepath="lib_managed/srcs/com.ibm.icu/icu4j/icu4j-51.1-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.ibm.icu/icu4j/icu4j-51.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/xerces/xercesImpl/xercesImpl-2.10.0.jar" sourcepath="lib_managed/srcs/xerces/xercesImpl/xercesImpl-2.10.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/xerces/xercesImpl/xercesImpl-2.10.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.hamcrest/hamcrest-core/hamcrest-core-1.3.jar" sourcepath="lib_managed/srcs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.hamcrest/hamcrest-core/hamcrest-core-1.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar" sourcepath="lib_managed/srcs/jline/jline/jline-2.9-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/jline/jline/jline-2.9-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/commons-io/commons-io/commons-io-2.4.jar" sourcepath="lib_managed/srcs/commons-io/commons-io/commons-io-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-core/lib_managed/docs/commons-io/commons-io/commons-io-2.4-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

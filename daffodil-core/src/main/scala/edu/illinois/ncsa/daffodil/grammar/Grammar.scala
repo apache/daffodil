@@ -46,6 +46,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.util.Logging
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SeqCompUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 
 abstract class Gram(contextArg: AnnotatedSchemaComponent)
   extends OOLAGHost(contextArg) {
@@ -99,7 +102,7 @@ abstract class Gram(contextArg: AnnotatedSchemaComponent)
    */
   def parser: Parser
 
-  final def unparser: Unparser = ???
+  def unparser: Unparser = DummyUnparser(context.runtimeData)
 }
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
@@ -164,6 +167,8 @@ class SeqComp private (context: AnnotatedSchemaComponent, children: Seq[Gram]) e
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
   override lazy val parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
+
+  override lazy val unparser = new SeqCompUnparser(context.runtimeData, children.map { _.unparser })
 }
 
 object AltComp {
@@ -293,10 +298,10 @@ class Prod(nameArg: String, val sc: Term, guardArg: Boolean, gramArg: => Gram)
     gram.parser
   }
 
-  //  lazy val unparser = unparser_.value
-  //  private val unparser_ = LV('unparser) {
-  //    gram.unparser
-  //  }
+  override lazy val unparser = unparser_.value
+  private val unparser_ = LV('unparser) {
+    gram.unparser
+  }
 }
 
 object Prod {

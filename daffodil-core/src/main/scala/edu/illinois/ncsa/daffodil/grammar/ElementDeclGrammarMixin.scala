@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.dsom.GlobalElementDecl
 trait ElementDeclGrammarMixin { self: ElementBase with ElementDeclMixin =>
 
   override lazy val inputValueCalcOption = findPropertyOption("inputValueCalc")
+  override lazy val outputValueCalcOption = findPropertyOption("outputValueCalc")
 
 }
 
@@ -58,6 +59,12 @@ trait GlobalElementDeclGrammarMixin
   lazy val document = Prod("document", this, {
     UnicodeByteOrderMark(this) ~ documentElement
   })
+
+  lazy val unparserDocument = Prod("unparserDocument", this, {
+    UnicodeByteOrderMark(this) ~ unparserDocumentElement
+  })
+
+  lazy val unparserDocumentElement = Prod("unparserDocumentElement", this, unparserScalarDefaultable)
 
 }
 

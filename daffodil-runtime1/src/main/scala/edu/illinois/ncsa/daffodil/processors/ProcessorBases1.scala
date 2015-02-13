@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
@@ -40,11 +41,13 @@ abstract class PrimParser(contextArg: RuntimeData)
   extends DaffodilParser(contextArg)
   with WithParseErrorThrowing {
 
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    "<" + Misc.getNameFromClass(this) + "/>"
-  }
+  override def childProcessors = Nil
+}
 
-  override def toString = toBriefXML()
+abstract class PrimUnparser(contextArg: RuntimeData)
+  extends DaffodilUnparser(contextArg) {
+
+  override lazy val childProcessors = Nil
 
 }
 

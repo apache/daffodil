@@ -239,7 +239,7 @@ class StatementElementParser(
   def parseEnd(pstate: PState): PState = {
     val currentElement = pstate.thisElement
 
-    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints
@@ -327,7 +327,7 @@ class ChoiceStatementElementParser(
   def parseEnd(pstate: PState): PState = {
     val currentElement = pstate.thisElement
 
-    val shouldValidate = pstate.mpstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
     val postValidate =
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints

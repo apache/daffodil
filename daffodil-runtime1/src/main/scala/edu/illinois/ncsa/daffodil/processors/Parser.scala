@@ -56,13 +56,17 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.dsom.TypeConversions
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
+trait Processor
+  extends ToBriefXMLImpl
+  with Logging
+  with Serializable {
+  // things common to both unparser and parser go here. 
+}
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
 abstract class Parser(val context: RuntimeData)
-  extends Logging
-  with ToBriefXMLImpl
-  with Serializable {
+  extends Processor {
 
   import TypeConversions._
 
@@ -107,12 +111,16 @@ class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
   def parse(pstate: PState) = Assert.invariantFailed("EmptyGramParsers are all supposed to optimize out!")
   override def toBriefXML(depthLimit: Int = -1) = "<empty/>"
   override def toString = toBriefXML()
+  override def childProcessors = Nil
+
 }
 
 class ErrorParser(context: RuntimeData = null) extends Parser(context) {
   def parse(pstate: PState): PState = Assert.abort("Error Parser")
   override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Parser"
+  override def childProcessors = Nil
+
 }
 
 /**
@@ -124,28 +132,30 @@ class ErrorParser(context: RuntimeData = null) extends Parser(context) {
  */
 trait ToBriefXMLImpl {
 
-  val nom: String = Misc.getNameFromClass(this)
+  private lazy val nom_ : String = Misc.getNameFromClass(this)
+  def nom = nom_
 
-  val childParsers: Seq[Parser] = Nil
+  def childProcessors: Seq[Processor]
 
   // TODO: make this do indenting and newlines (maybe optionally?)
   def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
-    else if (depthLimit == 1 && childParsers.length == 0) "<" + nom + "/>"
+    else if (childProcessors.length == 0) "<" + nom + "/>"
     else {
       val lessDepth = depthLimit - 1
-      "<" + nom + ">" + childParsers.map { _.toBriefXML(lessDepth) }.mkString + "</" + nom + ">"
+      "<" + nom + ">" + childProcessors.map { _.toBriefXML(lessDepth) }.mkString + "</" + nom + ">"
     }
   }
 
   override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
-class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
-  extends Parser(context)
-  with ToBriefXMLImpl {
+class SeqCompParser(context: RuntimeData, val childParsers: Seq[Parser])
+  extends Parser(context) {
 
-  override val nom = "seq"
+  override def childProcessors = childParsers
+
+  override def nom = "seq"
 
   def parse(pstate: PState): PState = {
     var pResult = pstate
@@ -164,11 +174,12 @@ class SeqCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
 
 }
 
-class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser])
-  extends Parser(context)
-  with ToBriefXMLImpl {
+class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
+  extends Parser(context) {
 
-  override val nom = "alt"
+  override lazy val childProcessors = childParsers
+
+  override def nom = "alt"
 
   def parse(pInitial: PState): PState = {
     val pStart = pInitial.withNewPointOfUncertainty
@@ -231,6 +242,7 @@ class AltCompParser(context: RuntimeData, override val childParsers: Seq[Parser]
 case class DummyParser(rd: RuntimeData) extends Parser(null) {
   def parse(pstate: PState): PState = pstate.SDE("Parser for " + rd + " is not yet implemented.")
 
+  override def childProcessors = Nil
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
   override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
 }

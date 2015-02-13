@@ -71,6 +71,11 @@ import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
+import edu.illinois.ncsa.daffodil.processors.unparsers.OutStream
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.unparsers.GeneralOutStream
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -149,11 +154,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
           ssrd.encodingInfo,
           ssrd.elementRuntimeData,
           jis, ssrd.encodingInfo.knownEncodingName, lengthLimitInBits)
-        PState.createInitialState(rootERD,
+        PState.createInitialPState(rootERD,
           inStream,
           this)
       } else {
-        PState.createInitialState(rootERD,
+        PState.createInitialPState(rootERD,
           input,
           this,
           bitOffset = 0,
@@ -178,11 +183,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(ssrd.encodingInfo,
           ssrd.elementRuntimeData,
           file, ssrd.knownEncodingName, -1)
-        PState.createInitialState(ssrd.elementRuntimeData,
+        PState.createInitialPState(ssrd.elementRuntimeData,
           inStream,
           this)
       } else {
-        PState.createInitialState(ssrd.elementRuntimeData,
+        PState.createInitialPState(ssrd.elementRuntimeData,
           FileChannel.open(file.toPath),
           this,
           bitOffset = 0,
@@ -262,6 +267,40 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       pr
     }
   }
+
+  def unparse(output: DFDL.Output, xmlStreamReader: javax.xml.stream.XMLStreamReader): DFDL.UnparseResult = ???
+
+  def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = {
+    val rootERD = ssrd.elementRuntimeData
+    val is = InfosetSource.fromXMLNode(infosetXML, rootERD)
+    unparse(output, is)
+  }
+
+  def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = {
+    Assert.usage(!this.isError)
+    val out = new GeneralOutStream(output,
+      0L,
+      -1L, // a count, not a position
+      BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0.
+    val initialState =
+      UState.createInitialUState(
+        out,
+        this,
+        infosetSource) // TODO also want to pass here the externally set variables, other flags/settings.
+    try {
+      // Debugger.init(ssrd.parser)
+      unparse(initialState)
+      initialState.unparseResult
+    } finally {
+      // Debugger.fini(ssrd.parser)
+    }
+  }
+
+  def unparse(state: UState): Unit = {
+    val rootUnparser = ssrd.unparser
+    rootUnparser.unparse(state)
+  }
+
 }
 
 abstract class ParseResult(dp: DataProcessor)
@@ -333,4 +372,11 @@ abstract class ParseResult(dp: DataProcessor)
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
+}
+
+class UnparseResult(dp: DataProcessor, ustate: UState)
+  extends DFDL.UnparseResult
+  with WithDiagnosticsImpl {
+
+  override def resultState = ustate
 }

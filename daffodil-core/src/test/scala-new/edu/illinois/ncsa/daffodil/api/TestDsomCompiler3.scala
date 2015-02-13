@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.api
 
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util._
@@ -39,15 +39,11 @@ import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.util.Misc
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
-import java.io.FileOutputStream
-import java.nio.channels.WritableByteChannel
-import java.io.FileWriter
 import java.io.File
-import java.nio.ByteBuffer
 import org.junit.Test
+import edu.illinois.ncsa.daffodil.dsom.DFDLElement
 
 class TestDsomCompiler3 {
 

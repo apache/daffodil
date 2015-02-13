@@ -88,6 +88,10 @@ class ProcessorFactory(val sset: SchemaSet)
   requiredEvaluations(rootElem.documentElement)
   requiredEvaluations(rootElem.documentElement.gram)
   requiredEvaluations(rootElem.document.parser)
+  requiredEvaluations(rootElem.unparserDocument)
+  requiredEvaluations(rootElem.unparserDocumentElement)
+  requiredEvaluations(rootElem.unparserDocumentElement.gram)
+  requiredEvaluations(rootElem.unparserDocument.unparser)
   requiredEvaluations(rootElem.runtimeData)
 
   lazy val rootElem = rootElem_.value
@@ -124,9 +128,11 @@ class ProcessorFactory(val sset: SchemaSet)
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
       val p = if (rootElem.canProceed) rootElem.document.parser else null
+      val u = if (rootElem.canProceed) rootElem.unparserDocument.unparser else null
       val d = this.diagnostics
       val ssrd = new SchemaSetRuntimeData(
         p,
+        u,
         this.diagnostics,
         rootElem.elementRuntimeData,
         rootElem.encodingInfo,

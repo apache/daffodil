@@ -70,7 +70,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val doc = Infoset.newDocument(erd)
     doc.setRootElement(infosetRootElem)
 
-    val pstate = PState.createInitialState(doc, erd, null, dp)
+    val pstate = PState.createInitialPState(doc, erd, null, dp)
     val (result, newVMap) = compiledExpr.evaluate(pstate)
     body(result, newVMap)
   }

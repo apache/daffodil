@@ -40,17 +40,13 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Parser
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.Processor
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends PrimParser(rd) {
-  override def toString = "ComplexType"
-
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
-      "<ComplexType>" +
-        bodyParser.toBriefXML(depthLimit - 1) +
-        "</ComplexType>"
-  }
+  override def nom = "ComplexType"
 
   def parse(start: PState): PState = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
@@ -62,14 +58,7 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
 
 class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   extends PrimParser(rd) {
-  override def toString = "Sequence"
-
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
-      "<Sequence>" +
-        bodyParser.toBriefXML(depthLimit - 1) +
-        "</Sequence>"
-  }
+  override def nom = "Sequence"
 
   def parse(start: PState): PState = {
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
@@ -81,14 +70,7 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 }
 
 class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends PrimParser(erd) {
-  override def toString = "Array"
-
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
-      "<Array>" +
-        bodyParser.toBriefXML(depthLimit - 1) +
-        "</Array>"
-  }
+  override def nom = "Array"
 
   def parse(start: PState): PState = {
 
@@ -98,7 +80,7 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     val parseState = bodyParser.parse1(start, erd)
     if (parseState.status != Success) return parseState
 
-    val shouldValidate = start.mpstate.dataProc.getValidationMode != ValidationMode.Off
+    val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
 
     val actualOccurs = start.mpstate.arrayIndexStack.pop()
     start.mpstate.occursBoundsStack.pop()

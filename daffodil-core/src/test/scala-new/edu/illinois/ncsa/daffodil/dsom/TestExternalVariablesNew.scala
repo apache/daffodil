@@ -36,7 +36,6 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.Implicits.ns2String
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
-import edu.illinois.ncsa.daffodil.processors.InputValueCalc
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.WithParseErrorThrowing
@@ -113,7 +112,7 @@ class TestExternalVariablesNew {
   def generateTestSchemaWithTarget(topLevelAnnotations: Seq[Node], theTargetNS: String, importSchemaLocation: String) = {
     val sch = SchemaUtils.dfdlTestSchemaWithTarget(
       topLevelAnnotations,
-      <xs:import schemaLocation={ importSchemaLocation } namespace="" />
+      <xs:import schemaLocation={ importSchemaLocation } namespace=""/>
       <xs:element name="fake" type="xs:string" dfdl:lengthKind="delimited"/>
       <xs:element name="fake2" type="tns:fakeCT"/>
       <xs:complexType name="fakeCT">

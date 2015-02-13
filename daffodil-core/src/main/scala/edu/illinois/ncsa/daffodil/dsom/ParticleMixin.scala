@@ -50,14 +50,13 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
-// A Particle is something that can be repeating.
-trait ParticleMixin { self: ElementBase =>
+trait RequiredOptionalMixin { self: ElementBase =>
+
+  def minOccurs: Int
+  def maxOccurs: Int
 
   override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
   lazy val isRecurring = !isScalar
-
-  override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   /**
    * Determines if the element is optional, as in has zero or one instance only.
@@ -127,6 +126,21 @@ trait ParticleMixin { self: ElementBase =>
       }
     }
   }
+
+  lazy val isRequiredArrayElement = {
+    isArray &
+      minOccurs > 0 &
+      (occursCountKind == OccursCountKind.Fixed |
+        occursCountKind == OccursCountKind.Implicit |
+        occursCountKind == OccursCountKind.Expression)
+  }
+}
+
+// A Particle is something that can be repeating.
+trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
+
+  override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
+  override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString

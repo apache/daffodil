@@ -38,6 +38,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.api.Diagnostic
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
   annotationContext: Option[SchemaFileLocation],
@@ -51,7 +52,7 @@ class SchemaDefinitionError(schemaContext: Option[SchemaFileLocation],
 }
 
 class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
-  runtimeContext: PState,
+  runtimeContext: ParseOrUnparseState,
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
@@ -60,7 +61,7 @@ class RuntimeSchemaDefinitionError(schemaContext: SchemaFileLocation,
 }
 
 class RuntimeSchemaDefinitionWarning(schemaContext: SchemaFileLocation,
-  runtimeContext: PState,
+  runtimeContext: ParseOrUnparseState,
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(
@@ -111,7 +112,7 @@ class ValidationError(schemaContext: Option[SchemaFileLocation],
 
 abstract class SchemaDefinitionDiagnosticBase(
   val schemaContext: Option[SchemaFileLocation],
-  runtimeContext: Option[PState],
+  runtimeContext: Option[ParseOrUnparseState],
   val annotationContext: Option[SchemaFileLocation],
   val kind: String,
   val args: Any*) extends Exception with DiagnosticImplMixin {

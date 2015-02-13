@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
 import edu.illinois.ncsa.daffodil.api.DFDL._
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 
 /*
  * This is not a file of tests.
@@ -102,21 +103,21 @@ object TestUtils {
     runSchemaOnData(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
   }
 
-  def testUnparsing(testSchema: scala.xml.Elem, infoset: Node, unparseTo: String) {
+  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String) {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
       val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
-    val u = pf.onPath("/")
+    val u = pf.onPath("/").asInstanceOf[DataProcessor]
     if (u.isError) {
       val msgs = u.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
+    val actual = u.unparse(out, infosetXML)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -134,7 +135,8 @@ object TestUtils {
     val u = pf.onPath("/")
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
-    val actual = u.unparse(out, infoset)
+    val xmlStreamReader = XMLUtils.nodeToXMLStreamReader(infoset)
+    val actual = u.unparse(out, xmlStreamReader)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
@@ -172,9 +174,7 @@ object TestUtils {
     }
     actual
   }
-
 }
-
 /**
  * We need a schema document and such for unit testing, also our PrimType
  * needs a dummy schema document also so that our invariant, that *everything*
@@ -225,13 +225,13 @@ class Fakes private () {
     def getVariables(): VariableMap = EmptyVariableMap
     def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
     def parse(file: File): ParseResult = null
-
+    def unparse(output: Output, xmlStreamReader: javax.xml.stream.XMLStreamReader): UnparseResult = null
+    def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): UnparseResult = null
+    def unparse(output: DFDL.Output, infosetSource: InfosetSource): UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError
     def isError: Boolean = false
   }
-
   lazy val fakeDP = new FakeDataProcessor
-
 }
 

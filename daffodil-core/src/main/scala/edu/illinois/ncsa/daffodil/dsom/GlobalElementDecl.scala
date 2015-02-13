@@ -62,7 +62,13 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
   with GlobalComponentMixin
   with ElementDeclMixin
-  with GlobalElementDeclGrammarMixin {
+  with GlobalElementDeclGrammarMixin
+  /*
+   * global elements combined with element references referring to them can
+   * be multiple occurring (aka arrays) hence, we have to have things
+   * that take root and referenced situation into account.
+   */
+  with RequiredOptionalMixin {
 
   requiredEvaluations(document)
 
@@ -95,13 +101,6 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
   //
   // In other words, we shouldn't be treating this as a term.
   //
-
-  /**
-   * global elements combined with element references referring to them can
-   * be multiple occurring (aka arrays) hence, we have to have things
-   * that take root and referenced situation into account.
-   */
-  override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
 
 }
 

@@ -108,7 +108,16 @@ class ElementRuntimeData(
   couldHaveText: Boolean,
   alignmentValueInBits: Int,
   hasNoSkipRegions: Boolean,
-  val impliedRepresentation: Representation)
+  val impliedRepresentation: Representation,
+  //
+  // Unparser-specific arguments
+  //
+  /**
+   * pass true for this if the corresponding infoset element is never
+   * accessed by way of expressions. Enables the element to be dropped
+   * from the infoset immediately after unparsing is complete.
+   */
+  val notReferencedByExpressions: Boolean)
   extends TermRuntimeData(parentArg, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions)
   with HasSlotIndexInParent {
 

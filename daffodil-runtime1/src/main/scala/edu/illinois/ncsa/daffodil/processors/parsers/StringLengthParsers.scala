@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.util.Misc
 
 abstract class StringLengthParser(
   justificationTrim: TextJustificationType.Type,
@@ -328,3 +329,4 @@ abstract class StringLengthInBytesParser(
     return postState
   }
 }
+

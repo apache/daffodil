@@ -50,6 +50,8 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
+import edu.illinois.ncsa.daffodil.dpath.CompiledDPath
+import edu.illinois.ncsa.daffodil.dpath.WholeExpression
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -100,12 +102,24 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def name: String
 
   def inputValueCalcOption: PropertyLookupResult
+  def outputValueCalcOption: PropertyLookupResult
   def isNillable: Boolean
   def isSimpleType: Boolean
   def isComplexType: Boolean
   def elementComplexType: ComplexTypeBase
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
+
+  lazy val notReferencedByExpressions = {
+    val ise = inScopeExpressions
+    val hasThem = ise.exists { _.hasReferenceTo(dpathElementCompileInfo) }
+    !hasThem
+  }
+
+  /**
+   * Stream because we don't want to necessarily enumerate all of them
+   */
+  def inScopeExpressions: Stream[WholeExpression] = Stream.empty
 
   lazy val simpleType = {
     Assert.usage(isSimpleType)
@@ -115,6 +129,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
 
   def isScalar: Boolean
+  def isRequiredArrayElement: Boolean
   def isOptional: Boolean
 
   // override in Particle
@@ -148,7 +163,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
   lazy val defaultValue =
-    if (isDefaultable) {
+    if (isDefaultable & (isScalar || isRequiredArrayElement)) {
       val value = Infoset.convertToInfosetRepType(
         primType, // .typeRuntimeData, 
         defaultValueAsString, this)
@@ -218,7 +233,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       couldHaveText,
       alignmentValueInBits,
       hasNoSkipRegions,
-      impliedRepresentation)
+      impliedRepresentation,
+      //
+      // unparser specific items
+      //
+      notReferencedByExpressions)
     newERD
   }
 
@@ -287,6 +306,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
     isRep
   }
+
+  lazy val isOutputValueCalc = outputValueCalcOption.isInstanceOf[Found]
 
   override lazy val impliedRepresentation = {
     val rep = if (isSimpleType) {

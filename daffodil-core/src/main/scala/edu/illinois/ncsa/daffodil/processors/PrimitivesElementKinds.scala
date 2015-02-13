@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.api.ValidationMode
@@ -46,15 +47,19 @@ import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
   def parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
+  override def unparser: DaffodilUnparser = new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
 
   def parser: DaffodilParser = new SequenceCombinatorParser(sq.runtimeData, body.parser)
+  override def unparser: DaffodilUnparser = new SequenceCombinatorUnparser(sq.runtimeData, body.unparser)
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {

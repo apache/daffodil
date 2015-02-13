@@ -52,6 +52,7 @@ import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.unparsers.OutStream
 
 object InStream {
 
@@ -564,8 +565,14 @@ case class InStreamFromByteChannel private (
 
 }
 
-class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStream: InStream) extends DataLocation {
+class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStreamOrOutStream: Any) extends DataLocation {
   private val DEFAULT_DUMP_SIZE = 40
+
+  def inStream = inStreamOrOutStream match {
+    case is: InStream => is
+    case os: OutStream => ??? /// copy contents of outstream into an InStream
+    case _ => Assert.usageError("Must be an InStream or an OutStream")
+  }
 
   val bytePos1b = (bitPos1b >> 3) + 1
 

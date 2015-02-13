@@ -54,6 +54,7 @@ import com.ibm.icu.util.SimpleTimeZone
 import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 /**
  * expression evaluation side-effects this state block.
@@ -98,9 +99,8 @@ case class DState() {
     if (currentNode.isInstanceOf[DIArray]) currentArray.length
     else {
       if (currentNode.isInstanceOf[DIElement]) {
-    	  this.pstate.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)        
-      }
-      else this.pstate.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
+        this.pstate.SDW("The specified path to element %s is not to an array. Suggest using fn:exists instead.", currentElement.name)
+      } else this.pstate.SDW("The specified path is not to an array. Suggest using fn:exists instead.")
       1
     }
 
@@ -136,11 +136,12 @@ case class DState() {
     _vmap = m
   }
 
-  private var _pstate: PState = null // for issuing processing errors
+  private var _pustate: ParseOrUnparseState = null // for issuing processing errors
 
-  def pstate = _pstate
-  def setPState(ps: PState) {
-    _pstate = ps
+  def ustate = _pustate.asInstanceOf[UState]
+  def pstate = _pustate.asInstanceOf[PState]
+  def setPUState(ps: ParseOrUnparseState) {
+    _pustate = ps
   }
 
   // These exists so we can override it in our fake DState we use when

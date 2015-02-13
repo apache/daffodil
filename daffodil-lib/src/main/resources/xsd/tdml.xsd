@@ -36,7 +36,7 @@
 
 					<element ref="tns:defineConfig" minOccurs="0" />
 
-					<element ref="tns:serializerTestCase" />
+					<element ref="tns:unparserTestCase" />
 				</choice>
 			</sequence>
 			<attribute name="suiteName" type="xs:token" use="optional" />
@@ -47,8 +47,8 @@
 			<selector xpath="parserTestCase" />
 			<field xpath="@name" />
 		</unique>
-		<unique name="unique-serializerTestCase-name">
-			<selector xpath="serializerTestCase" />
+		<unique name="unique-unparserTestCase-name">
+			<selector xpath="unparserTestCase" />
 			<field xpath="@name" />
 		</unique>
 		<unique name="unique-embeddedSchema-name">
@@ -109,7 +109,7 @@
 	<attributeGroup name="testCaseAttribs">
 		<attribute name="name" type="xs:NCName" use="required" />
 		<attribute name="ID" type="xs:token" use="optional" />
-		<attribute name="root" type="xs:NCName" use="required" />
+		<attribute name="root" type="xs:NCName" use="optional" /> <!-- only needed when there is no infoset.  -->
 		<attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
 		<attribute name="config" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
 		<attribute name="description" type="xs:string" use="optional" />
@@ -241,15 +241,15 @@
 		</xs:attribute>
 	</xs:attributeGroup>
 
-	<!-- IBM chose to call unparsing 'serializing' in TDML -->
-	<element name="serializerTestCase" type="tns:serializerTestCaseType" />
-	<complexType name="serializerTestCaseType">
+	<element name="unparserTestCase" type="tns:unparserTestCaseType" />
+	<complexType name="unparserTestCaseType">
 		<sequence>
 			<element ref="tns:infoset" />
 			<element ref="tns:document" minOccurs="0" /> <!-- must have either document, or errors, or both -->
 			<element ref="tns:errors" minOccurs="0" />
 			<element ref="tns:warnings" minOccurs='0' />
 		</sequence>
+        <attributeGroup ref="tns:testCaseAttribs" />
 	</complexType>
 
 </xsd:schema>

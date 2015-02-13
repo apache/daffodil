@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.processors.dfa.DFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
@@ -88,6 +89,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HasPadding
 import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringFixedLengthInBytesFixedWidthCharactersUnparser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -163,6 +165,14 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
   }
 
   override lazy val parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
+    nBytes,
+    justificationTrim,
+    padCharChar,
+    e.elementRuntimeData,
+    e.encodingInfo,
+    lengthText)
+
+  override lazy val unparser: DaffodilUnparser = new StringFixedLengthInBytesFixedWidthCharactersUnparser(
     nBytes,
     justificationTrim,
     padCharChar,

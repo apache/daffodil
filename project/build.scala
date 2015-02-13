@@ -81,10 +81,15 @@ object DaffodilBuild extends Build {
                              .configs(NewTest)
                              .dependsOn(io)
 
-  lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
+  lazy val runtime1Unparser    = Project(id = "daffodil-runtime1-unparser", base = file("daffodil-runtime1-unparser"), settings = s)
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(runtime1)
+
+  lazy val core    = Project(id = "daffodil-core", base = file("daffodil-core"), settings = s)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+                             .dependsOn(runtime1Unparser)
 
   lazy val japi    = Project(id = "daffodil-japi", base = file("daffodil-japi"), settings = s ++ genJavaDocSettings)
                              .configs(DebugTest)

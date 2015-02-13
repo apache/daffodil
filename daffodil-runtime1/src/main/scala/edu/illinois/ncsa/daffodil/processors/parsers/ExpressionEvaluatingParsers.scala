@@ -48,12 +48,12 @@ import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 /**
  * Common parser base class for any parser that evaluates an expression.
  */
-abstract class ExpressionEvaluationParser(expr: CompiledExpression, rd: RuntimeData)
+abstract class ExpressionEvaluationParser(
+  expr: CompiledExpression,
+  rd: RuntimeData)
   extends Parser(rd) with WithParseErrorThrowing {
 
-  override def toBriefXML(depthLimit: Int = -1) = {
-    "<" + rd.prettyName + ">" + expr.prettyExpr + "</" + rd.prettyName + ">"
-  }
+  override lazy val childProcessors = Nil
 
   /**
    * Returns a pair. Modifies the PState

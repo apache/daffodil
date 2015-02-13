@@ -139,6 +139,7 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
   lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
+  lazy val outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
   //  lazy val scalarDefaultable = referencedElement.scalarDefaultable
   //  lazy val scalarNonDefault = referencedElement.scalarNonDefault
 

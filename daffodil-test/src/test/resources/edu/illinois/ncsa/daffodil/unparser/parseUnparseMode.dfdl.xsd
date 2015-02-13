@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  targetNamespace="urn:parseUnparseMode" 
+  xmlns:tns="urn:parseUnparseMode"
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions"
+  elementFormDefault="qualified">
+          
+   <xs:include schemaLocation="xsd/built-in-formats.xsd"/>
+   
+   <xs:annotation>
+     <xs:appinfo source="http://www.ogf.org/dfdl/">
+        <dfdl:format ref="tns:daffodilTest1" />
+        <dfdl:defineVariable name="mode" type="xs:string" />
+      </xs:appinfo>
+   </xs:annotation>
+          
+    <!-- This mode variable will be 'parse' or 'unparse' and can be used to create conditional 
+    behavior based on whether the DFDL schema is being used to parse or unparse.
+    
+    The point of this is that expressions can contain a mixture of forward and backward references through the 
+    schema so long as they only refer forward during unparse mode.
+    -->
+    
+    
+    <!-- include this as a hidden group ref from the root element of the schema -->
+    
+    <xs:group name="hDefModeGroup">
+      <xs:sequence>
+      <!-- this flag is text, but this has to be the very first thing in the schema
+           so this text can have no impact on alignment of anything. -->
+        <xs:element name="__unparseFlag" type="xs:string" dfdl:lengthKind="explicit"
+          dfdl:length="0" dfdl:outputValueCalc="{ 'unparse' }" />
+        <xs:sequence>
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="tns:mode"><![CDATA[
+              {
+                  if (tns:__unparseFlag eq 'unparse') then 'unparse' else 'parse'
+              }]]>
+              </dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:sequence>
+      </xs:sequence>
+    </xs:group>
+    
+    <!-- used to create choices where one branch is all parsing only, another unparsing only. -->
+    <!-- just start the branch with the appropriate *NOT* hidden group ref to one of these. -->
+ 
+    <xs:group name="assertParsing">
+    <xs:sequence>
+           <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:discriminator>{ $tns:mode eq 'parse' }</dfdl:discriminator>
+           </xs:appinfo></xs:annotation>
+    </xs:sequence>
+    </xs:group>
+
+    <xs:group name="assertUnparsing">
+      <xs:sequence>
+           <xs:annotation><xs:appinfo source="http://www.ogf.org/dfdl/">
+              <!-- if we get here when parsing, the user didn't have a prior branch begining with
+                   <xs:group ref='tns:assertParsing'/>
+               -->
+              <dfdl:assert>{ daf:error() }</dfdl:assert>
+           </xs:appinfo></xs:annotation>
+           <!-- 
+           This is a required element that will be computed on output.
+           However, it has no impact on alignment or on anything else, and generates zero bits of output
+           and so it will never exist when parsing or re-parsing, and it doesn't need to be in the infoset in advance
+           when unparsing (due to the outputValueCalc). So all one has to do is ignore it really.
+           What it achieves, is that because it is NOT hidden, it will distinguish a sequence of 
+           elements that begins with this group for UPA-rules purposes. This allows both branches
+           of a choice to have the exact same sequence of elements without worrying about 
+           UPA-rule violations as the unparsing branch really begins with this faker element -->
+           <xs:element name="__unparsing" type="xs:byte" dfdl:representation="binary"
+              dfdl:alignmentUnits="bits" dfdl:alignment="1" dfdl:lengthUnits="bits" dfdl:length="0" dfdl:lengthKind="explicit" 
+              dfdl:outputValueCalc="{ 0 }" />
+              <!-- note that in the above, since it is a byte, if we ever parsed this it would be an error as you can't
+              parse a byte value from 0 bits -->
+      </xs:sequence>
+    </xs:group>
+     
+</xs:schema>

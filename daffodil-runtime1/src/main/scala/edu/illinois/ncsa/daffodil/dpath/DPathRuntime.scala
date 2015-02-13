@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml._
-
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionDiagnosticBase
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -45,6 +44,7 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
@@ -54,11 +54,11 @@ class CompiledDPath(val ops: RecipeOp*) extends Serializable {
 
   def toXML = <CompiledDPath>{ ops.map { _.toXML } }</CompiledDPath>
 
-  def runExpression(pstate: PState) {
-    val dstate = pstate.dstate
-    dstate.setCurrentNode(pstate.infoset.asInstanceOf[DINode])
-    dstate.setVMap(pstate.variableMap)
-    dstate.setPState(pstate)
+  def runExpression(state: ParseOrUnparseState) {
+    val dstate = state.dstate
+    dstate.setCurrentNode(state.thisElement.asInstanceOf[DINode])
+    dstate.setVMap(state.variableMap)
+    dstate.setPUState(state)
     dstate.resetValue
     run(dstate)
   }

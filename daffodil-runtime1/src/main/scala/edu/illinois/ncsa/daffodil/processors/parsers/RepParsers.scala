@@ -59,6 +59,8 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends Parser(context) {
 
+  override lazy val childProcessors = Seq(rParser)
+
   val intN = n.toInt
 
   def checkN(pstate: PState, n: Long): Option[PState] = {
@@ -253,6 +255,8 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
 
 class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementRuntimeData)
   extends Parser(erd) with WithParseErrorThrowing {
+
+  override lazy val childProcessors = Nil
 
   def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
 

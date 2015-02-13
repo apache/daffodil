@@ -35,5 +35,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1-unparser"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

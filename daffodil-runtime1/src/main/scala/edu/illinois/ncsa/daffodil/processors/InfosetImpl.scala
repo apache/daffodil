@@ -57,8 +57,10 @@ import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
-sealed trait DINode extends {
+sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
+  def asSimple: DISimple = this.asInstanceOf[DISimple]
+  def children: Stream[DINode]
 }
 
 /**
@@ -66,7 +68,7 @@ sealed trait DINode extends {
  * slot being probed. E.g., expression evaluation reaching to a forward
  * sibling that has not yet been parsed.
  */
-class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
+class InfosetNoSuchChildElementException(msg: String) extends ProcessingError("Error", Nope, Nope, msg) {
   def this(erd: ElementRuntimeData) = this("Child element %s does not exist.".format(erd.prettyName))
   // def this(slot: Int) = this("Child element with slot position %s does not exist.".format(slot))
   def this(name: String, namespace: NS, slot: Int) = this("Child named '" + name +
@@ -76,7 +78,7 @@ class InfosetNoSuchChildElementException(msg: String) extends ProcessingError {
   override def getMessage: String = msg
 }
 
-class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError {
+class InfosetArrayIndexOutOfBoundsException(msg: String) extends ProcessingError("Error", Nope, Nope, msg) {
   def this(name: String, namespace: NS, slot: Long, length: Long) = {
     this("Value %d is out of range for the '%s' array%swith length %d".format(
       slot,
@@ -117,6 +119,8 @@ final class FakeDINode extends DISimple(null) {
 
   override def dataValueAsString: String = _value.toString
   override def isDefaulted: Boolean = die
+
+  override def children = die
 }
 
 /**
@@ -181,6 +185,7 @@ final class DIArray(name: String, namespace: NS) extends DINode with InfosetArra
   //constant time. 
   final protected val _contents = new ArrayBuffer[InfosetElement](initialSize)
 
+  override def children = _contents.toStream.asInstanceOf[Stream[DINode]]
   /**
    * Used to shorten array when backtracking out of having appended elements.
    */
@@ -212,6 +217,8 @@ sealed class DISimple(val erd: ElementRuntimeData)
   protected var _isDefaulted: Boolean = false
 
   private var _value: Any = null
+
+  override def children: Stream[DINode] = Stream.Empty
 
   override def setDataValue(x: Any) {
     Assert.invariant(x != null)
@@ -370,7 +377,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final protected def slots = _slots
 
   private lazy val _slots = {
-    val slots = new Array[Maybe[DINode]](nSlots);
+    val slots = new Array[Maybe[DINode]](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.
 
     // initialize slots to Nope
     var i = 0
@@ -380,6 +387,8 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     }
     slots
   }
+
+  override def children = _slots.flatten.toStream
 
   final override def getChild(erd: ElementRuntimeData): InfosetElement = getChildMaybe(erd).getOrElse {
     throw new InfosetNoSuchChildElementException(erd)
@@ -555,7 +564,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
  */
 final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
   with InfosetDocument {
-  private var root: DIElement = null
+  var root: DIElement = null
 
   override def nSlots = 1
 
@@ -702,6 +711,12 @@ object Infoset {
     val infosetElem = Infoset.newElement(erd)
     populate(erd, infosetElem, xmlElem)
     infosetElem
+  }
+
+  def elem2InfosetDocument(erd: ElementRuntimeData, xmlElem: scala.xml.Node): InfosetDocument = {
+    val rootElem = elem2Infoset(erd, xmlElem)
+    val doc = newDocument(rootElem)
+    doc
   }
 
   def populate(erd: ElementRuntimeData,

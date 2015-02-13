@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite suiteName="parser and unparser mode experiments"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <tdml:parserTestCase name="parse1" root="root" model="parseUnparseModeTest.dfdl.xsd">
+    <tdml:document>24</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root><a>24</a><b>parsing</b></ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse1" model="parseUnparseModeTest.dfdl.xsd">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root><a>42</a><b>unparsing</b></ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>42</tdml:document>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

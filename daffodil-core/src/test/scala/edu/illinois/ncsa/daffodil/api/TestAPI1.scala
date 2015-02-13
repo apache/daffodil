@@ -38,8 +38,9 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
-import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.dsom._
 
 class TestDFDLParser {
 
@@ -249,7 +250,7 @@ class TestDFDLParser {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
       val actual = TestUtils.testString(sch, "7,018,631,476")
     }
-    // println("ERROR!!!!!" + e.getMessage())
+    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedInt"))
   }
 
@@ -397,6 +398,12 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
+  def dbg = {
+    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
+    Debugger.withTracing(false)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
+
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
@@ -409,6 +416,7 @@ class TestDFDLParser {
       </xs:element>)
     val actual = TestUtils.testString(sch, "5;6;7;8;.").result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
+
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 

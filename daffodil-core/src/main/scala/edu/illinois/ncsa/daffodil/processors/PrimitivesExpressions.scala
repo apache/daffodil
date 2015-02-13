@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
@@ -55,6 +56,8 @@ import edu.illinois.ncsa.daffodil.processors.parsers.NewVariableInstanceEndParse
 import edu.illinois.ncsa.daffodil.processors.parsers.SetVariableParser
 import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 import java.util.regex.Pattern
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -126,6 +129,7 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
   override lazy val nodeKind = stmt.defv.primType
 
   def parser: DaffodilParser = new SetVariableParser(expr, stmt.defv.runtimeData)
+  override def unparser: DaffodilUnparser = new SetVariableUnparser(expr, stmt.defv.runtimeData)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
@@ -174,15 +178,10 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
   }
 }
 
-case class InputValueCalc(e: ElementBase)
+abstract class ValueCalcBase(e: ElementBase)
   extends ExpressionEvaluatorBase(e) {
 
-  val baseName = "InputValueCalc"
-  lazy val exprProp = e.inputValueCalcOption match {
-    case f: Found => f
-    case _: NotFound => Assert.invariantFailed("must be a Found object")
-  }
-
+  def exprProp: Found
   override lazy val exprText = exprProp.value
   override lazy val exprNamespaces = exprProp.location.namespaces
   override lazy val exprComponent = exprProp.location.asInstanceOf[SchemaComponent]
@@ -190,8 +189,20 @@ case class InputValueCalc(e: ElementBase)
   lazy val pt = e.primType //.typeRuntimeData
   override lazy val nodeKind = pt
   lazy val ptn = pt.name
+}
+
+case class ValueCalc(
+  override val baseName: String,
+  e: ElementBase,
+  property: PropertyLookupResult)
+  extends ValueCalcBase(e) {
+
+  val exprProp = property.asInstanceOf[Found]
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
+
+  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr)
+
 }
 
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)

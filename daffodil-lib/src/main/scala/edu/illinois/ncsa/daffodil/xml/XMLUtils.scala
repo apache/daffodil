@@ -751,8 +751,8 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
-  def convertInputStreamToTempFile(is: java.io.InputStream, 
-      tmpDir: File,
+  def convertInputStreamToTempFile(is: java.io.InputStream,
+    tmpDir: File,
     nameHint: String,
     suffix: String) = {
     // Create temp file
@@ -773,6 +773,21 @@ Differences were (path, expected, actual):
     tmpSchemaFile
   }
 
+  /**
+   * Converts a scala XML node into an XMLStreamReader
+   */
+  def nodeToXMLStreamReader(node: scala.xml.Node): javax.xml.stream.XMLStreamReader = {
+    val factory = javax.xml.stream.XMLInputFactory.newInstance()
+    //
+    // We're going to serialize the input infoset to a string, then
+    // create an XML event source from that.
+    // This is inefficient, but sufficent for the TDML runner.
+    //
+    val nodeString = node.toString
+    val xmlTextReader = new java.io.StringReader(nodeString)
+    val xmlStreamReader = factory.createXMLStreamReader(xmlTextReader)
+    xmlStreamReader
+  }
 }
 
 trait GetAttributesMixin extends ThrowsSDE {

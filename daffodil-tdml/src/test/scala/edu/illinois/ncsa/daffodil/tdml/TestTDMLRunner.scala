@@ -205,7 +205,7 @@ class TestTDMLRunner {
     val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte).toList
     val actualBytes = doc.documentBytes.toList
     assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset.get
+    val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
     val expected = <byte1>123</byte1>
@@ -237,7 +237,7 @@ class TestTDMLRunner {
     val expectedBytes = Vector('0'.toByte, '1'.toByte, '2'.toByte, '3'.toByte).toList
     val actualBytes = doc.documentBytes.toList
     assertEquals(expectedBytes, actualBytes)
-    val infoset = ptc.infoset.get
+    val infoset = ptc.optExpectedInfoset.get
     val actualContent = infoset.dfdlInfoset.contents
     val trimmed = actualContent
     val expected = <byte1>123</byte1>

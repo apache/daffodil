@@ -58,17 +58,20 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 
-abstract class ProcessingError extends Exception with ThinThrowable with DiagnosticImplMixin
-
-class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind: String, args: Any*)
-  extends ProcessingError {
+abstract class ProcessingError(
+  pOrU: String,
+  rd: Maybe[SchemaFileLocation],
+  val state: Maybe[ParseOrUnparseState],
+  kind: String,
+  args: Any*)
+  extends Exception with ThinThrowable with DiagnosticImplMixin {
   override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
-  override def getDataLocations: Seq[DataLocation] = pstate.map { _.currentLocation }.toList
+  override def getDataLocations: Seq[DataLocation] = state.map { _.currentLocation }.toList
 
   def componentText: String = ""
 
   override def toString = {
-    lazy val argsAsString = args.map { _.toString }.mkString(", ")
+    val args1 = args
     //
     // Right here is where we would lookup the symbolic error kind id, and
     // choose a locale-based message string.
@@ -76,18 +79,21 @@ class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind:
     // For now, we'll just do an automatic English message.
     //
     val msg = {
-      if (args.size > 0) kind.format(args: _*)
+      if (args1.size > 0) kind.format(args1: _*)
       else kind
     }
-    val res = "Parse Error: " + msg +
+    val res = pOrU + ": " + msg +
       componentText +
       "\nSchema context: %s %s".format(rd, getLocationsInSchemaFiles) +
-      pstate.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
+      state.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
 
   override def getMessage = toString
 }
+
+class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind: String, args: Any*)
+  extends ProcessingError("Parse Error", rd, pstate, kind, args: _*)
 
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
   extends ParseError(One(rd), One(state), "Assertion failed. %s", msg) {

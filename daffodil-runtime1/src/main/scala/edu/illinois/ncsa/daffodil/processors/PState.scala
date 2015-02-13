@@ -62,7 +62,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.dpath.DState
 
-case class MPState(val dataProc: DFDL.DataProcessor) {
+case class MPState() {
 
   val dstate: DState = new DState
   val arrayIndexStack = Stack[Long](1L)
@@ -108,17 +108,70 @@ case class MPState(val dataProc: DFDL.DataProcessor) {
  * which should be isolated to the alternative parser, and repParsers, i.e.,
  * places where points-of-uncertainty are handled.
  */
-case class PState(
-  var inStream: InStream,
-  var infoset: InfosetItem,
+abstract class ParseOrUnparseState(
+  var dstate: DState,
   var variableMap: VariableMap,
-  var status: ProcessorResult,
   var diagnostics: List[Diagnostic],
-  var discriminatorStack: List[Boolean],
-  val mpstate: MPState)
+  var dataProc: DataProcessor)
   extends DFDL.State with ThrowsSDE with SavesErrorsAndWarnings {
+  override def schemaFileLocation = getContext().schemaFileLocation
 
-  def dstate = mpstate.dstate
+  def bitPos1b: Long
+  def bitLimit1b: Long
+
+  def thisElement: InfosetElement
+
+  def getContext(): ElementRuntimeData = {
+    val currentElement = thisElement
+    val res = currentElement.runtimeData
+    res
+  }
+  def SDE(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
+    ctxt.toss(rsde)
+  }
+
+  def SDEButContinue(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
+    diagnostics = rsde :: diagnostics
+  }
+
+  def SDW(str: String, args: Any*) = {
+    ExecutionMode.requireRuntimeMode
+    val ctxt = getContext()
+    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
+    diagnostics = rsdw :: diagnostics
+  }
+
+}
+
+class PState(
+  var infoset: InfosetItem,
+  var inStream: InStream,
+  vmap: VariableMap,
+  var status: ProcessorResult,
+  diagnosticsArg: List[Diagnostic],
+  var discriminatorStack: List[Boolean],
+  val mpstate: MPState,
+  dataProcArg: DataProcessor)
+  extends ParseOrUnparseState(mpstate.dstate, vmap, diagnosticsArg, dataProcArg) {
+
+  def thisElement = infoset.asInstanceOf[InfosetElement]
+
+  // No longer a case-class, so we need our own copy routine... since PStates get copied 
+  // a lot.
+  def copy(inStream: InStream = inStream,
+    infoset: InfosetItem = infoset, variableMap: VariableMap = variableMap, status: ProcessorResult = status,
+    diagnostics: List[Diagnostic] = diagnostics,
+    discriminatorStack: List[Boolean] = discriminatorStack,
+    mpstate: MPState = mpstate, // don't copy the mpstate object itself, just the reference to it.
+    dataProc: DataProcessor = dataProc) =
+    new PState(infoset, inStream,
+      variableMap, status, diagnostics, discriminatorStack, mpstate, dataProc)
   // TODO: many off-by-one errors due to not keeping strong separation of 
   // one-based and zero-based indexes.
   // 
@@ -143,6 +196,7 @@ case class PState(
     status = other.status
     diagnostics = other.diagnostics
     discriminatorStack = other.discriminatorStack
+    dataProc = other.dataProc
   }
 
   def bytePos0b = bitPos0b >> 3
@@ -154,44 +208,15 @@ case class PState(
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos0b, charPos, status)
   }
-  def getContext(): ElementRuntimeData = {
-    val currentElement = thisElement
-    val res = currentElement.runtimeData
-    res
-  }
 
-  override def schemaFileLocation = getContext().schemaFileLocation
-
-  def SDE(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
-    val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
-    ctxt.toss(rsde)
-  }
-
-  def SDEButContinue(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
-    val ctxt = getContext()
-    val rsde = new RuntimeSchemaDefinitionError(ctxt.schemaFileLocation, this, str, args: _*)
-    diagnostics = rsde :: diagnostics
-  }
-
-  def SDW(str: String, args: Any*) = {
-    ExecutionMode.requireRuntimeMode
-    val ctxt = getContext()
-    val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
-    diagnostics = rsdw :: diagnostics
-  }
+  def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, inStream)
 
   def discriminator = discriminatorStack.head
-  def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, inStream)
   // def inStreamState = inStreamStateStack top
   def bitPos0b = inStream.bitPos0b
   def bitLimit0b = inStream.bitLimit0b
   def charPos = inStream.charPos0b
   def charLimit = inStream.charLimit0b
-
-  def thisElement = infoset.asInstanceOf[InfosetElement]
 
   def simpleElement: InfosetSimpleElement = {
     val res = infoset match {
@@ -338,7 +363,7 @@ object PState {
   /**
    * Initialize the state block given our InStream and a root element declaration.
    */
-  def createInitialState(
+  def createInitialPState(
     root: ElementRuntimeData,
     in: InStream,
     dataProc: DFDL.DataProcessor): PState = {
@@ -349,16 +374,16 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Maybe[DFDLCharReader] = Nope
-    val mutablePState = MPState(dataProc)
-
-    val newState = PState(in, doc, variables, status, diagnostics, List(false), mutablePState)
+    val mutablePState = new MPState
+    val newState = new PState(doc, in, variables, status, diagnostics, List(false), mutablePState,
+      dataProc.asInstanceOf[DataProcessor])
     newState
   }
 
   /**
    * For testing, we can pass in the Infoset pre-constructed.
    */
-  def createInitialState(
+  def createInitialPState(
     doc: InfosetDocument,
     root: ElementRuntimeData,
     in: InStream,
@@ -369,28 +394,29 @@ object PState {
     val diagnostics = Nil
     val discriminator = false
     val textReader: Maybe[DFDLCharReader] = Nope
-    val mutablePState = MPState(dataProc)
+    val mutablePState = new MPState
 
-    val newState = PState(in, doc, variables, status, diagnostics, List(false), mutablePState)
+    val newState = new PState(doc, in, variables, status, diagnostics, List(false), mutablePState,
+      dataProc.asInstanceOf[DataProcessor])
     newState
   }
 
   /**
    * For testing it is convenient to just hand it strings for data.
    */
-  def createInitialState(
+  def createInitialPState(
     root: ElementRuntimeData,
     data: String,
     bitOffset: Long,
     dataProc: DFDL.DataProcessor): PState = {
     val in = Misc.stringToReadableByteChannel(data)
-    createInitialState(root, in, dataProc, data.length, bitOffset)
+    createInitialPState(root, in, dataProc, data.length, bitOffset)
   }
 
   /**
    * Construct our InStream object and initialize the state block.
    */
-  def createInitialState(
+  def createInitialPState(
     root: ElementRuntimeData,
     input: DFDL.Input,
     dataProc: DFDL.DataProcessor,
@@ -399,7 +425,7 @@ object PState {
     val bitOrder = root.defaultBitOrder
     val inStream =
       InStream.fromByteChannel(root, input, bitOffset, bitLengthLimit, bitOrder)
-    createInitialState(root, inStream, dataProc)
+    createInitialPState(root, inStream, dataProc)
   }
 
 }

@@ -37,9 +37,11 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.EncodingMixin
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
 class SchemaSetRuntimeData(
-  val parser: Parser, // unparser too someday
+  val parser: Parser,
+  val unparser: Unparser,
   val diagnostics: Seq[Diagnostic],
   val elementRuntimeData: ElementRuntimeData,
   val encodingInfo: EncodingInfo,

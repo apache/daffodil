@@ -35,14 +35,23 @@ package edu.illinois.ncsa.daffodil.debugger
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 abstract class Debugger {
   def init(parser: Parser) {}
+  def init(unparser: Unparser) {}
   def before(state: PState, parser: Parser) {}
+  def before(state: UState, unparser: Unparser) {}
   def after(before: PState, after: PState, parser: Parser) {}
+  def after(before: UState, after: UState, unparser: Unparser) {}
   def beforeRepetition(state: PState, parser: Parser) {}
   def afterRepetition(before: PState, after: PState, parser: Parser) {}
+  def beforeRepetition(state: UState, unparser: Unparser) {}
+  def afterRepetition(before: UState, after: UState, unparser: Unparser) {}
   def startElement(state: PState, parser: Parser) {}
+  def startElement(state: UState, unparser: Unparser) {}
+  def fini(unparser: Unparser) {}
   def fini(parser: Parser) {}
 }
 
@@ -118,5 +127,33 @@ object Debugger {
 
   def fini(parser: Parser) {
     if (areDebugging) { debugger.fini(parser) }
+  }
+
+  def init(unparser: Unparser) {
+    if (areDebugging) { debugger.init(unparser) }
+  }
+
+  def before(state: UState, unparser: Unparser) {
+    if (areDebugging) { debugger.before(state, unparser) }
+  }
+
+  def after(before: UState, after: UState, unparser: Unparser) {
+    if (areDebugging) { debugger.after(before, after, unparser) }
+  }
+
+  def beforeRepetition(state: UState, unparser: Unparser) {
+    if (areDebugging) { debugger.beforeRepetition(state, unparser) }
+  }
+
+  def afterRepetition(before: UState, after: UState, unparser: Unparser) {
+    if (areDebugging) { debugger.afterRepetition(before, after, unparser) }
+  }
+
+  def startElement(state: UState, unparser: Unparser) {
+    if (areDebugging) { debugger.startElement(state, unparser) }
+  }
+
+  def fini(unparser: Unparser) {
+    if (areDebugging) { debugger.fini(unparser) }
   }
 }
