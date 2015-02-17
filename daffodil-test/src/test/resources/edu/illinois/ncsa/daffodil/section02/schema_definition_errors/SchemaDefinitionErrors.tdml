@@ -144,7 +144,7 @@
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
       <tdml:error>lineNumber.dfdl.xsd</tdml:error>
-      <tdml:error>lineNumber: 18</tdml:error>
+      <tdml:error>lineNumber: 50</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
