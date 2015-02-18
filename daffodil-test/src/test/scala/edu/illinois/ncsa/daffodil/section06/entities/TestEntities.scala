@@ -70,6 +70,8 @@ class TestEntities {
   @Test def test_entityAndNonMix_02() { runner_01.runOneTest("entityAndNonMix_02") }
   @Test def test_entityAndNonMix_03() { runner_01.runOneTest("entityAndNonMix_03") }
   @Test def test_entityAndNonMix_04() { runner_01.runOneTest("entityAndNonMix_04") }
+
+  // DFDL-378
   //  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
   @Test def test_doubleNLterminator() { runner_01.runOneTest("doubleNLterminator") }

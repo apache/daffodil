@@ -48,6 +48,7 @@ class TestEntities_01 {
   val aa_01 = testDir_01 + "Entities.tdml"
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
 
+  // DFDL-378
   @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
 
   //DFDL-258 - raw byte entities

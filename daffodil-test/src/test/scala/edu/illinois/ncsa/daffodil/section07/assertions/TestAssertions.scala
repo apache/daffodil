@@ -82,9 +82,11 @@ class TestAssertions {
   @Test def test_assertPass2() { runner.runOneTest("assertPass2") }
   @Test def test_assertPatternEmpty() { runner.runOneTest("assertPatternEmpty") }
 
+  // DFDL-474
+  //  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
+
   @Test def test_assertExpressionRef() { runner.runOneTest("assertExpressionRef") }
   @Test def test_assertExpressionRefFail() { runner.runOneTest("assertExpressionRefFail") }
-  //  @Test def test_assertExpressionEmpty() { runner.runOneTest("assertExpressionEmpty") }
   @Test def test_assertMessage() { runner.runOneTest("assertMessage") }
   
   @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
