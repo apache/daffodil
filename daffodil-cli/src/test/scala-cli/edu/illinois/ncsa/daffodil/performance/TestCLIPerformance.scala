@@ -72,8 +72,9 @@ class TestCLIPerformance {
 
     val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
     shell.send(exitCodeCmd)
+    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
     val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode))
+    if (!"0".equals(exitCode.trim()))
       fail("Tests failed. Exit code: " + exitCode)
 
     shell.send("exit\n")
@@ -102,8 +103,9 @@ class TestCLIPerformance {
 
     val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
     shell.send(exitCodeCmd)
+    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
     val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode))
+    if (!"0".equals(exitCode.trim()))
       fail("Tests failed. Exit code: " + exitCode)
 
     shell.send("exit\n")
@@ -133,8 +135,9 @@ class TestCLIPerformance {
 
     val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
     shell.send(exitCodeCmd)
+    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
     val exitCode = shell.expect(contains("\n")).getBefore()
-    if (!"0".equals(exitCode))
+    if (!"0".equals(exitCode.trim()))
       fail("Tests failed. Exit code: " + exitCode)
 
     shell.send("exit\n")
@@ -156,8 +159,9 @@ class TestCLIPerformance {
 
     val exitCodeCmd = if (Util.isWindows) "echo %ERRORLEVEL%\n" else "echo $?\n"
     shell.send(exitCodeCmd)
+    if (Util.isWindows) shell.expect(contains("%ERRORLEVEL%\n"))
     val exitCode = shell.expect(contains("\n")).getBefore()
-    if ("0".equals(exitCode))
+    if ("0".equals(exitCode.trim()))
       fail("Tests were successful when they were expected to fail. Exit code: " + exitCode)
 
     shell.send("exit\n")
