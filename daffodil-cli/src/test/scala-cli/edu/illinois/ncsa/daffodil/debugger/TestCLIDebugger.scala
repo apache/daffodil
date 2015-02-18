@@ -144,7 +144,7 @@ class TestCLIdebugger {
     shell.close()
   }
 
-  /*@Test def test_3398_CLI_Debugger_occursBounds_2() {
+  @Test def test_3398_CLI_Debugger_occursBounds_2() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r file daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input11.txt\n"
     val shell = Util.start(cmd)
     shell.expect(contains("(debug)"))
@@ -158,8 +158,7 @@ class TestCLIdebugger {
 
     shell.send("continue\n")
     shell.expect(contains("breakpoint 1: title"))
-    //Needs to be updated to correct expected value
-    shell.expect(contains("occursBounds: ?")) //occursCount not set for title
+    shell.expect(contains("occursBounds: 1024")) //occursCount is not set, so default is used
 
     shell.send("disable breakpoint 1\n")
 
@@ -170,7 +169,7 @@ class TestCLIdebugger {
     shell.send("complete\n")
     shell.send("quit\n")
     shell.close()
-  }*/
+  }
 
   @Test def test_1335_CLI_Debugger_dataAndWrapLength() {
     val cmd = Util.binPath + " -d parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt\n"
