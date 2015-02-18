@@ -53,5 +53,6 @@ class TestEscapeSchemeDebug {
   val bb = testDir + "escapeScenarios.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb), validateTDMLFile = false)
 
+  //DFDL-961
   @Test def test_scenario3_11_postfix() { runner2.runOneTest("scenario3_11_postfix") }
 }
