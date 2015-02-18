@@ -2157,7 +2157,7 @@ jonesington,david,frederick,1986-02-19
         <tdml:error>Invalid dfdl annotation</tdml:error>
         <tdml:error>xs:format</tdml:error>
         <tdml:error>Schema context:</tdml:error>
-        <tdml:error>Location line 2 column 2</tdml:error>
+        <tdml:error>Location line 51 column 8</tdml:error>
         <tdml:error>section06/namespaces/multi_B_04_invalid.dfdl.xsd</tdml:error>
       </tdml:errors>
   </tdml:parserTestCase>
