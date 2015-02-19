@@ -70,7 +70,8 @@ class TestCLIexecuting {
   }
 
   @Test def test_1001_CLI_Executing_Listing_execRegex01() {
-    val cmd = Util.binPath + " test --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entry4_\\d'\n"
+    val regex = if (Util.isWindows) "escape_entry4_\\d" else "'escape_entry4_\\d'" 
+    val cmd = Util.binPath + " test --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
     val shell = Util.start(cmd)
     shell.expect(contains(output13))
     shell.send("exit\n")
@@ -78,25 +79,39 @@ class TestCLIexecuting {
   }
   
   @Test def test_1000_CLI_Executing_Listing_listRegex02() {
-    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entryb-\\d+'\n"
+    val regex = if (Util.isWindows) "escape_entryb-\\d+" else "'escape_entryb-\\d+'"
+    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
     val shell = Util.start(cmd)
-    try {
-      shell.expect(5000, anyString())
-    } catch {
-      case ex: AssertionError => {
-        //Didn't find a string which is what we wanted
-	shell.send("exit\n")
-	shell.close()
-	return
+    if (Util.isWindows) {
+      val result = shell.expect(5000, contains(">")).getBefore()
+      val cmd2 = "chdir\n"
+      shell.send(cmd2)
+      shell.expect(contains(cmd2))
+      val prompt = shell.expect(contains("\n")).getBefore()
+      shell.send("exit\n")
+      shell.close()
+      if (!prompt.trim().equals(result.trim()))
+        fail("Output was found when none was expected.")
+    } else {
+      try {
+        val result = shell.expect(5000, anyString())
+      } catch {
+        case ex: AssertionError => {
+          //Didn't find a string which is what we wanted
+	        shell.send("exit\n")
+	        shell.close()
+	        return
+        }
       }
+      shell.send("exit\n")
+      shell.close()
+      fail("Output was found when none was expected.")
     }
-    shell.send("exit\n")
-    shell.close()
-    fail("Output was found when none was expected.")
   }
   
   @Test def test_999_CLI_Executing_Listing_listRegex01() {
-    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml 'escape_entry4_\\d+'\n"
+    val regex = if (Util.isWindows) "escape_entry4_\\d+" else "'escape_entry4_\\d+'"
+    val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
     val shell = Util.start(cmd)
     shell.expect(contains(output14))
     shell.send("exit\n")

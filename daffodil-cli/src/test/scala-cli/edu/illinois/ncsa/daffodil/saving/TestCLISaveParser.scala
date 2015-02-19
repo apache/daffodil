@@ -178,28 +178,28 @@ class TestCLISaveParser {
 
   @Test def test_3023_CLI_Saving_SaveParser_verboseMode() {
 
-    var cmd = Util.binPath + " -v save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
+    var cmd = Util.binPath + " -v save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     var shell = Util.start(cmd, true)
     shell.expect(contains("[info]"))
     shell.send("exit\n")
     shell.expect(eof())
     shell.close()
 
-    cmd = Util.binPath + " -vv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
+    cmd = Util.binPath + " -vv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     shell = Util.start(cmd, true)
     shell.expect(contains("[compile]"))
     shell.send("exit\n")
     shell.expect(eof())
     shell.close()
 
-    cmd = Util.binPath + " -vvv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
+    cmd = Util.binPath + " -vvv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     shell = Util.start(cmd, true)
     shell.expect(contains("[debug]"))
     shell.send("exit\n")
     shell.expect(eof())
     shell.close()
 
-    cmd = Util.binPath + " -vvvv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix\n"
+    cmd = Util.binPath + " -vvvv save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix savedParser.xml\n"
     shell = Util.start(cmd, true)
     shell.expect(contains("[oolagdebug]"))
     shell.send("exit\n")
@@ -223,14 +223,10 @@ class TestCLISaveParser {
 
   @Test def test_3039_CLI_Saving_SaveParser_emptyNamespace() {
 
-    val cmdLinux = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {}matrix -p / savedParser.xml\n"
-    val cmdWindows = Util.binPath + """ save-parser -s daffodil-test\src\test\resources\edu\illinois\ncsa\daffodil\section06\entities\charClassEntities.dfdl.xsd -r {}matrix -p / savedParser.xml"""
-    val cmd = if (Util.isWindows) cmdWindows else cmdLinux
+    val cmd = Util.binPath + " save-parser -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r {}matrix -p / savedParser.xml\n"
     val shell = Util.startNoConvert(cmd)
 
-    val cmdLinux2 = "echo 0,1,2| " + Util.binPath + " parse --parser savedParser.xml\n"
-    val cmdWindows2 = """echo 0,1,2| """ + Util.binPath + """ parse --parser savedParser.xml"""
-    val cmd2 = if (Util.isWindows) cmdWindows2 else cmdLinux2
+    val cmd2 = "echo 0,1,2| " + Util.binPath + " parse --parser savedParser.xml\n"
     shell.send(cmd2)
 
     shell.expect(contains("<tns:matrix"))
