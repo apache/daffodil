@@ -56,10 +56,10 @@ class TestCLIexecuting {
 
   val testDir = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/"
   val output3 = Util.getExpectedString("output3.txt")
-  val output13 = Util.getExpectedString("output13.txt")
-  val output14 = Util.getExpectedString("output14.txt")
-  val output15 = Util.getExpectedString("output15.txt")
-  val output16 = Util.getExpectedString("output16.txt")
+  val output13 = Util.getExpectedString("output13.txt", true)
+  val output14 = Util.getExpectedString("output14.txt", true)
+  val output15 = Util.getExpectedString("output15.txt", true)
+  val output16 = Util.getExpectedString("output16.txt", true)
 
   @Test def test_995_CLI_Executing_Listing_negativeTest01() {
     val cmd = Util.binPath + " test daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml escape_entry1 escape_entry2-11 escape_entry1-5 escape_entry4_3\n"

@@ -52,13 +52,14 @@ object Util {
 
   val binPath = Paths.get(".", "daffodil-cli", "target", "universal", "stage", "bin", String.format("daffodil%s", (if (isWindows) ".bat" else ""))).toString()
 
-  def getExpectedString(filename: String): String = {
+  def getExpectedString(filename: String, convertToDos: Boolean = false): String = {
     val rsrc = Misc.getRequiredResource(outputDir + filename)
     //val source = scala.io.Source.fromFile(outputDir + filename)
     val source = scala.io.Source.fromFile(rsrc)
     var lines = source.mkString.trim()
     source.close()
     if (isWindows) {
+      if(convertToDos) return fileConvertToDos(lines)
       return fileConvert(lines)
     } else {
       return lines
@@ -163,5 +164,12 @@ object Util {
     var newstr = str.replaceAll("\\r\\n", "\n")
     return newstr
   }
+
+  def fileConvertToDos(str: String): String = {
+    var newstr = str.replaceAll("\\r\\n", "\n")
+    newstr = str.replaceAll("\\n", "\r\n")
+    return newstr
+  }
+
 
 }
