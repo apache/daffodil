@@ -9573,7 +9573,7 @@
           <seq>
             <item>1</item>
           </seq>
-          <exactly-one>true</exactly-one>
+          <exactly-one>1</exactly-one>
         </exactly-one01>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -9592,18 +9592,10 @@
     <tdml:document>
       <tdml:documentPart type="text">1,2,3</tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <exactly-one01>
-          <seq>
-            <item>1</item>
-            <item>2</item>
-            <item>3</item>
-          </seq>
-          <exactly-one>false</exactly-one>
-        </exactly-one01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>does not contain</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
@@ -9619,14 +9611,10 @@
     <tdml:document>
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <exactly-one01>
-          <seq/>
-          <exactly-one>false</exactly-one>
-        </exactly-one01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>does not contain</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--
