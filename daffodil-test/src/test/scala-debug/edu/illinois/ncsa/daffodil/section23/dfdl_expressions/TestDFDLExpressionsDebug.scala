@@ -180,6 +180,13 @@ class TestDFDLExpressionsDebug {
   @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
+  //DFDL-1076
+  @Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+  //DFDL-1233
+  @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
+  @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
+  @Test def test_nilled_04() { runner2.runOneTest("nilled_04") }
+
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
   lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))

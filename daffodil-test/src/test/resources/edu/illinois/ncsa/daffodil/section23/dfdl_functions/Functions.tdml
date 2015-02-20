@@ -8515,7 +8515,38 @@
     </xs:complexType>
   </xs:element>
   
+    <xs:element name="nilled01">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" nillable="true" type="xs:string" dfdl:nilKind="literalValue" dfdl:nilValue="nil"/>
+          <xs:element name="nilled" type="xs:boolean" dfdl:inputValueCalc="{ fn:nilled(/ex:nilled01/ex:a) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
+    <xs:element name="nilled02">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="a" type="xs:string" />
+          <xs:element name="nilled" type="xs:boolean" dfdl:inputValueCalc="{ fn:nilled(/ex:nilled02/ex:a) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nilled03">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|">
+          <xs:element name="seq">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="item" type="xs:int" minOccurs="0" maxOccurs="15" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="nilled" type="xs:boolean" dfdl:inputValueCalc="{ fn:nilled(../ex:seq) }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
   </tdml:defineSchema>
 <!--
     Test Name: boolFunctionChoice_01
@@ -10396,6 +10427,97 @@
     </tdml:infoset>
   </tdml:parserTestCase>
   
+<!--
+    Test Name: nilled_01
+       Schema: booleanFunctions
+         Root: nilled01
+      Purpose: This test demonstrates that the fn:nilled function returns true if arg is a node with xsi:nil = true
+-->
+
+  <tdml:parserTestCase name="nilled_01" root="nilled01"
+    model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">nil</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nilled01>
+          <a xsi:nil="true"/>
+          <nilled>true</nilled>
+        </nilled01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: nilled_02
+       Schema: booleanFunctions
+         Root: nilled01
+      Purpose: This test demonstrates that the fn:nilled function returns false if arg is a node with xsi:nil = false
+-->
+
+  <tdml:parserTestCase name="nilled_02" root="nilled01"
+    model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">test</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nilled01>
+          <a>test</a>
+          <nilled>false</nilled>
+        </nilled01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: nilled_03
+       Schema: booleanFunctions
+         Root: nilled02
+      Purpose: This test demonstrates that the fn:nilled function returns empty sequence if arg is an element node and [nilled] has no value
+-->
+
+  <tdml:parserTestCase name="nilled_03" root="nilled02"
+    model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
+
+    <tdml:document>
+      <tdml:documentPart type="text">test</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nilled02>
+          <a>test</a>
+          <nilled/>>
+        </nilled02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+  
+<!--
+    Test Name: nilled_04
+       Schema: booleanFunctions
+         Root: nilled03
+      Purpose: This test demonstrates that the fn:nilled function returns empty sequence if arg is the empty sequence
+-->
+
+  <tdml:parserTestCase name="nilled_04" root="nilled03"
+    model="booleanFunctions" description="Section 23 - Functions - fn:nilled - DFDL-23-129R">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <nilled03>
+          <seq/>
+          <nilled/>
+        </nilled03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
   
   <!--
     Test name: date_constructor_01
