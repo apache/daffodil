@@ -504,6 +504,13 @@ class TestDFDLExpressions {
   //@Test def test_namespace_uri_05() { runner2.runOneTest("namespace_uri_05") }
   //@Test def test_namespace_uri_06() { runner2.runOneTest("namespace_uri_06") }
 
+  //DFDL-1076
+  //@Test def test_nilled_01() { runner2.runOneTest("nilled_01") }
+  //DFDL-1233
+  //@Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
+  //@Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
+  //@Test def test_nilled_04() { runner2.runOneTest("nilled_04") }
+
   @Test def test_concat_01() { runner2.runOneTest("concat_01") }
   @Test def test_concat_02() { runner2.runOneTest("concat_02") }
   @Test def test_concat_03() { runner2.runOneTest("concat_03") }
