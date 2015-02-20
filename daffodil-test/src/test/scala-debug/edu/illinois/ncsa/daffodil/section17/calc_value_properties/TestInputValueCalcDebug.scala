@@ -62,10 +62,6 @@ class TestInputValueCalcDebug {
   //DFDL-1028
   @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 
-  //DFDL-1059 - These two tests depend on the DPath parent:: and such notations working
-  @Test def test_InputValueCalc_08() { runner.runOneTest("InputValueCalc_08") }
-  @Test def test_InputValueCalc_09() { runner.runOneTest("InputValueCalc_09") }
-
   val aq = testDir + "AQ.tdml"
   lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
