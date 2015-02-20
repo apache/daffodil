@@ -116,16 +116,10 @@ class TestDFDLExpressionsDebug {
   //DFDL-1118
   @Test def test_more_count_0() { runner2.runOneTest("more_count_0") }
   @Test def test_more_count_1() { runner2.runOneTest("more_count_1") }
-  @Test def test_more_count_1b() { runner2.runOneTest("more_count_1b") }
   @Test def test_more_count_1b_2() { runner2.runOneTest("more_count_1b_2") }
   @Test def test_more_count_2() { runner2.runOneTest("more_count_2") }
 
   //DFDL-1075
-  @Test def test_exists_01() { runner2.runOneTest("exists_01") }
-  @Test def test_exists_03() { runner2.runOneTest("exists_03") }
-  @Test def test_exists_04() { runner2.runOneTest("exists_04") }
-  @Test def test_exists_06() { runner2.runOneTest("exists_06") }
-  @Test def test_exists_07() { runner2.runOneTest("exists_07") }
   @Test def test_not_05() { runner2.runOneTest("not_05") }
   @Test def test_not_07() { runner2.runOneTest("not_07") }
 
