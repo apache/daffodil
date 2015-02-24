@@ -63,7 +63,7 @@
 	  <xs:element name="term" type="xs:string"
 	    dfdl:lengthKind="explicit" dfdl:length="1" />
           <xs:element name="s1" type="xs:int"
-            dfdl:terminator="{ ../ex:term }" maxOccurs="unbounded" />
+            dfdl:terminator="{ ../term }" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
