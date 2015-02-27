@@ -339,7 +339,7 @@ class TestDFDLExpressions {
   val aa = testDir2 + "Functions.tdml"
   val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
   
   @Test def test_boolFunctionChoice_01() { runner2.runOneTest("boolFunctionChoice_01") }
   @Test def test_boolFunctionChoice_02() { runner2.runOneTest("boolFunctionChoice_02") }
@@ -541,10 +541,9 @@ class TestDFDLExpressions {
   @Test def test_lowercase_02() { runner2.runOneTest("lowercase_02") }
   @Test def test_lowercase_03() { runner2.runOneTest("lowercase_03") }
 
-  //DFDL-1169
-  //@Test def test_lowercase_04() { runner2_utf8.runOneTest("lowercase_04") }
-  //@Test def test_uppercase_04() { runner2_utf8.runOneTest("uppercase_04") }
-  //@Test def test_uppercase_05() { runner2_utf8.runOneTest("uppercase_05") }
+  @Test def test_lowercase_04() { runner2_utf8.runOneTest("lowercase_04") }
+  @Test def test_uppercase_04() { runner2_utf8.runOneTest("uppercase_04") }
+  @Test def test_uppercase_05() { runner2_utf8.runOneTest("uppercase_05") }
   //DFDL-1078 - fails on build server 
   //@Test def test_lowercase_05() { runner2_utf8.runOneTest("lowercase_05") }
 

@@ -67,7 +67,7 @@
       </xs:complexType>
     </xs:element>
 
-  </xs:defineSchema>
+  </tdml:defineSchema>
 
 <!--
     Test Name: lowercase_04
