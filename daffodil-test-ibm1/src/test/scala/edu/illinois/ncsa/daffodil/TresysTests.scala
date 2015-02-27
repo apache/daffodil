@@ -152,10 +152,9 @@ class TresysTests {
   @Test def test_AW000() { runnerAW.runOneTest("AW000") } // escape schemes
   @Test def test_AW001() { runnerAW.runOneTest("AW001") }
 
-  // Commented out as part of DFDL-940, due to DFDL-941
-  //  val ay = testDir + "AY.tdml"
-  //  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
-  //  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
+  val ay = testDir + "AY.tdml"
+  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
+  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
 
   val az = testDir + "AZ.tdml"
   lazy val runnerAZ = new DFDLTestSuite(Misc.getRequiredResource(az))

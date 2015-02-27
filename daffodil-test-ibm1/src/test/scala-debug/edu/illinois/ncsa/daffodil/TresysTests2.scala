@@ -117,10 +117,6 @@ class TresysTests2 {
   lazy val runnerBG = new DFDLTestSuite(Misc.getRequiredResource(bg))
   @Test def test_BG000() { runnerBG.runOneTest("BG000") } // needs text numbers: advanced properties (DFDL-452)
 
-  val ay = testDir + "AY.tdml"
-  lazy val runnerAY = new DFDLTestSuite(Misc.getRequiredResource(ay))
-  @Test def test_AY000() { runnerAY.runOneTest("AY000") } // escape schemes
-
   val sq = testDir + "sequence.tdml"
   lazy val runnerSQ = new DFDLTestSuite(Misc.getRequiredResource(sq))
   @Test def test_seq1() { runnerSQ.runOneTest("seq1") }
