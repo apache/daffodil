@@ -53,7 +53,7 @@ abstract class StatementElementParserBase(
   testAssertParser: Seq[Parser],
   eParser: Option[Parser],
   eAfterParser: Option[Parser])
-  extends PrimParser(rd) {
+  extends Parser(rd) {
 
   Assert.invariant(testDiscrimParser.size <= 1)
   Assert.invariant(patDiscrimParser.size <= 1)
@@ -62,16 +62,12 @@ abstract class StatementElementParserBase(
   def parseBegin(pstate: PState): PState
   def parseEnd(pstate: PState): PState
 
+  override lazy val childProcessors = patDiscrimParser ++ patAssertParser ++ eParser.toSeq ++ setVarParser ++ testDiscrimParser ++ testAssertParser ++ eAfterParser
+
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
-        patDiscrimParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        patAssertParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        eParser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
-        setVarParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        testDiscrimParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        testAssertParser.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        eAfterParser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
+        childProcessors.map { _.toBriefXML(depthLimit - 1) }.mkString +
         "</Element name='" + name + "'>"
   }
 

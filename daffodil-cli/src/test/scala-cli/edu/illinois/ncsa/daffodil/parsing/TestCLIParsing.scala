@@ -88,7 +88,7 @@ class TestCLIparsing {
     shell.expect(eof())
     shell.close()
   }
-  
+
   @Test def test_3227_CLI_Parsing_SimpleParse_DFDL1197_fix() {
     var cmd = "echo 1/3|" + Util.binPath + " -vv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section12/delimiter_properties/testOptionalInfix.dfdl.xsd\n"
     var shell = Util.start(cmd, true)
@@ -131,7 +131,7 @@ class TestCLIparsing {
   @Test def test_1586_CLI_Parsing_MultifileSchema_methodIncludeSameDir() {
     var cmd = "echo test| " + Util.binPath + " parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
     var shell = Util.start(cmd)
-  
+
     shell.expect(contains("<rabbitHole"))
     shell.expect(contains(output10))
     shell.send("exit\n")
@@ -254,12 +254,12 @@ class TestCLIparsing {
     shell.expect(eof())
     shell.close()
 
-    cmd = "echo 0,1| " + Util.binPath + " -vvvv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
-    shell = Util.start(cmd, true)
-    shell.expect(contains("[oolagdebug]"))
-    shell.send("exit\n")
-    shell.expect(eof())
-    shell.close()
+    //    cmd = "echo 0,1| " + Util.binPath + " -vvvv parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd -r matrix -\n"
+    //    shell = Util.start(cmd, true)
+    //    shell.expect(contains("[oolagdebug]"))
+    //    shell.send("exit\n")
+    //    shell.expect(eof())
+    //    shell.close()
   }
 
   @Test def test_984_CLI_Parsing_negativeTest() {
@@ -360,7 +360,7 @@ class TestCLIparsing {
     shell.expect(eof())
     shell.close()
   }
-  
+
   @Test def test_2615_CLI_Parsing_SimpleParse_namespaceUsedLongOpt() {
     val cmd = Util.binPath + " parse -s daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/charClassEntities.dfdl.xsd --root {target}matrix daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input8.txt\n"
     val shell = Util.start(cmd)
@@ -506,7 +506,7 @@ class TestCLIparsing {
     val cmd = "echo test| " + Util.binPath + " -t parse -s daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd\n"
     val shell = Util.start(cmd)
     shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
-  
+
     shell.send("exit\n")
     shell.expect(eof())
     shell.close()

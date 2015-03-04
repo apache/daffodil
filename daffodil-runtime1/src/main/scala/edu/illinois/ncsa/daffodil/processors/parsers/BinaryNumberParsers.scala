@@ -187,6 +187,8 @@ abstract class BinaryNumberBaseParser[T](
   val e: ElementRuntimeData)
   extends PrimParser(e) {
   val primName = e.optPrimType.get.name
+  override lazy val childProcessors = Nil
+
   val bitOrd = e.defaultBitOrder
 
   protected def getBitLength(s: PState): (PState, Long)

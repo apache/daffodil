@@ -38,16 +38,16 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Parser
 import edu.illinois.ncsa.daffodil.processors.PState
 
-class OptionalInfixSepParser(contextArg: RuntimeData, sepParser: Parser) extends PrimParser(contextArg) {
+class OptionalInfixSepParser(contextArg: RuntimeData, sepParser: Parser)
+  extends Parser(contextArg) {
 
-    override def toBriefXML(depthLimit: Int = -1): String = {
-      if (depthLimit == 0) "..." else "<OptionalInfixSep>" + sepParser.toBriefXML(depthLimit - 1) + "</OptionalInfixSep>"
-    }
+  override lazy val nom = "OptionalInfixSep"
+  override lazy val childProcessors = Seq(sepParser)
 
-    def parse(start: PState): PState = {
-      if (start.mpstate.arrayPos > 1) sepParser.parse1(start, contextArg)
-      else if (start.mpstate.groupPos > 1) sepParser.parse1(start, contextArg)
-      else start
-    }
+  def parse(start: PState): PState = {
+    if (start.mpstate.arrayPos > 1) sepParser.parse1(start, contextArg)
+    else if (start.mpstate.groupPos > 1) sepParser.parse1(start, contextArg)
+    else start
+  }
 
 }

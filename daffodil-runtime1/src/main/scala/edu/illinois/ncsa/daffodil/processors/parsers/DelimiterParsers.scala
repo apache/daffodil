@@ -282,14 +282,14 @@ class StaticTextParser(
             getMatchedDelimiterInfo(res.originalDelimiterRep, delimValues.delimsCookedWithPosition)
 
           return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-            this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath, 
+            this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
             kindString, delimValues.staticTexts.mkString(" "), rd.path, positionalInfo)
         } else {
           val numBits = res.numBits
-          val endCharPos = 
-            if (start.charPos == -1) res.numCharsRead 
-            else  start.charPos + res.numCharsRead 
-          
+          val endCharPos =
+            if (start.charPos == -1) res.numCharsRead
+            else start.charPos + res.numCharsRead
+
           val endBitPosDelim = numBits + start.bitPos
 
           return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
@@ -312,8 +312,8 @@ class StaticTextParser(
           this.toString(), rd.prettyName, delimValues.allDelims.mkString(", "), foundInstead)
       } else {
         val numBits = knownEncodingStringBitLength(found.foundText)
-        val endCharPos = if (start.charPos == -1)  found.foundText.length() else  start.charPos + found.foundText.length() 
-        
+        val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
+
         val endBitPosDelim = numBits + start.bitPos
 
         val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
@@ -439,7 +439,7 @@ class DynamicTextParser(
             this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath, kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
         } else {
           val numBits = res.numBits
-          val endCharPos = if (start.charPos == -1)  res.numCharsRead else  start.charPos + res.numCharsRead 
+          val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
           val endBitPosDelim = numBits + start.bitPos
 
           return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
@@ -467,7 +467,7 @@ class DynamicTextParser(
           this.toString(), rd.prettyName, allDelims.mkString(", "), foundInstead)
       } else {
         val numBits = knownEncodingStringBitLength(found.foundText)
-        val endCharPos = if (start.charPos == -1)  found.foundText.length() else  start.charPos + found.foundText.length() 
+        val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
         val endBitPosDelim = numBits + start.bitPos
 
         val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))

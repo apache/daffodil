@@ -45,8 +45,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Processor
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
-  extends PrimParser(rd) {
+  extends Parser(rd) {
   override def nom = "ComplexType"
+
+  override lazy val childProcessors = Seq(bodyParser)
 
   def parse(start: PState): PState = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
@@ -57,8 +59,10 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
 }
 
 class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
-  extends PrimParser(rd) {
+  extends Parser(rd) {
   override def nom = "Sequence"
+
+  override lazy val childProcessors = Seq(bodyParser)
 
   def parse(start: PState): PState = {
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
@@ -69,8 +73,9 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   }
 }
 
-class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends PrimParser(erd) {
+class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends Parser(erd) {
   override def nom = "Array"
+  override lazy val childProcessors = Seq(bodyParser)
 
   def parse(start: PState): PState = {
 

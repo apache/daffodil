@@ -37,6 +37,10 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnp
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
+/**
+ * A PrimParser is a parser that contains no child parsers.
+ * Combinators are NOT PrimParser
+ */
 abstract class PrimParser(contextArg: RuntimeData)
   extends DaffodilParser(contextArg)
   with WithParseErrorThrowing {
@@ -44,6 +48,10 @@ abstract class PrimParser(contextArg: RuntimeData)
   override def childProcessors = Nil
 }
 
+/**
+ * A PrimUnparser is an unparser that contains no child unparsers.
+ * Combinators are not PrimUnparsers
+ */
 abstract class PrimUnparser(contextArg: RuntimeData)
   extends DaffodilUnparser(contextArg) {
 

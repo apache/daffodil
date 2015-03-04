@@ -165,10 +165,10 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 
 abstract class SpecifiedLengthParserBase(eParser: Parser,
   erd: ElementRuntimeData)
-  extends PrimParser(erd)
+  extends Parser(erd)
   with WithParseErrorThrowing {
 
-  override def toBriefXML(depthLimit: Int) = eParser.toBriefXML(depthLimit)
+  override lazy val childProcessors = Seq(eParser)
 
   final def parse(pstate: PState, endBitPos: Long) = {
     log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)

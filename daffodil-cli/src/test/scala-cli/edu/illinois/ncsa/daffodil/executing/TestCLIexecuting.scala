@@ -70,14 +70,14 @@ class TestCLIexecuting {
   }
 
   @Test def test_1001_CLI_Executing_Listing_execRegex01() {
-    val regex = if (Util.isWindows) "escape_entry4_\\d" else "'escape_entry4_\\d'" 
+    val regex = if (Util.isWindows) "escape_entry4_\\d" else "'escape_entry4_\\d'"
     val cmd = Util.binPath + " test --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
     val shell = Util.start(cmd)
     shell.expect(contains(output13))
     shell.send("exit\n")
     shell.close()
   }
-  
+
   @Test def test_1000_CLI_Executing_Listing_listRegex02() {
     val regex = if (Util.isWindows) "escape_entryb-\\d+" else "'escape_entryb-\\d+'"
     val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
@@ -98,9 +98,9 @@ class TestCLIexecuting {
       } catch {
         case ex: AssertionError => {
           //Didn't find a string which is what we wanted
-	        shell.send("exit\n")
-	        shell.close()
-	        return
+          shell.send("exit\n")
+          shell.close()
+          return
         }
       }
       shell.send("exit\n")
@@ -108,7 +108,7 @@ class TestCLIexecuting {
       fail("Output was found when none was expected.")
     }
   }
-  
+
   @Test def test_999_CLI_Executing_Listing_listRegex01() {
     val regex = if (Util.isWindows) "escape_entry4_\\d+" else "'escape_entry4_\\d+'"
     val cmd = Util.binPath + " test -l --regex daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml " + regex + "\n"
@@ -117,15 +117,21 @@ class TestCLIexecuting {
     shell.send("exit\n")
     shell.close()
   }
-  
-  @Test def test_994_CLI_Executing_Listing_execAll() {
-    val cmd = Util.binPath + " test daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml\n"
-    val shell = Util.start(cmd)
-    shell.expect(contains(output15))
-    shell.send("exit\n")
-    shell.close()
-  }
-  
+
+  //
+  // Test removed to scala-debug as order of execution of the individual tests is not deterministic. 
+  // You'd like them to go in the order they appear in the file, but that's not the case
+  // necessarily: http://stackoverflow.com/questions/3693626/how-to-run-test-methods-in-specific-order-in-junit4
+  // JIRA DFDL-1240
+  //
+  //  @Test def test_994_CLI_Executing_Listing_execAll() {
+  //    val cmd = Util.binPath + " test daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml\n"
+  //    val shell = Util.start(cmd)
+  //    shell.expect(contains(output15))
+  //    shell.send("exit\n")
+  //    shell.close()
+  //  }
+
   @Test def test_993_CLI_Executing_Listing_listAll() {
     val cmd = Util.binPath + " test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml\n"
     val shell = Util.start(cmd)
@@ -144,7 +150,7 @@ class TestCLIexecuting {
     shell.send("exit\n")
     shell.close()
   }
-  
+
   @Test def test_990_CLI_Executing_Listing_singleTest() {
     val cmd = Util.binPath + " test daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
     val shell = Util.start(cmd)
@@ -152,5 +158,5 @@ class TestCLIexecuting {
     shell.send("exit\n")
     shell.close()
   }
-  
+
 }

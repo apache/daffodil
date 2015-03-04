@@ -36,13 +36,15 @@ import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.collection.JavaConversions._
 
-class UnorderedSequenceParser(context: ModelGroupRuntimeData, sortOrder: Seq[(String, org.jdom2.Namespace)], scalarMembers: Seq[(String, String, org.jdom2.Namespace)], uoSeqParser: Parser) extends PrimParser(context) {
+class UnorderedSequenceParser(
+  context: ModelGroupRuntimeData,
+  sortOrder: Seq[(String, org.jdom2.Namespace)],
+  scalarMembers: Seq[(String, String, org.jdom2.Namespace)],
+  uoSeqParser: Parser)
+  extends Parser(context) with WithParseErrorThrowing {
 
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
-      "<UnorderedSequence>" + uoSeqParser +
-        "</UnorderedSequence>"
-  }
+  override def nom = "UnorderedSequence"
+  override lazy val childProcessors = Seq(uoSeqParser)
 
   //  def sort(elt: org.jdom2.Element, pstate: PState): Unit = {
   //    val childrenDetached = elt.removeContent().toList.asInstanceOf[List[org.jdom2.Element]]
