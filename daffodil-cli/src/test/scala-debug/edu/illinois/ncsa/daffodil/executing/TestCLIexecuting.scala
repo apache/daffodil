@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.CLI.Util._
-import edu.illinois.ncsa.daffodil.CLI.Util._
 import java.io.File
 import java.io.IOException
 import java.lang.AssertionError
