@@ -159,4 +159,12 @@ class TestCLIexecuting {
     shell.close()
   }
 
+  @Test def test_992_CLI_Executing_Listing_singleTestList() {
+    val cmd = Util.binPath + " test -l daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml byte_entities_6_08\n"
+    val shell = Util.start(cmd)
+    shell.expect(contains("byte_entities_6_08"))
+    shell.send("exit\n")
+    shell.close()
+  }
+
 }
