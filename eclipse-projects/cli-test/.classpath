@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="src" path="src/test/scala"/>
 	<classpathentry kind="src" path="src/test/scala-cli"/>
-	<classpathentry kind="src" path="src/test/scala-debug"/>
 	<classpathentry kind="src" path="src/test/scala-new"/>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar" sourcepath="lib_managed/srcs/junit/junit/junit-4.11-sources.jar">
 		<attributes>
