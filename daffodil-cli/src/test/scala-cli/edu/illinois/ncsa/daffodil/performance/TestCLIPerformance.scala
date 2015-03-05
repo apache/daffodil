@@ -60,7 +60,7 @@ class TestCLIPerformance {
     val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val shell = Util.startIncludeErrors("", timeout = 5)
+    val shell = Util.startIncludeErrors("")
 
     try {
       val cmd = String.format("%s performance -N 2 -t 2 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
@@ -99,7 +99,7 @@ class TestCLIPerformance {
     val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input1.txt"
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val shell = Util.startIncludeErrors("", timeout = 5)
+    val shell = Util.startIncludeErrors("")
 
     try {
       val cmd = String.format("%s performance -N 20 -t 3 -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
@@ -138,7 +138,7 @@ class TestCLIPerformance {
     val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt"
     val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
 
-    val shell = Util.startIncludeErrors("", timeout = 5)
+    val shell = Util.startIncludeErrors("")
 
     try {
       val cmd = String.format("%s performance -N 50 -t 5 -s %s -r Item2 %s", Util.binPath, testSchemaFile, testInputFile)
