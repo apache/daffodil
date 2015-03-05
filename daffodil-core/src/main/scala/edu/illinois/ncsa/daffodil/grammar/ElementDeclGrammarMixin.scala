@@ -60,11 +60,5 @@ trait GlobalElementDeclGrammarMixin
     UnicodeByteOrderMark(this) ~ documentElement
   })
 
-  lazy val unparserDocument = Prod("unparserDocument", this, {
-    UnicodeByteOrderMark(this) ~ unparserDocumentElement
-  })
-
-  lazy val unparserDocumentElement = Prod("unparserDocumentElement", this, unparserScalarDefaultable)
-
 }
 

@@ -69,6 +69,20 @@ import org.xml.sax.InputSource
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.processors.SerializableDataProcessor
+import scala.util.DynamicVariable
+
+/**
+ * Some grammar rules need to be conditional based on whether we're trying
+ * for a parser or an unparser.
+ */
+sealed class ParserOrUnparser
+object ForParser extends ParserOrUnparser
+object ForUnparser extends ParserOrUnparser
+/**
+ * this dynamic variable lets grammar rules be
+ * conditional on ForParser or ForUnparser
+ */
+object ForParserOrUnparser extends DynamicVariable[ParserOrUnparser](ForParser)
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -87,12 +101,21 @@ class ProcessorFactory(val sset: SchemaSet)
   requiredEvaluations(rootElem.document)
   requiredEvaluations(rootElem.documentElement)
   requiredEvaluations(rootElem.documentElement.gram)
-  requiredEvaluations(rootElem.document.parser)
-  requiredEvaluations(rootElem.unparserDocument)
-  requiredEvaluations(rootElem.unparserDocumentElement)
-  requiredEvaluations(rootElem.unparserDocumentElement.gram)
-  requiredEvaluations(rootElem.unparserDocument.unparser)
+  requiredEvaluations(parser)
+  requiredEvaluations(unparser)
   requiredEvaluations(rootElem.runtimeData)
+
+  lazy val parser = {
+    ForParserOrUnparser.withValue(ForParser) {
+      rootElem.document.parser
+    }
+  }
+
+  lazy val unparser = {
+    ForParserOrUnparser.withValue(ForUnparser) {
+      rootElem.document.unparser
+    }
+  }
 
   lazy val rootElem = rootElem_.value
   private val rootElem_ = LV('rootElem) {
@@ -128,7 +151,7 @@ class ProcessorFactory(val sset: SchemaSet)
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
       val p = if (rootElem.canProceed) rootElem.document.parser else null
-      val u = if (rootElem.canProceed) rootElem.unparserDocument.unparser else null
+      val u = if (rootElem.canProceed) rootElem.document.unparser else null
       val d = this.diagnostics
       val ssrd = new SchemaSetRuntimeData(
         p,

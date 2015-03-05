@@ -245,7 +245,9 @@ class StatementElementParser(
 
     // Assert.invariant(currentElement.getName() != "_document_" )
     val priorElement = currentElement.parent
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    // Note: interaction of unboxed Maybe[T] with pass by name args of log method
+    // require us to call toScalaOption here.
+    log(LogLevel.Debug, "priorElement = %s", priorElement.toScalaOption)
     val postState =
       if (priorElement.isDefined) postValidate.withParent(priorElement.get)
       else postValidate
@@ -332,7 +334,9 @@ class ChoiceStatementElementParser(
       } else pstate
 
     val priorElement = currentElement.parent
-    log(LogLevel.Debug, "priorElement = %s", priorElement)
+    // Note: interaction of unboxed Maybe[T] with pass by name args of log method
+    // require us to call toScalaOption here.
+    log(LogLevel.Debug, "priorElement = %s", priorElement.toScalaOption)
     val postState = postValidate
     move(pstate)
     postState

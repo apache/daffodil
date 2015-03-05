@@ -55,8 +55,8 @@ class MyClass extends Logging {
     setLoggingLevel(LogLevel.Error)
     setLogWriter(ForUnitTestLogWriter)
 
-    // won't log because below threshhold 
-    log(LogLevel.Debug, msg, "number 1") // Won't show up in log.
+    // won't log because below threshhold. Won't even evaluate args.
+    log(LogLevel.Debug, msg, bombArg) // Won't show up in log. Won't bomb.
 
     // alas, no by-name passing of var-args. 
     // so instead, we pass by name, a by-name/lazy constructed tuple

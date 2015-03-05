@@ -240,18 +240,28 @@ trait Logging extends Identity {
 
   def getLogWriter(): LogWriter = { logWriter.getOrElse(LoggingDefaults.logWriter) }
 
+  /**
+   * Use like `log(Error("the thing %s", toString))`
+   *
+   * TODO: Convert this into a macro so that we can avoid closure overheads of by-name passing.
+   */
   final def log(glob: => Glob) {
-    if (getLoggingLevel >= glob.lvl) getLogWriter.log(logID, glob)
+    lazy val g = glob // exactly once
+    if (getLoggingLevel >= g.lvl) getLogWriter.log(logID, g)
   }
 
-  private def log1(glob: => Glob) {
-    getLogWriter.log(logID, glob)
-  }
+  private def doLogging(lvl: LogLevel.Type, msg: String, args: Seq[Any]) =
+    getLogWriter.log(logID, new Glob(lvl, msg, args))
 
-  final def log(lvl: LogLevel.Type, msg: String, args: Any*) {
-    if (getLoggingLevel >= lvl) log(new Glob(lvl, msg, Seq(args: _*)))
-  }
-
+  // TODO: Convert this into a macro so we don't end up allocating closures
+  // for these by-name args.
+  final def log(lvl: LogLevel.Type, msg: => String) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq())
+  final def log(lvl: LogLevel.Type, msg: => String, arg: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg))
+  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1))
+  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2))
+  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3))
+  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
+  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any, arg5: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
   /**
    * Use to make debug printing over small code regions convenient. Turns on
    * your logging level of choice over a lexical region of code. Makes sure it is reset

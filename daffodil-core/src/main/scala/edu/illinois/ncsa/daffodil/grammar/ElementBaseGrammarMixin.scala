@@ -770,21 +770,15 @@ trait ElementBaseGrammarMixin
       new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
         scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd))
 
-  //  def scalarDefaultable: Prod
-  //
-  //  def scalarNonDefault: Prod
   lazy val scalarDefaultable = Prod("scalarDefaultable", this,
-    inputValueCalcOption match {
-      case _: NotFound => scalarDefaultablePhysical
-      case _: Found => inputValueCalcElement
-    })
-
-  lazy val unparserScalarDefaultable = Prod("unparserScalarDefaultable", this,
-    (inputValueCalcOption, outputValueCalcOption) match {
-      case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
-      case (_: NotFound, _: Found) => outputValueCalcElement
-      case (_: Found, _: NotFound) => Nada(this)
-      case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
+    (inputValueCalcOption, outputValueCalcOption, ForParserOrUnparser.value) match {
+      case (_: Found, _: Found, _) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
+      case (_: NotFound, _: NotFound, _) => scalarDefaultablePhysical
+      case (_: NotFound, _: Found, ForUnparser) => outputValueCalcElement
+      case (_: NotFound, _: Found, ForParser) => scalarDefaultablePhysical
+      case (_: Found, _: NotFound, ForParser) => inputValueCalcElement
+      case (_: Found, _: NotFound, ForUnparser) => Nada(this) // IVC for unparser we don't do anything (infoset will have the value)
+      case _ => Assert.impossibleCase() // scala can't rule this out. Not sure why.
     })
 
   lazy val scalarNonDefault = Prod("scalarNonDefault", this,

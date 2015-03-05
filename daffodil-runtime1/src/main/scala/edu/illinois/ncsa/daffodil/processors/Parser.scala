@@ -137,13 +137,20 @@ trait ToBriefXMLImpl {
 
   def childProcessors: Seq[Processor]
 
-  // TODO: make this do indenting and newlines (maybe optionally?)
+  // TODO: make this create a DOM tree, not a single string (because of size limits)
   def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..."
     else if (childProcessors.length == 0) "<" + nom + "/>"
     else {
       val lessDepth = depthLimit - 1
-      "<" + nom + ">" + childProcessors.map { _.toBriefXML(lessDepth) }.mkString + "</" + nom + ">"
+      val sb = new StringBuilder
+      childProcessors.foreach {
+        cp =>
+          val s = cp.toBriefXML(lessDepth)
+          if (sb.size < 3000) sb.append(s) // hack!
+          else sb.append("...")
+      }
+      "<" + nom + ">" + sb + "</" + nom + ">"
     }
   }
 
