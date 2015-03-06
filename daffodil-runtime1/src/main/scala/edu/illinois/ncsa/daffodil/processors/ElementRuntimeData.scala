@@ -69,6 +69,7 @@ class ElementRuntimeData(
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
+  val minimizedScope: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
   val optPrimType: Option[PrimType],
   val targetNamespace: NS,
@@ -150,7 +151,7 @@ class ElementRuntimeData(
   // note: these nil xml things are constant chunks of XML.  
   val nilledXML: Maybe[scala.xml.Elem] = {
     if (!isNillable) Nope
-    else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, namespaces, true))
+    else One(scala.xml.Elem(thisElementsNamespacePrefix, name, XMLUtils.xmlNilAttribute, minimizedScope, true))
   }
 
 }

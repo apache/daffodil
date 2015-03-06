@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
+import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar._
 import edu.illinois.ncsa.daffodil.schema.annotation.props._
@@ -159,6 +160,84 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val thisElementsNamespace: NS = this.namedQName.namespace
   lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
 
+  private def nsBindingsToSet(nsb: NamespaceBinding): Set[(String, NS)] = {
+    if (nsb == scala.xml.TopScope) Set()
+    else {
+      val parentBindings = nsBindingsToSet(nsb.parent)
+      val res = parentBindings.+((nsb.prefix, NS(nsb.uri)))
+      res
+    }
+  }
+
+  //  private lazy val containsNoNamespaceElement: Boolean = {
+  //    thisElementsNamespace.isNoNamespace ||
+  //      elementChildren.exists { _.containsNoNamespaceElement }
+  //  }
+  //
+  //  private def bindingsHaveDefaultNamespaceBinding(pairs: Set[(String, NS)]) = {
+  //    val map = pairs.toMap
+  //    val optDefaultNS = map.get(null)
+  //    val res = optDefaultNS.isDefined
+  //    res
+  //  }
+
+  private lazy val thisElementsRequiredNamespaceBindings: Set[(String, NS)] = {
+    val childrenRequiredNSBindings =
+      this.elementChildren.flatMap { _.thisElementsRequiredNamespaceBindings }.toSet
+    val myRequiredNSBinding =
+      if (thisElementsNamespace.isNoNamespace) Set()
+      else Set((thisElementsNamespacePrefix, thisElementsNamespace))
+    val nilNSBinding = {
+      if (!isNillable) Set()
+      else {
+        //
+        // Nillable, so we need a binding for xsi:nil='true' case.
+        //
+        val xsiNS = XMLUtils.XSI_NAMESPACE
+        val xsiPrefix = namespaces.getPrefix(xsiNS.toString)
+        if (xsiPrefix != null) {
+          Set((xsiPrefix, xsiNS))
+        } else {
+          Set(("xsi", xsiNS))
+        }
+      }
+    }
+    val res = childrenRequiredNSBindings ++ myRequiredNSBinding ++ nilNSBinding
+    res
+  }
+
+  private lazy val emptyNSPairs = nsBindingsToSet(scala.xml.TopScope)
+
+  private lazy val myOwnNSPairs: Set[(String, NS)] = thisElementsRequiredNamespaceBindings // nsBindingsToSet(namespaces)
+  private lazy val myParentNSPairs = enclosingElement match {
+    case None => emptyNSPairs
+    case Some(parent) => parent.myOwnNSPairs
+  }
+
+  private lazy val myUniquePairs: Set[(String, NS)] = {
+    val res = myOwnNSPairs -- myParentNSPairs
+    res
+  }
+
+  private def pairsToNSBinding(pairs: Set[(String, NS)], parentNS: NamespaceBinding): NamespaceBinding = {
+    if (pairs.isEmpty) parentNS
+    else {
+      val (pre, ns) = pairs.head
+      val t = pairs.tail
+      val parentNSBinding = pairsToNSBinding(t, parentNS)
+      val res = NamespaceBinding(pre, ns.toString, parentNSBinding)
+      res
+    }
+  }
+
+  private lazy val parentMinimizedScope = enclosingElement.map { _.minimizedScope }.getOrElse(scala.xml.TopScope)
+
+  /**
+   * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
+   * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
+   */
+  lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
+
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
@@ -202,6 +281,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       prettyName,
       path,
       namespaces,
+      minimizedScope,
       defaultBitOrder,
       optPrimType,
       targetNamespace,

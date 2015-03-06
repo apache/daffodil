@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.InfosetItem
 
 /**
  * This file contains traits that define an abstract API that any DFDL processor
@@ -187,6 +188,10 @@ object DFDL {
   }
 
   trait ParseResult extends Result with WithDiagnostics {
+    /**
+     * Writes XML version of result infoset to the writer
+     */
+    def toWriter(writer: java.io.Writer): Unit
     def result: scala.xml.Node
     def briefResult = XMLUtils.removeAttributes(result)
     def resultState: State

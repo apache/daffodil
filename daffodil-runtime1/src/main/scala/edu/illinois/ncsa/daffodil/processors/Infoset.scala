@@ -138,4 +138,6 @@ trait InfosetDocument extends InfosetItem {
 trait InfosetItem {
   override def toString = toXML().toString
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
+  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
+  def size: Long
 }

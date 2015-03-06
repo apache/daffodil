@@ -303,8 +303,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
       case _ => Right(Unit)
     }
-    
-    validateOpt(parser, validate){
+
+    validateOpt(parser, validate) {
       case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode 'Full' is invalid when using a saved parser.")
       case _ => Right(Unit)
     }
@@ -715,9 +715,7 @@ object Main extends Logging {
               }
               val writer: BufferedWriter = new BufferedWriter(new OutputStreamWriter(output));
 
-              val pp = new scala.xml.PrettyPrinter(80, 2)
-              Timer.getResult("writing", writer.write(pp.format(parseResult.result) + "\n"))
-              writer.flush()
+              Timer.getResult("writing", parseResult.toWriter(writer))
               if (hasLeftOverData) 1 else 0
             }
           }

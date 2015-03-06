@@ -307,6 +307,19 @@ abstract class ParseResult(dp: DataProcessor)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
+  def toWriter(writer: java.io.Writer) = {
+    if (resultState.infoset.size < 200) { // TODO: make settable?
+      // pretty print small infosets
+      val pp = new scala.xml.PrettyPrinter(80, 2)
+      writer.write(pp.format(resultState.infoset.toXML()(0)))
+    } else {
+      // direct write for larger infosets
+      resultState.infoset.toWriter(writer)
+    }
+    writer.write("\n")
+    writer.flush()
+  }
+
   def resultState: PState
   protected def postParseState: PState
   def isValidationSuccess: Boolean
@@ -365,8 +378,9 @@ abstract class ParseResult(dp: DataProcessor)
       val xmlClean = {
         val nodeSeq = postParseState.infoset.toXML()
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
-        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden, Seq(XMLUtils.INT_NS))
-        eNoAttribs
+        //        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden)
+        //        eNoAttribs
+        eNoHidden
       }
       xmlClean
     } else {

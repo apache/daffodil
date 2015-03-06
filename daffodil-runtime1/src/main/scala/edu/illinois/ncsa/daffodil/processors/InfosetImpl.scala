@@ -61,6 +61,8 @@ sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
   def asSimple: DISimple = this.asInstanceOf[DISimple]
   def children: Stream[DINode]
+  def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
+  def size: Long
 }
 
 /**
@@ -171,6 +173,23 @@ sealed trait DIElement extends DINode with InfosetElement {
   override def valid = _validity
   override def setValid(validity: Boolean) { _validity = One(validity) }
 
+  private def pre = erd.thisElementsNamespacePrefix
+  private lazy val qn = if (pre == null | pre == "") erd.name else pre + ":" + erd.name
+  protected final lazy val startTag = "<" + qn + erd.minimizedScope.toString + ">"
+  protected final lazy val endTag = "</" + qn + ">"
+
+  protected def writeContents(writer: java.io.Writer, removeHidden: Boolean): Unit
+
+  override final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
+    if (isHidden && removeHidden) return
+    if (erd.nilledXML.isDefined && isNilled) {
+      scala.xml.XML.write(writer, erd.nilledXML.get, "unused", false, null)
+    } else {
+      writer.write(startTag)
+      writeContents(writer, removeHidden)
+      writer.write(endTag)
+    }
+  }
 }
 
 // This is not a mutable collection class on purpose.
@@ -208,6 +227,16 @@ final class DIArray(name: String, namespace: NS) extends DINode with InfosetArra
 
   final def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
     _contents.flatMap { _.toXML(removeHidden) }
+  }
+
+  final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
+    _contents.foreach { _.toWriter(writer, removeHidden) }
+  }
+
+  final def size: Long = {
+    var a: Long = 0
+    _contents.foreach { c => a += c.size }
+    a
   }
 }
 
@@ -293,6 +322,30 @@ sealed class DISimple(val erd: ElementRuntimeData)
 
   override def removeHiddenElements(): InfosetElement = this
 
+  /**
+   * For future - if string is big enough or other criteria
+   * Then maybe escape it by wrapping with <![CDATA[...]]>
+   * but note that any internal appearance of ]]> must be
+   * followed by inserting <![CDATA[. (These cannot nest)
+   */
+  private def shouldEscapeWithCData(s: String): Maybe[String] = {
+    Nope
+  }
+
+  override final def writeContents(writer: java.io.Writer, removeHidden: Boolean) {
+    val escapeWithCData = shouldEscapeWithCData(remapped)
+    if (escapeWithCData.isDefined) {
+      writer.write(escapeWithCData.get)
+    } else {
+      val escaped = scala.xml.Utility.escape(remapped)
+      writer.write(escaped)
+    }
+  }
+
+  override def size = 1L
+
+  private def remapped = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
+
   override def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq = {
     if (isHidden && removeHidden) Nil
     else {
@@ -300,7 +353,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
         if (erd.nilledXML.isDefined && isNilled) {
           erd.nilledXML.get
         } else if (_value != null) {
-          val s = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
+          val s = remapped
           // At this point s contains only legal XML characters. 
           // However, since we're going to create actual XML documents here, 
           // we have to do escaping. There are two ways to do escaping.
@@ -318,10 +371,10 @@ sealed class DISimple(val erd: ElementRuntimeData)
           // Anyway... Constructing a Text node seems to automatically escapeify 
           // the supplied content.
           val textNode = new scala.xml.Text(s)
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.namespaces, true, textNode)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true, textNode)
         } else {
           // no value yet
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.namespaces, true)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, Null, erd.minimizedScope, true)
         }
       elem
     }
@@ -551,10 +604,21 @@ sealed class DIComplex(val erd: ElementRuntimeData)
           erd.nilledXML.get
         } else {
           val children = _slots.flatMap { _ map { slot => slot.toXML(removeHidden) } }.toSeq.flatten
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.namespaces, true, children: _*)
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.minimizedScope, true, children: _*)
         }
       elem
     }
+  }
+
+  override def writeContents(writer: java.io.Writer, removeHidden: Boolean) {
+    _slots.foreach { _ foreach { slot => slot.toWriter(writer, removeHidden) } }
+  }
+
+  override def size: Long = {
+    if (erd.nilledXML.isDefined && isNilled) return 1L
+    var a: Long = 1
+    _slots.foreach { _ foreach { slot => a += slot.size } }
+    a
   }
 }
 

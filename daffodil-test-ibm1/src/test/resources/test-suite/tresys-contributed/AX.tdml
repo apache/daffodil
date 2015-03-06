@@ -6,10 +6,10 @@
   <parserTestCase name="AX000" root="list" model="AX.dfdl.xsd"
     description="escape character and escape block, fixed length">
     <document>
-      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[aaaaa,bb#,b,ccc#,,dddd#,ee#%LF;]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[aaaaa,bb#,b,ccc#,,dddd#,ee#]]></documentPart>
       <documentPart type="text" replaceDFDLEntities="true"><![CDATA[e,fffff%LF;]]></documentPart>
-      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[AAAAAAAAAAAAAAA,/*BBBBBB/*x,xBB*/,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,/*EE%LF;]]></documentPart>
-            <documentPart type="text" replaceDFDLEntities="true"><![CDATA[-------E*/,FFFFFF\/*xxxxxxx,GGG/*G,G\*/GG%LF;]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[AAAAAAAAAAAAAAA,/*BBBBBB/*x,xBB*/,CCCCCC/*,,,*/CC,D/*x*/D/*z*/DDD,/*EE]]></documentPart>
+      <documentPart type="text" replaceDFDLEntities="true"><![CDATA[-------E*/,FFFFFF\/*xxxxxxx,GGG/*G,G\*/GG%LF;]]></documentPart>
     </document>
     <infoset>
       <dfdlInfoset>
@@ -18,8 +18,7 @@
           <character>bb,b</character>
           <character>ccc,</character>
           <!-- <character>dddd,ee&#xA;e</character> -->
-          <character><![CDATA[dddd,ee
-e]]></character>
+          <character>dddd,eee</character>
           <character>fffff</character>
           <block>AAAAAAAAAAAAAAA</block>
           <block>BBBBBB/*x,xBB</block>
@@ -29,8 +28,7 @@ e]]></character>
           <block>*/CC</block>
           <block>D/*x*/D/*z*/DDD</block>
           <!-- <block>EE&#xA;E</block> -->
-          <block><![CDATA[EE
--------E]]></block>
+          <block>EE-------E</block>
           <block>FFFFFF\/*xxxxxxx</block>
           <block>GGG/*G</block>
           <!-- <block>G\*/GG&#xA;</block> -->
