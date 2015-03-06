@@ -23,6 +23,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
-	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.9.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>
