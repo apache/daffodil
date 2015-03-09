@@ -38,9 +38,16 @@
   
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format ref="daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="untrimmed" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
+      <dfdl:defineFormat name="untrimmed">
+        <dfdl:format ref="daffodilNewProperties1" separator="" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        </dfdl:defineFormat>
+      <dfdl:format ref="untrimmed"/>
     </xs:appinfo>
   </xs:annotation>
   
@@ -72,15 +79,15 @@
           <xs:element name="houseNumber" type="xs:string" 
                       dfdl:length="6" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/> 
           <xs:element name="street" type="xs:string"  
-                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"
+                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" 
                       minOccurs="2" maxOccurs="2" 
-                      dfdl:occursCountKind="fixed"/> 
+                      dfdl:occursCountKind="fixed" dfdl:ref="trimmed"/> 
           <xs:element name="city" type="xs:string"  
-                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/> 
+                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:ref="trimmed"/> 
           <xs:element name="state" type="xs:string"  
                       dfdl:length="2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/> 
           <xs:element name="country" type="xs:string" 
-                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/> 
+                      dfdl:length="20" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes" dfdl:ref="trimmed"/> 
         </xs:sequence> 
     </xs:complexType> 
   </xs:element>

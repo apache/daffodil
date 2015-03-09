@@ -998,8 +998,8 @@ more ignored input
 		model="nestedGroupRefs" description="Verify that nested group references are working properly - DFDL-14">
 
 		<tdml:document><![CDATA[A,B,C|D,E,F|G,H,I
-    A,B,C|D,E,F|G,H,I
-    A,B,C|D,E,F|G,H,I]]></tdml:document>
+A,B,C|D,E,F|G,H,I
+A,B,C|D,E,F|G,H,I]]></tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>
@@ -1119,8 +1119,8 @@ more ignored input
 		model="nestedGroupRefs2" description="Verify that nested hidden groups and choices work correctly - DFDL-14-039R">
 
 		<tdml:document><![CDATA[A,B,C,1,x|D,E,F,2,y|G,H,I,3,z
-    A,B,C,x,1|D,E,F,y,2|G,H,I,z,3
-    A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
+A,B,C,x,1|D,E,F,y,2|G,H,I,z,3
+A,B,C,4,u|D,E,F,5,v|G,H,I,6,w]]></tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>

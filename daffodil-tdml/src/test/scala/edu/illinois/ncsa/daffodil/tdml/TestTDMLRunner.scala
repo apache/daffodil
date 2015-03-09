@@ -634,7 +634,7 @@ class TestTDMLRunner {
           <xsd:element name="data" type="xsd:string" dfdl:lengthKind="delimited" dfdl:encoding="iso-8859-1"/>
           <dfdl:format ref="tns:daffodilTest1"/>
         </tdml:defineSchema>
-        <tdml:parserTestCase xmlns={ tdml } name="testNilCompare" root="data" model="mySchema">
+        <tdml:parserTestCase xmlns={ tdml } name="testAllBytesISO8859" root="data" model="mySchema">
           <tdml:document>
             <!-- leave out the characters for &, ", < and > because they cause us trouble in constructing the expected string result. -->
             <tdml:documentPart type="byte"><![CDATA[
@@ -659,7 +659,8 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
           </tdml:document>
           <tdml:infoset>
             <tdml:dfdlInfoset>
-              <data><![CDATA[   !#$%'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~ ¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]]></data>
+              <!-- Note below that 0xD aka CR gets translated into 0xA or LF. -->
+              <data><![CDATA[]]>&#x9;&#xA;<![CDATA[]]>&#xA;<![CDATA[]]>&#x20;<![CDATA[!#$%'()*+,-./0123456789:;=?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~]]>&#xA0;<![CDATA[¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ]]></data>
             </tdml:dfdlInfoset>
           </tdml:infoset>
         </tdml:parserTestCase>
@@ -668,7 +669,9 @@ f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff
     lazy val ts = new DFDLTestSuite(testSuite)
     val bytes = ts.parserTestCases(0).document.get.documentBytes
     assertEquals(252, bytes.length)
-    ts.runOneTest("testNilCompare")
+    val tsData = (testSuite \\ "data").text
+    assertEquals(252, tsData.length)
+    ts.runOneTest("testAllBytesISO8859")
   }
 
   /**

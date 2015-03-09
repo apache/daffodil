@@ -179,7 +179,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
       val src = new UnitTestSchemaSource(tsNode, "", Some(tmpDir))
       val origNode = loader.load(src)
       //
-      (origNode, src.uriForLoading)
+      (tsNode, src.uriForLoading)
     }
     case tdmlFile: File => {
       log(LogLevel.Info, "loading TDML file: %s", tdmlFile)
@@ -350,31 +350,31 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     } else p
   }
 
-  val document = toOpt(testCaseXML \ "document").map { node => new Document(node, this) }
-  val optExpectedOrInputInfoset = toOpt(testCaseXML \ "infoset").map { node => new Infoset(node, this) }
-  val errors = toOpt(testCaseXML \ "errors").map { node => new ExpectedErrors(node, this) }
-  val warnings = toOpt(testCaseXML \ "warnings").map { node => new ExpectedWarnings(node, this) }
-  val validationErrors = toOpt(testCaseXML \ "validationErrors").map { node => new ExpectedValidationErrors(node, this) }
+  lazy val document = toOpt(testCaseXML \ "document").map { node => new Document(node, this) }
+  lazy val optExpectedOrInputInfoset = toOpt(testCaseXML \ "infoset").map { node => new Infoset(node, this) }
+  lazy val errors = toOpt(testCaseXML \ "errors").map { node => new ExpectedErrors(node, this) }
+  lazy val warnings = toOpt(testCaseXML \ "warnings").map { node => new ExpectedWarnings(node, this) }
+  lazy val validationErrors = toOpt(testCaseXML \ "validationErrors").map { node => new ExpectedValidationErrors(node, this) }
 
   val name = (testCaseXML \ "@name").text
-  val tcID = (testCaseXML \ "@ID").text
-  val id = name + (if (tcID != "") "(" + tcID + ")" else "")
-  val root = (testCaseXML \ "@root").text
-  val model = (testCaseXML \ "@model").text
-  val config = (testCaseXML \ "@config").text
-  val description = (testCaseXML \ "@description").text
-  val unsupported = (testCaseXML \ "@unsupported").text match {
+  lazy val tcID = (testCaseXML \ "@ID").text
+  lazy val id = name + (if (tcID != "") "(" + tcID + ")" else "")
+  lazy val root = (testCaseXML \ "@root").text
+  lazy val model = (testCaseXML \ "@model").text
+  lazy val config = (testCaseXML \ "@config").text
+  lazy val description = (testCaseXML \ "@description").text
+  lazy val unsupported = (testCaseXML \ "@unsupported").text match {
     case "true" => true
     case "false" => false
     case _ => false
   }
-  val validationMode = (testCaseXML \ "@validation").text match {
+  lazy val validationMode = (testCaseXML \ "@validation").text match {
     case "on" => ValidationMode.Full
     case "limited" => ValidationMode.Limited
     case _ => ValidationMode.Off
   }
-  val shouldValidate = validationMode != ValidationMode.Off
-  val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
+  lazy val shouldValidate = validationMode != ValidationMode.Off
+  lazy val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
 
   protected def runProcessor(processor: DFDL.ProcessorFactory,
     expectedData: Option[DFDL.Input],
@@ -538,7 +538,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  val optExpectedInfoset = this.optExpectedOrInputInfoset
+  lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
   //  def runProcessor(processor: DFDL.DataProcessor,
   //    data: Option[DFDL.Input],
   //    lengthLimitInBits: Option[Long],
@@ -594,13 +594,12 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   }
 
   def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
-    val trimmed = Utility.trim(actual.result)
     //
     // Attributes on the XML like xsi:type and also namespaces (I think) are 
     // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
     // use attributes at all)
     // 
-    val actualNoAttrs = XMLUtils.removeAttributes(trimmed)
+    val actualNoAttrs = XMLUtils.removeAttributes(actual.result)
     // 
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
@@ -611,25 +610,13 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     // 
     // TODO: Fix so we can validate here.
     //
-
-    // Something about the way XML is constructed is different between our infoset
-    // results and the ones created by scala directly parsing the TDML test files.
-    //
-    // This has something to do with values being lists of text nodes and entities
-    // and not just simple strings. I.e., if you write: <foo>a&#x5E74;</foo>, that's not
-    // an element with a string as its value. It's an element with several text nodes as
-    // its values.
-    //
-    // so we run the expected stuff through the same converters that were used to
-    // convert the actual.
-    // val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
     val expected = infoset.contents
     // infoset.contents already has attributes removed.
     // however, we call removeAttributes anyway because of the way it collapses
     // multiple strings within a text node.
-    val trimmedExpected = XMLUtils.removeAttributes(Utility.trim(expected))
+    val expectedNoAttrs = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
 
-    XMLUtils.compareAndReport(trimmedExpected, actualNoAttrs)
+    XMLUtils.compareAndReport(expectedNoAttrs, actualNoAttrs)
   }
 
   def runParseExpectErrors(processor: DFDL.DataProcessor,
@@ -1300,15 +1287,16 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
   lazy val trimmedParts = part.child flatMap { childNode =>
     childNode match {
       case scala.xml.PCData(s) => Some(childNode)
-      case scala.xml.Text(s) => {
-        // can't just use s.trim here as that would remove explicit
-        // carriage returns like &#x0D; if they have already been 
-        // replaced by the corresponding character.
-        val trimmedEnd = s.replaceFirst("\\ +$", "") // spaces only
-        val trimmed = trimmedEnd.replaceFirst("^\\ +", "") // spaces only
-        if (trimmed.length == 0) None
-        else Some(scala.xml.Text(trimmed))
-      }
+      case scala.xml.Text(s) => Some(childNode)
+      //      {
+      //        // can't just use s.trim here as that would remove explicit
+      //        // carriage returns like &#x0D; if they have already been 
+      //        // replaced by the corresponding character.
+      //        val trimmedEnd = s.replaceFirst("\\ +$", "") // spaces only
+      //        val trimmed = trimmedEnd.replaceFirst("^\\ +", "") // spaces only
+      //        if (trimmed.length == 0) None
+      //        else Some(scala.xml.Text(trimmed))
+      //      }
       case scala.xml.Comment(_) => None
       case scala.xml.EntityRef(_) => Some(childNode)
       case _: scala.xml.Atom[_] => Some(childNode) // Things like &lt; come through as this. Should be EntityRef
@@ -1339,17 +1327,17 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
 }
 
 case class Infoset(i: NodeSeq, parent: TestCase) {
-  lazy val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(Utility.trim(node), this) }
-  lazy val contents = dfdlInfoset.contents
+  val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(node, this) } // Utility.trim(node), this) }
+  val contents = dfdlInfoset.contents
 }
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
-  lazy val children = di.child.filterNot { _.isInstanceOf[scala.xml.Comment] }
-  lazy val Seq(contents) = {
+  val children = di.child.filter { _.isInstanceOf[scala.xml.Elem] }
+  val Seq(contents) = {
     Assert.usage(children.size == 1, "dfdlInfoset element must contain a single root element")
 
     val c = children(0)
-    val expected = Utility.trim(c) // must be exactly one root element in here.
+    val expected = c // Utility.trim(c) // must be exactly one root element in here.
     val expectedNoAttrs = XMLUtils.removeAttributes(expected)
     //
     // Let's validate the expected content against the schema

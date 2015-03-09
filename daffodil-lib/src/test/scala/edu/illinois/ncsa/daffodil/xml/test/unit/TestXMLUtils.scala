@@ -207,9 +207,9 @@ class TestXMLUtils {
     assertTrue(xml.child(1).isInstanceOf[PCData])
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
     println(res)
-    assertEquals(1, res.length)
-    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
-    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+    assertEquals(3, res.length)
+    assertEquals("abc<![CDATA[&&&]]>def" + 0xE000.toChar + "ghi", res.mkString)
+    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res.text)
   }
 
   @Test def testStandardLoaderCoalesceText() {
@@ -247,8 +247,8 @@ class TestXMLUtils {
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
     println(res)
     assertEquals(1, res.length)
-    assertTrue(res(0).isInstanceOf[Text])
-    assertEquals("&amp;&amp;&amp;", res(0).toString)
+    assertTrue(res(0).isInstanceOf[PCData])
+    assertEquals("<![CDATA[&&&]]>", res(0).toString)
     assertEquals("&&&", res(0).text)
   }
 

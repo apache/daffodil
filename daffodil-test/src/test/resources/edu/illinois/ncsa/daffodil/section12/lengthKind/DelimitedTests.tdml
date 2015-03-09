@@ -44,6 +44,10 @@
       lengthUnits="bytes" encoding="ascii" separator="" initiator=""
       terminator="" occursCountKind="parsed" ignoreCase="no"
       textNumberRep="standard" representation="text" initiatedContent="no" />
+    <dfdl:defineFormat name="trimmed">
+       <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+    </dfdl:defineFormat>
 
     <xs:element name="TopLevel">
       <xs:complexType>
@@ -326,9 +330,9 @@
           <xs:element name="houseNumber" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="6" />
           <xs:element name="street" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="20" />
+            dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed"/>
           <xs:element name="city" type="xs:string"
-            dfdl:lengthKind="explicit" dfdl:length="20" />
+            dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed"/>
           <xs:element name="state" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="2" />
         </xs:sequence>

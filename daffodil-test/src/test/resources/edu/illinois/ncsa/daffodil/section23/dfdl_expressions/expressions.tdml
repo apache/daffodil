@@ -1238,9 +1238,17 @@
           <xs:element name="dummy" type="xs:int"
             dfdl:lengthKind="delimited" />
           <xs:element name="value" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc=" { 'a
+            dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element>
+                  <dfdl:property name="inputValueCalc"><![CDATA[ { 'a
 b
-c' } "  />
+c' } ]]></dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+           </xs:annotation>
+           </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1251,7 +1259,28 @@ c' } "  />
           <xs:element name="dummy" type="xs:int"
             dfdl:lengthKind="delimited" />
           <xs:element name="value" type="xs:string"
-            dfdl:lengthKind="delimited" dfdl:inputValueCalc=" { ' a b c ' } "  />
+            dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:element>
+                  <dfdl:property name = "inputValueCalc"><![CDATA[{ 'a            b                                    c' }]]></dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space3b" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dummy" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="value" type="xs:string"
+             dfdl:inputValueCalc="{ 'a
+b
+c' }"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1464,7 +1493,8 @@ c' } "  />
         <expr_space2>
           <dummy>2</dummy>
           <value><![CDATA[a
-            b                                    c]]></value>
+b
+c]]></value>
         </expr_space2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
@@ -1473,8 +1503,10 @@ c' } "  />
 <!--
      Test Name: internal_space_preserved3a
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates that the TDML runner is providing false positives because it is not taking whitespace
-                into account
+       Purpose: This test demonstrates that the TDML runner is preserving 
+                whitespace in expressions, so long as those expressions are 
+                expressed in dfdl:property form, where whitespace is preserved
+                by XML.
 -->
   
   <tdml:parserTestCase name="internal_space_preserved3a" root="expr_space3"
@@ -1494,20 +1526,22 @@ c' } "  />
 <!--
      Test Name: internal_space_preserved3b
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates that the TDML runner is providing false positives because it is not taking whitespace
-                into account
+       Purpose: This test demonstrates that when expressions appear in attribute values
+       as in short form dfdl:inputValueCalc, that newlines are not preserved.
+       This is unavoidable in XML. One must use dfdl:property for expressions where
+       whitespace is significant.
 -->
   
-  <tdml:parserTestCase name="internal_space_preserved3b" root="expr_space3"
+  <tdml:parserTestCase name="internal_space_preserved3b" root="expr_space3b"
     model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
 
     <tdml:document><![CDATA[2]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <expr_space3>
+        <expr_space3b>
           <dummy>2</dummy>
-          <value><![CDATA[a     b     c]]></value>
-        </expr_space3>
+          <value><![CDATA[a b c]]></value>
+        </expr_space3b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

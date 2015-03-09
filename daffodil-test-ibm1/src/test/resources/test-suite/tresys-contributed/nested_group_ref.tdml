@@ -46,8 +46,8 @@
 		model="nestedGroupRefs" description="Simple type defined in terms of primitive int.">
 
 		<tdml:document><![CDATA[A,B,C|D,E,F|G,H,I
-    A,B,C|D,E,F|G,H,I
-    A,B,C|D,E,F|G,H,I]]></tdml:document>
+A,B,C|D,E,F|G,H,I
+A,B,C|D,E,F|G,H,I]]></tdml:document>
 
 		<tdml:infoset>
 			<tdml:dfdlInfoset>

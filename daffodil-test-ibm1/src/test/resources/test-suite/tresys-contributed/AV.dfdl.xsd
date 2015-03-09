@@ -191,7 +191,7 @@
   <complexType name="dataline">
     <sequence>
       <element name="Symptom" type="xs:string" dfdl:lengthKind="pattern"
-        dfdl:lengthPattern="[\ ]+[A-Z]+" dfdl:encoding="ASCII"
+        dfdl:initiator="%WSP+;" dfdl:lengthPattern="[A-Z]+" dfdl:encoding="ASCII"
         dfdl:textStringJustification="right"
         dfdl:textStringPadCharacter=" " />
       <element name="Count" type="xs:int" dfdl:lengthKind="delimited"

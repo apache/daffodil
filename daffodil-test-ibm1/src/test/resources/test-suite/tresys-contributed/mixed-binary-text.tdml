@@ -61,8 +61,7 @@
         it found the delimiter it wanted. -->
       <tdml:documentPart type="byte">3232322C
       </tdml:documentPart><!-- as characters that's 222, -->
-      <tdml:documentPart type="text">1111foobar
-      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1111foobar]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -88,8 +87,7 @@
         that. -->
       <tdml:documentPart type="byte">FFFFFF2C
       </tdml:documentPart><!-- binary -212 -->
-      <tdml:documentPart type="text">1111foobar
-      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1111foobar]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -114,8 +112,7 @@
         This will result in the initial string being 12345, not 1234. -->
       <tdml:documentPart type="byte">C2FF352C
       </tdml:documentPart><!-- binary -1023462100 -->
-      <tdml:documentPart type="text">1111foobar
-      </tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[1111foobar]]></tdml:documentPart>
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>

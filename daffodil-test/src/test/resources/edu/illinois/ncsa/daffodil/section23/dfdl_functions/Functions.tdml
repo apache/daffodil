@@ -3202,7 +3202,7 @@
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <encodeDFDLEntities>
-          <str>01 2 34</str>
+          <str>01&#x9;2&#xA;34</str>
           <literal>0%EOT;1%HT;2%LF;3%VT;4</literal>
         </encodeDFDLEntities>
       </tdml:dfdlInfoset>
@@ -3226,7 +3226,7 @@
       <tdml:dfdlInfoset xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
         <encodeDFDLEntities>
-          <str>3 4</str>
+          <str>3&#xA;&#x9;4</str>
           <literal>%SOH;%BEL;3%VT;%LF;%HT;%BS;4</literal>
         </encodeDFDLEntities>
       </tdml:dfdlInfoset>

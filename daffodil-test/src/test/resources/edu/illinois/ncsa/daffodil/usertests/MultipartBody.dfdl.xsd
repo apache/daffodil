@@ -17,7 +17,7 @@ xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001
 		<xsd:appinfo source="http://www.ogf.org/dfdl/">
 			<!-- define variables -->
 			<dfdl:defineVariable name="boundary" type="xsd:string"
-				defaultValue="--_000_1B0E0A42CBA5E943BA6175AE7FDD6B5B013F8A51IMCMBX03TESTSOR_" />
+				defaultValue="%WSP*;--_000_1B0E0A42CBA5E943BA6175AE7FDD6B5B013F8A51IMCMBX03TESTSOR_%WSP*;" />
 		</xsd:appinfo>
 	</xsd:annotation>
 

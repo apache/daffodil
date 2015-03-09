@@ -81,7 +81,7 @@ object XMLUtils {
     val res = cInt match {
       case 0x9 => c
       case 0xA => c
-      case 0xD => c
+      case 0xD => 0xA.toChar // Map CR to LF. That's what XML does.
       case _ if (c < 0x20) => (c + 0xE000).toChar
       case _ if (c > 0xD7FF && c < 0xE000) => (c + 0x1000).toChar
       case _ if (c >= 0xE000 && c <= 0xF8FF) => {
@@ -213,12 +213,15 @@ object XMLUtils {
     if (seq.length == 0) return seq
     if (seq.length == 1) {
       seq(0) match {
-        case p: PCData => {
-          val txt = new Text(p.text)
-          return Seq(txt)
-        }
-        case t: Text => return seq
+
+        case p: PCData => return seq
+
+        case Text(data) =>
+          if (data.matches("""\s*""")) return Nil
+          else return seq
+
         case u: Unparsed => return seq // TODO: are these needed or possible?
+
         case _ => // fall through to code below. (We need to process children)
       }
     }
@@ -255,7 +258,7 @@ object XMLUtils {
     while (i < seq.length) {
       val current = seq(i)
       i = i + 1
-      if (current.isInstanceOf[Atom]) {
+      if (current.isInstanceOf[Atom] && !current.isInstanceOf[PCData]) {
         if (tn == null) {
           if (sb == null || sb.length == 0) {
             // hold onto this text node. It might be isolated
@@ -543,14 +546,48 @@ object XMLUtils {
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
    *
-   * Also strips out comments.
+   * Also strips out comments and all-whitespace nodes
    */
-  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node =
-    removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
+  def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
+    val res1 = removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
+    val res2 = removeAllEntirelyWhitespaceNodes(res1)
+    val res = res2(0) // .asInstanceOf[scala.xml.Node]
+    res
+  }
+
+  private def removeAllEntirelyWhitespaceNodes(ns: NodeSeq): NodeSeq = {
+    val res: NodeSeq = ns flatMap { n =>
+      n match {
+        case Text(data) if data.matches("""\s*""") =>
+          NodeSeq.Empty // remove all-whitespace nodes.
+        case Elem(prefix, label, attributes, scope, children @ _*) => {
+          val newChildren = removeAllEntirelyWhitespaceNodes(children)
+          Elem(prefix, label, attributes, scope, true, newChildren: _*)
+        }
+        case _ => n
+      }
+    }
+    res
+  }
+
+  def convertPCDataToText(n: Node): Node = {
+    val res = n match {
+      case PCData(data) => {
+        val t = Text(n.text)
+        t
+      }
+      case Elem(prefix, label, attributes, scope, children @ _*) => {
+        val newChildren = children.map { convertPCDataToText(_) }
+        Elem(prefix, label, attributes, scope, true, newChildren: _*)
+      }
+      case _ => n
+    }
+    res
+  }
 
   private def removeAttributes1(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): NodeSeq = {
-    Utility.escape("")
     val res = n match {
+
       case e @ Elem(prefix, label, attributes, scope, children @ _*) => {
 
         val filteredScope = if (ns.length > 0) filterScope(scope, ns) else xml.TopScope
@@ -613,9 +650,12 @@ object XMLUtils {
 
   def compareAndReport(trimmedExpected: Node, actualNoAttrs: Node) = {
     if (trimmedExpected != actualNoAttrs) {
-      val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
-      if (diffs.length > 0) {
-        throw new Exception("""
+      val expString = trimmedExpected.toString
+      val actString = actualNoAttrs.toString
+      if (expString != actString) {
+        val diffs = XMLUtils.computeDiff(trimmedExpected, actualNoAttrs)
+        if (diffs.length > 0) {
+          throw new Exception("""
 Comparison failed.
 Expected 
           %s
@@ -623,7 +663,8 @@ Actual
           %s
 Differences were (path, expected, actual):
  %s""".format(
-          trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+            trimmedExpected.toString, actualNoAttrs.toString, diffs.map { _.toString }.mkString("\n")))
+        }
       }
     }
   }

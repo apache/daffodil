@@ -75,4 +75,12 @@ class TestDFDLExpressionsNew {
   @Test def test_parent_axis_01() { runner.runOneTest("parent_axis_01") }
   @Test def test_child_axis_01() { runner.runOneTest("child_axis_01") }
 
+  // DFDL-749: TDML Runner does not take whitespace into account
+  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val tdml4 = testDir4 + "expressions.tdml"
+  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(tdml4))
+  @Test def test_internal_space_preserved2() { runner4.runOneTest("internal_space_preserved2") }
+  @Test def test_internal_space_preserved3a() { runner4.runOneTest("internal_space_preserved3a") }
+  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+
 }

@@ -136,12 +136,12 @@
   <tdml:parserTestCase name="uppercase_05" root="e_uppercase5"
     model="Functions.dfdl.xsd" description="Section 23 - Functions - fn:upper-case - DFDL-23-102R">
 
-    <tdml:document>`ÿ a 8   o ı </tdml:document>
+    <tdml:document>`ÿ a 8   o ııııı </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <e_uppercase5>
-          <one>`ÿ a 8   o ı </one>
-          <upper>`Ÿ A 8   O I </upper>
+          <one>`ÿ a 8   o ııııı </one>
+          <upper>`Ÿ A 8   O IIIII </upper>
         </e_uppercase5>
       </tdml:dfdlInfoset>
     </tdml:infoset>

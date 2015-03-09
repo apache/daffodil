@@ -31,9 +31,7 @@
           <block>EE-------E</block>
           <block>FFFFFF\/*xxxxxxx</block>
           <block>GGG/*G</block>
-          <!-- <block>G\*/GG&#xA;</block> -->
-          <block><![CDATA[G\*/GG
-]]></block>
+          <block>G\*/GG</block>
         </list>
       </dfdlInfoset>
     </infoset>

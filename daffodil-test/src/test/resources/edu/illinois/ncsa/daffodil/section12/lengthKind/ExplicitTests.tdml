@@ -38,7 +38,10 @@
 	xmlns:ex="http://example.com">
 
 	<tdml:defineSchema name="lengthKind_explicit">
-
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="address" dfdl:lengthKind="implicit">
@@ -47,11 +50,11 @@
 					<xs:element name="houseNumber" type="xs:string"
 						dfdl:lengthKind="explicit" dfdl:length="6" />
 					<xs:element name="street" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="20" />
+						dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed" />
 					<xs:element name="city" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="20" />
+						dfdl:lengthKind="explicit" dfdl:length="20" dfdl:ref="trimmed"/>
 					<xs:element name="state" type="xs:string"
-						dfdl:lengthKind="explicit" dfdl:length="2" />
+						dfdl:lengthKind="explicit" dfdl:length="2"/>
 				</xs:sequence>
 			</xs:complexType>
 		</xs:element>
@@ -74,7 +77,10 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBits">
-
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="notFixed">
@@ -89,9 +95,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -111,9 +117,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -182,7 +188,10 @@
 	</tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthChildLengthLessParent">
-
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="fixed1">
@@ -333,7 +342,10 @@
   </tdml:parserTestCase>
 
 	<tdml:defineSchema name="test_ExplicitLengthBytes">
-
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="notFixed">
@@ -348,9 +360,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -370,9 +382,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -393,9 +405,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -415,9 +427,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed"/>
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -444,9 +456,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 								<xs:choice>
@@ -588,7 +600,10 @@
     </tdml:parserTestCase>
         
 	<tdml:defineSchema name="test_ExplicitLengthChars">
-
+      <dfdl:defineFormat name="trimmed">
+         <dfdl:format ref="ex:daffodilTest1" textTrimKind="padChar"
+                      textStringPadCharacter="%SP;" textStringJustification="center"/>
+      </dfdl:defineFormat>
 		<dfdl:format ref="ex:daffodilTest1" />
 
 		<xs:element name="notFixed">
@@ -603,9 +618,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -625,9 +640,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>
@@ -649,9 +664,9 @@
 								<xs:element name="houseNumber" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 6 }" />
 								<xs:element name="street" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="city" type="xs:string"
-									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" />
+									dfdl:lengthKind="explicit" dfdl:length="{ 20 }" dfdl:ref="trimmed" />
 								<xs:element name="state" type="xs:string"
 									dfdl:lengthKind="explicit" dfdl:length="{ 2 }" />
 							</xs:sequence>

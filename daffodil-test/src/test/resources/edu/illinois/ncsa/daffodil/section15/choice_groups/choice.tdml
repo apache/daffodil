@@ -329,7 +329,7 @@
       <xs:choice>
         <xs:element name="inty" type="xs:int" />
         <xs:element name="floaty" type="xs:float" />
-        <xs:element name="stringy" type="xs:string" />
+        <xs:element name="stringy" type="xs:string" dfdl:textTrimKind='padChar' dfdl:textStringPadCharacter="%SP;"/>
       </xs:choice>
     </xs:complexType>
 
@@ -442,18 +442,17 @@
 
   </tdml:parserTestCase>
 
-
   <tdml:parserTestCase name="choiceDelimStringwSp"
     root="ch1" model="choiceDelim"
     description="1 way branches, string only with many spaces between characters after value. - DFDL-15-001R">
 
-    <tdml:document><![CDATA[^ $	9]]></tdml:document>
+    <tdml:document><![CDATA[^ $        9]]></tdml:document>
 
     <tdml:infoset>
       <tdml:dfdlInfoset xmlns:ex="http://example.com">
         <ex:ch1>
           <ex:a>
-            <ex:stringy>^ $ 9</ex:stringy>
+            <ex:stringy>^ $        9</ex:stringy>
           </ex:a>
 
         </ex:ch1>
