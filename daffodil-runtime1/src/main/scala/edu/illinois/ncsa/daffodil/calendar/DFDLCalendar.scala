@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import com.ibm.icu.impl.OlsonTimeZone
 import java.text.ParsePosition
 import scala.collection.mutable.ArraySeq
+import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
 
 object DFDLCalendarOrder extends Enumeration {
   type DFDLCalendarOrder = Value
@@ -186,8 +187,7 @@ case class DFDLDate(calendar: Calendar, parsedTZ: Boolean)
     new DFDLDate(cal, expectsTZ)
   }
 
-  private val format = if (this.hasTimeZone) dateFormat else dateFormatNoTZ
-  val formattedStr: String = createFormatString(format)
+  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlDateInfosetFormatter else TextCalendarConstants.tlDateNoTZInfosetFormatter
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLDate => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -233,8 +233,7 @@ case class DFDLTime(calendar: Calendar, parsedTZ: Boolean)
     new DFDLTime(cal, expectsTZ)
   }
 
-  private val format = if (this.hasTimeZone) timeFormat else timeFormatNoTZ
-  val formattedStr: String = createFormatString(format)
+  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlTimeInfosetFormatter else TextCalendarConstants.tlTimeNoTZInfosetFormatter
 
   override def equals(other: Any): Boolean = other match {
     case that: DFDLTime => this.toDateTimeWithReference equals that.toDateTimeWithReference
@@ -284,8 +283,7 @@ case class DFDLDateTime(calendar: Calendar, parsedTZ: Boolean)
     new DFDLDateTime(cal, expectsTZ)
   }
 
-  private val format = if (this.hasTimeZone) dateTimeFormat else dateTimeFormatNoTZ
-  val formattedStr: String = createFormatString(format)
+  @transient override lazy val tlFormatter = if (this.hasTimeZone) TextCalendarConstants.tlDateTimeInfosetFormatter else TextCalendarConstants.tlDateTimeNoTZInfosetFormatter
 
   override def equals(other: Any) = other match {
     case that: DFDLDateTime => dateTimeEqual(this, that)
@@ -412,7 +410,7 @@ abstract class DFDLCalendar(containsTZ: Boolean)
   final val tzFormat: String = "xxx" // -08:00 The ISO8601 extended format with hours and minutes fields.
 
   def calendar: Calendar
-  def formattedStr: String
+  def tlFormatter: ThreadLocal[SimpleDateFormat]
 
   def getField(fieldIndex: Int): Int = calendar.get(fieldIndex)
   def isFieldSet(fieldIndex: Int): Boolean = calendar.isSet(fieldIndex)
@@ -439,13 +437,12 @@ abstract class DFDLCalendar(containsTZ: Boolean)
    * Returns the TimeZone in the format of "+00:00"
    */
   def getTimeZoneString: String = {
-    val format = new SimpleDateFormat(tzFormat)
-    var formattedString: String = null
-    try {
-      formattedString = format.format(calendar)
+    val formatter = TextCalendarConstants.tlTzInfosetFormatter.get
+    val formattedString = try {
+      formatter.format(calendar)
     } catch {
       case ex: java.lang.IllegalArgumentException =>
-        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(tzFormat, ex.getMessage()))
+        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(formatter.toPattern, ex.getMessage()))
     }
     formattedString
   }
@@ -456,18 +453,15 @@ abstract class DFDLCalendar(containsTZ: Boolean)
    * We represent 'No time zone' by TimeZone.UNKNOWN_ZONE
    */
   def getCalendar() = calendar
-  override def toString(): String = formattedStr
+  override def toString(): String = {
+    val formatter = tlFormatter.get
+    formatter.setCalendar(calendar)
 
-  protected def createFormatString(formatString: String): String = {
-    val format = new SimpleDateFormat(formatString)
-    format.setCalendar(calendar)
-
-    var formattedString: String = null
-    try {
-      formattedString = format.format(calendar)
+    val formattedString = try {
+      formatter.format(calendar)
     } catch {
       case ex: java.lang.IllegalArgumentException =>
-        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(formatString, ex.getMessage()))
+        throw new java.lang.IllegalArgumentException("Calendar content failed to match the format '%s' due to %s".format(formatter.toPattern, ex.getMessage()))
     }
     formattedString
   }
