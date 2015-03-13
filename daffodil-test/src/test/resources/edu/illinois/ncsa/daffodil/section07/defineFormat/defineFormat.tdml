@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -203,4 +203,26 @@
       <tdml:error>Attribute 'name' must appear on element 'dfdl:defineFormat'</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: format_with_comment
+        Schema: defineFormat_withComment.dfdl.xsd
+       Purpose: This test demonstrates that an XML-style comment should not interfere with a format definition
+-->
+
+  <tdml:parserTestCase name="format_with_comment" root="address1"
+    model="defineFormat_withComment.dfdl.xsd" description="Section 7 - defineFormat">
+    <tdml:document><![CDATA[118*Ridgewood Circle*Rochester*NY]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <address1> 
+          <houseNumber>118</houseNumber>
+          <street>Ridgewood Circle</street>
+          <city>Rochester</city>
+          <state>NY</state>
+          </address1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>

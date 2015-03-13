@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -46,6 +46,9 @@ class defineFormatTestsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
   val tdml = testDir + "defineFormat.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  //DFDL-1276
+  @Test def test_format_with_comment() { runner.runOneTest("format_with_comment") }
 
   //DFDL-478
   @Test def test_nameCollision() { runner.runOneTest("nameCollision") }
