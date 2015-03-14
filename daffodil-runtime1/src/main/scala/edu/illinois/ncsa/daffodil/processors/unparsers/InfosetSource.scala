@@ -11,6 +11,11 @@ import edu.illinois.ncsa.daffodil.processors.DIComplex
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.ProcessingError
+import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
+
+class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args)
 
 object InfosetSource {
 
@@ -36,50 +41,8 @@ object InfosetSource {
    * This is schema aware as it must infer when arrays are starting and ending
    * in order to generate those events as well as the startElement endElement events.
    */
-  def fromXMLSource(xmlStreamReader: javax.xml.stream.XMLStreamReader, schemaInfo: DPathElementCompileInfo): InfosetSource = {
-    ???
-  }
-
-}
-
-/**
- * Iterates an infoset tree, handing out elements one by one in response to pull calls.
- *
- * Assumes that arrays have already been recognized and turned into DIArray nodes.
- */
-class InfosetSourceFromTree(doc: InfosetDocument) extends InfosetSource {
-  val diDoc = doc.asInstanceOf[DIDocument]
-  var currentDINode: DINode = diDoc.root
-  var currentChild = -1
-  var numCurrentChildren = 0
-  val diStack = new mutable.Stack[DINode]()
-  val childIndexStack = new mutable.Stack[Long]
-  val arrayIndexStack = new mutable.Stack[Long]
-
-  /**
-   * Easiest way to pull is to use a on-demand created stream.
-   */
-  final def hasNext(): Boolean = !stream.isEmpty
-
-  def next(): InfosetEvent = {
-    Assert.usage(hasNext())
-    val hd = stream.head
-    stream = stream.tail
-    println("EVENT: " + hd)
-    hd
-  }
-
-  var stream: Stream[InfosetEvent] = {
-    val rootElem = diDoc.root
-    f(rootElem, Stream.Empty)
-  }
-
-  private def f(diNode: DINode, more: Stream[InfosetEvent]): Stream[InfosetEvent] = {
-    val rest = End(diNode) #:: more
-    val childrenAndRest = diNode.children.foldRight(rest) { f }
-    val first = Start(diNode)
-    val result = first #:: childrenAndRest
-    result
+  def fromXMLSource(xmlEventReader: Iterator[scala.xml.pull.XMLEvent], rootElementERD: ElementRuntimeData): InfosetSource = {
+    new InfosetSourceFromXMLEventReader(xmlEventReader, rootElementERD)
   }
 
 }

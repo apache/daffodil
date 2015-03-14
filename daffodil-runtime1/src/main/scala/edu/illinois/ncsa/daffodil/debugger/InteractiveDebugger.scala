@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerBase
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -283,7 +284,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     val elem = xml(0)
     val xmlClean = XMLUtils.removeAttributes(elem) // strip them all , Seq(XMLUtils.INT_NS_OBJECT))
     val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-    val pp = new scala.xml.PrettyPrinter(wrap, 2)
+    val pp = new PrettyPrinter(wrap, 2)
     val xmlString = pp.format(xmlClean)
     debugPrintln(xmlString)
   }
@@ -500,7 +501,6 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       }
     }
   }
-
 
   object DebugCommandBase extends DebugCommand with DebugCommandValidateSubcommands {
     val name = ""
@@ -973,7 +973,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Example: info data infoset""".stripMargin
       override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoPath)
- 
+
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
           throw new DebugException("one or more commands are required")
@@ -1269,7 +1269,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
           val infoset = getInfoset(state.infoset)
           val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-          val pp = new scala.xml.PrettyPrinter(wrap, 2)
+          val pp = new PrettyPrinter(wrap, 2)
           debugPrintln("%s:".format(name))
           val xml = pp.format(infoset)
           val lines = xml.split("\n")
@@ -1425,7 +1425,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object SetInfosetLines extends DebugCommand with DebugCommandValidateInt{
+      object SetInfosetLines extends DebugCommand with DebugCommandValidateInt {
         val name = "infosetLines"
         val desc = "set the maximum number of lines of the infoset to display (default: -1)"
         val longDesc = """|Usage: set infosetLines|il <value>
@@ -1486,8 +1486,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             throw new DebugException("a single argument is required")
           } else {
             args.head.toLowerCase match {
-              case "text" => 
-              case "binary" => 
+              case "text" =>
+              case "binary" =>
               case _ => throw new DebugException("argument must be either 'text' or 'binary'")
             }
           }

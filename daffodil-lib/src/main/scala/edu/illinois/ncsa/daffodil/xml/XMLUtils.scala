@@ -817,17 +817,16 @@ Differences were (path, expected, actual):
   /**
    * Converts a scala XML node into an XMLStreamReader
    */
-  def nodeToXMLStreamReader(node: scala.xml.Node): javax.xml.stream.XMLStreamReader = {
-    val factory = javax.xml.stream.XMLInputFactory.newInstance()
+  def nodeToXMLEventReader(node: scala.xml.Node): Iterator[scala.xml.pull.XMLEvent] = {
     //
     // We're going to serialize the input infoset to a string, then
     // create an XML event source from that.
     // This is inefficient, but sufficent for the TDML runner.
     //
-    val nodeString = node.toString
-    val xmlTextReader = new java.io.StringReader(nodeString)
-    val xmlStreamReader = factory.createXMLStreamReader(xmlTextReader)
-    xmlStreamReader
+    val src = scala.io.Source.fromString(node.toString)
+
+    val xpp = new XMLPullParser(src)
+    xpp
   }
 }
 

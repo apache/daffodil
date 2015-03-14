@@ -62,7 +62,7 @@ sealed trait DINode {
   def asSimple: DISimple = this.asInstanceOf[DISimple]
   def children: Stream[DINode]
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
-  def size: Long
+  def totalElementCount: Long
 }
 
 /**
@@ -197,11 +197,15 @@ sealed trait DIElement extends DINode with InfosetElement {
 // code, rather than letting all sorts of map/flatmap compositions,
 // which may or may not be optimized effectively.
 //
-final class DIArray(name: String, namespace: NS) extends DINode with InfosetArray {
+final class DIArray(name: String, namespace: NS, val parent: DIComplex) extends DINode with InfosetArray {
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
   //TODO: really this needs to be adaptive, and resize upwards reasonably. 
   //A non-copying thing - list like, may be better, but we do need access to be
   //constant time. 
+  // FIXME: for streaming behavior, arrays are going to get elements removed from
+  // them when no longer needed. However, the array itself would still be growing 
+  // without bound. So, replace this with a mutable map so that it can shrink
+  // as well as grow.
   final protected val _contents = new ArrayBuffer[InfosetElement](initialSize)
 
   override def children = _contents.toStream.asInstanceOf[Stream[DINode]]
@@ -220,7 +224,7 @@ final class DIArray(name: String, namespace: NS) extends DINode with InfosetArra
   def apply(occursIndex: Long) = getOccurrence(occursIndex)
 
   def append(ie: InfosetElement): Unit = {
-    _contents.append(ie)
+    _contents += ie
   }
 
   final def length: Long = _contents.length
@@ -233,9 +237,9 @@ final class DIArray(name: String, namespace: NS) extends DINode with InfosetArra
     _contents.foreach { _.toWriter(writer, removeHidden) }
   }
 
-  final def size: Long = {
+  final def totalElementCount: Long = {
     var a: Long = 0
-    _contents.foreach { c => a += c.size }
+    _contents.foreach { c => a += c.totalElementCount }
     a
   }
 }
@@ -342,7 +346,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
     }
   }
 
-  override def size = 1L
+  override def totalElementCount = 1L
 
   private def remapped = XMLUtils.remapXMLIllegalCharactersToPUA(dataValueAsString)
 
@@ -472,7 +476,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     else {
       // slot is Nope. There isn't even an array object yet.
       // create one (it will have zero entries)
-      val ia = One(new DIArray(name, namespace))
+      val ia = One(new DIArray(name, namespace, this))
       // no array there yet. So we have to create one.
       setChildArray(slot, ia)
       ia
@@ -495,7 +499,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       var ia: InfosetArray = null
       val arr = getChildArray(e.runtimeData)
       if (!arr.isDefined) {
-        ia = new DIArray(e.runtimeData.name, e.runtimeData.targetNamespace)
+        ia = new DIArray(e.runtimeData.name, e.runtimeData.targetNamespace, this)
         // no array there yet. So we have to create one.
         setChildArray(e.runtimeData, ia)
       } else {
@@ -614,10 +618,10 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     _slots.foreach { _ foreach { slot => slot.toWriter(writer, removeHidden) } }
   }
 
-  override def size: Long = {
+  override def totalElementCount: Long = {
     if (erd.nilledXML.isDefined && isNilled) return 1L
     var a: Long = 1
-    _slots.foreach { _ foreach { slot => a += slot.size } }
+    _slots.foreach { _ foreach { slot => a += slot.totalElementCount } }
     a
   }
 }
@@ -848,7 +852,8 @@ object Infoset {
           // 
           // In this case, the current slot must be filled in with 
           // a DIArray 
-          val arr = new DIArray(childERD.prettyName, childERD.targetNamespace)
+          val diComplex = ie.asInstanceOf[DIComplex]
+          val arr = new DIArray(childERD.prettyName, childERD.targetNamespace, diComplex)
           val c = ie.asInstanceOf[DIComplex]
           c.setChildArray(childERD, arr)
 

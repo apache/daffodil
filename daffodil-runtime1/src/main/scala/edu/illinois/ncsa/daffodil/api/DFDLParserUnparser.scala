@@ -167,7 +167,7 @@ object DFDL {
     /**
      * Unparses (that is, serializes) data to the output, returns an object which contains any diagnostics.
      */
-    def unparse(output: DFDL.Output, xmlStreamReader: javax.xml.stream.XMLStreamReader): UnparseResult
+    def unparse(output: DFDL.Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): UnparseResult
     def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): UnparseResult
     def unparse(output: DFDL.Output, infosetSource: InfosetSource): UnparseResult
     /**

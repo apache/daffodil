@@ -70,14 +70,14 @@ class Assert {
 
 object Assert extends Assert {
 
-  def usage(testAbortsIfFalse: => Boolean, message: => String = "Usage error.") = {
+  def usage(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
     usageErrorUnless(testAbortsIfFalse, message)
   }
 
   /**
    * Verbose name helps you get the sense of the predicate right.
    */
-  def usageErrorUnless(testAbortsIfFalse: => Boolean, message: => String = "Usage error.") = {
+  def usageErrorUnless(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
     val r = testAbortsIfFalse
     if (!r)
       abort(message)
@@ -91,7 +91,7 @@ object Assert extends Assert {
   // to be enabled.
   //
 
-  def usageError(message: => String = "Usage error."): Nothing = {
+  def usageError(message: String = "Usage error."): Nothing = {
     abort(message)
   }
 
@@ -103,7 +103,7 @@ object Assert extends Assert {
     toss(new NotYetImplementedException(shortBacktrace))
   }
 
-  def abort(message: => String = ""): Nothing = {
+  def abort(message: String = ""): Nothing = {
     toss(new Abort(message + "\n" + shortBacktrace))
   }
 

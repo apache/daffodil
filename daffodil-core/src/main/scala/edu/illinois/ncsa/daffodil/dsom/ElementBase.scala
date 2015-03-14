@@ -53,6 +53,11 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementBaseGrammarMixin
 import edu.illinois.ncsa.daffodil.dpath.CompiledDPath
 import edu.illinois.ncsa.daffodil.dpath.WholeExpression
+import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
+import edu.illinois.ncsa.daffodil.processors.unparsers.SeveralPossibilitiesForNextElement
+import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.processors.unparsers.NoNextElement
+import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyOnePossibilityForNextElement
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -242,14 +247,84 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
   lazy val defaultValue =
-    if (isDefaultable & (isScalar || isRequiredArrayElement)) {
+    if (isDefaultable && (isScalar || isRequiredArrayElement)) {
       val value = Infoset.convertToInfosetRepType(
         primType, // .typeRuntimeData, 
         defaultValueAsString, this)
       Some(value)
     } else None
 
-  final lazy val elementRuntimeData: ElementRuntimeData = {
+  private lazy val isRequiredNonDefaultable: Boolean = !isDefaultable
+
+  private lazy val possibleNextChildrenElementsForUnparse: Seq[ElementBase] = {
+    if (elementChildren.length =:= 0) Nil
+    else {
+      val following = elementChildren
+      //
+      // if we encounter a non-defaultable required element,
+      // then that element is possible as a next element, but nothing after it.
+      //
+      val locationOfNonDefaultable = following.indexWhere { _.isRequiredNonDefaultable }
+      val upToLimit =
+        if (locationOfNonDefaultable =#= -1) following
+        else following.take(locationOfNonDefaultable + 1)
+      upToLimit
+    }
+  }
+
+  private lazy val possibleNextElementsForUnparse: Seq[ElementBase] = {
+    val arrayNext = if (isArray) Seq(this) else Nil
+    val nextInGroup = laterElementSiblings
+    //
+    // use a stream here so we only build this in-order traversal for as
+    // far as we actually need it.
+    //
+    val nextAfterGroup: Seq[ElementBase] =
+      enclosingTerm.map {
+        _.laterElementSiblings.flatMap {
+          _.possibleNextElementsForUnparse
+        }
+      }.getOrElse(Nil)
+
+    val following = nextInGroup ++ nextAfterGroup
+    //
+    // if we encounter a non-defaultable required element,
+    // then that element is possible as a next element, but nothing after it.
+    //
+    val locationOfNonDefaultable = following.indexWhere { _.isRequiredNonDefaultable }
+    val upToLimit =
+      if (locationOfNonDefaultable =#= -1) following
+      else following.take(locationOfNonDefaultable + 1)
+    arrayNext ++ upToLimit
+  }
+  /**
+   * Annoying, but scala's immutable Map is not covariant in its first argument
+   * the way one would normally expect a collection to be.
+   *
+   * So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
+   *
+   * So we need a cast upward to Map[QNameBase,ElementRuntimeData]
+   */
+  def computeNextElementResolver(possibles: Seq[ElementBase]): NextElementResolver = {
+    val eltMap = possibles.map {
+      e => (e.namedQName, e.elementRuntimeData)
+    }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
+    val resolver = eltMap.size match {
+      case 0 => new NoNextElement(schemaFileLocation)
+      case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head)
+      case _ => new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap)
+    }
+    resolver
+  }
+
+  lazy val nextElementResolver: NextElementResolver =
+    computeNextElementResolver(possibleNextElementsForUnparse)
+
+  lazy val childElementResolver: NextElementResolver =
+    computeNextElementResolver(possibleNextChildrenElementsForUnparse)
+
+  final lazy val elementRuntimeData: ElementRuntimeData = elementRuntimeData_.value
+  private val elementRuntimeData_ = LV('elementRuntimeData) {
     val ee = enclosingElement
     val optERD = ee.map { _.elementRuntimeData }
     createElementRuntimeData(optERD)
@@ -276,6 +351,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       parent,
       childrenERDs,
       schemaSet.variableMap,
+      nextElementResolver,
+      childElementResolver,
       dpathElementCompileInfo,
       schemaFileLocation,
       prettyName,
@@ -561,6 +638,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   /**
    * check if there are delimiters such that there is a concept of something that we can call 'empty'
    */
+  // FIXME : This looks incorrect. empty is observable so long as one can 
+  // have zero length followed by a separator, or zero length between an 
+  // initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
   lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
   private val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
     val res = if ((hasSep ||

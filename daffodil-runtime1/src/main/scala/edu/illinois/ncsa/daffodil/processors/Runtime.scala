@@ -76,6 +76,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.GeneralOutStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -268,7 +270,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     }
   }
 
-  def unparse(output: DFDL.Output, xmlStreamReader: javax.xml.stream.XMLStreamReader): DFDL.UnparseResult = ???
+  def unparse(output: DFDL.Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): DFDL.UnparseResult = {
+    val rootERD = ssrd.elementRuntimeData
+    val infosetSource = InfosetSource.fromXMLSource(xmlEventReader, rootERD)
+    unparse(output, infosetSource)
+  }
 
   def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = {
     val rootERD = ssrd.elementRuntimeData
@@ -308,9 +314,9 @@ abstract class ParseResult(dp: DataProcessor)
   with WithDiagnosticsImpl {
 
   def toWriter(writer: java.io.Writer) = {
-    if (resultState.infoset.size < 200) { // TODO: make settable?
+    if (resultState.infoset.totalElementCount < 200) { // TODO: make settable?
       // pretty print small infosets
-      val pp = new scala.xml.PrettyPrinter(80, 2)
+      val pp = new PrettyPrinter(80, 2)
       writer.write(pp.format(resultState.infoset.toXML()(0)))
     } else {
       // direct write for larger infosets

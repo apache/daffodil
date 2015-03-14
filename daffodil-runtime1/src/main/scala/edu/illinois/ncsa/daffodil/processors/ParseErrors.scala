@@ -79,8 +79,14 @@ abstract class ProcessingError(
     // For now, we'll just do an automatic English message.
     //
     val msg = {
-      if (args1.size > 0) kind.format(args1: _*)
-      else kind
+      if (args.size > 0) {
+        try {
+          kind.format(args: _*)
+        } catch {
+          case e: IllegalArgumentException =>
+            throw new IllegalArgumentException("""format string "%s" did not accept these arguments: %s""".format(kind, args.mkString(", ")))
+        }
+      } else kind
     }
     val res = pOrU + ": " + msg +
       componentText +

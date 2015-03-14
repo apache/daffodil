@@ -71,6 +71,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   def termRuntimeData: TermRuntimeData
 
+  def elementChildren: Seq[ElementBase]
+
   override lazy val encodingInfo =
     new EncodingInfo(termRuntimeData, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
       termChildrenEncodingInfo)
@@ -407,6 +409,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   lazy val priorSiblings = ListUtils.preceding(allSiblings, this)
   lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
+  lazy val laterElementSiblings = laterSiblings.collect { case elt: ElementBase => elt }
 
   lazy val priorSibling = priorSiblings.lastOption
   lazy val nextSibling = laterSiblings.headOption

@@ -191,13 +191,29 @@ trait ElementDeclMixin
    * at runtime it will not evaluate to empty string (so you can specify the delimiter
    * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
    */
-
   lazy val isDefaultable = isDefaultable_.value
   private val isDefaultable_ = LV('isDefaultable) {
-    defaultValueAsString match {
-      case "" => false // allowed for type string.
-      case _ if (emptyIsAnObservableConcept) => true
-      case _ => false
+    if (isSimpleType) {
+      val hasDefaultValue = defaultValueAsString match {
+        case "" => false // allowed for type string.
+        case _ if (emptyIsAnObservableConcept) => true
+        case _ => false
+      }
+      hasDefaultValue &&
+        !isOptional &&
+        (isScalar || isRequiredArrayElement)
+    } else {
+      // TODO: Implement complex element defaulting
+      // JIRA issue DFDL-1277
+      //
+      // a complex element is defaultable
+      // recursively if everything in it is defaultable
+      // and everything in it has no required representation 
+      // (e.g., no required delimiters, no alignment, no skip, etc.)
+      // furthermore, even the defaultable things inside must satisfy 
+      // a stricter criterion. They must have emptyValueDelimiterPolicy='none'
+      // if delimiters are defined. 
+      false
     }
   }
 }

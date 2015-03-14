@@ -43,6 +43,8 @@ import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import edu.illinois.ncsa.daffodil.xml.QName
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.RefQName
+import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.processors.TextCalendarConstants
 
 /**
  * We need to have a data structure that lets us represent a type, and
@@ -142,6 +144,8 @@ object NodeInfo extends Enum {
 
     def isError: Boolean = false
     def primitiveType = this
+
+    def fromXMLString(s: String): Any
   }
 
   private def getTypeNode(name: String) = {
@@ -379,94 +383,125 @@ object NodeInfo extends Enum {
     protected sealed trait FloatKind extends SignedNumeric.Kind
     case object Float extends PrimTypeNode(SignedNumeric, Nil) with FloatKind {
       type Kind = FloatKind
+      override def fromXMLString(s: String) = s.toFloat
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
     case object Double extends PrimTypeNode(SignedNumeric, Nil) with DoubleKind {
       type Kind = DoubleKind
+      override def fromXMLString(s: String) = s.toDouble
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind
     case object Decimal extends PrimTypeNode(SignedNumeric, List(Integer)) with DecimalKind {
       type Kind = DecimalKind
+      override def fromXMLString(s: String) = BigDecimal(s)
     }
 
     protected sealed trait IntegerKind extends SignedInteger.Kind
     case object Integer extends PrimTypeNode(Decimal, List(Long, NonNegativeInteger)) with IntegerKind {
       type Kind = IntegerKind
+      override def fromXMLString(s: String) = BigInt(s)
     }
 
     protected sealed trait LongKind extends Integer.Kind
     case object Long extends PrimTypeNode(Integer, List(Int)) with LongKind {
       type Kind = LongKind
+      override def fromXMLString(s: String) = s.toLong
     }
 
     protected sealed trait IntKind extends Long.Kind
     case object Int extends PrimTypeNode(Long, List(Short)) with IntKind {
       type Kind = IntKind
+      override def fromXMLString(s: String) = s.toInt
     }
 
     protected sealed trait ShortKind extends Int.Kind
     case object Short extends PrimTypeNode(Int, List(Byte)) with ShortKind {
       type Kind = ShortKind
+      override def fromXMLString(s: String) = s.toShort
     }
 
     protected sealed trait ByteKind extends Short.Kind
     case object Byte extends PrimTypeNode(Short, Nil) with ByteKind {
       type Kind = ByteKind
+      override def fromXMLString(s: String) = s.toByte
     }
 
     protected sealed trait NonNegativeIntegerKind extends Integer.Kind
     case object NonNegativeInteger extends PrimTypeNode(Integer, List(UnsignedLong)) with NonNegativeIntegerKind {
       type Kind = NonNegativeIntegerKind
+      override def fromXMLString(s: String) = BigInt(s)
     }
+
     protected sealed trait UnsignedLongKind extends NonNegativeInteger.Kind
     case object UnsignedLong extends PrimTypeNode(NonNegativeInteger, List(UnsignedInt)) with UnsignedLongKind {
       type Kind = UnsignedLongKind
       val Max = BigInt("18446744073709551615")
+      override def fromXMLString(s: String) = BigInt(s)
     }
+
     protected sealed trait UnsignedIntKind extends UnsignedLong.Kind
     case object UnsignedInt extends PrimTypeNode(UnsignedLong, List(UnsignedShort, ArrayIndex)) with UnsignedIntKind {
       type Kind = UnsignedIntKind
       val Max = 4294967295L
+      override def fromXMLString(s: String) = s.toLong
     }
+
     protected sealed trait UnsignedShortKind extends UnsignedInt.Kind
     case object UnsignedShort extends PrimTypeNode(UnsignedInt, List(UnsignedByte)) with UnsignedShortKind {
       type Kind = UnsignedShortKind
       val Max = 65535
+      override def fromXMLString(s: String) = s.toInt
     }
+
     protected sealed trait UnsignedByteKind extends UnsignedShort.Kind
     case object UnsignedByte extends PrimTypeNode(UnsignedShort, Nil) with UnsignedByteKind {
       type Kind = UnsignedByteKind
       val Max = 255
+      override def fromXMLString(s: String) = s.toShort
     }
 
     protected sealed trait StringKind extends AnyAtomic.Kind
     case object String extends PrimTypeNode(AnyAtomic, List(NonEmptyString)) with StringKind {
       type Kind = StringKind
+      override def fromXMLString(s: String) = s
     }
 
     protected sealed trait BooleanKind extends AnySimpleType.Kind
     case object Boolean extends PrimTypeNode(AnyAtomic, Nil) with BooleanKind {
       type Kind = BooleanKind
+      override def fromXMLString(s: String) = s.toBoolean
     }
 
     protected sealed trait HexBinaryKind extends Opaque.Kind
     case object HexBinary extends PrimTypeNode(Opaque, Nil) with HexBinaryKind {
       type Kind = HexBinaryKind
+      override def fromXMLString(s: String): Any = Misc.hex2Bytes(s)
     }
 
     protected sealed trait DateKind extends AnyDateTimeKind
     case object Date extends PrimTypeNode(AnyDateTime, Nil) with DateKind {
       type Kind = DateKind
+      override def fromXMLString(s: String): Any = {
+        TextCalendarConstants.tlDateInfosetFormatter.get.parse(s)
+      }
     }
+
     protected sealed trait DateTimeKind extends AnyDateTimeKind
     case object DateTime extends PrimTypeNode(AnyDateTime, Nil) with DateTimeKind {
       type Kind = DateTimeKind
+      override def fromXMLString(s: String): Any = {
+        TextCalendarConstants.tlDateTimeInfosetFormatter.get.parse(s)
+      }
     }
+
     protected sealed trait TimeKind extends AnyDateTimeKind
     case object Time extends PrimTypeNode(AnyDateTime, Nil) with TimeKind {
       type Kind = TimeKind
+      override def fromXMLString(s: String): Any = {
+        TextCalendarConstants.tlTimeInfosetFormatter.get.parse(s)
+      }
     }
   }
 

@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
@@ -64,6 +65,8 @@ class ElementRuntimeData(
   @transient parentArg: => Option[ElementRuntimeData],
   @transient childrenArg: => Seq[ElementRuntimeData],
   @transient variableMapArg: => VariableMap,
+  @transient nextElementResolverArg: => NextElementResolver,
+  @transient childElementResolverArg: => NextElementResolver,
   val dpathElementCompileInfo: DPathElementCompileInfo,
   override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
@@ -125,6 +128,8 @@ class ElementRuntimeData(
   lazy val children = childrenArg
   lazy val parent = parentArg
   override lazy val variableMap = variableMapArg
+  lazy val nextElementResolver = nextElementResolverArg
+  lazy val childElementResolver = childElementResolverArg
 
   override def preSerialization: Unit = {
     super.preSerialization

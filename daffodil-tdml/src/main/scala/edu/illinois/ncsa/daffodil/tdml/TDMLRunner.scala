@@ -802,7 +802,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new TDMLException(diags)
     }
-    val xmlStreamReader = XMLUtils.nodeToXMLStreamReader(infosetXML)
+    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infosetXML)
     val actual = processor.unparse(output, xmlStreamReader)
     output.close()
 
@@ -834,7 +834,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new TDMLException(diags)
     }
-    val xmlStreamReader = XMLUtils.nodeToXMLStreamReader(infoset)
+    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infoset)
     val actual = processor.unparse(output, xmlStreamReader)
     output.close()
     val actualBytes = outStream.toByteArray()

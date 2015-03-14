@@ -568,9 +568,15 @@ case class InStreamFromByteChannel private (
 class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStreamOrOutStream: Any) extends DataLocation {
   private val DEFAULT_DUMP_SIZE = 40
 
-  def inStream = inStreamOrOutStream match {
+  /**
+   * FIXME: This whole code path for creating dumps for debug purposes is a crock and
+   * needs to be redone.
+   */
+  def inStream: InStream = inStreamOrOutStream match {
     case is: InStream => is
-    case os: OutStream => ??? /// copy contents of outstream into an InStream
+    case os: OutStream => {
+      ???
+    }
     case _ => Assert.usageError("Must be an InStream or an OutStream")
   }
 

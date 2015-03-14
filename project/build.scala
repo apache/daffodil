@@ -90,6 +90,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(runtime1Unparser)
+                             .dependsOn(runtime1 % "test->test") // need a utility in runtime1's tests
 
   lazy val japi    = Project(id = "daffodil-japi", base = file("daffodil-japi"), settings = s ++ genJavaDocSettings)
                              .configs(DebugTest)

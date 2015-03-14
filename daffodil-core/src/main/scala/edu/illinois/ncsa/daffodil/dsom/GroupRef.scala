@@ -72,6 +72,8 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   requiredEvaluations(groupDef)
 
+  override lazy val elementChildren = group.elementChildren
+
   // delegate to the model group object. It assembles properties from
   // the group ref and the group def
   override def findPropertyOption(pname: String): PropertyLookupResult = {

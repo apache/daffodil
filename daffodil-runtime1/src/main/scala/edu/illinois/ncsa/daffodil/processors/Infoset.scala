@@ -139,5 +139,12 @@ trait InfosetItem {
   override def toString = toXML().toString
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
-  def size: Long
+
+  /**
+   * The totalElementCount is the total count of how many elements this InfosetItem contains.
+   *
+   * (Used to call this 'size', but size is often a length-like thing, so changed name
+   * to be more distinctive)
+   */
+  def totalElementCount: Long
 }
