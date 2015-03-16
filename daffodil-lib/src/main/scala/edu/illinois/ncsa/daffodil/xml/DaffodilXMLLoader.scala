@@ -210,7 +210,17 @@ class DFDLCatalogResolver private ()
 
     log(LogLevel.Resolver, "nsURI = %s, baseURI = %s, systemId = %s", nsURI, baseURIString, systemId)
     val resolvedUri = delegate.resolveURI(nsURI)
-    val resolvedSystem = delegate.resolveSystem(systemId)
+    val resolvedSystem =
+      if (systemId == null) null
+      else {
+        delegate.resolveSystem(systemId) match {
+          case null => {
+            val systemIdFile = new File(systemId)
+            if (systemIdFile.exists) systemIdFile.toURI().toString else null
+          }
+          case rSys => rSys
+        }
+      }
 
     // An Include in a schema with a target namespace should resolve to the systemId and ignore the nsURI
     // because the nsURI will resolve to the including schema file.

@@ -210,7 +210,12 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
     val res = schemaLocationProperty.flatMap { slText =>
       // We need to determine if the URI is valid, if it's not we should attempt to encode it
       // to make it valid (takes care of spaces in directories). If it fails after this, oh well!
-      val encodedSLText = if (!isValidURI(slText)) URLEncoder.encode(slText, "UTF-8") else slText
+      val encodedSLText = if (!isValidURI(slText)) {
+        val file = new File(slText)
+        if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
+      }
+      else slText
+       
       val uri: URI = URI.create(encodedSLText)
       val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
 
