@@ -39,7 +39,6 @@
   <tdml:defineSchema name="fixedLengthStrings">
     <xs:include schemaLocation="xsd/built-in-formats.xsd" />
     <dfdl:format ref="ex:daffodilTest1" textPadKind='padChar' />
-
     <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes"/>
     <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
     <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:textPadKind='none'/>
@@ -52,7 +51,7 @@
         Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
 -->
 
-  <tdml:unparserTestCase name="unparseFixedLengthString01" root="e1" model="fixedLengthStrings">
+  <tdml:unparserTestCase name="unparseFixedLengthString01" root="e1" model="fixedLengthStrings" roundTrip="true">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -70,7 +69,7 @@
         Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
 -->
 
-  <tdml:unparserTestCase name="unparseFixedLengthString02" root="e2" model="fixedLengthStrings">
+  <tdml:unparserTestCase name="unparseFixedLengthString02" root="e2" model="fixedLengthStrings" roundTrip="true">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>

@@ -48,5 +48,8 @@ class TestUnparserGeneralNew {
   val aa = testDir + "testUnparserGeneral.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
+  @Test def unparseFixedLengthString01() { runner.runOneTest("unparseFixedLengthString01") }
+  @Test def unparseFixedLengthString02() { runner.runOneTest("unparseFixedLengthString02") }
 }
+
 

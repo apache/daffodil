@@ -84,6 +84,7 @@ import java.nio.CharBuffer
 import java.nio.channels.Channels
 import java.nio.charset.CoderResult
 import java.io.InputStream
+import java.io.ByteArrayInputStream
 import edu.illinois.ncsa.daffodil.processors.charset.NonByteSizeCharsetEncoderDecoder
 import scala.language.postfixOps
 import java.nio.file.Path
@@ -414,6 +415,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val root = (testCaseXML \ "@root").text
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
+  lazy val tcRoundTrip = (testCaseXML \ "@roundTrip").text
+  lazy val roundTrip = tcRoundTrip != "" && tcRoundTrip.toBoolean 
   lazy val description = (testCaseXML \ "@description").text
   lazy val unsupported = (testCaseXML \ "@unsupported").text match {
     case "true" => true
@@ -434,7 +437,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     errors: Option[ExpectedErrors],
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
-    validationMode: ValidationMode.Type): Unit
+    validationMode: ValidationMode.Type,
+    roundTrip: Boolean = false): Unit
 
   private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
@@ -506,7 +510,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     val optInputOrExpectedData = document.map { _.data }
     val nBits = document.map { _.nBits }
 
-    runProcessor(suppliedSchema, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode)
+    runProcessor(suppliedSchema, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode, roundTrip)
 
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
@@ -517,7 +521,403 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     // thrown either during the run of the test or during the comparison.
     // log(LogLevel.Debug, "Test %s passed.", id))
   }
+}
 
+case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
+  extends TestCase(ptc, parentArg) {
+
+  lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
+
+  override def runProcessor(schemaSource: DaffodilSchemaSource,
+    optDataToParse: Option[DFDL.Input],
+    optLengthLimitInBits: Option[Long],
+    optErrors: Option[ExpectedErrors],
+    optWarnings: Option[ExpectedWarnings],
+    optValidationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type,
+    roundTrip: Boolean) = {
+
+    val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
+    val nBits = optLengthLimitInBits.get
+    val dataToParse = optDataToParse.get
+
+    (optExpectedInfoset, optErrors) match {
+      case (Some(infoset), None) => {
+
+        val processor = getProcessor(schemaSource, useSerializedProcessor)
+        runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode, roundTrip)
+      }
+
+      case (None, Some(errors)) => {
+        val pf = compiler.compileSource(schemaSource) // lazy because we may not need it.
+
+        if (pf.isError) VerifyTestCase.verifyAllDiagnosticsFound(pf, Some(errors))
+        else {
+          val processor = this.generateProcessor(pf, useSerializedProcessor)
+          runParseExpectErrors(processor, dataToParse, nBits, errors, optWarnings, optValidationErrors, validationMode)
+        }
+      }
+
+      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
+    }
+  }
+
+  def runParseExpectErrors(processor: DFDL.DataProcessor,
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    errors: ExpectedErrors,
+    optWarnings: Option[ExpectedWarnings],
+    optValidationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type) {
+
+    val diagnostics = {
+      if (processor.isError) processor.getDiagnostics
+      else {
+        val actual = processor.parse(dataToParse, lengthLimitInBits)
+        if (actual.isError) actual
+        else {
+          val loc: DataLocation = actual.resultState.currentLocation
+
+          if (!loc.isAtEnd) {
+            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
+            actual
+          } else {
+            // We did not get an error!!
+            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
+            throw new TDMLException("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
+          }
+        }
+        processor.getDiagnostics ++ actual.getDiagnostics
+      }
+    }
+
+    // check for any test-specified errors
+    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, Some(errors))
+
+    // check for any test-specified warnings
+    VerifyTestCase.verifyAllDiagnosticsFound(diagnostics, optWarnings)
+
+  }
+
+  def runParseExpectSuccess(processor: DFDL.DataProcessor,
+    dataToParse: DFDL.Input,
+    lengthLimitInBits: Long,
+    warnings: Option[ExpectedWarnings],
+    validationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type,
+    roundTrip: Boolean) {
+
+    if (processor.isError) {
+      val diagObjs = processor.getDiagnostics
+      if (diagObjs.length == 1) throw diagObjs(0)
+      val diags = diagObjs.map(_.getMessage).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    processor.setValidationMode(validationMode)
+
+    var testPass = 1
+    var stillTesting = true
+    var testData = IOUtils.toByteArray(Channels.newInputStream(dataToParse))
+    val testInfoset = optExpectedInfoset.get
+
+    while (stillTesting) {
+      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), lengthLimitInBits)
+
+      if (!actual.canProceed) {
+        // Means there was an error, not just warnings.
+        val diagObjs = actual.getDiagnostics
+        if (diagObjs.length == 1) throw diagObjs(0)
+        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+        throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+      }
+
+      validationMode match {
+        case ValidationMode.Off => // Don't Validate
+        case mode => {
+          if (actual.isValidationSuccess) {
+            // println("Validation Succeeded!") 
+          }
+        }
+      }
+
+      val loc: DataLocation = actual.resultState.currentLocation
+
+      val leftOverException = if (!loc.isAtEnd) {
+        val leftOverMsg = "Left over data: " + loc.toString
+        println(leftOverMsg)
+        Some(new TDMLException(leftOverMsg))
+      } else None
+
+      VerifyTestCase.verifyParserTestData(actual, testInfoset)
+
+      (shouldValidate, expectsValidationError) match {
+        case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
+        case (true, false) => VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
+        case (false, false) => // Nothing to do here.
+      }
+
+      leftOverException.map { throw _ } // if we get here, throw the left over data exception.
+
+      // TODO: Implement Warnings
+      // check for any test-specified warnings
+      //verifyAllDiagnosticsFound(actual, warnings)
+
+      val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
+      VerifyTestCase.verifyAllDiagnosticsFound(allDiags, warnings)
+
+      // if we get here, the test passed. If we don't get here then some exception was
+      // thrown either during the run of the test or during the comparison.
+      
+      if (roundTrip && testPass < 2){
+        
+        val outStream = new java.io.ByteArrayOutputStream()
+        val output = java.nio.channels.Channels.newChannel(outStream)
+        val uActual = processor.unparse(output, actual.result)
+        output.close()
+
+        try {
+          VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(testData)), outStream)
+          stillTesting = false
+        }
+        catch {
+          case (e: TDMLException) => {
+            if (testPass == 1) {
+              // Try again
+              testData = outStream.toByteArray
+            }
+            
+            else throw e
+          }
+        }
+        
+        testPass += 1
+      }
+      
+      else stillTesting = false
+    }
+  }
+}
+
+case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
+  extends TestCase(ptc, parentArg) {
+
+  lazy val inputInfoset = this.optExpectedOrInputInfoset.get
+
+  def runProcessor(schemaSource: DaffodilSchemaSource,
+    optExpectedData: Option[DFDL.Input],
+    optNBits: Option[Long],
+    optErrors: Option[ExpectedErrors],
+    optWarnings: Option[ExpectedWarnings],
+    optValidationErrors: Option[ExpectedValidationErrors],
+    validationMode: ValidationMode.Type,
+    roundTrip: Boolean) = {
+
+    val pf = compiler.compileSource(schemaSource)
+
+    (optExpectedData, optErrors) match {
+      case (Some(expectedData), None) => runUnparserExpectSuccess(pf, expectedData, optWarnings, roundTrip)
+      case (_, Some(errors)) => runUnparserExpectErrors(pf, optExpectedData, errors, optWarnings)
+      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
+    }
+
+  }
+
+  def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
+    expectedData: DFDL.Input,
+    optWarnings: Option[ExpectedWarnings],
+    roundTrip: Boolean) {
+
+    val outStream = new java.io.ByteArrayOutputStream()
+    val output = java.nio.channels.Channels.newChannel(outStream)
+    val infosetXML = inputInfoset.dfdlInfoset.rawContents
+    if (pf.isError) {
+      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    val processor = pf.onPath("/")
+    if (processor.isError) {
+      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infosetXML)
+    val actual = processor.unparse(output, xmlStreamReader)
+    output.close()
+    if (actual.isError)
+      throw new TDMLException(actual.getDiagnostics)
+
+    if (actual.isScannable) {
+      // all textual in one encoding, so we can do display of results
+      // in terms of text so the user can see what is going on.
+      VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName)
+    } else {
+      // data is not all textual, or in mixture of encodings
+      // So while we can still use the encoding as a heuristic, 
+      // we will need to treat as Hex bytes as well.
+      VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream)
+    }
+
+    // TODO: Implement Warnings - check for any test-specified warnings
+    // verifyAllDiagnosticsFound(actual, warnings)
+
+    if (roundTrip) {
+      val parseActual = processor.parse(Channels.newChannel(new ByteArrayInputStream(outStream.toByteArray)))
+
+      if (!parseActual.canProceed) {
+        // Means there was an error, not just warnings.
+        val diagObjs = actual.getDiagnostics
+        if (diagObjs.length == 1) throw diagObjs(0)
+        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+        throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
+      }
+      val loc: DataLocation = parseActual.resultState.currentLocation
+
+      val leftOverException = if (!loc.isAtEnd) {
+        val leftOverMsg = "Left over data: " + loc.toString
+        println(leftOverMsg)
+        Some(new TDMLException(leftOverMsg))
+      } else None
+
+      VerifyTestCase.verifyParserTestData(parseActual, inputInfoset)
+
+      (shouldValidate, expectsValidationError) match {
+        case (true, true) => VerifyTestCase.verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
+        case (true, false) => VerifyTestCase.verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
+        case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
+        case (false, false) => // Nothing to do here.
+      }
+
+      leftOverException.map { throw _ } // if we get here, throw the left over data exception.
+    }
+  }
+
+  def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
+    optExpectedData: Option[DFDL.Input],
+    errors: ExpectedErrors,
+    optWarnings: Option[ExpectedWarnings]) {
+
+    val outStream = new java.io.ByteArrayOutputStream()
+    val output = java.nio.channels.Channels.newChannel(outStream)
+    val infoset = inputInfoset.dfdlInfoset.rawContents
+    if (pf.isError) {
+      // check for any test-specified errors
+      VerifyTestCase.verifyAllDiagnosticsFound(pf, Some(errors))
+
+      // check for any test-specified warnings
+      VerifyTestCase.verifyAllDiagnosticsFound(pf, warnings)
+    }
+    val processor = pf.onPath("/")
+    if (processor.isError) {
+      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infoset)
+    val actual = processor.unparse(output, xmlStreamReader)
+    output.close()
+
+    // Verify that some partial output has shown up in the bytes.
+    val dataErrors =
+      optExpectedData.flatMap { data =>
+        try {
+          if (actual.isScannable) {
+            // all textual in one encoding, so we can do display of results
+            // in terms of text so the user can see what is going on.
+            VerifyTestCase.verifyTextData(data, outStream, actual.encodingName)
+          } else {
+            // data is not all textual, or in mixture of encodings
+            // So while we can still use the encoding as a heuristic, 
+            // we will need to treat as Hex bytes as well.
+            VerifyTestCase.verifyBinaryOrMixedData(data, outStream)
+          }
+          None
+        } catch {
+          //
+          // verifyData throws TDMLExceptions if the data doesn't match
+          // In order for negative tests to look for these errors
+          // we need to capture them and treat like regular diagnostics.
+          // 
+          case x: TDMLException =>
+            Some(x)
+        }
+      }
+
+    // check for any test-specified errors
+    VerifyTestCase.verifyAllDiagnosticsFound(actual, Some(errors), dataErrors)
+  }
+}
+
+object VerifyTestCase {
+  def verifyParserTestData(actual: DFDL.ParseResult, infoset: Infoset) {
+    //
+    // Attributes on the XML like xsi:type and also namespaces (I think) are 
+    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
+    // use attributes at all)
+    // 
+    val actualNoAttrs = XMLUtils.removeAttributes(actual.result)
+    // 
+    // Would be great to validate the actuals against the DFDL schema, used as
+    // an XML schema on the returned infoset XML.
+    // Getting this to work is a bigger issue. What with stripping of attributes
+    // and that our internal Daffodil XML Catalog has a special treatment of the
+    // mapping of the XML Schema URI.
+    // etc.
+    // 
+    // TODO: Fix so we can validate here.
+    //
+
+    // Something about the way XML is constructed is different between our infoset
+    // results and the ones created by scala directly parsing the TDML test files.
+    //
+    // This has something to do with values being lists of text nodes and entities
+    // and not just simple strings. I.e., if you write: <foo>a&#x5E74;</foo>, that's not
+    // an element with a string as its value. It's an element with several text nodes as
+    // its values.
+    //
+    // so we run the expected stuff through the same converters that were used to
+    // convert the actual.
+    // val expected = XMLUtils.element2ElemTDML(XMLUtils.elem2ElementTDML(infoset.contents)) //val expected = XMLUtils.element2Elem(XMLUtils.elem2Element(infoset.contents))
+    val expected = infoset.contents
+    // infoset.contents already has attributes removed.
+    // however, we call removeAttributes anyway because of the way it collapses
+    // multiple strings within a text node.
+    val expectedNoAttrs = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
+
+    XMLUtils.compareAndReport(expectedNoAttrs, actualNoAttrs)
+  }
+  
+  def verifyUnparserTestData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
+    val actualBytes = actualOutStream.toByteArray
+
+    val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
+    val readCount = expectedData.read(inbuf)
+    expectedData.close()
+    if (readCount == -1) {
+      // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
+      if (actualBytes.length > 0) {
+        throw new TDMLException("Unexpected data was created.")
+      }
+      return // we're done. Nothing equals nothing.
+    }
+
+    Assert.invariant(readCount == inbuf.position())
+
+    // compare expected data to what was output.
+    val expectedBytes = inbuf.array().toList.slice(0, readCount)
+    if (actualBytes.length != readCount) {
+      throw new TDMLException("output data length " + actualBytes.length + " for " + actualBytes.toList +
+        " doesn't match expected value " + readCount + " for " + expectedBytes)
+    }
+
+    val pairs = expectedBytes zip actualBytes zip Stream.from(1)
+    pairs.foreach {
+      case ((expected, actual), index) =>
+        if (expected != actual) {
+          val msg = "Unparsed data differs at byte %d. Expected 0x%02x. Actual was 0x%02x.".format(index, expected, actual)
+          throw new TDMLException(msg)
+        }
+    }
+  }
+  
   def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase], dataErrors: Option[Throwable] = None) = {
     val actualDiags = actual.getDiagnostics ++ dataErrors
     if (expectedDiags.isDefined) if (actualDiags.length =#= 0) {
@@ -575,197 +975,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         actualDiagMsgs.mkString("\n"))
     }
   }
-
-}
-
-case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
-
-  lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
-
-  override def runProcessor(schemaSource: DaffodilSchemaSource,
-    optDataToParse: Option[DFDL.Input],
-    optLengthLimitInBits: Option[Long],
-    optErrors: Option[ExpectedErrors],
-    optWarnings: Option[ExpectedWarnings],
-    optValidationErrors: Option[ExpectedValidationErrors],
-    validationMode: ValidationMode.Type) = {
-
-    val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
-    val nBits = optLengthLimitInBits.get
-    val dataToParse = optDataToParse.get
-
-    (optExpectedInfoset, optErrors) match {
-      case (Some(infoset), None) => {
-
-        val processor = getProcessor(schemaSource, useSerializedProcessor)
-        runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode)
-      }
-
-      case (None, Some(errors)) => {
-        val pf = compiler.compileSource(schemaSource) // lazy because we may not need it.
-
-        if (pf.isError) verifyAllDiagnosticsFound(pf, Some(errors))
-        else {
-          val processor = this.generateProcessor(pf, useSerializedProcessor)
-          runParseExpectErrors(processor, dataToParse, nBits, errors, optWarnings, optValidationErrors, validationMode)
-        }
-      }
-
-      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
-    }
-  }
-
-  def verifyParseInfoset(actual: DFDL.ParseResult, infoset: Infoset) {
-    //
-    // Attributes on the XML like xsi:type and also namespaces (I think) are 
-    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
-    // use attributes at all)
-    // 
-    val actualNoAttrs = XMLUtils.removeAttributes(actual.result)
-    // 
-    // Would be great to validate the actuals against the DFDL schema, used as
-    // an XML schema on the returned infoset XML.
-    // Getting this to work is a bigger issue. What with stripping of attributes
-    // and that our internal Daffodil XML Catalog has a special treatment of the
-    // mapping of the XML Schema URI.
-    // etc.
-    // 
-    // TODO: Fix so we can validate here.
-    //
-    val expected = infoset.contents
-    // infoset.contents already has attributes removed.
-    // however, we call removeAttributes anyway because of the way it collapses
-    // multiple strings within a text node.
-    val expectedNoAttrs = XMLUtils.removeAttributes(XMLUtils.convertPCDataToText(expected))
-
-    XMLUtils.compareAndReport(expectedNoAttrs, actualNoAttrs)
-  }
-
-  def runParseExpectErrors(processor: DFDL.DataProcessor,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    errors: ExpectedErrors,
-    optWarnings: Option[ExpectedWarnings],
-    optValidationErrors: Option[ExpectedValidationErrors],
-    validationMode: ValidationMode.Type) {
-
-    val diagnostics = {
-      if (processor.isError) processor.getDiagnostics
-      else {
-        val actual = processor.parse(dataToParse, lengthLimitInBits)
-        if (actual.isError) actual
-        else {
-          val loc: DataLocation = actual.resultState.currentLocation
-
-          if (!loc.isAtEnd) {
-            actual.addDiagnostic(new GeneralParseFailure("Left over data: " + loc.toString))
-            actual
-          } else {
-            // We did not get an error!!
-            // val diags = actual.getDiagnostics().map(_.getMessage()).foldLeft("")(_ + "\n" + _)
-            throw new TDMLException("Expected error. Didn't get one. Actual result was " + actual.briefResult) // if you just assertTrue(actual.canProceed), and it fails, you get NOTHING useful.
-          }
-        }
-        processor.getDiagnostics ++ actual.getDiagnostics
-      }
-    }
-
-    // check for any test-specified errors
-    verifyAllDiagnosticsFound(diagnostics, Some(errors))
-
-    // check for any test-specified warnings
-    verifyAllDiagnosticsFound(diagnostics, optWarnings)
-
-  }
-
-  def runParseExpectSuccess(processor: DFDL.DataProcessor,
-    dataToParse: DFDL.Input,
-    lengthLimitInBits: Long,
-    warnings: Option[ExpectedWarnings],
-    validationErrors: Option[ExpectedValidationErrors],
-    validationMode: ValidationMode.Type) {
-
-    if (processor.isError) {
-      val diagObjs = processor.getDiagnostics
-      if (diagObjs.length == 1) throw diagObjs(0)
-      val diags = diagObjs.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
-    }
-    processor.setValidationMode(validationMode)
-    val actual = processor.parse(dataToParse, lengthLimitInBits)
-
-    if (!actual.canProceed) {
-      // Means there was an error, not just warnings.
-      val diagObjs = actual.getDiagnostics
-      if (diagObjs.length == 1) throw diagObjs(0)
-      val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
-    }
-
-    validationMode match {
-      case ValidationMode.Off => // Don't Validate
-      case mode => {
-        if (actual.isValidationSuccess) {
-          // println("Validation Succeeded!") 
-        }
-      }
-    }
-
-    val loc: DataLocation = actual.resultState.currentLocation
-
-    val leftOverException = if (!loc.isAtEnd) {
-      val leftOverMsg = "Left over data: " + loc.toString
-      println(leftOverMsg)
-      Some(new TDMLException(leftOverMsg))
-    } else None
-
-    verifyParseInfoset(actual, optExpectedInfoset.get)
-
-    (shouldValidate, expectsValidationError) match {
-      case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
-      case (true, false) => verifyNoValidationErrorsFound(actual) // Verify no validation errors from parser
-      case (false, true) => throw new TDMLException("Test case invalid. Validation is off but the test expects an error.")
-      case (false, false) => // Nothing to do here.
-    }
-
-    leftOverException.map { throw _ } // if we get here, throw the left over data exception.
-
-    // TODO: Implement Warnings
-    // check for any test-specified warnings
-    //verifyAllDiagnosticsFound(actual, warnings)
-
-    val allDiags = processor.getDiagnostics ++ actual.getDiagnostics
-    verifyAllDiagnosticsFound(allDiags, warnings)
-
-    // if we get here, the test passed. If we don't get here then some exception was
-    // thrown either during the run of the test or during the comparison.
-  }
-}
-
-case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
-
-  lazy val inputInfoset = this.optExpectedOrInputInfoset.get
-
-  def runProcessor(schemaSource: DaffodilSchemaSource,
-    optExpectedData: Option[DFDL.Input],
-    optNBits: Option[Long],
-    optErrors: Option[ExpectedErrors],
-    optWarnings: Option[ExpectedWarnings],
-    optValidationErrors: Option[ExpectedValidationErrors],
-    validationMode: ValidationMode.Type) = {
-
-    val pf = compiler.compileSource(schemaSource)
-
-    (optExpectedData, optErrors) match {
-      case (Some(expectedData), None) => runUnparserExpectSuccess(pf, expectedData, optWarnings)
-      case (_, Some(errors)) => runUnparserExpectErrors(pf, optExpectedData, errors, optWarnings)
-      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
-    }
-
-  }
-
+  
   def verifyTextData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
     val actualText = actualOutStream.toString(encodingName)
     val expectedText = IOUtils.toString(Channels.newInputStream(expectedData), encodingName)
@@ -831,103 +1041,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         }
     }
   }
-
-  def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
-    expectedData: DFDL.Input,
-    optWarnings: Option[ExpectedWarnings]) {
-
-    val outStream = new java.io.ByteArrayOutputStream()
-    val output = java.nio.channels.Channels.newChannel(outStream)
-    val infosetXML = inputInfoset.dfdlInfoset.rawContents
-    if (pf.isError) {
-      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
-    }
-    val processor = pf.onPath("/")
-    if (processor.isError) {
-      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
-    }
-    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infosetXML)
-    val actual = processor.unparse(output, xmlStreamReader)
-    output.close()
-    if (actual.isError)
-      throw new TDMLException(actual.getDiagnostics)
-
-    if (actual.isScannable) {
-      // all textual in one encoding, so we can do display of results
-      // in terms of text so the user can see what is going on.
-      verifyTextData(expectedData, outStream, actual.encodingName)
-    } else {
-      // data is not all textual, or in mixture of encodings
-      // So while we can still use the encoding as a heuristic, 
-      // we will need to treat as Hex bytes as well.
-      verifyBinaryOrMixedData(expectedData, outStream)
-    }
-
-    // TODO: Implement Warnings - check for any test-specified warnings
-    // verifyAllDiagnosticsFound(actual, warnings)
-
-  }
-
-  def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
-    optExpectedData: Option[DFDL.Input],
-    errors: ExpectedErrors,
-    optWarnings: Option[ExpectedWarnings]) {
-
-    val outStream = new java.io.ByteArrayOutputStream()
-    val output = java.nio.channels.Channels.newChannel(outStream)
-    val infoset = inputInfoset.dfdlInfoset.rawContents
-    if (pf.isError) {
-      // check for any test-specified errors
-      verifyAllDiagnosticsFound(pf, Some(errors))
-
-      // check for any test-specified warnings
-      verifyAllDiagnosticsFound(pf, warnings)
-    }
-    val processor = pf.onPath("/")
-    if (processor.isError) {
-      val diags = processor.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
-    }
-    val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infoset)
-    val actual = processor.unparse(output, xmlStreamReader)
-    output.close()
-
-    // Verify that some partial output has shown up in the bytes.
-    val dataErrors =
-      optExpectedData.flatMap { data =>
-        try {
-          if (actual.isScannable) {
-            // all textual in one encoding, so we can do display of results
-            // in terms of text so the user can see what is going on.
-            verifyTextData(data, outStream, actual.encodingName)
-          } else {
-            // data is not all textual, or in mixture of encodings
-            // So while we can still use the encoding as a heuristic, 
-            // we will need to treat as Hex bytes as well.
-            verifyBinaryOrMixedData(data, outStream)
-          }
-          None
-        } catch {
-          //
-          // verifyData throws TDMLExceptions if the data doesn't match
-          // In order for negative tests to look for these errors
-          // we need to capture them and treat like regular diagnostics.
-          // 
-          case x: TDMLException =>
-            Some(x)
-        }
-      }
-
-    // check for any test-specified errors
-    verifyAllDiagnosticsFound(actual, Some(errors), dataErrors)
-
-    // check for any test-specified warnings
-    verifyAllDiagnosticsFound(actual, warnings)
-
-  }
-
 }
 
 case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {

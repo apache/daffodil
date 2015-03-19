@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsd:schema 
-  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
-  xmlns="http://www.w3.org/2001/XMLSchema"
-  targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" 
-  xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData"
-  elementFormDefault="unqualified" 
-  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
-  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.ibm.com/xmlns/dfdl/testData" xmlns:tns="http://www.ibm.com/xmlns/dfdl/testData"
+	elementFormDefault="unqualified" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+	xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.ogf.org/dfdl/dfdl-1.0/ xsd/DFDL_part3_model.xsd 
   http://www.w3.org/2001/XMLSchema XMLSchema_for_DFDL.xsd
   urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext dafext.xsd">
 
-	<xsd:import namespace="http://www.w3.org/2001/XMLSchema" 
-        schemaLocation="XMLSchema_for_DFDL.xsd"/>
+	<xsd:import namespace="http://www.w3.org/2001/XMLSchema"
+		schemaLocation="XMLSchema_for_DFDL.xsd" />
 	<xsd:import namespace="http://www.ogf.org/dfdl/dfdl-1.0/"
 		schemaLocation="xsd/DFDL_part3_model.xsd" />
-	<xsd:import namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
-	    schemaLocation="dafext.xsd" />
+	<xsd:import
+		namespace="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+		schemaLocation="dafext.xsd" />
 
 	<!-- Copyright (C) 2012, Tresys Technologies LLC. All Rights Reserved. -->
 
@@ -82,11 +79,12 @@
 		</choice>
 		<attribute name="name" type="xs:NCName" use="required" />
 	</complexType>
-	
-	<element name="defineConfig" type="tns:defineConfigType"/>
+
+	<element name="defineConfig" type="tns:defineConfigType" />
 	<complexType name="defineConfigType">
 		<sequence>
-			<element ref="daf:externalVariableBindings" minOccurs="0" maxOccurs="1"/>
+			<element ref="daf:externalVariableBindings" minOccurs="0"
+				maxOccurs="1" />
 		</sequence>
 		<attribute name="name" type="xs:NCName" use="required" />
 	</complexType>
@@ -109,9 +107,10 @@
 	<attributeGroup name="testCaseAttribs">
 		<attribute name="name" type="xs:NCName" use="required" />
 		<attribute name="ID" type="xs:token" use="optional" />
-		<attribute name="root" type="xs:NCName" use="optional" /> <!-- only needed when there is no infoset.  -->
+		<attribute name="root" type="xs:NCName" use="optional" /> <!-- only needed when there is no infoset. -->
 		<attribute name="model" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
 		<attribute name="config" type="xs:string" use="optional" /> <!-- is there a type for a path/uri? -->
+		<attribute name="roundTrip" type="xs:boolean" use="optional" />
 		<attribute name="description" type="xs:string" use="optional" />
 		<attribute name="unsupported" type="xs:boolean" use="optional"
 			default="false" />
@@ -137,7 +136,7 @@
 		<sequence>
 			<element ref="tns:documentPart" minOccurs="0" maxOccurs="unbounded" />
 		</sequence>
-        <attributeGroup ref="tns:bitOrderAG"/>
+		<attributeGroup ref="tns:bitOrderAG" />
 	</complexType>
 
 	<element name="documentPart" type="tns:documentPartType" />
@@ -147,8 +146,8 @@
 				<attribute name="type" type="tns:documentPartTypeEnum"
 					use="required" />
 				<attribute name="replaceDFDLEntities" type="xs:boolean" />
-                <attributeGroup ref="tns:bitOrderAG"/>
-                <attribute name="encoding" type="xs:token" use="optional"/>
+				<attributeGroup ref="tns:bitOrderAG" />
+				<attribute name="encoding" type="xs:token" use="optional" />
 			</extension>
 		</simpleContent>
 	</complexType>
@@ -161,33 +160,37 @@
 			<enumeration value="file" />
 		</restriction>
 	</simpleType>
-  
-    <attributeGroup name="bitOrderAG">
-      <attribute name="bitOrder" type="tns:bitOrderEnum" use="optional"/>
-      <attribute name="byteOrder" type="tns:byteOrderEnum" use="optional" />
-    </attributeGroup>
-    
-    <simpleType name="byteOrderEnum">
-      <annotation><documentation>
-      Not to be confused with dfdl:byteOrder, this attribute describes the 
-      order of bits or bytes in the TDML document part, that is, whether they 
-      should be given their positions starting from the beginning (LTR) or the
-      end (RTL). LTR is the normal default where data location number increase
-      from left to right. RTL is used for bit-order LSBFirst, and the bytes
-      are ordered starting on the right increasing to the left.
-      </documentation></annotation>
-      <restriction base="xs:string">
-        <enumeration value="RTL" />
-        <enumeration value="LTR" />
-      </restriction>
-    </simpleType>
-          
-    <simpleType name="bitOrderEnum">
-      <restriction base="xs:string">
-        <enumeration value="LSBFirst" />
-        <enumeration value="MSBFirst" />
-      </restriction>
-    </simpleType>
+
+	<attributeGroup name="bitOrderAG">
+		<attribute name="bitOrder" type="tns:bitOrderEnum" use="optional" />
+		<attribute name="byteOrder" type="tns:byteOrderEnum" use="optional" />
+	</attributeGroup>
+
+	<simpleType name="byteOrderEnum">
+		<annotation>
+			<documentation>
+				Not to be confused with dfdl:byteOrder, this attribute describes the
+				order of bits or bytes in the TDML document part, that is, whether
+				they
+				should be given their positions starting from the beginning (LTR) or the
+				end (RTL). LTR is the normal default where data location number
+				increase
+				from left to right. RTL is used for bit-order LSBFirst, and the bytes
+				are ordered starting on the right increasing to the left.
+			</documentation>
+		</annotation>
+		<restriction base="xs:string">
+			<enumeration value="RTL" />
+			<enumeration value="LTR" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="bitOrderEnum">
+		<restriction base="xs:string">
+			<enumeration value="LSBFirst" />
+			<enumeration value="MSBFirst" />
+		</restriction>
+	</simpleType>
 
 	<complexType name="infosetType">
 		<sequence>
@@ -249,7 +252,7 @@
 			<element ref="tns:errors" minOccurs="0" />
 			<element ref="tns:warnings" minOccurs='0' />
 		</sequence>
-        <attributeGroup ref="tns:testCaseAttribs" />
+		<attributeGroup ref="tns:testCaseAttribs" />
 	</complexType>
 
 </xsd:schema>
