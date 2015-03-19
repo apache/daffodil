@@ -68,5 +68,5 @@ object UnparseError {
 }
 
 class UnparseError(rd: Maybe[SchemaFileLocation], ustate: Maybe[UState], kind: String, args: Any*)
-  extends ProcessingError("Unparse Error", rd, ustate, kind, args)
+  extends ProcessingError("Unparse Error", rd, ustate, kind, args: _*)
 

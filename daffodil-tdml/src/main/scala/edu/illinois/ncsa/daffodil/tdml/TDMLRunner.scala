@@ -379,20 +379,10 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   protected def runProcessor(processor: DFDL.ProcessorFactory,
     expectedData: Option[DFDL.Input],
     nBits: Option[Long],
-    infoset: Option[Infoset],
     errors: Option[ExpectedErrors],
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type): Unit
-
-  //  protected def runProcessor(processor: DFDL.DataProcessor,
-  //    optInputOrExpectedData: Option[DFDL.Input], // Input for parser, expected for unparser
-  //    optLengthLimitInBits: Option[Long],
-  //    optExpectedOrInputInfoset: Option[Infoset], // Expected for parser, Input for unparser
-  //    optErrors: Option[ExpectedErrors],
-  //    optWarnings: Option[ExpectedWarnings],
-  //    optValidationErrors: Option[ExpectedValidationErrors],
-  //    validationMode: ValidationMode.Type): Unit
 
   private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
@@ -465,7 +455,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     val optInputOrExpectedData = document.map { _.data }
     val nBits = document.map { _.nBits }
 
-    runProcessor(pf, optInputOrExpectedData, nBits, optExpectedOrInputInfoset, errors, warnings, validationErrors, validationMode)
+    runProcessor(pf, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode)
 
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
@@ -539,28 +529,10 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
-  //  def runProcessor(processor: DFDL.DataProcessor,
-  //    data: Option[DFDL.Input],
-  //    lengthLimitInBits: Option[Long],
-  //    optInfoset: Option[Infoset],
-  //    optErrors: Option[ExpectedErrors],
-  //    warnings: Option[ExpectedWarnings],
-  //    validationErrors: Option[ExpectedValidationErrors],
-  //    validationMode: ValidationMode.Type) = {
-  //
-  //    val nBits = lengthLimitInBits.get
-  //    val dataToParse = data.get
-  //    (optInfoset, optErrors) match {
-  //      case (Some(infoset), None) => runParseExpectSuccess(processor, dataToParse, nBits, infoset, warnings, validationErrors, validationMode)
-  //      case (None, Some(errors)) => runParseExpectErrors(processor, dataToParse, nBits, errors, warnings, validationErrors, validationMode)
-  //      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
-  //    }
-  //  }
 
   def runProcessor(pf: DFDL.ProcessorFactory,
     optDataToParse: Option[DFDL.Input],
     optLengthLimitInBits: Option[Long],
-    optExpectedInfoset: Option[Infoset],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
@@ -578,7 +550,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         }
 
         val processor = this.generateProcessor(pf, useSerializedProcessor)
-        runParseExpectSuccess(processor, dataToParse, nBits, infoset, optWarnings, optValidationErrors, validationMode)
+        runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode)
       }
 
       case (None, Some(errors)) => {
@@ -659,7 +631,6 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   def runParseExpectSuccess(processor: DFDL.DataProcessor,
     dataToParse: DFDL.Input,
     lengthLimitInBits: Long,
-    infoset: Infoset,
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) {
@@ -698,7 +669,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       Some(new TDMLException(leftOverMsg))
     } else None
 
-    verifyParseInfoset(actual, infoset)
+    verifyParseInfoset(actual, optExpectedInfoset.get)
 
     (shouldValidate, expectsValidationError) match {
       case (true, true) => verifyAllDiagnosticsFound(actual, validationErrors) // verify all validation errors were found
@@ -724,29 +695,19 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
   extends TestCase(ptc, parentArg) {
 
-  //  def runProcessor(processor: DFDL.DataProcessor,
-  //    data: Option[DFDL.Output],
-  //    lengthLimitInBits: Option[Long],
-  //    optInfoset: Option[Infoset],
-  //    optErrors: Option[ExpectedErrors],
-  //    warnings: Option[ExpectedWarnings],
-  //    validationErrors: Option[ExpectedValidationErrors],
-  //    validationMode: ValidationMode.Type): Unit = ???
+  lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
   def runProcessor(pf: DFDL.ProcessorFactory,
     optExpectedData: Option[DFDL.Input],
     optNBits: Option[Long],
-    optInputInfoset: Option[Infoset],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) = {
 
-    val infoset = optInputInfoset.get
-
     (optExpectedData, optErrors) match {
-      case (Some(expectedData), None) => runUnparserExpectSuccess(pf, expectedData, infoset, optWarnings)
-      case (_, Some(errors)) => runUnparserExpectErrors(pf, optExpectedData, infoset, errors, optWarnings)
+      case (Some(expectedData), None) => runUnparserExpectSuccess(pf, expectedData, optWarnings)
+      case (_, Some(errors)) => runUnparserExpectErrors(pf, optExpectedData, errors, optWarnings)
       case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
     }
 
@@ -787,12 +748,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   def runUnparserExpectSuccess(pf: DFDL.ProcessorFactory,
     expectedData: DFDL.Input,
-    inputInfoset: Infoset,
     optWarnings: Option[ExpectedWarnings]) {
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
-    val infosetXML = inputInfoset.contents
+    val infosetXML = inputInfoset.dfdlInfoset.rawContents
     if (pf.isError) {
       val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new TDMLException(diags)
@@ -815,7 +775,6 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   def runUnparserExpectErrors(pf: DFDL.ProcessorFactory,
     optExpectedData: Option[DFDL.Input],
-    inputInfoset: Infoset,
     errors: ExpectedErrors,
     optWarnings: Option[ExpectedWarnings]) {
 
@@ -1333,10 +1292,15 @@ case class Infoset(i: NodeSeq, parent: TestCase) {
 
 case class DFDLInfoset(di: Node, parent: Infoset) {
   val children = di.child.filter { _.isInstanceOf[scala.xml.Elem] }
-  val Seq(contents) = {
-    Assert.usage(children.size == 1, "dfdlInfoset element must contain a single root element")
 
+  val rawContents = {
+    Assert.usage(children.size == 1, "dfdlInfoset element must contain a single root element")
     val c = children(0)
+    c
+  }
+
+  val Seq(contents) = {
+    val c = rawContents
     val expected = c // Utility.trim(c) // must be exactly one root element in here.
     val expectedNoAttrs = XMLUtils.removeAttributes(expected)
     //

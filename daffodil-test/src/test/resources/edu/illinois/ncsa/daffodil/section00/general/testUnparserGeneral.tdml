@@ -1,0 +1,20 @@
+<ts:testSuite xmlns:ts="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
+  suiteName="theSuiteName">
+  <ts:defineSchema name="s">
+    <xs:include schemaLocation="xsd/built-in-formats.xsd" />
+    <dfdl:format ref="ex:daffodilTest1" />
+    <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5"
+      type="xs:string" />
+  </ts:defineSchema>
+  <ts:unparserTestCase ID="test1" name="test1" root="bar"
+    model="s">
+    <ts:infoset>
+      <ts:dfdlInfoset>
+        <ex:bar>Hello</ex:bar>
+      </ts:dfdlInfoset>
+    </ts:infoset>
+    <ts:document>Hello</ts:document>
+  </ts:unparserTestCase>
+</ts:testSuite>
