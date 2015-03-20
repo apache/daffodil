@@ -41,9 +41,10 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Term
 
 trait AlignedMixin extends GrammarMixin { self: Term =>
-  lazy val leadingSkipRegion = Prod("leadingSkipRegion", this, leadingSkip > 0, LeadingSkipRegion(this))
-  lazy val trailingSkipRegion = Prod("trailingSkipRegion", this, trailingSkip > 0, TrailingSkipRegion(this))
-  lazy val alignmentFill = Prod("alignmentFill", this, !isKnownPreAligned, AlignmentFill(this))
+
+  lazy val leadingSkipRegion = prod("leadingSkipRegion", leadingSkip > 0) { LeadingSkipRegion(this) }
+  lazy val trailingSkipRegion = prod("trailingSkipRegion", trailingSkip > 0) { TrailingSkipRegion(this) }
+  lazy val alignmentFill = prod("alignmentFill", !isKnownPreAligned) { AlignmentFill(this) }
 
   /**
    * true if we can statically determine that the start of this

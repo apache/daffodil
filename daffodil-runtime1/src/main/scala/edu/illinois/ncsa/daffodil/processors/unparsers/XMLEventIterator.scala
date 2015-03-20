@@ -34,9 +34,15 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
 
   import XMLEventIterator._
 
-  private lazy val iterator = trans(preprocess(xsr.toStream), Stack.empty).toIterator
+  private lazy val iterator = {
+    val iter = trans(preprocess(xsr.toStream), Stack.empty).toIterator
+    iter
+  }
   override def hasNext = iterator.hasNext
-  override def next = iterator.next
+  override def next = {
+    val nextEv = iterator.next
+    nextEv
+  }
 
   private[unparsers] def preprocess(xes: Stream[XMLEvent]): Stream[XMLEvent] = {
     if (xes.isEmpty) return Stream.Empty

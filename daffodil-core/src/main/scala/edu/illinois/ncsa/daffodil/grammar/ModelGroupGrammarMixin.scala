@@ -50,18 +50,18 @@ trait ModelGroupGrammarMixin
   with HasStatementsGrammarMixin
   with GroupCommonAGMixin { self: ModelGroup =>
 
-  lazy val groupLeftFraming = Prod("groupLeftFraming", this, leadingSkipRegion ~ alignmentFill)
-  lazy val groupRightFraming = Prod("groupRightFraming", this, trailingSkipRegion)
+  lazy val groupLeftFraming = prod("groupLeftFraming") { leadingSkipRegion ~ alignmentFill }
+  lazy val groupRightFraming = prod("groupRightFraming") { trailingSkipRegion }
 
   // I believe we can have the same grammar rules whether we're directly inside a complex type, or
   // we're nested inside another group as a term.
   lazy val asChildOfComplexType = termContentBody
 
-  lazy val termContentBody = prod("termContentBody", this) {
+  override lazy val termContentBody = prod("termContentBody") {
     bitOrderChange ~ dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
   }
 
-  lazy val _content = prod("_content", this) {
+  private lazy val _content = prod("_content") {
     val content = initiatorRegion ~ groupContent ~ terminatorRegion
 
     val finalContent =
@@ -71,11 +71,10 @@ trait ModelGroupGrammarMixin
           case s: Sequence => DelimiterStackCombinatorSequence(s, content)
         }
       } else { groupContent }
+
     finalContent
   }
 
-  def mt = EmptyGram.asInstanceOf[Gram] // cast trick to shut up foldLeft compile errors below
-
-  def groupContent: Prod
+  def groupContent: Gram
 }
 

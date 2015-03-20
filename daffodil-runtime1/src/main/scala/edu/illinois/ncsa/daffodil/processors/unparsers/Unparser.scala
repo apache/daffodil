@@ -57,6 +57,10 @@ abstract class Unparser(val context: RuntimeData)
     unparse(ustate)
     // Debugger.after(beforeState, ustate, this)
   }
+
+  def UE(ustate: UState, s: String, args: Any*) = {
+    UnparseError(One(context.schemaFileLocation), One(ustate), s, args: _*)
+  }
 }
 
 // No-op, in case an optimization lets one of these sneak thru. 
@@ -104,12 +108,13 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Seq[Unparser])
   }
 }
 
-case class DummyUnparser(rd: RuntimeData) extends Unparser(null) {
-  def unparse(state: UState): Unit = state.SDE("Unparser for " + rd + " is not yet implemented.")
+case class DummyUnparser() extends Unparser(null) {
+
+  def unparse(state: UState): Unit = state.SDE("Unparser is not yet implemented.")
 
   override lazy val childProcessors = Nil
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = if (rd == null) "Dummy[null]" else "Dummy[" + rd + "]"
+  override def toString = "DummyUnparser"
 }
 //
 //  /**

@@ -54,6 +54,6 @@ trait BitOrderMixin extends GrammarMixin { self: Term =>
   lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
   lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
 
-  lazy val bitOrderChange = prod("bitOrderChange", this, bitOrderBefore != defaultBitOrder) { new BitOrderChange(this) }
+  lazy val bitOrderChange = prod("bitOrderChange", bitOrderBefore != defaultBitOrder) { new BitOrderChange(this) }
 }
 

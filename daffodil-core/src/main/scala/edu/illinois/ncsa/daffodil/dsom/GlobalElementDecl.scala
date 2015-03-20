@@ -70,8 +70,6 @@ class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val ele
    */
   with RequiredOptionalMixin {
 
-  requiredEvaluations(document)
-
   override lazy val maxOccurs = elementRef match {
     case Some(er) => er.maxOccurs
     case None => 1

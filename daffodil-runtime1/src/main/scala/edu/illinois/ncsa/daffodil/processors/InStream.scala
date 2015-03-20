@@ -582,9 +582,18 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStreamOrOutStream: Any) ex
 
   val bytePos1b = (bitPos1b >> 3) + 1
 
-  override def toString() = "byte " + bitPos1b / 8 +
-    "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump() + ")" +
-    "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump() + ")"
+  override def toString() = {
+    "byte " + bitPos1b / 8 + {
+      val s = inStreamOrOutStream match {
+        case os: OutStream => ""
+        case is: InStream => {
+          "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump() + ")" +
+            "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump() + ")"
+        }
+      }
+      s
+    }
+  }
 
   def aligned64BitsPos = (bitPos1b >> 6) << 6
 

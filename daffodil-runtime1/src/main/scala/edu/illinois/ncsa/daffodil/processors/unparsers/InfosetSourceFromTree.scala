@@ -30,14 +30,21 @@ class InfosetSourceFromTree(doc: InfosetDocument) extends InfosetSource {
     result
   }
 
-  private lazy val stream = folderFunc(root, Stream.Empty)
+  private def stream = folderFunc(root, Stream.Empty)
 
-  private lazy val iterator = stream.toIterator
+  private var str: Stream[InfosetEvent] = null
 
-  override def next = iterator.next
+  override def peek = str.head
 
-  override def hasNext = iterator.hasNext
+  override def next = {
+    val nxt = str.head
+    str = str.tail
+    nxt
+  }
 
-  override def toStream = stream
+  override def hasNext = {
+    if (str == null) str = stream
+    str != Stream.Empty
+  }
 }
 

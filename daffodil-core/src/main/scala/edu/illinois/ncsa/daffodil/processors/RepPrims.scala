@@ -48,7 +48,6 @@ import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-
 import RepPrims._
 import edu.illinois.ncsa.daffodil.processors.parsers.RepAtMostTotalNParser
 import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyTotalNParser
@@ -57,6 +56,12 @@ import edu.illinois.ncsa.daffodil.processors.parsers.OccursCountExpressionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyNParser
 import edu.illinois.ncsa.daffodil.processors.parsers.RepAtMostOccursCountParser
 import edu.illinois.ncsa.daffodil.processors.parsers.RepExactlyTotalOccursCountParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RepExactlyNUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RepAtMostOccursCountUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RepUnboundedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RepExactlyTotalNUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.RepAtMostTotalNUnparser
+import edu.illinois.ncsa.daffodil.equality._
 
 object RepPrims {
   abstract class RepPrim(context: LocalElementBase, n: Long, r: => Gram)
@@ -65,6 +70,7 @@ object RepPrims {
     lazy val rd = context.elementRuntimeData
     lazy val intN = n.toInt
     lazy val rParser = r.parser
+    lazy val rUnparser = r.unparser
 
   }
 
@@ -88,30 +94,35 @@ object RepPrims {
 
     // Since this is Exactly N, there is no new point of uncertainty considerations here.
     override lazy val parser = new RepExactlyNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val unparser = new RepExactlyNUnparser(n, r.unparser, context.elementRuntimeData)
 
   }
 
   class RepAtMostTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     override lazy val parser = new RepAtMostTotalNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val unparser = new RepAtMostTotalNUnparser(n, r.unparser, context.elementRuntimeData)
 
   }
 
   class RepExactlyTotalNPrim(context: LocalElementBase, n: Long, r: => Gram) extends RepPrim(context, n, r) {
 
     override lazy val parser = new RepExactlyTotalNParser(n, r.parser, context.elementRuntimeData)
+    override lazy val unparser = new RepExactlyTotalNUnparser(n, r.unparser, context.elementRuntimeData)
 
   }
 
   class RepUnboundedPrim(e: LocalElementBase, r: => Gram) extends RepPrim(e, 1, r) {
 
     override lazy val parser = new RepUnboundedParser(e.occursCountKind, r.parser, e.elementRuntimeData)
+    override lazy val unparser = new RepUnboundedUnparser(e.occursCountKind, r.unparser, e.elementRuntimeData)
   }
 
   class RepAtMostOccursCountPrim(e: LocalElementBase, n: Long, r: => Gram)
     extends RepPrim(e, n, r) {
 
     override lazy val parser = new RepAtMostOccursCountParser(r.parser, n, e.elementRuntimeData)
+    override lazy val unparser = new RepAtMostOccursCountUnparser(r.unparser, n, e.elementRuntimeData)
 
   }
 
@@ -119,6 +130,11 @@ object RepPrims {
     extends RepPrim(e, 1, r) {
 
     override lazy val parser = new RepExactlyTotalOccursCountParser(r.parser, e.elementRuntimeData)
+
+    /**
+     * Unparser for this is exactly the same as unbounded case - we output all the occurrences in the infoset.
+     */
+    override lazy val unparser = new RepUnboundedUnparser(e.occursCountKind, r.unparser, e.elementRuntimeData)
 
   }
 }
@@ -139,5 +155,6 @@ case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
 
   override lazy val parser = new OccursCountExpressionParser(e.occursCount, e.elementRuntimeData)
+  override lazy val unparser = new NadaUnparser(e.runtimeData)
 
 }

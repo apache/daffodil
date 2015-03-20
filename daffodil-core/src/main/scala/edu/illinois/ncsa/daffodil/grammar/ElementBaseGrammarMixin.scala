@@ -61,17 +61,15 @@ trait ElementBaseGrammarMixin
   // turn it into a type/class, object, def, or val/var name, as well as a string, etc. 
   // 
 
-  lazy val parsedNil = Prod("parsedNil", this, NYI && isNillable && nilKind == NilKind.LogicalValue,
-    nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator)
-
-  lazy val parsedValue = {
-    val res = Prod("parsedValue", this, initiatorRegion ~ allowedValue ~ terminatorRegion)
-    res
+  lazy val parsedNil = prod("parsedNil", NYI && isNillable && nilKind == NilKind.LogicalValue) {
+    nilElementInitiator ~ LogicalNilValue(this) ~ nilElementTerminator
   }
 
-  def allowedValue: Prod // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
+  lazy val parsedValue = prod("parsedValue") { initiatorRegion ~ allowedValue ~ terminatorRegion }
 
-  //  lazy val explicitLengthBinary = Prod("explicitLengthBinary", this, !isFixedLength,
+  protected def allowedValue: Gram // provided by LocalElementBase for array considerations, and GlobalElementDecl - scalar only
+
+  //  lazy val explicitLengthBinary = prod("explicitLengthBinary", !isFixedLength,
   //    lengthUnits match {
   //      case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
   //      case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
@@ -80,7 +78,7 @@ trait ElementBaseGrammarMixin
   //
   //  lazy val binaryValueLength = binaryValueLength_.value
   //  lazy val binaryValueLength_ = LV {
-  //    val res = Prod("BinaryValueLength", this, lengthKind match {
+  //    val res = prod("BinaryValueLength", lengthKind match {
   //      case LengthKind.Explicit => explicitLengthBinary
   //      case LengthKind.Delimited => Assert.notYetImplemented() // Binary Data delimiters aren't supported TODO: Should we?
   //      case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='Pattern'.")
@@ -117,7 +115,7 @@ trait ElementBaseGrammarMixin
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
   }
 
-  lazy val fixedLengthString = Prod("fixedLengthString", this, isFixedLength,
+  lazy val fixedLengthString = prod("fixedLengthString", isFixedLength) {
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
       //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
@@ -145,16 +143,18 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
       case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
       case _ => Assert.invariantFailed("all cases should have been exhausted.")
-    })
+    }
+  }
 
-  lazy val fixedLengthHexBinary = Prod("fixedLengthHexBinary", this, isFixedLength,
+  lazy val fixedLengthHexBinary = prod("fixedLengthHexBinary", isFixedLength) {
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    })
+    }
+  }
 
-  lazy val implicitLengthString = Prod("implicitLengthString", this, hasSpecifiedLength, {
+  lazy val implicitLengthString = prod("implicitLengthString", hasSpecifiedLength) {
     val maxLengthLong = maxLength.longValueExact
     (lengthUnits, knownEncodingIsFixedWidth) match {
       case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, maxLengthLong) // TODO: make sure it divides evenly.
@@ -183,18 +183,18 @@ trait ElementBaseGrammarMixin
       case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, maxLengthLong)
       case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     }
-  })
+  }
 
-  lazy val implicitLengthHexBinary = Prod("implicitLengthHexBinary", this, hasSpecifiedLength, {
+  lazy val implicitLengthHexBinary = prod("implicitLengthHexBinary", hasSpecifiedLength) {
     val maxLengthLong = maxLength.longValueExact
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, maxLengthLong)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
     }
-  })
+  }
 
-  lazy val variableLengthString = Prod("variableLengthString", this, !isFixedLength,
+  lazy val variableLengthString = prod("variableLengthString", !isFixedLength) {
     (lengthUnits, knownEncodingIsFixedWidth) match {
       //case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this)
       //case (LengthUnits.Bytes, false) =>
@@ -219,22 +219,22 @@ trait ElementBaseGrammarMixin
         StringVariableLengthInVariableWidthCharacters(this)
       }
       case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
-    })
+    }
+  }
 
-  lazy val variableLengthHexBinary = Prod("variableLengthHexBinary", this, !isFixedLength,
+  lazy val variableLengthHexBinary = prod("variableLengthHexBinary", !isFixedLength) {
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    })
+    }
+  }
 
-  //lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
-  lazy val stringDelimitedEndOfData = Prod("stringDelimitedEndOfData", this, StringDelimitedEndOfData(this))
-  lazy val stringPatternMatched = Prod("stringPatternMatched", this, StringPatternMatched(this))
+  lazy val stringDelimitedEndOfData = prod("stringDelimitedEndOfData") { StringDelimitedEndOfData(this) }
+  lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
 
-  lazy val stringValue = stringValue_.value
-  private val stringValue_ = LV('stringValue) {
-    val res = Prod("stringValue", this, lengthKind match {
+  lazy val stringValue = prod("stringValue") {
+    lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthString
       case LengthKind.Explicit => variableLengthString
       //case LengthKind.Delimited => stringDelimitedEndOfData
@@ -246,50 +246,47 @@ trait ElementBaseGrammarMixin
         implicitLengthString
       }
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
-    })
-    res
+    }
   }
 
-  lazy val hexBinaryDelimitedEndOfData = Prod("hexBinaryDelimitedEndOfData", this, HexBinaryDelimitedEndOfData(this))
+  lazy val hexBinaryDelimitedEndOfData = prod("hexBinaryDelimitedEndOfData") { HexBinaryDelimitedEndOfData(this) }
 
-  lazy val hexBinaryValue = hexBinaryValue_.value
-  private val hexBinaryValue_ = LV('hexBinaryValue) {
-    val res = Prod("hexBinaryValue", this, lengthKind match {
+  lazy val hexBinaryValue = prod("hexBinaryValue") {
+    lengthKind match {
       case LengthKind.Explicit if isFixedLength => fixedLengthHexBinary
       case LengthKind.Explicit => variableLengthHexBinary
       case LengthKind.Delimited => hexBinaryDelimitedEndOfData
       case LengthKind.Pattern => SDE("lengthKind Pattern is not allowed for hexBinary.")
       case LengthKind.Implicit => implicitLengthHexBinary
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
-    })
-    res
+    }
   }
 
-  //  lazy val binaryByte = Prod("binaryByte", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryByte = prod("binaryByte", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryShort = Prod("binaryShort", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryShort = prod("binaryShort", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryLong = Prod("binaryLong", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryLong = prod("binaryLong", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryInteger = Prod("binaryInteger", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryInteger = prod("binaryInteger", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedInt = Prod("binaryInt", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryUnsignedInt = prod("binaryInt", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedByte = Prod("binaryByte", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryUnsignedByte = prod("binaryByte", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedShort = Prod("binaryShort", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryUnsignedShort = prod("binaryShort", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
   //
-  //  lazy val binaryUnsignedLong = Prod("binaryLong", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryUnsignedLong = prod("binaryLong", impliedRepresentation == Representation.Binary,
   //    regularBinaryRepInt | bcdInt | packedInt)
 
-  //  lazy val regularBinaryRepInt = Prod("regularBinaryRepInt", this,
+  //  lazy val regularBinaryRepInt = prod("regularBinaryRepInt",
   //    binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
   //      case LengthKind.Implicit => {
   //        if (byteOrder.isConstant) {
@@ -303,81 +300,87 @@ trait ElementBaseGrammarMixin
   //      case _ => Assert.notYetImplemented() // binary number length kinds other than implicit not implemented
   //    })
 
-  //  lazy val bcdInt = Prod("bcdInt", this,
+  //  lazy val bcdInt = prod("bcdInt",
   //    binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
-  //  lazy val packedInt = Prod("packedInt", this,
+  //  lazy val packedInt = prod("packedInt",
   //    binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
 
   // TODO: Handle the zonedTextXXX possibilities
-  lazy val textInt = Prod("textInt", this, impliedRepresentation == Representation.Text,
-    standardTextInt | zonedTextInt)
+  lazy val textInt = prod("textInt", impliedRepresentation == Representation.Text) {
+    standardTextInt | zonedTextInt
+  }
 
-  lazy val textByte = Prod("textByte", this, impliedRepresentation == Representation.Text,
-    standardTextByte | zonedTextInt)
+  lazy val textByte = prod("textByte", impliedRepresentation == Representation.Text) {
+    standardTextByte | zonedTextInt
+  }
 
-  lazy val textShort = Prod("textShort", this, impliedRepresentation == Representation.Text,
-    standardTextShort | zonedTextInt)
+  lazy val textShort = prod("textShort", impliedRepresentation == Representation.Text) {
+    standardTextShort | zonedTextInt
+  }
 
-  lazy val textLong = Prod("textLong", this, impliedRepresentation == Representation.Text,
-    standardTextLong | zonedTextInt)
+  lazy val textLong = prod("textLong", impliedRepresentation == Representation.Text) {
+    standardTextLong | zonedTextInt
+  }
 
-  lazy val textInteger = Prod("textInteger", this, impliedRepresentation == Representation.Text,
-    standardTextInteger | zonedTextInt)
+  lazy val textInteger = prod("textInteger", impliedRepresentation == Representation.Text) {
+    standardTextInteger | zonedTextInt
+  }
 
-  lazy val textDecimal = Prod("textDecimal", this, impliedRepresentation == Representation.Text,
-    standardTextDecimal | zonedTextInt)
+  lazy val textDecimal = prod("textDecimal", impliedRepresentation == Representation.Text) {
+    standardTextDecimal | zonedTextInt
+  }
 
-  lazy val textNonNegativeInteger = Prod("textNonNegativeInteger", this, impliedRepresentation == Representation.Text,
+  lazy val textNonNegativeInteger = prod3("textNonNegativeInteger", impliedRepresentation == Representation.Text,
     standardTextNonNegativeInteger | zonedTextInt)
 
-  lazy val textUnsignedInt = Prod("textUnsignedInt", this, impliedRepresentation == Representation.Text,
+  lazy val textUnsignedInt = prod3("textUnsignedInt", impliedRepresentation == Representation.Text,
     standardTextUnsignedInt | zonedTextInt)
 
-  lazy val textUnsignedByte = Prod("textUnsignedByte", this, impliedRepresentation == Representation.Text,
+  lazy val textUnsignedByte = prod3("textUnsignedByte", impliedRepresentation == Representation.Text,
     standardTextUnsignedByte | zonedTextInt)
 
-  lazy val textUnsignedShort = Prod("textUnsignedShort", this, impliedRepresentation == Representation.Text,
+  lazy val textUnsignedShort = prod3("textUnsignedShort", impliedRepresentation == Representation.Text,
     standardTextUnsignedShort | zonedTextInt)
 
-  lazy val textUnsignedLong = Prod("textUnsignedLong", this, impliedRepresentation == Representation.Text,
+  lazy val textUnsignedLong = prod3("textUnsignedLong", impliedRepresentation == Representation.Text,
     standardTextUnsignedLong | zonedTextInt)
 
   //
   // We could now break it down by lengthKind, and have specialized primitives
   // depending on the length kind.
   // 
-  lazy val standardTextInteger = Prod("standardTextInteger", this,
+  lazy val standardTextInteger = prod3("standardTextInteger",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntegerPrim(this))
-  lazy val standardTextDecimal = Prod("standardTextDecimal", this,
+  lazy val standardTextDecimal = prod3("standardTextDecimal",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDecimalPrim(this))
-  lazy val standardTextNonNegativeInteger = Prod("standardTextNonNegativeInteger", this,
+  lazy val standardTextNonNegativeInteger = prod3("standardTextNonNegativeInteger",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextNonNegativeIntegerPrim(this))
-  lazy val standardTextLong = Prod("standardTextLong", this,
+  lazy val standardTextLong = prod3("standardTextLong",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextLongPrim(this))
-  lazy val standardTextInt = Prod("standardTextInt", this,
+  lazy val standardTextInt = prod3("standardTextInt",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextIntPrim(this))
-  lazy val standardTextShort = Prod("standardTextShort", this,
+  lazy val standardTextShort = prod3("standardTextShort",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextShortPrim(this))
-  lazy val standardTextByte = Prod("standardTextByte", this,
+  lazy val standardTextByte = prod3("standardTextByte",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextBytePrim(this))
-  lazy val standardTextUnsignedLong = Prod("standardTextUnsignedLong", this,
+  lazy val standardTextUnsignedLong = prod3("standardTextUnsignedLong",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedLongPrim(this))
-  lazy val standardTextUnsignedInt = Prod("standardTextUnsignedInt", this,
+  lazy val standardTextUnsignedInt = prod3("standardTextUnsignedInt",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedIntPrim(this))
-  lazy val standardTextUnsignedShort = Prod("standardTextUnsignedShort", this,
+  lazy val standardTextUnsignedShort = prod3("standardTextUnsignedShort",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedShortPrim(this))
-  lazy val standardTextUnsignedByte = Prod("standardTextUnsignedByte", this,
+  lazy val standardTextUnsignedByte = prod3("standardTextUnsignedByte",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextUnsignedBytePrim(this))
-  lazy val zonedTextInt = Prod("zonedTextInt", this,
+  lazy val zonedTextInt = prod3("zonedTextInt",
     textNumberRep == TextNumberRep.Zoned, ZonedTextIntPrim(this))
 
-  //  lazy val binaryDouble = Prod("binaryDouble", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryDouble = prod3("binaryDouble", impliedRepresentation == Representation.Binary,
   //    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble)
 
-  lazy val textDouble = Prod("textDouble", this, impliedRepresentation == Representation.Text,
+  lazy val textDouble = prod3("textDouble", impliedRepresentation == Representation.Text,
     standardTextDouble | zonedTextDouble)
 
-  //  lazy val ieeeBinaryRepDouble = Prod("ieeeBinaryRepDouble", this,
+  //  lazy val ieeeBinaryRepDouble = prod3("ieeeBinaryRepDouble",
   //    {
   //      val bfr = binaryFloatRep
   //      val res = bfr.isConstant &&
@@ -395,24 +398,24 @@ trait ElementBaseGrammarMixin
   //      case _ => Assert.notYetImplemented()
   //    })
 
-  lazy val ibm390HexBinaryRepDouble = Prod("ibm390HexBinaryRepDouble", this,
+  lazy val ibm390HexBinaryRepDouble = prod3("ibm390HexBinaryRepDouble",
     binaryFloatRep.isConstant &&
       binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
     subsetError("ibm390Hex not supported"))
 
-  lazy val standardTextDouble = Prod("standardTextDouble", this,
+  lazy val standardTextDouble = prod3("standardTextDouble",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextDoublePrim(this))
 
-  lazy val zonedTextDouble = Prod("zonedTextDouble", this,
+  lazy val zonedTextDouble = prod3("zonedTextDouble",
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
-  //  lazy val binaryFloat = Prod("binaryFloat", this, impliedRepresentation == Representation.Binary,
+  //  lazy val binaryFloat = prod3("binaryFloat", impliedRepresentation == Representation.Binary,
   //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat)
 
-  lazy val textFloat = Prod("textFloat", this, impliedRepresentation == Representation.Text,
+  lazy val textFloat = prod3("textFloat", impliedRepresentation == Representation.Text,
     standardTextFloat | zonedTextFloat)
 
-  //  lazy val ieeeBinaryRepFloat = Prod("ieeeBinaryRepFloat", this,
+  //  lazy val ieeeBinaryRepFloat = prod3("ieeeBinaryRepFloat",
   //    {
   //      val bfr = binaryFloatRep
   //      val res = bfr.isConstant &&
@@ -430,22 +433,22 @@ trait ElementBaseGrammarMixin
   //      case _ => Assert.notYetImplemented()
   //    })
   //
-  //  lazy val ibm390HexBinaryRepFloat = Prod("ibm390HexBinaryRepFloat", this,
+  //  lazy val ibm390HexBinaryRepFloat = prod3("ibm390HexBinaryRepFloat",
   //    binaryFloatRep.isConstant &&
   //      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString,
   //    subsetError("ibm390Hex not supported"))
 
-  lazy val standardTextFloat = Prod("standardTextFloat", this,
+  lazy val standardTextFloat = prod3("standardTextFloat",
     textNumberRep == TextNumberRep.Standard, stringValue ~ ConvertTextFloatPrim(this))
 
-  lazy val zonedTextFloat = Prod("zonedTextFloat", this,
+  lazy val zonedTextFloat = prod3("zonedTextFloat",
     textNumberRep == TextNumberRep.Zoned, SDE("Zoned not supported for float and double"))
 
-  lazy val textDate = Prod("textDate", this, impliedRepresentation == Representation.Text,
+  lazy val textDate = prod3("textDate", impliedRepresentation == Representation.Text,
     stringValue ~ ConvertTextDatePrim(this))
-  lazy val textTime = Prod("textTime", this, impliedRepresentation == Representation.Text,
+  lazy val textTime = prod3("textTime", impliedRepresentation == Representation.Text,
     stringValue ~ ConvertTextTimePrim(this))
-  lazy val textDateTime = Prod("textDateTime", this, impliedRepresentation == Representation.Text,
+  lazy val textDateTime = prod3("textDateTime", impliedRepresentation == Representation.Text,
     stringValue ~ ConvertTextDateTimePrim(this))
 
   // shorthand
@@ -454,7 +457,7 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  //  lazy val value = Prod("value", this, isSimpleType,
+  //  lazy val value = prod3("value", isSimpleType,
   //    // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
   //    // This gets used for array contents also.
   //    {
@@ -470,7 +473,7 @@ trait ElementBaseGrammarMixin
   //      }
   //    })
 
-  lazy val value = Prod("value", this, isSimpleType,
+  lazy val value = prod("value", isSimpleType) {
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
     // this gets used for array contents also.
     {
@@ -485,7 +488,8 @@ trait ElementBaseGrammarMixin
           res
         }
       }
-    })
+    }
+  }
 
   // This is the right name that the DFDL property should have had!
   lazy val binaryIntRep = {
@@ -524,7 +528,7 @@ trait ElementBaseGrammarMixin
 
       //      case PrimType.HexBinary =>
       //        (primType, binary) match { // TODO: Only takes explicit length
-      //          case (PrimType.HexBinary, b) => new BinaryNumberBase[Array[Byte]](this, this.length.constantAsLong) {
+      //          case (PrimType.HexBinary, b) => new BinaryNumberBase[Array[Byte]](this.length.constantAsLong) {
       //            def getNum(bp : Long, in : InStream, bo : BO) = {
       //              // FIXME: size constraints, overflow
       //              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
@@ -630,104 +634,97 @@ trait ElementBaseGrammarMixin
     res
   }
 
-  lazy val empty = Prod("empty", this, NYI && emptyIsAnObservableConcept, emptyRepresentation)
+  lazy val empty = prod("empty", NYI && emptyIsAnObservableConcept) { emptyRepresentation }
 
-  lazy val emptyRepresentation = Prod("emptyRepresentation", this,
-    simpleOrNonImplicitComplexEmpty | complexImplicitEmpty)
+  private lazy val emptyRepresentation = prod("emptyRepresentation") {
+    simpleOrNonImplicitComplexEmpty | complexImplicitEmpty
+  }
 
-  lazy val simpleOrNonImplicitComplexEmpty = Prod("simpleOrNonImplicitComplexEmpty", this,
-    NYI && isSimpleType || isComplexType && lengthKind != LengthKind.Implicit,
-    emptyElementInitiator ~ emptyElementTerminator)
+  private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
+    NYI && isSimpleType || isComplexType && lengthKind != LengthKind.Implicit) {
+      emptyElementInitiator ~ emptyElementTerminator
+    }
 
   /**
    * This is about the case where we take an empty, parse a complex type recursively from it
    * and potentially succeed.
    */
-  lazy val complexImplicitEmpty = Prod("complexImplicitEmpty", this, NYI &&
-    isComplexType && lengthKind == LengthKind.Implicit,
+  private lazy val complexImplicitEmpty = prod("complexImplicitEmpty", NYI &&
+    isComplexType && lengthKind == LengthKind.Implicit) {
     SaveInputStream(this) ~ SetEmptyInputStream(this) ~ elementComplexType.mainGrammar ~
-      RestoreInputStream(this) ~ emptyElementTerminator)
+      RestoreInputStream(this) ~ emptyElementTerminator
+  }
 
-  lazy val emptyDefaulted = Prod("emptyDefaulted", this,
-    isDefaultable && emptyIsAnObservableConcept,
-    empty ~ TheDefaultValue(this))
+  private lazy val emptyDefaulted = prod("emptyDefaulted",
+    isDefaultable && emptyIsAnObservableConcept) {
+      empty ~ TheDefaultValue(this)
+    }
 
-  lazy val nilElementInitiator = Prod("nilElementInitiator", this, hasNilValueInitiator,
-    Initiator(this))
-  lazy val nilElementTerminator = Prod("nilElementTerminator", this, hasNilValueTerminator,
-    Terminator(this))
+  lazy val nilElementInitiator = prod("nilElementInitiator", hasInitiator) { Initiator(this) }
+  lazy val nilElementTerminator = prod("nilElementTerminator", hasTerminator) { Terminator(this) }
 
-  lazy val emptyElementInitiator = Prod("emptyElementInitiator", this, NYI && hasEmptyValueInitiator, EmptyGram)
-  lazy val emptyElementTerminator = Prod("emptyElementTerminator", this, NYI && hasEmptyValueTerminator, EmptyGram)
+  lazy val emptyElementInitiator = prod("emptyElementInitiator", NYI && hasEmptyValueInitiator) { ErrorGram }
+  lazy val emptyElementTerminator = prod("emptyElementTerminator", NYI && hasEmptyValueTerminator) { ErrorGram }
 
-  lazy val complexContent = Prod("complexContent", this, isComplexType,
-    elementComplexType.mainGrammar)
+  lazy val complexContent = prod("complexContent", isComplexType) {
+    elementComplexType.mainGrammar
+  }
 
-  lazy val nilLit = {
-    Prod("nilLit", this,
-      isNillable && nilKind == NilKind.LiteralValue,
+  lazy val nilLit = prod("nilLit",
+    isNillable && nilKind == NilKind.LiteralValue) {
       if (hasDelimiters)
         DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitContent ~ nilElementTerminator)
       else
-        nilLitContent)
+        nilLitContent
+    }
+
+  lazy val nilLitSpecifiedLength = prod("nilLitSpecifiedLength", isNillable && nilKind == NilKind.LiteralValue) {
+    if (hasDelimiters)
+      DelimiterStackCombinatorElement(this, nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator)
+    else specifiedLength(nilLitContent)
   }
 
-  lazy val nilLitSpecifiedLength = {
-    Prod("nilLitSpecifiedLength", this, isNillable && nilKind == NilKind.LiteralValue, {
-      if (hasDelimiters)
-        DelimiterStackCombinatorElement(this, nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator)
-      else specifiedLength(nilLitContent)
-    })
-  }
-
-  lazy val nilLitContent = {
-    Prod("nilLitContent", this,
-      isNillable && nilKind == NilKind.LiteralValue,
-      {
-        // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
-        lengthKind match {
-          //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
-          case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
-          case LengthKind.Pattern => LiteralNilPattern(this)
-          case LengthKind.Explicit => {
-            lengthUnits match {
-              case LengthUnits.Bits => notYetImplemented("nilKind='literalValue' with lengthKind='bits'")
-              case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
-              case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
-            }
+  lazy val nilLitContent = prod("nilLitContent",
+    isNillable && nilKind == NilKind.LiteralValue) {
+      // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
+      lengthKind match {
+        //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
+        case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
+        case LengthKind.Pattern => LiteralNilPattern(this)
+        case LengthKind.Explicit => {
+          lengthUnits match {
+            case LengthUnits.Bits => notYetImplemented("nilKind='literalValue' with lengthKind='bits'")
+            case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
+            case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
           }
-          case LengthKind.Implicit => {
-            schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
-            val lengthInBytes = implicitBinaryLengthInBits / 8
-            LiteralNilKnownLengthInBytes(this, lengthInBytes)
-          }
-          case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
-          case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
         }
-      })
+        case LengthKind.Implicit => {
+          schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
+          val lengthInBytes = implicitBinaryLengthInBits / 8
+          LiteralNilKnownLengthInBytes(this, lengthInBytes)
+        }
+        case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
+        case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
+      }
+    }
+
+  //  lazy val leftPadding =  Prod("leftPadding", hasLeftPadding, LeftPadding(this))
+
+  def withDelimiterStack(body: => Gram) = {
+    if (hasDelimiters) DelimiterStackCombinatorElement(this, body)
+    else body
   }
 
-  //  lazy val leftPadding =  Prod("leftPadding", this, hasLeftPadding, LeftPadding(this))
-
-  lazy val scalarDefaultableSimpleContent = {
-    val res = Prod("scalarDefaultableSimpleContent", this,
-      isSimpleType,
-      if (hasDelimiters)
-        DelimiterStackCombinatorElement(this, nilLit | emptyDefaulted | parsedNil | parsedValue)
-      else nilLit | emptyDefaulted | parsedNil | parsedValue)
-    res
+  lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
+    withDelimiterStack(nilLit | emptyDefaulted | parsedNil | parsedValue)
   }
 
-  lazy val scalarNonDefaultSimpleContent = {
-    val res = Prod("scalarNonDefaultSimpleContent", this,
-      isSimpleType,
-      if (hasDelimiters)
-        DelimiterStackCombinatorElement(this, nilLit | parsedNil | parsedValue)
-      else nilLit | parsedNil | parsedValue)
-    res
+  lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
+    withDelimiterStack(nilLit | parsedNil | parsedValue)
   }
 
-  def specifiedLength(body: => Gram) = {
+  def specifiedLength(bodyArg: => Gram) = {
+    lazy val body = bodyArg
     lengthKind match {
       case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
       case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && isFixedLength => new SpecifiedLengthExplicitBitsFixed(this, body, fixedLength)
@@ -742,93 +739,122 @@ trait ElementBaseGrammarMixin
         body
       }
     }
-
   }
 
-  lazy val complexContentSpecifiedLength = Prod("complexContentSpecifiedLength", this, isComplexType,
+  private lazy val complexContentSpecifiedLength = prod("complexContentSpecifiedLength", isComplexType) {
     if (hasDelimiters)
       DelimiterStackCombinatorElement(this, initiatorRegion ~ specifiedLength(complexContent) ~ terminatorRegion)
-    else specifiedLength(complexContent))
+    else specifiedLength(complexContent)
+  }
 
-  lazy val scalarComplexContent = Prod("scalarComplexContent", this, isComplexType,
-    nilLitSpecifiedLength | complexContentSpecifiedLength)
+  private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
+    nilLitSpecifiedLength | complexContentSpecifiedLength
+  }
 
   lazy val hasEscapeScheme = this.optionEscapeScheme.isDefined
 
-  // Note: there is no such thing as defaultable complex content because you can't have a 
-  // default value for a complex type element.
-  lazy val scalarDefaultableContent = Prod("scalarDefaultableContent", this,
-    if (hasEscapeScheme) { EscapeSchemeStackCombinatorElement(this, scalarDefaultableSimpleContent | scalarComplexContent) }
-    else { scalarDefaultableSimpleContent | scalarComplexContent })
+  private def withEscapeScheme(body: Gram) = {
+    if (hasEscapeScheme) EscapeSchemeStackCombinatorElement(this, body)
+    else body
+  }
 
-  lazy val scalarNonDefaultContent = Prod("scalarNonDefaultContent", this,
-    if (hasEscapeScheme) { EscapeSchemeStackCombinatorElement(this, scalarNonDefaultSimpleContent | scalarComplexContent) }
-    else { scalarNonDefaultSimpleContent | scalarComplexContent })
+  // Note: there is no such thing as defaultable complex content because you can't have a 
+  // default value for a complex type element.... 
+  // NOT TRUE: a defaultable complex type is one where everything within it is
+  // recursively defaultable and has no syntax. So you could recursively "parse"
+  // it, get default values for simple type elements in the complex type structure,
+  // yet consume zero bits.
+  lazy val scalarDefaultableContent = prod("scalarDefaultableContent") {
+    withEscapeScheme(scalarDefaultableSimpleContent | scalarComplexContent)
+  }
+
+  lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
+    withEscapeScheme(scalarNonDefaultSimpleContent | scalarComplexContent)
+  }
 
   /**
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
-  lazy val elementLeftFraming = Prod("elementLeftFraming", this,
-    leadingSkipRegion ~ alignmentFill ~ PrefixLength(this))
+  lazy val elementLeftFraming = prod("elementLeftFraming") {
+    leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
+  }
 
-  lazy val elementRightFraming = Prod("elementRightFraming", this, trailingSkipRegion)
+  lazy val elementRightFraming = prod("elementRightFraming") { trailingSkipRegion }
 
-  //  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-  //    dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-  //      scalarNonDefaultContent ~ elementRightFraming ~ dfdlStatementEvaluations ~ dfdlScopeEnd ~ dfdlElementEnd)
+  lazy val scalarNonDefaultPhysical = prod("scalarNonDefault") {
+    val body1 = elementLeftFraming ~ dfdlScopeBegin ~
+      scalarNonDefaultContent
+    val body2 = elementRightFraming ~ dfdlScopeEnd
+    if (this.isParentUnorderedSequence)
+      new ChoiceElementCombinator(this, body1, body2)
+    else
+      new ElementCombinator(this, body1, body2)
+  }
 
-  //  lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
-  //    StmtEval(this, dfdlElementBegin ~ elementLeftFraming ~ dfdlScopeBegin ~
-  //      scalarNonDefaultContent) ~ elementRightFraming ~ dfdlScopeEnd ~ dfdlElementEnd)
+  lazy val scalarDefaultable = prod("scalarDefaultable") {
+    lazy val sdp = scalarDefaultablePhysical
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
+      case (_: NotFound, _: NotFound) => sdp
+      //
+      // We really do have to share the sdp. Repeating grammar terms that have large
+      // expansions twice in one production results in a tree-explosion. 
+      //
+      case _ => scalarDefaultableForParser(sdp) | scalarDefaultableForUnparser
+    }
+  }
 
-  lazy val scalarNonDefaultPhysical = Prod("scalarNonDefault", this,
+  private def scalarDefaultableForParser(sdp: => Gram) = prod("scalarDefaultableForParser", forWhat = ForParser) {
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: NotFound, _: Found) => sdp // outputValueCalc element is just a regular physical element for parser
+      case (_: Found, _: NotFound) => inputValueCalcElement
+      case _ => Assert.impossibleCase()
+    }
+  }
+
+  private def scalarDefaultableForUnparser = prod("scalarDefaultableForUnparser", forWhat = ForUnparser) {
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: NotFound, _: Found) => outputValueCalcElement
+      // when unparsing, inputValueCalc elements don't contribute to the data. 
+      // They may get referenced from outputValueCalc or other expressions so their
+      // element values may need to be in the infoset
+      case (_: Found, _: NotFound) => defaultableValue
+      case _ => Assert.impossibleCase()
+    }
+  }
+
+  // TODO: implement defaulting. This should generate a unparser that fills in the 
+  // infoset value if it is not present in the infoset already.
+  private lazy val defaultableValue = prod("defaultableValue", NYI) { EmptyGram }
+
+  lazy val scalarNonDefault = prod("scalarNonDefault") {
+    (inputValueCalcOption, outputValueCalcOption) match {
+      case (_: NotFound, _: NotFound) => scalarNonDefaultPhysical
+      case _ => scalarDefaultable
+    }
+  }
+
+  lazy val inputValueCalcElement = prod("inputValueCalcElement",
+    isSimpleType && inputValueCalcOption.isInstanceOf[Found]) {
+      // No framing surrounding inputValueCalc elements.
+      new ElementCombinator(this, dfdlScopeBegin ~
+        ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd)
+    }
+
+  lazy val outputValueCalcElement = prod("outputValueCalcElement",
+    isSimpleType && outputValueCalcOption.isInstanceOf[Found]) {
+      new ElementCombinator(this, dfdlScopeBegin ~
+        ValueCalc("outputValueCalc", self, outputValueCalcOption), dfdlScopeEnd)
+    }
+
+  lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {
     if (this.isParentUnorderedSequence)
       new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
-      scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd)
+        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
     else
       new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
-        scalarNonDefaultContent, elementRightFraming ~ dfdlScopeEnd))
-
-  lazy val scalarDefaultable = Prod("scalarDefaultable", this,
-    (inputValueCalcOption, outputValueCalcOption, ForParserOrUnparser.value) match {
-      case (_: Found, _: Found, _) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
-      case (_: NotFound, _: NotFound, _) => scalarDefaultablePhysical
-      case (_: NotFound, _: Found, ForUnparser) => outputValueCalcElement
-      case (_: NotFound, _: Found, ForParser) => scalarDefaultablePhysical
-      case (_: Found, _: NotFound, ForParser) => inputValueCalcElement
-      case (_: Found, _: NotFound, ForUnparser) => Nada(this) // IVC for unparser we don't do anything (infoset will have the value)
-      case _ => Assert.impossibleCase() // scala can't rule this out. Not sure why.
-    })
-
-  lazy val scalarNonDefault = Prod("scalarNonDefault", this,
-    inputValueCalcOption match {
-      case _: NotFound => scalarNonDefaultPhysical
-      case _: Found => inputValueCalcElement
-    })
-
-  //  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
-  //    isSimpleType && inputValueCalcOption.isInstanceOf[Found],
-  //    StmtEval(this, dfdlElementBegin ~ dfdlScopeBegin ~
-  //      InputValueCalc(self)) ~ dfdlScopeEnd ~ dfdlElementEnd)
-
-  lazy val inputValueCalcElement = Prod("inputValueCalcElement", this,
-    isSimpleType && inputValueCalcOption.isInstanceOf[Found],
-    // No framing surrounding inputValueCalc elements.
-    new ElementCombinator(this, dfdlScopeBegin ~
-      ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd))
-
-  lazy val outputValueCalcElement = Prod("outputValueCalcElement", this,
-    isSimpleType && outputValueCalcOption.isInstanceOf[Found],
-    new ElementCombinator(this, dfdlScopeBegin ~
-      ValueCalc("outputValueCalc", self, outputValueCalcOption), dfdlScopeEnd))
-
-  lazy val scalarDefaultablePhysical = Prod("scalarDefaultablePhysical", this,
-    if (this.isParentUnorderedSequence)
-      new ChoiceElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
-      scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
-    else
-      new ElementCombinator(this, elementLeftFraming ~ dfdlScopeBegin ~
-        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd))
+        scalarDefaultableContent, elementRightFraming ~ dfdlScopeEnd)
+  }
 
 }
 

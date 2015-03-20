@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="Array-OptionalElemTests"
+  description="Section 16 - Arrays and Optional Elements" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
+  xmlns:ex="http://example.com" xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext">
+
+  <tdml:defineSchema name="s1">
+
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+      separator="" initiator="" terminator="" occursCountKind="parsed"
+      ignoreCase="no" textNumberRep="standard" representation="text" />
+    <dfdl:defineFormat name="root">
+      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
+        separator="" initiator="" terminator="" representation="text" />
+    </dfdl:defineFormat>
+
+    <xs:element name="r1" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r2" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt1" type="xs:string" minOccurs="0" />
+          <xs:element name="opt2" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r3" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="sca" type="xs:string" />
+          <xs:element name="opt" type="xs:string" minOccurs="0" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:string" minOccurs="0" />
+          <xs:element name="sca" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="optPresent" root="r1"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1>
+          <opt>1</opt>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[1]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optPresentArray" root="r1"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1>
+          <opt>1</opt>
+          <opt>2</opt>
+          <opt>3</opt>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[123]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optAbsentArray" root="r1"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1 />
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document />
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optTwoArrays" root="r2"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r2>
+          <opt1>1</opt1>
+          <opt1>2</opt1>
+          <opt1>3</opt1>
+          <opt2>1</opt2>
+          <opt2>2</opt2>
+          <opt2>3</opt2>
+        </r2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[123123]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optScalarThenArray" root="r3"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r3>
+          <sca>1</sca>
+          <opt>2</opt>
+          <opt>3</opt>
+        </r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[123]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="optArrayThenScalar" root="r4"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r4>
+          <opt>1</opt>
+          <opt>2</opt>
+          <sca>3</sca>
+        </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[123]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

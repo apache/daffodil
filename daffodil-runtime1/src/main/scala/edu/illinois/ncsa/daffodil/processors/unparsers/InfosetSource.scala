@@ -47,7 +47,14 @@ object InfosetSource {
 
 }
 
-trait InfosetSource extends Iterator[InfosetEvent]
+trait InfosetSource extends Iterator[InfosetEvent] {
+
+  /**
+   * Looks ahead by one infoset event without consuming it.
+   * Note that hasNext must be true.
+   */
+  def peek: InfosetEvent
+}
 
 sealed abstract class InfosetEvent(val node: DINode)
 case class End(override val node: DINode) extends InfosetEvent(node)

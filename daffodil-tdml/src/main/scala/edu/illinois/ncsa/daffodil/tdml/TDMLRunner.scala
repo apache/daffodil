@@ -90,6 +90,7 @@ import java.nio.file.Files
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.processors.{ Infoset => RealInfoset }
 import javax.xml.stream.XMLInputFactory
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -469,7 +470,9 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 
   def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {
     val actualDiags = actual.getDiagnostics
-    Assert.invariant(actualDiags.length > 0 && expectedDiags.isDefined)
+    if (expectedDiags.isDefined) if (actualDiags.length =#= 0) {
+      throw new TDMLException("""Diagnostics are expected, but did not find any diagnostic messages.""")
+    }
     val actualDiagMsgs = actualDiags.map { _.toString }
     val expectedDiagMsgs = expectedDiags.map { _.messages }.getOrElse(Nil)
     // must find each expected warning message within some actual warning message.
@@ -780,7 +783,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     val outStream = new java.io.ByteArrayOutputStream()
     val output = java.nio.channels.Channels.newChannel(outStream)
-    val infoset = inputInfoset.contents
+    val infoset = inputInfoset.dfdlInfoset.rawContents
     if (pf.isError) {
       // check for any test-specified errors
       verifyAllDiagnosticsFound(pf, Some(errors))

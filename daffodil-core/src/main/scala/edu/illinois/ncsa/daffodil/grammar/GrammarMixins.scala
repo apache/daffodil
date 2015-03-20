@@ -31,19 +31,14 @@
  */
 
 package edu.illinois.ncsa.daffodil.grammar
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
-import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.ComplexTypeBase
 import edu.illinois.ncsa.daffodil.dsom.GroupRef
+import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 
-trait GroupRefGrammarMixin { self: GroupRef =>
+trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
 
-  def termContentBody = self.group.termContentBody
+  override lazy val termContentBody = self.group.termContentBody
 
 }
 
@@ -51,7 +46,11 @@ trait GroupRefGrammarMixin { self: GroupRef =>
 // Types System
 /////////////////////////////////////////////////////////////////
 
-trait ComplexTypeBaseGrammarMixin { self: ComplexTypeBase =>
-  lazy val mainGrammar = Prod("mainGrammar", self.element,
-    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType))
+trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =>
+
+  override final protected def grammarContext = this
+
+  def mainGrammar = prod("mainGrammar") {
+    ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType)
+  }
 }

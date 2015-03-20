@@ -35,6 +35,8 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.api.ValidationMode
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
@@ -43,12 +45,11 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(start: UState): Unit = {
-    val curr = start.currentInfosetNode
-    start.currentInfosetNode = Nope
+    start.currentInfosetNodeStack.push(Nope) // save
     start.childIndexStack.push(1L) // one-based indexing
     bodyUnparser.unparse1(start, rd)
     start.childIndexStack.pop()
-    start.currentInfosetNode = curr
+    start.currentInfosetNodeStack.pop // restore
   }
 }
 
@@ -77,5 +78,50 @@ class EscapeSchemeStackUnparser(escapeScheme: Option[EscapeSchemeObject], rd: Ru
     // TODO: Implement this properly, added just to get an unparser test to pass.
     bodyUnparser.unparse1(start, rd)
 
+  }
+}
+class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) extends Unparser(erd) {
+  override def nom = "Array"
+  override lazy val childProcessors = Seq(bodyUnparser)
+
+  def unparse(ustate: UState) {
+
+    ustate.arrayIndexStack.push(1L) // one-based indexing
+    ustate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
+
+    if (!ustate.hasNext) UE(ustate, "Malformed event stream for array: No more events were found.")
+    var ev = ustate.peek
+    if (ev.isInstanceOf[Start] && ev.node.isInstanceOf[DIArray]) {
+      ustate.next()
+      bodyUnparser.unparse1(ustate, erd)
+      if (!ustate.hasNext) UE(ustate, "Needed End Array Infoset Event, but no more events were found.")
+      ev = ustate.next()
+      if (!(ev.isInstanceOf[End] && ev.node.isInstanceOf[DIArray]))
+        UE(ustate, "Needed End Array Infoset Event, but found %s.", ev)
+    } else {
+      // case of array with no elements at all; hence, no DIArray events
+      // all we have done is peek ahead one event, so we haven't disturbed
+      // the infosetSource
+    }
+    val shouldValidate = ustate.dataProc.getValidationMode != ValidationMode.Off
+
+    val actualOccurs = ustate.arrayIndexStack.pop()
+    ustate.occursBoundsStack.pop()
+
+    (erd.minOccurs, erd.maxOccurs) match {
+      case (Some(minOccurs), Some(maxOccurs)) if shouldValidate => {
+        val isUnbounded = maxOccurs == -1
+        val occurrence = actualOccurs - 1
+        if (isUnbounded && occurrence < minOccurs)
+          ustate.validationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
+            occurrence, minOccurs)
+        else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
+          ustate.validationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
+            occurrence, minOccurs, maxOccurs)
+      }
+      case _ => // ok
+    }
   }
 }

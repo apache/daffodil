@@ -63,6 +63,7 @@ import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import scala.collection.mutable.ArrayStack
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 
 case class MPState() {
 
@@ -167,6 +168,9 @@ abstract class ParseOrUnparseState(
     diagnostics = rsdw :: diagnostics
   }
 
+  def addUnparseError(ue: UnparseError) {
+    diagnostics = ue :: diagnostics
+  }
 }
 
 class PState(

@@ -39,72 +39,78 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.LocalElementBase
+import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
-trait LocalElementGrammarMixin { self: LocalElementBase =>
+trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 
-  lazy val termContentBody = prod("termContentBody", self) {
+  override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
     bitOrderChange ~ (if (isScalar) scalarDefaultable else recurrance)
   }
 
-  lazy val allowedValue = Prod("allowedValue", this, notStopValue | value)
+  protected final lazy val allowedValue = prod("allowedValue") { notStopValue | value }
 
-  lazy val notStopValue = Prod("notStopValue", this, hasStopValue, NotStopValue(this))
+  private lazy val notStopValue = prod("notStopValue", hasStopValue) { NotStopValue(this) }
 
-  lazy val separatedEmpty = Prod("separatedEmpty", this, emptyIsAnObservableConcept, separatedForArrayPosition(empty))
-  // TODO: delete unused production
-  // lazy val separatedScalarDefaultable = Prod("separatedScalarDefaultable", this, isScalar, separatedForArrayPosition(scalarDefaultable))
-  lazy val separatedRecurringDefaultable = Prod("separatedRecurringDefaultable", this, !isScalar, separatedForArrayPosition(scalarDefaultable))
-  // TODO: delete unused production
-  // lazy val separatedScalarNonDefault = Prod("separatedScalarNonDefault", this, isScalar, separatedForArrayPosition(scalarNonDefault))
-  lazy val separatedRecurringNonDefault = Prod("separatedRecurringNonDefault", this, !isScalar, separatedForArrayPosition(scalarNonDefault))
+  private lazy val separatedEmpty = prod("separatedEmpty", emptyIsAnObservableConcept) { separatedForArrayPosition(empty) }
 
-  lazy val nonSeparatedScalarDefaultable = Prod("nonSeparatedScalarDefaultable", this, isScalar, scalarDefaultable)
+  private lazy val separatedRecurringDefaultable = prod("separatedRecurringDefaultable", !isScalar) {
+    separatedForArrayPosition(scalarDefaultable)
+  }
 
-  lazy val recurrance = Prod("recurrance", this,
-    !isScalar,
-    ArrayCombinator(this, arrayContents) ~ FinalUnusedRegion(this))
+  private lazy val separatedRecurringNonDefault = prod("separatedRecurringNonDefault", !isScalar) {
+    separatedForArrayPosition(scalarNonDefault)
+  }
 
-  override lazy val asTermInChoice = {
-    val res = Prod("asTermInChoice", this, nonSeparatedScalarDefaultable | recurrance)
-    res
+  private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { scalarDefaultable }
+
+  private lazy val recurrance = prod("recurrance", !isScalar) {
+    ArrayCombinator(this, arrayContents) ~ FinalUnusedRegion(this)
+  }
+
+  final override lazy val asTermInChoice = prod("asTermInChoice") {
+    nonSeparatedScalarDefaultable | recurrance
   }
 
   /**
    * speculate parsing forward until we get an error
    */
-  lazy val separatedContentUnboundedWithoutTrailingEmpties = Prod("separatedContentUnboundedWithoutTrailingEmpties", this, isRecurring,
+  private lazy val separatedContentUnboundedWithoutTrailingEmpties = prod("separatedContentUnboundedWithoutTrailingEmpties", isRecurring) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepUnbounded(self, separatedRecurringNonDefault) ~
-      StopValue(this))
+      StopValue(this)
+  }
 
-  lazy val separatedContentUnbounded = Prod("separatedContentUnbounded", this, isRecurring,
+  private lazy val separatedContentUnbounded = prod("separatedContentUnbounded", isRecurring) {
     separatedContentUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
     //        ~
     //        RepUnbounded(separatedEmpty)
-    )
+  }
 
-  lazy val separatedContentAtMostNWithoutTrailingEmpties = Prod("separatedContentAtMostNWithoutTrailingEmpties", this, isRecurring,
+  private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", isRecurring) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepAtMostTotalN(this, maxOccurs, separatedRecurringNonDefault) ~
-      StopValue(this))
+      StopValue(this)
+  }
 
   // TODO: Do we have to adjust the count to take stopValue into account?
   // Answer: No because the counts are never used when there is a stopValue (at least in current
   // thinking about how occursCountKind='stopValue' works.)
 
-  lazy val separatedContentAtMostN = Prod("separatedContentAtMostN", this, isRecurring,
+  private lazy val separatedContentAtMostN = prod("separatedContentAtMostN") {
     separatedContentAtMostNWithoutTrailingEmpties ~
-      RepAtMostTotalN(self, maxOccurs, separatedEmpty)) // absorb extra separators, if found.
+      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
+  }
 
   /**
    *  parse counted number of occurrences exactly.
    */
-  lazy val stopValueSize = if (hasStopValue) 1 else 0
+  private lazy val stopValueSize = if (hasStopValue) 1 else 0
 
   // TODO FIXME: We really want to have different productions for parsing and unparsing in these
   // complex cases where there is defaulting, etc. Unparsing has many fewer cases, and is just not
   // symmetric with parsing in these situations.
-  def separatedContentExactlyN(count: Long) = {
+  private def separatedContentExactlyN(count: Long) = prod("separatedContentExactlyN") {
     if (minOccurs == maxOccurs) {
       // fixed length case. All are defaultable. Still might have a stop value tho.
       RepExactlyN(self, count, separatedRecurringDefaultable) ~
@@ -118,7 +124,7 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
     }
   }
 
-  lazy val separatedContentExactlyNComputed = {
+  private lazy val separatedContentExactlyNComputed = prod("separatedContentExactlyNComputed") {
     OccursCountExpression(this) ~
       RepAtMostOccursCount(this, minOccurs, separatedRecurringDefaultable) ~
       RepExactlyTotalOccursCount(this, separatedRecurringNonDefault)
@@ -127,36 +133,32 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
   // keep in mind that anything here that scans for a representation either knows the length it is going after, or knows what the terminating markup is, and
   // our invariant is, that it does NOT consume that markup ever. The parser consumes it with appropriate grammar terminals. 
 
-  val UNB = -1 // UNBOUNDED
-  val ZERO = 0 // ZERO
+  private val UNB = -1 // UNBOUNDED
+  private val ZERO = 0 // ZERO
 
-  lazy val arrayContents = {
-    val res = Prod("arrayContents", this, isRecurring,
-      arrayContentsNoSeparators | arrayContentsWithSeparators)
-    res
+  lazy val arrayContents = prod("arrayContents", isRecurring) {
+    arrayContentsNoSeparators | arrayContentsWithSeparators
   }
 
-  lazy val contentUnbounded = {
-
-    val res = Prod("contentUnbounded", this, isRecurring, RepUnbounded(self, separatedRecurringDefaultable))
-    res
+  private lazy val contentUnbounded = prod("contentUnbounded") {
+    RepUnbounded(self, separatedRecurringDefaultable)
   }
 
   //
   // Silly constants to make the lookup tables below more readable without using fragile whitespace
   //
-  final val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
-  final val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
-  final val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
-  final val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
+  private val Never______ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.Never
+  private val Trailing___ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmpty
+  private val TrailingStr: SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.TrailingEmptyStrict
+  private val Always_____ : SeparatorSuppressionPolicy = SeparatorSuppressionPolicy.AnyEmpty
 
-  final val StopValue_ = OccursCountKind.StopValue
-  final val Implicit__ = OccursCountKind.Implicit
-  final val Parsed____ = OccursCountKind.Parsed
-  final val Fixed_____ = OccursCountKind.Fixed
-  final val Expression = OccursCountKind.Expression
+  private val StopValue_ = OccursCountKind.StopValue
+  private val Implicit__ = OccursCountKind.Implicit
+  private val Parsed____ = OccursCountKind.Parsed
+  private val Fixed_____ = OccursCountKind.Fixed
+  private val Expression = OccursCountKind.Expression
 
-  lazy val arrayContentsNoSeparators = Prod("arrayContentsNoSeparators", this, isRecurring && !hasSep, {
+  private lazy val arrayContentsNoSeparators = prod("arrayContentsNoSeparators", isRecurring && !hasSep) {
     val res = (occursCountKind, minOccurs, maxOccurs) match {
       case (Expression, ____, __2) => separatedContentExactlyNComputed
       case (Fixed_____, ____, UNB) => SDE("occursCountKind='fixed' not allowed with unbounded maxOccurs")
@@ -169,15 +171,14 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (StopValue_, ____, __2) => contentUnbounded
     }
     res
-  })
+  }
 
   /**
    * Matches the table about separator suppression policy.
    *
-   * TODO: Right now that table is in DFDL WG subgroup working on "Issue 140" which is trying to
-   * rationalize separator suppression among other things. Update this table to match the final spec.
+   * TODO: Update this table to match the final spec.
    */
-  lazy val arrayContentsWithSeparators = Prod("arrayContentsWithSeparators", this, isRecurring && hasSep, {
+  private lazy val arrayContentsWithSeparators = prod("arrayContentsWithSeparators", isRecurring && hasSep) {
     val triple = (separatorSuppressionPolicy, occursCountKind, maxOccurs, minOccurs)
     val res = triple match {
       case (___________, Expression, ___, __2) => separatedContentExactlyNComputed
@@ -200,6 +201,6 @@ trait LocalElementGrammarMixin { self: LocalElementBase =>
       case (policy /**/ , ock /****/ , max, __2) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
     }
     res
-  })
+  }
 }
 

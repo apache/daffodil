@@ -68,13 +68,12 @@ trait InitiatedTerminatedMixin
 
   lazy val hasTerminator = terminator.isKnownNonEmpty
 
-  lazy val initiatorDiscriminator = Prod("initiatorDiscriminator", this, parentSaysInitiatedContent, InitiatedContent(this))
+  lazy val initiatorDiscriminator = prod3("initiatorDiscriminator", parentSaysInitiatedContent, InitiatedContent(this))
 
-  lazy val initiatorRegion = Prod("initiatorRegion", this, hasInitiator, initiatorItself ~ initiatorDiscriminator)
+  lazy val initiatorRegion = prod3("initiatorRegion", hasInitiator, initiatorItself ~ initiatorDiscriminator)
   lazy val initiatorItself = Initiator(this)
-  
 
-  lazy val terminatorRegion = Prod("terminatorRegion", this, hasTerminator, Terminator(this))
+  lazy val terminatorRegion = prod3("terminatorRegion", hasTerminator, Terminator(this))
 
   /**
    * True if this term has initiator, terminator, or separator that are either statically

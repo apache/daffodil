@@ -42,9 +42,12 @@ import edu.illinois.ncsa.daffodil.processors._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Fakes
 
-class TestGrammar {
+class TestGrammar extends GrammarMixin {
 
   val fakeTerm = new GlobalElementDeclFactory(<element name="foo" type="xs:int"/>, Fakes.fakeSD).forRoot()
+
+  final override protected def grammarContext = fakeTerm
+
   case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
     def parser: Parser = Assert.notYetImplemented()
   }
@@ -57,7 +60,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm)
     object last extends Primitive1(fakeTerm)
 
-    lazy val triple = Prod("triple", fakeTerm, first ~ mid ~ last)
+    lazy val triple = prod("triple") { first ~ mid ~ last }
 
     assertFalse(triple.isEmpty)
     val str = triple.toString
@@ -79,7 +82,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm, false)
     object last extends Primitive1(fakeTerm)
 
-    lazy val triple = Prod("triple", fakeTerm, first ~ mid ~ last)
+    lazy val triple = prod("triple") { first ~ mid ~ last }
 
     assertFalse(triple.isEmpty)
 
@@ -99,7 +102,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm, false)
     object last extends Primitive1(fakeTerm)
 
-    lazy val triple = Prod("triple", fakeTerm, false, first ~ mid ~ last)
+    lazy val triple = prod("triple", false) { first ~ mid ~ last }
 
     assertTrue(triple.isEmpty)
 
@@ -119,7 +122,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm, false)
     object last extends Primitive1(fakeTerm, false)
 
-    lazy val triple = Prod("triple", fakeTerm, first | (last ~ mid ~ first) | last)
+    lazy val triple = prod("triple") { first | (last ~ mid ~ first) | last }
 
     assertFalse(triple.isEmpty)
 
@@ -140,7 +143,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm)
     object last extends Primitive1(fakeTerm)
 
-    lazy val triple = Prod("triple", fakeTerm, first | mid ~ last)
+    lazy val triple = prod("triple") { first | mid ~ last }
 
     assertFalse(triple.isEmpty)
 
@@ -161,7 +164,7 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm)
     object last extends Primitive1(fakeTerm)
 
-    lazy val triple = Prod("triple", fakeTerm, first ~ mid | last)
+    lazy val triple = prod("triple") { first ~ mid | last }
 
     assertFalse(triple.isEmpty)
 
@@ -183,15 +186,14 @@ class TestGrammar {
     object mid extends Primitive1(fakeTerm, false)
     object last extends Primitive1(fakeTerm)
 
-    lazy val prod1 = Prod("prod1", fakeTerm, first ~ mid | last)
-    lazy val prod2 = Prod("prod2", fakeTerm, false, first ~ mid | last)
-    lazy val prod3 = Prod("prod3", fakeTerm, first ~ mid | last)
-    lazy val prod4 = Prod("prod4", fakeTerm, prod1 | (prod2 ~ prod3))
+    lazy val prod1 = prod("prod1") { first ~ mid | last }
+    lazy val prod2 = prod("prod2", false) { first ~ mid | last }
+    lazy val prod3 = prod("prod3") { first ~ mid | last }
+    lazy val prod4 = prod("prod4") { prod1 | (prod2 ~ prod3) }
 
     assertFalse(prod4.isEmpty)
 
     val exp = prod4.gram
-    // println(exp)
     assertTrue(exp.name.contains("AltComp"))
     // assertTrue(exp.toString.contains("prod1"))
     assertFalse(exp.toString.contains("prod2"))

@@ -105,7 +105,7 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 
-  lazy val group = groupDef.modelGroup
+  override lazy val group = groupDef.modelGroup
 
   override lazy val termRuntimeData = group.termRuntimeData
 

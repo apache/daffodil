@@ -54,11 +54,9 @@ trait GlobalElementDeclGrammarMixin
   extends LocalElementGrammarMixin // can be repeating if not root
   { self: GlobalElementDecl =>
 
-  lazy val documentElement = Prod("documentElement", this, scalarDefaultable)
-
-  lazy val document = Prod("document", this, {
-    UnicodeByteOrderMark(this) ~ documentElement
-  })
+  lazy val document = prod("document") {
+    UnicodeByteOrderMark(this) ~ scalarDefaultable
+  }
 
 }
 

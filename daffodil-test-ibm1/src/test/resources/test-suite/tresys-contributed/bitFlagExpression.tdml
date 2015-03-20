@@ -46,7 +46,7 @@
             else fn:true() 
             }]]></dfdl:discriminator>
           <dfdl:element
-            outputValueCalc='{ if dfdl:arrayIndex(..) eq dfdl:count(..) then 0 else 1}' />
+            outputValueCalc='{ if (dfdl:occursIndex() eq fn:count(..)) then 0 else 1}' />
         </xs:appinfo>
       </xs:annotation>
     </xs:element>
@@ -72,7 +72,7 @@
           <!-- Note that the outputValueCalc can't be hidden because it references
             A1, which could be any name at all. -->
           <xs:element ref="ex:presenceBit"
-            dfdl:outputValueCalc='{ if dfdl:count(../A1) eq 0 then 0 else 1 }' />
+            dfdl:outputValueCalc='{ if (fn:count(../ex:A1) eq 0) then 0 else 1 }' />
           <xs:element name="A1" minOccurs="0" maxOccurs="10"
             dfdl:occursCountKind='parsed'>
             <xs:complexType>

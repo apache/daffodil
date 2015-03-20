@@ -684,22 +684,6 @@ object OOLAG extends Logging {
       res
     }
 
-    //    /**
-    //     * List containing value or Nil if there was an error.
-    //     * If it's an option type, then Nil if None,
-    //     * List of v if Some(v)
-    //     */
-    //    protected def toListAny = {
-    //      val res =
-    //        if (!hasValue && alreadyTriedThis) Nil
-    //        else if (isError) Nil
-    //        else valueAsAny match {
-    //          case Some(dp) => List(dp)
-    //          case None => Nil
-    //          case _ => List(valueAsAny)
-    //        }
-    //      res
-    //    }
   }
 
   /**

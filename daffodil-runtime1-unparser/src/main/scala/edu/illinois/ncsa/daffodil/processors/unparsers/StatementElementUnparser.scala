@@ -1,3 +1,4 @@
+package edu.illinois.ncsa.daffodil.processors.unparsers
 /* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
@@ -30,8 +31,6 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.processors
-
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TestKind
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
@@ -42,12 +41,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.debugger._
-import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetEvent
-import edu.illinois.ncsa.daffodil.processors.unparsers.End
-import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
-import edu.illinois.ncsa.daffodil.processors.unparsers.Start
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.Processor
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.DIElement
 
 abstract class StatementElementUnparserBase(
   rd: RuntimeData,
@@ -132,27 +129,23 @@ class StatementElementUnparser(
   }
 
   def unparseBegin(state: UState): Unit = {
-    val event: InfosetEvent = state.infosetSource.next()
-    println(this)
-    println(event)
+    val event: InfosetEvent = state.next()
     event match {
       case Start(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
-        state.currentInfosetNode = One(infoElement)
       }
-      case Start(infoArr: DIArray) => ??? // Invariant failed? Should be an array combinator, not this element ?
-      case _ => UnparseError(Nope, One(state), "Expected element start event, but received: %s", event)
+      //      case Start(infoArr: DIArray) => UE(state, "Required Start Element event, but recieved: %s.", event)
+      case _ => UnparseError(Nope, One(state), "Expected Start Element event, but received: %s.", event)
     }
   }
 
   def unparseEnd(state: UState): Unit = {
-    val event: InfosetEvent = state.infosetSource.next()
+    val event: InfosetEvent = state.next()
     event match {
       case End(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
-        state.currentInfosetNode = One(infoElement)
       }
-      case _ => UnparseError(Nope, One(state), "Expected element end event, but received: %s", event)
+      case _ => UnparseError(Nope, One(state), "Expected element end event, but received: %s.", event)
     }
     move(state)
   }

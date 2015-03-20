@@ -74,15 +74,18 @@ import scala.util.DynamicVariable
 /**
  * Some grammar rules need to be conditional based on whether we're trying
  * for a parser or an unparser.
+ *
+ * As a result, many grammar rules now have to be def, not lazy val, since
+ * they are parameterized by this.
+ *
+ * Note that using a dynamic variable doesn't work - because the time when the grammar rules
+ * are evaluated isn't necessarily within the dynamic scope of the variable
+ * binding. It might happen later.
  */
 sealed class ParserOrUnparser
 object ForParser extends ParserOrUnparser
 object ForUnparser extends ParserOrUnparser
-/**
- * this dynamic variable lets grammar rules be
- * conditional on ForParser or ForUnparser
- */
-object ForParserOrUnparser extends DynamicVariable[ParserOrUnparser](ForParser)
+object BothParserAndUnparser extends ParserOrUnparser
 
 class ProcessorFactory(val sset: SchemaSet)
   extends SchemaComponentBase(<pf/>, sset)
@@ -98,23 +101,18 @@ class ProcessorFactory(val sset: SchemaSet)
   //
   requiredEvaluations(sset)
   requiredEvaluations(rootElem)
-  requiredEvaluations(rootElem.document)
-  requiredEvaluations(rootElem.documentElement)
-  requiredEvaluations(rootElem.documentElement.gram)
   requiredEvaluations(parser)
   requiredEvaluations(unparser)
   requiredEvaluations(rootElem.runtimeData)
 
   lazy val parser = {
-    ForParserOrUnparser.withValue(ForParser) {
-      rootElem.document.parser
-    }
+    val par = rootElem.document.parser
+    par
   }
 
   lazy val unparser = {
-    ForParserOrUnparser.withValue(ForUnparser) {
-      rootElem.document.unparser
-    }
+    val unp = rootElem.document.unparser
+    unp
   }
 
   lazy val rootElem = rootElem_.value
@@ -150,8 +148,8 @@ class ProcessorFactory(val sset: SchemaSet)
       if (xpath != "/") rootElem.notYetImplemented("""Path must be "/". Other path support is not yet implemented.""")
       val validationMode = ValidationMode.Off
       val variables: VariableMap = rootElem.schemaDocument.schemaSet.variableMap
-      val p = if (rootElem.canProceed) rootElem.document.parser else null
-      val u = if (rootElem.canProceed) rootElem.document.unparser else null
+      val p = if (rootElem.canProceed) parser else null
+      val u = if (rootElem.canProceed) unparser else null
       val d = this.diagnostics
       val ssrd = new SchemaSetRuntimeData(
         p,

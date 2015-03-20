@@ -40,12 +40,30 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Choice
 
-trait ChoiceGrammarMixin { self: Choice =>
+trait ChoiceGrammarMixin extends GrammarMixin { self: Choice =>
 
-  lazy val groupContent = Prod("choiceContent", this, alternatives.foldRight(mt)(folder))
+  override lazy val groupContent = prod("choiceContent") {
+    alternatives.map { gf => gf }.foldRight(mt) { _ | _ }
+  }
 
-  def folder(p: Gram, q: Gram): Gram = p | q
+  /**
+   * When we parameterized the grammar rules so that we can have
+   * parser and unparser specific grammar rules based on this forWhat
+   * parameter, well,... lots of lazy val were converted to def, and
+   * that removed the caching behavior of the lazy vals which is critical
+   * to performance of DFDL schema compiling.
+   *
+   * If the def produces a Prod object, we're ok since that caches
+   * the values
+   *
+   * But, for things like this, which are not prod themselves
+   * but which are used heavily by the grammar, we need to explicitly
+   * cache.
+   *
+   * This makes the difference of test_json5_1 taking 5 seconds vs.
+   * running endlessly, and running out of storage.
+   */
+  private lazy val alternatives = groupMembers.map { _.asTermInChoice }
 
-  lazy val alternatives = groupMembers.map { _.asTermInChoice }
 }
 

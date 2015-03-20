@@ -84,7 +84,7 @@ class SchemaDefinitionWarning(schemaContext: Option[SchemaFileLocation],
 }
 
 class ValidationError(schemaContext: Option[SchemaFileLocation],
-  runtimeContext: PState,
+  runtimeContext: ParseOrUnparseState,
   kind: String,
   args: Any*)
   extends SchemaDefinitionDiagnosticBase(

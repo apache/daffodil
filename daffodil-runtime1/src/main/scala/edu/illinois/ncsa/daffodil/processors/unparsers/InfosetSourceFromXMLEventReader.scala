@@ -60,6 +60,13 @@ class InfosetSourceFromXMLEventReader(
 
   private val mtSeq = Seq()
 
+  override def peek = {
+    if (savedEvents =:= mtSeq) {
+      savedEvents = nextEvents
+    }
+    savedEvents.head
+  }
+
   override def next = {
     if (!(savedEvents =:= mtSeq)) {
       val thisEvent = savedEvents.head
@@ -105,13 +112,25 @@ class InfosetSourceFromXMLEventReader(
             arrayStack.push(Nope)
             Seq(Start(node))
           }
-          case Simple(ns, local, text) => {
+          case Simple(ns, local, text) if (erd.isSimpleType) => {
             nextElementResolver = erd.nextElementResolver
             val node = new DISimple(erd)
             nodeStack.top.addChild(node)
             val primType = erd.optPrimType.get
             val obj = primType.fromXMLString(text)
             node.setDataValue(obj)
+            Seq(Start(node), End(node))
+          }
+          case Simple(ns, local, text) if (erd.isComplexType) => {
+            //
+            // This case comes up when a complexType has only an array child
+            // and that array has zero elements. The non-schema-aware
+            // XML stuff can't tell the difference between this and an 
+            // element with simple content
+            //
+            nextElementResolver = erd.nextElementResolver
+            val node = new DIComplex(erd)
+            nodeStack.top.addChild(node)
             Seq(Start(node), End(node))
           }
           case NilElt(ns, local) => {

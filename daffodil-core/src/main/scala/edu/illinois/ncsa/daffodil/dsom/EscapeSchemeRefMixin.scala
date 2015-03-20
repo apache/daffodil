@@ -44,9 +44,8 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.util._
 import com.ibm.icu.text.NumberFormat
 import java.math.BigInteger
-import edu.illinois.ncsa.daffodil.grammar.GrammarMixin
 
-trait EscapeSchemeRefMixin extends GrammarMixin { self: AnnotatedSchemaComponent =>
+trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
   /**
    * Changed to use findProperty, and to resolve the namespace properly.
    *

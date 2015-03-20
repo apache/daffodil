@@ -45,6 +45,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram) {

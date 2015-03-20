@@ -404,8 +404,6 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  lazy val gram = this
-
   def parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
     justificationTrim,

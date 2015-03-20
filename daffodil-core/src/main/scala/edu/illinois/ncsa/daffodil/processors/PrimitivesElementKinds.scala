@@ -55,6 +55,8 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
   val isLengthKindDelimited =
@@ -83,7 +85,7 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
 
 case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
-  val schemeOpt = e.optionEscapeScheme.map{_.escapeScheme}
+  val schemeOpt = e.optionEscapeScheme.map { _.escapeScheme }
 
   def parser: DaffodilParser = new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
   override def unparser: DaffodilUnparser = new EscapeSchemeStackUnparser(schemeOpt, e.runtimeData, body.unparser)
@@ -92,7 +94,8 @@ case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extend
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {
 
   def parser: DaffodilParser = new ComplexTypeParser(ct.runtimeData, body.parser)
-  override def unparser: DaffodilUnparser = new ComplexTypeUnparser(ct.runtimeData, body.unparser)
+  override def unparser: DaffodilUnparser =
+    new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
 case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
@@ -104,6 +107,7 @@ case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !bo
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
 
   def parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
+  override def unparser: Unparser = new ArrayCombinatorUnparser(e.elementRuntimeData, body.unparser)
 
 }
 

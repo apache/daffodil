@@ -37,8 +37,8 @@ class ElementOutputValueCalcUnparser(context: ElementRuntimeData, expr: Compiled
    * required defaultable elements.
    */
   def pullInfosetEventsUntilAbleToProceed(ustate: UState): Unit = {
-    while (ustate.infosetSource.hasNext) {
-      val nextEvent = ustate.infosetSource.next()
+    while (ustate.hasNext) {
+      val nextEvent = ustate.next()
       val isNode = nextEvent.node
       handleDefaultable(isNode, ustate)
     }

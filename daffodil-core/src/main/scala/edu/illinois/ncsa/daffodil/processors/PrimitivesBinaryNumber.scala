@@ -95,7 +95,6 @@ abstract class BinaryNumberBase[T](val e: ElementBase) extends Terminal(e, true)
 
   //def getNum(t: Number): BigInt
   override def toString = "binary(xs:" + primName + ", " + label + ")"
-  lazy val gram = this
 
   protected lazy val GramName = e.primType.name
   protected lazy val GramDescription = { GramName(0).toUpper + GramName.substring(1, GramName.length) }

@@ -163,8 +163,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   def group = this
 
-  lazy val groupMembers = groupMembers_.value
-  private val groupMembers_ = LV('groupMembers) {
+  final lazy val groupMembers = {
     pairs.flatMap {
       case (n, i) =>
         termFactory(n, this, i)

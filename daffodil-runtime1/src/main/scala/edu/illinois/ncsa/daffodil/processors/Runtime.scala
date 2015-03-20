@@ -78,6 +78,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -297,6 +298,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       // Debugger.init(ssrd.parser)
       unparse(initialState)
       initialState.unparseResult
+    } catch {
+      case ue: UnparseError => {
+        initialState.addUnparseError(ue)
+        initialState.unparseResult
+      }
     } finally {
       // Debugger.fini(ssrd.parser)
     }

@@ -22,19 +22,44 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
+import edu.illinois.ncsa.daffodil.processors.DIArray
+import edu.illinois.ncsa.daffodil.dsom.ValidationError
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
 case object AccumulateNodesMode extends UnparserMode
 
 class UState(
-  var infosetSource: InfosetSource, vmap: VariableMap, diagnosticsArg: List[Diagnostic],
+  infosetSource: InfosetSource, vmap: VariableMap, diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor, var outStream: OutStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
-  with ThrowsSDE with SavesErrorsAndWarnings {
+  with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  def peekArrayEnd = {
+    peek match {
+      case End(a: DIArray) => true
+      case _ => false
+    }
+  }
+
+  private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope
+  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) Nope else currentInfosetNodeStack.top
+  def currentInfosetEvent = currentInfosetEvent_
+
+  def hasNext = infosetSource.hasNext
+
+  def peek = infosetSource.peek
+
+  def next = {
+    val ev = infosetSource.next
+    currentInfosetEvent_ = One(ev)
+    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.pop
+    currentInfosetNodeStack.push(One(ev.node))
+    ev
+  }
 
   def lengthInBytes: Long = ???
-  var currentInfosetNode: Maybe[DINode] = Nope
+
   var mode: UnparserMode = UnparseMode
 
   def thisElement: InfosetElement = currentInfosetNode.get.asInstanceOf[InfosetElement]
@@ -60,6 +85,8 @@ class UState(
 
   def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, outStream)
 
+  val currentInfosetNodeStack = Stack[Maybe[DINode]]()
+
   val arrayIndexStack = Stack[Long](1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
@@ -79,6 +106,7 @@ class UState(
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
   }
+  def occursBounds = occursBoundsStack.top
 
   def bitPos0b = outStream.bitPos0b
   def bitLimit0b = outStream.bitLimit0b
@@ -88,6 +116,11 @@ class UState(
   def bitLimit1b = bitLimit0b + 1
   def whichBit0b = bitPos0b % 8
 
+  def validationError(msg: String, args: Any*) {
+    val ctxt = getContext()
+    val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
+    diagnostics = vde :: diagnostics
+  }
 }
 
 object UState {

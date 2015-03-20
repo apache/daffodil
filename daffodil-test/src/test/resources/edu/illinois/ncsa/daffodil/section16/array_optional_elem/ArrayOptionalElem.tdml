@@ -345,8 +345,8 @@
           <xs:element name="a2">
             <xs:complexType>
               <xs:sequence dfdl:separator=".">
-                <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort " 
-                    maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (/ex:e3/ex:a1 eq b) then bigEndian else littleEndian }"/>
+                <xs:element name="num" dfdl:representation="binary" type="xs:unsignedShort" 
+                    maxOccurs="1" dfdl:lengthKind="implicit" dfdl:byteOrder="{ if (/ex:e3/ex:a1 eq b) then 'bigEndian' else 'littleEndian' }"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>

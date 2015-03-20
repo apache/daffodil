@@ -415,7 +415,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *
    * If a choice had many many disjoint children, then probably a map should be
    * used, not an array (as the infoset representation) so as to avoid wasting
-   * all the slot space in these objects. This would stil be constant-time access,
+   * all the slot space in these objects. This would still be constant-time access,
    * just with a larger constant overhead. It's a time/space tradeoff.
    */
   lazy val nChildSlots: Int = {

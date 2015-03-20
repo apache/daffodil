@@ -40,25 +40,25 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Sequence
 
-trait SequenceGrammarMixin { self: Sequence =>
+trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
 
-  lazy val groupContent = {
+  override lazy val groupContent = prod("groupContent") {
     self.sequenceKind match {
       case SequenceKind.Ordered => orderedSequenceContent
       case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
     }
   }
 
-  lazy val orderedSequenceContent = Prod("sequenceContent", this, SequenceCombinator(this, terms.foldRight(mt)(folder)))
-
-  lazy val unorderedSequenceContent = {
-    val uoseq = self.unorderedSeq.get
-    Prod("unorderedSequenceContent", this, SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt)(folder))))
+  private lazy val orderedSequenceContent = prod("sequenceContent") {
+    SequenceCombinator(this, terms.foldRight(mt) { _ ~ _ })
   }
 
-  def folder(p: Gram, q: Gram): Gram = p ~ q
+  private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
+    val uoseq = self.unorderedSeq.get
+    SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt) { _ ~ _ }))
+  }
 
-  lazy val terms = groupMembers.map { _.asTermInSequence }
+  private lazy val terms = groupMembers.map { _.asTermInSequence }
 
   /**
    * These are static properties even though the delimiters can have runtime-computed values.
