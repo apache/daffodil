@@ -25,8 +25,8 @@ class TestDsomCompilerUnparse1 {
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
-      </xs:element>)
-    val infoset = <e1><s1>1</s1><s2>2</s2></e1>
+      </xs:element>, elementFormDefault = "unqualified")
+    val infoset = <ex:e1 xmlns:ex={ example }><s1>1</s1><s2>2</s2></ex:e1>
     TestUtils.testUnparsing(sch, infoset, "12")
   }
 
