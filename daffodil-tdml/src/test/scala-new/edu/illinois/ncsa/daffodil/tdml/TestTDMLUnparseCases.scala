@@ -48,7 +48,7 @@ class TestTDMLUnparseCases {
     val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.name == "test1" }.get
     println(tc)
     val doc = tc.document
-    val is = tc.infoset
+    val is = tc.inputInfoset
     println(is)
     val bar = is.dfdlInfoset.rawContents
     val scala.xml.Elem(pre, label, _, _, child) = bar
