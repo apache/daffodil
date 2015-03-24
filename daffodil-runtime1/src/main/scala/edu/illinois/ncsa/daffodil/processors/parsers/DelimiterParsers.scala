@@ -148,6 +148,12 @@ class DelimiterTextParser(
   with RuntimeEncodingMixin {
 
   Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
+
+  override lazy val nom = kindString
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    if (depthLimit == 0) "..."
+    else "<" + nom + ">" + delimExpr + "</" + nom + ">"
+  }
   override def toString = kindString + "('" + delimExpr + "')"
 
   override def parse(start: PState): PState = withParseErrorThrowing(start) {
