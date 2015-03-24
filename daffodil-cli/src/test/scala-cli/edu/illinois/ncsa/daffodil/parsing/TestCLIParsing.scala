@@ -52,12 +52,10 @@ class TestCLIparsing {
   val output1 = Util.getExpectedString("output1.txt")
   val output2 = Util.getExpectedString("output2.txt")
   val output4 = Util.getExpectedString("output4.txt")
-  val output5 = Util.getExpectedString("output5.txt")
   val output6 = Util.getExpectedString("output6.txt")
   val output8 = Util.getExpectedString("output8.txt")
   val output9 = Util.getExpectedString("output9.txt")
   val output10 = Util.getExpectedString("output10.txt")
-  val output11 = Util.getExpectedString("output11.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
   @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
@@ -71,8 +69,7 @@ class TestCLIparsing {
     try {
       var cmd = String.format("echo 0| %s parse -s %s -r row -D\"{http://example.com}var1=99\" -c %s", Util.binPath, testSchemaFile, testConfigFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row"))
-      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>99</cell>"))
 
       shell.send("exit\n")
@@ -103,14 +100,12 @@ class TestCLIparsing {
       shell.sendLine();
       cmd = String.format("echo 0| %s parse --parser %s\n", Util.binPath, savedParser)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row"))
-      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>99</cell>"))
       
       cmd = String.format("echo 0| %s parse --parser %s -D\"{http://example.com}var1=55\"", Util.binPath, savedParser)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row"))
-      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>55</cell>"))
 
       shell.send("exit\n")
@@ -132,7 +127,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2| %s parse -s %s -r row2 -c %s", Util.binPath, testSchemaFile, testConfigFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row2"))
       shell.expect(contains(output12))
 
       shell.sendLine("exit")
@@ -160,14 +154,12 @@ class TestCLIparsing {
 
       cmd = String.format("echo 0| %s parse --parser %s", Util.binPath, savedParser)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row"))
-      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>-1</cell>"))
 
       cmd = String.format("echo 0| %s parse --parser %s -D\"{http://example.com}var1=55\"", Util.binPath, savedParser)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row"))
-      shell.expect(contains("xmlns:tns=\"http://example.com\""))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>55</cell>"))
 
       shell.send("exit\n")
@@ -246,7 +238,6 @@ class TestCLIparsing {
       val cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<rabbitHole"))
       shell.expect(contains(output10))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -264,7 +255,6 @@ class TestCLIparsing {
       var cmd = String.format("echo test| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<rabbitHole"))
       shell.expect(contains(output10))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -282,7 +272,6 @@ class TestCLIparsing {
       val cmd = String.format("echo abcabcabc| %s parse -s %s -r ABC", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<ABC"))
       shell.expect(contains(output8))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -300,7 +289,6 @@ class TestCLIparsing {
       val cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
 
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -344,7 +332,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -363,7 +350,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s -r matrix -o - %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -381,7 +367,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3| %s parse -s %s -r matrix -", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output2))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -439,7 +424,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo 0,1,2,3| %s parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output2))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -540,7 +524,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s -r {}address %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<address"))
       shell.expect(contains(output4))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -559,7 +542,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s -r {target}matrix %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output6))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -578,7 +560,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s --root {target}matrix %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output6))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -600,7 +581,7 @@ class TestCLIparsing {
       val cmd = if (Util.isWindows) cmdWindows else cmdLinux
 
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:hcp2"))
+      shell.expect(contains("<tns:hcp2 xmlns:tns=\"http://www.example.org/example1/\">"))
       shell.expect(contains("12"))
       shell.expect(contains("</tns:hcp2>"))
       shell.sendLine("exit")
@@ -620,7 +601,6 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<address"))
       shell.expect(contains(output4))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -638,7 +618,6 @@ class TestCLIparsing {
     try {
       var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate on", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -656,7 +635,6 @@ class TestCLIparsing {
     try {
       var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -674,7 +652,6 @@ class TestCLIparsing {
     try {
       var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate limited", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -692,7 +669,6 @@ class TestCLIparsing {
     try {
       var cmd = String.format("echo 0,1,2| %s parse -s %s -r matrix --validate off", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof)
@@ -761,7 +737,6 @@ class TestCLIparsing {
       try {
         println("Run " + x + " of 10")
         shell.sendLine(cmd)
-        shell.expect(contains("<address"))
         shell.expect(contains(output4))
         shell.sendLine("exit")
         shell.expect(eof)
@@ -844,7 +819,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:elem"))
+      shell.expect(contains("<tns:elem xmlns:tns=\"http://baseSchema.com\">"))
       shell.expect(contains("<content"))
       shell.expect(contains("Hello World"))
       shell.expect(contains("</tns:elem>"))
@@ -865,7 +840,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("%s parse -s %s %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:elem"))
+      shell.expect(contains("<tns:elem xmlns:tns=\"http://baseSchema.com\">"))
       shell.expect(contains("<content"))
       shell.expect(contains("Hello World"))
       shell.expect(contains("</tns:elem>"))
