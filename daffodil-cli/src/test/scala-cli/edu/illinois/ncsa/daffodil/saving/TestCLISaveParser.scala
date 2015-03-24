@@ -279,7 +279,7 @@ class TestCLISaveParser {
       shell.sendLine(cmd)
 
       shell.expect(contains("[error]"))
-      shell.expect(contains("The validation mode 'Full' is invalid when using a saved parser."))
+      shell.expect(contains("The validation mode 'on' is invalid when using a saved parser."))
 
       shell.sendLine("exit")
       shell.expect(eof())

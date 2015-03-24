@@ -305,7 +305,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     }
 
     validateOpt(parser, validate) {
-      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode 'Full' is invalid when using a saved parser.")
+      case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode 'on' is invalid when using a saved parser.")
       case _ => Right(Unit)
     }
   }
