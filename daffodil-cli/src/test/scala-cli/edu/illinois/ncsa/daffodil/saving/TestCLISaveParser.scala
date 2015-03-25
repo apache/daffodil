@@ -79,7 +79,6 @@ class TestCLISaveParser {
 
       var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof())
@@ -105,7 +104,7 @@ class TestCLISaveParser {
       assertTrue("save-parser failed", parserFile.exists())
       var parseCmd = String.format("echo 0,1,2| %s parse --parser %s\n", Util.binPath, savedParser)
       shell.send(parseCmd)
-      shell.expect(contains("<tns:row"))
+      shell.expect(contains("<tns:row xmlns:tns=\"http://example.com\">"))
       shell.expect(contains("<cell>0</cell>"))
       shell.expect(contains("<cell>-1</cell>"))
       shell.expect(contains("<cell>-2</cell>"))
@@ -130,7 +129,6 @@ class TestCLISaveParser {
       String.format("%s save-parser -s %s -r row2 -c %s %s", Util.binPath, testSchemaFile, testConfigFile, savedParserFile.getName()) !
       var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:row2"))
       shell.expect(contains(output12))
 
       shell.sendLine("exit")
@@ -153,7 +151,6 @@ class TestCLISaveParser {
 
       var cmd = String.format("%s parse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output6))
 
       shell.sendLine("exit\n")
@@ -174,7 +171,6 @@ class TestCLISaveParser {
 
       var cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
       shell.sendLine("exit")
       shell.expect(eof())
@@ -255,7 +251,6 @@ class TestCLISaveParser {
       val cmd = String.format("echo 0,1,2| %s parse --parser %s", Util.binPath, savedParserFile.getName())
       shell.sendLine(cmd)
 
-      shell.expect(contains("<tns:matrix"))
       shell.expect(contains(output1))
 
       shell.sendLine("exit")
