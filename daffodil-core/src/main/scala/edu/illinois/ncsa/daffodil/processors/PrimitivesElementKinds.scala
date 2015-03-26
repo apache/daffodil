@@ -57,6 +57,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
   val isLengthKindDelimited =
@@ -65,6 +66,9 @@ case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Te
 
   def parser: DaffodilParser = new DelimiterStackParser(Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
     sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, isLengthKindDelimited, sq.runtimeData, body.parser)
+
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(sq.outputNewLine, Some(sq.initiator), Some(sq.separator), Some(sq.terminator),
+    sq.initiatorLoc, Some(sq.separatorLoc), sq.terminatorLoc, isLengthKindDelimited, sq.runtimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Terminal(ch, !body.isEmpty) {
@@ -74,6 +78,9 @@ case class DelimiterStackCombinatorChoice(ch: Choice, body: Gram) extends Termin
 
   def parser: DaffodilParser = new DelimiterStackParser(Some(ch.initiator), None, Some(ch.terminator),
     ch.initiatorLoc, None, ch.terminatorLoc, isLengthKindDelimited, ch.runtimeData, body.parser)
+
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(ch.outputNewLine, Some(ch.initiator), None, Some(ch.terminator),
+    ch.initiatorLoc, None, ch.terminatorLoc, isLengthKindDelimited, ch.runtimeData, body.unparser)
 }
 
 case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -81,6 +88,9 @@ case class DelimiterStackCombinatorElement(e: ElementBase, body: Gram) extends T
 
   def parser: DaffodilParser = new DelimiterStackParser(Some(e.initiator), None, Some(e.terminator),
     e.initiatorLoc, None, e.terminatorLoc, isLengthKindDelimited, e.runtimeData, body.parser)
+
+  override def unparser: DaffodilUnparser = new DelimiterStackUnparser(e.outputNewLine, Some(e.initiator), None, Some(e.terminator),
+    e.initiatorLoc, None, e.terminatorLoc, isLengthKindDelimited, e.runtimeData, body.unparser)
 }
 
 case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {

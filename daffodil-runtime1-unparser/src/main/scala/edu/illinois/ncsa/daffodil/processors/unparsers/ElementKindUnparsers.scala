@@ -37,6 +37,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
@@ -64,6 +65,55 @@ class SequenceCombinatorUnparser(rd: RuntimeData, bodyUnparser: Unparser)
     bodyUnparser.unparse1(start, rd)
     start.groupIndexStack.pop()
     start.moveOverOneGroupIndexOnly()
+  }
+}
+
+class DelimiterStackUnparser(outputNewLine: CompiledExpression,
+  initiatorOpt: Option[CompiledExpression],
+  separatorOpt: Option[CompiledExpression],
+  terminatorOpt: Option[CompiledExpression],
+  initiatorLoc: (String, String),
+  separatorLocOpt: Option[(String, String)],
+  terminatorLoc: (String, String),
+  isLengthKindDelimited: Boolean,
+  rd: RuntimeData,
+  bodyUnparser: Unparser)
+  extends Unparser(rd) with EvaluatesStaticDynamicTextUnparser {
+  override def nom = "DelimiterStack"
+
+  override def toBriefXML(depthLimit: Int = -1): String = {
+    if (depthLimit == 0) "..." else
+      "<DelimiterStack initiator='" + initiatorOpt +
+        "' separator='" + separatorOpt +
+        "' terminator='" + terminatorOpt + "'>" +
+        bodyUnparser.toBriefXML(depthLimit - 1) +
+        "</DelimiterStack>"
+  }
+
+  val (staticInits, dynamicInits) = getStaticAndDynamicText(initiatorOpt, outputNewLine, context)
+  val (staticSeps, dynamicSeps) = getStaticAndDynamicText(separatorOpt, outputNewLine, context, isLengthKindDelimited)
+  val (staticTerms, dynamicTerms) = getStaticAndDynamicText(terminatorOpt, outputNewLine, context, isLengthKindDelimited)
+
+  override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
+
+  def unparse(start: UState): Unit = {
+    // Evaluate Delimiters
+    val init = if (staticInits.isDefined) staticInits else evaluateDynamicText(dynamicInits, outputNewLine, start, context, false)
+    val sep = if (staticSeps.isDefined) staticSeps else evaluateDynamicText(dynamicSeps, outputNewLine, start, context, isLengthKindDelimited)
+    val term = if (staticTerms.isDefined) staticTerms else evaluateDynamicText(dynamicTerms, outputNewLine, start, context, isLengthKindDelimited)
+
+    val node = DelimiterStackUnparseNode(init,
+      sep,
+      term,
+      { if (!init.isDefined) Nope else One(initiatorLoc) },
+      separatorLocOpt,
+      { if (!term.isDefined) Nope else One(terminatorLoc) })
+
+    start.pushDelimiters(node)
+
+    bodyUnparser.unparse1(start, rd)
+
+    start.popDelimiters
   }
 }
 

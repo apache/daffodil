@@ -24,6 +24,9 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import scala.collection.mutable.ArrayStack
+import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
+import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -106,7 +109,13 @@ class UState(
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
   }
+
   def occursBounds = occursBoundsStack.top
+  
+  val delimiterStack = new ArrayStack[DelimiterStackUnparseNode]()
+  def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
+  def popDelimiters() = delimiterStack.pop
+  def localDelimiters = delimiterStack.top
 
   def bitPos0b = outStream.bitPos0b
   def bitLimit0b = outStream.bitLimit0b

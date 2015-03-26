@@ -36,12 +36,12 @@ package edu.illinois.ncsa.daffodil.processors
 
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
 import scala.collection.mutable.Queue
 import scala.util.control.Breaks
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 object DelimiterType extends Enum {
   sealed abstract trait Type extends EnumValueType
@@ -391,6 +391,7 @@ abstract class DelimBase extends Base {
   override def toString(): String = {
     return typeName
   }
+  def unparseValue(outputNewLine: String): String
 }
 
 trait Base {
@@ -428,6 +429,8 @@ class CharDelim(val char: Char) extends DelimBase {
   override def toString(): String = {
     return typeName + "[" + char + "]"
   }
+  
+  def unparseValue(outputNewLine: String): String = char.toString
 }
 
 trait CharacterClass {
@@ -486,6 +489,10 @@ class NLDelim extends DelimBase with NL {
     val res = typeName
     res
   }
+  
+  def unparseValue(outputNewLine: String) = {
+    outputNewLine
+  }
 }
 
 trait WSP extends CharacterClass {
@@ -527,7 +534,7 @@ trait WSP extends CharacterClass {
     LSP, PSP, NARROW, MED, IDE)
 }
 
-class WSPBase extends DelimBase with WSP {
+abstract class WSPBase extends DelimBase with WSP {
   lazy val typeName = "WSPBase"
   def checkMatch(charIn: Char): Boolean = {
     charIn match {
@@ -557,6 +564,7 @@ class WSPDelim extends WSPBase with WSP {
     val res = typeName
     res
   }
+  def unparseValue(outputNewLine: String): String = SPACE.toString
 }
 
 class WSPPlusDelim extends WSPBase with WSP {
@@ -568,6 +576,7 @@ class WSPPlusDelim extends WSPBase with WSP {
     val res = typeName
     res
   }
+  def unparseValue(outputNewLine: String): String = SPACE.toString
 }
 
 class WSPStarDelim extends WSPBase with WSP {
@@ -579,4 +588,6 @@ class WSPStarDelim extends WSPBase with WSP {
     val res = typeName
     res
   }
+  
+  def unparseValue(outputNewLine: String): String = ""
 }

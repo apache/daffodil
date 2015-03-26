@@ -29,7 +29,7 @@
 				calendarPatternKind="implicit" calendarPattern="yyyymmddhhmmss" calendarCheckPolicy="lax" 
 				calendarTimeZone="UTC" calendarObserveDST="yes" 
 				calendarFirstDayOfWeek="Wednesday" calendarDaysInFirstWeek="7" calendarCenturyStart="50" 
-				calendarLanguage="it-IT"
+				calendarLanguage="it-IT" outputNewLine="%LF;"
 				/>
 
 		</xs:appinfo>

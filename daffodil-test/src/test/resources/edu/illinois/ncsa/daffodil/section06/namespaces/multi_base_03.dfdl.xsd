@@ -39,7 +39,7 @@
       <dfdl:format sequenceKind='ordered' bitOrder="mostSignificantBitFirst" encodingErrorPolicy="replace" separator="'" initiator="" terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"
-        alignment="implicit" alignmentUnits="bytes" trailingSkip="0"/>
+        alignment="implicit" alignmentUnits="bytes" trailingSkip="0" outputNewLine="%LF;"/>
     </xs:appinfo>
   </xs:annotation>
    

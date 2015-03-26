@@ -33,6 +33,7 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
+import edu.illinois.ncsa.daffodil.processors.Delimiter
 
 object CreatePaddingDFA {
 
@@ -51,5 +52,27 @@ object CreatePaddingDFA {
     allStates.insert(0, startState)
 
     new DFADelimiterImpl(allStates.toArray, padChar.toString())
+  }
+
+  /**
+   * Constructs a DFADelimiter object that specifically
+   * looks for padChar.
+   */
+  def apply(padChar: Char, outputNewLine: String): DFADelimiter = {
+    // TODO: In the future we will need to change this because the padChar isn't necessarily a char. 
+    // One can use it to specify a numeric byte to be used to pad as well.
+
+    val allStates: ArrayBuffer[State] = ArrayBuffer.empty
+
+    val startState = new StartStatePadding(allStates, padChar)
+
+    allStates.insert(0, startState)
+
+    val d = new Delimiter()
+    d.compile(padChar.toString)
+
+    val unparseValue = d.delimBuf.map { _.unparseValue("") }.mkString
+
+    new DFADelimiterImplUnparse(allStates.toArray, padChar.toString(), unparseValue)
   }
 }

@@ -36,7 +36,7 @@ Copyright © Open Grid Forum, (2006-2010).  All Rights Reserved.
 				representation="text" separatorSuppressionPolicy="trailingEmpty"
 				textPadKind="none" textTrimKind="none" textStringJustification="right"
 				leadingSkip="0" trailingSkip="0"
-                bitOrder="mostSignificantBitFirst"/>
+                bitOrder="mostSignificantBitFirst" outputNewLine="%LF;"/>
       </xs:appinfo>
    </xs:annotation>
 

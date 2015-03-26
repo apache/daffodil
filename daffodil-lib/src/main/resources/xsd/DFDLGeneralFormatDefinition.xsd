@@ -145,6 +145,8 @@ choiceLengthKind="implicit"
 initiator="" terminator="" documentFinalTerminatorCanBeMissing="no"
 emptyValueDelimiterPolicy="none"
 
+outputNewLine="%LF;"
+
 nilKind="literalValue" useNilForDefault="no" nilValue="NIL"
 nilValueDelimiterPolicy="none"
 

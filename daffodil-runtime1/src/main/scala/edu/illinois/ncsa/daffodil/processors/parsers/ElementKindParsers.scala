@@ -47,7 +47,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
-import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicText
+import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicTextParser
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.EscapeScheme
@@ -93,7 +93,7 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
   isLengthKindDelimited: Boolean,
   rd: RuntimeData, bodyParser: Parser)
   extends PrimParser(rd)
-  with EvaluatesStaticDynamicText {
+  with EvaluatesStaticDynamicTextParser {
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
@@ -148,7 +148,7 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
 class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
   rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd)
-  with EvaluatesStaticDynamicText {
+  with EvaluatesStaticDynamicTextParser {
   
   override lazy val childProcessors = Seq(bodyParser)
 

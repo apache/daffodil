@@ -37,7 +37,6 @@ import java.nio.ByteBuffer
 import scala.collection.mutable.Queue
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.grammar.Gram
-
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.compiler._
@@ -48,6 +47,7 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.grammar.Gram
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
@@ -55,6 +55,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.YesNo
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
+import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
 
 trait ComputesValueFoundInstead {
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
@@ -194,6 +195,7 @@ abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression, 
   def delimiterType: DelimiterTextType.Type
 
   override lazy val parser: DaffodilParser = new DelimiterTextParser(e.runtimeData, delimExpr, kindString, textParser, positionalInfo, e.encodingInfo, delimiterType)
+  override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.runtimeData, delimExpr, e.encodingInfo, delimiterType)
 }
 
 case class Initiator(e: Term) extends DelimiterText("Init", e.initiator, e, e) {

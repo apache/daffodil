@@ -24,7 +24,7 @@
 				sequenceKind="ordered" escapeSchemeRef="" separator="~"
 				separatorPosition="infix" separatorSuppressionPolicy="never" 
 				alignment="1" alignmentUnits="bytes" fillByte="f"
-				occursCountKind="implicit"
+				occursCountKind="implicit" outputNewLine="%LF;"
 				/>
 		</xs:appinfo>
 	</xs:annotation>

@@ -36,6 +36,14 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.dfa.StateKind.StateKind
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.processors.DelimBase
+import edu.illinois.ncsa.daffodil.processors.NLDelim
+import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * In order to be very fast, a DFA should run without allocating
@@ -90,6 +98,13 @@ trait DFA {
 }
 
 class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
+  extends DFADelimiter
+  with Serializable {
+  
+  def unparseValue: String = Assert.invariantFailed("Parser should not ask for unparseValue")
+
+}
+class DFADelimiterImplUnparse(val states: Array[State], val lookingFor: String, val unparseValue: String)
   extends DFADelimiter
   with Serializable {
 
@@ -156,6 +171,8 @@ trait DFAField extends DFA {
 trait DFADelimiter extends DFA {
   def lookingFor: String
   override def toString(): String = "<DFA lookingFor='%s' />".format(lookingFor)
+
+  def unparseValue: String
 }
 
 /**
