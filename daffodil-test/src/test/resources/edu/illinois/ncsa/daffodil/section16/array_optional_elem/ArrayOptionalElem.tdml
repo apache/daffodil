@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -367,6 +367,21 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="|" dfdl:separatorPosition="infix">
+          <xs:element name="initiatorArray" type="xs:string" dfdl:lengthKind="explicit" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:length="1"/>
+          <xs:element name="dataArray" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed">
+            <xs:complexType>
+              <xs:sequence dfdl:initiator="{ daf:trace(xs:string(/ex:e5/ex:initiatorArray[daf:trace(xs:int(dfdl:occursIndex()), 'index')]), 'initiator') }" dfdl:separator=",">
+                <xs:element name="num" type="xs:int" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" dfdl:lengthKind="delimited"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -568,6 +583,44 @@
           <num>5</num>
           <num>6</num>
         </e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: arrayExpressions05
+        Schema: arrayExpressions
+       Purpose: This test demonstrates that when an expression is used to represent a DFDL property of an array element,
+                the expression is evaluated for each occurrence. In this case the property is dfdl:initiator.
+-->
+
+  <tdml:parserTestCase name="arrayExpressions05" model="arrayExpressions" root="e5"
+        description="Section 16 - Arrays with DFDL Expression re-evaluated for each occurrence - DFDL-16-023R">
+    <tdml:document>
+      <tdml:documentPart type="text">;|-|#|;1,2,3|-1,2,3|#3,9,1</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e5>
+          <initiatorArray>;</initiatorArray>
+          <initiatorArray>-</initiatorArray>
+          <initiatorArray>#</initiatorArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>1</num>
+            <num>2</num>
+            <num>3</num>
+          </dataArray>
+          <dataArray>
+            <num>3</num>
+            <num>9</num>
+            <num>1</num>
+          </dataArray>
+        </e5>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

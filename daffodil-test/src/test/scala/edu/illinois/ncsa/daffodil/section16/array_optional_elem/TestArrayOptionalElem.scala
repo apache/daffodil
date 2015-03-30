@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -50,13 +50,13 @@ class TestArrayOptionalElem {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
-  // DFDL-886
-  //  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
+  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
   @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }
   @Test def test_arrayExpressions02c() { runner.runOneTest("arrayExpressions02c") }
   @Test def test_arrayExpressions02d() { runner.runOneTest("arrayExpressions02d") }
   //  @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   @Test def test_arrayExpressions04() { runner.runOneTest("arrayExpressions04") }
+  @Test def test_arrayExpressions05() { runner.runOneTest("arrayExpressions05") }
 
   @Test def test_error01() { runner.runOneTest("error01") }
   @Test def test_postfixNoErr() { runner.runOneTest("postfixNoErr") }

@@ -1,6 +1,6 @@
 package edu.illinois.ncsa.daffodil.section16.array_optional_elem
 
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -49,6 +49,4 @@ class TestArrayOptionalElemNew {
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  // DFDL-886
-  @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
 }
