@@ -96,6 +96,9 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
     res
   }.value
 
+  override lazy val runtimeData = referencedElement.runtimeData
+  override def erd = referencedElement.erd
+
   // These will just delegate to the referenced element declaration
   def isNillable = referencedElement.isNillable
   def isSimpleType = referencedElement.isSimpleType

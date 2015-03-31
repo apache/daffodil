@@ -329,4 +329,38 @@ class TestInfosetSourceFromXMLEventReader {
     assertTrue(baz_s.dataValueAsString =:= "Yadda")
     assertEquals(bar_s.toXML(), infosetXML)
   }
+
+  @Test def testInfosetComplexPeek1() {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="bar" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="foo" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val infosetXML = <bar xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><foo>Hello</foo></bar>
+    val is = infosetSource(sch, infosetXML)
+    val Start(bar_s1: DIComplex) = is.peek
+    val Start(bar_s2: DIComplex) = is.peek
+    val Start(bar_s3: DIComplex) = is.next
+    val Start(foo_s1: DISimple) = is.peek
+    val Start(foo_s2: DISimple) = is.next
+    val End(foo_e: DISimple) = is.next
+    val End(bar_e1: DIComplex) = is.peek
+    assertTrue(is.hasNext)
+    val End(bar_e2: DIComplex) = is.next
+    assertFalse(is.hasNext)
+    assertTrue(bar_s1 eq bar_s2)
+    assertTrue(bar_s2 eq bar_s3)
+    assertTrue(bar_e1 eq bar_e2)
+    assertTrue(bar_s1 eq bar_e1) // exact same object
+    assertTrue(foo_s1 eq foo_s2)
+    assertTrue(foo_s1 eq foo_e)
+    assertTrue(foo_s1.dataValue.isInstanceOf[String])
+    assertTrue(foo_s1.dataValueAsString =:= "Hello")
+    assertEquals(bar_s1.toXML(), infosetXML)
+  }
+
 }

@@ -243,8 +243,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    */
   private lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
 
-  final override lazy val runtimeData: RuntimeData = elementRuntimeData
-  final override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
+  override lazy val runtimeData: RuntimeData = elementRuntimeData
+  override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
   final lazy val defaultValue =
     if (isDefaultable && (isScalar || isRequiredArrayElement)) {
@@ -256,47 +256,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   private lazy val isRequiredNonDefaultable: Boolean = !isDefaultable
 
-  private lazy val possibleNextChildrenElementsForUnparse: Seq[ElementBase] = {
-    if (elementChildren.length =:= 0) Nil
-    else {
-      val following = elementChildren
-      //
-      // if we encounter a non-defaultable required element,
-      // then that element is possible as a next element, but nothing after it.
-      //
-      val locationOfNonDefaultable = following.indexWhere { _.isRequiredNonDefaultable }
-      val upToLimit =
-        if (locationOfNonDefaultable =#= -1) following
-        else following.take(locationOfNonDefaultable + 1)
-      upToLimit
-    }
-  }
+  private def possibleNextChildrenElementsForUnparse: Seq[ElementBase] =
+    couldBeFirstChildElementInInfoset
 
-  private lazy val possibleNextElementsForUnparse: Seq[ElementBase] = {
-    val arrayNext = if (isArray) Seq(this) else Nil
-    val nextInGroup = laterElementSiblings
-    //
-    // use a stream here so we only build this in-order traversal for as
-    // far as we actually need it.
-    //
-    val nextAfterGroup: Seq[ElementBase] =
-      enclosingTerm.map {
-        _.laterElementSiblings.flatMap {
-          _.possibleNextElementsForUnparse
-        }
-      }.getOrElse(Nil)
+  private def possibleNextElementsForUnparse: Seq[ElementBase] =
+    couldBeNextElementInInfoset
 
-    val following = nextInGroup ++ nextAfterGroup
-    //
-    // if we encounter a non-defaultable required element,
-    // then that element is possible as a next element, but nothing after it.
-    //
-    val locationOfNonDefaultable = following.indexWhere { _.isRequiredNonDefaultable }
-    val upToLimit =
-      if (locationOfNonDefaultable =#= -1) following
-      else following.take(locationOfNonDefaultable + 1)
-    arrayNext ++ upToLimit
-  }
   /**
    * Annoying, but scala's immutable Map is not covariant in its first argument
    * the way one would normally expect a collection to be.
@@ -338,7 +303,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     createElementRuntimeData(optERD)
   }.value
 
-  final def erd = elementRuntimeData // just an abbreviation 
+  def erd = elementRuntimeData // just an abbreviation 
 
   /**
    * Everything needed at runtime about the element
@@ -1006,5 +971,71 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     case st: SimpleTypeDefBase => Some(st)
     case _ => None
   }
+
+  final def couldBeNextElementInInfoset: Seq[ElementBase] = LV('couldBeNextElementInInfoset) {
+    val arrayNext = if (isArray) Seq(this) else Nil
+
+    val nextSiblingElements = couldBeNextSiblingTerm.flatMap {
+      case e: ElementBase => Seq(e)
+      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
+    }
+
+    val nextParentElements =
+      if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
+        enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+      } else {
+        Nil
+      }
+
+    arrayNext ++ nextSiblingElements ++ nextParentElements
+  }.value
+  
+  final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
+    val couldBeLast = enclosingTerm match {
+      case None => true
+      case Some(s: Sequence) if s.isOrdered => {
+        !couldBeNextSiblingTerm.exists {
+          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case mg: ModelGroup => mg.mustHaveRequiredElement
+        }
+      }
+      case _ => true
+    }
+    couldBeLast
+  }.value
+
+  final def couldBeFirstChildElementInInfoset: Seq[ElementBase] = LV('couldBeFirstChildElementInInfoset) {
+    val firstChildren = couldBeFirstChildTerm.flatMap {
+      case e: ElementBase => Seq(e)
+      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset  
+    }
+    firstChildren
+  }.value
+
+  final def couldBeFirstChildTerm: Seq[Term] = termChildren
+
+  /*
+   * Returns a list of sibling Terms that could follow this term. This will not
+   * return any children of sibling Terms, or any siblings of the parent.
+   */
+  final def couldBeNextSiblingTerm: Seq[Term] = LV('couldBeNextSiblingTerm) {
+    val listOfNextTerm = enclosingTerm match {
+      case None => Nil // root element, has no siblings
+      case Some(c: Choice) => Nil // in choice, no other siblings could come after this one
+      case Some(s: Sequence) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
+      case Some(s: Sequence) => {
+        // in a sequence, the next term could be any later sibling that is not
+        // or does not have a required element, up to and including the first
+        // term that is/has a required element
+        val nextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
+        val (optional, firstRequiredAndLater) = nextSiblings.span {
+          case e: ElementBase => e.isOptional || !e.isRequiredArrayElement
+          case mg: ModelGroup => !mg.mustHaveRequiredElement
+        }
+        optional ++ firstRequiredAndLater.take(1)
+      }
+    }
+    listOfNextTerm
+  }.value
 
 }

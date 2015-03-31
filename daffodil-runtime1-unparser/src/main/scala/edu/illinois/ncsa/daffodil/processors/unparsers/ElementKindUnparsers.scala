@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
+import edu.illinois.ncsa.daffodil.xml.QNameBase
+import edu.illinois.ncsa.daffodil.xml.QName
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
@@ -70,6 +72,30 @@ class SequenceCombinatorUnparser(rd: RuntimeData, bodyUnparser: Unparser)
     start.moveOverOneGroupIndexOnly()
   }
 }
+
+class ChoiceCombinatorUnparser(rd: RuntimeData, qnameUnparserMap: Map[QNameBase, Unparser])
+  extends Unparser(rd)
+  with ToBriefXMLImpl {
+  override def nom = "Choice"
+
+  override lazy val childProcessors: Seq[Processor] = qnameUnparserMap.map { case (k, v) => v }.toSeq
+
+  def unparse(start: UState): Unit = {
+    val mgrd = rd.asInstanceOf[ModelGroupRuntimeData]
+
+    val event: InfosetEvent = start.peek
+    val eventQName = event match {
+      case Start(simple: DISimple) => simple.runtimeData.namedQName
+      case Start(complex: DIComplex) => complex.runtimeData.namedQName
+      case Start(array: DIArray) => array.namedQName
+      case _ => UnparseError(Nope, One(start), "Expected element start event, but received: %s", event)
+    }
+
+    val childUnparser = qnameUnparserMap(eventQName)
+    childUnparser.unparse1(start, rd)
+  }
+}
+
 
 class DelimiterStackUnparser(outputNewLine: CompiledExpression,
   initiatorOpt: Option[CompiledExpression],

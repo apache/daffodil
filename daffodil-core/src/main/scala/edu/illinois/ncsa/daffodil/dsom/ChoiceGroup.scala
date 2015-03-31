@@ -41,6 +41,9 @@ import scala.xml.Text
 import scala.xml._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationMixin
 import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
+import edu.illinois.ncsa.daffodil.xml._
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
  * Choices are a bit complicated.
@@ -103,5 +106,32 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     if (hasInitiator || hasTerminator) true
     else if (isKnownToBeAligned) true
     else groupMembers.forall(_.hasKnownRequiredSyntax)
+  }.value
+
+
+  final def choiceBranchMap: Map[NamedQName, RuntimeData] = LV('choiceBranchMap) {
+    val qnameERDTuples = groupMembersNoRefs.flatMap {
+      case e: ElementBase => Seq((e.namedQName, e.runtimeData))
+      case mg: ModelGroup => {
+        val idElems =  mg.identifyingElementsForChoiceBranch
+        if (idElems.isEmpty) {
+          Assert.notYetImplemented("Unable to find identifying element of %s.".format(mg))
+        }
+        idElems.map { e => (e.namedQName, mg.runtimeData) }
+      }
+    }
+
+    // converts a sequence of tuples into a multi-map
+    val qnameERDMap = qnameERDTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
+
+    val noDupes = qnameERDMap.map { case (qname, erds) =>
+      if (erds.length > 1) {
+        SDW("Element %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this element.",
+          qname, erds.mkString(", "))
+      }
+      (qname, erds(0))
+    }
+
+    noDupes
   }.value
 }

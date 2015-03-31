@@ -232,6 +232,24 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   }
 }
 
+/**
+ * This is essentially just a wrapper around the bodyParser, which is an
+ * AltCompParser. This is only hear to maintain symmetry with the unparse side,
+ * which has a more complicated parser that differs from an AltCompUnparser.
+ */
+class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
+  extends Parser(rd) {
+  override def nom = "Choice"
+
+  override lazy val childProcessors = Seq(bodyParser)
+
+  def parse(start: PState): PState = {
+    val parseState = bodyParser.parse1(start, rd)
+    parseState
+  }
+}
+
+
 class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends Parser(erd) {
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyParser)

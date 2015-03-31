@@ -68,16 +68,12 @@ class InfosetSourceFromXMLEventReader(
   }
 
   override def next = {
-    if (!(savedEvents =:= mtSeq)) {
-      val thisEvent = savedEvents.head
-      savedEvents = savedEvents.tail
-      thisEvent
-    } else {
-      val ne = nextEvents
-      val thisEvent = ne.head
-      savedEvents = ne.tail
-      thisEvent
+    if (savedEvents =:= mtSeq) {
+      savedEvents = nextEvents
     }
+    val thisEvent = savedEvents.head
+    savedEvents = savedEvents.tail
+    thisEvent
   }
 
   private def nextEvents: Seq[InfosetEvent] = {

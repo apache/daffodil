@@ -46,9 +46,11 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
+import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterStackParser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeStackParser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthKind
@@ -60,6 +62,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
+import edu.illinois.ncsa.daffodil.xml.QNameBase
+import edu.illinois.ncsa.daffodil.grammar.EmptyGram
+import edu.illinois.ncsa.daffodil.equality._
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
   val isLengthKindDelimited =
@@ -126,5 +131,36 @@ case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body
   def parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
   override def unparser: Unparser = new ArrayCombinatorUnparser(e.elementRuntimeData, body.unparser)
 
+}
+
+/*
+ * The purpose of the ChoiceCombinator (and the parsers it creates) is to
+ * determine which branch to go down. In the parser case, we just rely on the
+ * AltCompParser behavior to handle the backtracking. In the unparser case, we
+ * know which element we got from the infoset, but we need to determine which
+ * branch of the infoset to take. This unparser uses a Map to make the
+ * determination based on the element seen.
+ */
+case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
+  def parser: DaffodilParser = {
+    var folded = alternatives.map { gf => gf }.foldRight(EmptyGram.asInstanceOf[Gram]) { _ | _ }
+    new ChoiceCombinatorParser(ch.runtimeData, folded.parser)
+  }
+
+  override def unparser: DaffodilUnparser = {
+    val qnameRDMap = ch.choiceBranchMap
+    val qnameUnparserMap = qnameRDMap.mapValues { v =>
+      alternatives.find(_.context.runtimeData =:= v).get.unparser
+    }.asInstanceOf[Map[QNameBase,DaffodilUnparser]]
+
+    // The following line is required because mapValues() creates a "view" of
+    // the map, which is not serializable. map()ing this "view" with the
+    // identity forces evaluation of the "view", creating a map that is
+    // serializable and can be safely passed to a parser. See SI-7005 for
+    // discussions about this issue.
+    val serializableMap = qnameUnparserMap.map(identity)
+
+    new ChoiceCombinatorUnparser(ch.runtimeData, serializableMap)
+  }
 }
 

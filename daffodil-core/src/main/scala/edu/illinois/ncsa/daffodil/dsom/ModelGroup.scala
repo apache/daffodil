@@ -347,4 +347,138 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     listOfNextTerm
   }.value
 
+  final def identifyingElementsForChoiceBranch: Seq[ElementBase] = LV('identifyingElementsForChoiceBranch) {
+    Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[Choice], "identifyingElementsForChoiceBranch must only be called on children of choices")
+
+    val childrenIdentifiers = couldBeFirstChildElementInInfoset
+    val parentNextIdentifiers =
+      if (!mustHaveRequiredElement) {
+        enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+      } else {
+        Nil
+      }
+    childrenIdentifiers ++ parentNextIdentifiers
+  }.value
+
+  /*
+   * Returns list of Elements that could be the first child in the infoset of this model group
+   */
+  final def couldBeFirstChildElementInInfoset: Seq[ElementBase] = LV('couldBeFirstChildElementInInfoset) {
+    val firstChildren = couldBeFirstChildTerm.flatMap {
+      case e: ElementBase => Seq(e)
+      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
+    }
+    firstChildren
+  }.value
+
+  /*
+   * Returns list of Terms that could contain the first child element in the infoset
+   */
+  final def couldBeFirstChildTerm: Seq[Term] = LV('couldBeFirstChildTerm) {
+    val firstTerms = this match {
+      case c: Choice => groupMembersNoRefs
+      case s: Sequence if !s.isOrdered => groupMembersNoRefs
+      case s: Sequence => {
+        groupMembersNoRefs.headOption match {
+          case None => Nil
+          case Some(e: ElementBase) if (e.isOptional || !e.isRequiredArrayElement) => Seq(e) ++ e.couldBeNextSiblingTerm
+          case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.couldBeNextSiblingTerm
+          case Some(e: ElementBase) => Seq(e)
+          case Some(mg: ModelGroup) => Seq(mg)
+        }
+      }
+    }
+    firstTerms
+  }.value
+
+  /*
+   * Returns a list of Elements that could follow this ModelGroup, including
+   * siblings, children of siblings, and siblings of the parent and their children.
+   */
+  final def couldBeNextElementInInfoset: Seq[ElementBase] = LV('couldBeNextElementInInfoset) {
+    val nextSiblingElements = couldBeNextSiblingTerm.flatMap {
+      case e: ElementBase => Seq(e)
+      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
+    }
+
+    val nextParentElements =
+      if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
+        parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset 
+      } else {
+        Nil
+      }
+
+    val nextElementsInInfoset = nextSiblingElements ++ nextParentElements
+    nextElementsInInfoset
+  }.value
+
+  /*
+   * Returns a list of sibling Terms that could follow this term. This will not
+   * return any children of sibling Terms, or any siblings of the parent.
+   */
+  final def couldBeNextSiblingTerm: Seq[Term] = LV('couldBeNextSiblingTerm) {
+
+    val listOfNextTerm = enclosingTerm match {
+      case None => Nil // root element, has no siblings
+      case Some(e: ElementBase) => Nil // complex element, cannot have another model group other than this one
+      case Some(c: Choice) => Nil // in choice, no other siblings could come after this one
+      case Some(s: Sequence) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
+      case Some(s: Sequence) => {
+        // in a sequence, the next term could be any later sibling that is not
+        // or does not have a required element, up to and including the first
+        // term that is/has a required element
+        val nextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
+        val (optional, firstRequiredAndLater) = nextSiblings.span {
+          case e: ElementBase => e.isOptional || !e.isRequiredArrayElement
+          case mg: ModelGroup => !mg.mustHaveRequiredElement
+        }
+        optional ++ firstRequiredAndLater.take(1)
+      }
+    }
+    listOfNextTerm
+  }.value
+
+  /*
+   * Determines if any of the of the terms that could be next have or are
+   * required elements. This essentially determines if this could contain
+   * the last element in the model group.
+   */
+  final def hasRequiredNextSiblingElement: Boolean = LV('hasRequiredNextSiblingElement) {
+    val hasRequired = enclosingTerm match {
+      case None => false
+      case Some(s: Sequence) if s.isOrdered => {
+        // couldBeNextSiblingTerm is either all optional/does not have a
+        // required element, or the last one is required. Thus, this has a
+        // required next sibling if the last sibling element is required
+        couldBeNextSiblingTerm.lastOption match {
+          case None => false
+          case Some(e: ElementBase) => !e.isOptional || e.isRequiredArrayElement
+          case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
+          case Some(_) => Assert.invariantFailed()
+        }
+      }
+      case _ => false
+    }
+    hasRequired
+  }.value
+
+  /*
+   * Determines if this model group must have a required element, or if it is
+   * possible for this model group to provide nothing towards the infoset.
+   */
+  final def mustHaveRequiredElement: Boolean = LV('mustHaveRequiredElement) {
+    this match {
+      case s: Sequence if s.isOrdered =>
+        groupMembersNoRefs.exists {
+          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case mg: ModelGroup => mg.mustHaveRequiredElement
+        }
+      case _ =>
+        groupMembersNoRefs.forall {
+          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case mg: ModelGroup => mg.mustHaveRequiredElement
+        }
+    }
+  }.value
+
 }
