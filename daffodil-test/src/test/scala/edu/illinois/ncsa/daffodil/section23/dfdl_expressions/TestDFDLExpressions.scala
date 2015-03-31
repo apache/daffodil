@@ -214,9 +214,15 @@ class TestDFDLExpressions {
   @Test def test_ocke_rel3() { runner.runOneTest("ocke_rel3") }
   @Test def test_ocke_rel4() { runner.runOneTest("ocke_rel4") }
   @Test def test_internal_space_preserved() { runner.runOneTest("internal_space_preserved") }
-  //  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
-  //  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
-  //  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+  @Test def test_internal_space_preserved2() { runner.runOneTest("internal_space_preserved2") }
+  @Test def test_internal_space_preserved3a() { runner.runOneTest("internal_space_preserved3a") }
+  @Test def test_internal_space_preserved3b() { runner.runOneTest("internal_space_preserved3b") }
+  @Test def test_internal_space_not_preserved1() { runner.runOneTest("internal_space_not_preserved1") }
+
+  //DFDL-1287
+  //@Test def test_internal_space_preserved4() { runner.runOneTest("internal_space_preserved4") }
+  //@Test def test_internal_space_not_preserved2() { runner.runOneTest("internal_space_not_preserved2") }
+
   @Test def test_whitespace_expression() { runner.runOneTest("whitespace_expression") }
   @Test def test_whitespace_expression2() { runner.runOneTest("whitespace_expression2") }
 

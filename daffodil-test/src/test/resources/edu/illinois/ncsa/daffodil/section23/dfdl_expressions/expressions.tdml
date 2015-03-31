@@ -1242,9 +1242,9 @@
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:element>
-                  <dfdl:property name="inputValueCalc"><![CDATA[ { 'a
+                  <dfdl:property name="inputValueCalc"><![CDATA[ {  'a
 b
-c' } ]]></dfdl:property>
+c'    } ]]></dfdl:property>
                 </dfdl:element>
               </xs:appinfo>
            </xs:annotation>
@@ -1277,10 +1277,57 @@ c' } ]]></dfdl:property>
         <xs:sequence dfdl:separator=",">
           <xs:element name="dummy" type="xs:int"
             dfdl:lengthKind="delimited" />
-          <xs:element name="value" type="xs:string"
-             dfdl:inputValueCalc="{ 'a
+          <xs:element name="value" type="xs:string">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl">
+                <dfdl:element>
+                  <dfdl:property name="inputValueCalc"><![CDATA[{ 'a
+b
+c' }]]></dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space4" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="dummy" type="xs:int"
+            dfdl:lengthKind="delimited" />
+          <xs:element name="value" type="xs:string" dfdl:inputValueCalc="{ 'a
 b
 c' }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space5" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="{'
+3
+2
+1
+' }"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="expr_space5b" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="value" type="xs:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl">
+                <dfdl:element>
+                  <dfdl:property name="initiator"><![CDATA[{'               1 '}]]></dfdl:property>
+                </dfdl:element>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -1464,7 +1511,7 @@ c' }"/>
 -->
   
   <tdml:parserTestCase name="internal_space_preserved" root="expr_space"
-    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+    model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[2]]></tdml:document>
     <tdml:infoset>
@@ -1485,7 +1532,7 @@ c' }"/>
 -->
   
   <tdml:parserTestCase name="internal_space_preserved2" root="expr_space2"
-    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+    model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[2]]></tdml:document>
     <tdml:infoset>
@@ -1503,14 +1550,12 @@ c]]></value>
 <!--
      Test Name: internal_space_preserved3a
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates that the TDML runner is preserving 
-                whitespace in expressions, so long as those expressions are 
-                expressed in dfdl:property form, where whitespace is preserved
-                by XML.
+       Purpose: This test demonstrates that in order to use newlines in an expression and
+                have them preserved, one must use dfdl:property.
 -->
   
   <tdml:parserTestCase name="internal_space_preserved3a" root="expr_space3"
-    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+    model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[2]]></tdml:document>
     <tdml:infoset>
@@ -1526,22 +1571,88 @@ c]]></value>
 <!--
      Test Name: internal_space_preserved3b
         Schema: expressions-Embedded.dfdl.xsd
-       Purpose: This test demonstrates that when expressions appear in attribute values
-       as in short form dfdl:inputValueCalc, that newlines are not preserved.
-       This is unavoidable in XML. One must use dfdl:property for expressions where
-       whitespace is significant.
+       Purpose: This test demonstrates that in order to use newlines in an expression and
+                have them preserved, one must use dfdl:property.
 -->
   
   <tdml:parserTestCase name="internal_space_preserved3b" root="expr_space3b"
-    model="expressions-Embedded.dfdl.xsd" description="occursCountKind expression - DFDL-23-011R">
+    model="expressions-Embedded.dfdl.xsd" description="">
 
     <tdml:document><![CDATA[2]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <expr_space3b>
           <dummy>2</dummy>
-          <value><![CDATA[a b c]]></value>
+          <value><![CDATA[a
+b
+c]]></value>
         </expr_space3b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: internal_space_preserved4
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that in order to use newlines in an expression and
+                have them preserved, one must use dfdl:property.
+-->
+  
+  <tdml:parserTestCase name="internal_space_preserved4" root="expr_space5b"
+    model="expressions-Embedded.dfdl.xsd" description="">
+
+    <tdml:document><![CDATA[1blastoff]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space5b>
+          <value>blastoff</value>
+        </expr_space5b>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: internal_space_not_preserved1
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that when expressions appear in attribute values
+       as in short form dfdl:inputValueCalc, that newlines are not preserved.
+       This is unavoidable in XML. One must use dfdl:property for expressions where
+       whitespace is significant.
+-->
+  
+  <tdml:parserTestCase name="internal_space_not_preserved1" root="expr_space4"
+    model="expressions-Embedded.dfdl.xsd" description="">
+
+    <tdml:document><![CDATA[2]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space4>
+          <dummy>2</dummy>
+          <value><![CDATA[a b c]]></value>
+        </expr_space4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: internal_space_not_preserved2
+        Schema: expressions-Embedded.dfdl.xsd
+       Purpose: This test demonstrates that when expressions appear in attribute values
+       as in short form dfdl:inputValueCalc, that newlines are not preserved.
+       This is unavoidable in XML. One must use dfdl:property for expressions where
+       whitespace is significant.
+-->
+  
+  <tdml:parserTestCase name="internal_space_not_preserved2" root="expr_space5"
+    model="expressions-Embedded.dfdl.xsd" description="">
+
+    <tdml:document><![CDATA[321blastoff]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <expr_space4>
+          <dummy>2</dummy>
+          <value><![CDATA[a b c]]></value>
+        </expr_space4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
