@@ -42,7 +42,7 @@
         ignoreCase="no" representation="text" lengthKind="delimited" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" escapeSchemeRef="es"/>
       <dfdl:defineEscapeScheme name="es">
-        <dfdl:escapeScheme escapeCharacter="\" escapeEscapeCharacter="\" escapeKind="escapeCharacter" />
+        <dfdl:escapeScheme escapeCharacter="\" escapeEscapeCharacter="\" escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </xs:appinfo>
   </xs:annotation>

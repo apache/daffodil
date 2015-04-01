@@ -145,7 +145,7 @@
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='5' escapeEscapeCharacter="/"
-        escapeKind="escapeCharacter"/>
+        escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
 
     <xs:element name="e9" type="xs:int" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="ex:table1">

@@ -35,6 +35,7 @@ package edu.illinois.ncsa.daffodil.processors
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 trait Dynamic {
 
@@ -87,6 +88,29 @@ trait Dynamic {
       }
     }
   }
+  // For any expression that couldn't be evaluated in cacheConstantExpression,
+  // this evaluates that. This is used to evaluate only runtime expressions.
+  // This also carries along PState that is modified during expression
+  // evaluation.
+  def evalWithConversion[A](s: UState, e: CachedDynamic[A])(conv: (UState, Any) => A): (UState, A) = {
+    e match {
+      case Right(r) => (s, r)
+      case Left(l) => {
+        val (aAsAny, newVMap) = l.evaluate(s)
+        s.status match {
+          case Success => // nothing
+          case f: Failure => {
+            // evaluation failed
+            // we can't continue this code path
+            // have to throw out of here
+            throw f.cause
+          }
+        }
+        val a: A = conv(s, aAsAny)
+        (s, a)//(s.withVariables(newVMap), a)
+      }
+    }
+  }
 
   def evalWithConversion[A](s: PState, oe: Maybe[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, Maybe[A]) = {
     //    oe match {
@@ -101,8 +125,23 @@ trait Dynamic {
       (s1, One(a))
     } else (s, Nope)
   }
+  def evalWithConversion[A](s: UState, oe: Maybe[CachedDynamic[A]])(conv: (UState, Any) => A): (UState, Maybe[A]) = {
+    if (oe.isDefined) {
+      val (s1, a) = evalWithConversion[A](s, oe.get)(conv)
+      (s1, One(a))
+    } else (s, Nope)
+  }
 
   def evalWithConversion[A](s: PState, oe: List[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, List[A]) = {
+    var state = s
+    val listE = oe.map(e => {
+      val (newState, exp) = evalWithConversion[A](state, e)(conv)
+      state = newState
+      exp
+    })
+    (state, listE)
+  }
+  def evalWithConversion[A](s: UState, oe: List[CachedDynamic[A]])(conv: (UState, Any) => A): (UState, List[A]) = {
     var state = s
     val listE = oe.map(e => {
       val (newState, exp) = evalWithConversion[A](state, e)(conv)

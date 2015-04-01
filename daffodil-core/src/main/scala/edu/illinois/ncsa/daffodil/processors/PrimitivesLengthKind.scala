@@ -415,8 +415,8 @@ abstract class StringDelimited(e: ElementBase)
     isDelimRequired,
     e.encodingInfo)
 
-  //FIXME: must do escaping in case that the value contains a delimiter.
-  override def unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, e.encodingInfo)
+  override def unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, justificationPad, pad, isDelimRequired, e.encodingInfo)
+
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
@@ -462,7 +462,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       eb.encodingInfo)
 
   override lazy val unparser: DaffodilUnparser =
-    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueString, eb.encodingInfo)
+    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueString, eb.encodingInfo, justificationPad, pad, isDelimRequired)
 
 }
 

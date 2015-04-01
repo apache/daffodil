@@ -52,18 +52,18 @@
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
         escapeKind="escapeCharacter" escapeEscapeCharacter="/"
-        extraEscapedCharacters="?" />
+        extraEscapedCharacters="?" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <dfdl:defineEscapeScheme name="table2">
       <dfdl:escapeScheme escapeCharacter='/'
         escapeKind="escapeCharacter" escapeEscapeCharacter="%%"
-        extraEscapedCharacters="?" />
+        extraEscapedCharacters="?" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="table4">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="'" escapeBlockEnd="'" 
-        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e1" type="ex:type1" />
@@ -108,7 +108,7 @@
 
     <dfdl:defineEscapeScheme name="table3">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[" escapeBlockEnd="]" 
-        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
 
   </tdml:defineSchema>

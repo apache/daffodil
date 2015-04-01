@@ -24,7 +24,7 @@ xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext" >
       </dfdl:defineFormat>
       <dfdl:defineEscapeScheme name="backslash">
         <dfdl:escapeScheme escapeCharacter="\"
-          escapeEscapeCharacter="\" escapeKind="escapeCharacter" />
+          escapeEscapeCharacter="\" escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineFormat name="objectSequence">
         <dfdl:format initiator="%WSP*;{%WSP*;" separator="%WSP*;,%WSP*;"

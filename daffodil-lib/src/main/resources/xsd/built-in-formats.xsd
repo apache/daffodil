@@ -47,7 +47,7 @@
 					calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
 					calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
 					calendarCheckPolicy='strict' calendarLanguage='en' 
-					bitOrder="mostSignificantBitFirst" outputNewLine="%LF;" />
+					bitOrder="mostSignificantBitFirst" outputNewLine="%LF;" textPadKind="none" />
 			</dfdl:defineFormat>
 
 		</xs:appinfo>

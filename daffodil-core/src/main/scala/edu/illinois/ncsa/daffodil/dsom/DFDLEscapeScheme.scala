@@ -107,6 +107,13 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }.value
 
+  final def optionExtraEscapedCharacters = LV('optionExtraEscapedCharacters) {
+    extraEscapedCharactersRaw match {
+      case Found("", loc) => None
+      case Found(v, loc) => Some(v)
+    }
+  }.value
+
   final def optionEscapeBlockStart = LV('optionEscapeBlockStart) {
     escapeBlockStartRaw match {
       case Found("", loc) => None
@@ -122,8 +129,8 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
   }.value
 
   final lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
-    case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)
-    case EscapeKind.EscapeCharacter => new EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None)
+    case EscapeKind.EscapeBlock => EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd, this.optionExtraEscapedCharacters, this.generateEscapeBlock)
+    case EscapeKind.EscapeCharacter => EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None, this.optionExtraEscapedCharacters, this.generateEscapeBlock)
   }
 
   //

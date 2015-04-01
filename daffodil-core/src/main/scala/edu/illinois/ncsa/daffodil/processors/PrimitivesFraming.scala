@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.LeadingSkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.TrailingSkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 
 case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
   e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
@@ -104,6 +105,53 @@ trait Padded { self: Terminal =>
   val justificationTrim: TextJustificationType.Type = eBase.textTrimKind match {
     case TextTrimKind.None => TextJustificationType.None
     case TextTrimKind.PadChar if eBase.isSimpleType => {
+      val theJust = eBase.primType match {
+
+        case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
+          PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
+          PrimType.UnsignedLong | PrimType.Double | PrimType.Float | PrimType.Decimal |
+          PrimType.NonNegativeInteger => {
+          padChar = eBase.textNumberPadCharacter
+          eBase.textNumberJustification match {
+            case TextNumberJustification.Left => TextJustificationType.Left
+            case TextNumberJustification.Right => TextJustificationType.Right
+            case TextNumberJustification.Center => TextJustificationType.Center
+          }
+        }
+        case PrimType.String => {
+          padChar = eBase.textStringPadCharacter
+          eBase.textStringJustification match {
+            case TextStringJustification.Left => TextJustificationType.Left
+            case TextStringJustification.Right => TextJustificationType.Right
+            case TextStringJustification.Center => TextJustificationType.Center
+          }
+        }
+        case PrimType.DateTime | PrimType.Date | PrimType.Time => {
+          padChar = eBase.textCalendarPadCharacter
+          eBase.textCalendarJustification match {
+            case TextCalendarJustification.Left => TextJustificationType.Left
+            case TextCalendarJustification.Right => TextJustificationType.Right
+            case TextCalendarJustification.Center => TextJustificationType.Center
+          }
+        }
+        case PrimType.Boolean => {
+          padChar = eBase.textBooleanPadCharacter
+          eBase.textBooleanJustification match {
+            case TextBooleanJustification.Left => TextJustificationType.Left
+            case TextBooleanJustification.Right => TextJustificationType.Right
+            case TextBooleanJustification.Center => TextJustificationType.Center
+          }
+        }
+        case PrimType.HexBinary => TextJustificationType.None
+      }
+      theJust
+    }
+    case _ => TextJustificationType.None
+  }
+  
+  val justificationPad: TextJustificationType.Type = eBase.textPadKind match {
+    case TextPadKind.None => TextJustificationType.None
+    case TextPadKind.PadChar if eBase.isSimpleType => {
       val theJust = eBase.primType match {
 
         case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |

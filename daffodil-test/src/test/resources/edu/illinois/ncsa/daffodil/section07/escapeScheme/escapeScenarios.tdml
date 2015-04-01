@@ -41,7 +41,7 @@
 
     <dfdl:defineEscapeScheme name="scenario1">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="/" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e_infix">
@@ -69,7 +69,7 @@
 
     <dfdl:defineEscapeScheme name="scenario1">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="/" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e">
@@ -317,7 +317,7 @@
 
     <dfdl:defineEscapeScheme name="scenario2">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="$" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="$" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e_infix">
@@ -345,7 +345,7 @@
 
     <dfdl:defineEscapeScheme name="scenario2">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="$" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="$" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e">
@@ -592,7 +592,7 @@
 
     <dfdl:defineEscapeScheme name="scenario3">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="$" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="$" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e_infix">
@@ -620,7 +620,7 @@
 
     <dfdl:defineEscapeScheme name="scenario3">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="$" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="$" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e">
@@ -865,7 +865,7 @@
 
     <dfdl:defineEscapeScheme name="scenario4">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="/" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
    
     <xs:element name="e_infix">
@@ -893,7 +893,7 @@
 
     <dfdl:defineEscapeScheme name="scenario4">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="/" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e">

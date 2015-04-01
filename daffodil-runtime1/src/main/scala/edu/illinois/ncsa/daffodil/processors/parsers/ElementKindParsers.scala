@@ -50,16 +50,14 @@ import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.processors.EvaluatesStaticDynamicTextParser
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
-import edu.illinois.ncsa.daffodil.processors.EscapeScheme
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryDynamic
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryStatic
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
-import edu.illinois.ncsa.daffodil.processors.EscapeKindNoneStackNode
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeStackNode
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeChar
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlock
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd) {
@@ -140,19 +138,20 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
   }
 }
 
-/***
+/**
+ * *
  * This parser should only ever be called when an escape scheme exists.
- * 
+ *
  * Evaluates the escape scheme and brings it in and out of scope.
  */
 class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
   rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd)
   with EvaluatesStaticDynamicTextParser {
-  
+
   override lazy val childProcessors = Seq(bodyParser)
 
-  val scheme =  { 
+  val scheme = {
     {
       val isConstant = escapeScheme.escapeKind match {
         case EscapeKind.EscapeBlock => {
@@ -176,20 +175,41 @@ class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
 
   def parse(start: PState): PState = {
     // Evaluate
-    val (afterEval, node) = {
-      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeScheme(start)
+    val (afterEval, escScheme) = {
+      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeSchemeParser(start)
 
-      (afterDynamicEval, new EscapeSchemeStackNode(evaluatedScheme))
+      (afterDynamicEval, evaluatedScheme)
     }
 
-    // Push Escape Scheme
-    afterEval.mpstate.pushEscapeScheme(node)
+    // Set Escape Scheme
+    afterEval.mpstate.currentEscapeScheme = One(escScheme)
 
     // Parse
     val parseState = bodyParser.parse1(start, rd)
 
-    // Pop EscapeScheme
-    parseState.mpstate.popEscapeScheme
+    // Clear EscapeScheme
+    parseState.mpstate.currentEscapeScheme = Nope
+
+    parseState
+  }
+}
+
+class EscapeSchemeNoneStackParser(
+  rd: RuntimeData, bodyParser: Parser)
+  extends Parser(rd) {
+
+  override lazy val childProcessors = Seq(bodyParser)
+
+  def parse(start: PState): PState = {
+
+    // Clear EscapeScheme
+    start.mpstate.currentEscapeScheme = Nope
+
+    // Parse
+    val parseState = bodyParser.parse1(start, rd)
+
+    // Clear EscapeScheme
+    parseState.mpstate.currentEscapeScheme = Nope
 
     parseState
   }

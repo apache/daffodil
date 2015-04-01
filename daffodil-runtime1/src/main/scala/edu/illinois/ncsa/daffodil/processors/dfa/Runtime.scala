@@ -32,17 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.input.Reader
-import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
-import edu.illinois.ncsa.daffodil.processors.dfa.StateKind.StateKind
-import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.DelimBase
-import edu.illinois.ncsa.daffodil.processors.NLDelim
-import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
@@ -132,6 +121,7 @@ object StateKind extends Enumeration {
   val EndOfData, Failed, Succeeded, Paused = Value
 }
 
+import StateKind._
 /**
  * DFAStatus contains information pertaining to the status of the DFA.
  *

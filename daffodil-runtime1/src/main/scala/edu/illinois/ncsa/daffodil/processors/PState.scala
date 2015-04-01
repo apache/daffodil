@@ -88,16 +88,8 @@ case class MPState() {
     occursBoundsStack.push(ob)
   }
   def occursBounds = occursBoundsStack.top
-
-  val escapeSchemeStack = new ArrayStack[EscapeSchemeStackNodeBase]
-  def pushEscapeScheme(node: EscapeSchemeStackNodeBase) = escapeSchemeStack.push(node)
-  def popEscapeScheme() = escapeSchemeStack.pop
-  def currentEscapeScheme = {
-    escapeSchemeStack.top match {
-      case s: EscapeSchemeStackNode => One(s.scheme)
-      case _: EscapeKindNoneStackNode => Nope
-    }
-  }
+  
+  var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
 
   val delimiterStack = new ArrayStack[DelimiterStackNode]()
   def pushDelimiters(node: DelimiterStackNode) = delimiterStack.push(node)

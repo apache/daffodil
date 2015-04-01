@@ -33,12 +33,15 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 
-class EscapeSchemeObject(
+case class EscapeSchemeObject(
   val escapeKind: EscapeKind,
   val optionEscapeCharacter: Option[CompiledExpression],
   val optionEscapeEscapeCharacter: Option[CompiledExpression],
   val optionEscapeBlockStart: Option[String],
-  val optionEscapeBlockEnd: Option[String])
+  val optionEscapeBlockEnd: Option[String],
+  val optionExtraEscapedCharacters: Option[String],
+  val generateEscapeBlock: GenerateEscape)
   extends Serializable
 

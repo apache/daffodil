@@ -39,9 +39,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EscapeScheme
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlock
-import edu.illinois.ncsa.daffodil.processors.EscapeSchemeChar
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseError
@@ -61,6 +59,8 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -113,8 +113,8 @@ class StringDelimitedParser(
     val result = try {
       if (scheme.isDefined) {
         scheme.get match {
-          case s: EscapeSchemeBlock => textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(reader, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
-          case s: EscapeSchemeChar => textParser.parse(reader, fieldDFA, delims, isDelimRequired)
+          case s: EscapeSchemeBlockParserHelper => textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(reader, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+          case s: EscapeSchemeCharParserHelper => textParser.parse(reader, fieldDFA, delims, isDelimRequired)
         }
       } else textParser.parse(reader, fieldDFA, delims, isDelimRequired)
     } catch {

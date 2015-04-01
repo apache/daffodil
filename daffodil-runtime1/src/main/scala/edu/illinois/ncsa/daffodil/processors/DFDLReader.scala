@@ -278,6 +278,29 @@ trait DFDLCharReader
 }
 
 /**
+ * This is to be used in the unparsing methods as they return
+ * a string from the infoset.  This allows us to handle the
+ * string as if it were a DFDLCharReader and use all of our
+ * existing DFA scanning functionality.
+ */
+class DFDLStringReader private (rdr: Reader[Char])
+  extends DFDLCharReader {
+  override def source = rdr.source
+  override def offset = rdr.offset
+  def this(data: String) = this(new CharSequenceReader(data))
+  def first = if (atEnd) -1.toChar else rdr.first
+  def rest = new DFDLStringReader(rdr.rest)
+  def atEnd = rdr.atEnd
+  def pos = rdr.pos
+  def atCharPos(cp0b: Int) = new DFDLStringReader(rdr.drop(cp0b))
+  def atBitPos(bp0b: Long) = Assert.usageError("not to be used")
+  def getCharsetName = Assert.usageError("not to be used")
+  def characterPos = Assert.usageError("not to be used")
+  def charset = Assert.usageError("not to be used")
+  def bitLimit0b = -1
+}
+
+/**
  * This is for unit tests that want to feed data from a string
  */
 class DFDLUTStringReader private (rdr: Reader[Char])

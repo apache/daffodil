@@ -20,25 +20,25 @@
 
       <dfdl:defineEscapeScheme name="poundBang">
         <dfdl:escapeScheme escapeCharacter='#'
-          escapeKind="escapeCharacter" escapeEscapeCharacter="!" />
+          escapeKind="escapeCharacter" escapeEscapeCharacter="!" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name="poundPound">
         <dfdl:escapeScheme escapeCharacter='#'
-          escapeKind="escapeCharacter" escapeEscapeCharacter="#" />
+          escapeKind="escapeCharacter" escapeEscapeCharacter="#" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name='cStyleComment'>
         <dfdl:escapeScheme escapeBlockStart='/*'
-          escapeBlockEnd='*/' escapeKind="escapeBlock" />
+          escapeBlockEnd='*/' escapeKind="escapeBlock" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name='StartEndBang'>
         <dfdl:escapeScheme escapeBlockStart='START'
           escapeBlockEnd='END' escapeKind="escapeBlock"
-          escapeEscapeCharacter="!" />
+          escapeEscapeCharacter="!" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name='StartEndS'>
         <dfdl:escapeScheme escapeBlockStart='START'
           escapeBlockEnd='END' escapeKind="escapeBlock"
-          escapeEscapeCharacter="S" />
+          escapeEscapeCharacter="S" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </appinfo>
   </annotation>

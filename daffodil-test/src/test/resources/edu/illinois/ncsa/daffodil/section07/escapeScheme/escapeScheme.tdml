@@ -42,12 +42,12 @@
 
     <dfdl:defineEscapeScheme name="pound">
       <dfdl:escapeScheme escapeCharacter='#'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     <dfdl:defineEscapeScheme name='cStyleComment'>
       <dfdl:escapeScheme escapeBlockStart='/*'
         escapeBlockEnd='*/' escapeKind="escapeBlock"
-        escapeEscapeCharacter="" />
+        escapeEscapeCharacter=""  extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
 
     <xs:element name="list1">
@@ -83,7 +83,7 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
     <dfdl:defineEscapeScheme>
       <dfdl:escapeScheme escapeCharacter='#'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     <xs:element name="elem" type="xs:int"/>
   </defineSchema>
@@ -93,12 +93,12 @@
 
     <dfdl:defineEscapeScheme name="pound">
       <dfdl:escapeScheme escapeCharacter='#'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     <dfdl:defineEscapeScheme name='cStyleComment'>
       <dfdl:escapeScheme escapeBlockStart='/*'
         escapeBlockEnd='*/' escapeKind="escapeBlock"
-        escapeEscapeCharacter="" />
+        escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="list2">
@@ -128,7 +128,7 @@
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
         escapeKind="escapeCharacter" escapeEscapeCharacter=";"
-        extraEscapedCharacters="?" />
+        extraEscapedCharacters="?" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="noesc" type="xs:string" dfdl:escapeSchemeRef=""/>
@@ -142,7 +142,7 @@
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
         escapeKind="escapeCharacter" escapeEscapeCharacter=";"
-        extraEscapedCharacters="?" />
+        extraEscapedCharacters="?" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="noesc" type="xs:string"/>
@@ -153,11 +153,11 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
     <dfdl:defineEscapeScheme name="escapeScheme">
       <dfdl:escapeScheme escapeCharacter='#'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     <dfdl:defineEscapeScheme name="escapeScheme">
       <dfdl:escapeScheme escapeCharacter='*'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     <xs:element name="elem" type="xs:int" dfdl:escapeSchemeRef="tns:escapeScheme" />
   </defineSchema>
@@ -294,27 +294,27 @@
 
     <dfdl:defineEscapeScheme name="fromData">
       <dfdl:escapeScheme escapeCharacter="{ /tns:e1/tns:escapeChar }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="^" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="literal">
       <dfdl:escapeScheme escapeCharacter="\"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="^" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="^" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="fromDataEmptyEEC">
       <dfdl:escapeScheme escapeCharacter="{ /tns:e1EmptyEEC/tns:escapeChar }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="fromData2">
       <dfdl:escapeScheme escapeCharacter="{ ../tns:escapeChar }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="{ ../tns:escapeEscapeChar }" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="{ ../tns:escapeEscapeChar }" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
     
     <dfdl:defineEscapeScheme name="fromData3">
       <dfdl:escapeScheme escapeCharacter="{ xs:int(../tns:escapeChar) - 3 }"
-        escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar))) }" />
+        escapeKind="escapeCharacter" escapeEscapeCharacter="{ xs:int(fn:ceiling(xs:float(../tns:escapeEscapeChar))) }" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
     </dfdl:defineEscapeScheme>
 
     <xs:element name="e1">

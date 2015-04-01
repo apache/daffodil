@@ -52,7 +52,7 @@
       <dfdl:defineEscapeScheme name="esc1">
         <dfdl:escapeScheme escapeCharacter='\'
           escapeKind="escapeCharacter" escapeEscapeCharacter="\"
-          extraEscapedCharacters="?" />
+          extraEscapedCharacters="?" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </xs:appinfo>
   </xs:annotation>

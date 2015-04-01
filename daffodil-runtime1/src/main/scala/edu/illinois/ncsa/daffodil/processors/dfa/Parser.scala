@@ -53,7 +53,7 @@ abstract class Parser extends RuntimeEncodingMixin with Serializable {
  * Parent class for 'delimited' DFA text parsers.  Needs 'longest match'
  * functionality.
  */
-abstract class DelimitedParser extends Parser {
+abstract class DelimitedParser extends Parser  {
   /**
    * This function takes in a list of matches (in an ArrayBuffer for constant
    * append and random access) and returns the match that starts earliest in

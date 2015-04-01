@@ -2925,7 +2925,7 @@
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeCharacter='/'
-        escapeKind="escapeCharacter" escapeEscapeCharacter="["/>
+        escapeKind="escapeCharacter" escapeEscapeCharacter="[" extraEscapedCharacters="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
         
     <xs:element name="string10" type="xs:string" dfdl:lengthKind="delimited" dfdl:textStringJustification="center"

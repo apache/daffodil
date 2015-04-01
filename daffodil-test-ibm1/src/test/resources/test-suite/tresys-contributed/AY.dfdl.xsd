@@ -20,11 +20,11 @@
 
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter=""
-          escapeKind="escapeCharacter" />
+          escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name='StartEnd'>
         <dfdl:escapeScheme escapeBlockStart='START' escapeBlockEnd='END'
-          escapeEscapeCharacter="" escapeKind="escapeBlock" />
+          escapeEscapeCharacter="" escapeKind="escapeBlock" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </appinfo>
   </annotation>

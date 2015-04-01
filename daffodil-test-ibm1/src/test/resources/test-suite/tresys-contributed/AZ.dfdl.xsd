@@ -22,7 +22,7 @@
 
       <dfdl:defineEscapeScheme name="mySweetEscape">
         <dfdl:escapeScheme escapeKind="escapeCharacter"
-          escapeCharacter="#" escapeEscapeCharacter="" />
+          escapeCharacter="#" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </appinfo>
   </annotation>

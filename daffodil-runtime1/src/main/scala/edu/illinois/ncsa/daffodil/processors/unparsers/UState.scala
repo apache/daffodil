@@ -27,6 +27,7 @@ import edu.illinois.ncsa.daffodil.dsom.ValidationError
 import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
+import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -112,6 +113,8 @@ class UState(
 
   def occursBounds = occursBoundsStack.top
   
+  var currentEscapeScheme: Maybe[EscapeSchemeUnparserHelper] = Nope
+
   val delimiterStack = new ArrayStack[DelimiterStackUnparseNode]()
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop

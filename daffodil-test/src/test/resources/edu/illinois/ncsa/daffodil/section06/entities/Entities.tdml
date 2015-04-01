@@ -553,7 +553,7 @@ is multiple bytes in UTF-8 encoding that is used"
     
     <dfdl:defineEscapeScheme name="table1">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[ start ]" escapeBlockEnd="[ end ]"
-        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e1" type="ex:type1" />
@@ -566,7 +566,7 @@ is multiple bytes in UTF-8 encoding that is used"
     
     <dfdl:defineEscapeScheme name="table2">
       <dfdl:escapeScheme escapeKind="escapeBlock" escapeBlockStart="[%SP;start%SP;]" escapeBlockEnd="[%SP;end%SP;]"
-        escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+        escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e2">
@@ -579,7 +579,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </xs:element>
     
     <dfdl:defineEscapeScheme name="char01">
-      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter=" " escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter=" " escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e3">
@@ -592,7 +592,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </xs:element>
     
     <dfdl:defineEscapeScheme name="char02">
-      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="%SP;" escapeEscapeCharacter="%%" extraEscapedCharacters="?"/>
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="%SP;" escapeEscapeCharacter="%%" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e4">
@@ -605,7 +605,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </xs:element>
     
     <dfdl:defineEscapeScheme name="char03">
-      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter=" " extraEscapedCharacters="?"/>
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter=" " extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e5">
@@ -618,7 +618,7 @@ is multiple bytes in UTF-8 encoding that is used"
     </xs:element>
     
     <dfdl:defineEscapeScheme name="char04">
-      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter="%SP;" extraEscapedCharacters="?"/>
+      <dfdl:escapeScheme escapeKind="escapeCharacter" escapeCharacter="|" escapeEscapeCharacter="%SP;" extraEscapedCharacters="?" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     
     <xs:element name="e6">

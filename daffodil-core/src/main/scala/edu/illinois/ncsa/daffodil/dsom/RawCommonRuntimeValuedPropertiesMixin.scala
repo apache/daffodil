@@ -96,6 +96,8 @@ trait RawEscapeSchemeRuntimeValuedPropertiesMixin
   protected final lazy val escapeEscapeCharacterRaw = findProperty("escapeEscapeCharacter")
   protected final lazy val escapeBlockStartRaw = findProperty("escapeBlockStart")
   protected final lazy val escapeBlockEndRaw = findProperty("escapeBlockEnd")
+  protected final lazy val extraEscapedCharactersRaw = findProperty("extraEscapedCharacters")
+
 }
 
 trait RawSimpleTypeRuntimeValuedPropertiesMixin

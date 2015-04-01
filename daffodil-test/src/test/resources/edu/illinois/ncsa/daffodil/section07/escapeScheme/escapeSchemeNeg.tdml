@@ -46,7 +46,7 @@
     <dfdl:format ref="tns:daffodilTest1" lengthKind="delimited" />
     <dfdl:defineEscapeScheme NCName="foo:bar">
       <dfdl:escapeScheme escapeCharacter='#'
-        escapeKind="escapeCharacter" escapeEscapeCharacter=""/>
+        escapeKind="escapeCharacter" escapeEscapeCharacter="" generateEscapeBlock="whenNeeded"/>
     </dfdl:defineEscapeScheme>
     <xs:element name="elem" type="xs:int"/>
   </defineSchema>

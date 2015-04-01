@@ -38,6 +38,9 @@ import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind
+import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
+import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
@@ -117,16 +120,70 @@ class DelimiterStackUnparser(outputNewLine: CompiledExpression,
   }
 }
 
-class EscapeSchemeStackUnparser(escapeScheme: Option[EscapeSchemeObject], rd: RuntimeData, bodyUnparser: Unparser)
+class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
   override def nom = "EscapeSchemeStack"
 
   override lazy val childProcessors: Seq[Processor] = Seq(bodyUnparser)
 
+  val scheme =
+    {
+      val isConstant = escapeScheme.escapeKind match {
+        case EscapeKind.EscapeBlock => {
+          (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
+            escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+        case EscapeKind.EscapeCharacter => {
+          (escapeScheme.optionEscapeCharacter.isEmpty ||
+            escapeScheme.optionEscapeCharacter.get.isConstant) &&
+            (escapeScheme.optionEscapeEscapeCharacter.isEmpty ||
+              escapeScheme.optionEscapeEscapeCharacter.get.isConstant)
+        }
+      }
+      val theScheme: EscapeSchemeFactoryBase = {
+        if (isConstant) EscapeSchemeFactoryStatic(escapeScheme, rd)
+        else EscapeSchemeFactoryDynamic(escapeScheme, rd)
+      }
+      theScheme
+    }
+
+  def unparse(start: UState): Unit = {
+    // Evaluate
+    val (afterEval, escScheme) = {
+      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeSchemeUnparser(start)
+
+      (afterDynamicEval, evaluatedScheme)
+    }
+
+    // Set Escape Scheme
+    start.currentEscapeScheme = One(escScheme)
+
+    // Unparse
+    bodyUnparser.unparse1(start, rd)
+
+    // Clear EscapeScheme
+    start.currentEscapeScheme = Nope
+  }
+}
+
+class EscapeSchemeNoneStackUnparser(
+  rd: RuntimeData, bodyUnparser: Unparser)
+  extends Unparser(rd) {
+
+  override def nom = "EscapeSchemeStack"
+
+  override lazy val childProcessors = Seq(bodyUnparser)
+
   def unparse(start: UState): Unit = {
 
-    // TODO: Implement this properly, added just to get an unparser test to pass.
+    // Clear Escape Scheme
+    start.currentEscapeScheme = Nope
+
+    // Unparse
     bodyUnparser.unparse1(start, rd)
+
+    // Clear EscapeScheme
+    start.currentEscapeScheme = Nope
 
   }
 }

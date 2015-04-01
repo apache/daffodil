@@ -3469,7 +3469,7 @@
       encoding="ASCII" representation="text" occursCountKind="parsed"
       utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
       textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
-      textNumberPattern="#,##0.###;-#,##0.###" />
+      textNumberPattern="#,##0.###;-#,##0.###" textPadKind="none" />
 
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:double"/>
 
@@ -3484,7 +3484,7 @@
       encoding="ASCII" representation="text" occursCountKind="parsed"
       utf16Width="fixed" textStandardDecimalSeparator="." textStandardGroupingSeparator=","
       textNumberRep="standard" ignoreCase="no" lengthKind="delimited" textNumberCheckPolicy="strict"
-      textNumberPattern="#,##0.###;-#,##0.###" />
+      textNumberPattern="#,##0.###;-#,##0.###"  textPadKind="none"/>
 
     <xs:element name="noStandardExpRep" dfdl:lengthKind="delimited" dfdl:terminator="]" type="xsd:float"/>
 

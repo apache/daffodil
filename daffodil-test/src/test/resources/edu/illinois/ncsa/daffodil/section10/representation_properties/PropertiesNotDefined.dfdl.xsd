@@ -57,7 +57,7 @@
           textNumberRoundingIncrement="0"
           calendarPatternKind='implicit' calendarFirstDayOfWeek='Sunday'
           calendarDaysInFirstWeek='4' calendarTimeZone='UTC'
-          calendarCheckPolicy='strict' calendarLanguage='en'/> 
+          calendarCheckPolicy='strict' calendarLanguage='en' textPadKind="none"/> 
       </appinfo>
     </annotation>
 

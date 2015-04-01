@@ -58,6 +58,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
   val isLengthKindDelimited =
@@ -97,8 +99,13 @@ case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extend
 
   val schemeOpt = e.optionEscapeScheme.map { _.escapeScheme }
 
-  def parser: DaffodilParser = new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
-  override def unparser: DaffodilUnparser = new EscapeSchemeStackUnparser(schemeOpt, e.runtimeData, body.unparser)
+  def parser: DaffodilParser =
+    if (schemeOpt.isDefined) new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
+    else new EscapeSchemeNoneStackParser(e.runtimeData, body.parser)
+  
+  override def unparser: DaffodilUnparser =
+    if (schemeOpt.isDefined) new EscapeSchemeStackUnparser(schemeOpt.get, e.runtimeData, body.unparser)
+    else new EscapeSchemeNoneStackUnparser(e.runtimeData, body.unparser)
 }
 
 case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Terminal(ct.element, !body.isEmpty) {

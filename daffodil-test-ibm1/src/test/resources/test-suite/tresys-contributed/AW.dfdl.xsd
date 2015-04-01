@@ -19,11 +19,11 @@
 
       <dfdl:defineEscapeScheme name="pound">
         <dfdl:escapeScheme escapeCharacter='#' escapeEscapeCharacter="\"
-          escapeKind="escapeCharacter" />
+          escapeKind="escapeCharacter" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
       <dfdl:defineEscapeScheme name='cStyleComment'>
         <dfdl:escapeScheme escapeBlockStart='/*' escapeEscapeCharacter="\"
-          escapeBlockEnd='*/' escapeKind="escapeBlock" />
+          escapeBlockEnd='*/' escapeKind="escapeBlock" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
       </dfdl:defineEscapeScheme>
     </appinfo>
   </annotation>
