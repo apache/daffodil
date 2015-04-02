@@ -91,6 +91,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.processors.{ Infoset => RealInfoset }
 import javax.xml.stream.XMLInputFactory
 import edu.illinois.ncsa.daffodil.equality._
+import scala.collection.mutable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -119,9 +120,14 @@ import edu.illinois.ncsa.daffodil.equality._
  * rejects the TDML file itself.
  */
 
+private[tdml] object DFDLTestSuite {
+  val compiledSchemaCache: mutable.Map[URISchemaSource, DFDL.DataProcessor] = new mutable.HashMap
+}
+
 class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
-  val validateDFDLSchemas: Boolean = true)
+  val validateDFDLSchemas: Boolean = true,
+  val compileAllTopLevel: Boolean = false)
   extends Logging {
 
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -200,7 +206,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 
   lazy val isTDMLFileValid = !this.isLoadingError
 
-  var checkAllTopLevel: Boolean = false
+  var checkAllTopLevel: Boolean = compileAllTopLevel
   def setCheckAllTopLevel(flag: Boolean) {
     checkAllTopLevel = flag
   }
@@ -337,7 +343,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
-  def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): DFDL.DataProcessor = {
+  final protected def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): DFDL.DataProcessor = {
     val p = pf.onPath("/")
     if (useSerializedProcessor) {
       val os = new java.io.ByteArrayOutputStream()
@@ -349,6 +355,39 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       val compiler_ = Compiler()
       compiler_.reload(input)
     } else p
+  }
+
+  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean) = {
+    val pf = compiler.compileSource(schemaSource)
+    if (pf.isError) {
+      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
+      throw new TDMLException(diags)
+    }
+    val processor = this.generateProcessor(pf, useSerializedProcessor)
+    processor
+  }
+
+  final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean) = {
+    val res = schemaSource match {
+      case uss: URISchemaSource if parent.checkAllTopLevel == true => {
+        // check if we've already got this compiled
+        val cacheRes = DFDLTestSuite.compiledSchemaCache.get(uss)
+        val dp = cacheRes match {
+          case Some(dp) => dp
+          case None => {
+            // missed the cache. Let's compile it and put it in 
+            val dp = compileProcessor(schemaSource, useSerializedProcessor)
+            DFDLTestSuite.compiledSchemaCache.put(uss, dp)
+            dp
+          }
+        }
+        dp
+      }
+      case _ => {
+        compileProcessor(schemaSource, useSerializedProcessor)
+      }
+    }
+    res
   }
 
   lazy val document = toOpt(testCaseXML \ "document").map { node => new Document(node, this) }
@@ -377,7 +416,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val shouldValidate = validationMode != ValidationMode.Off
   lazy val expectsValidationError = if (validationErrors.isDefined) validationErrors.get.hasDiagnostics else false
 
-  protected def runProcessor(processor: DFDL.ProcessorFactory,
+  protected def runProcessor(schemaSource: DaffodilSchemaSource,
     expectedData: Option[DFDL.Input],
     nBits: Option[Long],
     errors: Option[ExpectedErrors],
@@ -419,6 +458,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     suppliedSchema
   }
 
+  protected val compiler = Compiler(parent.validateDFDLSchemas)
+
   def run(schemaArg: Option[Node] = None): (Long, Long) = {
     val suppliedSchema = getSuppliedSchema(schemaArg)
 
@@ -446,17 +487,14 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
       case Some(definedConfig) => retrieveBindings(definedConfig)
     }
 
-    val compiler = Compiler(parent.validateDFDLSchemas)
     compiler.setDistinguishedRootNode(root, null)
     compiler.setCheckAllTopLevel(parent.checkAllTopLevel)
     compiler.setExternalDFDLVariables(externalVarBindings)
 
-    val pf = compiler.compileSource(suppliedSchema)
-
     val optInputOrExpectedData = document.map { _.data }
     val nBits = document.map { _.nBits }
 
-    runProcessor(pf, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode)
+    runProcessor(suppliedSchema, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode)
 
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
@@ -533,7 +571,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
+  override def runProcessor(schemaSource: DaffodilSchemaSource,
     optDataToParse: Option[DFDL.Input],
     optLengthLimitInBits: Option[Long],
     optErrors: Option[ExpectedErrors],
@@ -547,16 +585,14 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
     (optExpectedInfoset, optErrors) match {
       case (Some(infoset), None) => {
-        val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-        if (pf.isError) {
-          throw new TDMLException(diags)
-        }
 
-        val processor = this.generateProcessor(pf, useSerializedProcessor)
+        val processor = getProcessor(schemaSource, useSerializedProcessor)
         runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode)
       }
 
       case (None, Some(errors)) => {
+        val pf = compiler.compileSource(schemaSource) // lazy because we may not need it.
+
         if (pf.isError) verifyAllDiagnosticsFound(pf, Some(errors))
         else {
           val processor = this.generateProcessor(pf, useSerializedProcessor)
@@ -700,13 +736,15 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
-  def runProcessor(pf: DFDL.ProcessorFactory,
+  def runProcessor(schemaSource: DaffodilSchemaSource,
     optExpectedData: Option[DFDL.Input],
     optNBits: Option[Long],
     optErrors: Option[ExpectedErrors],
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type) = {
+
+    val pf = compiler.compileSource(schemaSource)
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => runUnparserExpectSuccess(pf, expectedData, optWarnings)
@@ -1064,7 +1102,10 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
   lazy val textContentWithoutEntities = {
     if (replaceDFDLEntities) {
       try { EntityReplacer { _.replaceAll(partRawContent) } }
-      catch { case (e: Exception) => Assert.abort(e.getMessage()) }
+      catch {
+        case (e: Exception) =>
+          Assert.abort(e.getMessage())
+      }
     } else partRawContent
   }
 

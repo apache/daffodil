@@ -297,7 +297,7 @@ object OOLAG extends Logging {
 
     private[oolag] def circularityDetector(ov: OOLAGValue)(body: => Any) = {
       if (currentOVList_.contains(ov)) {
-        System.err.println("Circular OOLAG Value Definition")
+        // System.err.println("Circular OOLAG Value Definition")
         // This next println was causing problems because toString was
         // itself causing circular evaluation. The abort above 
         // System.err.println("OOLAGValues (aka 'LVs') on stack are: " + currentOVList.mkString(", "))
@@ -644,7 +644,11 @@ object OOLAG extends Logging {
 
     /**
      * use for things where you need something to put
-     * into a diagnostic message.
+     * into a diagnostic message. That is, you want to identify why
+     * there was an error with the name of the offending object,
+     * but what if we can't get the name even?
+     *
+     * That's what this is for.
      */
     protected final def valueAsAnyOrElse(thing: => Any): Any = {
       if (hasValue) valueAsAny
@@ -652,8 +656,15 @@ object OOLAG extends Logging {
         val v = try {
           valueAsAny
         } catch {
-          case _: Throwable => {
-            // System.err.println("OOLAG valueOrElse failed. Substituting.")
+          case u: UnsuppressableException => throw u
+          case e: Error => throw e
+          //
+          // Ok to catch throwable here
+          // because we're trying to get out 
+          //
+          case _: OOLAGException => thing
+          case t: Throwable => {
+            System.err.println("OOLAG valueOrElse failed on " + Misc.getNameFromClass(t) + ". Substituting: " + thing)
             // Assert.abort("OOLAG valueOrElse failed.")
             thing
           }

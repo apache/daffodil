@@ -84,7 +84,10 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   override lazy val referredToComponent = referencedElement
 
-  override lazy val namedQName = referencedElement.namedQName
+  override lazy val namedQName: NamedQName = namedQName_.value
+  private lazy val namedQName_ = LV('namedQName) {
+    referencedElement.namedQName
+  }
 
   // Need to go get the Element we are referencing
   lazy val referencedElement = referencedElement_.value // optionReferencedElement.get

@@ -50,7 +50,7 @@ import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 class TestJSON5 {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
   val aa = testDir + "json5.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), compileAllTopLevel = true)
   def dbg = {
     Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
     Debugger.withTracing(true)

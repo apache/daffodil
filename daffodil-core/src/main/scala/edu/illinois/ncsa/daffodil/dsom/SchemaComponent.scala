@@ -84,9 +84,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     val attrText = xml.attribute(XMLUtils.INT_NS, XMLUtils.LINE_ATTRIBUTE_NAME).map { _.text }
     if (attrText.isDefined) {
       attrText
-    } else {
-      parent.lineAttribute
-    }
+    } else if (parent != null) parent.lineAttribute
+    else None
   }
 
   override lazy val columnAttribute = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) map { _.text }

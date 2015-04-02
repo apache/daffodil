@@ -43,25 +43,29 @@ import org.junit.Test
 class TresysTests3 {
   val testDir = "/test-suite/tresys-contributed/"
 
-  lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"))
+  lazy val runnerBF = new DFDLTestSuite(Misc.getRequiredResource(testDir + "bitFlagExpression.tdml"),
+    compileAllTopLevel = true)
 
   @Test def test_testNone() = { runnerBF.runOneTest("testNone") }
   @Test def test_testOne() { runnerBF.runOneTest("testOne") }
   @Test def test_testMany() { runnerBF.runOneTest("testMany") }
 
   val ab = testDir + "ABLargeData.tdml.dat"
-  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
+  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab),
+    compileAllTopLevel = true)
   // Runs, but it is too slow to use in regression tests
   @Test def test_AB006() { runnerAB.runOneTest("AB006") }
 
   val ag = testDir + "AG.tdml"
-  lazy val runnerAG = new DFDLTestSuite(Misc.getRequiredResource(ag))
+  lazy val runnerAG = new DFDLTestSuite(Misc.getRequiredResource(ag),
+    compileAllTopLevel = true)
   @Test def test_AG000() { runnerAG.runOneTest("AG000") } // OK
   @Test def test_AG001() { runnerAG.runOneTest("AG001") } // OK
   @Test def test_AG002() { runnerAG.runOneTest("AG002") } // OK
 
   val ah = testDir + "AH.tdml"
-  lazy val runnerAH = new DFDLTestSuite(Misc.getRequiredResource(ah))
+  lazy val runnerAH = new DFDLTestSuite(Misc.getRequiredResource(ah),
+    compileAllTopLevel = true)
   @Test def test_AH000() { runnerAH.runOneTest("AH000") }
   @Test def test_AH001() { runnerAH.runOneTest("AH001") }
   @Test def test_AH002() { runnerAH.runOneTest("AH002") }
@@ -74,7 +78,8 @@ class TresysTests3 {
   // That's not how TDML works anyway. A1 is first. So by swizzling the indexes
   // the tests were asking for. Voila, they work.
   val am = testDir + "AM.tdml"
-  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false)
+  lazy val runnerAM = new DFDLTestSuite(Misc.getRequiredResource(am), validateTDMLFile = true, validateDFDLSchemas = false,
+    compileAllTopLevel = true)
   @Test def test_AM000() { runnerAM.runOneTest("AM000") }
   @Test def test_AM001() { runnerAM.runOneTest("AM001") }
 }
