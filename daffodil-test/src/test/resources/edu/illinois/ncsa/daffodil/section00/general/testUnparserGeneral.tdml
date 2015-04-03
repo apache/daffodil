@@ -1,20 +1,162 @@
-<ts:testSuite xmlns:ts="http://www.ibm.com/xmlns/dfdl/testData"
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com"
-  suiteName="theSuiteName">
-  <ts:defineSchema name="s">
+  suiteName="generalUnparserTests">
+
+  <tdml:defineSchema name="fixedLengthStrings">
     <xs:include schemaLocation="xsd/built-in-formats.xsd" />
     <dfdl:format ref="ex:daffodilTest1" />
-    <xs:element name="bar" dfdl:lengthKind="explicit" dfdl:length="5"
-      type="xs:string" />
-  </ts:defineSchema>
-  <ts:unparserTestCase ID="test1" name="test1" root="bar"
-    model="s">
-    <ts:infoset>
-      <ts:dfdlInfoset>
-        <ex:bar>Hello</ex:bar>
-      </ts:dfdlInfoset>
-    </ts:infoset>
-    <ts:document>Hello</ts:document>
-  </ts:unparserTestCase>
-</ts:testSuite>
+
+    <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" />
+    <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+
+  </tdml:defineSchema>
+
+<!--
+      Test Name: unparseFixedLengthString01
+         Schema: fixedLengthStrings
+        Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
+-->
+
+  <tdml:unparserTestCase name="unparseFixedLengthString01" root="e1" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>Hello</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseFixedLengthString02
+         Schema: fixedLengthStrings
+        Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
+-->
+
+  <tdml:unparserTestCase name="unparseFixedLengthString02" root="e2" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>0</ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>0</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: negativeUnparseTest01
+         Schema: fixedLengthStrings
+        Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
+                 In this case, the expected output does not match the unparsed output.
+-->
+
+  <tdml:unparserTestCase name="negativeUnparseTest01" root="e2" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>0</ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>incorrect</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: negativeUnparseTest02
+         Schema: fixedLengthStrings
+        Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
+                 In this case, the expected output does not match the unparsed output.
+-->
+
+  <tdml:unparserTestCase name="negativeUnparseTest02" root="e2" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>0</ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>1</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: negativeUnparseTest03
+         Schema: fixedLengthStrings
+        Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
+                 In this case, the input infoset is more data than the element should allow, so 
+                 an unparse error should occur.
+-->
+
+  <tdml:unparserTestCase name="negativeUnparseTest03" root="e1" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>too much data</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>too much data</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: negativeUnparseTest04
+         Schema: fixedLengthStrings
+        Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
+                 In this case, the input infoset is more data than the element should allow, so 
+                 an unparse error should occur.
+-->
+
+  <tdml:unparserTestCase name="negativeUnparseTest04" root="e1" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>1</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>1</tdml:document>
+
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>
