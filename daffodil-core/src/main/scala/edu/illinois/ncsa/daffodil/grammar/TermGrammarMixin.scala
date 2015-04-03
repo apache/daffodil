@@ -49,31 +49,34 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 
 trait TermGrammarMixin extends BitOrderMixin { self: Term =>
 
-  override final protected def grammarContext = this
-
-  lazy val newVars = this.annotationObjs.filter { st =>
-    st.isInstanceOf[DFDLNewVariableInstance]
-  }.asInstanceOf[Seq[DFDLNewVariableInstance]]
-
-  lazy val newVarStarts = newVars.map { _.gram }
-  lazy val newVarEnds = newVars.map { _.endGram }
-
-  // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
-  lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {
-    newVarStarts.fold(mt) { _ ~ _ }
-  }
-
-  lazy val dfdlScopeEnd = prod("dfdlScopeEnd", newVarEnds.length > 0) {
-    newVarEnds.fold(mt) { _ ~ _ }
-  }
+  override protected final def grammarContext = this
 
   def termContentBody: Gram
 
+  private lazy val newVars = this.annotationObjs.filter { st =>
+    st.isInstanceOf[DFDLNewVariableInstance]
+  }.asInstanceOf[Seq[DFDLNewVariableInstance]]
+
+  private lazy val newVarStarts = newVars.map { _.gram }
+  private lazy val newVarEnds = newVars.map { _.endGram }
+
+  // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
+  protected final lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {
+    newVarStarts.fold(mt) { _ ~ _ }
+  }
+
+  protected final lazy val dfdlScopeEnd = prod("dfdlScopeEnd", newVarEnds.length > 0) {
+    newVarEnds.fold(mt) { _ ~ _ }
+  }
+
   // I am not sure we need to distinguish these two. 
-  lazy val asTermInSequence = prod("asTermInSequence") {
+  final lazy val asTermInSequence = prod("asTermInSequence") {
     separatedForSequencePosition(termContentBody)
   }
 
+  /**
+   * overridden in LocalElementGrammarMixin
+   */
   lazy val asTermInChoice = termContentBody
 
   /**
@@ -81,7 +84,7 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
    * Note that repeating elements are excluded because they have to
    * managed their own separatedForArrayPosition inside the repetition.
    */
-  def separatedForArrayPosition(bodyArg: => Gram): Gram = {
+  protected final def separatedForArrayPosition(bodyArg: => Gram): Gram = {
     val body = bodyArg
     val (isElementWithNoRep, isRepeatingElement) = body.context match {
       case e: ElementBase => (!e.isRepresented, !e.isScalar)
@@ -93,7 +96,7 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
     res
   }
 
-  def separatedForSequencePosition(bodyArg: => Gram): Gram = {
+  protected final def separatedForSequencePosition(bodyArg: => Gram): Gram = {
     val body = bodyArg
     val (isElementWithNoRep, isRepeatingElement) = body.context match {
       case e: ElementBase => (!e.isRepresented, !e.isScalar)
@@ -139,30 +142,30 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
     nearestEnclosingSequence
   }
 
-  def hasES = nearestEnclosingSequence != None
-  def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
+  private def hasES = nearestEnclosingSequence != None
+  private def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
-  lazy val separatorItself = prod("separator", !ignoreES && hasES) {
+  private lazy val separatorItself = prod("separator", !ignoreES && hasES) {
     Separator(es, self)
   }
 
-  lazy val sepRule = separatorItself
+  private lazy val sepRule = separatorItself
 
-  lazy val prefixSep = prod("prefixSep", !ignoreES && hasES && es.hasPrefixSep) {
+  private lazy val prefixSep = prod("prefixSep", !ignoreES && hasES && es.hasPrefixSep) {
     sepRule
   }
 
-  lazy val postfixSep = prod("postfixSep", !ignoreES && hasES && es.hasPostfixSep) { sepRule }
-  lazy val infixSep = prod("infixSep", !ignoreES && hasES && es.hasInfixSep) { sepRule }
+  private lazy val postfixSep = prod("postfixSep", !ignoreES && hasES && es.hasPostfixSep) { sepRule }
+  private lazy val infixSep = prod("infixSep", !ignoreES && hasES && es.hasInfixSep) { sepRule }
 
-  lazy val isStaticallyFirst = {
+  private lazy val isStaticallyFirst = {
     es.hasInfixSep &&
       this.positionInNearestEnclosingSequence == 1 &&
       isScalar &&
       !hasPriorRequiredSiblings
   }
 
-  lazy val infixSepRule = prod("infixSepRule", !ignoreES && hasES && es.hasInfixSep) {
+  private lazy val infixSepRule = prod("infixSepRule", !ignoreES && hasES && es.hasInfixSep) {
     if (isStaticallyFirst) Nada(this) // we're first, no infix sep.
     else if (hasPriorRequiredSiblings) infixSep // always in this case
     else if (positionInNearestEnclosingSequence > 1 || !isScalar) {

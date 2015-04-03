@@ -61,12 +61,9 @@ trait GrammarMixin {
     new Prod(prodName, grammarContext, guard, gram, forWhat)
   }
 
-  def prod3(prodName: String, guard: Boolean, gram: => Gram): Gram = {
-    new Prod(prodName, grammarContext, guard, gram, BothParserAndUnparser)
-  }
   /**
-   * Use when production has no guard. This isn't really needed. All it is doing
-   * is providing a name string for the production.
+   * Use when production has no guard, but you want to name the production
+   * anyway (for debug visibility perhaps).
    */
   def prod(prodName: String)(gram: => Gram): Gram = {
     new Prod(prodName, grammarContext, true, gram, BothParserAndUnparser)

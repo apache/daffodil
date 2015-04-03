@@ -693,7 +693,7 @@ object OOLAG extends Logging {
   protected class LV[T](val sym: Symbol, context: OOLAGHost, body: => T)
     extends OOLAGValue(context, sym.name) {
 
-    final protected lazy val lazyBody = body
+    protected final lazy val lazyBody = body
 
     final def value: T = {
       val res = valueAsAny

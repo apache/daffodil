@@ -44,6 +44,9 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
 
+  /**
+   * further overridden in ElementRefGrammarMixin
+   */
   override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
     bitOrderChange ~ (if (isScalar) scalarDefaultable else recurrance)
   }

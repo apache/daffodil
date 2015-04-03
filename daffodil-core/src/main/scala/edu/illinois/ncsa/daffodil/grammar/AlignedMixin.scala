@@ -54,7 +54,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   // TODO: make this actually do the position analysis - that however, requires computing
   // known alignment information based on the starting known alignment and known length
   // of prior things (recursively). I.e., it's a bit tricky.
-  lazy val isKnownPreAligned = self.encodingInfo.isScannable || (alignment == 1 && alignmentUnits == AlignmentUnits.Bits)
+  private lazy val isKnownPreAligned = self.encodingInfo.isScannable || (alignment == 1 && alignmentUnits == AlignmentUnits.Bits)
 
   // TODO: deal with case of a bit field that is not a multiple of bytes wide
   // but has a terminator which is text and so has mandatory alignment.
@@ -72,7 +72,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   //    }
   //  }
 
-  lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
+  protected final lazy val hasNoSkipRegions = leadingSkip == 0 && trailingSkip == 0
 
 }
 

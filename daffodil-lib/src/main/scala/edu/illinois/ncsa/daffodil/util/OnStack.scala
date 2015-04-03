@@ -51,7 +51,7 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends 
    */
   def this(constructorFunc: => T) = this(constructorFunc, x => {})
 
-  final protected def constructor = constructorFunc
+  protected final def constructor = constructorFunc
 
   protected final override def initialValue(): Stack[T] = {
     val stack = new Stack[T]

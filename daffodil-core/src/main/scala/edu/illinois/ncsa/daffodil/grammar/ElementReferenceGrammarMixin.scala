@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.dsom.ElementRef
 
 trait ElementReferenceGrammarMixin { self: ElementRef =>
 
-  override lazy val termContentBody = self.referencedElement.termContentBody
+  final override lazy val termContentBody = self.referencedElement.termContentBody
 
 }
 

@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.dsom.Sequence
 
 trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
 
-  override lazy val groupContent = prod("groupContent") {
+  final override lazy val groupContent = prod("groupContent") {
     self.sequenceKind match {
       case SequenceKind.Ordered => orderedSequenceContent
       case SequenceKind.Unordered => subsetError("Unordered sequences are not supported.") // unorderedSequenceContent
@@ -64,18 +64,18 @@ trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
    * These are static properties even though the delimiters can have runtime-computed values.
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
-  lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
+  final lazy val hasPrefixSep = sepExpr(SeparatorPosition.Prefix)
 
-  lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
+  final lazy val hasInfixSep = sepExpr(SeparatorPosition.Infix)
 
-  lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
+  final lazy val hasPostfixSep = sepExpr(SeparatorPosition.Postfix)
 
   // note use of pass by value. We don't want to even need the SeparatorPosition property unless there is a separator.
-  def sepExpr(pos: => SeparatorPosition): Boolean = {
+  private def sepExpr(pos: => SeparatorPosition): Boolean = {
     if (hasSeparator) if (separatorPosition eq pos) true else false
     else false
   }
 
-  lazy val hasSeparator = separator.isKnownNonEmpty
+  final lazy val hasSeparator = separator.isKnownNonEmpty
 }
 

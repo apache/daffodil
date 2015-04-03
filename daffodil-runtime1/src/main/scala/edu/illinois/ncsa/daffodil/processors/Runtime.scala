@@ -289,19 +289,19 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       0L,
       -1L, // a count, not a position
       BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0.
-    val initialState =
+    val unparserState =
       UState.createInitialUState(
         out,
         this,
         infosetSource) // TODO also want to pass here the externally set variables, other flags/settings.
     try {
       // Debugger.init(ssrd.parser)
-      unparse(initialState)
-      initialState.unparseResult
+      unparse(unparserState)
+      unparserState.unparseResult
     } catch {
       case ue: UnparseError => {
-        initialState.addUnparseError(ue)
-        initialState.unparseResult
+        unparserState.addUnparseError(ue)
+        unparserState.unparseResult
       }
     } finally {
       // Debugger.fini(ssrd.parser)

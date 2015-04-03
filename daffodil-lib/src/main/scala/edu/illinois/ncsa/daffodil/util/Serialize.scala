@@ -54,7 +54,7 @@ trait PreSerialization extends Serializable {
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  final protected def serializeObject(out: java.io.ObjectOutputStream) {
+  protected final def serializeObject(out: java.io.ObjectOutputStream) {
     try {
       // println("serializing " + Misc.getNameFromClass(this)) // good place for a breakpoint
       preSerialization

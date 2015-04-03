@@ -19,7 +19,7 @@ import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHost(contextArg) {
 
-  val context: SchemaComponent = contextArg
+  final val context: SchemaComponent = contextArg
 
   /**
    * Some grammar terms (productions specifically) have an indirection

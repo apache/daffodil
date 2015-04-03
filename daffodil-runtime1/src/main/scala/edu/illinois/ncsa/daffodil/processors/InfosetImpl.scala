@@ -206,7 +206,7 @@ final class DIArray(name: String, namespace: NS, val parent: DIComplex) extends 
   // them when no longer needed. However, the array itself would still be growing 
   // without bound. So, replace this with a mutable map so that it can shrink
   // as well as grow.
-  final protected val _contents = new ArrayBuffer[InfosetElement](initialSize)
+  protected final val _contents = new ArrayBuffer[InfosetElement](initialSize)
 
   override def children = _contents.toStream.asInstanceOf[Stream[DINode]]
   /**
@@ -431,7 +431,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   // the DIDocument overrides number of slots to 1. 
   def nSlots = erd.nChildSlots
-  final protected def slots = _slots
+  protected final def slots = _slots
 
   private lazy val _slots = {
     val slots = new Array[Maybe[DINode]](nSlots); // TODO: Consider a map here. Then we'd only represent slots that get filled.

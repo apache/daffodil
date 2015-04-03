@@ -36,7 +36,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
 
   final override lazy val path = sc.path + "@@Prod(" + prettyName + ")"
 
-  override lazy val gram: Gram = guard match {
+  final override lazy val gram: Gram = guard match {
     case true => {
       val g = gramArg // exactly once.
       g match {
@@ -53,7 +53,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
     }
   }
 
-  override lazy val isEmpty = gram.isEmpty
+  final override lazy val isEmpty = gram.isEmpty
 
   final override lazy val parser = forWhat match {
     case ForUnparser => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser

@@ -1289,7 +1289,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
 }
 
 case class Infoset(i: NodeSeq, parent: TestCase) {
-  val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(node, this) } // Utility.trim(node), this) }
+  val Seq(dfdlInfoset) = (i \ "dfdlInfoset").map { node => new DFDLInfoset(node, this) }
   val contents = dfdlInfoset.contents
 }
 

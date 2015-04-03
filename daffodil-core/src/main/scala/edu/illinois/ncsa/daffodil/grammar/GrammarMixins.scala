@@ -48,7 +48,7 @@ trait GroupRefGrammarMixin extends GrammarMixin { self: GroupRef =>
 
 trait ComplexTypeBaseGrammarMixin extends GrammarMixin { self: ComplexTypeBase =>
 
-  override final protected def grammarContext = this
+  override protected final def grammarContext = this
 
   def mainGrammar = prod("mainGrammar") {
     ComplexTypeCombinator(this, modelGroup.group.asChildOfComplexType)

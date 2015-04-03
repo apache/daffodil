@@ -44,9 +44,9 @@ import edu.illinois.ncsa.daffodil.processors.EmptyGramParser
 import edu.illinois.ncsa.daffodil.processors.ErrorParser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
-  lazy val r = rr
+  private lazy val r = rr
 
-  override lazy val gram = {
+  final override lazy val gram = {
     if (r.isEmpty) EmptyGram
     else this
   }
@@ -62,11 +62,11 @@ abstract class BinaryGram(context: SchemaComponent, childrenArg: Seq[Gram]) exte
 
   requiredEvaluations(children)
 
-  def op: String
-  def open: String
-  def close: String
+  protected def op: String
+  protected def open: String
+  protected def close: String
 
-  lazy val children = {
+  protected final lazy val children = {
     val c = childrenArg
     c
   }
@@ -104,15 +104,15 @@ object SeqComp {
 }
 
 class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
-  def op = "~"
-  def open = "("
-  def close = ")"
+  protected final override def op = "~"
+  protected final override def open = "("
+  protected final override def close = ")"
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  override lazy val parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
+  final override lazy val parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
 
-  override lazy val unparser = new SeqCompUnparser(context.runtimeData, children.map { _.unparser })
+  final override lazy val unparser = new SeqCompUnparser(context.runtimeData, children.map { _.unparser })
 }
 
 /**
@@ -136,11 +136,11 @@ object AltComp {
 }
 
 class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
-  def op = "|"
-  def open = "["
-  def close = "]"
+  protected final override def op = "|"
+  protected final override def open = "["
+  protected final override def close = "]"
 
-  override lazy val parser = new AltCompParser(context.runtimeData, children.map { _.parser })
+  final override lazy val parser = new AltCompParser(context.runtimeData, children.map { _.parser })
 }
 
 object EmptyGram extends Gram(null) {
@@ -170,15 +170,15 @@ abstract class NamedGram(context: SchemaComponent) extends Gram(context) {
  */
 abstract class Terminal(contextArg: SchemaComponent, guard: Boolean)
   extends NamedGram(contextArg) {
-  override def isEmpty = !guard
+  final override def isEmpty = !guard
 
-  lazy val realSC = context.asInstanceOf[SchemaComponent]
-  override lazy val path = realSC.path + "@@" + prettyName
+  private lazy val realSC = context.asInstanceOf[SchemaComponent]
+  final override lazy val path = realSC.path + "@@" + prettyName
 
   override def toString = path // dangerous. What if realSC.path fails?
 
-  def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args: _*)
-  def SDW(str: String, args: Any*): Unit = realSC.SDW(str, args: _*)
+  final def SDE(str: String, args: Any*): Nothing = realSC.SDE(str, args: _*)
+  final def SDW(str: String, args: Any*): Unit = realSC.SDW(str, args: _*)
 
 }
 

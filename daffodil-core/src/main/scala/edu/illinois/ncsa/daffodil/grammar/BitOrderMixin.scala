@@ -42,7 +42,7 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 
 trait BitOrderMixin extends GrammarMixin { self: Term =>
 
-  lazy val defaultBitOrder = {
+  final lazy val defaultBitOrder = {
     if (DaffodilTunableParameters.requireBitOrderProperty) {
       bitOrder
     } else {
@@ -50,10 +50,10 @@ trait BitOrderMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  lazy val enclosingBitOrder = enclosingTerm.map(_.defaultBitOrder)
-  lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
-  lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
+  private lazy val enclosingBitOrder = enclosingTerm.map(_.defaultBitOrder)
+  private lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
+  private lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
 
-  lazy val bitOrderChange = prod("bitOrderChange", bitOrderBefore != defaultBitOrder) { new BitOrderChange(this) }
+  protected final lazy val bitOrderChange = prod("bitOrderChange", bitOrderBefore != defaultBitOrder) { BitOrderChange(this) }
 }
 
