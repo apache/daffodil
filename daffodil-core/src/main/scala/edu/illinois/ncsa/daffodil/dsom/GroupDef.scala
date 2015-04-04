@@ -38,56 +38,56 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 class GlobalGroupDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
-  lazy val trimmedXml = scala.xml.Utility.trim(xmlArg)
+  private lazy val trimmedXml = scala.xml.Utility.trim(xmlArg)
 
   def forGroupRef(gref: GroupRef, position: Int) = {
     trimmedXml match {
       case <group>{ contents @ _* }</group> => {
-        val guts = contents.collect{ case e: scala.xml.Elem => e }
+        val guts = contents.collect { case e: scala.xml.Elem => e }
         Assert.invariant(guts.length == 1)
         guts(0) match {
-         case <sequence>{ _* }</sequence> =>
+          case <sequence>{ _* }</sequence> =>
             new GlobalSequenceGroupDef(xml, schemaDocument, gref, position)
-         case <choice>{ _* }</choice> =>
+          case <choice>{ _* }</choice> =>
             new GlobalChoiceGroupDef(xml, schemaDocument, gref, position)
-         case _ => Assert.invariantFailed("not a sequence or a choice.")
-      }
+          case _ => Assert.invariantFailed("not a sequence or a choice.")
+        }
       }
       case _ => Assert.invariantFailed("not a group")
-  }
+    }
   }
 
 }
 
-abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val groupRef: GroupRef, position: Int)
+sealed abstract class GlobalGroupDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val groupRef: GroupRef, position: Int)
   extends SchemaComponent(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
   requiredEvaluations(modelGroup)
 
-  lazy val referringComponent = {
+  final lazy val referringComponent = {
     val res = Some(groupRef)
     res
   }
 
-  override lazy val enclosingComponent = groupRef.enclosingComponent
+  final override lazy val enclosingComponent = groupRef.enclosingComponent
 
   //
   // Note: Dealing with XML can be fragile. It's easy to forget some of these children
   // might be annotations and Text nodes. Even if you trim the text nodes out, there are
   // places where annotations can be.
   //
-  lazy val <group>{ xmlChildren @ _* }</group> = xml
+  final lazy val <group>{ xmlChildren @ _* }</group> = xml
   //
   // So we have to flatMap, so that we can tolerate annotation objects (like documentation objects).
   // and our ModelGroup factory has to return Nil for annotations and Text nodes.
   //
-  lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
+  final lazy val Seq(modelGroup: ModelGroup) = xmlChildren.flatMap { GroupFactory(_, this, position) }
 
 }
 
-class GlobalSequenceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
+final class GlobalSequenceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
   extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)
 
-class GlobalChoiceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
+final class GlobalChoiceGroupDef(xmlArg: Node, schemaDocument: SchemaDocument, groupRef: GroupRef, position: Int)
   extends GlobalGroupDef(xmlArg, schemaDocument, groupRef, position)

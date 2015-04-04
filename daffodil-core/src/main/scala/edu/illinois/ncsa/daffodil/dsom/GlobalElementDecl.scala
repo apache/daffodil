@@ -58,7 +58,7 @@ import edu.illinois.ncsa.daffodil.grammar.GlobalElementDeclGrammarMixin
  * like min/maxOccurs and such that aren't allowed on a GlobalElementDecl. The
  * combination of an ElementRef plus its GlobalElementDecl behaves like a LocalElementDecl.
  */
-class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
+final class GlobalElementDecl(xmlArg: Node, schemaDocumentArg: SchemaDocument, val elementRef: Option[ElementRef])
   extends LocalElementBase(xmlArg, schemaDocumentArg, 0)
   with GlobalComponentMixin
   with ElementDeclMixin

@@ -59,19 +59,24 @@ import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
 class DFDLDefineVariable(node: Node, doc: SchemaDocument)
   extends DFDLDefiningAnnotation(node, doc) {
-  lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
-  lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")
-  lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
-  lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
-  lazy val defaultValueAsElement = node.child.text.trim
-  lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
+
+  final lazy val gram = EmptyGram // has to have because statements have parsers layed in by the grammar.
+
+  private lazy val typeQNameString = getAttributeOption("type").getOrElse("xs:string")
+
+  final lazy val external = getAttributeOption("external").map { _.toBoolean }.getOrElse(false)
+
+  private lazy val defaultValueAsAttribute = getAttributeOption("defaultValue")
+  private lazy val defaultValueAsElement = node.child.text.trim
+
+  final lazy val defaultValue = (defaultValueAsAttribute, defaultValueAsElement) match {
     case (None, "") => None
     case (None, str) => Some(str)
     case (Some(str), "") => Some(str)
     case (Some(str), v) => schemaDefinitionError("Default value of variable was supplied both as attribute and element value: %s", node.toString)
   }
 
-  lazy val typeQName = {
+  final lazy val typeQName = {
     val eQN = QName.resolveRef(typeQNameString, namespaces)
     val res = eQN.recover {
       case _: Throwable =>
@@ -80,17 +85,18 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
     res
   }
 
-  lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
+  final lazy val primType = PrimType.fromNameString(typeQName.local).getOrElse(
     this.SDE("Variables must have primitive type. Type was '%s'.", typeQName.toPrettyString))
-  lazy val newVariableInstance = VariableFactory.create(this, globalQName, primType, defaultValue, external, doc)
+
+  final lazy val newVariableInstance = VariableFactory.create(this, globalQName, primType, defaultValue, external, doc)
 
   // So that we can display the namespace information associated with
   // the variable when toString is called.
-  override lazy val prettyName = this.namedQName.toPrettyString
+  final override lazy val prettyName = this.namedQName.toPrettyString
 
-  override lazy val runtimeData = variableRuntimeData
+  final override lazy val runtimeData = variableRuntimeData
 
-  lazy val variableRuntimeData = new VariableRuntimeData(
+  final lazy val variableRuntimeData = new VariableRuntimeData(
     this.schemaFileLocation,
     this.prettyName,
     this.path,
@@ -104,19 +110,21 @@ class DFDLDefineVariable(node: Node, doc: SchemaDocument)
 
 abstract class VariableReference(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
-  lazy val ref = getAttributeRequired("ref")
-  lazy val varQName = resolveQName(ref)
 
-  def variableRuntimeData = defv.runtimeData
+  final lazy val ref = getAttributeRequired("ref")
+  final lazy val varQName = resolveQName(ref)
 
-  lazy val defv = decl.schemaSet.getDefineVariable(varQName).getOrElse(
+  final def variableRuntimeData = defv.runtimeData
+
+  final lazy val defv = decl.schemaSet.getDefineVariable(varQName).getOrElse(
     this.schemaDefinitionError("Variable definition not found: %s", ref))
 }
 
-class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
+final class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
   extends VariableReference(node, decl) // with NewVariableInstance_AnnotationMixin 
   {
   requiredEvaluations(endGram)
+
   lazy val defaultValue = getAttributeOption("defaultValue")
 
   lazy val gram: Gram = NewVariableInstanceStart(decl, this)
@@ -126,20 +134,20 @@ class DFDLNewVariableInstance(node: Node, decl: AnnotatedSchemaComponent)
 
 }
 
-class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
+final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
   extends VariableReference(node, decl) // with SetVariable_AnnotationMixin 
   {
-  lazy val attrValue = getAttributeOption("value")
-  lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
-  lazy val eltValue = eltChildren.text.trim
-  lazy val value = (attrValue, eltValue) match {
+  private lazy val attrValue = getAttributeOption("value")
+  private lazy val <dfdl:setVariable>{ eltChildren @ _* }</dfdl:setVariable> = node
+  private lazy val eltValue = eltChildren.text.trim
+  final lazy val value = (attrValue, eltValue) match {
     case (None, v) if (v != "") => v
     case (Some(v), "") => v
     case (Some(v), ev) if (ev != "") => decl.SDE("Cannot have both a value attribute and an element value: %s", node)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  lazy val gram = gram_.value
+  final lazy val gram = gram_.value
   private val gram_ = LV('gram) {
     SetVariable(decl, this)
   }

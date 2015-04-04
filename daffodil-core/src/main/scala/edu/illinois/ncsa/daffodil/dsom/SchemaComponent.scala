@@ -88,9 +88,9 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     else None
   }
 
-  override lazy val columnAttribute = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) map { _.text }
+  final override lazy val columnAttribute = xml.attribute(XMLUtils.INT_NS, XMLUtils.COLUMN_ATTRIBUTE_NAME) map { _.text }
 
-  override lazy val fileAttribute: Option[String] = {
+  final override lazy val fileAttribute: Option[String] = {
     val optAttrNode = schemaFile.map { _.node.attribute(XMLUtils.INT_NS, XMLUtils.FILE_ATTRIBUTE_NAME) }.flatten
     val optAttrText = optAttrNode.map { _.text }
     optAttrText
@@ -103,7 +103,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    * in xsi:nil attributes, which is how we represent nilled elements
    * when we convert to XML.
    */
-  lazy val namespaces = {
+  final lazy val namespaces = {
     val scope = xml.scope
     val foundXsiURI = scope.getURI("xsi")
     val xsiURI = XMLUtils.xsiURI.toString
@@ -132,7 +132,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val isArray = false // overridden in local elements
 
-  lazy val nonTermRuntimeData = _nonTermRuntimeData.value
+  final lazy val nonTermRuntimeData = _nonTermRuntimeData.value
   private val _nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
       variableMap,
@@ -249,7 +249,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
    *
    * Makes sure to inherit the scope so we have all the namespace bindings.
    */
-  def newDFDLAnnotationXML(label: String) = {
+  protected final def newDFDLAnnotationXML(label: String) = {
     //
     // This is not a "wired" dfdl prefix.
     // Rather, we are creating a new nested binding for the dfdl prefix to the right DFDL uri.
@@ -276,7 +276,7 @@ trait LocalComponentMixin { self: SchemaComponent =>
  * same target namespace, and in that case all those schema documents make up
  * the 'schema'.
  */
-class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
+final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: SchemaSet)
   extends SchemaComponent(<fake/>, schemaSetArg) {
 
   requiredEvaluations(schemaDocuments)
@@ -345,13 +345,3 @@ class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSetArg: S
   lazy val defineVariables = schemaDocuments.flatMap(_.defineVariables)
 
 }
-
-/**
- * Used to encapsulate junk XML. E.g., if user gets prefix wrong, and types
- * xs:format instead of dfdl:format.
- *
- * We want this to be a schema component so we don't have to have another
- * mechanism for reporting file and line numbers and diagnostic stuff.
- */
-class JunkComponent(xml: Node, sc: SchemaComponent) extends SchemaComponent(xml, sc)
-

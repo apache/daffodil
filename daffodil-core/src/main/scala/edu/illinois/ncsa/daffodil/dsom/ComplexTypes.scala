@@ -44,9 +44,9 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   def element: ElementBase
 
-  lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
+  protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
-  lazy val Seq(modelGroup) = {
+  final lazy val Seq(modelGroup) = {
     val s = smg.value
     // TODO: why check this? Schema validation will enforce this for us. (I think).
     schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
@@ -81,7 +81,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   //    }
   //  }
 
-  lazy val alignmentValueInBits: Int = {
+  final lazy val alignmentValueInBits: Int = {
     val children = modelGroup.group.groupMembers.sortBy(m => -m.alignmentValueInBits)
     children.headOption match {
       case Some(child) => child.alignmentValueInBits
@@ -90,14 +90,14 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   }
 }
 
-class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
 
   def forElement(element: ElementBase) = new GlobalComplexTypeDef(xml, schemaDocument, element)
 
 }
 
-class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
+final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
@@ -105,7 +105,7 @@ class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val 
 
 }
 
-class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
+final class LocalComplexTypeDef(xmlArg: Node, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, element)
   with LocalComponentMixin {
   //nothing

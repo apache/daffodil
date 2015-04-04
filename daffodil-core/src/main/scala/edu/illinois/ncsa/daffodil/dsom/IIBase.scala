@@ -157,9 +157,10 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * schema file, recursively any of its includes/imports,
    * and that all the resulting are validated by the validating loader.
    */
-  requiredEvaluations(iiSchemaFile, iiSchemaFile.iiXMLSchemaDocument)
+  requiredEvaluations(iiSchemaFile)
+  requiredEvaluations(iiSchemaFile.iiXMLSchemaDocument)
 
-  lazy val notSeenThisBefore = notSeenThisBefore_.value
+  protected final lazy val notSeenThisBefore = notSeenThisBefore_.value
   private val notSeenThisBefore_ = LV('notSeenThisBefore) {
     val mp = mapPair
     val res = seenBefore.value.get(mp) match {
@@ -176,7 +177,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * so that if our own includes/imports cycle back to us
    * we will detect it.
    */
-  lazy val seenBeforeThisFile: IIMap = seenBeforeThisFile_.value
+  protected final lazy val seenBeforeThisFile: IIMap = seenBeforeThisFile_.value
   private val seenBeforeThisFile_ = LV('seenBeforeThisFile) {
     val res = Delay {
       val v = if (notSeenThisBefore) Delay(seenBefore.value + mapTuple)
@@ -186,15 +187,15 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
     res
   }
 
-  lazy val seenAfter: IIMap = seenAfter_.value
+  final lazy val seenAfter: IIMap = seenAfter_.value
   private val seenAfter_ = LV('seenAfter) {
     val res = iiSchemaFileMaybe.map { _.seenAfter }.getOrElse(seenBefore)
     res
   }
 
-  lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
+  final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
-  def isValidURI(uri: String): Boolean = {
+  protected final def isValidURI(uri: String): Boolean = {
     try { val res = new URI(uri) } catch { case ex: Exception => return false }
     true
   }
@@ -205,7 +206,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * to the location of the including/importing file, etc.
    */
 
-  final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] = resolvedSchemaLocation_.value
+  protected final lazy val resolvedSchemaLocation: Option[DaffodilSchemaSource] = resolvedSchemaLocation_.value
   private val resolvedSchemaLocation_ = LV('resolvedSchemaLocation) {
     val res = schemaLocationProperty.flatMap { slText =>
       // We need to determine if the URI is valid, if it's not we should attempt to encode it
@@ -213,9 +214,8 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
       val encodedSLText = if (!isValidURI(slText)) {
         val file = new File(slText)
         if (file.exists()) file.toURI().toString() else URLEncoder.encode(slText, "UTF-8")
-      }
-      else slText
-       
+      } else slText
+
       val uri: URI = URI.create(encodedSLText)
       val enclosingSchemaURI: Option[URI] = if (Misc.isFileURI(uri)) None else schemaFile.map { _.schemaSource.uriForLoading }
 
@@ -248,9 +248,9 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
     res
   }
 
-  def mapPair: (NS, DaffodilSchemaSource)
+  protected def mapPair: (NS, DaffodilSchemaSource)
 
-  final lazy val mapTuple = mapTuple_.value
+  protected final lazy val mapTuple = mapTuple_.value
   private val mapTuple_ = LV('mapTuple) {
     val tuple = (mapPair, this)
     tuple
@@ -260,7 +260,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * Holds the location of the schema, whether that is from
    * the XML Catalog (import), or classpath (import or include).
    */
-  def resolvedLocation: DaffodilSchemaSource
+  protected def resolvedLocation: DaffodilSchemaSource
 
   /**
    * Get the schema file if it isn't one we have seen before.
@@ -276,7 +276,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
    * point its namespace is not acceptable given the import
    * statement.
    */
-  lazy val iiSchemaFileMaybe: Option[DFDLSchemaFile] = iiSchemaFileMaybe_.value
+  final lazy val iiSchemaFileMaybe: Option[DFDLSchemaFile] = iiSchemaFileMaybe_.value
   private val iiSchemaFileMaybe_ = LV('iiSchemaFileMaybe) {
     val res = if (notSeenThisBefore) {
       Some(iiSchemaFile)
@@ -287,7 +287,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   /**
    * Unconditionally, get the schema file object.
    */
-  lazy val iiSchemaFile: DFDLSchemaFile = iiSchemaFile_.value
+  final lazy val iiSchemaFile: DFDLSchemaFile = iiSchemaFile_.value
   private val iiSchemaFile_ = LV('iiSchemaFile) {
     val res = new DFDLSchemaFile(schemaSet, resolvedLocation, this, seenBeforeThisFile)
     res.node // force access to the data of the file.
@@ -297,11 +297,11 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   /**
    * For error message if we don't find a file/resource.
    */
-  lazy val classPathLines = classPath.mkString("\n")
+  private lazy val classPathLines = classPath.mkString("\n")
 
-  lazy val classPath = Misc.classPath
+  private def classPath = Misc.classPath
 
-  lazy val whereSearched =
+  protected final lazy val whereSearched =
     if (classPath.length == 0) " Classpath was empty."
     else " Searched these classpath locations: \n" + classPathLines + "\n"
 }

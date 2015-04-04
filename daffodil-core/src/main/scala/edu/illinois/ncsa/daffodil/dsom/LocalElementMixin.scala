@@ -59,7 +59,7 @@ trait LocalElementMixin
   with LocalComponentMixin
   with LocalElementGrammarMixin { self: LocalElementBase =>
 
-  lazy val hasSep = hasSep_.value
+  final lazy val hasSep = hasSep_.value
   private val hasSep_ = LV('hasSep) {
     nearestEnclosingSequence match {
       case None => false
@@ -71,7 +71,7 @@ trait LocalElementMixin
     }
   }
 
-  lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
+  final lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
   private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
@@ -86,7 +86,7 @@ trait LocalElementMixin
     }
   }
 
-  lazy val lengthKnownToBeGreaterThanZero = lengthKnownToBeGreaterThanZero_.value
+  final lazy val lengthKnownToBeGreaterThanZero = lengthKnownToBeGreaterThanZero_.value
   private val lengthKnownToBeGreaterThanZero_ = LV('lengthKnownToBeGreaterThanZero) {
     val pt = {
       if (isPrimType) typeDef.asInstanceOf[PrimType]
@@ -109,7 +109,7 @@ trait LocalElementMixin
     res
   }
 
-  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
   private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
     if ((minOccurs > 0) || isScalar || isFixedOccurrences) {
       if (emptyValueDelimiterPolicy == EmptyValueDelimiterPolicy.None) true
@@ -127,7 +127,7 @@ trait LocalElementMixin
     } else false
   }
 
-  lazy val isLastDeclaredRequiredElementOfSequence = isLastDeclaredRequiredElementOfSequence_.value
+  final lazy val isLastDeclaredRequiredElementOfSequence = isLastDeclaredRequiredElementOfSequence_.value
   private val isLastDeclaredRequiredElementOfSequence_ = LV('isLastDeclaredRequiredElementOfSequence) {
     if (hasKnownRequiredSyntax) {
       val es = nearestEnclosingSequence
@@ -142,7 +142,7 @@ trait LocalElementMixin
     } else true
   }
 
-  lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
+  final lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
   private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
     nearestEnclosingSequence match {
       case Some(ssp) => ssp.separatorSuppressionPolicy

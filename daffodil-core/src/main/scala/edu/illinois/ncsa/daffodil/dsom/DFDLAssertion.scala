@@ -62,6 +62,7 @@ import java.util.regex.Pattern
 
 abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLStatement(node, decl) {
+
   private lazy val testAttrib = getAttributeOption("test")
 
   // tolerate whitespace. E.g., 
@@ -102,18 +103,20 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 
     optPattern
   }
-  lazy val testKind = getAttributeOption("testKind") match {
+
+  final lazy val testKind = getAttributeOption("testKind") match {
     case Some(str) => TestKind(str, decl)
     case None => TestKind.Expression
   }
 
   private lazy val messageAttrib = getAttributeOption("message")
-  lazy val message = messageAttrib match {
+
+  final lazy val message = messageAttrib match {
     case None => "%s failed".format(testTxt)
     case Some(s) => s
   }
 
-  lazy val testTxt = {
+  final lazy val testTxt = {
     val rawTxt = (testKind, testBody, testAttrib, testPattern) match {
       case (TestKind.Expression, None, Some(txt), None) => txt
       case (TestKind.Expression, txt, None, None) => txt.get
@@ -137,9 +140,10 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
   }
 }
 
-class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
+final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
-  lazy val gram = gram_.value
+
+  final lazy val gram = gram_.value
   private val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(decl, this)
@@ -148,9 +152,10 @@ class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   }
 }
 
-class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
+final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
-  lazy val gram = gram_.value
+
+  final lazy val gram = gram_.value
   private val gram_ = LV('gram) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)

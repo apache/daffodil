@@ -43,30 +43,31 @@ trait Facets { self: SimpleTypeDefBase =>
   import Facet._
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
-  def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
+  private def retrieveFacetValueFromRestrictionBase(xml: Node, facetName: Facet.Type): String = {
     val res = xml \\ "restriction" \ facetName.toString() \ "@value"
     if (res.length > 0) res.head.text else ""
   }
-  def retrieveFacetValuesFromRestrictionBase(xml: Node, facetName: Facet.Type): Seq[String] = {
+
+  private def retrieveFacetValuesFromRestrictionBase(xml: Node, facetName: Facet.Type): Seq[String] = {
     val res = xml \\ "restriction" \ facetName.toString() \\ "@value"
     if (res.length > 0) res.map(n => n.text).toList else List.empty
   }
-  def enumeration(xml: Node): Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
-  def fractionDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
-  def maxExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive) }
-  def maxInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive) }
-  def maxLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength) }
-  def minExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive) }
-  def minInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive) }
-  def minLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
-  def pattern(xml: Node): Seq[String] = {
+  private def enumeration(xml: Node): Seq[String] = { retrieveFacetValuesFromRestrictionBase(xml, Facet.enumeration) }
+  private def fractionDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.fractionDigits) }
+  private def maxExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxExclusive) }
+  private def maxInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxInclusive) }
+  private def maxLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.maxLength) }
+  private def minExclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minExclusive) }
+  private def minInclusive(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minInclusive) }
+  private def minLength(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.minLength) }
+  private def pattern(xml: Node): Seq[String] = {
     // Patterns are OR'd locally, AND'd remotely
     retrieveFacetValuesFromRestrictionBase(xml, Facet.pattern).map(p => p)
   }
-  def totalDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
-  def whitespace(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
+  private def totalDigits(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.totalDigits) }
+  private def whitespace(xml: Node): String = { retrieveFacetValueFromRestrictionBase(xml, Facet.whiteSpace) }
 
-  lazy val localPatternValue: String = {
+  final lazy val localPatternValue: String = {
     // Patterns within a type are OR'd
     // per http://www.xfront.com/XML-Schema-library/papers/Algorithm-for-Merging-a-simpleType-Dependency-Chain.pdf
     //
@@ -74,15 +75,15 @@ trait Facets { self: SimpleTypeDefBase =>
     val patterns = pattern(xml)
     patterns.mkString("|")
   }
-  lazy val localMinInclusiveValue: String = minInclusive(xml)
-  lazy val localMaxInclusiveValue: String = maxInclusive(xml)
-  lazy val localMinExclusiveValue: String = minExclusive(xml)
-  lazy val localMaxExclusiveValue: String = maxExclusive(xml)
-  lazy val localMinLengthValue: String = minLength(xml)
-  lazy val localMaxLengthValue: String = maxLength(xml)
-  lazy val localTotalDigitsValue: String = totalDigits(xml)
-  lazy val localFractionDigitsValue: String = fractionDigits(xml)
-  lazy val localEnumerationValue: String = {
+  final lazy val localMinInclusiveValue: String = minInclusive(xml)
+  final lazy val localMaxInclusiveValue: String = maxInclusive(xml)
+  final lazy val localMinExclusiveValue: String = minExclusive(xml)
+  final lazy val localMaxExclusiveValue: String = maxExclusive(xml)
+  final lazy val localMinLengthValue: String = minLength(xml)
+  final lazy val localMaxLengthValue: String = maxLength(xml)
+  final lazy val localTotalDigitsValue: String = totalDigits(xml)
+  final lazy val localFractionDigitsValue: String = fractionDigits(xml)
+  final lazy val localEnumerationValue: String = {
     // Enumerations are OR'd
     // May be empty string
     // Must be unique
@@ -93,7 +94,7 @@ trait Facets { self: SimpleTypeDefBase =>
     // so we must escape characters that can be interpreted as RegEx
     enumerations.map(s => escapeForRegex(s)).mkString("|")
   }
-  lazy val localWhitespaceValue: String = {
+  final lazy val localWhitespaceValue: String = {
     whitespace(xml)
     context.SDE("whitespaceValue is not implemented for DFDL v1.0 schemas but reserved for future use.")
   }
@@ -121,25 +122,25 @@ trait Facets { self: SimpleTypeDefBase =>
     sb.toString()
   }
 
-  lazy val hasEnumeration: Boolean = (localEnumerationValue.length > 0) || (getRemoteFacetValues(Facet.enumeration).size > 0)
-  lazy val hasPattern: Boolean = (localPatternValue.length > 0) || (getRemoteFacetValues(Facet.pattern).size > 0)
-  lazy val hasMinLength: Boolean = (localMinLengthValue != "") || (getRemoteFacetValues(Facet.minLength).size > 0)
-  lazy val hasMaxLength: Boolean = (localMaxLengthValue != "") || (getRemoteFacetValues(Facet.maxLength).size > 0)
-  lazy val hasMinInclusive: Boolean = (localMinInclusiveValue != "") || (getRemoteFacetValues(Facet.minInclusive).size > 0)
-  lazy val hasMaxInclusive: Boolean = (localMaxInclusiveValue != "") || (getRemoteFacetValues(Facet.maxInclusive).size > 0)
-  lazy val hasMinExclusive: Boolean = (localMinExclusiveValue != "") || (getRemoteFacetValues(Facet.minExclusive).size > 0)
-  lazy val hasMaxExclusive: Boolean = (localMaxExclusiveValue != "") || (getRemoteFacetValues(Facet.maxExclusive).size > 0)
-  lazy val hasTotalDigits: Boolean = (localTotalDigitsValue != "") || (getRemoteFacetValues(Facet.totalDigits).size > 0)
-  lazy val hasFractionDigits: Boolean = (localFractionDigitsValue != "") || (getRemoteFacetValues(Facet.fractionDigits).size > 0)
+  final lazy val hasEnumeration: Boolean = (localEnumerationValue.length > 0) || (getRemoteFacetValues(Facet.enumeration).size > 0)
+  final lazy val hasPattern: Boolean = (localPatternValue.length > 0) || (getRemoteFacetValues(Facet.pattern).size > 0)
+  final lazy val hasMinLength: Boolean = (localMinLengthValue != "") || (getRemoteFacetValues(Facet.minLength).size > 0)
+  final lazy val hasMaxLength: Boolean = (localMaxLengthValue != "") || (getRemoteFacetValues(Facet.maxLength).size > 0)
+  final lazy val hasMinInclusive: Boolean = (localMinInclusiveValue != "") || (getRemoteFacetValues(Facet.minInclusive).size > 0)
+  final lazy val hasMaxInclusive: Boolean = (localMaxInclusiveValue != "") || (getRemoteFacetValues(Facet.maxInclusive).size > 0)
+  final lazy val hasMinExclusive: Boolean = (localMinExclusiveValue != "") || (getRemoteFacetValues(Facet.minExclusive).size > 0)
+  final lazy val hasMaxExclusive: Boolean = (localMaxExclusiveValue != "") || (getRemoteFacetValues(Facet.maxExclusive).size > 0)
+  final lazy val hasTotalDigits: Boolean = (localTotalDigitsValue != "") || (getRemoteFacetValues(Facet.totalDigits).size > 0)
+  final lazy val hasFractionDigits: Boolean = (localFractionDigitsValue != "") || (getRemoteFacetValues(Facet.fractionDigits).size > 0)
 
-  lazy val patternValues: Seq[FacetValueR] = {
+  final lazy val patternValues: Seq[FacetValueR] = {
     val values = combinedBaseFacets.filter { case (f, _) => f == Facet.pattern }
     if (values.size > 0) {
       val res: Seq[FacetValueR] = values.map { case (f, v) => (f, v.r) }
       res
     } else Seq.empty
   }
-  lazy val enumerationValues: String = {
+  final lazy val enumerationValues: String = {
     // Should only ever have one set per SimpleType
     val values = combinedBaseFacets.filter { case (f, _) => f == Facet.enumeration }
     if (values.size > 0) {
@@ -150,14 +151,14 @@ trait Facets { self: SimpleTypeDefBase =>
   // TODO: Tidy up.  Can likely replace getFacetValue with a similar call to combinedBaseFacets
   // as combinedBaseFacets should contain the 'narrowed' values.
   //
-  lazy val minLengthValue: java.math.BigDecimal = getFacetValue(localMinLengthValue, Facet.minLength, hasMinLength)
-  lazy val maxLengthValue: java.math.BigDecimal = getFacetValue(localMaxLengthValue, Facet.maxLength, hasMaxLength)
-  lazy val minInclusiveValue: java.math.BigDecimal = getFacetValue(localMinInclusiveValue, Facet.minInclusive, hasMinInclusive)
-  lazy val maxInclusiveValue: java.math.BigDecimal = getFacetValue(localMaxInclusiveValue, Facet.maxInclusive, hasMaxInclusive)
-  lazy val minExclusiveValue: java.math.BigDecimal = getFacetValue(localMinExclusiveValue, Facet.minExclusive, hasMinExclusive)
-  lazy val maxExclusiveValue: java.math.BigDecimal = getFacetValue(localMaxExclusiveValue, Facet.maxExclusive, hasMaxExclusive)
-  lazy val totalDigitsValue: java.math.BigDecimal = getFacetValue(localTotalDigitsValue, Facet.totalDigits, hasTotalDigits)
-  lazy val fractionDigitsValue: java.math.BigDecimal = getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
+  final lazy val minLengthValue: java.math.BigDecimal = getFacetValue(localMinLengthValue, Facet.minLength, hasMinLength)
+  final lazy val maxLengthValue: java.math.BigDecimal = getFacetValue(localMaxLengthValue, Facet.maxLength, hasMaxLength)
+  final lazy val minInclusiveValue: java.math.BigDecimal = getFacetValue(localMinInclusiveValue, Facet.minInclusive, hasMinInclusive)
+  final lazy val maxInclusiveValue: java.math.BigDecimal = getFacetValue(localMaxInclusiveValue, Facet.maxInclusive, hasMaxInclusive)
+  final lazy val minExclusiveValue: java.math.BigDecimal = getFacetValue(localMinExclusiveValue, Facet.minExclusive, hasMinExclusive)
+  final lazy val maxExclusiveValue: java.math.BigDecimal = getFacetValue(localMaxExclusiveValue, Facet.maxExclusive, hasMaxExclusive)
+  final lazy val totalDigitsValue: java.math.BigDecimal = getFacetValue(localTotalDigitsValue, Facet.totalDigits, hasTotalDigits)
+  final lazy val fractionDigitsValue: java.math.BigDecimal = getFacetValue(localFractionDigitsValue, Facet.fractionDigits, hasFractionDigits)
 
   private def errorOnLocalLessThanBaseFacet(local: Long, base: Long, theFacetType: Facet.Type) = {
     if (local < base) context.SDE("SimpleTypes: The local %s (%s) was less than the base %s (%s) ", theFacetType, local, theFacetType, base)

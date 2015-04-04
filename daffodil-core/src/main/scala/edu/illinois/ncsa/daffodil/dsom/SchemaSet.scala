@@ -77,7 +77,7 @@ import edu.illinois.ncsa.daffodil.api.URISchemaSource
  * schema components obviously it does not live within a schema document.
  */
 
-class SchemaSet(rootSpec: Option[RootSpec] = None,
+final class SchemaSet(rootSpec: Option[RootSpec] = None,
   // very annoying, but had to change the order of args here because otherwise
   // both constructors have "same signature after erasure" problem.
   externalVariables: Seq[Binding],
@@ -118,7 +118,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   /**
    * We need to use the loader here to validate the DFDL Schema.
    */
-  lazy val loader = new DaffodilXMLLoader(new ValidateSchemasErrorHandler(this))
+  private lazy val loader = new DaffodilXMLLoader(new ValidateSchemasErrorHandler(this))
 
   /**
    * Validates the DFDL Schema files present in the schemaFilesArg.
@@ -206,7 +206,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
 
   private type UC = (NS, String, Symbol, SchemaComponent)
 
-  lazy val allTopLevels: Seq[UC] = allTopLevels_.value
+  private lazy val allTopLevels: Seq[UC] = allTopLevels_.value
   private val allTopLevels_ = LV('allTopLevels) {
     val res = schemas.flatMap { schema =>
       {
@@ -253,7 +253,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     res.asInstanceOf[Seq[UC]]
   }
 
-  lazy val groupedTopLevels = groupedTopLevels_.value
+  private lazy val groupedTopLevels = groupedTopLevels_.value
   private val groupedTopLevels_ = LV('groupedTopLevels) {
     val grouped = allTopLevels.groupBy {
       case (ns, name, kind, obj) => {
@@ -289,7 +289,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
    * root element name, then this searches for a single element having that name, and if it is
    * unambiguous, it is used as the root.
    */
-  def findRootElement(name: String) = {
+  private def findRootElement(name: String) = {
     // log(Info("%s searching for root element with name %s", Misc.getNameFromClass(this), name))
     val candidates = schemas.flatMap { _.getGlobalElementDecl(name) }
     schemaDefinitionUnless(candidates.length != 0, "No root element found for %s in any available namespace", name)
@@ -311,7 +311,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
    * Given a RootSpec, get the global element it specifies. Error if ambiguous
    * or not found.
    */
-  def getGlobalElement(rootSpec: RootSpec) = {
+  private def getGlobalElement(rootSpec: RootSpec) = {
     rootSpec match {
       case RootSpec(Some(rootNamespaceName), rootElementName) => {
         val qn = RefQName(None, rootElementName, rootNamespaceName)
@@ -332,9 +332,10 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
   /**
    * Cache of whatever the rootElem decision was
    */
-  var rootElemOpt: Option[GlobalElementDecl] = None
+  private var rootElemOpt: Option[GlobalElementDecl] = None
 
-  var rootSpecFromPF: Option[RootSpec] = None
+  private var rootSpecFromPF: Option[RootSpec] = None
+
   /**
    * Since the root element can be specified by an API call on the
    * Compiler class, or by an API call on the ProcessorFactory, this
@@ -457,7 +458,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
     dfv
   }
 
-  lazy val schemaDocForGlobalVars = {
+  private lazy val schemaDocForGlobalVars = {
     //
     // OOLAG no longer catches broad classes of exceptions like index out of bounds
     //
@@ -497,7 +498,7 @@ class SchemaSet(rootSpec: Option[RootSpec] = None,
    *
    * @return A list of external variables updated with any found namespaces.
    */
-  def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
+  private def resolveExternalVariableNamespaces(allDefinedVariables: Seq[DFDLDefineVariable]) = {
     var finalExternalVariables: scala.collection.mutable.Queue[Binding] = scala.collection.mutable.Queue.empty
 
     val extVarsWithoutNS = externalVariables.filterNot(b => b.hasNamespaceSpecified)

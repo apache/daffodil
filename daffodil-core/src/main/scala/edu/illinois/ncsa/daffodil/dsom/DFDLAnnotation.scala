@@ -87,7 +87,7 @@ abstract class DFDLAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSchemaCompo
     res
   }
 
-  lazy val annotatedSC = annotatedSCArg
+  final lazy val annotatedSC = annotatedSCArg
 
   //  override def addDiagnostic(diag: Diagnostic) = annotatedSC.addDiagnostic(diag)
 

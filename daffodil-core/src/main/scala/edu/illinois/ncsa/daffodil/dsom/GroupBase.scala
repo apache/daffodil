@@ -59,7 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int)
   extends Term(xmlArg, parentArg, position) {
 
-  lazy val prettyIndex = {
+  private def prettyIndex = {
     myPeers.map { peers =>
       {
         if (peers.length == 1) "" // no index expression if we are the only one
@@ -69,18 +69,18 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
   }
 
   override lazy val prettyName = prettyBaseName + prettyIndex
-  def prettyBaseName: String
+  protected def prettyBaseName: String
 
-  lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
-  lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
-  lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }
-  lazy val groupRefPeers = enclosingComponentModelGroup.map { _.groupRefChildren }
+  final lazy val enclosingComponentModelGroup = enclosingComponent.collect { case mg: ModelGroup => mg }
+  final lazy val sequencePeers = enclosingComponentModelGroup.map { _.sequenceChildren }
+  final lazy val choicePeers = enclosingComponentModelGroup.map { _.choiceChildren }
+  final lazy val groupRefPeers = enclosingComponentModelGroup.map { _.groupRefChildren }
 
-  def myPeers: Option[Seq[GroupBase]]
+  protected def myPeers: Option[Seq[GroupBase]]
 
   def group: ModelGroup
 
-  lazy val immediateGroup: Option[ModelGroup] = {
+  final lazy val immediateGroup: Option[ModelGroup] = {
     val res: Option[ModelGroup] = this.group match {
       case (s: Sequence) => Some(s)
       case (c: Choice) => Some(c)
@@ -89,7 +89,7 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
     res
   }
 
-  lazy val alignmentValueChildren: Int = {
+  private lazy val alignmentValueChildren: Int = {
     immediateGroup match {
       case Some(m: ModelGroup) => {
         m.groupMembers.sortBy(m => -m.alignmentValueInBits).headOption match {
@@ -100,7 +100,8 @@ abstract class GroupBase(xmlArg: Node, parentArg: SchemaComponent, position: Int
       case None => 0
     }
   }
-  lazy val alignmentValueInBits: Int = {
+
+  final lazy val alignmentValueInBits: Int = {
     this.alignment match {
       case AlignmentType.Implicit => alignmentValueChildren
       case align: Int => this.alignmentUnits match {

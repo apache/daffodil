@@ -116,7 +116,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
 
-  lazy val notReferencedByExpressions = {
+  final lazy val notReferencedByExpressions = {
     val ise = inScopeExpressions
     val hasThem = ise.exists { _.hasReferenceTo(dpathElementCompileInfo) }
     !hasThem
@@ -127,12 +127,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    */
   def inScopeExpressions: Stream[WholeExpression] = Stream.empty
 
-  lazy val simpleType = {
+  final lazy val simpleType = {
     Assert.usage(isSimpleType)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
 
-  lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
+  final lazy val optPrimType: Option[PrimType] = Misc.boolToOpt(isSimpleType, primType) // .typeRuntimeData)
 
   def isScalar: Boolean
   def isRequiredArrayElement: Boolean
@@ -144,9 +144,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def elementRef: Option[ElementRef]
 
-  override lazy val dpathCompileInfo = dpathElementCompileInfo
+  final override lazy val dpathCompileInfo = dpathElementCompileInfo
 
-  lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
+  final lazy val dpathElementCompileInfo: DPathElementCompileInfo = {
     val eci = new DPathElementCompileInfo(
       enclosingElement.map { _.dpathElementCompileInfo },
       variableMap,
@@ -162,8 +162,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     eci
   }
 
-  lazy val thisElementsNamespace: NS = this.namedQName.namespace
-  lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
+  private lazy val thisElementsNamespace: NS = this.namedQName.namespace
+  private lazy val thisElementsNamespacePrefix: String = this.namespaces.getPrefix(thisElementsNamespace.toString)
 
   private def nsBindingsToSet(nsb: NamespaceBinding): Set[(String, NS)] = {
     if (nsb == scala.xml.TopScope) Set()
@@ -241,12 +241,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * To be properly constructed, scala's xml Elems must share the scope (namespace bindings) of the enclosing
    * parent element, except when it adds more of its own bindings, in which case the tail is supposed to be shared.
    */
-  lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
+  private lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
 
-  override lazy val runtimeData: RuntimeData = elementRuntimeData
-  override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
+  final override lazy val runtimeData: RuntimeData = elementRuntimeData
+  final override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
-  lazy val defaultValue =
+  final lazy val defaultValue =
     if (isDefaultable && (isScalar || isRequiredArrayElement)) {
       val value = Infoset.convertToInfosetRepType(
         primType, // .typeRuntimeData, 
@@ -305,7 +305,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *
    * So we need a cast upward to Map[QNameBase,ElementRuntimeData]
    */
-  def computeNextElementResolver(possibles: Seq[ElementBase]): NextElementResolver = {
+  final def computeNextElementResolver(possibles: Seq[ElementBase]): NextElementResolver = {
     val eltMap = possibles.map {
       e => (e.namedQName, e.elementRuntimeData)
     }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
@@ -317,10 +317,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     resolver
   }
 
-  lazy val nextElementResolver: NextElementResolver =
+  final lazy val nextElementResolver: NextElementResolver =
     computeNextElementResolver(possibleNextElementsForUnparse)
 
-  lazy val childElementResolver: NextElementResolver =
+  final lazy val childElementResolver: NextElementResolver =
     computeNextElementResolver(possibleNextChildrenElementsForUnparse)
 
   final lazy val elementRuntimeData: ElementRuntimeData = elementRuntimeData_.value
@@ -330,7 +330,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     createElementRuntimeData(optERD)
   }
 
-  final lazy val erd = elementRuntimeData
+  final def erd = elementRuntimeData // just an abbreviation 
 
   /**
    * Everything needed at runtime about the element
@@ -418,12 +418,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * all the slot space in these objects. This would still be constant-time access,
    * just with a larger constant overhead. It's a time/space tradeoff.
    */
-  lazy val nChildSlots: Int = {
+  final lazy val nChildSlots: Int = {
     if (isSimpleType) 0
     else elementChildren.length
   }
 
-  lazy val slotIndexInParent: Int = {
+  final lazy val slotIndexInParent: Int = {
     if (!nearestEnclosingElement.isDefined) 0
     else {
       val elemParent = nearestEnclosingElementNotRef.get
@@ -440,7 +440,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *
    * Include both represented and non-represented elements.
    */
-  lazy val elementChildren: Seq[ElementBase] = {
+  final lazy val elementChildren: Seq[ElementBase] = {
     this.typeDef match {
       case ct: ComplexTypeBase => {
         ct.modelGroup.group.elementChildren.asInstanceOf[Seq[ElementBase]]
@@ -451,7 +451,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final lazy val elementChildrenCompileInfo = elementChildren.map { _.dpathElementCompileInfo }
 
-  override lazy val isRepresented = {
+  final override lazy val isRepresented = {
     val isRep = inputValueCalcOption.isInstanceOf[NotFound]
     if (!isRep) {
       if (isOptional) {
@@ -464,9 +464,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     isRep
   }
 
-  lazy val isOutputValueCalc = outputValueCalcOption.isInstanceOf[Found]
+  final lazy val isOutputValueCalc = outputValueCalcOption.isInstanceOf[Found]
 
-  override lazy val impliedRepresentation = {
+  final override lazy val impliedRepresentation = {
     val rep = if (isSimpleType) {
       primType match {
         case PrimType.HexBinary => Representation.Binary
@@ -479,36 +479,36 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     rep
   }
 
-  override lazy val couldHaveText: Boolean = {
+  final override lazy val couldHaveText: Boolean = {
     hasDelimiters ||
       (isSimpleType && impliedRepresentation == Representation.Text) ||
       (isComplexType && elementComplexType.modelGroup.couldHaveText)
   }
 
-  override lazy val termChildren: Seq[Term] = {
+  final override lazy val termChildren: Seq[Term] = {
     if (isSimpleType) Nil
     else Seq(elementComplexType.modelGroup.group)
   }
 
-  lazy val isParentUnorderedSequence: Boolean = {
+  final lazy val isParentUnorderedSequence: Boolean = {
     parent match {
       case s: Sequence if !s.isOrdered => true
       case _ => false
     }
   }
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:element>{ contents @ _* }</dfdl:element> => new DFDLElement(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
+  protected final def emptyFormatFactory = new DFDLElement(newDFDLAnnotationXML("element"), this)
 
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLElement]
 
-  def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
+  private def getImplicitAlignmentInBits(thePrimType: PrimType, theRepresentation: Representation): Int = {
     theRepresentation match {
       case Representation.Text =>
         thePrimType match {
@@ -533,9 +533,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
+  private lazy val implicitAlignmentInBits: Int = getImplicitAlignmentInBits(primType, impliedRepresentation)
 
-  lazy val alignmentValueInBits: Int = {
+  final lazy val alignmentValueInBits: Int = {
     alignment match {
       case AlignmentType.Implicit => {
         if (this.isComplexType) {
@@ -571,32 +571,32 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * it means in dfdl:lengthUnits units, which could be characters, and those can
    * be fixed or variable width.
    */
-  lazy val isFixedLength = {
+  final lazy val isFixedLength = {
     lengthKind == LengthKind.Explicit && length.isConstant
   }
 
-  lazy val hasSpecifiedLength = {
+  final lazy val hasSpecifiedLength = {
     isFixedLength ||
       lengthKind == LengthKind.Pattern ||
       lengthKind == LengthKind.Prefixed ||
       lengthKind == LengthKind.Implicit
   }
 
-  lazy val fixedLength = {
+  final lazy val fixedLength = {
     if (isFixedLength) length.constantAsLong else -1 // shouldn't even be asking for this if not isFixedLength 
   }
 
   /**
    * Nil Lit = literal nil, as opposed to value nil that uses a reserved value
    */
-  lazy val isDefinedNilLit: Boolean = {
+  private lazy val isDefinedNilLit: Boolean = {
     val res = isNillable &&
       (nilKind == NilKind.LiteralValue ||
         nilKind == NilKind.LiteralCharacter)
     res
   }
 
-  lazy val isDefinedNilValue: Boolean = {
+  private lazy val isDefinedNilValue: Boolean = {
     val res = (isNillable && nilKind == NilKind.LogicalValue)
     res
   }
@@ -606,19 +606,19 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * The existence of an expression to compute a delimiter is assumed to imply a non-zero-length, aka a real delimiter.
    */
 
-  lazy val NVDP = NilValueDelimiterPolicy
-  lazy val EVDP = EmptyValueDelimiterPolicy
+  private def NVDP = NilValueDelimiterPolicy
+  private def EVDP = EmptyValueDelimiterPolicy
 
-  lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
-  lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
+  private lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
+  private lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
-  lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
-  lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
+  final lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
+  final lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
   // See how this function takes the prop: => Any that is pass by name (aka lazy pass). 
   // That allows us to not require the property to exist at all if
   // expr.isKnownNotEmpty turns out to be false. 
-  def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
+  private def initTermTestExpression(expr: CompiledExpression, prop: => Any, true1: Any, true2: Any): Boolean = {
     // changed from a match on a 2-tuple to if-then-else logic because we don't even want to ask for 
     // prop's value at all unless the first test is true.
     if (expr.isKnownNonEmpty)
@@ -641,7 +641,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // FIXME : This looks incorrect. empty is observable so long as one can 
   // have zero length followed by a separator, or zero length between an 
   // initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
-  lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
+  final lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
   private val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
     val res = if ((hasSep ||
       hasEmptyValueInitiator ||
@@ -674,85 +674,85 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   //    Assert.notYetImplemented("inScopeTerminatingMarkup")
   //  }
 
-  lazy val hasExpressionsInTerminatingMarkup: Boolean = {
+  final lazy val hasExpressionsInTerminatingMarkup: Boolean = {
     this.allTerminatingMarkup.filter { case (delimValue, _, _) => !delimValue.isConstant }.length > 0
   }
 
   // 11/1/2012 - moved to base since needed by patternValue
-  lazy val isPrimType = typeDef.isInstanceOf[PrimType]
+  final lazy val isPrimType = typeDef.isInstanceOf[PrimType]
 
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
-  lazy val hasPattern: Boolean = {
+  private lazy val hasPattern: Boolean = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasPattern
     } else { false }
   }
-  lazy val hasEnumeration: Boolean = {
+  private lazy val hasEnumeration: Boolean = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasEnumeration
     } else { false }
   }
 
-  lazy val hasMinLength = {
+  private lazy val hasMinLength = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinLength
     } else { false }
   }
 
-  lazy val hasMaxLength = {
+  private lazy val hasMaxLength = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxLength
     } else { false }
   }
 
-  lazy val hasMinInclusive = {
+  private lazy val hasMinInclusive = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinInclusive
     } else { false }
   }
 
-  lazy val hasMaxInclusive = {
+  private lazy val hasMaxInclusive = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxInclusive
     } else { false }
   }
 
-  lazy val hasMinExclusive = {
+  private lazy val hasMinExclusive = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinExclusive
     } else { false }
   }
 
-  lazy val hasMaxExclusive = {
+  private lazy val hasMaxExclusive = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxExclusive
     } else { false }
   }
 
-  lazy val hasTotalDigits = {
+  private lazy val hasTotalDigits = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasTotalDigits
     } else { false }
   }
 
-  lazy val hasFractionDigits = {
+  private lazy val hasFractionDigits = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasFractionDigits
     } else { false }
   }
 
-  lazy val patternValues: Seq[FacetValueR] = {
+  final lazy val patternValues: Seq[FacetValueR] = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasPattern) {
@@ -763,7 +763,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("Pattern was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val enumerationValues: String = {
+  private lazy val enumerationValues: String = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasEnumeration) st.enumerationValues
@@ -775,11 +775,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * Compute minLength and maxLength together to share error-checking
    * and case dispatch that would otherwise have to be repeated.
    */
-  lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) = computeMinMaxLength
+  final lazy val (minLength: java.math.BigDecimal, maxLength: java.math.BigDecimal) = computeMinMaxLength
   // TODO: why are we using java.math.BigDecimal, when scala has a much 
   // nicer decimal class?
-  val zeroBD = new java.math.BigDecimal(0)
-  val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
+  private val zeroBD = new java.math.BigDecimal(0)
+  private val unbBD = new java.math.BigDecimal(-1) // TODO: should this be a tunable limit?
 
   private def computeMinMaxLength: (java.math.BigDecimal, java.math.BigDecimal) = {
     schemaDefinitionUnless(isSimpleType, "Facets minLength and maxLength are allowed only on types string and hexBinary.")
@@ -834,7 +834,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // 
   // Same thing applies to the other paired facets where there is lots of 
   // common logic associated with checking.
-  lazy val minInclusive: java.math.BigDecimal = {
+  private lazy val minInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
@@ -851,7 +851,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("MinInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val maxInclusive: java.math.BigDecimal = {
+  private lazy val maxInclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMaxInclusive && st.hasMaxExclusive) SDE("MaxInclusive and MaxExclusive cannot be specified for the same simple type.")
@@ -868,7 +868,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("MaxInclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val minExclusive: java.math.BigDecimal = {
+  private lazy val minExclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMinInclusive && st.hasMinExclusive) SDE("MinInclusive and MinExclusive cannot be specified for the same simple type.")
@@ -885,7 +885,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("MinExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val maxExclusive: java.math.BigDecimal = {
+  private lazy val maxExclusive: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasMaxExclusive && st.hasMaxInclusive) SDE("MaxExclusive and MaxInclusive cannot be specified for the same simple type.")
@@ -902,7 +902,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("MaxExclusive was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val totalDigits: java.math.BigDecimal = {
+  private lazy val totalDigits: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasTotalDigits) {
@@ -918,7 +918,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("TotalDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val fractionDigits: java.math.BigDecimal = {
+  private lazy val fractionDigits: java.math.BigDecimal = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       if (st.hasFractionDigits) {
@@ -937,7 +937,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else SDE("FractionDigits was asked for when isSimpleType(%s) and isPrimType(%s)", isSimpleType, isPrimType)
   }
 
-  lazy val allFacets: Seq[FacetValue] = {
+  private lazy val allFacets: Seq[FacetValue] = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.combinedBaseFacets

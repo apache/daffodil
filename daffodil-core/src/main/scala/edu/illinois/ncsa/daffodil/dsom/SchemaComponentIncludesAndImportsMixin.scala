@@ -69,9 +69,9 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
     res
   }
 
-  lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
+  final lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
 
-  val orElseURL: String = "file:??"
+  protected final val orElseURL: String = "file:??"
 
   /**
    * Used in diagnostic messages; hence, valueOrElse to avoid

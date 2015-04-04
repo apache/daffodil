@@ -56,19 +56,19 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   requiredEvaluations(checkIfValidUnorderedSequence)
 
-  lazy val myPeers = sequencePeers
+  final override lazy val myPeers = sequencePeers
 
-  override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
+  final override lazy val hasDelimiters = hasInitiator || hasTerminator || hasSeparator
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:sequence>{ contents @ _* }</dfdl:sequence> => new DFDLSequence(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
+  protected final def emptyFormatFactory = new DFDLSequence(newDFDLAnnotationXML("sequence"), this)
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSequence]
 
   // The dfdl:hiddenGroupRef property cannot be scoped, nor defaulted. It's really a special
   // attribute, not a format property in the usual sense.
@@ -76,13 +76,13 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   //
   // FIXME: must call findPropertyOption so that it gets a context back which 
   // allows resolution of a QName using the right scope. 
-  lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef")
+  final lazy val hiddenGroupRefOption = getPropertyOption("hiddenGroupRef")
 
   /**
    * We're hidden if we're inside something hidden, or we're explicitly a
    * hidden group reference (sequence with hiddenGroupRef property)
    */
-  override lazy val isHidden = {
+  final override lazy val isHidden = {
     val res = hiddenGroupRefOption match {
       case Some(_) => true
       case None => someEnclosingComponent.isHidden
@@ -90,9 +90,9 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     res
   }
 
-  lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
+  private lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
 
-  lazy val xmlChildren = xmlChildren_.value
+  final lazy val xmlChildren = xmlChildren_.value
   private val xmlChildren_ = LV('xmlChildren) {
     hiddenGroupRefOption match {
       case Some(qname) => {
@@ -108,14 +108,14 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val hasStaticallyRequiredInstances = {
+  final lazy val hasStaticallyRequiredInstances = {
     // true if there are syntactic features
     hasInitiator || hasTerminator ||
       // or if any child of the sequence has statically required instances.
       groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
-  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
   private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true
     else if (isKnownToBeAligned) true
@@ -125,7 +125,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   /**
    * Provides unordered sequence checks.  Will SDE if invalid.
    */
-  def checkIfValidUnorderedSequence(): Unit = {
+  protected final def checkIfValidUnorderedSequence(): Unit = {
     if (!isOrdered) {
       checkMembersAreAllElementOrElementRef
       checkMembersHaveValidOccursCountKind
@@ -151,6 +151,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       this.SDE("Members of an unordered sequence (%s) that are optional or array elements must have dfdl:occursCountKind='parsed'." +
         "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
+
   private def checkMembersAreAllElementOrElementRef: Unit = {
     val invalidChildren = groupMembers.filterNot(child =>
       child.isInstanceOf[LocalElementDecl] || child.isInstanceOf[ElementRef])
@@ -159,6 +160,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       this.SDE("Members of an unordered sequence (%s) must be Element or ElementRef." +
         "\nThe offending members: %s.", this.path, invalidChildren.mkString(","))
   }
+
   private def checkMembersHaveUniqueNamesInNamespaces: Unit = {
     val childrenGroupedByNamespace =
       groupMembers.filter(m => m.isInstanceOf[ElementBase]).map(_.asInstanceOf[ElementBase]).groupBy(_.targetNamespace)
@@ -180,12 +182,12 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
     }
   }
 
-  lazy val isOrdered: Boolean = this.sequenceKind match {
+  final lazy val isOrdered: Boolean = this.sequenceKind match {
     case SequenceKind.Ordered => true
     case SequenceKind.Unordered => false
   }
 
-  lazy val unorderedSeq: Option[UnorderedSequence] = if (!isOrdered) {
+  final lazy val unorderedSeq: Option[UnorderedSequence] = if (!isOrdered) {
 
     val children = apparentXMLChildren.map(c => {
       c match {
@@ -242,7 +244,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
 }
 
-class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)
+final class UnorderedSequence(xmlArg: Node, xmlContents: Seq[Node], parent: SchemaComponent, position: Int)
   extends Sequence(xmlArg, parent, position) {
   // A shell, the actual XML representation is passed in
   // from Sequence

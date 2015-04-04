@@ -85,7 +85,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       path,
       schemaFileLocation)
 
-  lazy val termChildrenEncodingInfo: Seq[EncodingInfo] = termChildren.map { _.encodingInfo }
+  final lazy val termChildrenEncodingInfo: Seq[EncodingInfo] = termChildren.map { _.encodingInfo }
 
   /**
    * An integer which is the alignment of this term. This takes into account the
@@ -119,7 +119,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    */
   def termChildren: Seq[Term]
 
-  val tID = UUID.randomUUID()
+  final val tID = UUID.randomUUID()
 
   // Scala coding style note: This style of passing a constructor arg that is named fooArg,
   // and then having an explicit val/lazy val which has the 'real' name is 
@@ -227,52 +227,52 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * This is why we have to have the GlobalXYZDefFactory stuff. Because this kind of back
    * pointer (contextual sensitivity) prevents sharing.
    */
-  lazy val nearestEnclosingSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingSequence: Option[Sequence] = enclosingTerm match {
     case None => None
     case Some(s: Sequence) => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingSequence
   }
 
-  lazy val nearestEnclosingChoiceBeforeSequence: Option[Choice] = enclosingTerm match {
+  final lazy val nearestEnclosingChoiceBeforeSequence: Option[Choice] = enclosingTerm match {
     case None => None
     case Some(s: Sequence) => None
     case Some(c: Choice) => Some(c)
     case Some(_) => enclosingTerm.get.nearestEnclosingChoiceBeforeSequence
   }
 
-  lazy val nearestEnclosingUnorderedSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequence: Option[Sequence] = enclosingTerm match {
     case None => None
     case Some(s: Sequence) if !s.isOrdered => Some(s)
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
-  lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[Sequence] = enclosingTerm match {
+  final lazy val nearestEnclosingUnorderedSequenceBeforeSequence: Option[Sequence] = enclosingTerm match {
     case None => None
     case Some(s: Sequence) if !s.isOrdered => Some(s)
     case Some(s: Sequence) => None
     case Some(_) => enclosingTerm.get.nearestEnclosingUnorderedSequence
   }
 
-  lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
+  final lazy val inChoiceBeforeNearestEnclosingSequence: Boolean = enclosingTerm match {
     case None => false
     case Some(s: Sequence) => false
     case Some(c: Choice) => true
     case Some(_) => enclosingTerm.get.inChoiceBeforeNearestEnclosingSequence
   }
 
-  lazy val nearestEnclosingElement: Option[ElementBase] = enclosingTerm match {
+  final lazy val nearestEnclosingElement: Option[ElementBase] = enclosingTerm match {
     case None => None
     case Some(eb: ElementBase) => Some(eb)
     case Some(_) => enclosingTerm.get.nearestEnclosingElement
   }
 
-  lazy val nearestEnclosingElementNotRef: Option[ElementBase] = nearestEnclosingElement match {
+  final lazy val nearestEnclosingElementNotRef: Option[ElementBase] = nearestEnclosingElement match {
     case None => None
     case Some(er: ElementRef) => er.nearestEnclosingElement // can't be an element ref again
     case x => x
   }
 
-  lazy val thisTermNoRefs: Term = thisTermNoRefs_.value
+  protected final lazy val thisTermNoRefs: Term = thisTermNoRefs_.value
   private val thisTermNoRefs_ = LV('thisTermNoRefs) {
     val es = nearestEnclosingSequence
 
@@ -312,7 +312,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
    * We want to determine if we're in an unordered sequence
    * at any point along our parents.
    */
-  lazy val inUnorderedSequence: Boolean =
+  final lazy val inUnorderedSequence: Boolean =
     nearestEnclosingSequence match {
       case None => {
         false
@@ -325,7 +325,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       }
     }
 
-  lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
+  final lazy val immediatelyEnclosingModelGroup: Option[ModelGroup] = {
     val res = parent match {
       case c: Choice => Some(c)
       case s: Sequence => Some(s)
@@ -354,7 +354,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     res
   }
 
-  lazy val positionInNearestEnclosingSequence: Int = {
+  final lazy val positionInNearestEnclosingSequence: Int = {
     val res =
       if (enclosingComponent == nearestEnclosingSequence) position
       else {
@@ -372,7 +372,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     res
   }
 
-  lazy val terminatingMarkup: List[CompiledExpression] = {
+  final lazy val terminatingMarkup: List[CompiledExpression] = {
     if (hasTerminator) List(terminator)
     else nearestEnclosingSequence match {
       case None => Nil
@@ -392,14 +392,14 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     }
   }
 
-  lazy val prettyTerminatingMarkup =
+  final lazy val prettyTerminatingMarkup =
     terminatingMarkup.map { _.prettyExpr }.map { "'" + _ + "'" }.mkString(" ")
 
-  lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
+  final lazy val isDirectChildOfSequence = parent.isInstanceOf[Sequence]
 
   import edu.illinois.ncsa.daffodil.util.ListUtils
 
-  lazy val allSiblings: Seq[Term] = {
+  final lazy val allSiblings: Seq[Term] = {
     val res = nearestEnclosingSequence.map { enc =>
       val allSiblings = enc.groupMembers.map { _.referredToComponent }
       allSiblings
@@ -407,15 +407,15 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     res.getOrElse(Nil)
   }
 
-  lazy val priorSiblings = ListUtils.preceding(allSiblings, this)
-  lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
-  lazy val laterElementSiblings = laterSiblings.collect { case elt: ElementBase => elt }
+  final lazy val priorSiblings = ListUtils.preceding(allSiblings, this)
+  final lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
+  final lazy val laterElementSiblings = laterSiblings.collect { case elt: ElementBase => elt }
 
-  lazy val priorSibling = priorSiblings.lastOption
-  lazy val nextSibling = laterSiblings.headOption
+  final lazy val priorSibling = priorSiblings.lastOption
+  final lazy val nextSibling = laterSiblings.headOption
 
-  lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredInstances)
-  lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredInstances)
+  final lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredInstances)
+  final lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredInstances)
 
   def hasStaticallyRequiredInstances: Boolean
   def isKnownRequiredElement = false

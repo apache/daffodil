@@ -64,7 +64,7 @@ import edu.illinois.ncsa.daffodil.grammar.ElementReferenceGrammarMixin
  * itself, or a simpleType def or a base simple type def. Element does this. ElementRef
  * doesn't.
  */
-class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
+final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementReferenceGrammarMixin
   with HasRefMixin
@@ -138,13 +138,11 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   // Consider removing some. Although consider that
   // some have to be here because of abstract bases or traits requiring them
   // even if they aren't called.
-  lazy val typeDef = referencedElement.typeDef
+  override lazy val typeDef = referencedElement.typeDef
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
-  lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
-  lazy val outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
-  //  lazy val scalarDefaultable = referencedElement.scalarDefaultable
-  //  lazy val scalarNonDefault = referencedElement.scalarNonDefault
+  override lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
+  override lazy val outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
 
   //TODO: refactor and use shared code for creating resolved set of annotations for an annotation point.
   override lazy val statements = localStatements
@@ -154,7 +152,3 @@ class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   override lazy val setVariableStatements = localSetVariableStatements
 
 }
-
-/**
- * Shared by all element declarations local or global
- */

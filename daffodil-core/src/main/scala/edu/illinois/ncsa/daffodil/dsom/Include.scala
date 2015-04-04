@@ -66,17 +66,17 @@ import java.net.URLEncoder
  * is being included (by one include hop, or several) into a schema having
  * a targetNamespace.
  */
-class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
+final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(xml, xsd, seenArg) {
 
-  final lazy val mapPair = mapPair_.value
+  protected final lazy val mapPair = mapPair_.value
   private val mapPair_ = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.
     val mp = (targetNamespace, resolvedLocation)
     mp
   }
 
-  lazy val slText = schemaLocationProperty.get // include always has a schemaLocation property
+  private lazy val slText = schemaLocationProperty.get // include always has a schemaLocation property
 
   lazy val resolvedNamespaceURI = None // include doesn't have a namespace.
 

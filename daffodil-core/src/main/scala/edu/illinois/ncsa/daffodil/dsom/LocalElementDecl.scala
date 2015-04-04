@@ -54,11 +54,12 @@ class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
   extends LocalElementBase(xmlArg, parent, position)
   with ElementFormDefaultMixin
   with ElementDeclMixin {
+
   lazy val elementRef = None
 
   requiredEvaluations(minOccurs, maxOccurs)
 
-  override lazy val namedQName = {
+  final override lazy val namedQName = {
     val isQualified = elementFormDefault == "qualified"
     QName.createLocal(name, targetNamespace, isQualified, namespaces)
   }

@@ -61,7 +61,7 @@ import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
  * A GroupRef (group reference) is a term, but most everything is delgated to the
  * referred-to Global Group Definition object.
  */
-class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
+final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends GroupBase(xmlArg, parent, position)
   with DFDLStatementMixin
   with GroupRefGrammarMixin
@@ -83,25 +83,25 @@ class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
   lazy val nonDefaultPropertySources = group.nonDefaultPropertySources
   lazy val defaultPropertySources = group.defaultPropertySources
 
-  lazy val prettyBaseName = "group.ref." + refQName.local
+  protected lazy val prettyBaseName = "group.ref." + refQName.local
 
-  lazy val myPeers = groupRefPeers
+  protected lazy val myPeers = groupRefPeers
 
   override lazy val termChildren: Seq[Term] = {
     group.termChildren
   }
 
-  lazy val qname = resolveQName(ref)
+  final lazy val qname = resolveQName(ref)
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:group>{ contents @ _* }</dfdl:group> => new DFDLGroup(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
+  protected final def emptyFormatFactory = new DFDLGroup(newDFDLAnnotationXML("group"), this)
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLGroup]
 
   def hasStaticallyRequiredInstances = group.hasStaticallyRequiredInstances
 

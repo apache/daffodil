@@ -69,7 +69,7 @@ import java.net.URLEncoder
  * We have to verify that the ultimate goal namespace at the start of that chain of includes
  * is different from this imported schema's goalNamespace.
  */
-class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
+final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(importNode, xsd, seenArg) {
 
   final lazy val mapPair = mapPair_.value
@@ -138,8 +138,8 @@ class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
     }
   }
 
-  lazy val resolver = xsd.schemaSet.resolver // iiSchemaFileMaybe.map { _.resolver }
-  lazy val catFiles = resolver.catalogFiles.mkString(", ")
+  private lazy val resolver = xsd.schemaSet.resolver // iiSchemaFileMaybe.map { _.resolver }
+  private lazy val catFiles = resolver.catalogFiles.mkString(", ")
 
   /**
    * XML Catalog is tried first, then classpath

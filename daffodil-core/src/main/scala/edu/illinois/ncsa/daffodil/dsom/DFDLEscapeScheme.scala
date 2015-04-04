@@ -57,16 +57,16 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
+final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDefineEscapeScheme)
   extends DFDLFormatAnnotation(node, decl)
   with EscapeScheme_AnnotationMixin
   with RawEscapeSchemeRuntimeValuedPropertiesMixin {
 
-  override lazy val enclosingComponent = Some(defES)
+  final override lazy val enclosingComponent = Some(defES)
 
-  lazy val referringComponent: Option[SchemaComponent] = Some(defES)
+  final lazy val referringComponent: Option[SchemaComponent] = Some(defES)
 
-  override def findPropertyOption(pname: String): PropertyLookupResult = {
+  final override def findPropertyOption(pname: String): PropertyLookupResult = {
     ExecutionMode.requireCompilerMode // never get properties at runtime, only compile time.
     val propNodeSeq = xml.attribute(pname)
     propNodeSeq match {
@@ -89,7 +89,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val optionEscapeCharacter = _optionEscapeCharacter.value
+  final lazy val optionEscapeCharacter = _optionEscapeCharacter.value
   private val _optionEscapeCharacter = LV('optionEscapeCharacter) {
     escapeCharacterRaw match {
       case Found("", loc) => None
@@ -97,7 +97,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val optionEscapeEscapeCharacter = _optionEscapeEscapeCharacter.value
+  final lazy val optionEscapeEscapeCharacter = _optionEscapeEscapeCharacter.value
   private val _optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
     escapeEscapeCharacterRaw match {
       case Found("", loc) => None
@@ -109,7 +109,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val optionEscapeBlockStart = _optionEscapeBlockStart.value
+  final lazy val optionEscapeBlockStart = _optionEscapeBlockStart.value
   private val _optionEscapeBlockStart = LV('optionEscapeBlockStart) {
     escapeBlockStartRaw match {
       case Found("", loc) => None
@@ -117,7 +117,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val optionEscapeBlockEnd = _optionEscapeBlockEnd.value
+  final lazy val optionEscapeBlockEnd = _optionEscapeBlockEnd.value
   private val _optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
     escapeBlockEndRaw match {
       case Found("", loc) => None
@@ -125,7 +125,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
+  final lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
     case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)
     case EscapeKind.EscapeCharacter => new EscapeSchemeObject(this.escapeKind, this.optionEscapeCharacter, this.optionEscapeEscapeCharacter, None, None)
   }
@@ -135,7 +135,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
   // we can know it and have its value, or we must check at runtime, 
   // which means there WILL be an escape character, we just don't know what it is.
   // Represent as follows None, Some(true), Some(false)
-  lazy val (isKnownEscapeCharacter, knownEscapeCharacter) = {
+  final lazy val (isKnownEscapeCharacter, knownEscapeCharacter) = {
     optionEscapeCharacter match {
       case None => (None, None) // there isn't one
       case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
@@ -143,7 +143,7 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
     }
   }
 
-  lazy val (isKnownEscapeEscapeCharacter, knownEscapeEscapeCharacter) = {
+  final lazy val (isKnownEscapeEscapeCharacter, knownEscapeEscapeCharacter) = {
     optionEscapeEscapeCharacter match {
       case None => (None, None) // there isn't one
       case Some(ce) if (ce.isConstant) => (Some(true), Some(ce.constantAsString))
@@ -153,12 +153,12 @@ class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: DFDLDe
 
 }
 
-class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
+final class DFDLDefineEscapeSchemeFactory(node: Node, decl: SchemaDocument)
   extends DFDLDefiningAnnotation(node, decl) {
   def forComponent(pointOfUse: SchemaComponent) = new DFDLDefineEscapeScheme(node, decl, pointOfUse)
 }
 
-class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse: SchemaComponent)
+final class DFDLDefineEscapeScheme(node: Node, decl: SchemaDocument, pointOfUse: SchemaComponent)
   extends DFDLDefiningAnnotation(node, decl) // Note: defineEscapeScheme isn't a format annotation itself.
   // with DefineEscapeScheme_AnnotationMixin 
   {

@@ -56,7 +56,7 @@ import org.xml.sax.InputSource
  *
  * manages loading of it, and keeping track of validation errors
  */
-class DFDLSchemaFile(val sset: SchemaSet,
+final class DFDLSchemaFile(val sset: SchemaSet,
   schemaSourceArg: => DaffodilSchemaSource, // fileName, URL, or a scala.xml.Node
   val iiParent: IIBase,
   seenBeforeArg: IIMap)
@@ -65,7 +65,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   requiredEvaluations(isValid)
 
-  lazy val seenBefore = seenBeforeArg
+  private lazy val seenBefore = seenBeforeArg
 
   /**
    * Delegate back to the include or import that references us.
@@ -87,13 +87,13 @@ class DFDLSchemaFile(val sset: SchemaSet,
 
   lazy val diagnosticChildren = Nil // no recursive descent. We just want the loader's validation errors.
 
-  lazy val fakeURI = new File("tempFile.xsd").toURI
+  private lazy val fakeURI = new File("tempFile.xsd").toURI
 
   lazy val schemaSource = schemaSourceArg
 
   override lazy val enclosingComponent = None
 
-  var validationDiagnostics_ : Seq[Diagnostic] = Nil
+  private var validationDiagnostics_ : Seq[Diagnostic] = Nil
 
   def validationDiagnostics = validationDiagnostics_
 
@@ -131,10 +131,10 @@ class DFDLSchemaFile(val sset: SchemaSet,
     // parser throws out of fatalErrors.
   }
 
-  lazy val loader = new DaffodilXMLLoader(this)
-  lazy val resolver = schemaSet.resolver
+  private lazy val loader = new DaffodilXMLLoader(this)
+  private lazy val resolver = schemaSet.resolver
 
-  lazy val loadedNode = loadedNode_.value
+  private lazy val loadedNode = loadedNode_.value
   private val loadedNode_ = LV('loadedNode) {
     def die(e: Throwable) = {
       SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
@@ -154,7 +154,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
   lazy val node = loadedNode
 
   lazy val iiXMLSchemaDocument = iiXMLSchemaDocument_.value
-  val iiXMLSchemaDocument_ = LV('iiXMLSchemaDocument) {
+  private val iiXMLSchemaDocument_ = LV('iiXMLSchemaDocument) {
     val res = loadXMLSchemaDocument(seenBefore, Some(this))
     res
   }
@@ -165,7 +165,7 @@ class DFDLSchemaFile(val sset: SchemaSet,
     res
   }
 
-  def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
+  private def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
     val sd = node match {
       case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
         // top level is a schema. 

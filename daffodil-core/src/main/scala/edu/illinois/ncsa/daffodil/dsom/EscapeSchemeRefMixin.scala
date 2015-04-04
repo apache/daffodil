@@ -66,7 +66,7 @@ trait EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
    * to the object where this property was written, not where it is evaluated. (JIRA
    * issue DFDL-77)
    */
-  lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
+  final lazy val optionEscapeScheme: Option[DFDLEscapeScheme] = {
     val er = findPropertyOption("escapeSchemeRef")
     er match {
       case _: NotFound => {

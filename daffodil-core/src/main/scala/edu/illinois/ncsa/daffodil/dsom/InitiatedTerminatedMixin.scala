@@ -51,7 +51,7 @@ trait InitiatedTerminatedMixin
   with AnnotatedMixin
   with DelimitedRuntimeValuedPropertiesMixin { self: Term =>
 
-  lazy val parentSaysInitiatedContent = {
+  private lazy val parentSaysInitiatedContent = {
     val parentSays = self.immediatelyEnclosingModelGroup match {
       case Some(s) if (s.initiatedContent == YesNo.Yes) => true
       case _ => false
@@ -59,14 +59,14 @@ trait InitiatedTerminatedMixin
     parentSays
   }
 
-  lazy val hasInitiator = {
+  final lazy val hasInitiator = {
     val hasOne = initiator.isKnownNonEmpty
     if (parentSaysInitiatedContent)
       schemaDefinitionUnless(hasOne, "Enclosing group has initiatedContent='yes', but initiator is not defined.")
     hasOne
   }
 
-  lazy val hasTerminator = terminator.isKnownNonEmpty
+  final lazy val hasTerminator = terminator.isKnownNonEmpty
 
   lazy val initiatorDiscriminator = prod("initiatorDiscriminator", parentSaysInitiatedContent) { InitiatedContent(this) }
 

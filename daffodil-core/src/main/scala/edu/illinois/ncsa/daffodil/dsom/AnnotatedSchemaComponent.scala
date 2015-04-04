@@ -187,9 +187,9 @@ trait AnnotatedMixin
    * Anything annotated must be able to construct the
    * appropriate DFDLAnnotation object from the xml.
    */
-  def annotationFactory(node: Node): DFDLAnnotation
+  protected def annotationFactory(node: Node): DFDLAnnotation
 
-  lazy val annotationNode = {
+  private lazy val annotationNode = {
     val ann = xml \ "annotation"
     ann
   }
@@ -197,7 +197,7 @@ trait AnnotatedMixin
   /**
    * dais = Dfdl App Info nodeSeq
    */
-  lazy val dais = {
+  private lazy val dais = {
     val ais = (annotationNode \ "appinfo")
     val dais = ais.filter { ai =>
       {
@@ -236,7 +236,7 @@ trait AnnotatedMixin
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  lazy val annotationObjs = annotationObjs_.value
+  final lazy val annotationObjs = annotationObjs_.value
   private val annotationObjs_ = LV('annotationObjs) {
     // println(dais)
     dais.flatMap { dai =>
@@ -264,8 +264,8 @@ trait AnnotatedMixin
    * Given that, formatAnnotation then either finds the right annotation, or constructs one, but our invariant
    * is imposed. There *is* a formatAnnotation.
    */
-  def emptyFormatFactory: DFDLFormatAnnotation
-  def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
+  protected def emptyFormatFactory: DFDLFormatAnnotation
+  protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
   lazy val formatAnnotation = formatAnnotation_.value
   private val formatAnnotation_ = LV('formatAnnotation) {
@@ -278,9 +278,7 @@ trait AnnotatedMixin
     res
   }
 
-  lazy val justThisOneProperties = formatAnnotation.justThisOneProperties
-
-  lazy val defaultEncodingErrorPolicy = {
+  protected final lazy val defaultEncodingErrorPolicy = {
     if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {
       encodingErrorPolicy
     } else {

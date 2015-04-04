@@ -70,11 +70,11 @@ abstract class DFDLDefiningAnnotation(xmlArg: Node, annotatedSCArg: AnnotatedSch
   // The point of this, is so we can match-case on type DFDLDefiningAnnotation
   // but then still conveniently use methods/members defined in the 
   // DFDLAnnotation class
-  lazy val asAnnotation = self
+  final lazy val asAnnotation = self
 
-  def globalQName = namedQName.asInstanceOf[GlobalQName]
+  final def globalQName = namedQName.asInstanceOf[GlobalQName]
 
-  override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace)
+  final override lazy val namedQName: NamedQName = QName.createGlobal(name, namespace)
 
 }
 

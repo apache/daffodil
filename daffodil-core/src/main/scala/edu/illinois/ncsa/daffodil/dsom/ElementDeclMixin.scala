@@ -58,14 +58,14 @@ trait ElementDeclMixin
   extends ElementDeclGrammarMixin
   with OverlapCheckMixin { self: ElementBase =>
 
-  lazy val eRefNonDefault: Option[ChainPropProvider] = elementRef.map { _.nonDefaultFormatChain }
-  lazy val eRefDefault: Option[ChainPropProvider] = elementRef.map { _.defaultFormatChain }
+  private lazy val eRefNonDefault: Option[ChainPropProvider] = elementRef.map { _.nonDefaultFormatChain }
+  private lazy val eRefDefault: Option[ChainPropProvider] = elementRef.map { _.defaultFormatChain }
 
-  lazy val sTypeNonDefault: Seq[ChainPropProvider] = self.typeDef match {
+  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = self.typeDef match {
     case st: SimpleTypeDefBase => st.nonDefaultPropertySources
     case _ => Seq()
   }
-  lazy val sTypeDefault: Seq[ChainPropProvider] = self.typeDef match {
+  private lazy val sTypeDefault: Seq[ChainPropProvider] = self.typeDef match {
     case st: SimpleTypeDefBase => st.defaultPropertySources
     case _ => Seq()
   }
@@ -75,14 +75,14 @@ trait ElementDeclMixin
    * the ElementRef in order to have the complete picture of all the properties in effect for
    * that ElementBase.
    */
-  lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
+  final lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
   private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
     val seq = (eRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain) ++ sTypeNonDefault).distinct
     checkNonOverlap(seq)
     seq
   }
 
-  lazy val defaultPropertySources = defaultPropertySources_.value
+  final lazy val defaultPropertySources = defaultPropertySources_.value
   private val defaultPropertySources_ = LV('defaultPropertySources) {
     val seq = (eRefDefault.toSeq ++ Seq(this.defaultFormatChain) ++ sTypeDefault).distinct
     seq
@@ -90,7 +90,7 @@ trait ElementDeclMixin
 
   override lazy val prettyName = "element." + name
 
-  lazy val immediateType = immediateType_.value
+  final lazy val immediateType = immediateType_.value
   private val immediateType_ = LV('immediateType) {
     val st = xml \ "simpleType"
     val ct = xml \ "complexType"
@@ -105,9 +105,9 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val typeName = getAttributeOption("type")
+  private lazy val typeName = getAttributeOption("type")
 
-  lazy val namedTypeQName: Option[RefQName] = namedTypeQName_.value
+  private lazy val namedTypeQName: Option[RefQName] = namedTypeQName_.value
   private val namedTypeQName_ = LV('namedTypeQName) {
     typeName match {
       case Some(tname) =>
@@ -116,7 +116,7 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val namedTypeDef = namedTypeDef_.value
+  private lazy val namedTypeDef = namedTypeDef_.value
   private val namedTypeDef_ = LV('namedTypeDef) {
     namedTypeQName match {
       case None => None
@@ -144,7 +144,7 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val typeDef = typeDef_.value
+  final lazy val typeDef = typeDef_.value
   private val typeDef_ = LV('typeDef) {
     (immediateType, namedTypeDef) match {
       case (Some(ty), None) => ty
@@ -155,7 +155,7 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val isSimpleType = isSimpleType_.value
+  final lazy val isSimpleType = isSimpleType_.value
   private val isSimpleType_ = LV('isSimpleType) {
     typeDef match {
       case _: SimpleTypeBase => true
@@ -164,20 +164,20 @@ trait ElementDeclMixin
     }
   }
 
-  lazy val isComplexType = !isSimpleType
+  final lazy val isComplexType = !isSimpleType
 
-  lazy val defaultValueAsString = (xml \ "@default").text
+  final lazy val defaultValueAsString = (xml \ "@default").text
 
-  lazy val hasDefaultValue: Boolean = defaultValueAsString != ""
+  final lazy val hasDefaultValue: Boolean = defaultValueAsString != ""
 
-  lazy val isNillable = (xml \ "@nillable").text == "true"
+  final lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  lazy val elementComplexType = {
+  final lazy val elementComplexType = {
     Assert.usage(isComplexType)
     typeDef.asInstanceOf[ComplexTypeBase]
   }
 
-  lazy val elementSimpleType = {
+  final lazy val elementSimpleType = {
     Assert.usage(isSimpleType)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
@@ -191,7 +191,7 @@ trait ElementDeclMixin
    * at runtime it will not evaluate to empty string (so you can specify the delimiter
    * at runtime, but you cannot turn on/off the whole delimited format at runtime.)
    */
-  lazy val isDefaultable = isDefaultable_.value
+  final lazy val isDefaultable = isDefaultable_.value
   private val isDefaultable_ = LV('isDefaultable) {
     if (isSimpleType) {
       val hasDefaultValue = defaultValueAsString match {

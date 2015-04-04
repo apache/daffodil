@@ -64,7 +64,7 @@ import edu.illinois.ncsa.daffodil.dsom.IIUtils.IIMap
  */
 trait SchemaDocumentMixin { self: SchemaComponent =>
 
-  override lazy val enclosingComponent: Option[SchemaComponent] = None
+  final override lazy val enclosingComponent: Option[SchemaComponent] = None
 
 }
 
@@ -84,12 +84,12 @@ class XMLSchemaDocument(xmlArg: Node,
 
   requiredEvaluations(checkUnsupportedAttributes)
 
-  lazy val seenBefore = seenBeforeArg
+  final lazy val seenBefore = seenBeforeArg
 
-  val ii = iiArg
+  final val ii = iiArg
 
-  override lazy val schemaFile = sfArg
-  override lazy val xmlSchemaDocument = this
+  final override lazy val schemaFile = sfArg
+  final override lazy val xmlSchemaDocument = this
 
   /**
    * Error checks on the xs:schema element itself.
@@ -98,7 +98,7 @@ class XMLSchemaDocument(xmlArg: Node,
    * and some other attributes as well.
    */
 
-  def qualOrUnqual(str: String, kind: String) = {
+  private def qualOrUnqual(str: String, kind: String) = {
     str match {
       case "unqualified" => str
       case "qualified" => str
@@ -106,19 +106,19 @@ class XMLSchemaDocument(xmlArg: Node,
     }
   }
 
-  lazy val elementFormDefault = {
+  final lazy val elementFormDefault = {
     val efdAttr = (xml \ "@elementFormDefault").text
     if (efdAttr == "") "unqualified"
     else qualOrUnqual(efdAttr, "element")
   }
 
-  lazy val attributeFormDefault = {
+  final lazy val attributeFormDefault = {
     val afdAttr = (xml \ "@attributeFormDefault").text
     if (afdAttr == "") "unqualified"
     else qualOrUnqual(afdAttr, "attribute")
   }
 
-  lazy val checkUnsupportedAttributes = checkUnsupportedAttributes_.value
+  final lazy val checkUnsupportedAttributes = checkUnsupportedAttributes_.value
   private val checkUnsupportedAttributes_ = LV('checkUnsupportedAttributes) {
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
@@ -138,7 +138,7 @@ class XMLSchemaDocument(xmlArg: Node,
  *
  * I.e., default format properties, named format properties, etc.
  */
-class SchemaDocument(xmlSDoc: XMLSchemaDocument)
+final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   extends AnnotatedSchemaComponent(xmlSDoc.xml, xmlSDoc)
   with SchemaDocumentMixin
   with Format_AnnotationMixin
@@ -196,7 +196,7 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     seq
   }
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:format>{ content @ _* }</dfdl:format> => new DFDLFormat(node, this)
       case <dfdl:defineFormat>{ content @ _* }</dfdl:defineFormat> => new DFDLDefineFormat(node, this)
@@ -211,8 +211,8 @@ class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     }
   }
 
-  def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
+  protected def emptyFormatFactory = new DFDLFormat(newDFDLAnnotationXML("format"), this)
+  protected def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLFormat]
 
   /*
    * Design note about factories for global elements, and recursive types.

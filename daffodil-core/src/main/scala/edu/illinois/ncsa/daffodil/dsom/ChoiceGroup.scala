@@ -72,34 +72,34 @@ import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
  *
  */
 
-class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
+final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   extends ModelGroup(xmlArg, parent, position)
   with Choice_AnnotationMixin
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
 
-  lazy val myPeers = choicePeers
+  protected final override lazy val myPeers = choicePeers
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final override def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:choice>{ contents @ _* }</dfdl:choice> => new DFDLChoice(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
     }
   }
 
-  def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
+  protected final def emptyFormatFactory = new DFDLChoice(newDFDLAnnotationXML("choice"), this)
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLChoice]
 
-  lazy val <choice>{ xmlChildren @ _* }</choice> = xml
+  protected final override lazy val <choice>{ xmlChildren @ _* }</choice> = xml
 
-  lazy val hasStaticallyRequiredInstances = {
+  final lazy val hasStaticallyRequiredInstances = {
     // true if the choice has syntactic features (initiator, terminator)
     hasInitiator || hasTerminator ||
       // or if all arms of the choice have statically required instances.
       groupMembers.forall { _.hasStaticallyRequiredInstances }
   }
 
-  override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
+  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
   private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true
     else if (isKnownToBeAligned) true

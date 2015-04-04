@@ -55,8 +55,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
   def minOccurs: Int
   def maxOccurs: Int
 
-  override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
-  lazy val isRecurring = !isScalar
+  final override lazy val isScalar = minOccurs == 1 && maxOccurs == 1
+  final lazy val isRecurring = !isScalar
 
   /**
    * Determines if the element is optional, as in has zero or one instance only.
@@ -77,7 +77,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
    *
    * The DFDL spec is not entirely consistent here either I don't believe.
    */
-  lazy val isOptional = {
+  final lazy val isOptional = {
     // minOccurs == 0
     (optMinOccurs, optMaxOccurs) match {
       case (Some(1), Some(1)) => false // scalars are not optional
@@ -100,7 +100,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  override lazy val isArray = {
+  final override lazy val isArray = {
     // maxOccurs > 1 || maxOccurs == -1
     /**
      * Determines if the element is an array, as in can have more than one
@@ -127,7 +127,7 @@ trait RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  lazy val isRequiredArrayElement = {
+  final lazy val isRequiredArrayElement = {
     isArray &
       minOccurs > 0 &
       (occursCountKind == OccursCountKind.Fixed |
@@ -139,8 +139,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
 // A Particle is something that can be repeating.
 trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
 
-  override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
-  override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
+  final override lazy val optMinOccurs: Option[Int] = Some(minOccurs)
+  final override lazy val optMaxOccurs: Option[Int] = Some(maxOccurs)
 
   lazy val minOccurs = {
     val min = (self.xml \ "@minOccurs").text.toString
@@ -159,7 +159,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
     }
   }
 
-  lazy val isFixedOccurrences = {
+  final lazy val isFixedOccurrences = {
     // TODO optimizations to take scope into consideration. E.g.,
     // We could be in a context where the value of our occursCount expression
     // will always be a constant. 
@@ -169,7 +169,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
   /**
    * Does this node have statically required instances.
    */
-  lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
+  final lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
   private val hasStaticallyRequiredInstances_ = LV('hasStaticallyRequiredInstances) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
@@ -180,14 +180,14 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
     res
   }
 
-  override lazy val isKnownRequiredElement = isKnownRequiredElement_.value
+  final override lazy val isKnownRequiredElement = isKnownRequiredElement_.value
   private val isKnownRequiredElement_ = LV('isKnownRequiredElement) {
     if (isScalar) true
     else if (isFixedOccurrences) true
     else false
   }
 
-  lazy val hasStopValue = hasStopValue_.value
+  final lazy val hasStopValue = hasStopValue_.value
   private val hasStopValue_ = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.

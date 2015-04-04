@@ -60,7 +60,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
   private def lcm(a: Int, b: Int): Int = math.abs(a * b) / gcd(a, b)
   private def isXAMultipleOfY(x: Int, y: Int): Boolean = (x % y) == 0
 
-  def isAlignmentCompatible(current: Int, next: Int): Boolean = {
+  private def isAlignmentCompatible(current: Int, next: Int): Boolean = {
     isXAMultipleOfY(current, next)
   }
 
@@ -81,7 +81,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
    *
    * Part of the required evaluations for LocalElementBase.
    */
-  def checkForAlignmentAmbiguity: Unit = {
+  final def checkForAlignmentAmbiguity: Unit = {
     if (isOptional) {
       this.couldBeNext.filterNot(m => m == thisTermNoRefs).foreach { that =>
         val isSame = this.alignmentValueInBits == that.alignmentValueInBits
@@ -93,7 +93,7 @@ abstract class LocalElementBase(xmlArg: Node, parent: SchemaComponent, position:
     }
   }
 
-  lazy val couldBeNext: Seq[Term] = couldBeNext_.value
+  final lazy val couldBeNext: Seq[Term] = couldBeNext_.value
   private val couldBeNext_ = LV('couldBeNext) {
     val es = this.nearestEnclosingSequence
     val eus = this.nearestEnclosingUnorderedSequenceBeforeSequence

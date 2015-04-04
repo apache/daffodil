@@ -54,15 +54,15 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   requiredEvaluations(myBaseTypeList)
 
-  lazy val bases: Seq[SimpleTypeDefBase] =
+  final lazy val bases: Seq[SimpleTypeDefBase] =
     myBaseDef match {
       case None => Nil
       case Some(st: SimpleTypeDefBase) => st +: st.bases
       case _ => Nil
     }
 
-  lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.map { _.nonDefaultFormatChain }
-  lazy val sTypeDefault: Seq[ChainPropProvider] = bases.map { _.defaultFormatChain }
+  private lazy val sTypeNonDefault: Seq[ChainPropProvider] = bases.map { _.nonDefaultFormatChain }
+  private lazy val sTypeDefault: Seq[ChainPropProvider] = bases.map { _.defaultFormatChain }
 
   // want a QueueSet i.e., fifo order if iterated, but duplicates
   // kept out of the set. Will simulate by calling distinct.
@@ -81,11 +81,11 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
-  def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
+  protected final def emptyFormatFactory = new DFDLSimpleType(newDFDLAnnotationXML("simpleType"), this)
 
-  def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
+  protected final def isMyFormatAnnotation(a: DFDLAnnotation) = a.isInstanceOf[DFDLSimpleType]
 
-  def annotationFactory(node: Node): DFDLAnnotation = {
+  protected final def annotationFactory(node: Node): DFDLAnnotation = {
     node match {
       case <dfdl:simpleType>{ contents @ _* }</dfdl:simpleType> => new DFDLSimpleType(node, this)
       case _ => annotationFactoryForDFDLStatement(node, this)
@@ -94,7 +94,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   // Returns name of base class in the form of QName
   //
-  lazy val restrictionBase: RefQName = {
+  final lazy val restrictionBase: RefQName = {
     val rsb = xml \\ "restriction" \ "@base"
     if (rsb.length != 1) {
       context.SDE("Restriction base was not found.")
@@ -104,7 +104,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     res
   }
 
-  lazy val optPrimType: Option[PrimType] = {
+  final lazy val optPrimType: Option[PrimType] = {
     if (restrictionBase.namespace == XMLUtils.XSD_NAMESPACE) {
       // XSD namespace
       val prim = schemaDocument.schemaSet.getPrimType(restrictionBase)
@@ -114,12 +114,12 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     } else None
   }
 
-  lazy val myBaseDef = myBaseType match {
+  private lazy val myBaseDef = myBaseType match {
     case st: SimpleTypeDefBase => Some(st)
     case _ => None
   }
 
-  lazy val myBaseTypeFactory = {
+  private lazy val myBaseTypeFactory = {
     Assert.invariant(optPrimType == None)
     val factory = schemaDocument.schemaSet.getGlobalSimpleTypeDef(restrictionBase)
     factory
@@ -130,7 +130,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
    * built-in simple type that must underlie all simple types
    * eventually.
    */
-  lazy val primitiveType = {
+  final lazy val primitiveType = {
     myBaseType.primitiveType
   }
 
@@ -147,9 +147,9 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     }
   }
 
-  lazy val myBaseTypeList = List(myBaseType)
+  private lazy val myBaseTypeList = List(myBaseType)
 
-  lazy val localBaseFacets: ElemFacets = {
+  final lazy val localBaseFacets: ElemFacets = {
     val myFacets: Queue[FacetValue] = Queue.empty // val not var - it's a mutable collection
     if (localPatternValue.length > 0) { myFacets.enqueue((Facet.pattern, localPatternValue)) }
     if (localMinLengthValue.length > 0) { myFacets.enqueue((Facet.minLength, localMinLengthValue)) }
@@ -166,7 +166,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     res
   }
 
-  lazy val combinedBaseFacets: Seq[FacetValue] = {
+  final lazy val combinedBaseFacets: Seq[FacetValue] = {
     val localF = localBaseFacets
     val remoteF = remoteBaseFacets
 
@@ -217,7 +217,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     combined.toSeq
   }
 
-  lazy val remoteBaseFacets = remoteBaseFacets_.value
+  final lazy val remoteBaseFacets = remoteBaseFacets_.value
   private val remoteBaseFacets_ = LV('remoteBaseFacets) {
     myBaseType match {
       case gstd: GlobalSimpleTypeDef => gstd.combinedBaseFacets
@@ -231,7 +231,7 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
    *
    * The order is important here. I.e., we FIRST put in each list those from our base. Then our own local ones.
    */
-  lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
+  final lazy val statements: Seq[DFDLStatement] = myBaseDef.map { _.statements }.getOrElse(Nil) ++ localStatements
   // TODO: refactor into shared code for combining all the annotations in the resolved set of annotations 
   // for a particular annotation point, checking that there is only one format annotation, that 
   // asserts and discriminators are properly excluding each-other, etc.
@@ -239,20 +239,20 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
   // elements, and simple type elements.
   //
   // See JIRA issue DFDL-481
-  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+  final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
     myBaseDef.map { _.newVariableInstanceStatements }.getOrElse(Nil) ++ localNewVariableInstanceStatements
-  lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+  final lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
   private lazy val combinedAsserts: Seq[DFDLAssert] = myBaseDef.map { _.assertStatements }.getOrElse(Nil) ++ localAssertStatements
   private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = myBaseDef.map { _.discriminatorStatements }.getOrElse(Nil) ++ localDiscriminatorStatements
 
-  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+  final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
     val combinedSvs = myBaseDef.map { _.setVariableStatements }.getOrElse(Nil) ++ localSetVariableStatements
     checkDistinctVariableNames(combinedSvs)
   }
 
 }
 
-class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
+final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
@@ -278,7 +278,7 @@ class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
  * I.e., the context is clear and kept separate for each place a global type is used.
  */
 
-class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
+final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument)
   extends SchemaComponent(xmlArg, schemaDocumentArg) with NamedMixin {
   // def forRoot() = new GlobalSimpleTypeDef(xml, schemaDocument, None)
 
@@ -293,7 +293,7 @@ class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDocument
  * The instance type for global simple type definitions.
  */
 
-class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val referringElement: Option[ElementBase])
+final class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val referringElement: Option[ElementBase])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 

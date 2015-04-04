@@ -50,11 +50,11 @@ trait CommonRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
-  lazy val byteOrder = _byteOrder.value
+  final lazy val byteOrder = _byteOrder.value
   private val _byteOrder = LV('byteOrder) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, byteOrderRaw) }
-  lazy val encoding = _encoding.value
+  final lazy val encoding = _encoding.value
   private val _encoding = LV('encoding) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw) }
-  lazy val outputNewLine = _outputNewLine.value
+  final lazy val outputNewLine = _outputNewLine.value
   private val _outputNewLine = LV('outputNewLine) {
     //
     // FIXME unparser: outputNewLineRaw might be a literal, in which case
@@ -86,9 +86,9 @@ trait DelimitedRuntimeValuedPropertiesMixin
 
   // Can be whitespace separated lists, as a result the entity replacement needs to take place elsewhere
   // as it's possible to replace an entity with a whitespace character.
-  //  lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
-  //  lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
-  lazy val initiator = _initiator.value
+  //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
+  //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
+  final lazy val initiator = _initiator.value
   private val _initiator = LV('initiator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
@@ -101,9 +101,9 @@ trait DelimitedRuntimeValuedPropertiesMixin
     }
     c
   }
-  lazy val initiatorLoc = (this.prettyName, this.path)
+  final lazy val initiatorLoc = (this.prettyName, this.path)
 
-  lazy val terminator = _terminator.value
+  final lazy val terminator = _terminator.value
   private val _terminator = LV('terminator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
@@ -116,7 +116,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
     }
     c
   }
-  lazy val terminatorLoc = (this.prettyName, this.path)
+  final lazy val terminatorLoc = (this.prettyName, this.path)
 
 }
 
@@ -127,7 +127,7 @@ trait ElementRuntimeValuedPropertiesMixin
   with SimpleTypeRuntimeValuedPropertiesMixin
   with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  lazy val length = _length.value
+  final lazy val length = _length.value
   private val _length = LV('length) { ExpressionCompiler.compile(NodeInfo.UnsignedLong, lengthRaw) } // NodeInfo.UnsignedInt
 
   //
@@ -143,7 +143,7 @@ trait ElementRuntimeValuedPropertiesMixin
   // Not at all sure why this worked with Saxon, but in our new Infoset and DPath
   // implementation, the ".." does get literally evaluated.
   //
-  lazy val occursCount = _occursCount.value
+  final lazy val occursCount = _occursCount.value
   private val _occursCount = LV('occursCount) {
     val isEvaluatedAbove = true
     ExpressionCompiler.compile(NodeInfo.UnsignedLong, occursCountRaw, isEvaluatedAbove) //NodeInfo.UnsignedInt
@@ -155,7 +155,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
-  lazy val separator = _separator.value
+  final lazy val separator = _separator.value
   private val _separator = LV('separator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
@@ -169,7 +169,7 @@ trait SequenceRuntimeValuedPropertiesMixin
     c
   }
 
-  lazy val separatorLoc = (this.prettyName, this.path)
+  final lazy val separatorLoc = (this.prettyName, this.path)
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
@@ -177,29 +177,29 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   with DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
-  lazy val textStandardDecimalSeparator = _textStandardDecimalSeparator.value
+  final lazy val textStandardDecimalSeparator = _textStandardDecimalSeparator.value
   private val _textStandardDecimalSeparator = LV('textStandardDecimalSeparator) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardDecimalSeparatorRaw)
     c
   }
 
-  lazy val textStandardGroupingSeparator = _textStandardGroupingSeparator.value
+  final lazy val textStandardGroupingSeparator = _textStandardGroupingSeparator.value
   private val _textStandardGroupingSeparator = LV('textStandardGroupingSeparator) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardGroupingSeparatorRaw)
     c
   }
 
-  lazy val textStandardExponentRep = _textStandardExponentRep.value
+  final lazy val textStandardExponentRep = _textStandardExponentRep.value
   private val _textStandardExponentRep = LV('textStandardExponentRep) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardExponentRepRaw)
     c
   }
 
-  lazy val binaryFloatRep = _binaryFloatRep.value
+  final lazy val binaryFloatRep = _binaryFloatRep.value
   private val _binaryFloatRep = LV('binaryFloatRep) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, binaryFloatRepRaw) }
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.
-  lazy val textBooleanTrueRep = _textBooleanTrueRep.value
+  final lazy val textBooleanTrueRep = _textBooleanTrueRep.value
   private val _textBooleanTrueRep = LV('textBooleanTrueRep) {
     val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
     if (c.isConstant) {
@@ -214,7 +214,7 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   }
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanFalseRep in Parser where it is used.
-  lazy val textBooleanFalseRep = _textBooleanFalseRep.value
+  final lazy val textBooleanFalseRep = _textBooleanFalseRep.value
   private val _textBooleanFalseRep = LV('textBooleanFalseRep) {
     val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
     if (c.isConstant) {

@@ -91,17 +91,17 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   requiredEvaluations(groupMembers)
 
-  lazy val elementChildren: Seq[ElementBase] =
+  final lazy val elementChildren: Seq[ElementBase] =
     groupMembers.flatMap {
       case eb: ElementBase => Seq(eb)
       case gb: GroupBase => gb.group.elementChildren
     }
 
-  override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
+  final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 
-  override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
+  final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData
 
-  lazy val modelGroupRuntimeData = {
+  final lazy val modelGroupRuntimeData = {
 
     val groupMembers = this match {
       case mg: ModelGroup => mg.groupMembers.map {
@@ -130,38 +130,38 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       hasNoSkipRegions)
   }
 
-  val mgID = UUID.randomUUID()
+  private val mgID = UUID.randomUUID()
 
-  lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
-  lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
+  final lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
+  final lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
 
-  lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
+  final lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
   private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
     val seq = (gRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain)).distinct
     checkNonOverlap(seq)
     seq
   }
 
-  lazy val defaultPropertySources = defaultPropertySources_.value
+  final lazy val defaultPropertySources = defaultPropertySources_.value
   private val defaultPropertySources_ = LV('defaultPropertySources) {
     val seq = (gRefDefault.toSeq ++ Seq(this.defaultFormatChain)).distinct
     seq
   }
 
-  lazy val prettyBaseName = xmlArg.label
+  protected final lazy val prettyBaseName = xmlArg.label
 
-  def xmlChildren: Seq[Node]
+  protected def xmlChildren: Seq[Node]
 
   private lazy val goodXmlChildren = goodXmlChildren_.value
   private val goodXmlChildren_ = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }
   private lazy val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
   private lazy val pairs = goodXmlChildren zip positions
 
-  lazy val sequenceChildren = groupMembers.collect { case s: Sequence => s }
-  lazy val choiceChildren = groupMembers.collect { case s: Choice => s }
-  lazy val groupRefChildren = groupMembers.collect { case s: GroupRef => s }
+  final lazy val sequenceChildren = groupMembers.collect { case s: Sequence => s }
+  final lazy val choiceChildren = groupMembers.collect { case s: Choice => s }
+  final lazy val groupRefChildren = groupMembers.collect { case s: GroupRef => s }
 
-  def group = this
+  final def group = this
 
   final lazy val groupMembers = {
     pairs.flatMap {
@@ -170,9 +170,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
-  override lazy val termChildren = groupMembers
+  final override lazy val termChildren = groupMembers
 
-  lazy val groupMembersNoRefs = groupMembers.map {
+  final lazy val groupMembersNoRefs = groupMembers.map {
     case eRef: ElementRef => eRef.referencedElement
     case gb: GroupBase => gb.group
     case x => x
@@ -187,7 +187,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
    * This could be static code in an object. It doesn't reference any of the state of the ModelGroup,
    * it's here so that type-specific overrides are possible in Sequence or Choice
    */
-  def termFactory(child: Node, parent: ModelGroup, position: Int) = {
+  private def termFactory(child: Node, parent: ModelGroup, position: Int) = {
     val childList: List[Term] = child match {
       case <element>{ _* }</element> => {
         val refProp = child.attribute("ref").map { _.text }
@@ -208,7 +208,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   /**
    * XML is full of uninteresting text nodes. We just want the element children, not all children.
    */
-  def removeNonInteresting(child: Node) = {
+  private def removeNonInteresting(child: Node) = {
     val childList: List[Node] = child match {
       case _: Text => Nil
       case _: Comment => Nil
@@ -221,24 +221,24 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   /**
    * Combine our statements with those of the group ref that is referencing us (if there is one)
    */
-  lazy val statements: Seq[DFDLStatement] = localStatements ++ groupRef.map { _.statements }.getOrElse(Nil)
-  lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
+  final lazy val statements: Seq[DFDLStatement] = localStatements ++ groupRef.map { _.statements }.getOrElse(Nil)
+  final lazy val newVariableInstanceStatements: Seq[DFDLNewVariableInstance] =
     localNewVariableInstanceStatements ++ groupRef.map { _.newVariableInstanceStatements }.getOrElse(Nil)
-  lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
+  final lazy val (discriminatorStatements, assertStatements) = checkDiscriminatorsAssertsDisjoint(combinedDiscrims, combinedAsserts)
   private lazy val combinedAsserts: Seq[DFDLAssert] = localAssertStatements ++ groupRef.map { _.assertStatements }.getOrElse(Nil)
   private lazy val combinedDiscrims: Seq[DFDLDiscriminator] = localDiscriminatorStatements ++ groupRef.map { _.discriminatorStatements }.getOrElse(Nil)
 
-  lazy val setVariableStatements: Seq[DFDLSetVariable] = {
+  final lazy val setVariableStatements: Seq[DFDLSetVariable] = {
     val combinedSvs = localSetVariableStatements ++ groupRef.map { _.setVariableStatements }.getOrElse(Nil)
     checkDistinctVariableNames(combinedSvs)
   }
 
-  lazy val groupRef = parent match {
+  final lazy val groupRef = parent match {
     case ggd: GlobalGroupDef => Some(ggd.groupRef)
     case _ => None
   }
 
-  override lazy val isKnownToBePrecededByAllByteLengthItems: Boolean = {
+  final override lazy val isKnownToBePrecededByAllByteLengthItems: Boolean = {
     val es = nearestEnclosingSequence
     es match {
       case None => true
@@ -253,7 +253,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
-  lazy val isKnownToBeAligned = isKnownToBeAligned_.value
+  final lazy val isKnownToBeAligned = isKnownToBeAligned_.value
   private val isKnownToBeAligned_ = LV('isKnownToBeAligned) {
     if (alignmentValueInBits == 1) {
       alignmentUnits match {
@@ -265,7 +265,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     } else false
   }
 
-  lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
+  final lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
   private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
@@ -282,7 +282,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
-  lazy val allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
+  final lazy val allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     allSelfContainedTermsTerminatedByRequiredElement_.value
   private val allSelfContainedTermsTerminatedByRequiredElement_ =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
@@ -296,7 +296,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       listOfTerms
     }
 
-  lazy val couldBeNext: Seq[Term] = couldBeNext_.value
+  final lazy val couldBeNext: Seq[Term] = couldBeNext_.value
   private val couldBeNext_ = LV('couldBeNext) {
     // We're a ModelGroup, we want a list of all
     // Terms that follow this ModelGroup.

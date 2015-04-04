@@ -69,14 +69,14 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
 
   requiredEvaluations(hasConflictingPropertyError)
 
-  lazy val ref = getLocalFormatRef()
+  final lazy val ref = getLocalFormatRef()
   //
   // prefix of a QName as the value of this ref, must be referring
   // to a namespace binding that is in force right here on this object
   // So we can resolve the QName relative to this.
   //
-  lazy val qns = ref.map { resolveQName(_) }
-  lazy val referencedDefineFormat = qns.flatMap { case qn => schemaSet.getDefineFormat(qn) }
+  private lazy val qns = ref.map { resolveQName(_) }
+  private lazy val referencedDefineFormat = qns.flatMap { case qn => schemaSet.getDefineFormat(qn) }
   lazy val referencedFormat = referencedDefineFormat.map { _.formatAnnotation }
 
   /**
@@ -104,7 +104,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     }
   }
 
-  def adjustNamespace(ns: NS) = {
+  private def adjustNamespace(ns: NS) = {
     ns match {
       case NoNamespace => annotatedSC.targetNamespace // this could also be NoNamespace, but that's ok.
       case _ => ns
@@ -112,9 +112,9 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   }
 
   // The ListMap collection preserves insertion order.
-  type NamedFormatMap = ListMap[RefQName, DFDLFormat]
+  private type NamedFormatMap = ListMap[RefQName, DFDLFormat]
 
-  val emptyNamedFormatMap = ListMap[RefQName, DFDLFormat]()
+  private val emptyNamedFormatMap = ListMap[RefQName, DFDLFormat]()
   /**
    * build up map of what we have 'seen' as we go so we can detect cycles
    */
@@ -159,9 +159,9 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   /**
    * A flat map where each entry is (ns, ln) onto DFDLFormatAnnotation.
    */
-  final lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
+  private lazy val formatRefMap = getFormatRefs(emptyNamedFormatMap)
 
-  def getFormatChain(): ChainPropProvider = {
+  final def getFormatChain(): ChainPropProvider = {
     val formatAnnotations = formatRefMap.map { case (_, fa) => fa }.toSeq
     val withMe = (this +: formatAnnotations).distinct
     val res = new ChainPropProvider(withMe, this.prettyName)
@@ -172,14 +172,14 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * Don't need the map anymore, and we put ourselves highest
    * priority meaning at the front of the list.
    */
-  lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
+  private lazy val formatRefs: Seq[DFDLFormatAnnotation] = {
     val fmts = formatRefMap.map { case (_, fmt) => fmt }
     log(LogLevel.Debug, "%s::%s formatRefs = %s", annotatedSC.prettyName, prettyName, fmts)
     val seq = Seq(this) ++ fmts
     seq
   }
 
-  lazy val shortFormProperties: Set[PropItem] = {
+  private lazy val shortFormProperties: Set[PropItem] = {
     // shortForm properties should be prefixed by dfdl
     // Remove the dfdl prefix from the attributes so that they
     // can be properly combined later.
@@ -191,7 +191,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
     pairs.toSet
   }
 
-  lazy val longFormProperties: Set[PropItem] = {
+  private lazy val longFormProperties: Set[PropItem] = {
     // longForm Properties are not prefixed by dfdl
     val dfdlAttrs = dfdlAttributes(xml).asAttrMap
     schemaDefinitionUnless(dfdlAttrs.isEmpty, "long form properties are not prefixed by dfdl:")
@@ -211,7 +211,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   private lazy val elementFormPropertyAnnotations =
     (xml \\ "property").map { new DFDLProperty(_, this) }
 
-  lazy val elementFormProperties: Set[PropItem] = {
+  private lazy val elementFormProperties: Set[PropItem] = {
     elementFormPropertyAnnotations.map { p => (p.name, (p.value, p)) }.toSet
   }
 
@@ -252,7 +252,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * Needed for certain warnings, and also is the primitive from which the
    * ChainPropProvider is built up. That one DOES follow ref chains.
    */
-  override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
+  final override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
   private val justThisOneProperties_ = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
     log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res)

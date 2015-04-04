@@ -70,7 +70,7 @@ trait LeafPropProvider
   /**
    * for debug/test only
    */
-  lazy val properties: PropMap = justThisOneProperties
+  final lazy val properties: PropMap = justThisOneProperties
 
   //TODO: optimize by having this object actually check if there
   // are any property bindings. if not, this should get removed 
@@ -123,11 +123,11 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
   /**
    * for debug/test only
    */
-  lazy val properties: PropMap = leafProviders.flatMap { _.properties.toSeq }.toMap
+  final lazy val properties: PropMap = leafProviders.flatMap { _.properties.toSeq }.toMap
 
-  lazy val leafProviders = leafProvidersArg
+  final lazy val leafProviders = leafProvidersArg
 
-  lazy val prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
+  final lazy val prettyName: String = "ChainPropProvider(" + forAnnotation + ")"
 
   final def chainFindProperty(pname: String): PropertyLookupResult = {
     log(LogLevel.Debug, "%s chainFindProperty %s.", prettyName, pname)
@@ -137,7 +137,7 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
   /*
    * The Override algorithm - first property source with a hit wins.
    */
-  def lookupPropertyInSources(sources: Seq[LeafPropProvider], pname: String): PropertyLookupResult = {
+  private def lookupPropertyInSources(sources: Seq[LeafPropProvider], pname: String): PropertyLookupResult = {
     val allNotFound =
       for { source <- sources } yield {
         val res = source.leafFindProperty(pname)
@@ -175,7 +175,7 @@ trait OverlapCheckMixin {
    * check for overlap.
    */
 
-  def checkNonOverlap(providers: Seq[ChainPropProvider]) = {
+  protected final def checkNonOverlap(providers: Seq[ChainPropProvider]) = {
 
     /**
      * given a list, take the first, make sure it is non-overlapping with
@@ -212,7 +212,7 @@ trait OverlapCheckMixin {
   /**
    * Check first of the list for overlap against each of the 2nd through last
    */
-  def checkNonOverlap1(list: List[ChainPropProvider]): Unit = {
+  private def checkNonOverlap1(list: List[ChainPropProvider]): Unit = {
     list match {
       case Nil => // ok
       case List(_) => // ok. One thing can't overlap with anything.
@@ -227,7 +227,7 @@ trait OverlapCheckMixin {
    * For each in the b argument list, check that the a arg doesn't overlap
    * with it.
    */
-  def checkNonOverlap2(a: ChainPropProvider, b: List[ChainPropProvider]) = {
+  private def checkNonOverlap2(a: ChainPropProvider, b: List[ChainPropProvider]) = {
     b.foreach { bCPP => checkNonOverlap3(a, bCPP) }
   }
 
@@ -235,7 +235,7 @@ trait OverlapCheckMixin {
    * iterate through all properties of the a-arg, checking each for
    * whether it appears in the b-arg. If so, SDE.
    */
-  def checkNonOverlap3(a: ChainPropProvider, b: ChainPropProvider) {
+  private def checkNonOverlap3(a: ChainPropProvider, b: ChainPropProvider) {
     val aLeaves = a.leafProviders
     aLeaves.foreach { aLeaf =>
       val propMap = aLeaf.justThisOneProperties

@@ -57,7 +57,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 
-class DFDLDefineFormat(node: Node, sd: SchemaDocument)
+final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   extends DFDLDefiningAnnotation(node, sd) // Note: DefineFormat is not a format annotation
   {
 
