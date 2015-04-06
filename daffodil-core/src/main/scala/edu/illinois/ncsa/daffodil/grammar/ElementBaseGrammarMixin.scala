@@ -310,47 +310,47 @@ trait ElementBaseGrammarMixin
 
   // TODO: Handle the zonedTextXXX possibilities
   private lazy val textInt = prod("textInt", impliedRepresentation == Representation.Text) {
-    standardTextInt | zonedTextInt
+    standardTextInt || zonedTextInt
   }
 
   private lazy val textByte = prod("textByte", impliedRepresentation == Representation.Text) {
-    standardTextByte | zonedTextInt
+    standardTextByte || zonedTextInt
   }
 
   private lazy val textShort = prod("textShort", impliedRepresentation == Representation.Text) {
-    standardTextShort | zonedTextInt
+    standardTextShort || zonedTextInt
   }
 
   private lazy val textLong = prod("textLong", impliedRepresentation == Representation.Text) {
-    standardTextLong | zonedTextInt
+    standardTextLong || zonedTextInt
   }
 
   private lazy val textInteger = prod("textInteger", impliedRepresentation == Representation.Text) {
-    standardTextInteger | zonedTextInt
+    standardTextInteger || zonedTextInt
   }
 
   private lazy val textDecimal = prod("textDecimal", impliedRepresentation == Representation.Text) {
-    standardTextDecimal | zonedTextInt
+    standardTextDecimal || zonedTextInt
   }
 
   private lazy val textNonNegativeInteger = prod("textNonNegativeInteger", impliedRepresentation == Representation.Text) {
-    standardTextNonNegativeInteger | zonedTextInt
+    standardTextNonNegativeInteger || zonedTextInt
   }
 
   private lazy val textUnsignedInt = prod("textUnsignedInt", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedInt | zonedTextInt
+    standardTextUnsignedInt || zonedTextInt
   }
 
   private lazy val textUnsignedByte = prod("textUnsignedByte", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedByte | zonedTextInt
+    standardTextUnsignedByte || zonedTextInt
   }
 
   private lazy val textUnsignedShort = prod("textUnsignedShort", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedShort | zonedTextInt
+    standardTextUnsignedShort || zonedTextInt
   }
 
   private lazy val textUnsignedLong = prod("textUnsignedLong", impliedRepresentation == Representation.Text) {
-    standardTextUnsignedLong | zonedTextInt
+    standardTextUnsignedLong || zonedTextInt
   }
 
   //
@@ -383,11 +383,11 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Zoned) { ZonedTextIntPrim(this) }
 
   //  private lazy val binaryDouble = prod("binaryDouble", impliedRepresentation == Representation.Binary){
-  //    ieeeBinaryRepDouble | ibm390HexBinaryRepDouble
+  //    ieeeBinaryRepDouble || ibm390HexBinaryRepDouble
   //    }
 
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
-    standardTextDouble | zonedTextDouble
+    standardTextDouble || zonedTextDouble
   }
 
   //  private lazy val ieeeBinaryRepDouble = prod("ieeeBinaryRepDouble",
@@ -421,11 +421,11 @@ trait ElementBaseGrammarMixin
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
 
   //  private lazy val binaryFloat = prod("binaryFloat", impliedRepresentation == Representation.Binary){
-  //    ieeeBinaryRepFloat | ibm390HexBinaryRepFloat
+  //    ieeeBinaryRepFloat || ibm390HexBinaryRepFloat
   //  }
 
   private lazy val textFloat = prod("textFloat", impliedRepresentation == Representation.Text) {
-    standardTextFloat | zonedTextFloat
+    standardTextFloat || zonedTextFloat
   }
 
   //  private lazy val ieeeBinaryRepFloat = prod("ieeeBinaryRepFloat",
@@ -660,7 +660,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val simpleOrNonImplicitComplexEmpty = prod("simpleOrNonImplicitComplexEmpty",
-    NYI && isSimpleType || isComplexType && lengthKind != LengthKind.Implicit) {
+    NYI && isSimpleType | isComplexType && lengthKind != LengthKind.Implicit) {
       emptyElementInitiator ~ emptyElementTerminator
     }
 
@@ -734,12 +734,35 @@ trait ElementBaseGrammarMixin
     else body
   }
 
+  private lazy val nilOrEmptyOrValue = prod("nilOrEmptyOrValue") {
+    anyOfNilOrEmptyOrValue ||
+      nilOrValue ||
+      emptyOrValue ||
+      nonNilNonEmptyParsedValue
+  }
+
+  private lazy val anyOfNilOrEmptyOrValue = prod("anyOfNilOrEmptyOrValue", isNillable && NYI && emptyIsAnObservableConcept) {
+    SimpleNilOrEmptyOrValue(this, nilLit || parsedNil, empty, parsedValue)
+  }
+
+  private lazy val nilOrValue = prod("nilOrValue", isNillable) { // TODO: make it exclude emptyness
+    SimpleNilOrValue(this, nilLit || parsedNil, parsedValue)
+  }
+
+  private lazy val emptyOrValue = prod("emptyOrValue", NYI && emptyIsAnObservableConcept && !isNillable) {
+    SimpleEmptyOrValue(this, empty, parsedValue)
+  }
+
+  private lazy val nonNilNonEmptyParsedValue = prod("nonNilnonEmptyParsedValue", !isNillable) {
+    parsedValue
+  }
+
   private lazy val scalarDefaultableSimpleContent = prod("scalarDefaultableSimpleContent", isSimpleType) {
-    withDelimiterStack(nilLit | emptyDefaulted | parsedNil | parsedValue)
+    withDelimiterStack(nilOrEmptyOrValue)
   }
 
   private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
-    withDelimiterStack(nilLit | parsedNil | parsedValue)
+    withDelimiterStack(nilLit || parsedNil | parsedValue)
   }
 
   private def specifiedLength(bodyArg: => Gram) = {
@@ -784,11 +807,11 @@ trait ElementBaseGrammarMixin
   // it, get default values for simple type elements in the complex type structure,
   // yet consume zero bits.
   lazy val scalarDefaultableContent = prod("scalarDefaultableContent") {
-    withEscapeScheme(scalarDefaultableSimpleContent | scalarComplexContent)
+    withEscapeScheme(scalarDefaultableSimpleContent || scalarComplexContent)
   }
 
   lazy val scalarNonDefaultContent = prod("scalarNonDefaultContent") {
-    withEscapeScheme(scalarNonDefaultSimpleContent | scalarComplexContent)
+    withEscapeScheme(scalarNonDefaultSimpleContent || scalarComplexContent)
   }
 
   /**

@@ -219,6 +219,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
   val testCases: Seq[TestCase] = parserTestCases ++
     unparserTestCases
+  val testCaseMap = testCases.map { tc => (tc.name -> tc) }.toMap
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
   val description = (ts \ "@description").text
@@ -272,7 +273,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 
   def runOneTestWithDataVolumes(testName: String, schema: Option[Node] = None): (Long, Long) = {
     if (isTDMLFileValid) {
-      val testCase = testCases.find(_.name == testName)
+      val testCase = testCaseMap.get(testName)
       testCase match {
         case None => throw new TDMLException("test " + testName + " was not found.")
         case Some(tc) => {

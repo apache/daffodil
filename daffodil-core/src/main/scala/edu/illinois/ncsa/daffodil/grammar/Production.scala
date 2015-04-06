@@ -8,6 +8,7 @@ import edu.illinois.ncsa.daffodil.processors.NadaUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
+import edu.illinois.ncsa.daffodil.util.Debug
 
 /**
  * Prod or Grammar Production
@@ -48,7 +49,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
       g
     }
     case false => {
-      log(Compile("Prod %s removed.", name))
+      log(Debug("Prod %s removed.", name))
       EmptyGram
     }
   }

@@ -84,6 +84,8 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringFixedLengthInBytesFixedWidthCharactersUnparser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
+import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -404,7 +406,7 @@ abstract class StringDelimited(e: ElementBase)
     }
   }
 
-  def parser: DaffodilParser = new StringDelimitedParser(
+  override def parser: DaffodilParser = new StringDelimitedParser(
     e.elementRuntimeData,
     justificationTrim,
     pad,
@@ -413,7 +415,8 @@ abstract class StringDelimited(e: ElementBase)
     isDelimRequired,
     e.encodingInfo)
 
-  //def unparser: Unparser = new DummyUnparser(e)
+  //FIXME: must do escaping in case that the value contains a delimiter.
+  override def unparser: DaffodilUnparser = new StringDelimitedUnparser(e.elementRuntimeData, e.encodingInfo)
 }
 
 case class StringDelimitedEndOfData(e: ElementBase)
@@ -443,6 +446,7 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase)
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
   lazy val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
+  lazy val nilValueString = nilValuesCooked(0).replace("%ES;", "")
   lazy val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
 
   lazy val isDelimRequired: Boolean = false
@@ -456,6 +460,9 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       parserFactory,
       nilValuesCooked,
       eb.encodingInfo)
+
+  override lazy val unparser: DaffodilUnparser =
+    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueString, eb.encodingInfo)
 
 }
 

@@ -65,6 +65,8 @@ trait InfosetElement extends InfosetItem {
   def isNilled: Boolean
   def setNilled(): Unit
 
+  def isEmpty: Boolean
+
   def valid: Maybe[Boolean]
   def setValid(validity: Boolean): Unit
 

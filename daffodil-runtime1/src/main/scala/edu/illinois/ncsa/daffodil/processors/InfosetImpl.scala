@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dsom.ImplementsThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.equality._
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
@@ -324,6 +325,18 @@ sealed class DISimple(val erd: ElementRuntimeData)
     _isDefaulted
   }
 
+  final override def isEmpty: Boolean = {
+    if (isNilled) false
+    else {
+      val nodeKind = erd.optPrimType.getOrElse(Assert.invariantFailed("optPrimType not defined for simple element"))
+      if (nodeKind =:= NodeInfo.String) {
+        dataValueAsString.length =#= 0
+      } else if (nodeKind =:= NodeInfo.HexBinary) {
+        dataValue.asInstanceOf[Array[Byte]].length =#= 0
+      } else false
+    }
+  }
+
   override def removeHiddenElements(): InfosetElement = this
 
   /**
@@ -428,6 +441,8 @@ sealed class DISimple(val erd: ElementRuntimeData)
  */
 sealed class DIComplex(val erd: ElementRuntimeData)
   extends DIElement with InfosetComplexElement {
+
+  final override def isEmpty: Boolean = false
 
   // the DIDocument overrides number of slots to 1. 
   def nSlots = erd.nChildSlots
