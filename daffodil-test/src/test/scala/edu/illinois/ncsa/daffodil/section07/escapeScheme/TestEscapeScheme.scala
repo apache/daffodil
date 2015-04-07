@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.section07.escapeScheme
 
 import junit.framework.Assert._
-import org.junit.Test
+import org.junit._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -43,12 +43,26 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestEscapeScheme {
+object TestEscapeScheme {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val tdml = testDir + "escapeScheme.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml),
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml),
     validateTDMLFile = false)
+  val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
+  var runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg),
+    validateTDMLFile = false)
+  val bb = testDir + "escapeScenarios.tdml"
+  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb), validateTDMLFile = false)
 
+  @AfterClass def shutDown() {
+    runner = null
+    runnerNeg = null
+    runner2 = null
+  }
+}
+
+class TestEscapeScheme {
+  import TestEscapeScheme._
   // Debug Template
   // @Test def test_name() = Debugger.withDebugger { 
   // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
@@ -71,14 +85,7 @@ class TestEscapeScheme {
   @Test def test_escapeExpressions_05() { runner.runOneTest("escapeExpressions_05") }
   @Test def test_escapeExpressions_06() { runner.runOneTest("escapeExpressions_06") }
 
-  val tdmlNeg = testDir + "escapeSchemeNeg.tdml"
-  lazy val runnerNeg = new DFDLTestSuite(Misc.getRequiredResource(tdmlNeg),
-    validateTDMLFile = false)
-
   @Test def test_escapeSchemeNeg() { runnerNeg.runOneTest("escapeSchemeNeg") }
-
-  val bb = testDir + "escapeScenarios.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb), validateTDMLFile = false)
 
   @Test def test_scenario1_1() { runner2.runOneTest("scenario1_1") }
   @Test def test_scenario1_2() { runner2.runOneTest("scenario1_2") }

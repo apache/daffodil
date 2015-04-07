@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.section13.text_number_props
 
 import junit.framework.Assert._
 import org.junit.Test
+import org.junit.AfterClass
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -42,10 +43,17 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestTextNumberProps {
+object TestTextNumberProps {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
   val aa = testDir + "TextNumberProps.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  @AfterClass def shutDown() {
+    runner = null
+  }
+}
+class TestTextNumberProps {
+  import TestTextNumberProps._
 
   @Test def test_textNumberPattern_positiveMandatory() { runner.runOneTest("textNumberPattern_positiveMandatory") }
   @Test def test_textNumberPattern_negativeOptional() { runner.runOneTest("textNumberPattern_negativeOptional") }

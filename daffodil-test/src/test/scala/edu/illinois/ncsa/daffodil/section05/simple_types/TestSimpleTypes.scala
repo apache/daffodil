@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.section05.simple_types
 
 import junit.framework.Assert._
-import org.junit.Test
+import org.junit._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -42,10 +42,41 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
-class TestSimpleTypes {
+object TestSimpleTypes {
+
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
   val aa = testDir + "SimpleTypes.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val al = testDir + "AL.tdml"
+  var runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
+  val bb = testDir + "WhiteSpace.tdml"
+  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
+  val aj = testDir + "AJ.tdml"
+  var runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
+  val ak = testDir + "AK.tdml"
+  var runnerAK = new DFDLTestSuite(Misc.getRequiredResource(ak))
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val aa_01 = testDir_01 + "dpaext1.tdml"
+  var runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
+  val cc = testDir + "BitOrder.tdml"
+  var runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
+  val st = testDir + "simple-type-bases.tdml"
+  var runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
+
+  @AfterClass def shutDown() {
+    runner = null
+    runnerAL = null
+    runner2 = null
+    runnerAJ = null
+    runnerAK = null
+    runner_01 = null
+    runner1 = null
+    runnerST = null
+  }
+}
+
+class TestSimpleTypes {
+  import TestSimpleTypes._
 
   @Test def test_one_octet() { runner.runOneTest("OneOctetBinaryParse") }
   @Test def test_oneBit2() { runner.runOneTest("OneBit2") }
@@ -53,8 +84,6 @@ class TestSimpleTypes {
   @Test def test_nonNegativeInteger() { runner.runOneTest("NonNegativeInteger") }
   @Test def test_nonNegativeInteger_Fail() { runner.runOneTest("NonNegativeInteger_Fail") }
 
-  val al = testDir + "AL.tdml"
-  lazy val runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
   @Test def test_AL000() { runnerAL.runOneTest("AL000") }
 
   @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
@@ -335,20 +364,12 @@ class TestSimpleTypes {
   @Test def test_unsignedInt_binary() { runner.runOneTest("unsignedInt_binary") }
   @Test def test_unsignedInt_binary2() { runner.runOneTest("unsignedInt_binary2") }
 
-  val aj = testDir + "AJ.tdml"
-  lazy val runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
-
   @Test def test_AJ000() { runnerAJ.runOneTest("AJ000") }
   @Test def test_AJ001() { runnerAJ.runOneTest("AJ001") }
 
-  val ak = testDir + "AK.tdml"
-  lazy val runnerAK = new DFDLTestSuite(Misc.getRequiredResource(ak))
   @Test def test_AK000() { runnerAK.runOneTest("AK000") }
   @Test def test_AK001() { runnerAK.runOneTest("AK001") }
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val aa_01 = testDir_01 + "dpaext1.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
   @Test def test_schema_types_5_01() { runner_01.runOneTest("schema_types_5_01") }
   @Test def test_schema_types_5_02() { runner_01.runOneTest("schema_types_5_02") }
   @Test def test_schema_types_5_03() { runner_01.runOneTest("schema_types_5_03") }
@@ -471,16 +492,11 @@ class TestSimpleTypes {
   @Test def test_float_binary_fail_02() { runner.runOneTest("float_binary_fail_02") }
   @Test def test_float_binary_fail_03() { runner.runOneTest("float_binary_fail_03") }
 
-  val bb = testDir + "WhiteSpace.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_whiteSpaceBeforeLax() { runner2.runOneTest("whiteSpaceBeforeLax") }
   @Test def test_whiteSpaceDuringLax() { runner2.runOneTest("whiteSpaceDuringLax") }
   @Test def test_whiteSpaceBeforeStrict() { runner2.runOneTest("whiteSpaceBeforeStrict") }
   @Test def test_whiteSpaceDuringStrict() { runner2.runOneTest("whiteSpaceDuringStrict") }
   @Test def test_whiteSpaceAfterStrict() { runner2.runOneTest("whiteSpaceAfterStrict") }
-
-  val cc = testDir + "BitOrder.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
 
   @Test def test_MIL2045_47001D_Page70_TableB_I_with_string() { runner1.runOneTest("TestMIL2045_47001D_Page70_TableB_I_with_string") }
   @Test def test_MIL2045_47001D_1() { runner1.runOneTest("TestMIL2045_47001D_1") }
@@ -491,9 +507,7 @@ class TestSimpleTypes {
   @Test def test_littleEndianLeastFirstLTR() { runner1.runOneTest("littleEndianLeastFirstLTR") }
   @Test def test_littleEndianLeastFirstRTL() { runner1.runOneTest("littleEndianLeastFirstRTL") }
   @Test def test_bitOrderChangeInvalid2() { runner1.runOneTest("bitOrderChangeInvalid2") }
-  
-  val st = testDir + "simple-type-bases.tdml"
-  lazy val runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
+
   @Test def test_simpleTypeDerivedFromPrimType() { runnerST.runOneTest("simpleTypeDerivedFromPrimType") }
   @Test def test_simpleTypeChainedDerivations() { runnerST.runOneTest("simpleTypeChainedDerivations") }
   @Test def test_simpleTypeOverlapPrimError() { runnerST.runOneTest("simpleTypeOverlapPrimError") }

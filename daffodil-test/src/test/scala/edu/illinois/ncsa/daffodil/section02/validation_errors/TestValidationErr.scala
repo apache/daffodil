@@ -33,18 +33,23 @@
 package edu.illinois.ncsa.daffodil.section02.validation_errors
 
 import junit.framework.Assert._
-import org.junit.Test
+import org.junit._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
 
-class TestValidationErr {
+object TestValidationErr {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
   val aa = testDir + "Validation.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  @AfterClass def shutDown() {
+    runner = null
+  }
+}
+class TestValidationErr {
+  import TestValidationErr._
   @Test def test_facetPattern01_validation_off() { runner.runOneTest("facetPattern01_validation_off") }
   @Test def test_facetPattern01_fail_limited() { runner.runOneTest("facetPattern01_fail_limited") }
   @Test def test_facetPattern01_fail_full() { runner.runOneTest("facetPattern01_fail_full") }
