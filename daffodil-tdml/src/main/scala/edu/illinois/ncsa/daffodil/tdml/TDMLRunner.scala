@@ -130,6 +130,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val compileAllTopLevel: Boolean = false)
   extends Logging {
 
+  System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
 
   aNodeFileOrURL match {
@@ -219,6 +220,13 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   val unparserTestCases = (ts \ "unparserTestCase").map { node => UnparserTestCase(node, this) }
   val testCases: Seq[TestCase] = parserTestCases ++
     unparserTestCases
+  val duplicateTestCases = testCases.groupBy { _.name }.filter { case (name, seq) => seq.length > 1 }
+  if (duplicateTestCases.size > 0) {
+    duplicateTestCases.foreach {
+      case (name, _) =>
+        System.err.println("TDML Runner: More than one test case for name '%s'.".format(name))
+    }
+  }
   val testCaseMap = testCases.map { tc => (tc.name -> tc) }.toMap
   val suiteName = (ts \ "@suiteName").text
   val suiteID = (ts \ "@ID").text
@@ -273,7 +281,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 
   def runOneTestWithDataVolumes(testName: String, schema: Option[Node] = None): (Long, Long) = {
     if (isTDMLFileValid) {
-      val testCase = testCaseMap.get(testName)
+      val testCase = testCases.find(_.name == testName) // Map.get(testName)
       testCase match {
         case None => throw new TDMLException("test " + testName + " was not found.")
         case Some(tc) => {

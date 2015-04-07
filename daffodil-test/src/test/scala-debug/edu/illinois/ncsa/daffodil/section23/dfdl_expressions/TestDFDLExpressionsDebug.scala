@@ -64,7 +64,7 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-1221
   @Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
-  
+
   //DFDL-1035 - tests need better diagnostic
   @Test def test_dfdlCheckConstraints() { runner.runOneTest("dfdlCheckConstraints") }
   @Test def test_dfdlCheckConstraints2() { runner.runOneTest("dfdlCheckConstraints2") }
@@ -87,7 +87,6 @@ class TestDFDLExpressionsDebug {
   //DFDL-1059
   @Test def test_self_axis_01() { runner.runOneTest("self_axis_01") }
   @Test def test_multiple_axis_01() { runner.runOneTest("multiple_axis_01") }
-
 
   //DFDL-711
   @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
@@ -131,7 +130,7 @@ class TestDFDLExpressionsDebug {
   //DFDL-1080
   @Test def test_empty_02() { runner2.runOneTest("empty_02") }
   @Test def test_exists_02() { runner2.runOneTest("exists_02") }
- 
+
   //DFDL-1189
   @Test def test_exactly_one_01() { runner2.runOneTest("exactly_one_01") }
   @Test def test_exactly_one_02() { runner2.runOneTest("exactly_one_02") }
@@ -172,6 +171,12 @@ class TestDFDLExpressionsDebug {
   @Test def test_nilled_02() { runner2.runOneTest("nilled_02") }
   @Test def test_nilled_03() { runner2.runOneTest("nilled_03") }
   @Test def test_nilled_04() { runner2.runOneTest("nilled_04") }
+
+  // These tests had the same names as others in the tdml file, and so were not
+  // being seen or run. Names changed so they run, and they fail.
+  @Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
+  @Test def test_date_constructor_03a() { runner2.runOneTest("date_constructor_03a") }
+  @Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
 
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"

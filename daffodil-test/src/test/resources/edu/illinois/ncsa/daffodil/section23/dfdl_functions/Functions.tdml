@@ -10552,14 +10552,14 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: date_constructor_02
+    Test name: date_constructor_02a
        Schema: constructorSchema
          Root: date01
       Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
                construct a date from a string.
   -->
 
-  <tdml:parserTestCase name="date_constructor_02" root="date01" model="constructorSchema"
+  <tdml:parserTestCase name="date_constructor_02a" root="date01" model="constructorSchema"
     description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
 
     <tdml:document>
@@ -10576,14 +10576,14 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: date_constructor_03
+    Test name: date_constructor_03a
        Schema: constructorSchema
          Root: date01
       Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
                construct a date from a string.
   -->
 
-  <tdml:parserTestCase name="date_constructor_03" root="date01" model="constructorSchema"
+  <tdml:parserTestCase name="date_constructor_03a" root="date01" model="constructorSchema"
     description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
 
     <tdml:document>
@@ -10595,30 +10595,6 @@
       <tdml:error>XSDate failed to convert "1991-03-045" to xs:date.</tdml:error>
       <tdml:error>DAY_OF_MONTH=45, valid range=1..31</tdml:error>
     </tdml:errors>
-  </tdml:parserTestCase>
-  
-  <!--
-    Test name: date_constructor_04
-       Schema: constructorSchema
-         Root: date01
-      Purpose: This test demonstrates the use of the xs:date constructor function and its ability to
-               construct a date from a string.
-  -->
-
-  <tdml:parserTestCase name="date_constructor_04" root="date01" model="constructorSchema"
-    description="Section 23 - Constructor Functions - xs:date()  - DFDL-23-076R">
-
-    <tdml:document>
-      <tdml:documentPart type="text">2013-03-04</tdml:documentPart>
-    </tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <date01>
-          <string>2013-03-04</string>
-          <date>2013-03-04</date>
-        </date01>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
   </tdml:parserTestCase>
   
   <!--
@@ -12752,14 +12728,14 @@
   </tdml:parserTestCase>
   
   <!--
-    Test name: nonNeg_constructor_02
+    Test name: nonNeg_constructor_02a
        Schema: constructorSchema
          Root: nonNeg01
       Purpose: This test demonstrates the use of the xs:nonNegativeInteger constructor function and its ability to
       construct a nonNegativeInteger from a numeric string.
   -->
 
-  <tdml:parserTestCase name="nonNeg_constructor_02" root="nonNeg01" model="constructorSchema"
+  <tdml:parserTestCase name="nonNeg_constructor_02a" root="nonNeg01" model="constructorSchema"
     description="Section 23 - Constructor Functions - xs:nonNegativeInteger()  - DFDL-23-083R">
 
     <tdml:document>

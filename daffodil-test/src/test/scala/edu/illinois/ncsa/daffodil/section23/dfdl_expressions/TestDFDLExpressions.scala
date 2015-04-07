@@ -43,7 +43,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDFDLExpressions {
+object TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
 
   // I'm not sure these belong in section23, but there is no section of the spec that 
@@ -52,7 +52,30 @@ class TestDFDLExpressions {
   // property is defined.
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
-  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = false, validateDFDLSchemas = false)
+  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = true, validateDFDLSchemas = false)
+
+  val tdml = testDir + "expressions.tdml"
+  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
+
+  val tdml2 = testDir + "functions.tdml"
+  lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+
+  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aa = testDir2 + "Functions.tdml"
+  val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
+  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
+
+  val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+  val aab = testDir2b + "Functions-neg.tdml"
+  lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
+
+  val tdml3 = testDir + "expression_fail.tdml"
+  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
+}
+
+class TestDFDLExpressions {
+  import TestDFDLExpressions._
 
   @Test def test_variableRefError { runner4.runOneTest("variableRefError") }
 
@@ -70,9 +93,6 @@ class TestDFDLExpressions {
   @Test def test_byteOrderExpr8 { runner4.runOneTest("byteOrderExpr8") }
   @Test def test_byteOrderExpr9 { runner4.runOneTest("byteOrderExpr9") }
 
-  val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
-
   //DFDL-1111
   //@Test def test_diagnostics_01() { runner.runOneTest("diagnostics_01") }
   //@Test def test_diagnostics_02() { runner.runOneTest("diagnostics_02") }
@@ -80,7 +100,7 @@ class TestDFDLExpressions {
 
   //DFDL-1221
   //@Test def test_beyondRoot_01() { runner.runOneTest("beyondRoot_01") }
-  
+
   @Test def test_sequenceReturned_01() { runner.runOneTest("sequenceReturned_01") }
   @Test def test_sequenceReturned_02() { runner.runOneTest("sequenceReturned_02") }
   @Test def test_sequenceReturned_03() { runner.runOneTest("sequenceReturned_03") }
@@ -89,7 +109,7 @@ class TestDFDLExpressions {
 
   @Test def test_hiddenDataExpression() { runner.runOneTest("hiddenDataExpression") }
   @Test def test_hiddenDataExpression2() { runner.runOneTest("hiddenDataExpression2") }
-  
+
   @Test def test_arrayIndexOutOfBounds_01() { runner.runOneTest("arrayIndexOutOfBounds_01") }
   @Test def test_arrayIndexOutOfBounds_02() { runner.runOneTest("arrayIndexOutOfBounds_02") }
 
@@ -313,10 +333,7 @@ class TestDFDLExpressions {
   //DFDL-711
   //@Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
 
-/////////////////////// FUNCTIONS ///////////////////////////
-  
-  val tdml2 = testDir + "functions.tdml"
-  lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  /////////////////////// FUNCTIONS ///////////////////////////
 
   @Test def test_dateTimeFunctions01() { runner_fun.runOneTest("dateTimeFunctions01") }
   @Test def test_dateTimeFunctions02() { runner_fun.runOneTest("dateTimeFunctions02") }
@@ -341,12 +358,6 @@ class TestDFDLExpressions {
   @Test def test_substringFunction14() { runner_fun.runOneTest("substringFunction14") }
   @Test def test_substringFunction15() { runner_fun.runOneTest("substringFunction15") }
 
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aa = testDir2 + "Functions.tdml"
-  val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
-  
   @Test def test_boolFunctionChoice_01() { runner2.runOneTest("boolFunctionChoice_01") }
   @Test def test_boolFunctionChoice_02() { runner2.runOneTest("boolFunctionChoice_02") }
   @Test def test_boolFunctionChoice_03() { runner2.runOneTest("boolFunctionChoice_03") }
@@ -915,15 +926,8 @@ class TestDFDLExpressions {
   //  @Test def test_contentLength_0() { runner2.runOneTest("contentLength_0") }
   //  @Test def test_contentLength_1() { runner2.runOneTest("contentLength_1") }
 
-  val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aab = testDir2b + "Functions-neg.tdml"
-  lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
-
   @Test def test_fn_not_declared() { runner2b.runOneTest("fn_not_declared") }
   @Test def test_fn_not_declared_2() { runner2b.runOneTest("fn_not_declared_2") }
-
-  val tdml3 = testDir + "expression_fail.tdml"
-  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
 
   // DFDL-313
   // Verified that we do get an error regarding an improperly formatted

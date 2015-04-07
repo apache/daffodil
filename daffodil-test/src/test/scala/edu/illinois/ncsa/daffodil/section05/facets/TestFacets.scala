@@ -42,11 +42,23 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import org.junit._
 
-class TestFacets {
+object TestFacets {
+
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
   val aa = testDir + "Facets.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
+
+  /**
+   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
+   */
+  @AfterClass def tearDown() { runner = null }
+
+}
+
+class TestFacets {
+  import TestFacets._
 
   @Test def test_minMaxInExdateTime01() { runner.runOneTest("minMaxInExdateTime01") }
   @Test def test_minMaxInExdateTime02() { runner.runOneTest("minMaxInExdateTime02") }
