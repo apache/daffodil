@@ -31,7 +31,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
     SOFTWARE.
 -->
-  targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
+ <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.example.org/example1/" xmlns:tns="http://www.example.org/example1/"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
