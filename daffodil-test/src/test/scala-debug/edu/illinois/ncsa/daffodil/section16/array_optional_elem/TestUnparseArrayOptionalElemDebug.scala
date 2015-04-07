@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -42,19 +42,51 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import org.junit._
 
-class TestUnparseArrayImplicitOptionalElem {
+object TestUnparseArrayOptionalElemDebug {
+  
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "UnparseArrayImplicitOptionalElem.tdml"
+  val aa_fixed = testDir + "UnparseArrayFixedOptionalElem.tdml"
+  var runner_fixed = new DFDLTestSuite(Misc.getRequiredResource(aa_fixed))
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val aa_imp = testDir + "UnparseArrayImplicitOptionalElem.tdml"
+  var runner_imp = new DFDLTestSuite(Misc.getRequiredResource(aa_imp))
 
-  @Test def test_optPresent() { runner.runOneTest("optPresent") }
-  @Test def test_optPresentArray() { runner.runOneTest("optPresentArray") }
-  @Test def test_optPresentArrayMax2() { runner.runOneTest("optPresentArrayMax2") }
-  @Test def test_optAbsentArray() { runner.runOneTest("optAbsentArray") }
-  @Test def test_optTwoArrays() { runner.runOneTest("optTwoArrays") }
-  @Test def test_optScalarThenArray() { runner.runOneTest("optScalarThenArray") }
-  @Test def test_optArrayThenScalar() { runner.runOneTest("optArrayThenScalar") }
+  val aa_parsed = testDir + "UnparseArrayParsedOptionalElem.tdml"
+  var runner_parsed = new DFDLTestSuite(Misc.getRequiredResource(aa_parsed))
+
+  val aa_expr = testDir + "UnparseArrayExpressionConstant.tdml"
+  var runner_expr = new DFDLTestSuite(Misc.getRequiredResource(aa_expr))
+
+  /**
+   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
+   */
+  @AfterClass def tearDown() { 
+    runner_fixed = null 
+    runner_imp = null
+    runner_parsed = null
+    runner_expr = null
+  }
+
+}
+
+class TestUnparseArrayOptionalElemDebug {
+  
+  import TestUnparseArrayOptionalElemDebug._
+
+  //DFDL-1296
+  @Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
+  @Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
+  @Test def test_exprOptAbsentArray() { runner_expr.runOneTest("exprOptAbsentArray") }
+  @Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
+  @Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
+  @Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
+
+  //DFDL-1301
+  @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
+  
+  //DFDL-1302
+  @Test def test_parsedOptArrayThenScalar03() { runner_parsed.runOneTest("parsedOptArrayThenScalar03") }
 
 }

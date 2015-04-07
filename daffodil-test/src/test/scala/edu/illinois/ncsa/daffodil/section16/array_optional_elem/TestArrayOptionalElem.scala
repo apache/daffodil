@@ -48,6 +48,9 @@ class TestArrayOptionalElem {
   val aa = testDir + "ArrayOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+ 
+  //DFDL-1302 
+  //@Test def test_impOptArrayThenScalar02b() { runner.runOneTest("impOptArrayThenScalar02b") }
 
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
   @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }

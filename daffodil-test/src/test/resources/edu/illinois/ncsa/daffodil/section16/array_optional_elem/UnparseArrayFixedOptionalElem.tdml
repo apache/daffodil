@@ -63,13 +63,14 @@
       </xs:complexType>
     </xs:element>
     
-        <xs:element name="r1b" dfdl:ref="ex:root">
+    <xs:element name="r1b" dfdl:ref="ex:root">
       <xs:complexType>
         <xs:sequence>
           <xs:element name="opt" type="xs:string" minOccurs="0" maxOccurs="0" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+
     <xs:element name="r2" dfdl:ref="ex:root">
       <xs:complexType>
         <xs:sequence>
@@ -99,7 +100,14 @@
 
   </tdml:defineSchema>
 
-  <tdml:unparserTestCase name="optPresent" root="r1"
+<!--
+  Test Name: fixedOptPresent
+     Schema: s1
+       Root: r1
+    Purpose: This test demonsrates unparsing an array with a single required element when occursCountKind="fixed" 
+-->
+
+  <tdml:unparserTestCase name="fixedOptPresent" root="r1"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -113,7 +121,67 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optPresentArray" root="r1a"
+<!--
+  Test Name: fixedUnparseArrayTooManyElements01
+     Schema: s1
+       Root: r1
+    Purpose: This is a negative test. The schema is expecting an array with a single element.
+             The infoset is providing too many elements. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedUnparseArrayTooManyElements01" root="r1"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1>
+          <opt>1</opt>
+          <opt>2</opt>
+          <opt>3</opt>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: fixedUnparseArrayTooFewElements01
+     Schema: s1
+       Root: r1a
+    Purpose: This is a negative test. The schema is expecting an array with 3 elements.
+             The infoset is providing a single element. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedUnparseArrayTooFewElements01" root="r1a"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1a>
+          <opt>1</opt>
+        </r1a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Expected Start Element event</tdml:error>
+      <tdml:error>received: End</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: fixedOptPresentArray
+     Schema: s1
+       Root: r1a
+    Purpose: This test demonsrates unparsing an array with three required elements when occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedOptPresentArray" root="r1a"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -129,7 +197,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optAbsentArray" root="r1b"
+<!--
+  Test Name: fixedOptAbsentArray
+     Schema: s1
+       Root: r1b
+    Purpose: This test demonsrates unparsing an array with a single optional element.
+             In this case the optional element is not present. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedOptAbsentArray" root="r1b"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -141,7 +217,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optTwoArrays" root="r2"
+<!--
+  Test Name: fixedOptTwoArrays
+     Schema: s1
+       Root: r2
+    Purpose: This test demonsrates unparsing a sequence of two arrays. Both arrays
+             contain 3 required elements. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedOptTwoArrays" root="r2"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -160,7 +244,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optScalarThenArray" root="r3"
+<!--
+  Test Name: fixedOptScalarThenArray
+     Schema: s1
+       Root: r3
+    Purpose: This test demonsrates unparsing a sequence of a scalar and an array. The array
+             consists of 2 required elements. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedOptScalarThenArray" root="r3"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -176,7 +268,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optArrayThenScalar" root="r4"
+<!--
+  Test Name: fixedOptArrayThenScalar
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates unparsing a sequence of an array then a scalar. The array
+             consists of 2 required elements. occursCountKind="fixed"
+-->
+
+  <tdml:unparserTestCase name="fixedOptArrayThenScalar" root="r4"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">

@@ -38,6 +38,49 @@
   xmlns:ex="http://example.com"
   xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
   >
+  
+  <tdml:defineSchema name="s1">
+
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+      separator="" initiator="" terminator="" occursCountKind="implicit"
+      ignoreCase="no" textNumberRep="standard" representation="text" />
+    <dfdl:defineFormat name="root">
+      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
+        separator="" initiator="" terminator="" representation="text" />
+    </dfdl:defineFormat>
+    
+    <xs:element name="r4" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:string" minOccurs="0"
+            maxOccurs="3" />
+          <xs:element name="sca" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+  Test Name: impOptArrayThenScalar02b
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates parsing a sequence of an optional array and a scalar
+             with occursCountKind="implicit." In this case the optional array is not present.
+-->
+
+  <tdml:parserTestCase name="impOptArrayThenScalar02b" root="r4"
+    model="s1">
+    <tdml:document><![CDATA[3]]></tdml:document>
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r4>
+          <sca>3</sca>
+        </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -99,7 +99,14 @@
 
   </tdml:defineSchema>
 
-  <tdml:unparserTestCase name="optPresent" root="r1"
+<!--
+  Test Name: exprOptPresent
+     Schema: s1
+       Root: r1
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptPresent" root="r1"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -113,7 +120,14 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optPresentArray" root="r1a"
+<!--
+  Test Name: exprOptPresentArray
+     Schema: s1
+       Root: r1a
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptPresentArray" root="r1a"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -129,7 +143,14 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optAbsentArray" root="r1b"
+<!--
+  Test Name: exprOptAbsentArray
+     Schema: s1
+       Root: r1b
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptAbsentArray" root="r1b"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -141,7 +162,14 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optTwoArrays" root="r2"
+<!--
+  Test Name: exprOptTwoArrays
+     Schema: s1
+       Root: r2
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptTwoArrays" root="r2"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -160,7 +188,14 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optScalarThenArray" root="r3"
+<!--
+  Test Name: exprOptScalarThenArray
+     Schema: s1
+       Root: r3
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptScalarThenArray" root="r3"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -176,7 +211,14 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optArrayThenScalar" root="r4"
+<!--
+  Test Name: exprOptArrayThenScalar
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptArrayThenScalar" root="r4"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">

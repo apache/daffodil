@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -98,7 +98,15 @@
 
   </tdml:defineSchema>
 
-  <tdml:unparserTestCase name="optPresent" root="r1"
+<!--
+  Test Name: impOptPresent
+     Schema: s1
+       Root: r1
+    Purpose: This test demonsrates unparsing an optional array with occursCountKind="implicit"
+             In this case the optional element is present.
+-->
+
+  <tdml:unparserTestCase name="impOptPresent" root="r1"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -112,7 +120,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optPresentArray" root="r1"
+<!--
+  Test Name: impOptPresentArray
+     Schema: s1
+       Root: r1
+    Purpose: This test demonsrates unparsing an optional array with occursCountKind="implicit"
+             In this case the optional element is present with the max number of occurrences.
+-->
+
+  <tdml:unparserTestCase name="impOptPresentArray" root="r1"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -128,8 +144,15 @@
 
   </tdml:unparserTestCase>
 
+<!--
+  Test Name: impOptPresentArrayMax2
+     Schema: s1
+       Root: r1_2
+    Purpose: This test demonsrates unparsing an optional array with occursCountKind="implicit"
+             In this case the optional element is present with more than the max number of occurrences.
+-->
 
-  <tdml:unparserTestCase name="optPresentArrayMax2" root="r1_2"
+  <tdml:unparserTestCase name="impOptPresentArrayMax2" root="r1_2"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -149,7 +172,15 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optAbsentArray" root="r1"
+<!--
+  Test Name: impOptAbsentArrayMax
+     Schema: s1
+       Root: r1
+    Purpose: This test demonsrates unparsing an optional array with occursCountKind="implicit"
+             In this case the optional element is not present.
+-->
+
+  <tdml:unparserTestCase name="impOptAbsentArray" root="r1"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -161,7 +192,16 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optTwoArrays" root="r2"
+<!--
+  Test Name: impOptTwoArrays
+     Schema: s1
+       Root: r2
+    Purpose: This test demonsrates unparsing a sequence of two optional arrays
+             with occursCountKind="implicit." In this case both arrays are present and 
+             contain the maximum allowed number of elements.
+-->
+
+  <tdml:unparserTestCase name="impOptTwoArrays" root="r2"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -180,7 +220,15 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optScalarThenArray" root="r3"
+<!--
+  Test Name: impOptScalarThenArray
+     Schema: s1
+       Root: r3
+    Purpose: This test demonsrates unparsing a sequence of a scalar and an optional array
+             with occursCountKind="implicit." In this case the optional array is present.
+-->
+
+  <tdml:unparserTestCase name="impOptScalarThenArray" root="r3"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -196,7 +244,68 @@
 
   </tdml:unparserTestCase>
 
-  <tdml:unparserTestCase name="optArrayThenScalar" root="r4"
+<!--
+  Test Name: impOptScalarThenArray02
+     Schema: s1
+       Root: r3
+    Purpose: This test demonsrates unparsing a sequence of a scalar and an optional array
+             with occursCountKind="implicit." In this case the optional array is not present.
+-->
+
+  <tdml:unparserTestCase name="impOptScalarThenArray02" root="r3"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r3>
+          <sca>1</sca>
+        </r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[1]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: impOptScalarThenArray03
+     Schema: s1
+       Root: r3
+    Purpose: This test demonsrates unparsing a sequence of a scalar and an optional array
+             with occursCountKind="implicit." In this case the optional array is present and
+             there are too many elements.
+-->
+
+  <tdml:unparserTestCase name="impOptScalarThenArray03" root="r3"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r3>
+          <sca>0</sca>
+          <opt>1</opt>
+          <opt>2</opt>
+          <opt>3</opt>
+          <opt>4</opt>
+        </r3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Needed End Array Infoset Event</tdml:error>
+      <tdml:error>found Start</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: impOptArrayThenScalar
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
+             with occursCountKind="implicit." In this case the optional array is present.
+-->
+
+  <tdml:unparserTestCase name="impOptArrayThenScalar" root="r4"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
@@ -209,6 +318,61 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[123]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: impOptArrayThenScalar02
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
+             with occursCountKind="implicit." In this case the optional array is not present.
+-->
+
+  <tdml:unparserTestCase name="impOptArrayThenScalar02" root="r4"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r4>
+          <opt/>
+          <sca>3</sca>
+        </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[3]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: impOptArrayThenScalar03
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
+             with occursCountKind="implicit." In this case the optional array is present and has
+             too many items.
+-->
+
+  <tdml:unparserTestCase name="impOptArrayThenScalar03" root="r4"
+    model="s1">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r4>
+          <opt>1</opt>
+          <opt>2</opt>
+          <opt>3</opt>
+          <opt>4</opt>
+          <opt>5</opt>
+          <sca>6</sca>
+        </r4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Needed End Array Infoset Event</tdml:error>
+      <tdml:error>found Start</tdml:error>
+    </tdml:errors>
 
   </tdml:unparserTestCase>
 

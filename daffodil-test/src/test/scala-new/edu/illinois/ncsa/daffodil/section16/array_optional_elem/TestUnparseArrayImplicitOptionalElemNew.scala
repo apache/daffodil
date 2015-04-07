@@ -43,17 +43,10 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestUnparseArrayParsedOptionalElem {
+class TestUnparseArrayImplicitOptionalElemNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "UnparseArrayParsedOptionalElem.tdml"
+  val aa = testDir + "UnparseArrayImplicitOptionalElem.tdml"
 
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  @Test def test_optPresent() { runner.runOneTest("optPresent") }
-  @Test def test_optPresentArray() { runner.runOneTest("optPresentArray") }
-  @Test def test_optAbsentArray() { runner.runOneTest("optAbsentArray") }
-  @Test def test_optTwoArrays() { runner.runOneTest("optTwoArrays") }
-  @Test def test_optScalarThenArray() { runner.runOneTest("optScalarThenArray") }
-  @Test def test_optArrayThenScalar() { runner.runOneTest("optArrayThenScalar") }
 
 }
