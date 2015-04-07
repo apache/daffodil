@@ -33,7 +33,7 @@
 package edu.illinois.ncsa.daffodil.section23.dfdl_expressions
 
 import junit.framework.Assert._
-import org.junit.Test
+import org.junit._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -52,26 +52,36 @@ object TestDFDLExpressions {
   // property is defined.
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
   val rp = testDir4 + "runtime-properties.tdml"
-  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = true, validateDFDLSchemas = false)
+  var runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = true, validateDFDLSchemas = false)
 
   val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
 
   val tdml2 = testDir + "functions.tdml"
-  lazy val runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  var runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aa = testDir2 + "Functions.tdml"
   val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
+  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  var runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
 
   val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
   val aab = testDir2b + "Functions-neg.tdml"
-  lazy val runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
+  var runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
 
   val tdml3 = testDir + "expression_fail.tdml"
-  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
+  var runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
+
+  @AfterClass def shutDown() {
+    runner4 = null
+    runner = null
+    runner_fun = null
+    runner2 = null
+    runner2_utf8 = null
+    runner2b = null
+    runner3 = null
+  }
 }
 
 class TestDFDLExpressions {
