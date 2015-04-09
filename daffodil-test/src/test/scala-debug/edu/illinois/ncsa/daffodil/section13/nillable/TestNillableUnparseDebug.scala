@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -44,14 +44,16 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestNillableUnparse {
+class TestNillableUnparseDebug {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val ln = testDir + "literal-value-nils-unparse.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
-
-  @Test def test_text_nil_only1() { runnerLN.runOneTest("text_nil_only1") }
-  @Test def test_text_nil_only2() { runnerLN.runOneTest("text_nil_only2") }
-  @Test def test_text_nil_only3() { runnerLN.runOneTest("text_nil_only3") }
+  
+  //DFDL-1304
+  @Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }
+  @Test def test_text_nil_only8() { runnerLN.runOneTest("text_nil_only8") }
+  @Test def test_text_nil_only10() { runnerLN.runOneTest("text_nil_only10") }
+  @Test def test_text_nil_only15() { runnerLN.runOneTest("text_nil_only15") }
 
 }

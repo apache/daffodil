@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
    
     Developed by: Tresys Technology, LLC
                   http://www.tresys.com
@@ -42,6 +42,15 @@
 
   </tdml:defineSchema>
 
+<!--
+  Test Name: text_nil_only1
+     Schema: text_nil_only1
+       Root: doc
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a list that
+             contains a literal string and a character entity. It demonstrates that the first
+             value for nil is selected when unparsing.
+-->
+
   <tdml:unparserTestCase name="text_nil_only1" root="doc" model="text_nil_only1" description="unparse a literal nil">
 
     <tdml:infoset>
@@ -62,6 +71,15 @@
     <xs:element name="doc" dfdl:lengthKind="delimited" nillable="true" type="xsd:string"/>
 
   </tdml:defineSchema>
+
+<!--
+  Test Name: text_nil_only2
+     Schema: text_nil_only2
+       Root: doc
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a list that
+             contains a character entity and a literal string. It demonstrates that the first
+             value for nil is selected when unparsing.
+-->
 
   <tdml:unparserTestCase name="text_nil_only2" root="doc" model="text_nil_only2" description="unparse a literal nil">
 
@@ -92,6 +110,13 @@
 
   </tdml:defineSchema>
 
+<!--
+  Test Name: text_nil_only3
+     Schema: text_nil_only3
+       Root: doc
+    Purpose: This test demonstrates unparsing a sequence of literal nils.
+-->
+
   <tdml:unparserTestCase name="text_nil_only3" root="doc" model="text_nil_only3" description="unparse a literal nil">
 
     <tdml:infoset>
@@ -107,5 +132,473 @@
       <tdml:documentPart type="text"></tdml:documentPart>
     </tdml:document>
   </tdml:unparserTestCase>
+  
+  <tdml:defineSchema name="text_nil_only4">
+    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
+      nilValue="nil" nilKind="literalValue" textNumberRep="standard" ignoreCase="no"/>
+    
+    <dfdl:defineFormat name="nil0">
+      <dfdl:format ref="ex:daffodilTest1" nilValue="0" />
+    </dfdl:defineFormat>
+    
+    <dfdl:defineFormat name="nilX">
+      <dfdl:format ref="ex:daffodilTest1" nilValue="X" />
+    </dfdl:defineFormat>
+
+    <xs:element name="doc" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc2" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:ref="ex:nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" dfdl:ref="ex:nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc3" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:ref="ex:nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc4" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:ref="ex:nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" dfdl:ref="ex:nilX" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc5" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" dfdl:ref="ex:nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc6" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" dfdl:nilValue="X" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" dfdl:nilValue="Y" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc7" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" dfdl:ref="nil0" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" dfdl:nilValue="Y" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc8" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" dfdl:nilValue="Y" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc9" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" dfdl:nilValue="X" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc10" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" dfdl:nilValue="X" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" dfdl:ref="ex:nil0" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc11" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" dfdl:nilValue="0" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="doc12" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="e1" nillable="true" dfdl:nilValue="0" type="xsd:string" dfdl:lengthKind="delimited"/>
+          <xs:element name="e2" nillable="true" type="xsd:string" dfdl:lengthKind="delimited"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+  Test Name: text_nil_only4
+     Schema: text_nil_only4
+       Root: doc
+    Purpose: This test demonstrates unparsing a sequence of literal nils.
+-->
+
+  <tdml:unparserTestCase name="text_nil_only4" root="doc" model="text_nil_only4" description="unparse a literal nil">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc>
+          <e1 xsi:nil="true"/>
+          <e2 xsi:nil="true"/>
+        </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text">nilnil</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_only5
+     Schema: text_nil_only4
+       Root: doc2
+    Purpose: This test demonstrates unparsing a sequence of literal nils.
+-->
+
+  <tdml:unparserTestCase name="text_nil_only5" root="doc2" model="text_nil_only4" description="unparse a literal nil">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc2>
+          <e1 xsi:nil="true"/>
+          <e2 xsi:nil="true"/>
+        </doc2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text">00</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only6
+       Schema: text_nil_only4
+         Root: doc3
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. One is set via a dfdl:ref, and the other is taken
+               from the default format.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only6" root="doc3" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc3>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc3>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">0nil</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only7
+       Schema: text_nil_only4
+         Root: doc4
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. They are both set via dfdl:ref and are set to 
+               different defined formats.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only7" root="doc4" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc4>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc4>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">0X</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only8
+       Schema: text_nil_only4
+         Root: doc5
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. The first is set via the default format, and the
+               second is referencing a defined format.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only8" root="doc5" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc5>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc5>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">nil0</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only9
+       Schema: text_nil_only4
+         Root: doc6
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, each nilValue is set explicitly on
+               the element.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only9" root="doc6" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc6>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc6>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">XY</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only10
+       Schema: text_nil_only4
+         Root: doc7
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set by a referenced
+               format definition, and the second is set explicitly on the element.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only10" root="doc7" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc7>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc7>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">0Y</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only11
+       Schema: text_nil_only4
+         Root: doc8
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set by the 
+               default format, and the second is set explicitly on the element.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only11" root="doc8" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc8>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc8>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">nilY</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only12
+       Schema: text_nil_only4
+         Root: doc9
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set explicitly
+               on the element, and the second is set by the default format.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only12" root="doc9" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc9>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc9>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">Xnil</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only13
+       Schema: text_nil_only4
+         Root: doc9
+      Purpose: This test demonstrates unparsing a sequence of nillable elements, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set explicitly
+               on the element, and the second is set by the default format. The first element is not nilled and the second is.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only13" root="doc9" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc9>
+            <e1>data</e1>
+            <e2 xsi:nil="true"/>
+          </doc9>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">datanil</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+
+  <!--
+    Test Name: text_nil_only14
+       Schema: text_nil_only4
+         Root: doc9
+      Purpose: This test demonstrates unparsing a sequence of nillable elements, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set explicitly
+               on the element, and the second is set by the default format. The first element is not nilled and the second is.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only14" root="doc9" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc9>
+            <e1 xsi:nil="true"/>
+            <e2>data</e2>
+          </doc9>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">Xdata</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only15
+       Schema: text_nil_only4
+         Root: doc10
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set explicitly
+               on the element, and the second is set by a referenced format.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only15" root="doc10" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc10>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc10>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">X0</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+  
+  <!--
+    Test Name: text_nil_only16
+       Schema: text_nil_only4
+         Root: doc11
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is taken from the
+               default format, and the second is set directly on the element.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only16" root="doc11" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc11>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc11>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">nil0</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
+
+  <!--
+    Test Name: text_nil_only17
+       Schema: text_nil_only4
+         Root: doc12
+      Purpose: This test demonstrates unparsing a sequence of literal nils, where each value in the
+               sequence uses a different nilValue. In this case, the first nilValue is set directly
+               on the element, and the second is taken from the default format.
+  -->
+
+    <tdml:unparserTestCase name="text_nil_only17" root="doc12" model="text_nil_only4" description="unparse a literal nil">
+
+      <tdml:infoset>
+        <tdml:dfdlInfoset>
+          <doc12>
+            <e1 xsi:nil="true"/>
+            <e2 xsi:nil="true"/>
+          </doc12>
+        </tdml:dfdlInfoset>
+      </tdml:infoset>
+
+      <tdml:document>
+        <tdml:documentPart type="text">0nil</tdml:documentPart>
+      </tdml:document>
+    </tdml:unparserTestCase>
 
 </tdml:testSuite>
