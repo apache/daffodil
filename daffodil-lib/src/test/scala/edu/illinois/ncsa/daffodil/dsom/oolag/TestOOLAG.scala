@@ -222,8 +222,8 @@ class TestOOLAG {
       }
     }
     val msg = e.getMessage()
-    // println(msg)
-    assertTrue(msg.toLowerCase().contains("oolag cycle"))
+    // println(e)
+    assertTrue(msg.toLowerCase().contains("circ1"))
   }
 
   @Test def testAlreadyTried() {

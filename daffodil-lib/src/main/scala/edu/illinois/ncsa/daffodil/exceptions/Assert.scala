@@ -32,8 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.exceptions
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
-
 // Copyright (C) 2012, Michael J. Beckerle. All Rights Reserved.
 
 trait ThinThrowable { self: Throwable =>

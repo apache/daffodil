@@ -49,7 +49,7 @@ class TestXMLLoaderWithLocation {
     val tmpXMLFileName = getClass.getName() + ".xml"
     // Our loader looks for xs:schema node, and appends a file attribute
     // if it can.
-    val testXML = <xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE }><b/></xs:schema>
+    val testXML = <xs:schema xmlns:xs={ XMLUtils.XSD_NAMESPACE }><xs:annotation/></xs:schema>
     try {
       using(new java.io.FileWriter(tmpXMLFileName)) {
         fw =>
@@ -71,7 +71,7 @@ class TestXMLLoaderWithLocation {
     val sId: String = null
     val resolver = DFDLCatalogResolver.get
     val resolved = resolver.resolveResource(XMLUtils.XSD_NAMESPACE, XMLUtils.XSD_NAMESPACE, pId, sId, baseURI)
-    println(resolved)
+    // println(resolved)
   }
 
   @Test def testFileValidation() {

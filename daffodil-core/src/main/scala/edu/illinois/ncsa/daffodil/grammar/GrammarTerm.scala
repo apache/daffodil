@@ -33,7 +33,7 @@ abstract class Gram(contextArg: SchemaComponent)
 
   def name: String = prettyName
 
-  override def path = context.path + "%" + prettyName
+  override lazy val path = context.path + "%" + prettyName
 
   def isEmpty = false // they are by default not empty. Overridden in the cases where they could be.
 

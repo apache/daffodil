@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.dsom.ExpressionCompilerBase
 import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
+import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -886,7 +887,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           }
         } catch {
           case e: Throwable => {
-            val ex = if (e.getMessage() == null) e.getCause() else e
+            val ex = DiagnosticUtils.getSomeMessage(e).get
             throw new DebugException("expression evaluation failed: %s".format(ex))
           }
         }

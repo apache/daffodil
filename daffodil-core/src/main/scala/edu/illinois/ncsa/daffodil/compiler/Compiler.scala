@@ -92,25 +92,14 @@ class ProcessorFactory(val sset: SchemaSet)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  //
-  // breaking this into these lines causes the order things are
-  // evaluated in to be more rational than if pure demand-driven
-  // lazy evaluation was followed.
-  //
-  // We want pretty much nothing to be done by the data processor
-  //
-  requiredEvaluations(sset)
-  requiredEvaluations(rootElem)
-  requiredEvaluations(parser)
-  requiredEvaluations(unparser)
-  requiredEvaluations(rootElem.runtimeData)
-
-  lazy val parser = {
+  lazy val parser = parser_.value
+  private val parser_ = LV('parser) {
     val par = rootElem.document.parser
     par
   }
 
-  lazy val unparser = {
+  lazy val unparser = unparser_.value
+  private val unparser_ = LV('unparser) {
     val unp = rootElem.document.unparser
     unp
   }
@@ -119,6 +108,19 @@ class ProcessorFactory(val sset: SchemaSet)
   private val rootElem_ = LV('rootElem) {
     sset.rootElement(rootSpec)
   }
+
+  //
+  // breaking this into these lines causes the order things are
+  // evaluated in to be more rational than if pure demand-driven
+  // lazy evaluation was followed.
+  //
+  // We want pretty much nothing to be done by the data processor
+  //
+  requiredEvaluations(sset)
+  requiredEvaluations(rootElem_)
+  requiredEvaluations(parser_)
+  requiredEvaluations(unparser_)
+  requiredEvaluations(rootElem.runtimeData)
 
   override def isError = {
     ExecutionMode.usingCompilerMode {

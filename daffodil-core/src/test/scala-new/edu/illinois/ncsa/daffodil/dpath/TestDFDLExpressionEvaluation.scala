@@ -163,6 +163,5 @@ class TestDFDLExpressionEvaluation extends Parsers {
       </xs:element>)
 
     val res = TestUtils.testString(schema, "")
-    println(res.result)
   }
 }

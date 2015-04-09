@@ -143,7 +143,10 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       enclosingElement.map { _.erd })
   }
 
-  lazy val variableMap: VariableMap = schemaSet.variableMap
+  lazy val variableMap: VariableMap = variableMap_.value
+  private val variableMap_ = LV('variableMap) {
+    schemaSet.variableMap
+  }
 
   /*
    * Anything non-annotated always returns property not found
@@ -177,7 +180,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     }
   }
 
-  override lazy val enclosingComponent = {
+  override lazy val enclosingComponent = enclosingComponent_.value
+  private val enclosingComponent_ = LV('enclosingComponent) {
     val res = enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
     res
   }
@@ -185,7 +189,8 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   /**
    * All schema components except the root have an enclosing element.
    */
-  final lazy val enclosingElement: Option[ElementBase] = {
+  final lazy val enclosingElement: Option[ElementBase] = enclosingElement_.value
+  private val enclosingElement_ = LV('enclosingElement) {
     val et = enclosingTerm
     val ee = et match {
       case None => None
@@ -228,6 +233,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
     val scpOpt = ec.map {
       sc =>
         {
+          Assert.invariant(sc != null)
           val parentPath = sc.scPath
           parentPath
         }

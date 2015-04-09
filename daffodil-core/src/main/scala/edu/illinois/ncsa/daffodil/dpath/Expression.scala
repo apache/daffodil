@@ -63,7 +63,8 @@ abstract class Expression extends OOLAGHost
   requiredEvaluations(targetType)
   requiredEvaluations(inherentType)
   requiredEvaluations(isTypeCorrect)
-  requiredEvaluations(compiledDPath)
+  private val compiledDPath_ = LV('compiledDPath) { compiledDPath }
+  requiredEvaluations(compiledDPath_)
 
   // This split allows overrides of this lazy val to still reuse this
   // (super.isTypeCorrect doesn't work inside an overridden lazy val.)

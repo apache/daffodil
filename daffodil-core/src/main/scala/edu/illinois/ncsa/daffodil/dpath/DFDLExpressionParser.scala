@@ -41,6 +41,7 @@ import scala.xml.NamespaceBinding
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import scala.util.parsing.input.CharSequenceReader
+import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -65,14 +66,9 @@ class DFDLPathExpressionParser(
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
 
-    //
-    // TODO: call tree.isError and if there are errors, grab all the diagnostics
-    // and somehow get them back to the OOLAG world - e.g., by throwing a
-    // special DPathExpressionError(diags) which takes a whole list
-    // of diagnostics. Then when this is caught, it can be treated specially 
-    // and the individual diagnostics take out, or they might do better all in 
-    // one.
-    tree.isError // forces the requiredEvaluations in a useful order for debug
+    if (tree.isError) {
+      throw new ErrorsNotYetRecorded(tree.getDiagnostics)
+    }
 
     val recipe = tree.compiledDPath // if we cannot get one this will fail by throwing out of here.
 
@@ -204,10 +200,10 @@ class DFDLPathExpressionParser(
   def UnsupportedForwardAxis = (("descendant" <~ "::") | ("attribute" <~ "::") | ("descendant-or-self" <~ "::") |
     ("following-sibling" <~ "::") | ("following" <~ "::") |
     ("namespace" <~ "::"))
-  def SupportedReverseAxis = ("parent" <~ "::") 
+  def SupportedReverseAxis = ("parent" <~ "::")
   def UnsupportedReverseAxis = (("ancestor" <~ "::") |
     ("preceding-sibling" <~ "::") | ("preceding" <~ "::") |
-    ("ancestor-or-self" <~ "::")) 
+    ("ancestor-or-self" <~ "::"))
 
   def EqualityComp = "eq" | "ne" | "!=" | "="
   def NumberComp = "lt" | "le" | "gt" | "ge" | "<=" | ">=" | "<" | ">"
@@ -364,7 +360,7 @@ class DFDLPathExpressionParser(
     } |
     Digits ~ (("." ~> optDigits).?) ~ Expon ^^ {
       case intPart ~ fraction ~ exp => intPart + "." + fraction.getOrElse("0") + exp
-    }) ^^ { str => println(str); java.lang.Double.parseDouble(str) }
+    }) ^^ { str => java.lang.Double.parseDouble(str) }
 
   /**
    * String literal must be one regex, not separate combinators combined.

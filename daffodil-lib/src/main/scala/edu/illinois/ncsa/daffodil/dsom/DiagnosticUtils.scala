@@ -35,7 +35,6 @@ package edu.illinois.ncsa.daffodil.dsom
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.api.DataLocation
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.util.Misc
 
 object DiagnosticUtils {
@@ -79,8 +78,7 @@ object DiagnosticUtils {
 }
 
 trait DiagnosticImplMixin
-  extends Diagnostic
-  with HasIsError {
+  extends Diagnostic {
   def getSomeCause() = DiagnosticUtils.getSomeCause(this)
   def getSomeMessage() = DiagnosticUtils.getSomeMessage(this)
   def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = Nil

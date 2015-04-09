@@ -36,7 +36,6 @@ import java.math.BigInteger
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.GregorianCalendar
 import com.ibm.icu.util.TimeZone
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
@@ -47,7 +46,6 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 /////////////////////////////////////////////////////////////////
 
 trait TypeBase
-  extends HasIsError
 
 // TODO: consolidate this with dpath/Conversions.scala or NodeInfo.scala 
 // we have too many ways we're converting that do the same things really.

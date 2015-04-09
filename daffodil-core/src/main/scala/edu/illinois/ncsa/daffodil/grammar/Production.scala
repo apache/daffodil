@@ -37,33 +37,42 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
 
   final override lazy val path = sc.path + "@@Prod(" + prettyName + ")"
 
-  final override lazy val gram: Gram = guard match {
-    case true => {
-      val g = gramArg // exactly once.
-      g match {
-        case p: Prod => {
-          p.gram // recursively force this
+  final override lazy val gram: Gram = gram_.value
+  private val gram_ = LV('gram) {
+    guard match {
+      case true => {
+        val g = gramArg // exactly once.
+        g match {
+          case p: Prod => {
+            p.gram // recursively force this
+          }
+          case _ => //ok
         }
-        case _ => //ok
+        g
       }
-      g
-    }
-    case false => {
-      log(Debug("Prod %s removed.", name))
-      EmptyGram
+      case false => {
+        log(Debug("Prod %s removed.", name))
+        EmptyGram
+      }
     }
   }
 
   final override lazy val isEmpty = gram.isEmpty
 
-  final override lazy val parser = forWhat match {
-    case ForUnparser => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
-    case _ => gram.parser
+  final override lazy val parser = parser_.value
+  private val parser_ = LV('parser) {
+    forWhat match {
+      case ForUnparser => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
+      case _ => gram.parser
+    }
   }
 
-  final override lazy val unparser = forWhat match {
-    case ForParser => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
-    case _ => gram.unparser
+  final override lazy val unparser = unparser_.value
+  private val unparser_ = LV('unparser) {
+    forWhat match {
+      case ForParser => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
+      case _ => gram.unparser
+    }
   }
 }
 

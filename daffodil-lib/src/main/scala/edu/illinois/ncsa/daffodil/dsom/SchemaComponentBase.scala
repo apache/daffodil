@@ -51,7 +51,7 @@ abstract class SchemaComponentBase(xmlArg: scala.xml.Node, parent: SchemaCompone
    *
    * Concrete here only for unit tests that create instances.
    */
-  def enclosingComponentDef =
+  final def enclosingComponentDef =
     if (parent != null) Some(parent) else None
 
   lazy val enclosingComponent = enclosingComponentDef

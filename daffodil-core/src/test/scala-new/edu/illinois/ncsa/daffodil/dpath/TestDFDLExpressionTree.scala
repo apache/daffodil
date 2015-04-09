@@ -240,7 +240,7 @@ class TestDFDLExpressionTree extends Parsers {
       val WholeExpression(_, RootPathExpression(Some(RelativePathExpression(steps, _))), _, _) = actual
       val List(n1, n2, n3) = steps
       val NamedStep("bookstore", pred) = n1
-      println(pred)
+      // println(pred)
       val ex = NS("http://example.com")
       val Some(PredicateExpression(VariableRef("i"))) = pred
       val NamedStep("book", None) = n2

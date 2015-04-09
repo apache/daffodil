@@ -37,6 +37,13 @@ package edu.illinois.ncsa.daffodil.util
  *  which does not allocate a boxed object.
  *
  *  To tell the difference these two items are called One(v) and Nope.
+ *
+ *  One important difference between this and scala Option types is this:
+ *  Option(null) = None
+ *  Some(null) != None // you get a Some object with null as its value.
+ *  but
+ *  Maybe(null) = Nope
+ *  One(null) == Nope // can't construct a Maybe type containing null.
  */
 final class Maybe[+T] @inline private (val v: Any) extends AnyVal {
   import Maybe._

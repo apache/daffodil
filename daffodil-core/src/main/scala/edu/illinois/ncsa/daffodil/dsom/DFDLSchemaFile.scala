@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.api._
 import java.io.File
 import edu.illinois.ncsa.daffodil.dsom.IIUtils._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import java.net.URI

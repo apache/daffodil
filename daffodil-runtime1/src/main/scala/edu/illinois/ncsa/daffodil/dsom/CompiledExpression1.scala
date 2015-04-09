@@ -169,7 +169,8 @@ class DPathCompileInfo(
   with HasSchemaFileLocation {
 
   lazy val parent = parentArg
-  lazy val variableMap = variableMapArg
+  lazy val variableMap =
+    variableMapArg
 
   override def preSerialization = {
     parent

@@ -74,7 +74,6 @@ class TestGeneratedProperties {
     def namespaces: scala.xml.NamespaceBinding = ???
     def schemaFileLocation: SchemaFileLocation = ???
 
-    override lazy val oolagContext = this
     override val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty

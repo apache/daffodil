@@ -39,9 +39,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._

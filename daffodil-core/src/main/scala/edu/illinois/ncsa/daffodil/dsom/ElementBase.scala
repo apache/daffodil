@@ -40,9 +40,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
@@ -103,7 +101,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   requiredEvaluations(if (hasMaxExclusive) maxExclusive)
   requiredEvaluations(if (hasTotalDigits) totalDigits)
   requiredEvaluations(if (hasFractionDigits) fractionDigits)
-  requiredEvaluations(runtimeData)
 
   def name: String
 
@@ -326,7 +323,16 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val elementRuntimeData: ElementRuntimeData = elementRuntimeData_.value
   private val elementRuntimeData_ = LV('elementRuntimeData) {
     val ee = enclosingElement
-    val optERD = ee.map { _.elementRuntimeData }
+    //
+    // Must be lazy below, because we are defining the elementRuntimeData in terms of 
+    // the elementRuntimeData of its enclosing element. This backpointer must be 
+    // constructed lazily so that we first connect up all the erds to their children, 
+    // and only subsequently ask for these parents to be elaborated.
+    // 
+    lazy val optERD = ee.map { enc =>
+      Assert.invariant(this != enc)
+      enc.elementRuntimeData
+    }
     createElementRuntimeData(optERD)
   }
 

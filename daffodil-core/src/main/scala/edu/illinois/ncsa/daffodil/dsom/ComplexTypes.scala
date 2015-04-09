@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.dsom
 
 import scala.xml.Node
 import edu.illinois.ncsa.daffodil.grammar.ComplexTypeBaseGrammarMixin
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   extends SchemaComponent(xmlArg, parent)
@@ -97,11 +98,14 @@ final class GlobalComplexTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaD
 
 }
 
+/**
+ * For unit testing purposes, the element argument might be supplied as null.
+ */
 final class GlobalComplexTypeDef(xmlArg: Node, schemaDocumentArg: SchemaDocument, val element: ElementBase)
   extends ComplexTypeBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
 
-  lazy val referringComponent = Some(element)
+  lazy val referringComponent = Option(element)
 
 }
 

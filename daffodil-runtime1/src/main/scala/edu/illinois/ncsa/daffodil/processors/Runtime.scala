@@ -37,12 +37,9 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.JDOMUtils
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGException
 import edu.illinois.ncsa.daffodil.Implicits._
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.ErrorAlreadyHandled
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
@@ -79,6 +76,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -108,7 +106,7 @@ class SerializableDataProcessor(val data: SchemaSetRuntimeData)
  * back-end runtime.
  */
 class DataProcessor(val ssrd: SchemaSetRuntimeData)
-  extends DFDL.DataProcessor with HasIsError with Logging with Serializable {
+  extends DFDL.DataProcessor with Logging with Serializable {
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
@@ -237,7 +235,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
             }
             case e: ErrorAlreadyHandled => {
               initialState.failed(e.th)
-              // Assert.invariantFailed("OOLAGException at runtime (should not happen). Caught at DataProcessor level: " + e)
             }
             case e: TunableLimitExceededError => {
               initialState.failed(e)

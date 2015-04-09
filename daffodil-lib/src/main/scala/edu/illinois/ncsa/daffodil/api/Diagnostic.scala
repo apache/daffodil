@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 
 /**
@@ -41,7 +40,7 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
  *
  * Allows for lazy message creation, internationalization, etc.
  */
-trait Diagnostic extends Throwable with HasIsError {
+trait Diagnostic extends Throwable {
 
   /**
    * Turns the diagnostic object into a string.

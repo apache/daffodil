@@ -39,9 +39,7 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.LV
 import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
@@ -58,8 +56,19 @@ trait ElementDeclMixin
   extends ElementDeclGrammarMixin
   with OverlapCheckMixin { self: ElementBase =>
 
-  private lazy val eRefNonDefault: Option[ChainPropProvider] = elementRef.map { _.nonDefaultFormatChain }
-  private lazy val eRefDefault: Option[ChainPropProvider] = elementRef.map { _.defaultFormatChain }
+  private lazy val eRefNonDefault: Option[ChainPropProvider] = eRefNonDefault_.value
+  private val eRefNonDefault_ = LV('eRefNonDefault) {
+    elementRef.map {
+      _.nonDefaultFormatChain
+    }
+  }
+
+  private lazy val eRefDefault: Option[ChainPropProvider] = eRefDefault_.value
+  private val eRefDefault_ = LV('eRefDefault) {
+    elementRef.map {
+      _.defaultFormatChain
+    }
+  }
 
   private lazy val sTypeNonDefault: Seq[ChainPropProvider] = self.typeDef match {
     case st: SimpleTypeDefBase => st.nonDefaultPropertySources

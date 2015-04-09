@@ -48,9 +48,7 @@ trait NamedMixin
 
   requiredEvaluations(name)
 
-  lazy val name = nameFromNameAttribute
-  private lazy val nameFromNameAttribute = nameFromNameAttribute_.valueOrElse("??name??")
-  private val nameFromNameAttribute_ = LV('nameFromNameAttribute) { getAttributeRequired("name") }
+  lazy val name = getAttributeOption("name").getOrElse("??name??")
 
   def xml: Node
   def schemaDocument: SchemaDocument

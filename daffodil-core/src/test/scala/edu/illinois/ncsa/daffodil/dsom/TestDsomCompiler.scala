@@ -31,6 +31,7 @@
  */
 
 package edu.illinois.ncsa.daffodil.dsom
+
 import scala.xml.{ XML, Utility, Node }
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.compiler._
@@ -45,6 +46,8 @@ import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.SchemaUtils
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Fakes
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 class TestDsomCompiler extends Logging {
 
@@ -112,6 +115,7 @@ class TestDsomCompiler extends Logging {
   // and not defending itself from thrown exceptions the way the real APIs do (or
   // are supposed to anyway.
   @Test def testTypeReferentialError() {
+    // LoggingDefaults.setLoggingLevel(LogLevel.OOLAGDebug)
     val sch: Node = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,
       <xs:element name="list" type="typeDoesNotExist"/>)

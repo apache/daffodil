@@ -32,11 +32,9 @@
 
 package edu.illinois.ncsa.daffodil.api
 
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.HasIsError
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Enum
-
 
 object ValidationMode extends Enum {
   sealed abstract class Type protected (val mode: Int) extends EnumValueType with Ordered[Type] with Serializable {
