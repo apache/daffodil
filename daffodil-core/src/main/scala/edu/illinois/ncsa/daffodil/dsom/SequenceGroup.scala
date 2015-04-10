@@ -92,8 +92,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   private lazy val <sequence>{ apparentXMLChildren @ _* }</sequence> = xml
 
-  final lazy val xmlChildren = xmlChildren_.value
-  private val xmlChildren_ = LV('xmlChildren) {
+  final def xmlChildren = LV('xmlChildren) {
     hiddenGroupRefOption match {
       case Some(qname) => {
         schemaDefinitionUnless(apparentXMLChildren.length == 0, "A sequence with hiddenGroupRef cannot have children.")
@@ -106,7 +105,7 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       }
       case None => apparentXMLChildren
     }
-  }
+  }.value
 
   final lazy val hasStaticallyRequiredInstances = {
     // true if there are syntactic features
@@ -115,12 +114,11 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
       groupMembers.exists { _.hasStaticallyRequiredInstances }
   }
 
-  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
-  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true
     else if (isKnownToBeAligned) true
     else groupMembers.exists(_.hasKnownRequiredSyntax)
-  }
+  }.value
 
   /**
    * Provides unordered sequence checks.  Will SDE if invalid.

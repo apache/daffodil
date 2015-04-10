@@ -89,16 +89,14 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
     }
   }
 
-  final lazy val optionEscapeCharacter = _optionEscapeCharacter.value
-  private val _optionEscapeCharacter = LV('optionEscapeCharacter) {
+  final def optionEscapeCharacter = LV('optionEscapeCharacter) {
     escapeCharacterRaw match {
       case Found("", loc) => None
       case found @ Found(v, loc) => Some(ExpressionCompiler.compile(NodeInfo.NonEmptyString, found))
     }
-  }
+  }.value
 
-  final lazy val optionEscapeEscapeCharacter = _optionEscapeEscapeCharacter.value
-  private val _optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
+  final def optionEscapeEscapeCharacter = LV('optionEscapeEscapeCharacter) {
     escapeEscapeCharacterRaw match {
       case Found("", loc) => None
       case found @ Found(v, loc) => {
@@ -107,23 +105,21 @@ final class DFDLEscapeScheme(node: Node, decl: AnnotatedSchemaComponent, defES: 
         Some(ExpressionCompiler.compile(typeIfStaticallyKnown, typeIfRuntimeKnown, found))
       }
     }
-  }
+  }.value
 
-  final lazy val optionEscapeBlockStart = _optionEscapeBlockStart.value
-  private val _optionEscapeBlockStart = LV('optionEscapeBlockStart) {
+  final def optionEscapeBlockStart = LV('optionEscapeBlockStart) {
     escapeBlockStartRaw match {
       case Found("", loc) => None
       case Found(v, loc) => Some(v)
     }
-  }
+  }.value
 
-  final lazy val optionEscapeBlockEnd = _optionEscapeBlockEnd.value
-  private val _optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
+  final def optionEscapeBlockEnd = LV('optionEscapeBlockEnd) {
     escapeBlockEndRaw match {
       case Found("", loc) => None
       case Found(v, loc) => Some(v)
     }
-  }
+  }.value
 
   final lazy val escapeScheme: EscapeSchemeObject = this.escapeKind match {
     case EscapeKind.EscapeBlock => new EscapeSchemeObject(this.escapeKind, None, this.optionEscapeEscapeCharacter, this.optionEscapeBlockStart, this.optionEscapeBlockEnd)

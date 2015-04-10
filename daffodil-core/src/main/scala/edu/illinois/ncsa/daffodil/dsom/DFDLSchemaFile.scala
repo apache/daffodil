@@ -133,8 +133,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
   private lazy val loader = new DaffodilXMLLoader(this)
   private lazy val resolver = schemaSet.resolver
 
-  private lazy val loadedNode = loadedNode_.value
-  private val loadedNode_ = LV('loadedNode) {
+  private def loadedNode = LV('loadedNode) {
     def die(e: Throwable) = {
       SDE("Error loading schema due to %s.", DiagnosticUtils.getSomeMessage(e).getOrElse("an unknown error."))
     }
@@ -148,21 +147,19 @@ final class DFDLSchemaFile(val sset: SchemaSet,
       case e: SAXException => die(e)
     }
     node
-  }
+  }.value
 
   lazy val node = loadedNode
 
-  lazy val iiXMLSchemaDocument = iiXMLSchemaDocument_.value
-  private val iiXMLSchemaDocument_ = LV('iiXMLSchemaDocument) {
+  def iiXMLSchemaDocument = LV('iiXMLSchemaDocument) {
     val res = loadXMLSchemaDocument(seenBefore, Some(this))
     res
-  }
+  }.value
 
-  lazy val iiSchemaDocument = iiSchemaDocument_.value
-  private val iiSchemaDocument_ = LV('iiSchemaDocument) {
+  def iiSchemaDocument = LV('iiSchemaDocument) {
     val res = new SchemaDocument(iiXMLSchemaDocument)
     res
-  }
+  }.value
 
   private def loadXMLSchemaDocument(before: IIMap, sf: Option[DFDLSchemaFile]) = {
     val sd = node match {
@@ -180,12 +177,11 @@ final class DFDLSchemaFile(val sset: SchemaSet,
     sd
   }
 
-  lazy val seenAfter: IIMap = seenAfter_.value
-  private val seenAfter_ = LV('seenAfter) {
+  lazy val seenAfter: IIMap = LV('seenAfter) {
     val res = OOLAG.keepGoing(seenBefore) {
       val aft = iiXMLSchemaDocument.seenAfter
       aft
     }
     res
-  }
+  }.value
 }

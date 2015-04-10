@@ -92,22 +92,19 @@ class ProcessorFactory(val sset: SchemaSet)
   with DFDL.ProcessorFactory
   with HavingRootSpec {
 
-  lazy val parser = parser_.value
-  private val parser_ = LV('parser) {
+  lazy val parser = LV('parser) {
     val par = rootElem.document.parser
     par
-  }
+  }.value
 
-  lazy val unparser = unparser_.value
-  private val unparser_ = LV('unparser) {
+  lazy val unparser = LV('unparser) {
     val unp = rootElem.document.unparser
     unp
-  }
+  }.value
 
-  lazy val rootElem = rootElem_.value
-  private val rootElem_ = LV('rootElem) {
+  lazy val rootElem = LV('rootElem) {
     sset.rootElement(rootSpec)
-  }
+  }.value
 
   //
   // breaking this into these lines causes the order things are
@@ -117,9 +114,9 @@ class ProcessorFactory(val sset: SchemaSet)
   // We want pretty much nothing to be done by the data processor
   //
   requiredEvaluations(sset)
-  requiredEvaluations(rootElem_)
-  requiredEvaluations(parser_)
-  requiredEvaluations(unparser_)
+  requiredEvaluations(rootElem)
+  requiredEvaluations(parser)
+  requiredEvaluations(unparser)
   requiredEvaluations(rootElem.runtimeData)
 
   override def isError = {

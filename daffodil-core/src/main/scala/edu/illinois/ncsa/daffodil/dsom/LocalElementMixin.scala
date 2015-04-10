@@ -57,8 +57,7 @@ trait LocalElementMixin
   with LocalComponentMixin
   with LocalElementGrammarMixin { self: LocalElementBase =>
 
-  final lazy val hasSep = hasSep_.value
-  private val hasSep_ = LV('hasSep) {
+  final def hasSep = LV('hasSep) {
     nearestEnclosingSequence match {
       case None => false
       case Some(es) => {
@@ -67,10 +66,9 @@ trait LocalElementMixin
         res
       }
     }
-  }
+  }.value
 
-  final lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
-  private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
+  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
     // TODO: better structure for O(1) answer to this.
@@ -82,10 +80,9 @@ trait LocalElementMixin
         else false
       }
     }
-  }
+  }.value
 
-  final lazy val lengthKnownToBeGreaterThanZero = lengthKnownToBeGreaterThanZero_.value
-  private val lengthKnownToBeGreaterThanZero_ = LV('lengthKnownToBeGreaterThanZero) {
+  final def lengthKnownToBeGreaterThanZero = LV('lengthKnownToBeGreaterThanZero) {
     val pt = {
       if (isPrimType) typeDef.asInstanceOf[PrimType]
       else {
@@ -105,10 +102,9 @@ trait LocalElementMixin
       case LengthKind.EndOfParent => false
     }
     res
-  }
+  }.value
 
-  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
-  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if ((minOccurs > 0) || isScalar || isFixedOccurrences) {
       if (emptyValueDelimiterPolicy == EmptyValueDelimiterPolicy.None) true
       else if (emptyIsAnObservableConcept) true
@@ -123,10 +119,9 @@ trait LocalElementMixin
         ((pt == PrimType.String) || (pt == PrimType.HexBinary) && lengthKnownToBeGreaterThanZero)
       }
     } else false
-  }
+  }.value
 
-  final lazy val isLastDeclaredRequiredElementOfSequence = isLastDeclaredRequiredElementOfSequence_.value
-  private val isLastDeclaredRequiredElementOfSequence_ = LV('isLastDeclaredRequiredElementOfSequence) {
+  final def isLastDeclaredRequiredElementOfSequence = LV('isLastDeclaredRequiredElementOfSequence) {
     if (hasKnownRequiredSyntax) {
       val es = nearestEnclosingSequence
       es match {
@@ -138,10 +133,9 @@ trait LocalElementMixin
       // Since we can't determine at compile time, return true so that we can continue processing.
       // Runtime checks will make final determination.
     } else true
-  }
+  }.value
 
-  final lazy val separatorSuppressionPolicy = separatorSuppressionPolicy_.value
-  private val separatorSuppressionPolicy_ = LV('separatorSuppressionPolicy) {
+  final def separatorSuppressionPolicy = LV('separatorSuppressionPolicy) {
     nearestEnclosingSequence match {
       case Some(ssp) => ssp.separatorSuppressionPolicy
       //
@@ -155,6 +149,6 @@ trait LocalElementMixin
       //
       case None => schemaDocument.separatorSuppressionPolicy
     }
-  }
+  }.value
 }
 

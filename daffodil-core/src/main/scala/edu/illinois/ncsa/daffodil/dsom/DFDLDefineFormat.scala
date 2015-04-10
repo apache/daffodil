@@ -67,15 +67,14 @@ final class DFDLDefineFormat(node: Node, sd: SchemaDocument)
   // dfdl:format inside.
   // lazy val baseFormat = getAttributeOption("baseFormat") // nor baseFormat
 
-  lazy val formatAnnotation = formatAnnotation_.value
-  private val formatAnnotation_ = LV('formatAnnotation) {
+  lazy val formatAnnotation = LV('formatAnnotation) {
     Utility.trim(node) match {
       case <defineFormat>{ f @ <format>{ contents @ _* }</format> }</defineFormat> =>
         new DFDLFormat(f, sd)
       case _ =>
         schemaDefinitionError("dfdl:defineFormat does not contain a dfdl:format element.")
     }
-  }
+  }.value
 
 }
 

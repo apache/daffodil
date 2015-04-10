@@ -272,8 +272,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
     case x => x
   }
 
-  protected final lazy val thisTermNoRefs: Term = thisTermNoRefs_.value
-  private val thisTermNoRefs_ = LV('thisTermNoRefs) {
+  protected final def thisTermNoRefs: Term = LV('thisTermNoRefs) {
     val es = nearestEnclosingSequence
 
     val thisTerm = this match {
@@ -306,7 +305,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       case x => x
     }
     thisTerm
-  }
+  }.value
 
   /**
    * We want to determine if we're in an unordered sequence

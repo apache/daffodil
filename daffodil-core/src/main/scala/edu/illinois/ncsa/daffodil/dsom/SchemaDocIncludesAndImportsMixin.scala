@@ -91,8 +91,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * namespace (if found) on the xs:schema of this schema document must match
    * that of the import statement. If a namespace is specified there.
    */
-  override lazy val targetNamespace: NS = targetNamespace2_.value
-  private val targetNamespace2_ = LV('targetNamespace2) {
+  override def targetNamespace: NS = LV('targetNamespace) {
     val checkedNS =
       ii.map {
         _ match {
@@ -117,7 +116,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
       ii.map { _.targetNamespace }.getOrElse(NoNamespace)
     }
     resultNS
-  }
+  }.value
 
   // There is one distinguished top level SchemaDocument
   // that we use to start the ball rolling by importing all the 
@@ -185,17 +184,19 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
     res
   }
 
-  lazy val (importStatementsMap, localImports) = ismli_.value
-  private val ismli_ = LV('importStatementsMap_localImports) {
+  def importStatementsMap = ismli_._1
+  def localImports = ismli_._2
+  private def ismli_ = LV('importStatementsMap_localImports) {
     val res = getImportsOrIncludes(seenBefore, impNodes, new Import(_, _, _))
     res
-  }
+  }.value
 
-  lazy val (seenAfter, localIncludes) = sali_.value
-  private val sali_ = LV('seenAfter_localIncludes) {
+  def seenAfter = sali_._1
+  def localIncludes = sali_._2
+  private def sali_ = LV('seenAfter_localIncludes) {
     val res = getImportsOrIncludes(importStatementsMap, incNodes, new Include(_, _, _))
     res
-  }
+  }.value
 
 }
 

@@ -67,11 +67,10 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
    * This is the root, or basic target namespace. Every schema component
    * gets its target namespace from its xmlSchemaDocument.
    */
-  lazy val targetNamespace: NS = targetNamespace1_.value
-  private val targetNamespace1_ = LV('targetNamespace1) {
+  def targetNamespace: NS = LV('targetNamespace) {
     val res = xmlSchemaDocument.targetNamespace
     res
-  }
+  }.value
 
   final lazy val targetNamespacePrefix = xml.scope.getPrefix(targetNamespace.toString)
 
@@ -81,8 +80,8 @@ trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
    * Used in diagnostic messages; hence, valueOrElse to avoid
    * problems when this can't get a value due to an error.
    */
-  lazy val uriString: String = uriString_.valueOrElse(orElseURL)
-  private val uriString_ = LV('fileName) {
+  def uriString: String = uriString_.valueOrElse(orElseURL)
+  private def uriString_ = LV('fileName) {
     xmlSchemaDocument.uriString
   }
 

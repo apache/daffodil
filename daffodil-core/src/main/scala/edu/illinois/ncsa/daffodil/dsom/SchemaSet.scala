@@ -127,8 +127,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
    * Issues SchemaDefinitionWarnings for DFDLSchemaValidationWarnings.
    * Issues SchemaDefinitionErrors for DFDLSchemaValidationErrors.
    */
-  private lazy val validateSchemaFiles = _validateSchemaFiles.value
-  private val _validateSchemaFiles = LV('validateSchemaFiles) {
+  private def validateSchemaFiles = LV('validateSchemaFiles) {
     // TODO: DFDL-400 remove this flag check once we've fixed all affected tests.
     if (validateDFDLSchemas) {
       schemaSources.foreach(f =>
@@ -138,7 +137,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
           case e: DFDLSchemaValidationException => SDE(DiagnosticUtils.getSomeMessage(e).get)
         })
     }
-  }
+  }.value
 
   lazy val checkAllTopLevel = checkAllTopLevelArg
 
@@ -180,8 +179,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
     res
   }
 
-  lazy val schemas = schemas_.value
-  private val schemas_ = LV('schemas) {
+  lazy val schemas = LV('schemas) {
     val schemaPairs = allSchemaDocuments.map { sd => (sd.targetNamespace, sd) }
     //
     // groupBy is deterministic if the hashCode of the key element is deterministic.
@@ -198,7 +196,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
       }
     }
     schemas.toSeq
-  }
+  }.value
 
   /**
    * For checking uniqueness of global definitions in their namespaces
@@ -206,8 +204,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
 
   private type UC = (NS, String, Symbol, SchemaComponent)
 
-  private lazy val allTopLevels: Seq[UC] = allTopLevels_.value
-  private val allTopLevels_ = LV('allTopLevels) {
+  private def allTopLevels: Seq[UC] = LV('allTopLevels) {
     val res = schemas.flatMap { schema =>
       {
         val ns = schema.namespace
@@ -251,10 +248,9 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
       }
     }
     res.asInstanceOf[Seq[UC]]
-  }
+  }.value
 
-  private lazy val groupedTopLevels = groupedTopLevels_.value
-  private val groupedTopLevels_ = LV('groupedTopLevels) {
+  private def groupedTopLevels = LV('groupedTopLevels) {
     val grouped = allTopLevels.groupBy {
       case (ns, name, kind, obj) => {
         (kind, ns, name)
@@ -275,7 +271,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
     }
     val res = grouped2.flatMap { case (_, topLevelThing) => topLevelThing }.toSeq
     res
-  }
+  }.value
 
   // The trick with this is when to call it. If you call it, as
   // a consequence of computing all of this, it will have to parse
@@ -530,8 +526,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
     finalExternalVariables
   }
 
-  override lazy val variableMap = _variableMap1.value
-  private val _variableMap1 = LV('variableMap1) {
+  override def variableMap = LV('variableMap) {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val alldvs = dvs.union(predefinedVars)
     val vmap = VariableMapFactory.create(alldvs)
@@ -544,7 +539,7 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
       ExternalVariablesLoader.loadVariables(finalExternalVariables, this, vmap)
 
     finalVMap
-  }
+  }.value
 
 }
 

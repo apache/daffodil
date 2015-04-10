@@ -99,10 +99,9 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
       groupMembers.forall { _.hasStaticallyRequiredInstances }
   }
 
-  final override lazy val hasKnownRequiredSyntax = hasKnownRequiredSyntax_.value
-  private val hasKnownRequiredSyntax_ = LV('hasKnownRequiredSyntax) {
+  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true
     else if (isKnownToBeAligned) true
     else groupMembers.forall(_.hasKnownRequiredSyntax)
-  }
+  }.value
 }

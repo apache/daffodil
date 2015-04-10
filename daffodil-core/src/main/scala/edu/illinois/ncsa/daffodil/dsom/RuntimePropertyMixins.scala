@@ -50,12 +50,9 @@ trait CommonRuntimeValuedPropertiesMixin
   extends DFDLBaseTypeMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
-  final lazy val byteOrder = _byteOrder.value
-  private val _byteOrder = LV('byteOrder) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, byteOrderRaw) }
-  final lazy val encoding = _encoding.value
-  private val _encoding = LV('encoding) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw) }
-  final lazy val outputNewLine = _outputNewLine.value
-  private val _outputNewLine = LV('outputNewLine) {
+  final lazy val byteOrder = LV('byteOrder) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, byteOrderRaw) }.value
+  final lazy val encoding = LV('encoding) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw) }.value
+  final lazy val outputNewLine = LV('outputNewLine) {
     //
     // FIXME unparser: outputNewLineRaw might be a literal, in which case
     // we do entity replacements. However, if it is an expression, we don't
@@ -77,7 +74,8 @@ trait CommonRuntimeValuedPropertiesMixin
       })
     }
     c
-  }
+  }.value
+
 }
 
 trait DelimitedRuntimeValuedPropertiesMixin
@@ -88,8 +86,7 @@ trait DelimitedRuntimeValuedPropertiesMixin
   // as it's possible to replace an entity with a whitespace character.
   //  final lazy val initiator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(initiatorRaw))
   //  final lazy val terminator = ExpressionCompiler.compile('String, EntityReplacer.replaceAll(terminatorRaw))
-  final lazy val initiator = _initiator.value
-  private val _initiator = LV('initiator) {
+  final lazy val initiator = LV('initiator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
       val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -100,11 +97,11 @@ trait DelimitedRuntimeValuedPropertiesMixin
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Initiator cannot contain ES")
     }
     c
-  }
-  final lazy val initiatorLoc = (this.prettyName, this.path)
+  }.value
 
-  final lazy val terminator = _terminator.value
-  private val _terminator = LV('terminator) {
+  final def initiatorLoc = (this.prettyName, this.path)
+
+  final lazy val terminator = LV('terminator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
       val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -115,8 +112,8 @@ trait DelimitedRuntimeValuedPropertiesMixin
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Terminator cannot contain ES")
     }
     c
-  }
-  final lazy val terminatorLoc = (this.prettyName, this.path)
+  }.value
+  final def terminatorLoc = (this.prettyName, this.path)
 
 }
 
@@ -127,8 +124,9 @@ trait ElementRuntimeValuedPropertiesMixin
   with SimpleTypeRuntimeValuedPropertiesMixin
   with RawElementRuntimeValuedPropertiesMixin { decl: ElementBase =>
 
-  final lazy val length = _length.value
-  private val _length = LV('length) { ExpressionCompiler.compile(NodeInfo.UnsignedLong, lengthRaw) } // NodeInfo.UnsignedInt
+  final lazy val length = LV('length) {
+    ExpressionCompiler.compile(NodeInfo.UnsignedLong, lengthRaw)
+  }.value // NodeInfo.UnsignedInt
 
   //
   // The occursCount expression is written on the array element, but that expression
@@ -143,11 +141,10 @@ trait ElementRuntimeValuedPropertiesMixin
   // Not at all sure why this worked with Saxon, but in our new Infoset and DPath
   // implementation, the ".." does get literally evaluated.
   //
-  final lazy val occursCount = _occursCount.value
-  private val _occursCount = LV('occursCount) {
+  final lazy val occursCount = LV('occursCount) {
     val isEvaluatedAbove = true
     ExpressionCompiler.compile(NodeInfo.UnsignedLong, occursCountRaw, isEvaluatedAbove) //NodeInfo.UnsignedInt
-  }
+  }.value
 }
 
 trait SequenceRuntimeValuedPropertiesMixin
@@ -155,8 +152,7 @@ trait SequenceRuntimeValuedPropertiesMixin
   with Sequence_AnnotationMixin
   with RawSequenceRuntimeValuedPropertiesMixin { decl: GroupBase =>
 
-  final lazy val separator = _separator.value
-  private val _separator = LV('separator) {
+  final lazy val separator = LV('separator) {
     val c = {
       val typeIfStaticallyKnown = NodeInfo.String
       val typeIfRuntimeKnown = NodeInfo.NonEmptyString
@@ -167,9 +163,9 @@ trait SequenceRuntimeValuedPropertiesMixin
       this.schemaDefinitionUnless(!s.contains("%ES;"), "Separator cannot contain ES")
     }
     c
-  }
+  }.value
 
-  final lazy val separatorLoc = (this.prettyName, this.path)
+  final def separatorLoc = (this.prettyName, this.path)
 }
 
 trait SimpleTypeRuntimeValuedPropertiesMixin
@@ -177,30 +173,27 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
   with DFDLSimpleTypeMixin
   with RawSimpleTypeRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
-  final lazy val textStandardDecimalSeparator = _textStandardDecimalSeparator.value
-  private val _textStandardDecimalSeparator = LV('textStandardDecimalSeparator) {
+  final lazy val textStandardDecimalSeparator = LV('textStandardDecimalSeparator) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardDecimalSeparatorRaw)
     c
-  }
+  }.value
 
-  final lazy val textStandardGroupingSeparator = _textStandardGroupingSeparator.value
-  private val _textStandardGroupingSeparator = LV('textStandardGroupingSeparator) {
+  final lazy val textStandardGroupingSeparator = LV('textStandardGroupingSeparator) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardGroupingSeparatorRaw)
     c
-  }
+  }.value
 
-  final lazy val textStandardExponentRep = _textStandardExponentRep.value
-  private val _textStandardExponentRep = LV('textStandardExponentRep) {
+  final lazy val textStandardExponentRep = LV('textStandardExponentRep) {
     val c = ExpressionCompiler.compile(NodeInfo.String, textStandardExponentRepRaw)
     c
-  }
+  }.value
 
-  final lazy val binaryFloatRep = _binaryFloatRep.value
-  private val _binaryFloatRep = LV('binaryFloatRep) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, binaryFloatRepRaw) }
+  final lazy val binaryFloatRep = LV('binaryFloatRep) {
+    ExpressionCompiler.compile(NodeInfo.NonEmptyString, binaryFloatRepRaw)
+  }.value
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanTrueRep in Parser where it is used.
-  final lazy val textBooleanTrueRep = _textBooleanTrueRep.value
-  private val _textBooleanTrueRep = LV('textBooleanTrueRep) {
+  final lazy val textBooleanTrueRep = LV('textBooleanTrueRep) {
     val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanTrueRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
@@ -211,11 +204,10 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanTrueRep cannot contain ES")
     }
     c
-  }
+  }.value
 
   // TODO: Will need to 'evaluate' and perform entity replacement on textBooleanFalseRep in Parser where it is used.
-  final lazy val textBooleanFalseRep = _textBooleanFalseRep.value
-  private val _textBooleanFalseRep = LV('textBooleanFalseRep) {
+  final lazy val textBooleanFalseRep = LV('textBooleanFalseRep) {
     val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, textBooleanFalseRepRaw)
     if (c.isConstant) {
       val s = c.constantAsString
@@ -226,6 +218,6 @@ trait SimpleTypeRuntimeValuedPropertiesMixin
       this.schemaDefinitionUnless(!s.contains("%ES;"), "textBooleanFalseRep cannot contain ES")
     }
     c
-  }
+  }.value
 
 }

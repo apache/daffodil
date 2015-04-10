@@ -69,20 +69,18 @@ import java.net.URLEncoder
 final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(xml, xsd, seenArg) {
 
-  protected final lazy val mapPair = mapPair_.value
-  private val mapPair_ = LV('mapPair) {
+  protected final def mapPair = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.
     val mp = (targetNamespace, resolvedLocation)
     mp
-  }
+  }.value
 
   private lazy val slText = schemaLocationProperty.get // include always has a schemaLocation property
 
   lazy val resolvedNamespaceURI = None // include doesn't have a namespace.
 
   // include always has a schemaLocation
-  lazy val resolvedLocation = resolvedLocation_.value
-  private val resolvedLocation_ = LV('resolvedLocation) {
+  lazy val resolvedLocation = LV('resolvedLocation) {
     resolvedSchemaLocation match {
       case Some(rsl) => {
         val ns = OOLAG.keepGoing(
@@ -94,7 +92,7 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
       }
       case None => schemaDefinitionError("Included schema not found at location %s. %s", slText, whereSearched)
     }
-  }
+  }.value
 
 }
 

@@ -171,11 +171,10 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 
   def nodeKind: NodeInfo.Kind
 
-  lazy val expr = _expr.value
-  private val _expr = LV('expr) {
+  lazy val expr = LV('expr) {
     ExpressionCompiler.compile(
       nodeKind, exprText, exprNamespaces, exprComponent.dpathCompileInfo, false)
-  }
+  }.value
 }
 
 abstract class ValueCalcBase(e: ElementBase)

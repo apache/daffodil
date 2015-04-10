@@ -48,13 +48,13 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
   protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
   final lazy val Seq(modelGroup) = {
-    val s = smg.value
+    val s = smg
     // TODO: why check this? Schema validation will enforce this for us. (I think).
     schemaDefinitionUnless(s.length == 1, "A complex type must have exactly one model-group element child which is a sequence, choice, or group reference.")
     s
   }
 
-  private val smg = LV('smg) {
+  private def smg = LV('smg) {
     xmlChildren.flatMap {
       xmlChild =>
         {
@@ -62,7 +62,7 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
           g
         }
     }
-  }
+  }.value
 
   // provides needed polymorphism across unannotated complex types, and
   // the annotated objects.

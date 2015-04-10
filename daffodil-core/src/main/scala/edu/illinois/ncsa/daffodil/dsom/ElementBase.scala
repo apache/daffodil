@@ -320,8 +320,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val childElementResolver: NextElementResolver =
     computeNextElementResolver(possibleNextChildrenElementsForUnparse)
 
-  final lazy val elementRuntimeData: ElementRuntimeData = elementRuntimeData_.value
-  private val elementRuntimeData_ = LV('elementRuntimeData) {
+  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val ee = enclosingElement
     //
     // Must be lazy below, because we are defining the elementRuntimeData in terms of 
@@ -334,7 +333,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       enc.elementRuntimeData
     }
     createElementRuntimeData(optERD)
-  }
+  }.value
 
   final def erd = elementRuntimeData // just an abbreviation 
 
@@ -647,8 +646,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   // FIXME : This looks incorrect. empty is observable so long as one can 
   // have zero length followed by a separator, or zero length between an 
   // initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
-  final lazy val emptyIsAnObservableConcept = emptyIsAnObservableConcept_.value
-  private val emptyIsAnObservableConcept_ = LV('emptyIsAnObservableConcept) {
+  final def emptyIsAnObservableConcept = LV('emptyIsAnObservableConcept) {
     val res = if ((hasSep ||
       hasEmptyValueInitiator ||
       hasEmptyValueTerminator) &&
@@ -657,7 +655,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       false
     } else true
     res
-  }
+  }.value
 
   //  /**
   //   * everything that we need to look for when deciding how to terminate a data region

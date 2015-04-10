@@ -132,8 +132,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
 
   lazy val isArray = false // overridden in local elements
 
-  final lazy val nonTermRuntimeData = _nonTermRuntimeData.value
-  private val _nonTermRuntimeData = LV('nonTermRuntimeData) {
+  final def nonTermRuntimeData = LV('nonTermRuntimeData) {
     new NonTermRuntimeData(
       variableMap,
       schemaFileLocation,
@@ -141,12 +140,11 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       path,
       namespaces,
       enclosingElement.map { _.erd })
-  }
+  }.value
 
-  lazy val variableMap: VariableMap = variableMap_.value
-  private val variableMap_ = LV('variableMap) {
+  def variableMap: VariableMap = LV('variableMap) {
     schemaSet.variableMap
-  }
+  }.value
 
   /*
    * Anything non-annotated always returns property not found
@@ -172,25 +170,22 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
   lazy val schemaComponent: LookupLocation = this
   override lazy val uriString: String = parent.uriString
 
-  override lazy val isHidden: Boolean = isHidden_.value
-  private val isHidden_ = LV('isHidden) {
+  override def isHidden: Boolean = LV('isHidden) {
     enclosingComponent match {
       case None => Assert.invariantFailed("Root global element should be overriding this.")
       case Some(ec) => ec.isHidden
     }
-  }
+  }.value
 
-  override lazy val enclosingComponent = enclosingComponent_.value
-  private val enclosingComponent_ = LV('enclosingComponent) {
+  override lazy val enclosingComponent = LV('enclosingComponent) {
     val res = enclosingComponentDef.asInstanceOf[Option[SchemaComponent]]
     res
-  }
+  }.value
 
   /**
    * All schema components except the root have an enclosing element.
    */
-  final lazy val enclosingElement: Option[ElementBase] = enclosingElement_.value
-  private val enclosingElement_ = LV('enclosingElement) {
+  final lazy val enclosingElement: Option[ElementBase] = LV('enclosingElement) {
     val et = enclosingTerm
     val ee = et match {
       case None => None
@@ -198,7 +193,7 @@ abstract class SchemaComponent(xmlArg: Node, val parent: SchemaComponent)
       case Some(sc: SchemaComponent) => sc.enclosingElement
     }
     ee
-  }
+  }.value
 
   final lazy val enclosingTerm: Option[Term] = {
     enclosingComponent match {
@@ -287,7 +282,7 @@ final class Schema(val namespace: NS, schemaDocs: Seq[SchemaDocument], schemaSet
 
   requiredEvaluations(schemaDocuments)
 
-  override lazy val targetNamespace: NS = namespace
+  override def targetNamespace: NS = namespace
 
   override lazy val enclosingComponent = None
   override lazy val schemaDocument = Assert.usageError("schemaDocument should not be called on Schema")

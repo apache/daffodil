@@ -72,8 +72,7 @@ import java.net.URLEncoder
 final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   extends IIBase(importNode, xsd, seenArg) {
 
-  final lazy val mapPair = mapPair_.value
-  private val mapPair_ = LV('mapPair) {
+  final def mapPair = LV('mapPair) {
     val mpOpt = importElementNS.map { ieNS => (ieNS, resolvedLocation) }
     val mp = mpOpt.getOrElse {
       //
@@ -101,18 +100,17 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
       (xsdtns, resolvedLocation)
     }
     mp
-  }
+  }.value
 
   lazy val importElementNS = getAttributeOption("namespace").map { NS(_) }
 
-  override lazy val targetNamespace: NS = targetNamespace3_.value
-  private val targetNamespace3_ = LV('targetNamespace3) {
+  override lazy val targetNamespace: NS = LV('targetNamespace) {
     val tns = importElementNS match {
       case Some(ns) => ns // don't load it just to check compatibility.
       case None => iiSchemaFile.iiSchemaDocument.targetNamespace // load it because we have to have it.
     }
     tns
-  }
+  }.value
 
   /**
    * Only import has a namespace URI.
@@ -120,8 +118,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
    * This will be Some(URL) for reading an imported schema,
    * if we resolved the namespace URI via the XML Catalog.
    */
-  lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] = resolvedNamespaceURI_.value
-  private val resolvedNamespaceURI_ = LV('resolvedNamespaceURI) {
+  lazy val resolvedNamespaceURI: Option[DaffodilSchemaSource] = LV('resolvedNamespaceURI) {
     importElementNS match {
       case None => {
         schemaDefinitionUnless(schemaLocationProperty != None, "When there is no namespace specified, there must be a schemaLocation specified.")
@@ -136,7 +133,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
         }
       }
     }
-  }
+  }.value
 
   private lazy val resolver = xsd.schemaSet.resolver // iiSchemaFileMaybe.map { _.resolver }
   private lazy val catFiles = resolver.catalogFiles.mkString(", ")
@@ -144,8 +141,7 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   /**
    * XML Catalog is tried first, then classpath
    */
-  lazy val resolvedLocation: DaffodilSchemaSource = resolvedLocation_.value
-  private val resolvedLocation_ = LV('resolvedLocation) {
+  lazy val resolvedLocation: DaffodilSchemaSource = LV('resolvedLocation) {
 
     log(LogLevel.Resolver, "Computing resolvedLocation")
     log(LogLevel.Resolver, "\nimportElementNS='%s'\nresolvedNamespaceURI='%s'\nschemaLocationProperty='%s'\nresolvedSchemaLocation='%s'".format(
@@ -175,6 +171,6 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
       case _ => Assert.invariantFailed("illegal combination of namespace and schemaLocation")
     }
     rl
-  }
+  }.value
 
 }

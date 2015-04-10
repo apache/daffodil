@@ -126,8 +126,7 @@ final class XMLSchemaDocument(xmlArg: Node,
     else qualOrUnqual(afdAttr, "attribute")
   }
 
-  final lazy val checkUnsupportedAttributes = checkUnsupportedAttributes_.value
-  private val checkUnsupportedAttributes_ = LV('checkUnsupportedAttributes) {
+  final def checkUnsupportedAttributes = LV('checkUnsupportedAttributes) {
     val hasSchemaLocation = (xml \ "@schemaLocation").text != ""
     val hasBlockDefault = (xml \ "@blockDefault").text != ""
     val hasFinalDefault = (xml \ "@finalDefault").text != ""
@@ -137,7 +136,7 @@ final class XMLSchemaDocument(xmlArg: Node,
     schemaDefinitionUnless(attributeFormDefault == "unqualified", "attributeFormDefault='qualified' is not yet implemented.")
     val res = hasSchemaLocation | hasBlockDefault | hasFinalDefault
     res
-  }
+  }.value
 
 }
 
@@ -196,13 +195,12 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   //    val dfdlAttrs = attrs.filter{ a => a.isPrefixed && a.}
   //  }
 
-  lazy val nonDefaultPropertySources = Seq()
+  def nonDefaultPropertySources = Seq()
 
-  lazy val defaultPropertySources = defaultPropertySources_.value
-  private val defaultPropertySources_ = LV('defaultPropertySources) {
+  def defaultPropertySources = LV('defaultPropertySources) {
     val seq = Seq(this.defaultFormatChain)
     seq
-  }
+  }.value
 
   protected def annotationFactory(node: Node): DFDLAnnotation = {
     node match {

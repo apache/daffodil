@@ -115,13 +115,12 @@ final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   override lazy val encodingInfo = group.encodingInfo
 
-  lazy val groupDef = groupDef_.value
-  private val groupDef_ = LV('groupDef) {
+  lazy val groupDef = LV('groupDef) {
     this.schemaSet.getGlobalGroupDef(qname) match {
       case None => SDE("Referenced group definition not found: %s", this.ref)
       case Some(x) => x.forGroupRef(this, position)
     }
-  }
+  }.value
 
   lazy val statements = localStatements
   lazy val newVariableInstanceStatements = localNewVariableInstanceStatements

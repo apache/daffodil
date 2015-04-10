@@ -27,9 +27,9 @@ abstract class Gram(contextArg: SchemaComponent)
    *
    * This would be protected, except it is used in unit testing.
    */
-  private[grammar] lazy val gram: Gram = this
+  private[grammar] def gram: Gram = this
 
-  private[grammar] lazy val deref = this // override in Prod
+  private[grammar] def deref = this // override in Prod
 
   def name: String = prettyName
 

@@ -135,25 +135,22 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   final lazy val gRefNonDefault: Option[ChainPropProvider] = groupRef.map { _.nonDefaultFormatChain }
   final lazy val gRefDefault: Option[ChainPropProvider] = groupRef.map { _.defaultFormatChain }
 
-  final lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
-  private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
+  final def nonDefaultPropertySources = LV('nonDefaultPropertySources) {
     val seq = (gRefNonDefault.toSeq ++ Seq(this.nonDefaultFormatChain)).distinct
     checkNonOverlap(seq)
     seq
-  }
+  }.value
 
-  final lazy val defaultPropertySources = defaultPropertySources_.value
-  private val defaultPropertySources_ = LV('defaultPropertySources) {
+  final def defaultPropertySources = LV('defaultPropertySources) {
     val seq = (gRefDefault.toSeq ++ Seq(this.defaultFormatChain)).distinct
     seq
-  }
+  }.value
 
   protected final lazy val prettyBaseName = xmlArg.label
 
   protected def xmlChildren: Seq[Node]
 
-  private lazy val goodXmlChildren = goodXmlChildren_.value
-  private val goodXmlChildren_ = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }
+  private def goodXmlChildren = LV('goodXMLChildren) { xmlChildren.flatMap { removeNonInteresting(_) } }.value
   private lazy val positions = List.range(1, goodXmlChildren.length + 1) // range is exclusive on 2nd arg. So +1.
   private lazy val pairs = goodXmlChildren zip positions
 
@@ -253,8 +250,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
   }
 
-  final lazy val isKnownToBeAligned = isKnownToBeAligned_.value
-  private val isKnownToBeAligned_ = LV('isKnownToBeAligned) {
+  final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
     if (alignmentValueInBits == 1) {
       alignmentUnits match {
         case AlignmentUnits.Bits => true
@@ -263,10 +259,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     } else if (alignmentValueInBits > 1) {
       isKnownToBePrecededByAllByteLengthItems
     } else false
-  }
+  }.value
 
-  final lazy val isDeclaredLastInSequence = isDeclaredLastInSequence_.value
-  private val isDeclaredLastInSequence_ = LV('isDeclaredLastInSequence) {
+  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
     val es = nearestEnclosingSequence
     // how do we determine what child node we are? We search. 
     // TODO: better structure for O(1) answer to this.
@@ -280,11 +275,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
           else false
         }
     }
-  }
+  }.value
 
-  final lazy val allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
-    allSelfContainedTermsTerminatedByRequiredElement_.value
-  private val allSelfContainedTermsTerminatedByRequiredElement_ =
+  final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembersNoRefs.map(m => {
         m match {
@@ -294,10 +287,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
         }
       }).flatten
       listOfTerms
-    }
+    }.value
 
-  final lazy val couldBeNext: Seq[Term] = couldBeNext_.value
-  private val couldBeNext_ = LV('couldBeNext) {
+  final def couldBeNext: Seq[Term] = LV('couldBeNext) {
     // We're a ModelGroup, we want a list of all
     // Terms that follow this ModelGroup.
     //
@@ -351,6 +343,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
         }
       }
     listOfNextTerm
-  }
+  }.value
 
 }

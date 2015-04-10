@@ -66,18 +66,16 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   // want a QueueSet i.e., fifo order if iterated, but duplicates
   // kept out of the set. Will simulate by calling distinct.
-  lazy val nonDefaultPropertySources = nonDefaultPropertySources_.value
-  private val nonDefaultPropertySources_ = LV('nonDefaultPropertySources) {
+  def nonDefaultPropertySources = LV('nonDefaultPropertySources) {
     val seq = (this.nonDefaultFormatChain +: sTypeNonDefault).distinct
     checkNonOverlap(seq)
     seq
-  }
+  }.value
 
-  lazy val defaultPropertySources = defaultPropertySources_.value
-  private val defaultPropertySources_ = LV('defaultPropertySources) {
+  def defaultPropertySources = LV('defaultPropertySources) {
     val seq = (this.defaultFormatChain +: sTypeDefault).distinct
     seq
-  }
+  }.value
 
   import edu.illinois.ncsa.daffodil.dsom.FacetTypes._
 
@@ -217,14 +215,13 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
     combined.toSeq
   }
 
-  final lazy val remoteBaseFacets = remoteBaseFacets_.value
-  private val remoteBaseFacets_ = LV('remoteBaseFacets) {
+  final def remoteBaseFacets = LV('remoteBaseFacets) {
     myBaseType match {
       case gstd: GlobalSimpleTypeDef => gstd.combinedBaseFacets
       case prim: PrimType => Nil
       case _ => Assert.impossible()
     }
-  }
+  }.value
 
   /**
    * Combine our statements with those of our base def (if there is one)

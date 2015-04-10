@@ -143,24 +143,22 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 final class DFDLAssert(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Assert_AnnotationMixin // Note: don't use these generated mixins. Statements don't have format properties
 
-  final lazy val gram = gram_.value
-  private val gram_ = LV('gram) {
+  final def gram = LV('gram) {
     testKind match {
       case TestKind.Pattern => AssertPatternPrim(decl, this)
       case TestKind.Expression => AssertBooleanPrim(decl, this)
     }
-  }
+  }.value
 }
 
 final class DFDLDiscriminator(node: Node, decl: AnnotatedSchemaComponent)
   extends DFDLAssertionBase(node, decl) { // with Discriminator_AnnotationMixin 
 
-  final lazy val gram = gram_.value
-  private val gram_ = LV('gram) {
+  final def gram = LV('gram) {
     testKind match {
       case TestKind.Pattern => DiscriminatorPatternPrim(decl, this)
       case TestKind.Expression => DiscriminatorBooleanPrim(decl, this)
     }
-  }
+  }.value
 }
 

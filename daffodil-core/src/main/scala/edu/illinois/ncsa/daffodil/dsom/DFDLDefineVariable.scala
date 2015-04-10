@@ -147,9 +147,8 @@ final class DFDLSetVariable(node: Node, decl: AnnotatedSchemaComponent)
     case (None, "") => decl.SDE("Must have either a value attribute or an element value: %s", node)
   }
 
-  final lazy val gram = gram_.value
-  private val gram_ = LV('gram) {
+  final def gram = LV('gram) {
     SetVariable(decl, this)
-  }
+  }.value
 }
 

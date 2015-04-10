@@ -63,7 +63,6 @@ abstract class Expression extends OOLAGHost
   requiredEvaluations(targetType)
   requiredEvaluations(inherentType)
   requiredEvaluations(isTypeCorrect)
-  private val compiledDPath_ = LV('compiledDPath) { compiledDPath }
   requiredEvaluations(compiledDPath_)
 
   // This split allows overrides of this lazy val to still reuse this
@@ -96,6 +95,7 @@ abstract class Expression extends OOLAGHost
     res
   }
 
+  private def compiledDPath_ = LV('compiledDPath) { compiledDPath }
   def compiledDPath: CompiledDPath
 
   final lazy val parentOpt = Option(parent)

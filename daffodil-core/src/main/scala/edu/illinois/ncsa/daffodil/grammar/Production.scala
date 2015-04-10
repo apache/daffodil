@@ -29,16 +29,15 @@ import edu.illinois.ncsa.daffodil.util.Debug
 final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, forWhat: ParserOrUnparser)
   extends NamedGram(sc) {
 
-  final override lazy val deref = gram
+  final override def deref = gram
 
   def SDE(str: String, args: Any*): Nothing = sc.SDE(str, args)
 
-  final override lazy val name = nameArg
+  final override def name = nameArg
 
   final override lazy val path = sc.path + "@@Prod(" + prettyName + ")"
 
-  final override lazy val gram: Gram = gram_.value
-  private val gram_ = LV('gram) {
+  final override def gram: Gram = LV('gram) {
     guard match {
       case true => {
         val g = gramArg // exactly once.
@@ -55,24 +54,22 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
         EmptyGram
       }
     }
-  }
+  }.value
 
-  final override lazy val isEmpty = gram.isEmpty
+  final override def isEmpty = gram.isEmpty
 
-  final override lazy val parser = parser_.value
-  private val parser_ = LV('parser) {
+  final override lazy val parser = LV('parser) {
     forWhat match {
       case ForUnparser => new NadaParser(context.runtimeData) // TODO: detect this and remove from final parser
       case _ => gram.parser
     }
-  }
+  }.value
 
-  final override lazy val unparser = unparser_.value
-  private val unparser_ = LV('unparser) {
+  final override lazy val unparser = LV('unparser) {
     forWhat match {
       case ForParser => new NadaUnparser(context.runtimeData) // TODO: detect this and remove from final unparser
       case _ => gram.unparser
     }
-  }
+  }.value
 }
 

@@ -236,8 +236,7 @@ trait AnnotatedMixin
    * The DFDL annotations on the component, as objects
    * that are subtypes of DFDLAnnotation.
    */
-  final lazy val annotationObjs = annotationObjs_.value
-  private val annotationObjs_ = LV('annotationObjs) {
+  final def annotationObjs = LV('annotationObjs) {
     // println(dais)
     dais.flatMap { dai =>
       {
@@ -250,7 +249,7 @@ trait AnnotatedMixin
         res
       }
     }
-  }
+  }.value
 
   /**
    * Here we establish an invariant which is that every annotatable schema component has, definitely, has an
@@ -267,8 +266,7 @@ trait AnnotatedMixin
   protected def emptyFormatFactory: DFDLFormatAnnotation
   protected def isMyFormatAnnotation(a: DFDLAnnotation): Boolean
 
-  lazy val formatAnnotation = formatAnnotation_.value
-  private val formatAnnotation_ = LV('formatAnnotation) {
+  lazy val formatAnnotation = LV('formatAnnotation) {
     val format = annotationObjs.collect { case fa: DFDLFormatAnnotation if isMyFormatAnnotation(fa) => fa }
     val res = format match {
       case Seq() => emptyFormatFactory // does make things with the right namespace scopes attached!
@@ -276,7 +274,7 @@ trait AnnotatedMixin
       case _ => schemaDefinitionError("Only one format annotation is allowed at each annotation point.")
     }
     res
-  }
+  }.value
 
   protected final lazy val defaultEncodingErrorPolicy = {
     if (DaffodilTunableParameters.requireEncodingErrorPolicyProperty) {

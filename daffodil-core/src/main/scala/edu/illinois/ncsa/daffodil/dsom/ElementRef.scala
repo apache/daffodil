@@ -82,30 +82,28 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
 
   override lazy val referredToComponent = referencedElement
 
-  override lazy val namedQName: NamedQName = namedQName_.value
-  private lazy val namedQName_ = LV('namedQName) {
+  override lazy val namedQName: NamedQName = LV('namedQName) {
     referencedElement.namedQName
-  }
+  }.value
 
   // Need to go get the Element we are referencing
-  lazy val referencedElement = referencedElement_.value // optionReferencedElement.get
-  private val referencedElement_ = LV('referencedElement) {
+  lazy val referencedElement = LV('referencedElement) {
     val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
       case None => SDE("Referenced element not found: %s.", this.ref)
       case Some(x) => x.forElementRef(this)
     }
     res
-  }
+  }.value
 
   // These will just delegate to the referenced element declaration
-  lazy val isNillable = referencedElement.isNillable
-  lazy val isSimpleType = referencedElement.isSimpleType
-  lazy val isComplexType = referencedElement.isComplexType
-  lazy val elementComplexType = referencedElement.elementComplexType
-  lazy val elementSimpleType = referencedElement.elementSimpleType
-  lazy val isDefaultable: Boolean = referencedElement.isDefaultable
-  lazy val defaultValueAsString = referencedElement.defaultValueAsString
+  def isNillable = referencedElement.isNillable
+  def isSimpleType = referencedElement.isSimpleType
+  def isComplexType = referencedElement.isComplexType
+  def elementComplexType = referencedElement.elementComplexType
+  def elementSimpleType = referencedElement.elementSimpleType
+  def isDefaultable: Boolean = referencedElement.isDefaultable
+  def defaultValueAsString = referencedElement.defaultValueAsString
 
   override lazy val namespace = namedQName.namespace
 
@@ -129,8 +127,8 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
    * the name was failing.
    */
   override lazy val name = nameFromRef
-  private lazy val nameFromRef = nameFromRef_.valueOrElse("?name?")
-  private val nameFromRef_ = LV('nameFromRef) {
+  private def nameFromRef = nameFromRef_.valueOrElse("?name?")
+  private def nameFromRef_ = LV('nameFromRef) {
     namedQName.local
   }
 
@@ -138,11 +136,11 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   // Consider removing some. Although consider that
   // some have to be here because of abstract bases or traits requiring them
   // even if they aren't called.
-  override lazy val typeDef = referencedElement.typeDef
+  override def typeDef = referencedElement.typeDef
 
   // Element references can have minOccurs and maxOccurs, and annotations, but nothing else.
-  override lazy val inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
-  override lazy val outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
+  override def inputValueCalcOption = referencedElement.inputValueCalcOption // can't have ivc on element reference
+  override def outputValueCalcOption = referencedElement.outputValueCalcOption // can't have ivc on element reference
 
   //TODO: refactor and use shared code for creating resolved set of annotations for an annotation point.
   override lazy val statements = localStatements

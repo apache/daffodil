@@ -252,12 +252,11 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
    * Needed for certain warnings, and also is the primitive from which the
    * ChainPropProvider is built up. That one DOES follow ref chains.
    */
-  final override lazy val justThisOneProperties: PropMap = justThisOneProperties_.value
-  private val justThisOneProperties_ = LV('justThisOneProperties) {
+  final override def justThisOneProperties: PropMap = LV('justThisOneProperties) {
     val res = combinedJustThisOneProperties
     log(LogLevel.Debug, "%s::%s justThisOneProperties are: %s", annotatedSC.prettyName, prettyName, res)
     res
-  }
+  }.value
 
 }
 

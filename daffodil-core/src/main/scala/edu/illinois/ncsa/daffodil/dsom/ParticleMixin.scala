@@ -167,8 +167,7 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
   /**
    * Does this node have statically required instances.
    */
-  final lazy val hasStaticallyRequiredInstances = hasStaticallyRequiredInstances_.value
-  private val hasStaticallyRequiredInstances_ = LV('hasStaticallyRequiredInstances) {
+  final def hasStaticallyRequiredInstances = LV('hasStaticallyRequiredInstances) {
     val res =
       if (!isRepresented) false // if there's no rep, then it's not statically required.
       else if (isScalar) true
@@ -176,22 +175,20 @@ trait ParticleMixin extends RequiredOptionalMixin { self: ElementBase =>
       else if (minOccurs > 0) true
       else false
     res
-  }
+  }.value
 
-  final override lazy val isKnownRequiredElement = isKnownRequiredElement_.value
-  private val isKnownRequiredElement_ = LV('isKnownRequiredElement) {
+  final override def isKnownRequiredElement = LV('isKnownRequiredElement) {
     if (isScalar) true
     else if (isFixedOccurrences) true
     else false
-  }
+  }.value
 
-  final lazy val hasStopValue = hasStopValue_.value
-  private val hasStopValue_ = LV('hasStopValue) {
+  final lazy val hasStopValue = LV('hasStopValue) {
     val sv = isRecurring && occursCountKind == OccursCountKind.StopValue
     // Don't check things like this aggressively. If we need occursStopValue then someone will ask for it.
     schemaDefinitionUnless(!(sv && occursStopValue == ""), "Property occursCountKind='stopValue' requires a non-empty occursStopValue property.")
     schemaDefinitionUnless(!sv, "occursCountKind='stopValue' is not implemented.")
     sv
-  }
+  }.value
 }
 

@@ -105,8 +105,12 @@ object OOLAG extends Logging {
    *
    * The way these are generally used now is like this
    *
-   *    lazy val foo = foo_.value
-   *    private val foo_ = LV('foo) {...calculation...} // note val is preferred here
+   *  def foo = LV('foo) {...calculation...}.value
+   *
+   * or, if you would like a slot to show up in the debugger so you
+   * can more easily see the value of the LV then you can
+   *
+   * lazy val foo = LV('foo){...calculation...}.value
    *
    * Why scala needs 'real' Lisp-style macros: Well wouldn't it be
    * nicer if I could write:
@@ -114,10 +118,7 @@ object OOLAG extends Logging {
    *    defAttribute foo {... calculation ...}
    *
    * and have that be equivalent the more verbose stuff above it?
-   * But I digress....
-   *
-   * The LVs (but not the values of the LV) are created
-   * at OOLAGHost object creation time.
+   * But I digress...
    *
    * OOLAGHosts support a feature called requiredEvaluations.
    * This is a lazy function the arguments to which are only evaluated
@@ -183,7 +184,7 @@ object OOLAG extends Logging {
      * computing whatever attribute we were trying to compute, and put that
      * attribute in the 'already been tried' state.
      */
-    def assuming(pred: Boolean) = {
+    final def assuming(pred: Boolean) = {
       if (!pred) throw AssumptionFailed
     }
 
@@ -475,7 +476,7 @@ object OOLAG extends Logging {
     private def initialize = {
       val now = oolagContext.currentOVList
       oolagContext.currentOVList = this +: oolagContext.currentOVList
-      log(OOLAGDebug(" " * indent + "push: " + thisThing))
+      // log(OOLAGDebug(" " * indent + "push: " + thisThing))
       setIndent(indent + 2)
       now
     }
@@ -507,7 +508,7 @@ object OOLAG extends Logging {
 
     protected final def oolagFinalize = {
       setIndent(indent - 2)
-      log(OOLAGDebug(" " * indent + "pop:  " + thisThing))
+      // log(OOLAGDebug(" " * indent + "pop:  " + thisThing))
       oolagContext.currentOVList = oolagContext.currentOVList.tail
     }
 
