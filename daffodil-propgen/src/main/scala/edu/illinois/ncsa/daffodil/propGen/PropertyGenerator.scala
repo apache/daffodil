@@ -336,11 +336,10 @@ trait CurrencyMixin extends PropertyMixin {
    * so that one can report errors/diagnostics relative to that
    * location, not the point of use of the property.
    */
-  lazy val (currency, currency_location) = {
-    val Found(propRawVal, propLoc) = findProperty("currency")
-    val propVal = Currency(propRawVal, this)
-    (propVal, propLoc)
-  }
+  private def currencyLookup = cacheProperty("currency")
+  final def currency = Currency(currencyLookup.value, this)
+  final def currency_location = currencyLookup.location
+    
   /**
    * get Some(property value) or None if not defined in scope.
    *
@@ -349,30 +348,22 @@ trait CurrencyMixin extends PropertyMixin {
    * using its name. E.g., if you need calendarTimeZone, just use
    * a.calendarTimeZone (where a is an AnnotatedSchemaComponent)
    */
-  //lazy val optionCurrency = getPropertyOption("currency")
-  lazy val currencyLookupResult = findPropertyOption("currency")
-  lazy val (optionCurrency, optionCurrency_location) = {
-    currencyLookupResult match {
-      case Found(propRawVal, propLoc) => {
-        val propVal = Currency(propRawVal, this)
-        (Some(propVal), Some(propLoc))    
-      }
-      case NotFound(_, _) => (None, None)
-    }
-  }
+  private def optionCurrencyLookup = cachePropertyOption("currency")
+  final def optionCurrency = optionCurrencyLookup match { case Found(raw, _) => Some(Currency(raw, this)) ; case _ => None }
+  final def optionCurrency_location = optionCurrencyLookup match { case Found(_, loc) => Some(loc) ; case _ => None }
     
   /**
    * This will print the property value if the property has any value
    * in scope. This is mostly for debugging purposes.
    */   
-  def currencyToString() = {
+  final def currencyToString() = {
     optionCurrency match {
       case None => "" // empty string if not present
       case Some(currency) =>  "currency='" + currency + "' "
     }
   }
     
-  def currencyInit() = {
+  final def currencyInit() = {
     registerToStringFunction(currencyToString)
   }
     
@@ -427,10 +418,9 @@ trait CurrencyMixin extends PropertyMixin {
 
   def generateEnumInstantiation(propName: String, typeName: String) = {
     val midTemplate =
-      """  lazy val (EUR, EUR_location) = {
-      val Found(propVal, propLoc) = findProperty("EUR")
-      (Currency(propVal, this), propLoc)
-     }
+      """
+      final def EUR = Currency(cacheProperty("EUR").value, this)
+      final def EUR_location = cacheProperty("EUR").location
 """
     val mid =
       if (excludeRuntimeProperties(propName)) ""
@@ -495,7 +485,7 @@ object Currency {
   }
 
   def generateNonEnumInstantiation(propName: String, typeName: String) = {
-    val midTemplate = """  lazy val EUR = convertToTYPE(getProperty("EUR"))
+    val midTemplate = """  def EUR = convertToTYPE(cacheProperty("EUR").value)
 """
     val converterName = getConverterTypeName(typeName)
     val mid =
@@ -568,7 +558,7 @@ object Currency {
    */
   def generateNonEnumStringPropInit(propName: String) = {
     val template =
-      """registerToStringFunction(()=>{getPropertyOption("currency") match {
+      """registerToStringFunction(()=>{cacheGetPropertyOption("currency") match {
         case None => ""
         case Some(value) => "currency='" + value.toString + "'"
       }

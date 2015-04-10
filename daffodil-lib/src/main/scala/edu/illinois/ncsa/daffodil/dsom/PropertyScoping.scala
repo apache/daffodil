@@ -126,7 +126,7 @@ trait FindPropertyMixin extends PropTypes {
    * it must be there, or its an error. There are very few exceptions to this
    * rule.
    */
-  def findProperty(pname: String): Found = {
+  final def findProperty(pname: String): Found = {
     val prop = findPropertyOption(pname)
     val res = prop match {
       case f: Found => f
@@ -138,23 +138,25 @@ trait FindPropertyMixin extends PropTypes {
       // Hence, we need a way to explicitly get the possibly translated version of a
       // literal english string when that string is not the direct argument of a SDE call. 
       // 
-      case NotFound(nonDefaultLocs, defaultLocs) => {
-        val ndListText = nonDefaultLocs.map { _.locationDescription }.mkString("\n")
-        val dListText = defaultLocs.map { _.locationDescription }.mkString("\n")
-        val nonDefDescription =
-          if (nonDefaultLocs.length > 0)
-            "\nNon-default properties were combined from these locations:\n" + ndListText + "\n"
-          else ""
-        val defLocsDescription =
-          if (defaultLocs.length > 0)
-            "\nDefault properties were taken from these locations:\n" + dListText + "\n"
-          else "\nThere were no default properties.\n"
-        SDE("Property %s is not defined.%s%s", pname, nonDefDescription, defLocsDescription)
-      }
+      case nf: NotFound => requiredButNotFound(pname, nf)
     }
     res
   }
 
+  private def requiredButNotFound(pname: String, nf: NotFound) = {
+    val NotFound(nonDefaultLocs, defaultLocs) = nf
+    val ndListText = nonDefaultLocs.map { _.locationDescription }.mkString("\n")
+    val dListText = defaultLocs.map { _.locationDescription }.mkString("\n")
+    val nonDefDescription =
+      if (nonDefaultLocs.length > 0)
+        "\nNon-default properties were combined from these locations:\n" + ndListText + "\n"
+      else ""
+    val defLocsDescription =
+      if (defaultLocs.length > 0)
+        "\nDefault properties were taken from these locations:\n" + dListText + "\n"
+      else "\nThere were no default properties.\n"
+    SDE("Property %s is not defined.%s%s", pname, nonDefDescription, defLocsDescription)
+  }
   //
   // Done by the expression compiler. Not needed here.
   //
@@ -179,7 +181,7 @@ trait FindPropertyMixin extends PropTypes {
    * It is ok to use getProperty if the resulting property value cannot ever contain
    * a QName that would have to be resolved.
    */
-  def getProperty(pname: String): String = {
+  final def getProperty(pname: String): String = {
     val Found(res, _) = findProperty(pname)
     res
   }
@@ -198,7 +200,7 @@ trait FindPropertyMixin extends PropTypes {
    *
    * See JIRA DFDL-506.
    */
-  def getPropertyOption(pname: String): Option[String] = {
+  final def getPropertyOption(pname: String): Option[String] = {
     val lookupRes = findPropertyOption(pname)
     val res = lookupRes match {
       case Found(v, _) => Some(v)
@@ -210,11 +212,43 @@ trait FindPropertyMixin extends PropTypes {
   /**
    * For unit testing convenience
    */
-  def verifyPropValue(key: String, value: String): Boolean = {
+  final def verifyPropValue(key: String, value: String): Boolean = {
     findPropertyOption(key) match {
       case Found(`value`, _) => true
       case Found(_, _) => false
       case NotFound(_, _) => false
+    }
+  }
+
+  private val propCache = new scala.collection.mutable.LinkedHashMap[String, PropertyLookupResult]
+
+  protected final def cachePropertyOption(name: String): PropertyLookupResult = {
+    val propCacheResult = propCache.get(name)
+    val propRes =
+      propCacheResult match {
+        case Some(res) => res
+        case None => {
+          val lr = findPropertyOption(name)
+          propCache.put(name, lr)
+          lr
+        }
+      }
+    propRes
+  }
+
+  protected final def cacheProperty(name: String): Found = {
+    val propCacheResult = cachePropertyOption(name)
+    propCacheResult match {
+      case f: Found => f
+      case nf: NotFound => requiredButNotFound(name, nf)
+    }
+  }
+
+  protected final def cacheGetPropertyOption(name: String): Option[String] = {
+    val pOpt = cachePropertyOption(name)
+    pOpt match {
+      case Found(v, l) => Some(v)
+      case _ => None
     }
   }
 }

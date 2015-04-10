@@ -77,10 +77,11 @@ class TestPropertyGenerator {
       </xsd:attributeGroup>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genAttributeGroup(sch)
-    assertTrue(mx.contains(""" = convertToBoolean(getProperty("prefixIncludesPrefixLength"))"""))
+    println(mx)
+    assertTrue(mx.contains(""" = convertToBoolean(cacheProperty("prefixIncludesPrefixLength").value)"""))
     assertTrue(mx.contains("""LengthKindMixin"""))
     assertTrue(mx.contains("""def lengthPropertiesAGInit() : Unit = {"""))
-    assertTrue(mx.contains("""registerToStringFunction(()=>{getPropertyOption("lengthPattern") match {
+    assertTrue(mx.contains("""registerToStringFunction(()=>{cacheGetPropertyOption("lengthPattern") match {
         case None => ""
         case Some(value) => "lengthPattern='" + value.toString + "'"
       }
@@ -115,7 +116,7 @@ class TestPropertyGenerator {
       </xsd:attributeGroup>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genAttributeGroup(sch)
-    assertTrue(mx.contains("""convertToNCName(getProperty("textNumberFormatRef")"""))
+    assertTrue(mx.contains("""convertToNCName(cacheProperty("textNumberFormatRef")"""))
   }
 
   @Test def testGenCT() {
@@ -146,8 +147,9 @@ class TestPropertyGenerator {
       </xsd:complexType>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genComplexType(sch)
-    assertTrue(mx.contains("""convertToNCName(getProperty("name"))"""))
-    assertTrue(mx.contains("""convertToQName(getProperty("baseFormat")"""))
+    println(mx)
+    assertTrue(mx.contains("""convertToNCName(cacheProperty("name").value)"""))
+    assertTrue(mx.contains("""convertToQName(cacheProperty("baseFormat").value"""))
   }
 
   @Test def testElement1() {
