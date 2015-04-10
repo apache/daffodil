@@ -63,8 +63,12 @@ import java.net.URLEncoder
 
 trait SchemaComponentIncludesAndImportsMixin { self: SchemaComponent =>
 
-  lazy val targetNamespace: NS = targetNamespace_.value
-  private val targetNamespace_ = LV('targetNamespace) {
+  /**
+   * This is the root, or basic target namespace. Every schema component
+   * gets its target namespace from its xmlSchemaDocument.
+   */
+  lazy val targetNamespace: NS = targetNamespace1_.value
+  private val targetNamespace1_ = LV('targetNamespace1) {
     val res = xmlSchemaDocument.targetNamespace
     res
   }

@@ -52,10 +52,10 @@ import java.net.URI
 import scala.xml.NodeSeq
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
-import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.util.Delay
 import java.net.URLDecoder
 import java.net.URLEncoder
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Mixin for SchemaDocument
@@ -78,14 +78,27 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   lazy val sdTNSAttrib = this.getAttributeOption("targetNamespace").map { NS(_) }
   lazy val sdTargetNS = sdTNSAttrib.getOrElse(NoNamespace)
 
-  override lazy val targetNamespace: NS = targetNamespace_.value
-  private val targetNamespace_ = LV('targetNamespace) {
+  /**
+   * A schema document gets its target namespace from the targetNamespace attribute
+   * of the xs:schema root.
+   *
+   * However, if this schema document is being included in another document, then
+   * the target namespace (if none is specified) is of the document into which this is being included.
+   * If this schema document DOES have a target namespace, then it must match the target
+   * namespace of the schema into which this is being included.
+   *
+   * And, if this schema document is being imported, then the target
+   * namespace (if found) on the xs:schema of this schema document must match
+   * that of the import statement. If a namespace is specified there.
+   */
+  override lazy val targetNamespace: NS = targetNamespace2_.value
+  private val targetNamespace2_ = LV('targetNamespace2) {
     val checkedNS =
       ii.map {
         _ match {
           case inc: Include => {
             sdTNSAttrib.map { tns =>
-              schemaDefinitionUnless(inc.targetNamespace == tns,
+              schemaDefinitionUnless(inc.targetNamespace =:= tns,
                 "Included schema does not have the same namespace as the file %s including it.",
                 uriString)
               tns
@@ -111,7 +124,7 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
   // files that the user supplies via the API/command line.
   // For all other SchemaDocuments they are not the bootstrap.
   //
-  val isBootStrapSD = false
+  def isBootStrapSD: Boolean
 
   def checkImportCompatibleNS(
     importElementNS: Option[NS],
@@ -157,13 +170,12 @@ trait SchemaDocIncludesAndImportsMixin { self: XMLSchemaDocument =>
    * children.
    */
   def getImportsOrIncludes(
-    seenStartArg: IIMap,
+    seenStart: IIMap,
     nodes: NodeSeq,
     factory: (Node, XMLSchemaDocument, IIMap) => IIBase): (IIMap, List[IIBase]) = {
-    lazy val seenStart = seenStartArg
     val res = nodes.foldLeft((seenStart, mtList)) {
       case ((seen, localList), iNode) =>
-        OOLAG.keepGoing((seen, localList)) {
+        {
           val i = factory(iNode, this, seen)
           val sa = i.seenAfter
           val locals = i +: localList

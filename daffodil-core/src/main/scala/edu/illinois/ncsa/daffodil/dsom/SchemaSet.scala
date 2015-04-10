@@ -530,8 +530,8 @@ final class SchemaSet(rootSpec: Option[RootSpec] = None,
     finalExternalVariables
   }
 
-  override lazy val variableMap = _variableMap.value
-  private val _variableMap = LV('variableMap) {
+  override lazy val variableMap = _variableMap1.value
+  private val _variableMap1 = LV('variableMap1) {
     val dvs = allSchemaDocuments.flatMap { _.defineVariables }
     val alldvs = dvs.union(predefinedVars)
     val vmap = VariableMapFactory.create(alldvs)

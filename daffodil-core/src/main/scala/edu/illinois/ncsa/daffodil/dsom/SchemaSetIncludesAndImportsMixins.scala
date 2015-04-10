@@ -83,11 +83,7 @@ trait SchemaSetIncludesAndImportsMixin { self: SchemaSet =>
 
     val initialEmptyIIMap: IIMap = Delay(ListMap.empty)
 
-    val fakeSD = new XMLSchemaDocument(fakeSchemaDocXML, self, None, None, initialEmptyIIMap) {
-      // this flag lets us import into this document
-      // even though it does not have a namespace
-      override val isBootStrapSD = true
-    }
+    val fakeSD = new XMLSchemaDocument(fakeSchemaDocXML, self, None, None, initialEmptyIIMap, isBootStrapSD = true)
     fakeSD
   }
 

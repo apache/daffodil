@@ -169,7 +169,7 @@ final class DFDLSchemaFile(val sset: SchemaSet,
       case <schema>{ _* }</schema> if (NS(node.namespace) == XMLUtils.xsdURI) => {
         // top level is a schema. 
 
-        val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before)
+        val sd = new XMLSchemaDocument(node, sset, Some(iiParent), sf, before, false)
         sd
       }
       case _ => {

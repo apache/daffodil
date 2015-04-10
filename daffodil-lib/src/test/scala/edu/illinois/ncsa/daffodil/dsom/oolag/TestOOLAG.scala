@@ -51,15 +51,15 @@ class MyException(msg: String)
 abstract class MyBase(parentArg: MyBase)
   extends OOLAGHost(parentArg) {
 
-  lazy val a1 = a1_.value
-  val a1_ = LV('a1) {
+  def a1 = a1_.value
+  def a1_ = LV('a1) {
 
     // println("evaluating a1")
     "a1 value"
   }
 
-  lazy val a2 = a2_.value
-  val a2_ = LV('a2) {
+  def a2 = a2_.value
+  def a2_ = LV('a2) {
 
     // println("evaluating a2")
     val msg = "a2 failed with an exception"
@@ -89,47 +89,47 @@ class MyHost extends MyBase(null) {
     (subHost1, subHost2)
   }
 
-  lazy val a3 = a3_.value
-  val a3_ = LV('a3) {
+  def a3 = a3_.value
+  def a3_ = LV('a3) {
     // println("My LV name is " + LV.name)
     "a3 value"
   }
 
-  lazy val a4 = a4_.value
-  val a4_ = LV('a4) {
+  def a4 = a4_.value
+  def a4_ = LV('a4) {
     // println("My LV name is " + LV.name)
     a3
   }
 
-  lazy val circ1: Int = circ1_.value
-  private val circ1_ = LV('circ1) {
+  def circ1: Int = circ1_.value
+  private def circ1_ = LV('circ1) {
     circ2
   }
 
-  lazy val circ2: Int = circ2_.value
-  private val circ2_ = LV('circ2) {
+  def circ2: Int = circ2_.value
+  private def circ2_ = LV('circ2) {
     circ1
   }
 
-  lazy val abortInside = abortInside_.value
-  private val abortInside_ = LV('abortInside) {
+  def abortInside = abortInside_.value
+  private def abortInside_ = LV('abortInside) {
     abend
   }
 
-  lazy val abend = abend_.value
-  private val abend_ = LV('err) {
+  def abend = abend_.value
+  private def abend_ = LV('err) {
     Assert.abort("supposed to abort here")
   }
 
   var x = 0
 
-  lazy val divZero = divZero_.value
-  val divZero_ = LV('divZero) {
+  def divZero = divZero_.value
+  def divZero_ = LV('divZero) {
     5 / x
   }
 
-  lazy val warnTest = warnTest_.value
-  val warnTest_ = LV('warnTest) {
+  def warnTest = warnTest_.value
+  def warnTest_ = LV('warnTest) {
     if (x < 1) {
       val diag = new Exception("warnTest") with OOLAGDiagnosticMixin
       warn(diag)

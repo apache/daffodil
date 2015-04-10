@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.dsom.DiagnosticImplMixin
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import edu.illinois.ncsa.daffodil.util.Maybe._
 
 /**
  * OOLAG = Object-oriented Lazy Attribute Grammars
@@ -240,12 +241,17 @@ object OOLAG extends Logging {
 
     final var currentOVList: Seq[OOLAGValueBase] = Nil
 
+    private val lvCache = new scala.collection.mutable.LinkedHashMap[Symbol, OOLAGValueBase]
+
     /**
      * The factory for OOLAGValues is LV.
      */
     protected final def LV[T](sym: Symbol)(body: => T): OOLAGValue[T] = {
-      val lv = new OOLAGValue[T](this, sym.name, body)
-      lv
+      lvCache.get(sym).getOrElse {
+        val lv = new OOLAGValue[T](this, sym.name, body)
+        lvCache.put(sym, lv)
+        lv
+      }.asInstanceOf[OOLAGValue[T]]
     }
 
     /**
@@ -368,15 +374,35 @@ object OOLAG extends Logging {
     final lazy val name = nameArg
 
     private var alreadyTriedThis = false
-    private var hasValue_ = false
+    protected final def hasValue: Boolean = value_.isDefined
+    private var value_ : Maybe[Any] = Nope
 
     protected final def wasTried = alreadyTriedThis
-    protected final def hasValue = hasValue_
 
     private def warn(th: Diagnostic): Unit = oolagContext.warn(th)
     private def error(th: Diagnostic): Unit = oolagContext.error(th)
 
-    private def thisThing = this.name + "@" + this.hashCode()
+    private def thisThing = this.name + valuePart + "@" + this.hashCode()
+
+    private def valuePart = {
+      if (hasValue) "(" + toStringIfSimpleEnough(value_.get) + ")"
+      else ""
+    }
+
+    private def toStringIfSimpleEnough(x: Any): String = {
+      x match {
+        case None => "None"
+        case Some(y) => "Some(" + toStringIfSimpleEnough(y) + ")"
+        case s: String => "'" + s + "'"
+        case av: Long => av.toString
+        case av: Int => av.toString
+        case av: Short => av.toString
+        case av: Byte => av.toString
+        case av: scala.xml.Node => av.toString
+        case av: Boolean => av.toString
+        case _ => Misc.getNameFromClass(x)
+      }
+    }
 
     override def toString = thisThing
 
@@ -387,6 +413,7 @@ object OOLAG extends Logging {
     }
 
     protected final def oolagCatch(th: Throwable): Nothing = {
+      Assert.invariant(!hasValue)
       th match {
         case le: scala.Error => { // note that Exception does NOT inherit from Error 
           log(Error(" " * indent + catchMsg, thisThing, le)) // tell us which lazy attribute it was
@@ -454,7 +481,7 @@ object OOLAG extends Logging {
     }
 
     protected final def oolagBefore(): Unit = {
-      Assert.invariant(!hasValue_)
+      Assert.invariant(!hasValue)
       if (initialize.contains(this)) {
         // System.err.println("Circular OOLAG Value Definition")
         // This next println was causing problems because toString was
@@ -474,8 +501,8 @@ object OOLAG extends Logging {
     }
 
     protected final def oolagAfterValue(res: Any) {
-      hasValue_ = true
-      log(OOLAGDebug(" " * indent + "Evaluated %s to %s.", thisThing, res))
+      log(OOLAGDebug(" " * indent + "Evaluated %s", thisThing))
+      value_ = One(res)
     }
 
     protected final def oolagFinalize = {

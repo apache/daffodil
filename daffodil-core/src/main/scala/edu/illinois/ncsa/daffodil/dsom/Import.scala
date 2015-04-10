@@ -105,8 +105,8 @@ final class Import(importNode: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
 
   lazy val importElementNS = getAttributeOption("namespace").map { NS(_) }
 
-  override lazy val targetNamespace: NS = targetNamespace_.value
-  private val targetNamespace_ = LV('targetNamespace) {
+  override lazy val targetNamespace: NS = targetNamespace3_.value
+  private val targetNamespace3_ = LV('targetNamespace3) {
     val tns = importElementNS match {
       case Some(ns) => ns // don't load it just to check compatibility.
       case None => iiSchemaFile.iiSchemaDocument.targetNamespace // load it because we have to have it.

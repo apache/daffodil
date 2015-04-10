@@ -73,11 +73,21 @@ trait SchemaDocumentMixin { self: SchemaComponent =>
  * do with DFDL. Things like namespace, include, import, elementFormDefault
  * etc.
  */
-class XMLSchemaDocument(xmlArg: Node,
+final class XMLSchemaDocument(xmlArg: Node,
   schemaSetArg: SchemaSet,
-  iiArg: Option[IIBase],
+
+  /**
+   * ii is the include or import statement DSOM object that
+   * lead to this schema document being imported/included.
+   */
+  val ii: Option[IIBase],
   sfArg: Option[DFDLSchemaFile],
-  seenBeforeArg: IIMap)
+  seenBeforeArg: IIMap,
+  /**
+   * this flag lets us import into a bootstrap 'fake' document
+   * even though it does not have a namespace
+   */
+  override val isBootStrapSD: Boolean)
   extends SchemaComponent(xmlArg, sfArg.getOrElse(schemaSetArg))
   with SchemaDocumentMixin
   with SchemaDocIncludesAndImportsMixin {
@@ -85,8 +95,6 @@ class XMLSchemaDocument(xmlArg: Node,
   requiredEvaluations(checkUnsupportedAttributes)
 
   final lazy val seenBefore = seenBeforeArg
-
-  final val ii = iiArg
 
   final override lazy val schemaFile = sfArg
   final override lazy val xmlSchemaDocument = this
