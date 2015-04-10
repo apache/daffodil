@@ -80,13 +80,13 @@ class TestCLIparsing {
     }
   }
 
-  @Test def test_2359_CLI_Parsing_SimpleParse_SaveParser_extVars() {
+  @Test def test_3507_CLI_Parsing_SimpleParse_SaveParser_extVars() {
 
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
     val configFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/daffodil_config_cli_test.xml"      
     val (testSchemaFile, testConfigFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(configFile)) else (schemaFile, configFile)
     
-    val savedParser = "test_2359.xsd.bin"
+    val savedParser = "test_3507.xsd.bin"
     val parserFile = new File(savedParser)
 
     val shell = Util.startIncludeErrors("")
@@ -136,12 +136,12 @@ class TestCLIparsing {
     }
   }
 
-  @Test def test_2361_CLI_Parsing_SimpleParse_extVars2() {
+  @Test def test_3506_CLI_Parsing_SimpleParse_extVars2() {
 
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
 
-    val savedParser = "test_2361.xsd.bin"
+    val savedParser = "test_3506.xsd.bin"
     val parserFile = new File(savedParser)
 
     val shell = Util.startIncludeErrors("")

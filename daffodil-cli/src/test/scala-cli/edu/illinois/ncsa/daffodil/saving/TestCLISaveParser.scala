@@ -289,6 +289,37 @@ class TestCLISaveParser {
     }
   }
   
+  @Test def test_3508_CLI_Saving_SaveParser_extVars() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+    
+    val savedParser = "test_3508.xsd.bin"
+    val parserFile = new File(savedParser)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      var cmd = String.format("%s -v save-parser -s %s -r row2 -D\"{http://example.com}var1=25\" \"{http://example.com}var3=7\" %s", Util.binPath, testSchemaFile, savedParser)
+      shell.sendLine(cmd)
+      shell.expectIn(1, (contains("[info] Time (saving)")))
+      assertTrue("save-parser failed", parserFile.exists())
+
+      shell.sendLine();
+      cmd = String.format("echo 0| %s parse --parser %s\n", Util.binPath, savedParser)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:row2 xmlns:tns=\"http://example.com\">"))
+      shell.expect(contains("<cell>25</cell>"))
+      shell.expect(contains("<cell>7</cell>"))
+      
+      shell.send("exit\n")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+      if (parserFile.exists()) parserFile.delete()
+    }
+  }
+
   // See DFDL-1147
   /*@Test def test_3063_CLI_Saving_SaveParser_validate() {
 
