@@ -82,6 +82,25 @@
   </tdml:unparserTestCase>
 
 <!--
+      Test Name: unparseFixedLengthString03
+         Schema: fixedLengthStrings
+        Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
+                 In this case the test is referencing an external schema rather than an embedded one.
+-->
+
+  <tdml:unparserTestCase name="unparseFixedLengthString03" root="e1" model="generalSchema.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>Hello</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Hello</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
       Test Name: negativeUnparseTest01
          Schema: fixedLengthStrings
         Purpose: This is a test of how the TDML Runner handles a failed Unparse test.

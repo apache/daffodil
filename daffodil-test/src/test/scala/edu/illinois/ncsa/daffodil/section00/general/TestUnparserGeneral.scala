@@ -48,9 +48,12 @@ class TestUnparserGeneral {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "testUnparserGeneral.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
+  
   @Test def test_unparseFixedLengthString01() { runner.runOneTest("unparseFixedLengthString01") }
   @Test def test_unparseFixedLengthString02() { runner.runOneTest("unparseFixedLengthString02") }
+
+  //DFDL-1306
+  //@Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
 
   //DFDL-1293
   //@Test def test_negativeUnparseTest01() { runner.runOneTest("negativeUnparseTest01") }
