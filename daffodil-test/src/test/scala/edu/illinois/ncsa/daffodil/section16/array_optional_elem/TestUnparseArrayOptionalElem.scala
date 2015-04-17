@@ -58,6 +58,9 @@ object TestUnparseArrayOptionalElem {
 
   val aa_expr = testDir + "UnparseArrayExpressionConstant.tdml"
   var runner_expr = new DFDLTestSuite(Misc.getRequiredResource(aa_expr))
+  
+  val aa_delim = testDir + "UnparseArrayDelimitedOptionalElem.tdml"
+  var runner_delim = new DFDLTestSuite(Misc.getRequiredResource(aa_delim))
 
   /**
    * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
@@ -67,6 +70,7 @@ object TestUnparseArrayOptionalElem {
     runner_imp = null
     runner_parsed = null
     runner_expr = null
+    runner_delim = null
   }
 
 }

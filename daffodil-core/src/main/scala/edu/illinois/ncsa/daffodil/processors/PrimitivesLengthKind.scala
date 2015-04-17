@@ -85,6 +85,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.StringFixedLengthInBytesF
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
 
 abstract class StringLength(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -445,5 +446,7 @@ case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == Len
 class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
 
   def parser: DaffodilParser = new OptionalInfixSepParser(term.runtimeData, sep.parser)
+  
+  override def unparser: DaffodilUnparser = new OptionalInfixSepUnparser(term.runtimeData, sep.unparser)
 }
 
