@@ -187,8 +187,8 @@
       <xs:element name="e1" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
-            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:length="1"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -244,7 +244,8 @@
       <xs:element name="e2">
         <xs:complexType>
           <xs:sequence dfdl:separator=",">
-            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound" minOccurs="1" maxOccurs="5" />
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -259,10 +260,10 @@
   <tdml:unparserTestCase name="unparseDelimitedString01" model="delimitedStrings" root="e1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>1</s1>
-          <s2>2</s2>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>[1,2]</tdml:document>
@@ -272,10 +273,10 @@
     <tdml:document>[1,2]</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>1</s1>
-          <s2>2</s2>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
@@ -289,11 +290,11 @@
   <tdml:unparserTestCase name="unparseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>1</s1>
-          <s2>2</s2>
-          <s3>3</s3>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+          <ex:s3>3</ex:s3>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>!#1__,__2,_3_#!</tdml:document>
@@ -303,11 +304,11 @@
     <tdml:document>!#1__,__2,_3_#!</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>1</s1>
-          <s2>2</s2>
-          <s3>3</s3>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+          <ex:s3>3</ex:s3>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -320,10 +321,10 @@
   <tdml:unparserTestCase name="unparseDelimitedEscapedString01" model="delimitedStringsEscapeScheme" root="e1">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>one, two</s1>
-          <s2>, three and four*/</s2>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>one, two</ex:s1>
+          <ex:s2>, three and four*/</ex:s2>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>one#, two,/*, three and four#*/*/</tdml:document>
@@ -333,10 +334,10 @@
     <tdml:document>one#, two,/*, three and four#*/*/</tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1>
-          <s1>one, two</s1>
-          <s2>, three and four*/</s2>
-        </e1>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>one, two</ex:s1>
+          <ex:s2>, three and four*/</ex:s2>
+        </ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -349,14 +350,13 @@
   <tdml:unparserTestCase name="unparseDelimitedEscapedString02" model="delimitedStringsEscapeScheme" root="e2">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e2>
-          <s1>one,two</s1>
-          <s1>three</s1>
-          <s1>four</s1>
-        </e2>
+        <ex:e2 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s2>three</ex:s2>
+        </ex:e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>one#,two,three,four</tdml:document>
+    <tdml:document>one#,two,three</tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
