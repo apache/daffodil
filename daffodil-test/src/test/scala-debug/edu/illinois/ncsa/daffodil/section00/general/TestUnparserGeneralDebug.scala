@@ -59,6 +59,12 @@ class TestUnparserGeneralDebug {
   
   //DFDL-1306
   @Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
+  
+  //DFDL-1256 
+  @Test def test_unparseDelimitedString01() { runner.runOneTest("unparseDelimitedString01") }
+  @Test def test_unparseDelimitedPaddedString01() { runner.runOneTest("unparseDelimitedPaddedString01") }
+  @Test def test_unparseDelimitedEscapedString01() { runner.runOneTest("unparseDelimitedEscapedString01") }
+  @Test def test_unparseDelimitedEscapedString02() { runner.runOneTest("unparseDelimitedEscapedString02") }
 
 }
 

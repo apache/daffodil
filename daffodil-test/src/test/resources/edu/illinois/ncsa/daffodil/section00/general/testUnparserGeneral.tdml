@@ -178,4 +178,185 @@
 
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="delimitedStrings">
+    <xs:include schemaLocation="xsd/built-in-formats.xsd" />
+
+      <dfdl:format ref="ex:daffodilTest1" encoding="ascii" 
+        lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:initiator="[" dfdl:separator="," dfdl:terminator="]">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="1"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+  </tdml:defineSchema>
+      
+  <tdml:defineSchema name="delimitedStringsPadding">
+    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" />
+
+      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
+        <xs:complexType>
+          <xs:sequence  dfdl:separator="," >
+            <xs:element name="s1" type="st" dfdl:lengthKind="delimited" 
+                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+            <xs:element name="s2" type="st" dfdl:lengthKind="delimited" 
+                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right"/>
+            <xs:element name="s3" type="st" dfdl:lengthKind="delimited" 
+                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:simpleType name="st">
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="3" />
+          <xs:minLength value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="delimitedStringsEscapeScheme">
+    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+      <dfdl:defineEscapeScheme name="pound">
+        <dfdl:escapeScheme escapeCharacter='#'
+          escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
+        </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='cStyleComment'>
+          <dfdl:escapeScheme escapeBlockStart='/*'
+            escapeBlockEnd='*/' escapeKind="escapeBlock"
+            escapeEscapeCharacter="#" generateEscapeBlock="whenNeeded" extraEscapedCharacters="" />
+        </dfdl:defineEscapeScheme>
+
+      <xs:element name="e1" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound" />
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="cStyleComment" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    
+      <xs:element name="e2">
+        <xs:complexType>
+          <xs:sequence dfdl:separator=",">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound" minOccurs="1" maxOccurs="5" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+  
+  </tdml:defineSchema>
+
+<!--
+      Test Name: unparseDelimitedString01
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings
+-->
+  <tdml:unparserTestCase name="unparseDelimitedString01" model="delimitedStrings" root="e1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>1</s1>
+          <s2>2</s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>[1,2]</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:parserTestCase name="parseDelimitedString01" model="delimitedStrings" root="e1">
+    <tdml:document>[1,2]</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>1</s1>
+          <s2>2</s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString01
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with padding
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>1</s1>
+          <s2>2</s2>
+          <s3>3</s3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>!#1__,__2,_3_#!</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:parserTestCase name="parseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1">
+    <tdml:document>!#1__,__2,_3_#!</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>1</s1>
+          <s2>2</s2>
+          <s3>3</s3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString01
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString01" model="delimitedStringsEscapeScheme" root="e1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>one, two</s1>
+          <s2>, three and four*/</s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one#, two,/*, three and four#*/*/</tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:parserTestCase name="parseDelimitedEscapedString01" model="delimitedStringsEscapeScheme" root="e1">
+    <tdml:document>one#, two,/*, three and four#*/*/</tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1>
+          <s1>one, two</s1>
+          <s2>, three and four*/</s2>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString02
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString02" model="delimitedStringsEscapeScheme" root="e2">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e2>
+          <s1>one,two</s1>
+          <s1>three</s1>
+          <s1>four</s1>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one#,two,three,four</tdml:document>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>

@@ -62,6 +62,16 @@ class TestUnparserGeneral {
   //DFDL-1294
   //@Test def test_negativeUnparseTest03() { runner.runOneTest("negativeUnparseTest03") }
   //@Test def test_negativeUnparseTest04() { runner.runOneTest("negativeUnparseTest04") }
+ 
+  //DFDL-1256 
+  //@Test def test_unparseDelimitedString01() { runner.runOneTest("unparseDelimitedString01") }
+  //@Test def test_unparseDelimitedPaddedString01() { runner.runOneTest("unparseDelimitedPaddedString01") }
+  //@Test def test_unparseDelimitedEscapedString01() { runner.runOneTest("unparseDelimitedEscapedString01") }
+  //@Test def test_unparseDelimitedEscapedString02() { runner.runOneTest("unparseDelimitedEscapedString02") }
+
+  @Test def test_parseDelimitedPaddedString01() { runner.runOneTest("parseDelimitedPaddedString01") }
+  @Test def test_parseDelimitedString01() { runner.runOneTest("parseDelimitedString01") }
+  @Test def test_parseDelimitedEscapedString01() { runner.runOneTest("parseDelimitedEscapedString01") }
 
 }
 
