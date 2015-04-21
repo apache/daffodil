@@ -146,6 +146,10 @@ class UState(
     status_ = new Failure(vde)
     diagnostics = vde :: diagnostics
   }
+  
+  def withVariables(newVariableMap: VariableMap) = {
+    this.variableMap = newVariableMap
+  }
 }
 
 object UState {

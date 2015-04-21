@@ -42,6 +42,10 @@ import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
 import edu.illinois.ncsa.daffodil.processors.EmptyGramParser
 import edu.illinois.ncsa.daffodil.processors.ErrorParser
+import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
+import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
+import edu.illinois.ncsa.daffodil.compiler.ForUnparser
+import edu.illinois.ncsa.daffodil.compiler.ForParser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr
@@ -110,9 +114,13 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  final override lazy val parser = new SeqCompParser(context.runtimeData, children.map { _.parser })
+  val parserChildren = children.filter(_.forWhat != ForUnparser)
 
-  final override lazy val unparser = new SeqCompUnparser(context.runtimeData, children.map { _.unparser })
+  final override lazy val parser = new SeqCompParser(context.runtimeData, parserChildren.map { _.parser })
+
+  val unparserChildren = children.filter(_.forWhat != ForParser)
+
+  final override lazy val unparser = new SeqCompUnparser(context.runtimeData, unparserChildren.map { _.unparser })
 }
 
 /**

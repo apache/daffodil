@@ -31,7 +31,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
     SOFTWARE.
 -->
-<tdml:testSuite xmlns="http://example.com"
+<tdml:testSuite
   xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
@@ -52,6 +52,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="setVar1_d_unparse" root="c_2"
+    model="variables_01.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:c_2 >
+          <d type="xsd:int">42</d>
+          <e type="xsd:int">90</e>
+        </ex:c_2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:document>42,42</tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="doubleSetErr_d" root="r1"
     model="variables_01.dfdl.xsd">

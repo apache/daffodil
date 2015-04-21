@@ -45,12 +45,12 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-
 import java.math.BigInteger
 import java.text.ParsePosition
 import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
 abstract class ConvertTextNumberPrim[S](e: ElementBase)
   extends Terminal(e, true) {

@@ -47,19 +47,6 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 class UnparseAlternativeFailed(rd: RuntimeData, state: UState, val errors: Seq[Diagnostic])
   extends UnparseError(One(rd.schemaFileLocation), One(state), "Alternative failed. Reason(s): %s", errors)
 
-class AltUnparseFailed(rd: RuntimeData, state: UState,
-  val p: Diagnostic, val q: Diagnostic)
-  extends UnparseError(One(rd.schemaFileLocation), One(state), "All alternatives failed. Reason(s): %s", p, q) {
-
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = p.getLocationsInSchemaFiles ++ q.getLocationsInSchemaFiles
-
-  override def getDataLocations: Seq[DataLocation] = {
-    // both should have the same starting location if they are alternatives.
-    Assert.invariant(p.getDataLocations == q.getDataLocations)
-    p.getDataLocations
-  }
-}
-
 object UnparseError {
   def apply(rd: Maybe[SchemaFileLocation], ustate: Maybe[UState], formatString: String, args: Any*) = {
     val ue = new UnparseError(rd, ustate, formatString, args: _*)

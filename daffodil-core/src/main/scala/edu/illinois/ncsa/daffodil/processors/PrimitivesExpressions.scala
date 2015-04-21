@@ -58,6 +58,10 @@ import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -140,12 +144,14 @@ case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNe
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
+  override def unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
   extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
+  override def unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
 }
 
 /**
@@ -200,7 +206,7 @@ case class ValueCalc(
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
 
-  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr)
+  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr, e.knownEncodingCharset)
 
 }
 

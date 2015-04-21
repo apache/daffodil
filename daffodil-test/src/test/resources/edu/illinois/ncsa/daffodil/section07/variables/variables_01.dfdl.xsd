@@ -60,7 +60,10 @@
         lengthKind='implicit' occursCountKind='parsed' separatorSuppressionPolicy='anyEmpty'
         separatorPosition='infix' sequenceKind='ordered' textNumberRep='standard'
         textNumberCheckPolicy='strict' textStringJustification='left'
-        trailingSkip='0' initiator="" terminator="" separator="" />
+        trailingSkip='0' initiator="" terminator="" separator="" 
+        
+        textTrimKind="none" textStandardZeroRep="0" textNumberPattern="#0" textNumberRounding="explicit"
+        textNumberRoundingIncrement="0.5" textNumberRoundingMode="roundUp" textStandardExponentRep="" />
     </xsd:appinfo>
   </xsd:annotation>
 
@@ -78,6 +81,23 @@
         </xs:element>
         <xs:element name="e" type="xsd:int"
           dfdl:inputValueCalc="{ $ex:v_no_default }" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  
+  <xs:element name="c_2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator=",">
+
+        <xs:element name="d" type="xsd:string" dfdl:lengthKind="delimited">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:v_no_default">{ . }</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="e" type="xsd:string" dfdl:lengthKind="delimited"
+          dfdl:outputValueCalc="{ $ex:v_no_default }" />
       </xs:sequence>
     </xs:complexType>
   </xs:element>

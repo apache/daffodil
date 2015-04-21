@@ -65,7 +65,42 @@ abstract class ExpressionEvaluationUnparser(expr: CompiledExpression, rd: Runtim
 class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
   extends ExpressionEvaluationUnparser(expr, decl) {
 
-  def unparse(start: UState): Unit = ???
+  def unparse(start: UState): Unit = {
+    log(Debug("This is %s", toString)) // important. Don't toString unless we have to log. 
 
+    val someValue = eval(start)
+
+    if (start.status.isInstanceOf[Failure])
+      UnparseError(One(decl.schemaFileLocation), One(start), "%s - Evaluation failed for %s.", nom, expr)
+
+    val newVMap = start.variableMap.setVariable(decl.globalQName, someValue, decl)
+    start.withVariables(newVMap)
+
+    if (start.status.isInstanceOf[Failure])
+      UnparseError(One(decl.schemaFileLocation), One(start), "%s - SetVariable failed for %s.", nom, expr)
+  }
+
+}
+
+class NewVariableInstanceStartUnparser(
+  decl: RuntimeData)
+  extends Unparser(decl) {
+  override lazy val childProcessors = Nil
+
+  decl.notYetImplemented("newVariableInstance")
+  def unparse(ustate: UState) = {
+    decl.notYetImplemented("newVariableInstance")
+  }
+}
+
+class NewVariableInstanceEndUnparser(
+  decl: RuntimeData)
+  extends Unparser(decl) {
+  override lazy val childProcessors = Nil
+
+  decl.notYetImplemented("newVariableInstance")
+  def unparse(ustate: UState) = {
+    decl.notYetImplemented("newVariableInstance")
+  }
 }
 

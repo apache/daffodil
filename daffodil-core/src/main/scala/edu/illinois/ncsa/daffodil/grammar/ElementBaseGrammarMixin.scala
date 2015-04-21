@@ -838,34 +838,10 @@ trait ElementBaseGrammarMixin
   }
 
   protected final lazy val scalarDefaultable = prod("scalarDefaultable") {
-    lazy val sdp = scalarDefaultablePhysical
     (inputValueCalcOption, outputValueCalcOption) match {
       case (_: Found, _: Found) => SDE("Cannot have both dfdl:inputValueCalc and dfdl:outputValueCalc on the same element.")
-      case (_: NotFound, _: NotFound) => sdp
-      //
-      // We really do have to share the sdp. Repeating grammar terms that have large
-      // expansions twice in one production results in a tree-explosion. 
-      //
-      case _ => scalarDefaultableForParser(sdp) | scalarDefaultableForUnparser
-    }
-  }
-
-  private def scalarDefaultableForParser(sdp: => Gram) = prod("scalarDefaultableForParser", forWhat = ForParser) {
-    (inputValueCalcOption, outputValueCalcOption) match {
-      case (_: NotFound, _: Found) => sdp // outputValueCalc element is just a regular physical element for parser
-      case (_: Found, _: NotFound) => inputValueCalcElement
-      case _ => Assert.impossibleCase()
-    }
-  }
-
-  private def scalarDefaultableForUnparser = prod("scalarDefaultableForUnparser", forWhat = ForUnparser) {
-    (inputValueCalcOption, outputValueCalcOption) match {
-      case (_: NotFound, _: Found) => outputValueCalcElement
-      // when unparsing, inputValueCalc elements don't contribute to the data. 
-      // They may get referenced from outputValueCalc or other expressions so their
-      // element values may need to be in the infoset
-      case (_: Found, _: NotFound) => defaultableValue
-      case _ => Assert.impossibleCase()
+      case (_: NotFound, _: NotFound) => scalarDefaultablePhysical
+      case _ => DefaultablePhysicalOrComputed(this, scalarDefaultablePhysical, inputValueCalcElement, outputValueCalcElement, defaultableValue)
     }
   }
 
@@ -881,14 +857,14 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val inputValueCalcElement = prod("inputValueCalcElement",
-    isSimpleType && inputValueCalcOption.isInstanceOf[Found]) {
+    isSimpleType && inputValueCalcOption.isInstanceOf[Found], forWhat = ForParser) {
       // No framing surrounding inputValueCalc elements.
       new ElementCombinator(this, dfdlScopeBegin ~
         ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd)
     }
 
   private lazy val outputValueCalcElement = prod("outputValueCalcElement",
-    isSimpleType && outputValueCalcOption.isInstanceOf[Found]) {
+    isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
       new ElementCombinator(this, dfdlScopeBegin ~
         ValueCalc("outputValueCalc", self, outputValueCalcOption), dfdlScopeEnd)
     }

@@ -51,6 +51,8 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.SingleCharacterLiteral
 import edu.illinois.ncsa.daffodil.dsom.StringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.ListOfSingleCharacterLiteral
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
 case class ConvertTextNumberParser[S](
   helper: ConvertTextNumberParserUnparserHelperBase[S],
@@ -136,58 +138,60 @@ case class ConvertTextNumberParser[S](
  * This will be revisited when unparsing is implemented.
  * 
  */
-/*
-case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], e: AnnotatedSchemaComponent) extends Unparser(e)
-{
-  override def toString = "to(xs:" + helper.xsdType + ")"
 
-  // Converts data to number format, returns unparse exception if data cannot be converted to given format.
-  def unparse(start: UState): UState = {
-    // TODO: OK to get from infoset?
-    var str = start.currentElement.getText //gets data from element being unparsed
-    Assert.invariant(str != null) // worst case it should be empty string. But not null.
-    if (str == "") return UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", helper.prettyType, helper.xsdType)
-
-    //make sure data can parse to appropriate type
-    val df = helper.numFormat
-    val pos = new ParsePosition(0)
-    val num = try {
-      df.parse(str, pos)
-    } catch {
-      case u: UnsuppressableException => throw u
-      case e: Exception =>
-        return UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
-          helper.prettyType, helper.xsdType, str, e)
-    }
-    if (helper.isInvalidRange(num)) {
-      return UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
-        helper.prettyType, helper.xsdType, str, num)
-    }
-
-    // Verify that what was unparsed was what was passed exactly in byte count.  
-    // Use pos to verify all characters consumed & check for errors!
-    if (pos.getIndex != str.length) {
-      return UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
-        helper.prettyType, helper.xsdType, str)
-    }
-
-    // convert to proper type
-    val asNumber = helper.getNum(num)
-
-    // Verify no digits lost (the number was correctly transcribed)
-    if (helper.isInt && asNumber.asInstanceOf[Number] != num) {
-      // Transcription error
-      return UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
-        helper.prettyType, helper.xsdType, str, num, asNumber)
-    }
-
-    // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
-    //      log(LogLevel.Debug, "Adding text number " + asNumber.toString))
-
-    start
-  }
-}
-*/
+//case class ConvertTextNumberUnparser[S](helper: ConvertTextNumberParserUnparserHelperBase[S], nff: NumberFormatFactoryBase[S], e: ElementRuntimeData)
+//  extends PrimUnparser(e) {
+//  override def toString = "to(xs:" + helper.xsdType + ")"
+//
+//  // Converts data to number format, returns unparse exception if data cannot be converted to given format.
+//  override def unparse(start: UState): Unit = {
+//    // TODO: OK to get from infoset?
+//
+//    val currentSimple = start.currentInfosetNode.get.asSimple
+//    var str = currentSimple.dataValueAsString
+//
+//    Assert.invariant(str != null) // worst case it should be empty string. But not null.
+//    if (str == "") UE(start, "Convert to %s (for xs:%s): Cannot unparse number from empty string", helper.prettyType, helper.xsdType)
+//
+//    //make sure data can parse to appropriate type
+//    val (_, df) = nff.getNumFormat(start) //helper.numFormat
+//    val pos = new ParsePosition(0)
+//    val num = try {
+//      df.get.parse(str, pos)
+//    } catch {
+//      case u: UnsuppressableException => throw u
+//      case e: Exception =>
+//        UE(start, "Convert to %s (for xs:%s): Unparse of '%s' threw exception %s",
+//          helper.prettyType, helper.xsdType, str, e)
+//    }
+//    if (helper.isInvalidRange(num)) {
+//      UE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+//        helper.prettyType, helper.xsdType, str, num)
+//    }
+//
+//    // Verify that what was unparsed was what was passed exactly in byte count.  
+//    // Use pos to verify all characters consumed & check for errors!
+//    if (pos.getIndex != str.length) {
+//      UE(start, "Convert to %s (for xs:%s): Unable to unparse '%s' (using up all characters).",
+//        helper.prettyType, helper.xsdType, str)
+//    }
+//
+//    // convert to proper type
+//    val asNumber = helper.getNum(num)
+//
+//    // Verify no digits lost (the number was correctly transcribed)
+//    if (helper.isInt && asNumber.asInstanceOf[Number] != num) {
+//      // Transcription error
+//      UE(start, "Convert to %s (for xs:%s): Invalid data: '%s' unparsed into %s, which converted into %s.",
+//        helper.prettyType, helper.xsdType, str, num, asNumber)
+//    }
+//    
+//    currentSimple.setDataValue(asNumber)
+//
+//    // TODO: Restore leading '+' sign and leading/trailing 0's, etc. (Need to overwrite number with old formatting in CharBuffer
+//    //      log(LogLevel.Debug, "Adding text number " + asNumber.toString))
+//  }
+//}
 
 abstract class ConvertTextNumberParserUnparserHelperBase[S](zeroRep: List[String]) extends Serializable {
   val xsdType: String
@@ -584,6 +588,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   // synchronized. Multiple threads should not access one formatter
   // concurrently."
   def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat])
+  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat])
 
 }
 
@@ -638,6 +643,9 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
   }
 
   def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat]) = {
+    (state, numFormat)
+  }
+  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat]) = {
     (state, numFormat)
   }
 }
@@ -700,6 +708,60 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
     val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
       (s: PState, c: Any) =>
+        {
+          getExponentRep(c.asInstanceOf[String], s)
+        }
+    }
+
+    checkUnique(
+      decimalSepList,
+      groupingSep,
+      One(exponentRep),
+      infRep,
+      nanRep,
+      parserHelper.zeroRepListRaw,
+      state)
+
+    val generatedNumFormat =
+      generateNumFormat(
+        decimalSepList,
+        groupingSep,
+        exponentRep,
+        infRep,
+        nanRep,
+        checkPolicy,
+        pattern,
+        rounding,
+        roundingMode,
+        roundingInc)
+
+    val numFormat = new ThreadLocal[NumberFormat] {
+      override def initialValue() = {
+        generatedNumFormat
+      }
+    }
+
+    (exponentRepState, numFormat)
+  }
+  
+  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat]) = {
+
+    val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
+      (s: UState, c: Any) =>
+        {
+          getDecimalSepList(c.asInstanceOf[String], s)
+        }
+    }
+
+    val (groupingSepState, groupingSep) = evalWithConversion(decimalSepState, groupingSepCached) {
+      (s: UState, c: Any) =>
+        {
+          getGroupingSep(c.asInstanceOf[String], s)
+        }
+    }
+
+    val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
+      (s: UState, c: Any) =>
         {
           getExponentRep(c.asInstanceOf[String], s)
         }

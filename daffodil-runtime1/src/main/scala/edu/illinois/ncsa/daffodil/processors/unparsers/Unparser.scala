@@ -39,6 +39,7 @@ import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * Vast majority of unparsers (all?) are actually Term unparsers.
@@ -121,17 +122,6 @@ case class DummyUnparser(primitiveName: String) extends Unparser(null) {
   override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
-//
-//  /**
-//   * For testing it is convenient to just hand it strings for data.
-//   */
-//  def createInitialState(rootElemDecl: GlobalElementDecl, data: String, document: org.jdom2.Document): UState = {
-//    ???
-//    /*
-//    val out = Misc.stringToWritableByteChannel(data)
-//    createInitialState(rootElemDecl, out, document, data.length)
-//*/
-//  }
 //
 //  /**
 //   * Construct our OutStream object and initialize the state block.

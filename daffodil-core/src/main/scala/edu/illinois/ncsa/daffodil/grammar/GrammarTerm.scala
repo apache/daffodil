@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 
 /**
  * Gram - short for "Grammar Term"
@@ -19,6 +20,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
  */
 abstract class Gram(contextArg: SchemaComponent)
   extends OOLAGHost(contextArg) {
+
+  val forWhat: ParserOrUnparser = BothParserAndUnparser
 
   final val context: SchemaComponent = contextArg
 

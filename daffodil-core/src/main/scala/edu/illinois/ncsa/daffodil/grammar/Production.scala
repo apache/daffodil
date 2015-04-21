@@ -26,7 +26,7 @@ import edu.illinois.ncsa.daffodil.util.Debug
  * Prod objects are not required. They essentially provide some useful debug capability
  * because a grammar term object will display as it's name, not as some anonymous object.
  */
-final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, forWhat: ParserOrUnparser)
+final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, override val forWhat: ParserOrUnparser)
   extends NamedGram(sc) {
 
   final override def deref = gram

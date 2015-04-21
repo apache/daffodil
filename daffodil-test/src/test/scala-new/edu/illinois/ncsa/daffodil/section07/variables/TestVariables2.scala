@@ -43,5 +43,10 @@ class TestVariables2 {
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
+  
+  val tdml_01 = testDir + "variables_01.tdml"
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+
+  @Test def test_setVar1_d_unparse() { runner_01.runOneTest("setVar1_d_unparse") }
     
 }
