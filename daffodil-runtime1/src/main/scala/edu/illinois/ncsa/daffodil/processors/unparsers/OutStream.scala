@@ -3,7 +3,6 @@ package edu.illinois.ncsa.daffodil.processors.unparsers
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import java.io.File
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
 import java.nio.charset.CharsetEncoder
@@ -16,6 +15,8 @@ trait OutStream {
   def bitLimit0b: Long
   def wbc: DFDL.Output
   def encode(charset: Charset, str: String): Unit
+  def writeByte(b: Int): Unit
+  def writeBytes(bytes: Array[Byte]): Unit
 }
 
 class GeneralOutStream(
@@ -52,6 +53,15 @@ class GeneralOutStream(
   def encode(charset: Charset, str: String): Unit = {
     Assert.usage(bitPos0b % 8 == 0)
     val bytes = str.getBytes(charset)
+    writeBytes(bytes)
+  }
+
+  def writeByte(b: Int): Unit = {
+    outStr.write(b)
+    setBitPos0b(bitPos0b + 8)
+  }
+
+  def writeBytes(bytes: Array[Byte]): Unit = {
     outStr.write(bytes)
     setBitPos0b(bitPos0b + (bytes.length * 8))
   }

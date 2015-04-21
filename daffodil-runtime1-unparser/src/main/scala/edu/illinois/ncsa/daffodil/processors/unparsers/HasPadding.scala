@@ -21,7 +21,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
  * If dfdl:textOutputMinLength is zero or less than the length of the
  * representation text then no padding occurs.
  */
-trait HasPadding {
+trait PaddingRuntimeMixin {
 
   def pad: Maybe[Char]
   def padToLength: Int

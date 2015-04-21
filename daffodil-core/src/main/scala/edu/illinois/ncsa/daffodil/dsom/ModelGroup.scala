@@ -114,6 +114,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     }
     new ModelGroupRuntimeData(
       schemaSet.variableMap,
+      encodingInfo,
       // elementChildren.map { _.elementRuntimeData.dpathElementCompileInfo },
       schemaFileLocation,
       dpathCompileInfo,
@@ -127,7 +128,8 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       isRepresented,
       couldHaveText,
       alignmentValueInBits,
-      hasNoSkipRegions)
+      hasNoSkipRegions,
+      fillByteValue)
   }
 
   private val mgID = UUID.randomUUID()

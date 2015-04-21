@@ -88,10 +88,6 @@ object AlignmentType extends Enum[AlignmentType] { // Note: Was using AlignmentU
 //  lazy val alignmentType = AlignmentType(getProperty("alignmentType"))
 //}
 
-object FillByteType {
-  def apply(str: String): String = str
-}
-
 object TextNumberBase {
   def apply(str: String, self: ThrowsSDE): Int = {
     str match {

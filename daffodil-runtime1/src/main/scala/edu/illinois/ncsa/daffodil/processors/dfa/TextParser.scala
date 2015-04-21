@@ -36,15 +36,12 @@ import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class TextParser(
-  override val context: RuntimeData,
-  override val encodingInfo: EncodingInfo)
+  override val context: TermRuntimeData)
   extends DelimitedParser {
-  
+
   lazy val name: String = "TextParser"
   lazy val info: String = "" // Nothing additional to add here
 
@@ -81,7 +78,7 @@ class TextParser(
         }
         val lookingFor = dfa.lookingFor
         val totalNumCharsRead = r.numCharsRead
-        val numBits: Int = knownEncodingStringBitLength(r.delimString.toString)
+        val numBits: Int = context.encodingInfo.knownEncodingStringBitLength(r.delimString.toString)
         val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
 
         One(new ParseResult(Nope, delim, lookingFor, totalNumCharsRead, numBits, nextReader))

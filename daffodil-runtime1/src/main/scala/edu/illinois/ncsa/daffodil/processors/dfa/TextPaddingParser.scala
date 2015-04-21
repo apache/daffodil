@@ -35,17 +35,14 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 class TextPaddingParser(val padChar: Char,
-  override val context: RuntimeData,
-  override val encodingInfo: EncodingInfo)
+  override val context: TermRuntimeData)
   extends Parser {
-  
+
   lazy val name: String = "TextPaddingParser"
-  lazy val info: String =  "padChar='" + padChar + "'"
+  lazy val info: String = "padChar='" + padChar + "'"
 
   val paddingDFA = CreatePaddingDFA(padChar)
 
@@ -59,7 +56,7 @@ class TextPaddingParser(val padChar: Char,
 
     val paddingValue = One(paddingReg.resultString.toString)
     val totalNumCharsRead = paddingReg.numCharsReadUntilDelim
-    val numBits: Int = knownEncodingStringBitLength(paddingReg.charsReadUntilDelim.toString)
+    val numBits: Int = context.encodingInfo.knownEncodingStringBitLength(paddingReg.charsReadUntilDelim.toString)
     val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
     One(new ParseResult(paddingValue, Nope, "", totalNumCharsRead, numBits, nextReader))
   }

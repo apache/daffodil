@@ -36,19 +36,18 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.api.ValidationMode
 import edu.illinois.ncsa.daffodil.api.Diagnostic
-import edu.illinois.ncsa.daffodil.dsom.EncodingMixin
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
-class SchemaSetRuntimeData(
+final class SchemaSetRuntimeData(
   val parser: Parser,
   val unparser: Unparser,
   val diagnostics: Seq[Diagnostic],
   val elementRuntimeData: ElementRuntimeData,
-  val encodingInfo: EncodingInfo,
   var variables: VariableMap,
   var validationMode: ValidationMode.Type)
-  extends Serializable with ThrowsSDE with EncodingMixin {
+  extends Serializable with ThrowsSDE {
 
+  def encodingInfo = elementRuntimeData.encodingInfo
   override def schemaFileLocation = elementRuntimeData.schemaFileLocation
   override def SDE(str: String, args: Any*) = elementRuntimeData.SDE(str, args)
 

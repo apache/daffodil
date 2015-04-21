@@ -45,7 +45,6 @@ import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
@@ -73,8 +72,7 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
   def parser: Parser = new SpecifiedLengthPatternParser(
     eParser,
     e.elementRuntimeData,
-    e.lengthPattern,
-    e.encodingInfo)
+    e.lengthPattern)
 
 }
 
@@ -145,8 +143,7 @@ class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nCh
   def parser: Parser = new SpecifiedLengthExplicitCharactersFixedParser(
     eParser,
     e.elementRuntimeData,
-    nChars,
-    e.encodingInfo)
+    nChars)
 
 }
 
@@ -158,7 +155,6 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
   def parser: Parser = new SpecifiedLengthExplicitCharactersParser(
     eParser,
     e.elementRuntimeData,
-    e.encodingInfo,
     e.length)
 
 }
@@ -200,20 +196,19 @@ abstract class SpecifiedLengthParserBase(eParser: Parser,
 class SpecifiedLengthPatternParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  pattern: String,
-  override val encodingInfo: EncodingInfo)
-  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
+  pattern: String)
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(erd, encodingInfo)
+      new DFDLDelimParser(erd)
     }
   }
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
     val in = start.inStream
 
-    val reader = in.getCharReader(dcharset.charset, start.bitPos)
+    val reader = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos)
 
     val result = d.get.parseInputPatterned(pattern, reader, start)
 
@@ -376,20 +371,19 @@ class SpecifiedLengthExplicitBytesFixedParser(
 class SpecifiedLengthExplicitCharactersFixedParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  nChars: Long,
-  override val encodingInfo: EncodingInfo)
-  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
+  nChars: Long)
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   def parse(start: PState): PState = withParseErrorThrowing(start) {
 
     val in = start.inStream
-    val rdr = in.getCharReader(dcharset.charset, start.bitPos)
+    val rdr = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos)
     val field = rdr.getStringInChars(nChars.toInt).toString() // TODO: Don't we want getStringInChars to accept Long?!
     val fieldLength = field.length
     val endBitPos =
       if (fieldLength != nChars.toInt) start.bitPos + 0 // no match == length is zero!
       else {
-        val numBits = knownEncodingStringBitLength(field)
+        val numBits = erd.encodingInfo.knownEncodingStringBitLength(field)
         start.bitPos + numBits
       }
     val postEState = parse(start, endBitPos)
@@ -400,9 +394,8 @@ class SpecifiedLengthExplicitCharactersFixedParser(
 class SpecifiedLengthExplicitCharactersParser(
   eParser: Parser,
   erd: ElementRuntimeData,
-  override val encodingInfo: EncodingInfo,
   length: CompiledExpression)
-  extends SpecifiedLengthParserBase(eParser, erd) with RuntimeEncodingMixin {
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
   def getLength(s: PState): (PState, Long) = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
@@ -415,14 +408,14 @@ class SpecifiedLengthExplicitCharactersParser(
 
     val (pState, nChars) = getLength(start)
     val in = pState.inStream
-    val rdr = in.getCharReader(dcharset.charset, pState.bitPos)
+    val rdr = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, pState.bitPos)
 
     val field = rdr.getStringInChars(nChars.toInt).toString()
     val fieldLength = field.length
     val endBitPos =
       if (fieldLength != nChars.toInt) pState.bitPos + 0 // no match == length is zero!
       else {
-        val numBits = knownEncodingStringBitLength(field)
+        val numBits = erd.encodingInfo.knownEncodingStringBitLength(field)
         pState.bitPos + numBits
       }
 

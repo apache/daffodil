@@ -53,12 +53,9 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserWithEscapeBlock
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe.One
-import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
 
@@ -68,13 +65,13 @@ class StringDelimitedParser(
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
-  isDelimRequired: Boolean,
-  override val encodingInfo: EncodingInfo)
+  isDelimRequired: Boolean)
   extends PrimParser(erd)
-  with TextReader
-  with RuntimeEncodingMixin {
+  with TextReader {
 
-  val dp = new DFDLDelimParser(erd, encodingInfo)
+  val dp = new DFDLDelimParser(erd)
+
+  protected def dcharset = erd.encodingInfo.knownEncodingCharset.charset
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
@@ -105,7 +102,7 @@ class StringDelimitedParser(
 
     val bytePos = (postEvalState.bitPos >> 3).toInt
 
-    val reader = getReader(dcharset.charset, postEvalState.bitPos, postEvalState)
+    val reader = getReader(dcharset, postEvalState.bitPos, postEvalState)
     val hasDelim = delimsCooked.length > 0
 
     start.mpstate.clearDelimitedText
@@ -131,9 +128,8 @@ class LiteralNilDelimitedEndOfDataParser(
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
-  nilValues: Seq[String],
-  encInfo: EncodingInfo)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false, encInfo) {
+  nilValues: Seq[String])
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false) {
 
   val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
@@ -174,15 +170,21 @@ class LiteralNilDelimitedEndOfDataParser(
 
 class HexBinaryDelimitedParser(
   erd: ElementRuntimeData,
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
-  isDelimRequired: Boolean,
-  encInfo: EncodingInfo)
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, isDelimRequired, encInfo) {
+  isDelimRequired: Boolean)
+  extends StringDelimitedParser(erd, TextJustificationType.None, Nope, ff, pf, isDelimRequired) {
 
-  override lazy val dcharset = new DFDLCharset("ISO-8859-1")
+  /**
+   * This works because java/scala's decoder for iso-8859-1 does not implement any
+   * unmapping error detection. The official definition of iso-8859-1 has a few unmapped
+   * characters, but most interpretations of iso-8859-1 implement these code points anyway, with
+   * their unicode code points being exactly the byte values (interpreted unsigned).
+   *
+   * So, in scala/java anyway, it appears one can use iso-8859-1 as characters corresponding to
+   * raw byte values.
+   */
+  override lazy val dcharset = Charset.forName("ISO-8859-1")
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
     val res = {
@@ -190,7 +192,7 @@ class HexBinaryDelimitedParser(
       else {
         val result = parseResult.get
         val field = result.field.getOrElse("")
-        val numBits = knownEncodingStringBitLength(field)
+        val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
         val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
         val endBitPos = state.bitPos + numBits
         val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString

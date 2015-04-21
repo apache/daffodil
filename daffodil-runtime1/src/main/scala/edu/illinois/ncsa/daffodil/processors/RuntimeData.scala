@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath._
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 trait RuntimeData
   extends ImplementsThrowsSDE
@@ -73,11 +74,13 @@ abstract class TermRuntimeData(
    * having to use an assignment to a var.
    */
   @transient immedEnclosingRD: => Option[RuntimeData],
+  final val encodingInfo: EncodingRuntimeData,
   val dpathCompileInfo: DPathCompileInfo,
   val isRepresented: Boolean,
   val couldHaveText: Boolean,
   val alignmentValueInBits: Int,
-  val hasNoSkipRegions: Boolean)
+  val hasNoSkipRegions: Boolean,
+  val fillByteValue: Int)
   extends RuntimeData
   with Serializable
   with PreSerialization {
@@ -92,6 +95,11 @@ abstract class TermRuntimeData(
   }
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
+
+  def fillByte(ustate: UState, encodingInfo: EncodingRuntimeData): Int = {
+    Assert.invariant(encodingInfo.isKnownEncoding) // FIXME: implement runtime determination of encoding
+    fillByteValue
+  }
 }
 
 class NonTermRuntimeData(
@@ -118,8 +126,6 @@ class NonTermRuntimeData(
   @throws(classOf[java.io.IOException])
   final private def writeObject(out: java.io.ObjectOutputStream): Unit = serializeObject(out)
 
-  // override def elementChildrenCompileInfo: Seq[DPathElementCompileInfo] = Assert.invariantFailed("asked for element children of non-element, non-model-group: " + this.prettyName)
-
 }
 
 class ModelGroupRuntimeData(
@@ -129,7 +135,7 @@ class ModelGroupRuntimeData(
    * having to use an assignment to a var.
    */
   @transient variableMapArg: => VariableMap,
-  // val elementChildrenCompileInfo: Seq[DPathElementCompileInfo],
+  encInfo: EncodingRuntimeData,
   override val schemaFileLocation: SchemaFileLocation,
   ci: DPathCompileInfo,
   override val prettyName: String,
@@ -141,8 +147,9 @@ class ModelGroupRuntimeData(
   isRepresented: Boolean,
   couldHaveText: Boolean,
   alignmentValueInBits: Int,
-  hasNoSkipRegions: Boolean)
-  extends TermRuntimeData(Some(erd), ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions) {
+  hasNoSkipRegions: Boolean,
+  fillByteValue: Int)
+  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue) {
 
   override lazy val variableMap = variableMapArg
 

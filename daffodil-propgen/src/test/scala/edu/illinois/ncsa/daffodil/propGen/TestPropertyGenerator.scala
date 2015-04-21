@@ -77,7 +77,6 @@ class TestPropertyGenerator {
       </xsd:attributeGroup>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genAttributeGroup(sch)
-    println(mx)
     assertTrue(mx.contains(""" = convertToBoolean(cacheProperty("prefixIncludesPrefixLength").value)"""))
     assertTrue(mx.contains("""LengthKindMixin"""))
     assertTrue(mx.contains("""def lengthPropertiesAGInit() : Unit = {"""))
@@ -147,7 +146,6 @@ class TestPropertyGenerator {
       </xsd:complexType>
     val pg = new PropertyGenerator(sch)
     val mx = pg.genComplexType(sch)
-    println(mx)
     assertTrue(mx.contains("""convertToNCName(cacheProperty("name").value)"""))
     assertTrue(mx.contains("""convertToQName(cacheProperty("baseFormat").value"""))
   }

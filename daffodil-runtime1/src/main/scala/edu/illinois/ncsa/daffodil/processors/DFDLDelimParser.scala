@@ -40,7 +40,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
-class DFDLDelimParser(context: RuntimeData, encInfo: EncodingInfo) extends DFDLDelimParserCommon(context, encInfo) {
+class DFDLDelimParser(context: TermRuntimeData) extends DFDLDelimParserCommon(context) {
 
   def parseInputPatterned(pattern: String, input: Reader[Char], sc: ThrowsSDE): DelimParseResult = {
     val entry = this.generateInputPatternedParser(pattern, sc)

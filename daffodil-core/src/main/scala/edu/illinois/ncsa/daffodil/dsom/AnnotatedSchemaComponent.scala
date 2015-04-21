@@ -39,7 +39,6 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Text
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.equality._
 
@@ -56,6 +55,8 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
   requiredEvaluations(shortFormPropertiesCorrect)
   requiredEvaluations(nonDefaultPropertySources)
   requiredEvaluations(defaultPropertySources)
+
+  def term: Term
 
   //  /**
   //   * only used for debugging
@@ -176,7 +177,6 @@ abstract class AnnotatedSchemaComponent(xml: Node, sc: SchemaComponent)
  */
 trait AnnotatedMixin
   extends CommonRuntimeValuedPropertiesMixin
-  with EncodingMixin
   with EscapeSchemeRefMixin { self: AnnotatedSchemaComponent =>
 
   def xml: Node

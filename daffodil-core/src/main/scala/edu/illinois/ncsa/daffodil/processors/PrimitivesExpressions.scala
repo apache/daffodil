@@ -220,7 +220,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 
   def parser: DaffodilParser = {
     PatternChecker.checkPattern(stmt.testTxt, decl)
-    new AssertPatternParser(eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.testTxt, stmt.message)
+    new AssertPatternParser(eName, kindString, decl.term.termRuntimeData, stmt.testTxt, stmt.message)
   }
 
 }
@@ -230,5 +230,5 @@ case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAs
 
   val kindString = "DiscriminatorPatternPrim"
 
-  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.encodingInfo, decl.runtimeData, stmt.message)
+  def parser: DaffodilParser = new DiscriminatorPatternParser(testPattern, eName, kindString, decl.term.termRuntimeData, stmt.message)
 }

@@ -1,17 +1,19 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.ArrayBuffer
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
  * Parent class of all DFA text parsers.
  */
-abstract class Unparser extends RuntimeEncodingMixin with Serializable {
+abstract class Unparser extends Serializable {
   def name: String
   def info: String
+
+  def context: RuntimeData
 
   override def toString(): String = name + "(context='" + context + "', " + info + ")"
 }

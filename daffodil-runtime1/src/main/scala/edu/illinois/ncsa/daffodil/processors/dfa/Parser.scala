@@ -37,14 +37,16 @@ import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
+import edu.illinois.ncsa.daffodil.processors.RuntimeData
 
 /**
  * Parent class of all DFA text parsers.
  */
-abstract class Parser extends RuntimeEncodingMixin with Serializable {
+abstract class Parser extends Serializable {
   def name: String
   def info: String
+
+  def context: RuntimeData
 
   override def toString(): String = name + "(context='" + context + "', " + info + ")"
 }
@@ -53,7 +55,7 @@ abstract class Parser extends RuntimeEncodingMixin with Serializable {
  * Parent class for 'delimited' DFA text parsers.  Needs 'longest match'
  * functionality.
  */
-abstract class DelimitedParser extends Parser  {
+abstract class DelimitedParser extends Parser {
   /**
    * This function takes in a list of matches (in an ArrayBuffer for constant
    * append and random access) and returns the match that starts earliest in

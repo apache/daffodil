@@ -53,9 +53,8 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   val exprText = expr.prettyExpr
 
   override lazy val parser: PrimParser = new LiteralNilExplicitLengthInBytesParser(
-    padChar: String,
-    justificationTrim: TextJustificationType.Type,
-    e.encodingInfo,
+    parsingPadChar,
+    justificationTrim,
     e.elementRuntimeData,
     e.name,
     e.length,
@@ -65,16 +64,15 @@ case class LiteralNilExplicitLengthInBytes(e: ElementBase)
 
 case class LiteralNilKnownLengthInBytes(e: ElementBase, lengthInBytes: Long)
   extends LiteralNilInBytesBase(e, "LiteralNilKnown") {
-  
+
   final def computeLength(start: PState) = {
     (lengthInBytes, start.variableMap)
   }
 
   override lazy val parser: PrimParser = new LiteralNilKnownLengthInBytesParser(
-    padChar: String,
+    parsingPadChar,
     justificationTrim: TextJustificationType.Type,
     lengthInBytes: Long,
-    e.encodingInfo,
     e.elementRuntimeData,
     e.name,
     new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
@@ -106,9 +104,8 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
 
   override lazy val parser = new LiteralNilExplicitLengthInCharsParser(
-    padChar: String,
+    parsingPadChar,
     justificationTrim: TextJustificationType.Type,
-    e.encodingInfo,
     e.elementRuntimeData,
     e.name,
     e.length,
@@ -125,10 +122,9 @@ case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
   //val stParser = super.parser
 
   override lazy val parser = new LiteralNilExplicitParser(
-    padChar: String,
+    parsingPadChar,
     justificationTrim: TextJustificationType.Type,
     nUnits: Long,
-    e.encodingInfo,
     e.elementRuntimeData,
     e.name,
     e.lengthPattern,
@@ -144,9 +140,8 @@ case class LiteralNilPattern(e: ElementBase)
   //val stParser = super.parser
 
   override lazy val parser = new LiteralNilPatternParser(
-    padChar: String,
+    parsingPadChar,
     justificationTrim: TextJustificationType.Type,
-    e.encodingInfo,
     e.elementRuntimeData,
     e.lengthPattern,
     e.name,

@@ -155,7 +155,6 @@ class ProcessorFactory(val sset: SchemaSet)
         u,
         this.diagnostics,
         rootElem.elementRuntimeData,
-        rootElem.encodingInfo,
         variables,
         validationMode)
       CheckJavaVersion.checkJavaVersion(ssrd)

@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.tdml
 
 import java.io.File
 import java.io.FileInputStream
+import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 import java.net.URI
 import java.net.URL
@@ -54,6 +55,7 @@ import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.UnitTestSchemaSource
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
 import edu.illinois.ncsa.daffodil.api.EmbeddedSchemaSource
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
@@ -92,6 +94,7 @@ import edu.illinois.ncsa.daffodil.processors.{ Infoset => RealInfoset }
 import javax.xml.stream.XMLInputFactory
 import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable
+import org.apache.commons.io.IOUtils
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -515,8 +518,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     // log(LogLevel.Debug, "Test %s passed.", id))
   }
 
-  def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase]) = {
-    val actualDiags = actual.getDiagnostics
+  def verifyAllDiagnosticsFound(actual: WithDiagnostics, expectedDiags: Option[ErrorWarningBase], dataErrors: Option[Throwable] = None) = {
+    val actualDiags = actual.getDiagnostics ++ dataErrors
     if (expectedDiags.isDefined) if (actualDiags.length =#= 0) {
       throw new TDMLException("""Diagnostics are expected, but did not find any diagnostic messages.""")
     }
@@ -763,13 +766,48 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
   }
 
-  def verifyData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
+  def verifyTextData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
+    val actualText = actualOutStream.toString(encodingName)
+    val expectedText = IOUtils.toString(Channels.newInputStream(expectedData), encodingName)
+    expectedData.close()
+    if (expectedText.length == 0) {
+      // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
+      if (actualText.length > 0) {
+        throw new TDMLException("Unexpected data '%s' was created.".format(actualText))
+      }
+      return // we're done. Nothing equals nothing.
+    }
+
+    // compare expected data to what was output.
+    val maxTextCharsToShow = 30
+    def trimToMax(str: String) = {
+      if (str.length <= maxTextCharsToShow) str
+      else str.substring(0, maxTextCharsToShow) + "..."
+    }
+    if (actualText.length != expectedText.length) {
+      val actualCharsToShow = if (actualText.length == 0) "" else " for '" + trimToMax(actualText) + "'"
+      val expectedCharsToShow = if (expectedText.length == 0) "" else " for '" + trimToMax(expectedText) + "'"
+      throw new TDMLException("output data length " + actualText.length + actualCharsToShow +
+        " doesn't match expected length " + expectedText.length + expectedCharsToShow)
+    }
+
+    val pairs = expectedText.toSeq zip actualText.toSeq zip Stream.from(1)
+    pairs.foreach {
+      case ((expected, actual), index) =>
+        if (expected != actual) {
+          val msg = "Unparsed data differs at character %d. Expected '%s'. Actual was '%s'".format(index, expected, actual)
+          throw new TDMLException(msg)
+        }
+    }
+  }
+
+  def verifyBinaryOrMixedData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
 
-    val inbuf = java.nio.ByteBuffer.allocate(1024 * 1024) // TODO: allow override? Detect overrun?
-    val readCount = expectedData.read(inbuf)
+    val expectedBytes = IOUtils.toByteArray(Channels.newInputStream(expectedData))
+    val readCount = expectedBytes.length
     expectedData.close()
-    if (readCount == -1) {
+    if (readCount == 0) {
       // example data was of size 0 (could not read anything). We're not supposed to get any actual data.
       if (actualBytes.length > 0) {
         throw new TDMLException("Unexpected data was created.")
@@ -777,13 +815,11 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       return // we're done. Nothing equals nothing.
     }
 
-    Assert.invariant(readCount == inbuf.position())
-
     // compare expected data to what was output.
-    val expectedBytes = inbuf.array().toList.slice(0, readCount)
     if (actualBytes.length != readCount) {
-      throw new TDMLException("output data length " + actualBytes.length + " for " + actualBytes.toList +
-        " doesn't match expected value " + readCount + " for " + expectedBytes)
+      val bytesToShow = if (actualBytes.length == 0) "" else " for " + Misc.bytes2Hex(actualBytes)
+      throw new TDMLException("output data length " + actualBytes.length + bytesToShow +
+        " doesn't match expected length " + readCount + " for " + Misc.bytes2Hex(expectedBytes))
     }
 
     val pairs = expectedBytes zip actualBytes zip Stream.from(1)
@@ -815,8 +851,19 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infosetXML)
     val actual = processor.unparse(output, xmlStreamReader)
     output.close()
+    if (actual.isError)
+      throw new TDMLException(actual.getDiagnostics)
 
-    verifyData(expectedData, outStream)
+    if (actual.isScannable) {
+      // all textual in one encoding, so we can do display of results
+      // in terms of text so the user can see what is going on.
+      verifyTextData(expectedData, outStream, actual.encodingName)
+    } else {
+      // data is not all textual, or in mixture of encodings
+      // So while we can still use the encoding as a heuristic, 
+      // we will need to treat as Hex bytes as well.
+      verifyBinaryOrMixedData(expectedData, outStream)
+    }
 
     // TODO: Implement Warnings - check for any test-specified warnings
     // verifyAllDiagnosticsFound(actual, warnings)
@@ -846,13 +893,35 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     val xmlStreamReader = XMLUtils.nodeToXMLEventReader(infoset)
     val actual = processor.unparse(output, xmlStreamReader)
     output.close()
-    val actualBytes = outStream.toByteArray()
 
     // Verify that some partial output has shown up in the bytes.
-    optExpectedData.map { data => verifyData(data, outStream) }
+    val dataErrors =
+      optExpectedData.flatMap { data =>
+        try {
+          if (actual.isScannable) {
+            // all textual in one encoding, so we can do display of results
+            // in terms of text so the user can see what is going on.
+            verifyTextData(data, outStream, actual.encodingName)
+          } else {
+            // data is not all textual, or in mixture of encodings
+            // So while we can still use the encoding as a heuristic, 
+            // we will need to treat as Hex bytes as well.
+            verifyBinaryOrMixedData(data, outStream)
+          }
+          None
+        } catch {
+          //
+          // verifyData throws TDMLExceptions if the data doesn't match
+          // In order for negative tests to look for these errors
+          // we need to capture them and treat like regular diagnostics.
+          // 
+          case x: TDMLException =>
+            Some(x)
+        }
+      }
 
     // check for any test-specified errors
-    verifyAllDiagnosticsFound(actual, Some(errors))
+    verifyAllDiagnosticsFound(actual, Some(errors), dataErrors)
 
     // check for any test-specified warnings
     verifyAllDiagnosticsFound(actual, warnings)

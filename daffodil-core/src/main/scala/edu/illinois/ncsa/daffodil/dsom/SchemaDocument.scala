@@ -151,6 +151,8 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
   with Format_AnnotationMixin
   with SeparatorSuppressionPolicyMixin {
 
+  override def term = Assert.usageError("not to be called on SchemaDocument")
+
   /**
    * Implements the selectivity so that if you specify a root element
    * to the compiler, then only that root element (and things reached from it)
@@ -175,8 +177,6 @@ final class SchemaDocument(xmlSDoc: XMLSchemaDocument)
     //    globalComplexTypeDefs 
     //    globalGroupDefs
   }
-
-  override lazy val encodingInfo = Assert.invariantFailed("encodingInfo on SchemaDocument")
 
   override lazy val schemaDocument = this
 

@@ -38,10 +38,11 @@
 
   <tdml:defineSchema name="fixedLengthStrings">
     <xs:include schemaLocation="xsd/built-in-formats.xsd" />
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:daffodilTest1" textPadKind='padChar' />
 
-    <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" />
+    <xs:element name="e1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:truncateSpecifiedLengthString="yes"/>
     <xs:element name="e2" dfdl:lengthKind="explicit" dfdl:length="1" type="xs:string" />
+    <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:textPadKind='none'/>
 
   </tdml:defineSchema>
 
@@ -116,6 +117,14 @@
     </tdml:infoset>
 
     <tdml:document>incorrect</tdml:document>
+    
+    <tdml:errors>
+      <tdml:error>output data length</tdml:error>
+      <tdml:error>length 1</tdml:error>
+            <tdml:error>'0'</tdml:error>
+      <tdml:error>length 9</tdml:error>
+      <tdml:error>'incorrect'</tdml:error>
+    </tdml:errors>
 
   </tdml:unparserTestCase>
 
@@ -130,12 +139,18 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e2>0</ex:e2>
+        <ex:e2>X</ex:e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-    <tdml:document>1</tdml:document>
+    <tdml:document>Q</tdml:document>
 
+    <tdml:errors>
+      <tdml:error>data differs</tdml:error>
+      <tdml:error>X</tdml:error>
+      <tdml:error>Q</tdml:error>
+    </tdml:errors>
+    
   </tdml:unparserTestCase>
 
 <!--
@@ -155,6 +170,11 @@
     </tdml:infoset>
 
     <tdml:document>too much data</tdml:document>
+    
+    <tdml:errors>
+      <tdml:error>data length</tdml:error>
+      <tdml:error>too m</tdml:error>      
+    </tdml:errors>
 
   </tdml:unparserTestCase>
 
@@ -162,20 +182,27 @@
       Test Name: negativeUnparseTest04
          Schema: fixedLengthStrings
         Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
-                 In this case, the input infoset is more data than the element should allow, so 
+                 In this case, the input infoset is less data than the element should allow, so 
                  an unparse error should occur.
 -->
 
-  <tdml:unparserTestCase name="negativeUnparseTest04" root="e1" model="fixedLengthStrings">
+  <tdml:unparserTestCase name="negativeUnparseTest04" root="e3" model="fixedLengthStrings">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e1>1</ex:e1>
+        <ex:e3>1</ex:e3>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
     <tdml:document>1</tdml:document>
 
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>padding</tdml:error>
+      <tdml:error>textPadKind</tdml:error>
+      <tdml:error>none</tdml:error>
+      <tdml:error>e3</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="delimitedStrings">

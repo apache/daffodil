@@ -52,10 +52,14 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.OccursCountKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.SequenceKind
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_AnnotationMixin
 import edu.illinois.ncsa.daffodil.util.ListUtils
+import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.grammar.TermGrammarMixin
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 
 /////////////////////////////////////////////////////////////////
 // Groups System
@@ -67,15 +71,14 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with LocalComponentMixin
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
-  with InitiatedTerminatedMixin {
+  with InitiatedTerminatedMixin
+  with TermEncodingMixin {
+
+  override final def term = this
 
   def termRuntimeData: TermRuntimeData
 
   def elementChildren: Seq[ElementBase]
-
-  override lazy val encodingInfo =
-    new EncodingInfo(termRuntimeData, schemaFileLocation, encoding, optionUTF16Width, defaultEncodingErrorPolicy,
-      termChildrenEncodingInfo)
 
   override lazy val dpathCompileInfo =
     new DPathCompileInfo(
@@ -84,8 +87,6 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
       namespaces,
       path,
       schemaFileLocation)
-
-  final lazy val termChildrenEncodingInfo: Seq[EncodingInfo] = termChildren.map { _.encodingInfo }
 
   /**
    * An integer which is the alignment of this term. This takes into account the

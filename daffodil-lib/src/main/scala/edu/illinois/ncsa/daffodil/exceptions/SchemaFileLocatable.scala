@@ -67,7 +67,7 @@ class SchemaFileLocation(@transient context: SchemaFileLocatable) extends Locati
     case None => ""
   }
 
-  override val toString = context.toString()
+  override val toString = context.toString
 
   override def fileDescription = " in " + URLDecoder.decode(uriString, "UTF-8")
 

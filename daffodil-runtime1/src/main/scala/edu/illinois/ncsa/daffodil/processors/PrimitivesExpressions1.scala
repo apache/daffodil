@@ -36,9 +36,8 @@ import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
-trait TextReader extends Logging with RuntimeEncodingMixin {
+trait TextReader extends Logging {
 
   /**
    * Readers are stored in the PState within the InStream object.

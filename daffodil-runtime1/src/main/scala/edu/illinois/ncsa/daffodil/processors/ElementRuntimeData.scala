@@ -44,7 +44,6 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.dsom.EncodingMixin
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
@@ -67,6 +66,7 @@ class ElementRuntimeData(
   @transient variableMapArg: => VariableMap,
   @transient nextElementResolverArg: => NextElementResolver,
   @transient childElementResolverArg: => NextElementResolver,
+  encInfo: EncodingRuntimeData,
   val dpathElementCompileInfo: DPathElementCompileInfo,
   override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
@@ -121,8 +121,10 @@ class ElementRuntimeData(
    * accessed by way of expressions. Enables the element to be dropped
    * from the infoset immediately after unparsing is complete.
    */
-  val notReferencedByExpressions: Boolean)
-  extends TermRuntimeData(parentArg, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions)
+  val notReferencedByExpressions: Boolean,
+  fillByteValue: Int,
+  val optTruncateSpecifiedLengthString: Option[Boolean])
+  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue)
   with HasSlotIndexInParent {
 
   lazy val children = childrenArg

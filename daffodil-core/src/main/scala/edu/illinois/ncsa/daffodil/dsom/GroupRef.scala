@@ -54,7 +54,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Sequence_Annotatio
 import edu.illinois.ncsa.daffodil.util.ListUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.grammar.GroupRefGrammarMixin
 
 /**

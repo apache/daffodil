@@ -65,8 +65,18 @@ abstract class ProcessingError(
   kind: String,
   args: Any*)
   extends Exception with ThinThrowable with DiagnosticImplMixin {
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = rd.toSeq
-  override def getDataLocations: Seq[DataLocation] = state.map { _.currentLocation }.toList
+  override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = rd.toSeq
+
+  override def getDataLocations(): Seq[DataLocation] = state.map { _.currentLocation }.toSeq
+
+  private val schemaLocationsString = {
+    val strings = getLocationsInSchemaFiles().map { _.locationDescription }
+    val res = if (strings.length > 0)
+      " " + strings.mkString(", ")
+    else
+      " (no schema file location)"
+    res
+  }
 
   def componentText: String = ""
 
@@ -90,7 +100,7 @@ abstract class ProcessingError(
     }
     val res = pOrU + ": " + msg +
       componentText +
-      "\nSchema context: %s %s".format(rd, getLocationsInSchemaFiles) +
+      "\nSchema context: %s%s".format(rd.map { _.toString }.getOrElse("(no schema component identifier)"), schemaLocationsString) +
       state.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
     res
   }
@@ -123,7 +133,7 @@ class AltParseFailed(rd: SchemaFileLocation, state: PState,
   diags: Seq[Diagnostic])
   extends ParseError(One(rd), One(state), "All alternatives failed. Reason(s): %s", diags) {
 
-  override def getLocationsInSchemaFiles: Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
+  override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
   override def getDataLocations: Seq[DataLocation] = {
     // all should have the same starting location if they are alternatives.

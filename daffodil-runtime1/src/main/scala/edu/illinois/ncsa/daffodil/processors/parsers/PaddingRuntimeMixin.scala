@@ -33,13 +33,16 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
+import edu.illinois.ncsa.daffodil.util.Maybe
 
-trait HasPadding {
+trait PaddingRuntimeMixin {
   def justificationTrim: TextJustificationType.Type
-  def padChar: String
+  def parsingPadChar: Maybe[Char]
 
-  def removeRightPadding(str: String): String = str.reverse.dropWhile(c => c == padChar.charAt(0)).reverse
-  def removeLeftPadding(str: String): String = str.dropWhile(c => c == padChar.charAt(0))
+  def removeRightPadding(str: String): String =
+    parsingPadChar.map { pc => str.reverse.dropWhile(c => c == pc).reverse }.getOrElse(str)
+  def removeLeftPadding(str: String): String =
+    parsingPadChar.map { pc => str.dropWhile(c => c == pc) }.getOrElse(str)
   def removePadding(str: String): String = removeRightPadding(removeLeftPadding(str))
 
   def trimByJustification(str: String): String = {

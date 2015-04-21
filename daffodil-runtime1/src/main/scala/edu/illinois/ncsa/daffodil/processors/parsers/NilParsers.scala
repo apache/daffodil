@@ -41,6 +41,7 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
+import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.TextReader
@@ -50,20 +51,16 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 
 class LiteralNilPatternParser(
-  val padChar: String,
+  override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
-  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
   pattern: String,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
-  with HasPadding
+  extends LiteralNilParserBase(erd, eName, nilValues)
   with TextReader {
 
   def parse(start: PState): PState = {
@@ -81,7 +78,7 @@ class LiteralNilPatternParser(
       if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(dcharset.charset, start.bitPos, start)
+      val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
       val result = d.get.parseInputPatterned(pattern, reader, start)
 
@@ -127,16 +124,14 @@ class LiteralNilPatternParser(
 }
 
 class LiteralNilExplicitParser(
-  val padChar: String,
+  override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
   nUnits: Long,
-  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   pattern: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
-  with HasPadding
+  extends LiteralNilParserBase(erd, eName, nilValues)
   with TextReader {
 
   def parse(start: PState): PState = {
@@ -154,7 +149,7 @@ class LiteralNilExplicitParser(
       if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(dcharset.charset, start.bitPos, start)
+      val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
       //        val byteReader = in.byteReader.atPos(bytePos)
       //        val reader = byteReader.charReader(decoder.charset().name())
@@ -204,16 +199,14 @@ class LiteralNilExplicitParser(
 }
 
 class LiteralNilExplicitLengthInCharsParser(
-  val padChar: String,
+  override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
-  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilParserBase(encodingInfo, erd, eName, nilValues)
-  with TextReader
-  with HasPadding {
+  extends LiteralNilParserBase(erd, eName, nilValues)
+  with TextReader {
   override def toBriefXML(depthLimit: Int = -1): String = {
     "<" + name + " nilValue='" + nilValues + "'/>"
   }
@@ -243,7 +236,7 @@ class LiteralNilExplicitLengthInCharsParser(
       //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(dcharset.charset, start.bitPos, start)
+      val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
       if (nChars == 0 && isEmptyAllowed) {
         log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
@@ -294,28 +287,26 @@ class LiteralNilExplicitLengthInCharsParser(
 }
 
 class LiteralNilKnownLengthInBytesParser(
-  val padChar: String,
+  override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
   lengthInBytes: Long,
-  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(encInfo, erd, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(erd, eName, nilValues) {
   final def computeLength(start: PState) = {
     (lengthInBytes, start.variableMap)
   }
 }
 
 class LiteralNilExplicitLengthInBytesParser(
-  val padChar: String,
+  override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
-  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   expr: CompiledExpression,
   nilValues: List[String])
-  extends LiteralNilInBytesParserBase(encInfo, erd, eName, nilValues) {
+  extends LiteralNilInBytesParserBase(erd, eName, nilValues) {
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
@@ -326,11 +317,10 @@ class LiteralNilExplicitLengthInBytesParser(
 }
 
 abstract class LiteralNilParserBase(
-  override val encodingInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   nilValues: List[String])
-  extends PrimParser(erd) with RuntimeEncodingMixin {
+  extends PrimParser(erd) with PaddingRuntimeMixin {
   val name = erd.prettyName
 
   override def toBriefXML(depthLimit: Int = -1): String = {
@@ -341,18 +331,16 @@ abstract class LiteralNilParserBase(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(erd, encodingInfo)
+      new DFDLDelimParser(erd)
     }
   }
 }
 
 abstract class LiteralNilInBytesParserBase(
-  encInfo: EncodingInfo,
   erd: ElementRuntimeData,
   eName: String,
   nilValues: List[String])
-  extends LiteralNilParserBase(encInfo, erd, eName, nilValues)
-  with HasPadding {
+  extends LiteralNilParserBase(erd, eName, nilValues) {
 
   protected def computeLength(start: PState): (Long, VariableMap)
 
@@ -378,10 +366,10 @@ abstract class LiteralNilInBytesParserBase(
       // some encodings aren't whole bytes
       // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
 
-      val decoder = dcharset.charset.newDecoder()
+      val decoder = erd.encodingInfo.knownEncodingCharset.charset.newDecoder()
 
       try {
-        val reader = in.getCharReader(dcharset.charset, postEvalState.bitPos)
+        val reader = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, postEvalState.bitPos)
         val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
         val cb = decoder.decode(ByteBuffer.wrap(bytes))
         val result = cb.toString

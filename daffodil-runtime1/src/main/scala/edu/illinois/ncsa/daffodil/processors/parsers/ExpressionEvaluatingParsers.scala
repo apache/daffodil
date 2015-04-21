@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 /**
  * Common parser base class for any parser that evaluates an expression.
@@ -165,12 +164,11 @@ class AssertExpressionEvaluationParser(
 class AssertPatternParser(
   eName: String,
   kindString: String,
-  override val encodingInfo: EncodingInfo,
-  rd: RuntimeData,
+  rd: TermRuntimeData,
   testPattern: String,
   message: String)
   extends PrimParser(rd)
-  with TextReader with RuntimeEncodingMixin {
+  with TextReader {
 
   override def toBriefXML(depthLimit: Int = -1) = {
     "<" + kindString + ">" + testPattern + "</" + kindString + ">"
@@ -178,7 +176,7 @@ class AssertPatternParser(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(rd, encodingInfo)
+      new DFDLDelimParser(rd)
     }
   }
 
@@ -199,7 +197,7 @@ class AssertPatternParser(
 
         log(LogLevel.Debug, "Retrieving reader")
 
-        val reader = getReader(dcharset.charset, start.bitPos, lastState)
+        val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, lastState)
 
         val result = d.get.parseInputPatterned(testPattern, reader, start)
 
@@ -224,8 +222,7 @@ class DiscriminatorPatternParser(
   testPattern: String,
   eName: String,
   kindString: String,
-  override val encodingInfo: EncodingInfo,
-  rd: RuntimeData,
+  rd: TermRuntimeData,
   message: String)
   extends PrimParser(rd)
   with TextReader {
@@ -236,7 +233,7 @@ class DiscriminatorPatternParser(
 
   @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(rd, encodingInfo)
+      new DFDLDelimParser(rd)
     }
   }
 
@@ -257,7 +254,7 @@ class DiscriminatorPatternParser(
 
         log(LogLevel.Debug, "Retrieving reader")
 
-        val reader = getReader(dcharset.charset, start.bitPos, lastState)
+        val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, lastState)
 
         val result = d.get.parseInputPatterned(testPattern, reader, start)
 

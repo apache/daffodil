@@ -1,21 +1,18 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
-import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
-class DelimiterTextUnparser(erd: RuntimeData, delimExpr: CompiledExpression,
-  override val encodingInfo: EncodingInfo, delimiterType: DelimiterTextType.Type)
-  extends PrimUnparser(erd) with RuntimeEncodingMixin {
+class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
+  delimiterType: DelimiterTextType.Type)
+  extends PrimUnparser(erd) {
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"
@@ -48,7 +45,7 @@ class DelimiterTextUnparser(erd: RuntimeData, delimExpr: CompiledExpression,
       val valueString = delimDFA.unparseValue
 
       val outStream = state.outStream
-      outStream.encode(dcharset.charset, valueString)
+      outStream.encode(erd.encodingInfo.knownEncodingCharset.charset, valueString)
       log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
     } catch {
       // Characters in infoset element cannot be encoded without error.

@@ -30,7 +30,6 @@
  * SOFTWARE.
  */
 
-
 package edu.illinois.ncsa.daffodil.processors
 
 import java.nio.ByteBuffer
@@ -182,20 +181,20 @@ abstract class StaticText(delim: String, e: Term, eb: Term, kindString: String, 
 
   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
+  lazy val textParser = new TextParser(e.termRuntimeData)
 }
 
 abstract class DelimiterText(kindString: String, delimExpr: CompiledExpression, e: Term, eb: Term, guard: Boolean = true)
   extends Text(e, eb, guard) with ComputesValueFoundInstead {
-  
-   e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
 
-  lazy val textParser = new TextParser(e.runtimeData, e.encodingInfo)
+  e.schemaDefinitionWarningUnless(e.ignoreCase == YesNo.No, "Property ignoreCase='yes' not supported.")
+
+  lazy val textParser = new TextParser(e.termRuntimeData)
 
   def delimiterType: DelimiterTextType.Type
 
-  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.runtimeData, delimExpr, kindString, textParser, positionalInfo, e.encodingInfo, delimiterType)
-  override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.runtimeData, delimExpr, e.encodingInfo, delimiterType)
+  override lazy val parser: DaffodilParser = new DelimiterTextParser(e.termRuntimeData, delimExpr, kindString, textParser, positionalInfo, delimiterType)
+  override lazy val unparser: DaffodilUnparser = new DelimiterTextUnparser(e.termRuntimeData, delimExpr, delimiterType)
 }
 
 case class Initiator(e: Term) extends DelimiterText("Init", e.initiator, e, e) {
@@ -213,7 +212,7 @@ case class Terminator(e: Term) extends DelimiterText("Term", e.terminator, e, e)
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
-  val dp = new DFDLDelimParser(e.runtimeData, e.encodingInfo)
+  val dp = new DFDLDelimParser(e.termRuntimeData)
 
   private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
     string.startsWith(possiblePrefix)

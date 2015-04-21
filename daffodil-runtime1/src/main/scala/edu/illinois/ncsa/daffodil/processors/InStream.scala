@@ -72,7 +72,7 @@ object InStream {
    * FixedWidth
    * encodingErrorPolicy='replace'
    */
-  def forTextOnlyFixedWidthErrorReplace(ei: EncodingInfo, context: ElementRuntimeData, file: File,
+  def forTextOnlyFixedWidthErrorReplace(context: ElementRuntimeData, file: File,
     charsetEncodingName: String, lengthLimitInBits: Long): InStream = {
     val charset = CharsetUtils.getCharset(charsetEncodingName)
     val (cBuf, bBuf) = TextOnlyReplaceOnErrorReaderFactory.getCharBuffer(file, charset)
@@ -81,14 +81,14 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) fSizeInBits
       else lengthLimitInBits
-    val bitsPerChar = ei.knownEncodingWidthInBits
+    val bitsPerChar = context.encodingInfo.knownEncodingWidthInBits
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)
     inStream
   }
 
-  def forTextOnlyFixedWidthErrorReplace(ei: EncodingInfo, context: ElementRuntimeData, jis: InputStream,
+  def forTextOnlyFixedWidthErrorReplace(context: ElementRuntimeData, jis: InputStream,
     charsetEncodingName: String,
     lengthLimitInBits: Long): InStream = {
     val charset = CharsetUtils.getCharset(charsetEncodingName)
@@ -98,7 +98,7 @@ object InStream {
     val bitLimit =
       if (lengthLimitInBits == -1) bytes.length * 8
       else lengthLimitInBits
-    val bitsPerChar = ei.knownEncodingWidthInBits
+    val bitsPerChar = context.encodingInfo.knownEncodingWidthInBits
     val info = FixedWidthTextInfoCBuf(context, bitsPerChar, mandatoryAlignment, charset,
       bitLimit, cBuf, bBuf)
     val inStream = InStreamFixedWidthTextOnly(0, info)

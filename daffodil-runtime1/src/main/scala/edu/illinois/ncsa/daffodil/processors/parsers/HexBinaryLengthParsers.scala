@@ -32,62 +32,58 @@
 
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.PState
-import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
-import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.dsom.ConstantExpression
-import edu.illinois.ncsa.daffodil.processors.ISO8859EncodingInfo
+import edu.illinois.ncsa.daffodil.processors.PrimParser
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
-abstract class HexBinaryLengthInBytesParser(justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData)
-  extends StringLengthInBytesParser(
-    justificationTrim,
-    pad,
-    erd,
-    new ISO8859EncodingInfo(erd)) {
+abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
+  extends PrimParser(erd) {
 
-  val hexArray = "0123456789ABCDEF".toCharArray
+  protected def parserName: String
 
-  override def formatValue(value: String) = {
-    val sb = new StringBuilder(value.length * 2)
-    for (c <- value) {
-      val i = c.toInt
-      sb += hexArray(i >>> 4)
-      sb += hexArray(i & 0x0F)
-    }
-    sb.result
+  protected def getLength(pstate: PState): (Long, PState)
+
+  final def parse(pstate: PState): PState = {
+
+    log(LogLevel.Debug, "Parsing starting at bit position: %s", pstate.bitPos)
+
+    val (nBytes, start) = getLength(pstate)
+    log(LogLevel.Debug, "Explicit length %s", nBytes)
+
+    if (start.bitPos % 8 != 0) { return PE(start, "%s - not byte aligned.", parserName) }
+
+    val bytes = start.inStream.getBytes(start.bitPos, nBytes)
+    val currentElement = start.simpleElement
+    currentElement.setDataValue(bytes)
+
+    if (bytes.length != nBytes)
+      PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: wanted %s byte(s), but found only %s available.",
+        parserName, nBytes, bytes.length)
+    else
+      start.withPos(start.bitPos + (bytes.length * 8), -1, Nope)
   }
+
 }
 
-class HexBinaryFixedLengthInBytesParser(nBytes: Long,
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData,
-  override val lengthText: String)
-  extends HexBinaryLengthInBytesParser(justificationTrim, pad, erd) {
+final class HexBinaryFixedLengthInBytesParser(nBytes: Long, erd: ElementRuntimeData)
+  extends HexBinaryLengthInBytesParser(erd) {
 
-  lazy val parserName = "HexBinaryFixedLengthInBytes"
+  def parserName = "HexBinaryFixedLengthInBytes"
 
   def getLength(pstate: PState): (Long, PState) = {
     (nBytes, pstate)
   }
 }
 
-class HexBinaryFixedLengthInBitsParser(nBits: Long,
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData,
-  override val lengthText: String)
-  extends HexBinaryLengthInBytesParser(justificationTrim, pad, erd) {
+final class HexBinaryFixedLengthInBitsParser(nBits: Long, erd: ElementRuntimeData)
+  extends HexBinaryLengthInBytesParser(erd) {
 
-  lazy val parserName = "HexBinaryFixedLengthInBits"
+  def parserName = "HexBinaryFixedLengthInBits"
 
   def getLength(pstate: PState): (Long, PState) = {
     val nBytes = scala.math.ceil(nBits / 8).toLong
@@ -95,14 +91,9 @@ class HexBinaryFixedLengthInBitsParser(nBits: Long,
   }
 }
 
-class HexBinaryVariableLengthInBytesParser(justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData,
-  codepointWidth: Int,
-  override val length: CompiledExpression,
-  override val lengthText: String)
-  extends HexBinaryLengthInBytesParser(justificationTrim, pad, erd)
+final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, override val length: CompiledExpression)
+  extends HexBinaryLengthInBytesParser(erd)
   with HasVariableLength {
 
-  lazy val parserName = "HexBinaryVariableLengthInBytes"
+  def parserName = "HexBinaryVariableLengthInBytes"
 }

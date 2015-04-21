@@ -45,20 +45,18 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 
 class StringPatternMatchedParser(pattern: String,
   erd: ElementRuntimeData,
-  override val encodingInfo: EncodingInfo,
   override val justificationTrim: TextJustificationType.Type,
-  override val padChar: String)
-  extends PrimParser(erd) with TextReader with HasPadding {
+  val parsingPadChar: Maybe[Char])
+  extends PrimParser(erd) with TextReader with PaddingRuntimeMixin {
 
   // The pattern will always be defined
 
   lazy val dp = new ThreadLocal[DFDLDelimParser] {
     override def initialValue() = {
-      new DFDLDelimParser(erd, encodingInfo)
+      new DFDLDelimParser(erd)
     }
   }
 
@@ -78,7 +76,7 @@ class StringPatternMatchedParser(pattern: String,
 
     log(LogLevel.Debug, "Retrieving reader")
 
-    val reader = getReader(dcharset.charset, start.bitPos, start)
+    val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
     val result = dp.get.parseInputPatterned(pattern, reader, start)
 

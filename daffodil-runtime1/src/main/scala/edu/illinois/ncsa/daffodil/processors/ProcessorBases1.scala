@@ -47,6 +47,7 @@ abstract class PrimParser(contextArg: RuntimeData)
   with WithParseErrorThrowing {
 
   override def childProcessors = Nil
+
 }
 
 /**

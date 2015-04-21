@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.util.Debug
 import edu.illinois.ncsa.daffodil.util.PreSerialization
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 
 /**
  * Common parser base class for any parser that evaluates an expression.

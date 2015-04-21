@@ -198,7 +198,14 @@ object DFDL {
     def isValidationSuccess: Boolean
   }
 
-  trait UnparseResult extends Result with WithDiagnostics
+  trait UnparseResult extends Result with WithDiagnostics {
+    /**
+     * Data is 'scannable' if it consists entirely of textual data, and that data
+     * is all in the same encoding.
+     */
+    def isScannable: Boolean
+    def encodingName: String
+  }
 
   /**
    * Interface for Parse and Unparse states

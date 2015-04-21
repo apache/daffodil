@@ -146,13 +146,12 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val initialState =
       if (ssrd.encodingInfo.isScannable &&
         ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        ssrd.knownEncodingIsFixedWidth &&
-        ssrd.knownEncodingAlignmentInBits == 8 // byte-aligned characters
+        ssrd.encodingInfo.knownEncodingIsFixedWidth &&
+        ssrd.encodingInfo.knownEncodingAlignmentInBits == 8 // byte-aligned characters
         ) {
         // use simpler text only I/O layer
         val jis = Channels.newInputStream(input)
         val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-          ssrd.encodingInfo,
           ssrd.elementRuntimeData,
           jis, ssrd.encodingInfo.knownEncodingName, lengthLimitInBits)
         PState.createInitialPState(rootERD,
@@ -179,11 +178,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val initialState =
       if (ssrd.encodingInfo.isScannable &&
         ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        ssrd.knownEncodingIsFixedWidth) {
+        ssrd.encodingInfo.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(ssrd.encodingInfo,
+        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
           ssrd.elementRuntimeData,
-          file, ssrd.knownEncodingName, -1)
+          file, ssrd.encodingInfo.knownEncodingName, -1)
         PState.createInitialPState(ssrd.elementRuntimeData,
           inStream,
           this)
@@ -402,4 +401,16 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
   with WithDiagnosticsImpl {
 
   override def resultState = ustate
+
+  private def encodingInfo = ustate.currentInfosetNode.get.asInstanceOf[DIElement].runtimeData.encodingInfo
+
+  def summaryEncoding = encodingInfo.summaryEncoding
+
+  override def isScannable = encodingInfo.isScannable
+  override def encodingName = {
+    Assert.invariant(encodingInfo.isKnownEncoding)
+    // we're not supporting runtime-calculated encodings yet so not
+    // capturing that information (what the actual runtime-value of encoding was
+    encodingInfo.knownEncodingName
+  }
 }

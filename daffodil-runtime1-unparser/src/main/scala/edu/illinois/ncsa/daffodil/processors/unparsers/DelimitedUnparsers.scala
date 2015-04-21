@@ -4,16 +4,12 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.LogLevel
@@ -28,13 +24,12 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
   override val pad: Maybe[Char],
-  isDelimRequired: Boolean,
-  override val encodingInfo: EncodingInfo)
-  extends PrimUnparser(erd) with RuntimeEncodingMixin with HasPadding {
+  isDelimRequired: Boolean)
+  extends PrimUnparser(erd) with PaddingRuntimeMixin {
 
   val fieldDFA = CreateFieldDFA()
-  val textUnparser = new TextDelimitedUnparser(erd, encodingInfo)
-  
+  val textUnparser = new TextDelimitedUnparser(erd)
+
   protected def theString(state: UState) = state.currentInfosetNode.get.asSimple.dataValueAsString
 
   override val padToLength: Int = {
@@ -111,7 +106,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
       val paddedValue = padOrTruncateByJustification(escapedValue)
 
       val outStream = state.outStream
-      outStream.encode(dcharset.charset, paddedValue)
+      outStream.encode(erd.encodingInfo.knownEncodingCharset.charset, paddedValue)
       log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
     } catch {
       // Characters in infoset element cannot be encoded without error.
@@ -135,11 +130,10 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
 class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
   nilValue: String,
-  encInfo: EncodingInfo,
   justPad: TextJustificationType.Type,
   padChar: Maybe[Char],
   isDelimRequired: Boolean)
-  extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired, encInfo) {
+  extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired) {
 
   final override def theString(ignored: UState) = nilValue
 }

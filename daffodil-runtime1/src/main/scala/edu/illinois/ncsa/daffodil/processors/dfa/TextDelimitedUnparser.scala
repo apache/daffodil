@@ -1,7 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.util.parsing.input.CharSequenceReader
@@ -10,12 +8,13 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data
  * is escaped by adding an dfdl:escapeCharacter before it. The following
  * are escaped if they are in the data:
- * 
+ *
  * - Any in-scope terminating delimiter by escaping its first
  * character.
  * - dfdl:escapeCharacter (escaped by
@@ -30,18 +29,18 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
  * dfdl:escapeBlockEnd then first character of each appearance of the
  * dfdl:escapeBlockEnd is escaped by the dfdl:escapeEscapeCharacter.
  */
-class TextDelimitedUnparser(override val context: RuntimeData, override val encodingInfo: EncodingInfo)
+class TextDelimitedUnparser(override val context: TermRuntimeData)
   extends DelimitedUnparser {
 
   lazy val name: String = "TextDelimitedUnparser"
   lazy val info: String = ""
 
-  def escape(input: DFDLCharReader, 
-    field: DFAField, 
-    delims: Seq[DFADelimiter], 
-    escapeEscapeChar: Char, 
-    blockStart: String, 
-    blockEnd: String, 
+  def escape(input: DFDLCharReader,
+    field: DFAField,
+    delims: Seq[DFADelimiter],
+    escapeEscapeChar: Char,
+    blockStart: String,
+    blockEnd: String,
     generateEscapeBlock: Boolean, state: UState): (String, Boolean) = {
 
     val (resultString, escapeOccurred) = escape(input, field, delims, escapeEscapeChar, Nope, state)
@@ -50,10 +49,10 @@ class TextDelimitedUnparser(override val context: RuntimeData, override val enco
     (result, escapeOccurred)
   }
 
-  def escape(input: DFDLCharReader, 
-    field: DFAField, 
-    delims: Seq[DFADelimiter], 
-    escapeChar: Char, 
+  def escape(input: DFDLCharReader,
+    field: DFAField,
+    delims: Seq[DFADelimiter],
+    escapeChar: Char,
     escapeEscapeChar: Maybe[Char], state: UState): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)

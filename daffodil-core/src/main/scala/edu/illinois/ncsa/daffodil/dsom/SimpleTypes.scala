@@ -50,8 +50,6 @@ abstract class SimpleTypeDefBase(xmlArg: Node, parent: SchemaComponent)
 
   def element: ElementBase
 
-  override def encodingInfo = element.encodingInfo
-
   requiredEvaluations(myBaseTypeList)
 
   final lazy val bases: Seq[SimpleTypeDefBase] =
@@ -253,6 +251,7 @@ final class LocalSimpleTypeDef(xmlArg: Node, parent: ElementBase)
   extends SimpleTypeDefBase(xmlArg, parent)
   with LocalComponentMixin {
 
+  override def term = parent
   override lazy val element = parent
 
   lazy val baseName = (xml \ "restriction" \ "@base").text
@@ -293,6 +292,8 @@ final class GlobalSimpleTypeDefFactory(xmlArg: Node, schemaDocumentArg: SchemaDo
 final class GlobalSimpleTypeDef(derivedType: Option[SimpleTypeDefBase], xmlArg: Node, schemaDocumentArg: SchemaDocument, val referringElement: Option[ElementBase])
   extends SimpleTypeDefBase(xmlArg, schemaDocumentArg)
   with GlobalComponentMixin {
+
+  override def term = element
 
   override lazy val referringComponent: Option[SchemaComponent] =
     (derivedType, referringElement) match {

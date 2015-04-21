@@ -34,19 +34,15 @@ package edu.illinois.ncsa.daffodil.processors.parsers
 
 import scala.annotation.migration
 import scala.collection.mutable.Queue
-
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
-import edu.illinois.ncsa.daffodil.dsom.RuntimeEncodingMixin
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.DataLoc
-import edu.illinois.ncsa.daffodil.processors.EncodingInfo
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.PrimParser
-import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
@@ -55,6 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.util.Enum
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 
 trait HasDelimiterText {
 
@@ -67,21 +64,20 @@ trait HasDelimiterText {
 
 abstract class DelimiterValues extends HasDelimiterText with Serializable
 
-class InitiatorDelimiterValues(val init: String, encInfo: EncodingInfo, context: RuntimeData)
-  extends StaticTextDelimiterValues(init, List.empty, encInfo, context)
+class InitiatorDelimiterValues(val init: String, context: TermRuntimeData)
+  extends StaticTextDelimiterValues(init, List.empty, context)
 
 class StaticTextDelimiterValues(
   val delim: String,
   allTerminatingMarkup: List[(CompiledExpression, String, String)],
-  encInfo: EncodingInfo,
-  context: RuntimeData)
+  context: TermRuntimeData)
   extends DelimiterValues {
 
   val delimsRaw = allTerminatingMarkup.map {
     case (delimValue, elemName, elemPath) => (delimValue.constantAsString, elemName, elemPath)
   }
 
-  val textParser = new TextParser(context, encInfo)
+  val textParser = new TextParser(context)
 }
 
 object DelimiterTextType extends Enum {
@@ -91,8 +87,7 @@ object DelimiterTextType extends Enum {
   case object Terminator extends Type
 }
 
-abstract class DelimiterTextParserBase(rd: RuntimeData,
-  val encodingInfo: EncodingInfo,
+abstract class DelimiterTextParserBase(rd: TermRuntimeData,
   delimiterType: DelimiterTextType.Type)
   extends PrimParser(rd)
   with HasDelimiterText {
@@ -136,16 +131,14 @@ abstract class DelimiterTextParserBase(rd: RuntimeData,
 }
 
 class DelimiterTextParser(
-  rd: RuntimeData,
+  rd: TermRuntimeData,
   delimExpr: CompiledExpression,
   kindString: String,
   textParser: TextParser,
   positionalInfo: String,
-  encInfo: EncodingInfo,
   delimiterType: DelimiterTextType.Type)
-  extends DelimiterTextParserBase(rd, encInfo, delimiterType)
-  with TextReader
-  with RuntimeEncodingMixin {
+  extends DelimiterTextParserBase(rd, delimiterType)
+  with TextReader {
 
   Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
 
@@ -162,7 +155,7 @@ class DelimiterTextParser(
 
     val bytePos = (start.bitPos >> 3).toInt
 
-    val reader = getReader(dcharset.charset, start.bitPos, start)
+    val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
     if (isInitiator || !start.mpstate.foundDelimiter.isDefined) {
       val delims = {
@@ -231,7 +224,7 @@ class DelimiterTextParser(
           this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
           kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
       } else {
-        val numBits = knownEncodingStringBitLength(found.foundText)
+        val numBits = rd.encodingInfo.knownEncodingStringBitLength(found.foundText)
         val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
         val endBitPosDelim = numBits + start.bitPos
 

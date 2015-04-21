@@ -95,9 +95,9 @@ abstract class DFDLAssertionBase(node: Node, decl: AnnotatedSchemaComponent)
 
       val hasWord = thePattern.contains("\\w")
 
-      if (decl.encodingInfo.knownEncodingIsUnicode && hasWord) {
+      if (decl.term.termRuntimeData.encodingInfo.knownEncodingIsUnicode && hasWord) {
         SDW("The encoding is '%s' and \\w was detected in the pattern '%s'.  This is not recommended with Unicode encodings.",
-          decl.encodingInfo.knownEncodingName, thePattern)
+          decl.term.termRuntimeData.encodingInfo.knownEncodingName, thePattern)
       }
     }
 

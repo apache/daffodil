@@ -88,7 +88,7 @@ case class MPState() {
     occursBoundsStack.push(ob)
   }
   def occursBounds = occursBoundsStack.top
-  
+
   var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
 
   val delimiterStack = new ArrayStack[DelimiterStackNode]()
@@ -160,9 +160,6 @@ abstract class ParseOrUnparseState(
     diagnostics = rsdw :: diagnostics
   }
 
-  def addUnparseError(ue: UnparseError) {
-    diagnostics = ue :: diagnostics
-  }
 }
 
 class PState(

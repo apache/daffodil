@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.section06.namespaces
 
 import junit.framework.Assert._
 import org.junit.Test
+import org.junit.AfterClass
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -47,13 +48,22 @@ import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
 import java.io.ByteArrayInputStream
 
-class TestNamespaces {
-
+object TestNamespaces {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
   val aa = testDir + "namespaces.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = false)
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false, validateDFDLSchemas = false)
-  lazy val runnerWithSchemaValidation = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = true)
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = false)
+  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false, validateDFDLSchemas = false)
+  var runnerWithSchemaValidation = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = true)
+
+  @AfterClass def shutDown {
+    runner = null
+    runner2 = null
+    runnerWithSchemaValidation = null
+  }
+}
+class TestNamespaces {
+
+  import TestNamespaces._
 
   @Test def test_schemaNoGlobalElems_01() { runner.runOneTest("schemaNoGlobalElems_01") }
   @Test def test_schemaNoGlobalElems_02() { runner.runOneTest("schemaNoGlobalElems_02") }

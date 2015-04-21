@@ -21,6 +21,7 @@ import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.UnparseResult
 import edu.illinois.ncsa.daffodil.processors.Success
+import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
@@ -28,6 +29,7 @@ import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
+import edu.illinois.ncsa.daffodil.processors.Failure
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -38,6 +40,11 @@ class UState(
   dataProcArg: DataProcessor, var outStream: OutStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
   with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  def addUnparseError(ue: UnparseError) {
+    diagnostics = ue :: diagnostics
+    status_ = new Failure(ue)
+  }
 
   def peekArrayEnd = {
     peek match {
@@ -68,7 +75,9 @@ class UState(
 
   def thisElement: InfosetElement = currentInfosetNode.get.asInstanceOf[InfosetElement]
 
-  override def status: ProcessorResult = Success
+  private var status_ : ProcessorResult = Success
+
+  override def status = status_
 
   val unparseResult = new UnparseResult(dataProcArg, this)
 
@@ -112,7 +121,7 @@ class UState(
   }
 
   def occursBounds = occursBoundsStack.top
-  
+
   var currentEscapeScheme: Maybe[EscapeSchemeUnparserHelper] = Nope
 
   val delimiterStack = new ArrayStack[DelimiterStackUnparseNode]()

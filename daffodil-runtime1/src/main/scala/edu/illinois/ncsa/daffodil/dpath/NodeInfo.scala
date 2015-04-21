@@ -174,10 +174,11 @@ object NodeInfo extends Enum {
       // take NonEmptyString, but we don't have a conversion 
       // yet
       //
-      if (this.isInstanceOf[NodeInfo.String.Kind] &
+      if (this eq other) true
+      else if (this.isInstanceOf[NodeInfo.String.Kind] &&
         other.isInstanceOf[NodeInfo.String.Kind]) true
-      else if (NodeInfo.isXDerivedFromY(this.name, other.name)) return true
-      false
+      else if (NodeInfo.isXDerivedFromY(this.name, other.name)) true
+      else false
     }
   }
 

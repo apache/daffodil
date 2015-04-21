@@ -36,7 +36,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 
-abstract class Primitive(e: AnnotatedSchemaComponent, guard: Boolean = false)
+abstract class Primitive(e: Term, guard: Boolean = false)
   extends Terminal(e, guard) {
   override def toString = "Prim[" + name + "]"
   def parser: DaffodilParser =

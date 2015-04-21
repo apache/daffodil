@@ -41,7 +41,8 @@
 
     <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
       separator="" initiator="" terminator="" occursCountKind="parsed"
-      ignoreCase="no" textNumberRep="standard" representation="text" />
+      ignoreCase="no" textNumberRep="standard" representation="text"
+      textPadKind='padChar' textStringPadCharacter="%SP;" />
     <dfdl:defineFormat name="root">
       <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
         separator="" initiator="" terminator="" representation="text" />
@@ -266,7 +267,7 @@
         </r4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document><![CDATA[3]]></tdml:document>
+    <tdml:document><![CDATA[ 3]]></tdml:document>
 
   </tdml:unparserTestCase>
 

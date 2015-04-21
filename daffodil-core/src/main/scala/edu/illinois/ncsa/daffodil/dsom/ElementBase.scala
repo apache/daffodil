@@ -358,6 +358,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       schemaSet.variableMap,
       nextElementResolver,
       childElementResolver,
+      encodingInfo,
       dpathElementCompileInfo,
       schemaFileLocation,
       prettyName,
@@ -399,10 +400,16 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       //
       // unparser specific items
       //
-      notReferencedByExpressions)
+      notReferencedByExpressions,
+      fillByteValue,
+      optTruncateSpecifiedLengthString)
     newERD
   }
 
+  private lazy val optTruncateSpecifiedLengthString =
+    if (isSimpleType && simpleType.primitiveType.isInstanceOf[NodeInfo.String.Kind]) {
+      Option(truncateSpecifiedLengthString =:= YesNo.Yes)
+    } else None // don't need this property for non-strings
   /**
    *  This QName should contain the prefix from the element reference
    */
