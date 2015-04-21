@@ -8,6 +8,7 @@ import edu.illinois.ncsa.daffodil.processors.Nada
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
+import edu.illinois.ncsa.daffodil.util.Misc
 
 /**
  * Gram - short for "Grammar Term"
@@ -97,6 +98,6 @@ abstract class Gram(contextArg: SchemaComponent)
    */
   def parser: Parser
 
-  def unparser: Unparser = DummyUnparser() // context.runtimeData
+  def unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this)) // context.runtimeData
 
 }

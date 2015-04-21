@@ -47,7 +47,7 @@ class InfosetSourceFromXMLEventReader(
   private lazy val xmlIterator = new XMLEventIterator(xer)
 
   private val initialNextElementResolver =
-    new OnlyOnePossibilityForNextElement(rootElementInfo.schemaFileLocation, rootElementInfo) // bootstrap
+    new OnlyOnePossibilityForNextElement(rootElementInfo.schemaFileLocation, rootElementInfo, RootResolver) // bootstrap
 
   private lazy val diDoc = new DIDocument(rootElementInfo)
 
@@ -98,10 +98,7 @@ class InfosetSourceFromXMLEventReader(
         val ns = xmlEvent.ns
         val local = xmlEvent.local
         val arr = arrayStack.top
-        val maybeNextERD = nextElementResolver.nextElement(local, ns)
-        val erd = maybeNextERD.getOrElse(
-          throw new InfosetError("No next element corresponding to %s.",
-            if (ns == null) "{}" + local else "{" + ns + "}" + local))
+        val erd = nextElementResolver.nextElement(local, ns)
         val nodeEvents: Seq[InfosetEvent] = xmlEvent match {
           case _: EndComplex => Assert.invariantFailed("EndComplex already handled")
           case StartComplex(ns, local) => {

@@ -159,7 +159,6 @@ abstract class ParseOrUnparseState(
     val rsdw = new RuntimeSchemaDefinitionWarning(ctxt.schemaFileLocation, this, str, args: _*)
     diagnostics = rsdw :: diagnostics
   }
-
 }
 
 class PState(

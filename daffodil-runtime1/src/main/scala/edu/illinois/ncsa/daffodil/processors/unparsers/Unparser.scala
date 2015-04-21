@@ -108,13 +108,13 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Seq[Unparser])
   }
 }
 
-case class DummyUnparser() extends Unparser(null) {
+case class DummyUnparser(primitiveName: String) extends Unparser(null) {
 
-  def unparse(state: UState): Unit = state.SDE("Unparser is not yet implemented.")
+  def unparse(state: UState): Unit = state.SDE("Unparser (%s) is not yet implemented.", primitiveName)
 
   override lazy val childProcessors = Nil
-  override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"
-  override def toString = "DummyUnparser"
+  override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
+  override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
 //
 //  /**

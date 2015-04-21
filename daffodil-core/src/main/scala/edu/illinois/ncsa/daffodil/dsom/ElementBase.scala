@@ -56,6 +56,9 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.SeveralPossibilitiesForNe
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.unparsers.NoNextElement
 import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyOnePossibilityForNextElement
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChildResolver
+import edu.illinois.ncsa.daffodil.processors.unparsers.SiblingResolver
+import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -302,23 +305,23 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    *
    * So we need a cast upward to Map[QNameBase,ElementRuntimeData]
    */
-  final def computeNextElementResolver(possibles: Seq[ElementBase]): NextElementResolver = {
+  final def computeNextElementResolver(possibles: Seq[ElementBase], resolverType: ResolverType): NextElementResolver = {
     val eltMap = possibles.map {
       e => (e.namedQName, e.elementRuntimeData)
     }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
     val resolver = eltMap.size match {
-      case 0 => new NoNextElement(schemaFileLocation)
-      case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head)
-      case _ => new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap)
+      case 0 => new NoNextElement(schemaFileLocation, resolverType)
+      case 1 => new OnlyOnePossibilityForNextElement(schemaFileLocation, eltMap.values.head, resolverType)
+      case _ => new SeveralPossibilitiesForNextElement(schemaFileLocation, eltMap, resolverType)
     }
     resolver
   }
 
   final lazy val nextElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleNextElementsForUnparse)
+    computeNextElementResolver(possibleNextElementsForUnparse, SiblingResolver)
 
   final lazy val childElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleNextChildrenElementsForUnparse)
+    computeNextElementResolver(possibleNextChildrenElementsForUnparse, ChildResolver)
 
   final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val ee = enclosingElement

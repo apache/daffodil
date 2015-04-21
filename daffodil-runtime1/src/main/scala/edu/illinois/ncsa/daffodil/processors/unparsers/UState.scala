@@ -140,6 +140,7 @@ class UState(
   def validationError(msg: String, args: Any*) {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
+    status_ = new Failure(vde)
     diagnostics = vde :: diagnostics
   }
 }

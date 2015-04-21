@@ -15,7 +15,7 @@ import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 
-class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args)
+class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args: _*)
 
 object InfosetSource {
 

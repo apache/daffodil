@@ -19,23 +19,31 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
  */
 
 trait NextElementResolver extends Serializable {
-  def nextElement(name: String, nameSpace: String): Maybe[ElementRuntimeData]
+  def nextElement(name: String, nameSpace: String): ElementRuntimeData
 }
 
-class NoNextElement(schemaFileLocation: SchemaFileLocation) extends NextElementResolver {
+sealed abstract class ResolverType(val name: String)
+case object SiblingResolver extends ResolverType("next")
+case object ChildResolver extends ResolverType("child")
+case object RootResolver extends ResolverType("root")
 
-  override def nextElement(local: String, namespace: String): Maybe[ElementRuntimeData] = Nope
+class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: ResolverType) extends NextElementResolver {
+
+  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
+    val sqn = StepQName(None, local, NS(namespace))
+    UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but no element is expected.", resolverType.name, sqn)
+  }
 }
 
-class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData)
+class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)
   extends NextElementResolver {
-  override def nextElement(local: String, namespace: String): Maybe[ElementRuntimeData] = {
+  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
     val nqn = nextERD.namedQName
     val sqn = StepQName(None, local, NS(namespace))
     if (!sqn.matches(nqn)) {
-      UnparseError(One(schemaFileLocation), Nope, "Next element must be %s. But found %s", nqn, sqn)
+      UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but expected %s.", resolverType.name, sqn, nqn)
     }
-    One(nextERD)
+    nextERD
   }
 }
 
@@ -43,7 +51,7 @@ class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, n
  * Schema compiler computes the map here, and then attaches this object to the
  * ERD of each element.
  */
-class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Map[QNameBase, ElementRuntimeData])
+class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Map[QNameBase, ElementRuntimeData], resolverType: ResolverType)
   extends NextElementResolver {
   Assert.usage(nextERDMap.size > 1, "should be more than one mapping")
 
@@ -60,13 +68,13 @@ class SeveralPossibilitiesForNextElement(loc: SchemaFileLocation, nextERDMap: Ma
    *
    * So we need a cast upward to QNameBase
    */
-  override def nextElement(local: String, namespace: String): Maybe[ElementRuntimeData] = {
+  override def nextElement(local: String, namespace: String): ElementRuntimeData = {
     val sqn = StepQName(None, local, NS(namespace)) // these will match in a hash table of NamedQNames.
     val optNextERD = nextERDMap.get(sqn.asInstanceOf[QNameBase])
     val res = optNextERD.getOrElse {
       val keys = nextERDMap.keys.toSeq
-      UnparseError(One(loc), Nope, "Found %s, but next element must be one of %s.", sqn, keys.mkString("\n"))
+      UnparseError(One(loc), Nope, "Found %s element %s, but expected one of %s.", resolverType.name, sqn, keys.mkString(", "))
     }
-    One(res)
+    res
   }
 }
