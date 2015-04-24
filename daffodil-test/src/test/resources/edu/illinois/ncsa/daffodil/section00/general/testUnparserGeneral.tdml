@@ -119,9 +119,10 @@
     <tdml:document>incorrect</tdml:document>
     
     <tdml:errors>
+      <tdml:error>TDMLException</tdml:error>
       <tdml:error>output data length</tdml:error>
       <tdml:error>length 1</tdml:error>
-            <tdml:error>'0'</tdml:error>
+      <tdml:error>'0'</tdml:error>
       <tdml:error>length 9</tdml:error>
       <tdml:error>'incorrect'</tdml:error>
     </tdml:errors>
@@ -146,9 +147,10 @@
     <tdml:document>Q</tdml:document>
 
     <tdml:errors>
+      <tdml:error>TDMLException</tdml:error>
       <tdml:error>data differs</tdml:error>
-      <tdml:error>X</tdml:error>
-      <tdml:error>Q</tdml:error>
+      <tdml:error>Expected 'Q'</tdml:error>
+      <tdml:error>Actual was 'X'</tdml:error>
     </tdml:errors>
     
   </tdml:unparserTestCase>
@@ -203,6 +205,33 @@
       <tdml:error>none</tdml:error>
       <tdml:error>e3</tdml:error>
     </tdml:errors>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: negativeUnparseTest05
+         Schema: fixedLengthStrings
+        Purpose: This is a test of how the TDML Runner handles a failed Unparse test.
+                 In this case, the expected output does not match the unparsed output.
+-->
+
+  <tdml:unparserTestCase name="negativeUnparseTest05" root="e2" model="fixedLengthStrings">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>X</ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>Xtra</tdml:document>
+
+    <tdml:errors>
+      <tdml:error>TDMLException</tdml:error>
+      <tdml:error>output data length 1</tdml:error>
+      <tdml:error>'X'</tdml:error>
+      <tdml:error>doesn't match expected length 4</tdml:error>
+      <tdml:error>'Xtra'</tdml:error>
+    </tdml:errors>
+    
   </tdml:unparserTestCase>
 
   <tdml:defineSchema name="delimitedStrings">

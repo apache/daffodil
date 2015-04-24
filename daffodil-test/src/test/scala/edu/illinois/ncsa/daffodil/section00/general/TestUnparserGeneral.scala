@@ -63,9 +63,9 @@ class TestUnparserGeneral {
   //DFDL-1306
   @Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
 
-  //DFDL-1293
   @Test def test_negativeUnparseTest01() { runner.runOneTest("negativeUnparseTest01") }
   @Test def test_negativeUnparseTest02() { runner.runOneTest("negativeUnparseTest02") }
+  @Test def test_negativeUnparseTest05() { runner.runOneTest("negativeUnparseTest05") }
 
   //DFDL-1294
   @Test def test_negativeUnparseTest03() { runner.runOneTest("negativeUnparseTest03") }
