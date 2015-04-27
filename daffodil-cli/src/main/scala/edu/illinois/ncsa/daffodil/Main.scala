@@ -83,6 +83,8 @@ import edu.illinois.ncsa.daffodil.api.InputStreamSchemaSource
 import edu.illinois.ncsa.daffodil.tdml.TDMLException
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
+import scala.xml.pull.XMLEventReader
+import scala.io.Source
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -861,18 +863,18 @@ object Main extends Logging {
         // 
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
-        val dataLoader = new DaffodilXMLLoader(new CommandLineXMLLoaderErrorHandler)
-        dataLoader.setValidation(true) //TODO: make this flag an option. 
-        val document = unparseOpts.infile.get match {
-          // TODO: Change None to optTmpDir for InputStreamSchemaSource
-          case Some("-") | None => dataLoader.load(InputStreamSchemaSource(System.in, None, "standardInput", ".dfdl.xsd"))
-          case Some(fileName) => dataLoader.load(URISchemaSource(new File(fileName).toURI))
+        val source = unparseOpts.infile.get match {
+          case Some("-") | None => Source.createBufferedSource(System.in)
+          case Some(fileName) => Source.fromFile(new File(fileName))
         }
+        val xmlReader = new XMLEventReader(source)
+
         val rc = processor match {
           case None => 1
           case Some(processor) => {
-            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, document))
+            val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, xmlReader))
             output.close()
+            displayDiagnostics(unparseResult)
             if (unparseResult.isError) 1 else 0
           }
         }
