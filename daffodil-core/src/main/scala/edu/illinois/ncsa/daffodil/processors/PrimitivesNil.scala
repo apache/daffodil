@@ -45,6 +45,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilKnownLengthInByte
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilExplicitLengthInCharsParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilExplicitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilPatternParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilPatternUnparser
 
 case class LiteralNilExplicitLengthInBytes(e: ElementBase)
   extends LiteralNilInBytesBase(e, "LiteralNilExplicit") {
@@ -139,14 +140,17 @@ case class LiteralNilPattern(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
+  lazy val nilValues = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
+
   override lazy val parser = new LiteralNilPatternParser(
     parsingPadChar,
     justificationTrim: TextJustificationType.Type,
     e.elementRuntimeData,
     e.lengthPattern,
     e.name,
-    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
+    nilValues)
 
+  override lazy val unparser = new LiteralNilPatternUnparser(e.elementRuntimeData, nilValues.head)
 }
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)

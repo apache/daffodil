@@ -62,6 +62,7 @@ class UState(
   def peek = infosetSource.peek
 
   def next = {
+    Assert.usage(hasNext)
     val ev = infosetSource.next
     currentInfosetEvent_ = One(ev)
     if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.pop

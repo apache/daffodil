@@ -37,6 +37,7 @@ class InfosetSourceFromTree(doc: InfosetDocument) extends InfosetSource {
   override def peek = str.head
 
   override def next = {
+    Assert.usage(str != null, "must call hasNext before calling next.")
     val nxt = str.head
     str = str.tail
     nxt

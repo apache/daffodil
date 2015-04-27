@@ -226,7 +226,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="AI000_rev" root="list"
-    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    model="lengthKindPattern-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[aSingleToken123456789AAAAA]]></tdml:document>
     <tdml:infoset>
@@ -263,7 +264,8 @@
 
   <tdml:parserTestCase name="lengthKindPattern_02"
     root="list_01" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - no match error- DFDL-12-088R">
+    description="Section 12 lengthKind-pattern - no match error- DFDL-12-088R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[datcz3 4  AAAAA]]></tdml:document>
     <tdml:errors>
@@ -273,7 +275,8 @@
 
   <tdml:parserTestCase name="lengthKindPattern_03"
     root="list_02" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - complex element encoding - DFDL-12-088R">
+    description="Section 12 lengthKind-pattern - complex element encoding - DFDL-12-088R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[bat,AAAAA]]></tdml:document>
     <tdml:infoset>
@@ -289,7 +292,8 @@
 
   <tdml:parserTestCase name="lengthKindPattern_04"
     root="simple" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - simpleType - DFDL-12-087R">
+    description="Section 12 lengthKind-pattern - simpleType - DFDL-12-087R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[hat]]></tdml:document>
     <tdml:infoset>
@@ -434,7 +438,8 @@
   </tdml:defineSchema>
 
   <tdml:parserTestCase name="LengthKindPattern"
-    root="doctors" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+    root="doctors" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[Hartnell\, William,Troughton\, Patrick,Pertwee\, Jon,Baker\, Tom,Davison\, Peter,Baker\, Colin,McCoy\, Sylvester,McGann\, Paul,Christopher Eccleston,David Tennant,Matt Smith]]></tdml:document>
     <tdml:infoset>
@@ -580,7 +585,8 @@
   </tdml:parserTestCase>
 
   <tdml:parserTestCase name="LengthPatternLegalBits_02"
-    root="def_02" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R">
+    root="def_02" model="DFDL-207-Embedded.dfdl.xsd" description="Section 12 lengthKind-pattern - DFDL-12-088R"
+    roundTrip="true">
     <tdml:document>
       <tdml:documentPart type="byte">212134393835382121</tdml:documentPart>
     </tdml:document>
@@ -594,7 +600,8 @@
 
   <tdml:parserTestCase name="LengthPatternNil_FindsNil"
     root="list_03" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[nil123456789AAAAA]]></tdml:document>
     <tdml:infoset>
@@ -611,7 +618,8 @@
 
   <tdml:parserTestCase name="LengthPatternNil_NoNil"
     root="list_03" model="lengthKindPattern-Embedded.dfdl.xsd"
-    description="Section 12 lengthKind-pattern - DFDL-12-087R">
+    description="Section 12 lengthKind-pattern - DFDL-12-087R"
+    roundTrip="true">
 
     <tdml:document><![CDATA[aSingleToken123456789AAAAA]]></tdml:document>
     <tdml:infoset>
