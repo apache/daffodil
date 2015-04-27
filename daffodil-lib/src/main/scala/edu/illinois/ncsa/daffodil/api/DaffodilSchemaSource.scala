@@ -83,9 +83,9 @@ case class InputStreamSchemaSource(is: java.io.InputStream, tmpDir: Option[File]
     csName
   }
   override def newInputSource() = {
-    val inSrc = new InputSource(tempURI.toString)
+    val is = new FileInputStream(tempSchemaFile)
+    val inSrc = new InputSource(is)
     inSrc.setEncoding(csName)
-    // 
     inSrc.setSystemId(blameName)
     inSrc
   }
