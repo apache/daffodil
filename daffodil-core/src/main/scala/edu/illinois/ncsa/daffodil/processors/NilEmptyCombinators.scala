@@ -9,6 +9,8 @@ import edu.illinois.ncsa.daffodil.processors.parsers.SimpleNilOrValueParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleNilOrValueUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.SimpleEmptyOrValueParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SimpleEmptyOrValueUnparser
+import edu.illinois.ncsa.daffodil.processors.parsers.ComplexNilOrContentParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexNilOrContentUnparser
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 
 case class SimpleNilOrEmptyOrValue(ctxt: ElementBase, nilGram: Gram, emptyGram: Gram, valueGram: Gram) extends Terminal(ctxt, true) {
@@ -59,5 +61,21 @@ case class SimpleEmptyOrValue(ctxt: ElementBase, emptyGram: Gram, valueGram: Gra
   override def parser = SimpleEmptyOrValueParser(context.runtimeData, emptyParser, valueParser)
 
   override def unparser = SimpleEmptyOrValueUnparser(context.runtimeData, emptyUnparser, valueUnparser)
+
+}
+
+case class ComplexNilOrContent(ctxt: ElementBase, nilGram: Gram, contentGram: Gram) extends Terminal(ctxt, true) {
+  Assert.invariant(!nilGram.isEmpty)
+  Assert.invariant(!contentGram.isEmpty)
+
+  lazy val nilParser = nilGram.parser
+  lazy val contentParser = contentGram.parser
+
+  lazy val nilUnparser = nilGram.unparser
+  lazy val contentUnparser = contentGram.unparser
+
+  override def parser = ComplexNilOrContentParser(context.runtimeData, nilParser, contentParser)
+
+  override def unparser = ComplexNilOrContentUnparser(context.runtimeData, nilUnparser, contentUnparser)
 
 }

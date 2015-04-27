@@ -790,7 +790,11 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
-    nilLitSpecifiedLength | complexContentSpecifiedLength
+    if (!nilLitSpecifiedLength.isEmpty) {
+      ComplexNilOrContent(this, nilLitSpecifiedLength, complexContentSpecifiedLength)
+    } else {
+      complexContentSpecifiedLength
+    }
   }
 
   private lazy val hasEscapeScheme = this.optionEscapeScheme.isDefined

@@ -12,3 +12,6 @@ case class SimpleNilOrValueParser(ctxt: RuntimeData, nilParser: Parser, valuePar
 
 case class SimpleEmptyOrValueParser(ctxt: RuntimeData, emptyParser: Parser, valueParser: Parser)
   extends AltCompParser(ctxt, Seq(emptyParser, valueParser))
+
+case class ComplexNilOrContentParser(ctxt: RuntimeData, emptyParser: Parser, contentParser: Parser)
+  extends AltCompParser(ctxt, Seq(emptyParser, contentParser))

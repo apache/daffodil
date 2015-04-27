@@ -128,7 +128,7 @@ class InfosetSourceFromXMLEventReader(
           }
           case NilElt(ns, local) => {
             nextElementResolver = erd.nextElementResolver
-            val node = new DISimple(erd)
+            val node = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
             nodeStack.top.addChild(node)
             node.setNilled()
             Seq(Start(node), End(node))

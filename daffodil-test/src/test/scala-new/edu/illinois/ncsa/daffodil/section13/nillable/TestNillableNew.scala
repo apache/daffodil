@@ -44,12 +44,12 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestNillableUnparseNew {
+class TestNillableNew {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val ln = testDir + "literal-value-nils-unparse.tdml"
+  val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
 
-  @Test def test_text_complex_nil() { runnerLN.runOneTest("text_complex_nil") }
+  @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
 
 }

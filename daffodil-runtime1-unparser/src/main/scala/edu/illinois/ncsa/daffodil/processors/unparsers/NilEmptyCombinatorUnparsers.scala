@@ -42,3 +42,16 @@ case class SimpleEmptyOrValueUnparser(ctxt: RuntimeData,
     else valueUnparser.unparse(state)
   }
 }
+
+case class ComplexNilOrContentUnparser(ctxt: RuntimeData,
+  nilUnparser: Unparser, contentUnparser: Unparser) extends Unparser(ctxt) {
+
+  override lazy val childProcessors = Seq(nilUnparser, contentUnparser)
+
+  def unparse(state: UState): Unit = {
+    Assert.invariant(state.currentInfosetNode.isDefined)
+    val inode = state.currentInfosetNode.get.asComplex
+    if (inode.isNilled) nilUnparser.unparse(state)
+    else contentUnparser.unparse(state)
+  }
+}

@@ -70,7 +70,7 @@ abstract class StatementElementParserBase(
     if (depthLimit == 0) "..." else
       "<Element name='" + name + "'>" +
         childProcessors.map { _.toBriefXML(depthLimit - 1) }.mkString +
-        "</Element name='" + name + "'>"
+        "</Element>"
   }
 
   def validate(pstate: PState): PState = {

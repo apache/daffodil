@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.equality._
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
   def asSimple: DISimple = this.asInstanceOf[DISimple]
+  def asComplex: DIComplex = this.asInstanceOf[DIComplex]
   def children: Stream[DINode]
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
   def totalElementCount: Long

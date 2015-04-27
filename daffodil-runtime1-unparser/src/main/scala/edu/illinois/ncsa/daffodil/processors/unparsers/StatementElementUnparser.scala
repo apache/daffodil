@@ -66,7 +66,7 @@ abstract class StatementElementUnparserBase(
         eUnparser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
         setVarUnparser.map { _.toBriefXML(depthLimit - 1) }.mkString +
         eAfterUnparser.map { _.toBriefXML(depthLimit - 1) }.getOrElse("") +
-        "</Element name='" + name + "'>"
+        "</Element>"
   }
 
   def validate(state: UState): Unit = {
