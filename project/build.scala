@@ -59,7 +59,7 @@ object DaffodilBuild extends Build {
                     .configs(DebugTest)
                     .configs(NewTest)
                     .configs(CliTest)
-                    .aggregate(propgen, lib, io, runtime1, core, tdml, testIBM1, cli, test, examples, japi, sapi)
+                    .aggregate(propgen, lib, io, runtime1, runtime1Unparser, core, tdml, testIBM1, cli, test, examples, japi, sapi)
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
