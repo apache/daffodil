@@ -47,8 +47,8 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
   def setResume(resumeReader: DFDLCharReader) {
     Registers.this.reader = resumeReader
   }
-  
-  def resumeForUnparse(resumeReader: DFDLCharReader){
+
+  def resumeForUnparse(resumeReader: DFDLCharReader) {
     Registers.this.reader = resumeReader
     data0 = nextChar()
     data1 = nextChar()

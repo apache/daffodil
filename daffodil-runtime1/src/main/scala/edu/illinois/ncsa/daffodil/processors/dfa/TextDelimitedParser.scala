@@ -238,6 +238,7 @@ class TextDelimitedParserWithEscapeBlock(
     var stateNum: Int = 0 // initial state is 0
     var actionNum: Int = 0
     var fieldResumingCharPos: Int = -1
+    var foundBlockEnd: Boolean = false
 
     while (stillSearching) {
       if (fieldResumingCharPos != -1) {
@@ -278,6 +279,7 @@ class TextDelimitedParserWithEscapeBlock(
                   }
                 }
               })
+              foundBlockEnd = true
               stillSearching = false
             }
             case _ => {
@@ -293,7 +295,8 @@ class TextDelimitedParserWithEscapeBlock(
     val lm = longestMatch(successes)
     val result = {
       if (!lm.isDefined) {
-        if (isDelimRequired) Nope
+        if (foundBlockEnd && isDelimRequired) Nope
+        else if (!foundBlockEnd) Nope
         else {
           val fieldValue: Maybe[String] = {
             One(fieldRegister.resultString.toString)

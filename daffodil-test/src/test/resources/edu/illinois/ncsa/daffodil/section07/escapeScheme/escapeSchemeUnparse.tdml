@@ -189,7 +189,7 @@
         </ex:e4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>/*three,#*/four</tdml:document>
+    <tdml:document>/*/*three*/,*/four</tdml:document>
   </tdml:unparserTestCase>
   
   <tdml:parserTestCase name="parseDelimitedEscapedString04" model="delimitedStringsEscapeScheme" root="e4">

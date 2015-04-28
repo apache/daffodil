@@ -67,6 +67,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     var stillSearching: Boolean = true
     var stateNum: Int = 0 // initial state is 0
     var actionNum: Int = 0
+    var numCharsInserted: Int = 0
 
     var fieldResumingCharPos: Int = -1
 
@@ -88,7 +89,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
       //
       val dfaStatus = field.run(stateNum, fieldReg, actionNum)
       actionNum = 0
-      fieldResumingCharPos = initialCharPos + fieldReg.numCharsReadUntilDelim + 2 // + 2 for data0, data1
+
       dfaStatus.status match {
         case StateKind.EndOfData => stillSearching = false
         case StateKind.Failed => stillSearching = false
@@ -108,7 +109,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           })
           if (!successes.isEmpty) {
             val (matchedDelim, matchedReg) = longestMatch(successes).get
-            if (matchedDelim.lookingFor == escapeChar) {
+            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) == escapeChar) {
               if (escapeEscapeChar.isDefined)
                 fieldReg.appendToField(escapeEscapeChar.get)
               else
@@ -119,8 +120,11 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
 
             escapeOccurred = true
 
+            numCharsInserted += 1
+
             // resume field parse
-            fieldResumingCharPos = initialCharPos + fieldReg.numCharsReadUntilDelim - 1 // -1 for inserted escape character
+            fieldResumingCharPos = initialCharPos + fieldReg.numCharsRead - numCharsInserted // subtract for inserted escape character
+
             actionNum = 0
             stateNum = 0
           }

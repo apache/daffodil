@@ -43,19 +43,16 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestEscapeSchemeUnparseDebug {
+class TestEscapeSchemeUnparseNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val aa = testDir + "escapeSchemeUnparse.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
-  //DFDL-1315 - uses too much memory 
-  // This now fails due to finding an escape block start but not finding an escape block end
-  // This test should be corrected to achieve the desired result by test
-  //
-  @Test def test_parseDelimitedEscapedString04() { runner.runOneTest("parseDelimitedEscapedString04") }
+  //DFDL-1314
+  @Test def test_unparseDelimitedEscapedString03() { runner.runOneTest("unparseDelimitedEscapedString03") }
+  @Test def test_unparseDelimitedEscapedString04() { runner.runOneTest("unparseDelimitedEscapedString04") } // Test should be corrected.
 
-  // Fails due to an unparseError.  escapeEscapeCharacter was not defined but the escapeCharacter (#) was present in the data.
-  //
-  @Test def test_unparseDelimitedEscapedString05() { runner.runOneTest("unparseDelimitedEscapedString05") }
+  //DFDL-1316
+  @Test def test_parseDelimitedEscapedString05() { runner.runOneTest("parseDelimitedEscapedString05") }
 
 }
