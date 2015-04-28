@@ -768,7 +768,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo test| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element name='rabbitHole'>"))
+      shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element>"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
