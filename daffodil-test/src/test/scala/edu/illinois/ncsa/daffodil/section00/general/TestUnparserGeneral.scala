@@ -72,6 +72,10 @@ class TestUnparserGeneral {
   @Test def test_unparseDelimitedString01() { runner.runOneTest("unparseDelimitedString01") }
   @Test def test_unparseDelimitedString02() { runner.runOneTest("unparseDelimitedString02") }
   @Test def test_unparseDelimitedString03() { runner.runOneTest("unparseDelimitedString03") }
+  @Test def test_unparseDelimitedString04() { runner.runOneTest("unparseDelimitedString04") }
+  @Test def test_unparseDelimitedString05() { runner.runOneTest("unparseDelimitedString05") }
+  @Test def test_unparseDelimitedString06() { runner.runOneTest("unparseDelimitedString06") }
+  @Test def test_unparseDelimitedString07() { runner.runOneTest("unparseDelimitedString07") }
 
   @Test def test_parseDelimitedString01() { runner.runOneTest("parseDelimitedString01") }
 

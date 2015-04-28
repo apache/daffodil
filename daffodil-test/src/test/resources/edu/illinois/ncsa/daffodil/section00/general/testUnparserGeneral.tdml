@@ -269,6 +269,35 @@
         </xs:complexType>
       </xs:element>
 
+    <xs:element name="e2" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=",">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="1."/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="2."/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e3" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e4" dfdl:lengthKind="delimited">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="">
+          <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="!"/>
+          <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:terminator="?"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="e5" type="xs:string" dfdl:lengthKind="delimited" dfdl:initiator="!"/>
+
   </tdml:defineSchema>
       
 <!--
@@ -287,7 +316,7 @@
     </tdml:infoset>
     <tdml:document>[1,2]</tdml:document>
   </tdml:unparserTestCase>
-  
+
   <tdml:parserTestCase name="parseDelimitedString01" model="delimitedStrings" root="e1">
     <tdml:document>[1,2]</tdml:document>
     <tdml:infoset>
@@ -347,6 +376,73 @@
       <tdml:error>but received: End</tdml:error>
     </tdml:errors>
 
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedString04
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by initiators.
+-->
+
+  <tdml:unparserTestCase name="unparseDelimitedString04" model="delimitedStrings" root="e2" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1.1,2.2</tdml:document>
+  </tdml:unparserTestCase>
+  
+<!--
+      Test Name: unparseDelimitedString05
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by terminators.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedString05" model="delimitedStrings" root="e3" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e3 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1!2!</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedString06
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case the data is delimited by terminators.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedString06" model="delimitedStrings" root="e4" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e4 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+        </ex:e4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1!2?</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedString07
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a delimited string. In this case the data is delimited by initiators.
+-->
+
+  <tdml:unparserTestCase name="unparseDelimitedString07" model="delimitedStrings" root="e5" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5>exclaim</ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>!exclaim</tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
