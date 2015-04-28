@@ -69,13 +69,15 @@ class TestEscapeScheme {
   // runner.runOneTest("test_name") 
   // }
 
-  @Test def test_escapeSchemeSimple() { runner.runOneTest("escapeSchemeSimple") }
+  //DFDL-1246
+  //@Test def test_escapeSchemeSimple() { runner.runOneTest("escapeSchemeSimple") }
+  //@Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
+  //@Test def test_escapeSchemeUnused() { runner.runOneTest("escapeSchemeUnused") }
+
   @Test def test_escapeSchemeFail() { runner.runOneTest("escapeSchemeFail") }
   @Test def test_escapeSchemeFail2() { runner.runOneTest("escapeSchemeFail2") }
   @Test def test_escapeSchemeFail3() { runner.runOneTest("escapeSchemeFail3") }
-  @Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
   @Test def test_escapeSchemeNonEmpty() { runner.runOneTest("escapeSchemeNonEmpty") }
-  @Test def test_escapeSchemeUnused() { runner.runOneTest("escapeSchemeUnused") }
 
   @Test def test_escapeExpressions_01() { runner.runOneTest("escapeExpressions_01") }
   @Test def test_escapeExpressions_01b() { runner.runOneTest("escapeExpressions_01b") }

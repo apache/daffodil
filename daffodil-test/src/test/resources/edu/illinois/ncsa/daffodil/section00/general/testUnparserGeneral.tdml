@@ -64,6 +64,24 @@
   </tdml:unparserTestCase>
 
 <!--
+      Test Name: parseFixedLengthString01
+         Schema: fixedLengthStrings
+        Purpose: This is a basic test of the roundtrip capabilities of Daffodil and the TDML Runner for
+                 a parserTestCase.
+-->
+
+  <tdml:parserTestCase name="parseFixedLengthString01" root="e1" model="fixedLengthStrings" roundTrip="true">
+    <tdml:document>Hello</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>Hello</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
       Test Name: unparseFixedLengthString02
          Schema: fixedLengthStrings
         Purpose: This is a basic test of the unparse capabilities of Daffodil and the TDML Runner
@@ -280,7 +298,7 @@
       Schema: delimitedStrings
       Purpose: This test demonstrates unparsing a sequence of delimited strings
 -->
-  <tdml:unparserTestCase name="unparseDelimitedString01" model="delimitedStrings" root="e1">
+  <tdml:unparserTestCase name="unparseDelimitedString01" model="delimitedStrings" root="e1" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e1 xmlns:ex="http://example.com">
@@ -310,7 +328,7 @@
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a sequence of delimited strings with padding
 -->
-  <tdml:unparserTestCase name="unparseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1">
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e1 xmlns:ex="http://example.com">

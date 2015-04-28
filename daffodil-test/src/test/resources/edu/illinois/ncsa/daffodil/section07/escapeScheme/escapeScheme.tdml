@@ -163,7 +163,7 @@
   </defineSchema>
 
   <parserTestCase name="escapeSchemeSimple" model="es1"
-    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1">
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1" roundTrip="true">
     <document><![CDATA[ab#,cd,/*ef,gh*/]]></document>
     <infoset>
       <dfdlInfoset>
@@ -229,7 +229,7 @@
   -->
 
   <parserTestCase name="escapeSchemeEmpty" model="emptyRef"
-    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="noesc">
+    description="Section 13 defineEscapeScheme - DFDL-13-022R" root="noesc" roundTrip="true">
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
@@ -248,7 +248,7 @@
   -->
 
   <parserTestCase name="escapeSchemeUnused" model="unusedRef"
-    description="Section 7 defineEscapeScheme - DFDL-7-088R" root="noesc">
+    description="Section 7 defineEscapeScheme - DFDL-7-088R" root="noesc" roundTrip="true">
     <document><![CDATA[;/../a]]></document>
     <infoset>
       <dfdlInfoset>
