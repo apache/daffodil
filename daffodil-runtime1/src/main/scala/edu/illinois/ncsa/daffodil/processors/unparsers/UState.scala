@@ -59,7 +59,7 @@ class UState(
 
   def hasNext = infosetSource.hasNext
 
-  def peek = infosetSource.peek
+  def peek = infosetSource.peek // we depend on the infosetSource.peek method to check hasNext.
 
   def next = {
     Assert.usage(hasNext)

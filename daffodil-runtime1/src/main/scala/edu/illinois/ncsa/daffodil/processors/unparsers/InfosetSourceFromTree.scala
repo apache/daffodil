@@ -32,12 +32,18 @@ class InfosetSourceFromTree(doc: InfosetDocument) extends InfosetSource {
 
   private def stream = folderFunc(root, Stream.Empty)
 
+  // This is initialized to null rather than stream, so as to avoid creating 
+  // the first stream element at object initialization time for this object.
+  // So instead the stream is first created on the first hasNext call.
   private var str: Stream[InfosetEvent] = null
 
-  override def peek = str.head
+  override def peek = {
+    Assert.usage(hasNext)
+    str.head
+  }
 
   override def next = {
-    Assert.usage(str != null, "must call hasNext before calling next.")
+    Assert.usage(hasNext)
     val nxt = str.head
     str = str.tail
     nxt

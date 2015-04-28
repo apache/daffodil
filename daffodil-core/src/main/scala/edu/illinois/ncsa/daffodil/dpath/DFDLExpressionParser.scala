@@ -169,7 +169,7 @@ class DFDLPathExpressionParser(
         var nextRdr = next
         var nextString = new StringBuffer()
         var i = 0
-        while (!nextRdr.atEnd & i < 30) {
+        while (!nextRdr.atEnd && i < 30) {
           nextString.append(nextRdr.first)
           nextRdr = nextRdr.rest
           i += 1

@@ -59,7 +59,7 @@ object JDOMUtils {
     XMLUtils.namespaceBindings(nsBinding).foreach { ns =>
       {
         val prefix = ns.prefix
-        if (prefix != null & prefix != ""
+        if (prefix != null && prefix != ""
           && jdomNode.getNamespace(prefix) == null)
           jdomNode.addNamespaceDeclaration(org.jdom2.Namespace.getNamespace(ns.prefix, ns.uri))
       }

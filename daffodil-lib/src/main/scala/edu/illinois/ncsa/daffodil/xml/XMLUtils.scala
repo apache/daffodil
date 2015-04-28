@@ -756,7 +756,7 @@ Differences were (path, expected, actual):
           if (a1 == b1) Nil
           else {
             val indexPath = zPath + ".charAt(" + index + ")"
-            List((indexPath, a1.toString, b1.toString))
+            List((indexPath, a1.toString + "(%%#x%04X;)".format(a1.toInt), b1.toString + "(%%#x%04X;)".format(b1.toInt)))
           }
       }
       res
