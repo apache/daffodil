@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.processors.parsers.ComplexTypeParser
 import edu.illinois.ncsa.daffodil.processors.parsers.SequenceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ChoiceCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.parsers.ArrayCombinatorParser
+import edu.illinois.ncsa.daffodil.processors.parsers.OptionalCombinatorParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ComplexTypeUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SequenceCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceCombinatorUnparser
@@ -59,6 +60,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeStackUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ArrayCombinatorUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalCombinatorUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterStackUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.EscapeSchemeNoneStackParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnparser
@@ -130,7 +132,12 @@ case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body
 
   def parser: DaffodilParser = new ArrayCombinatorParser(e.elementRuntimeData, body.parser)
   override def unparser: Unparser = new ArrayCombinatorUnparser(e.elementRuntimeData, body.unparser)
+}
 
+case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
+
+  def parser: DaffodilParser = new OptionalCombinatorParser(e.elementRuntimeData, body.parser)
+  override def unparser: Unparser = new OptionalCombinatorUnparser(e.elementRuntimeData, body.unparser)
 }
 
 /*

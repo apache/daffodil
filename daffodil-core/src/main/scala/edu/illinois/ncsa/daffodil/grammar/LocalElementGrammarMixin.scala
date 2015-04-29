@@ -68,7 +68,11 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private lazy val nonSeparatedScalarDefaultable = prod("nonSeparatedScalarDefaultable", isScalar) { scalarDefaultable }
 
   private lazy val recurrance = prod("recurrance", !isScalar) {
-    ArrayCombinator(this, arrayContents) ~ FinalUnusedRegion(this)
+    if (isOptional) {
+      OptionalCombinator(this, arrayContents) ~ FinalUnusedRegion(this)
+    } else {
+      ArrayCombinator(this, arrayContents) ~ FinalUnusedRegion(this)
+    }
   }
 
   final override lazy val asTermInChoice = prod("asTermInChoice") {
@@ -140,7 +144,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   private val ZERO = 0 // ZERO
 
   lazy val arrayContents = prod("arrayContents", isRecurring) {
-    arrayContentsNoSeparators | arrayContentsWithSeparators
+    arrayContentsNoSeparators || arrayContentsWithSeparators
   }
 
   private lazy val contentUnbounded = prod("contentUnbounded") {

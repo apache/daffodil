@@ -102,7 +102,6 @@ class InfosetSourceFromXMLEventReader(
             val node = new DIComplex(erd)
             nodeStack.top.addChild(node)
             nodeStack.push(node)
-            arrayStack.push(Nope)
             Seq(Start(node))
           }
           case Simple(ns, local, text) if (erd.isSimpleType) => {
@@ -168,6 +167,11 @@ class InfosetSourceFromXMLEventReader(
               Seq(End(diArray))
             }
           }
+
+        if (xmlEvent.isInstanceOf[StartComplex]) {
+          arrayStack.push(Nope)
+        }
+
         val result = arrayTransition ++ nodeEvents
         result
       }

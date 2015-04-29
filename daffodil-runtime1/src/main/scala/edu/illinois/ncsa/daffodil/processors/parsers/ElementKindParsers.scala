@@ -291,3 +291,9 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     finalState
   }
 }
+
+// This follows the same behavior as Arrays for parsing
+class OptionalCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends ArrayCombinatorParser(erd, bodyParser) {
+  override def nom = "Optional"
+}
+

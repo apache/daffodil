@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   extends Unparser(rd) {
@@ -218,24 +219,17 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) e
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(ustate: UState) {
-
     ustate.arrayIndexStack.push(1L) // one-based indexing
     ustate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
-    if (!ustate.hasNext) UE(ustate, "Malformed event stream for array: No more events were found.")
-    var ev = ustate.peek
-    if (ev.isInstanceOf[Start] && ev.node.isInstanceOf[DIArray]) {
-      ustate.next()
-      bodyUnparser.unparse1(ustate, erd)
-      if (!ustate.hasNext) UE(ustate, "Needed End Array Infoset Event, but no more events were found.")
-      ev = ustate.next()
-      if (!(ev.isInstanceOf[End] && ev.node.isInstanceOf[DIArray]))
-        UE(ustate, "Needed End Array Infoset Event, but found %s.", ev)
-    } else {
-      // case of array with no elements at all; hence, no DIArray events
-      // all we have done is peek ahead one event, so we haven't disturbed
-      // the infosetSource
-    }
+    var event = ustate.next()
+    Assert.invariant(event.isInstanceOf[Start] && event.node.isInstanceOf[DIArray])
+
+    bodyUnparser.unparse1(ustate, erd)
+
+    event = ustate.next()
+    Assert.invariant(event.isInstanceOf[End] && event.node.isInstanceOf[DIArray])
+
     val shouldValidate = ustate.dataProc.getValidationMode != ValidationMode.Off
 
     val actualOccurs = ustate.arrayIndexStack.pop()
@@ -258,3 +252,26 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) e
     }
   }
 }
+
+class OptionalCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser) extends Unparser(erd) {
+  override def nom = "Optional"
+  override lazy val childProcessors = Seq(bodyUnparser)
+
+  def unparse(ustate: UState) {
+
+    ustate.arrayIndexStack.push(1L) // one-based indexing
+    ustate.occursBoundsStack.push(1L)
+   
+    var event = ustate.peek
+    Assert.invariant(event.isInstanceOf[Start] && !event.node.isInstanceOf[DIArray])
+
+    bodyUnparser.unparse1(ustate, erd)
+
+    event = ustate.peek
+    Assert.invariant(event.isInstanceOf[End] && !event.node.isInstanceOf[DIArray])
+
+    ustate.arrayIndexStack.pop()
+    ustate.occursBoundsStack.pop()
+  }
+}
+
