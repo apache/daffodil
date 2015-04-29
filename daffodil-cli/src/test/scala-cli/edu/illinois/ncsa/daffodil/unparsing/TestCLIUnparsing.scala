@@ -91,4 +91,65 @@ class TestCLIunparsing {
     }
   }
 
+  @Test def test_3527_CLI_Unparsing_SimpleUnparse_stdin() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("cat %s | %s unparse -s %s --root e3", testInputFile, Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("[1,2]"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+  
+  @Test def test_3528_CLI_Unparsing_SimpleUnparse_stdin2() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+  var cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1""", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Hello"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+  
+  @Test def test_3529_CLI_Unparsing_SimpleUnparse_stdin3() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+  var cmd = String.format("""echo '<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>' | %s unparse -s %s --root e1 -""", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Hello"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
 }
