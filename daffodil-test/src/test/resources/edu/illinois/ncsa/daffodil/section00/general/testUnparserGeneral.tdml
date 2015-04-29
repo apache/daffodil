@@ -268,31 +268,6 @@
 
   </tdml:defineSchema>
       
-  <tdml:defineSchema name="delimitedStringsPadding">
-    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;" />
-
-      <xs:element name="e1" dfdl:lengthKind="implicit" dfdl:initiator="!#" dfdl:terminator="#!">
-        <xs:complexType>
-          <xs:sequence  dfdl:separator="," >
-            <xs:element name="s1" type="st" dfdl:lengthKind="delimited" 
-                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
-            <xs:element name="s2" type="st" dfdl:lengthKind="delimited" 
-                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right"/>
-            <xs:element name="s3" type="st" dfdl:lengthKind="delimited" 
-                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-
-      <xs:simpleType name="st">
-        <xs:restriction base="xs:string">
-          <xs:maxLength value="3" />
-          <xs:minLength value="3" />
-        </xs:restriction>
-      </xs:simpleType>
-
-  </tdml:defineSchema>
-  
 <!--
       Test Name: unparseDelimitedString01
       Schema: delimitedStrings
@@ -321,37 +296,6 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
-  </tdml:parserTestCase>
-
-<!--
-      Test Name: unparseDelimitedPaddedString01
-      Schema: delimitedStringsPadding
-      Purpose: This test demonstrates unparsing a sequence of delimited strings with padding
--->
-  <tdml:unparserTestCase name="unparseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1" roundTrip="true">
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e1 xmlns:ex="http://example.com">
-          <ex:s1>1</ex:s1>
-          <ex:s2>2</ex:s2>
-          <ex:s3>3</ex:s3>
-        </ex:e1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-    <tdml:document>!#1__,__2,_3_#!</tdml:document>
-  </tdml:unparserTestCase>
-  
-  <tdml:parserTestCase name="parseDelimitedPaddedString01" model="delimitedStringsPadding" root="e1">
-    <tdml:document>!#1__,__2,_3_#!</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e1 xmlns:ex="http://example.com">
-          <ex:s1>1</ex:s1>
-          <ex:s2>2</ex:s2>
-          <ex:s3>3</ex:s3>
-        </ex:e1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
   </tdml:parserTestCase>
 
 </tdml:testSuite>

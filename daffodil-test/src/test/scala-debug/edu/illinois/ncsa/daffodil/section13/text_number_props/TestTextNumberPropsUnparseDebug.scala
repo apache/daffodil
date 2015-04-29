@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.section00.general
+package edu.illinois.ncsa.daffodil.section13.text_number_props
 
 import junit.framework.Assert._
 import org.junit.Test
@@ -44,36 +44,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-object TestUnparserGeneral {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testUnparserGeneral.tdml"
+object TestTextNumberPropsUnparseDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
+  val aa = testDir + "TextNumberPropsUnparse.tdml"
   var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @AfterClass def shutDown {
     runner = null
   }
 }
-class TestUnparserGeneral {
+class TestTextNumberPropsUnparseDebug {
 
-  import TestUnparserGeneral._
+  import TestTextNumberPropsUnparseDebug._
 
-  @Test def test_unparseFixedLengthString01() { runner.runOneTest("unparseFixedLengthString01") }
-  @Test def test_unparseFixedLengthString02() { runner.runOneTest("unparseFixedLengthString02") }
-  @Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
-  
-  //DFDL-1246
-  //@Test def test_parseFixedLengthString01() { runner.runOneTest("parseFixedLengthString01") }
-
-  @Test def test_negativeUnparseTest01() { runner.runOneTest("negativeUnparseTest01") }
-  @Test def test_negativeUnparseTest02() { runner.runOneTest("negativeUnparseTest02") }
-  @Test def test_negativeUnparseTest05() { runner.runOneTest("negativeUnparseTest05") }
-
-  //DFDL-1294
-  @Test def test_negativeUnparseTest03() { runner.runOneTest("negativeUnparseTest03") }
-  @Test def test_negativeUnparseTest04() { runner.runOneTest("negativeUnparseTest04") }
-
-  @Test def test_unparseDelimitedString01() { runner.runOneTest("unparseDelimitedString01") }
-  @Test def test_parseDelimitedString01() { runner.runOneTest("parseDelimitedString01") }
+  //DFDL-1325
+  @Test def test_unparseDelimitedPaddedString05() { runner.runOneTest("unparseDelimitedPaddedString05") }
 
 }
 
