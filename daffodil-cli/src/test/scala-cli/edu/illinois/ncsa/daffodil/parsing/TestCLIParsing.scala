@@ -50,6 +50,7 @@ import net.sf.expectit.matcher.Matchers.eof
 class TestCLIparsing {
 
   val output1 = Util.getExpectedString("output1.txt")
+  val output1_nopretty = Util.getExpectedString("output1_nopretty.txt")
   val output2 = Util.getExpectedString("output2.txt")
   val output4 = Util.getExpectedString("output4.txt")
   val output6 = Util.getExpectedString("output6.txt")
@@ -290,6 +291,23 @@ class TestCLIparsing {
       shell.sendLine(cmd)
 
       shell.expect(contains(output1))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_977_CLI_Parsing_SimpleParse_stdOut_no_prettyprint() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
+
+    try {
+      val cmd = String.format("echo 0,1,2| %s parse -TprettyPrintElementLimit=0 -s %s -r matrix", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      shell.expect(contains(output1_nopretty))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

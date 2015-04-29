@@ -73,6 +73,7 @@ class ElementRuntimeData(
   override val path: String,
   override val namespaces: NamespaceBinding,
   val minimizedScope: NamespaceBinding,
+  val uniqueScope: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
   val optPrimType: Option[PrimType],
   val targetNamespace: NS,

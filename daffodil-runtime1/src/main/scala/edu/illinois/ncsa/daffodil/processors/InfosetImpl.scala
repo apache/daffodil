@@ -178,15 +178,16 @@ sealed trait DIElement extends DINode with InfosetElement {
 
   private def pre = erd.thisElementsNamespacePrefix
   private lazy val qn = if (pre == null | pre == "") erd.name else pre + ":" + erd.name
-  protected final lazy val startTag = "<" + qn + erd.minimizedScope.toString + ">"
+  protected final lazy val nilledTag = "<" + qn + erd.uniqueScope.toString + " xsi:nil=\"true\" />"
+  protected final lazy val startTag = "<" + qn + erd.uniqueScope.toString + ">"
   protected final lazy val endTag = "</" + qn + ">"
 
   protected def writeContents(writer: java.io.Writer, removeHidden: Boolean): Unit
 
-  override final def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
+  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
     if (isHidden && removeHidden) return
-    if (erd.nilledXML.isDefined && isNilled) {
-      scala.xml.XML.write(writer, erd.nilledXML.get, "unused", false, null)
+    if (isNilled) {
+      writer.write(nilledTag)
     } else {
       writer.write(startTag)
       writeContents(writer, removeHidden)
@@ -671,6 +672,11 @@ final class DIDocument(erd: ElementRuntimeData) extends DIComplex(erd)
   override def toXML(removeHidden: Boolean = true) =
     if (root != null) root.toXML(removeHidden)
     else <document/>
+
+  override def toWriter(writer: java.io.Writer, removeHidden: Boolean = true) {
+    if (root != null) root.toWriter(writer, removeHidden)
+    else writer.write("<document/>")
+  }
 }
 
 object Infoset {

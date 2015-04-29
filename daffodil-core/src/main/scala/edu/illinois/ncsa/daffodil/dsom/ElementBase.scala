@@ -245,6 +245,15 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    */
   private lazy val minimizedScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, parentMinimizedScope)
 
+  /**
+   * When we are not constructing scala xml Elems and instead print the XML
+   * event-by-event, we don't want the full NamespaceBinding which includes the
+   * parent Bindings. Instead, we just want those bindings that are unique to
+   * this element.
+   */
+  private lazy val uniqueScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, scala.xml.TopScope)
+
+
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
@@ -335,6 +344,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       path,
       namespaces,
       minimizedScope,
+      uniqueScope,
       defaultBitOrder,
       optPrimType,
       targetNamespace,

@@ -66,6 +66,7 @@ import java.io.ObjectOutputStream
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimitExceededError
+import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.OutStream
@@ -316,7 +317,7 @@ abstract class ParseResult(dp: DataProcessor)
   with WithDiagnosticsImpl {
 
   def toWriter(writer: java.io.Writer) = {
-    if (resultState.infoset.totalElementCount < 200) { // TODO: make settable?
+    if (resultState.infoset.totalElementCount < DaffodilTunableParameters.prettyPrintElementLimit) {
       // pretty print small infosets
       val pp = new PrettyPrinter(80, 2)
       writer.write(pp.format(resultState.infoset.toXML()(0)))

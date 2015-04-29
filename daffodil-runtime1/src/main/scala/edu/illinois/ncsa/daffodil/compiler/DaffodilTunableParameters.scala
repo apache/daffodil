@@ -119,4 +119,10 @@ object DaffodilTunableParameters {
    * Initial array buffer size allocated for recurring elements (aka arrays)
    */
   var initialElementOccurrencesHint: Long = 10
+
+  /**
+   * Number of elements in infoset allowed before disabling pretty printing
+   * output. Set to 0 to disable pretty printing.
+   */
+  var prettyPrintElementLimit: Int = 200
 }
