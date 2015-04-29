@@ -1,0 +1,2 @@
+<tns:e3
+xmlns:tns="http://example.com"><tns:s1>1</tns:s1><tns:s2>2</tns:s2></tns:e3>

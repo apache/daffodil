@@ -1,0 +1,1 @@
+<tns:e1 xmlns:tns="http://example.com">Hello</tns:e1>
