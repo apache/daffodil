@@ -109,6 +109,37 @@
           <xs:minLength value="10" />
         </xs:restriction>
       </xs:simpleType>
+      
+      <xs:simpleType name="st3to10">
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="10" />
+          <xs:minLength value="3" />
+        </xs:restriction>
+      </xs:simpleType>
+      
+      <xs:element name="e6" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:truncateSpecifiedLengthString="yes" dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center" />
+
+      <xs:element name="e7" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:truncateSpecifiedLengthString="yes" dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+      
+      <xs:element name="e8" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="10" dfdl:truncateSpecifiedLengthString="yes" dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right" />
+      
+      <xs:element name="e9" type="ex:st3to10" dfdl:lengthKind="delimited" dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right" />
+      
+      <xs:element name="e10" type="ex:st3to10" dfdl:lengthKind="delimited" dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center" />
+      
+      <xs:element name="e11" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+      
+      <xs:element name="e12" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+      
+      <xs:element name="e13" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence  dfdl:separator="," >
+            <xs:element name="len" type="xs:int" dfdl:lengthKind="delimited"/>
+            <xs:element name="s1" type="st10" dfdl:lengthKind="explicit" dfdl:length="{ ../ex:len }" 
+                dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="right" />
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
 
   </tdml:defineSchema>
   
@@ -212,6 +243,130 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>_____1____</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparsePaddedStringTruncate01
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string needs to be truncated, but the justification is "center", so a processing error occurs.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate01" model="delimitedStringsPadding" root="e6">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6 xmlns:ex="http://example.com">123456789100000</ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>textJustificationType is 'center'</tdml:error>
+      <tdml:error>value requires truncation to fit within the length</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparsePaddedStringTruncate02
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string needs to be truncated and the justification is "left", so the data is truncated from the right.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate02" model="delimitedStringsPadding" root="e7">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7 xmlns:ex="http://example.com">123456789100000</ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>1234567891</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparsePaddedStringTruncate03
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding, where truncateSpecifiedLengthString is set to "yes"
+               In this case, the string needs to be truncated and the justification is "right", so the data is truncated from the left.
+-->
+  <tdml:unparserTestCase name="unparsePaddedStringTruncate03" model="delimitedStringsPadding" root="e8">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8 xmlns:ex="http://example.com">123456789100000</ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>6789100000</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString06
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, we see that the data value is padded to the length given by minLength
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString06" model="delimitedStringsPadding" root="e9">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e9 xmlns:ex="http://example.com">X</ex:e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>__X</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString07
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, we see that the data value is padded to the length given by minLength
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString07" model="delimitedStringsPadding" root="e10">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e10 xmlns:ex="http://example.com">X</ex:e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>_X_</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString08
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, we see that the data value is padded to the length given by minLength
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString08" model="delimitedStringsPadding" root="e10">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e10 xmlns:ex="http://example.com">_</ex:e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>___</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString09
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, lengthKind is explicit and NOT an expression, so the value is padded to the length given by the length property
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString09" model="delimitedStringsPadding" root="e11">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e11 xmlns:ex="http://example.com">O</ex:e11>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>O#</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString10
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the value of minLength
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString10" model="delimitedStringsPadding" root="e12">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e12 xmlns:ex="http://example.com">O</ex:e12>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>O#########</tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

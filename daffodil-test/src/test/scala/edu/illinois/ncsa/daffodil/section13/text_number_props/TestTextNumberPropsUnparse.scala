@@ -64,6 +64,17 @@ class TestTextNumberPropsUnparse {
   @Test def test_unparseDelimitedPaddedString02() { runner.runOneTest("unparseDelimitedPaddedString02") }
   @Test def test_unparseDelimitedPaddedString03() { runner.runOneTest("unparseDelimitedPaddedString03") }
   @Test def test_unparseDelimitedPaddedString04() { runner.runOneTest("unparseDelimitedPaddedString04") }
+  @Test def test_unparseDelimitedPaddedString06() { runner.runOneTest("unparseDelimitedPaddedString06") }
+  @Test def test_unparseDelimitedPaddedString07() { runner.runOneTest("unparseDelimitedPaddedString07") }
+  @Test def test_unparseDelimitedPaddedString08() { runner.runOneTest("unparseDelimitedPaddedString08") }
+  @Test def test_unparseDelimitedPaddedString09() { runner.runOneTest("unparseDelimitedPaddedString09") }
+
+  //DFDL-1327
+  //@Test def test_unparseDelimitedPaddedString10() { runner.runOneTest("unparseDelimitedPaddedString10") }
+
+  @Test def test_unparsePaddedStringTruncate01() { runner.runOneTest("unparsePaddedStringTruncate01") }
+  @Test def test_unparsePaddedStringTruncate02() { runner.runOneTest("unparsePaddedStringTruncate02") }
+  @Test def test_unparsePaddedStringTruncate03() { runner.runOneTest("unparsePaddedStringTruncate03") }
 
   @Test def test_parseDelimitedPaddedString01() { runner.runOneTest("parseDelimitedPaddedString01") }
 
