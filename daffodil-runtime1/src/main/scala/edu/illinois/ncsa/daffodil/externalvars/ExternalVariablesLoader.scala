@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.processors.VariableUtils
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Misc._
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 

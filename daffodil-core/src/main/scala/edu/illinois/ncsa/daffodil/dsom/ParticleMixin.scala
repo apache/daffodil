@@ -44,6 +44,7 @@ import scala.util.matching.Regex
 import edu.illinois.ncsa.daffodil.dsom.Facet._
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
@@ -82,8 +83,9 @@ trait RequiredOptionalMixin { self: ElementBase =>
       case (Some(0), max) => {
         // now we must check on occursCountKind.
         // if parsed or stopValue then we consider it an array
-        if (occursCountKind == OccursCountKind.Parsed ||
-          occursCountKind == OccursCountKind.StopValue) {
+        if (occursCountKind =:= OccursCountKind.Parsed ||
+          occursCountKind =:= OccursCountKind.StopValue ||
+          occursCountKind =:= OccursCountKind.Expression) {
           // we disregard the min/max occurs
           false
         } else {
@@ -97,6 +99,20 @@ trait RequiredOptionalMixin { self: ElementBase =>
       case _ => false
     }
   }
+
+  /**
+   * Something is required if it is not optional
+   * and not an array, unless that array has required elements.
+   */
+  final override def isRequired: Boolean = LV('isRequired) {
+    val res = {
+      if (isScalar) true
+      else if (isOptional) false
+      else if (isArray) isRequiredArrayElement
+      else false
+    }
+    res
+  }.value
 
   final override lazy val isArray = {
     // maxOccurs > 1 || maxOccurs == -1
@@ -119,7 +135,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
          * scalar)
          */
         case (_, Some(1)) if (occursCountKind == OccursCountKind.Parsed ||
-          occursCountKind == OccursCountKind.StopValue) => true
+          occursCountKind == OccursCountKind.StopValue ||
+          occursCountKind == OccursCountKind.Expression) => true
         case _ => false
       }
     }

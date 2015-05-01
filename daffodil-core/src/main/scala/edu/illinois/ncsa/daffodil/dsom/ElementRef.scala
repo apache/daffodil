@@ -87,7 +87,7 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   }.value
 
   // Need to go get the Element we are referencing
-  lazy val referencedElement = LV('referencedElement) {
+  final lazy val referencedElement: GlobalElementDecl = LV('referencedElement) {
     val ged = this.schemaSet.getGlobalElementDecl(refQName)
     val res = ged match {
       case None => SDE("Referenced element not found: %s.", this.ref)

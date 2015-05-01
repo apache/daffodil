@@ -42,7 +42,6 @@ import edu.illinois.ncsa.daffodil.dsom.PropertyLookupResult
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
 import java.net.URL
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
 /**
@@ -59,7 +58,7 @@ class TestGeneratedProperties {
    * retrieves the property if it is present.
    */
   class HasLotsOfProperties
-    extends SchemaComponentBase(<dummy/>, null)
+    extends OOLAGHost(null)
     with LookupLocation
     with Format_AnnotationMixin
     with SeparatorSuppressionPolicyMixin {
@@ -74,7 +73,7 @@ class TestGeneratedProperties {
     def namespaces: scala.xml.NamespaceBinding = ???
     def schemaFileLocation: SchemaFileLocation = ???
 
-    override val xml = bagOfProps
+    val xml = bagOfProps
     lazy val fileName = "file:dummy"
     lazy val properties: PropMap = Map.empty
 

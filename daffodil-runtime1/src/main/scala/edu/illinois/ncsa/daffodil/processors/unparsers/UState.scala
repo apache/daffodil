@@ -47,10 +47,12 @@ class UState(
   }
 
   def peekArrayEnd = {
-    peek match {
+    val p = peek
+    val res = p match {
       case End(a: DIArray) => true
       case _ => false
     }
+    res
   }
 
   private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope

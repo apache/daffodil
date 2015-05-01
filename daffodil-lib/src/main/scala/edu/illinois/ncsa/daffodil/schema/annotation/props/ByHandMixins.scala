@@ -47,7 +47,6 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.NilValueDelimiterP
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.RepresentationMixin
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.dsom.SchemaComponentBase
 
 /**
  * We don't want to make the code generator so sophisticated as to be

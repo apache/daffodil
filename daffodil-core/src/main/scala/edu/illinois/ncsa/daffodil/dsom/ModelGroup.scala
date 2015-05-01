@@ -107,7 +107,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case mg: ModelGroup => mg.groupMembers.map {
         _ match {
           case eb: ElementBase => eb.erd
-          case t: Term => t.runtimeData
+          case t: Term => t.termRuntimeData
         }
       }
       case _ => Nil
@@ -403,7 +403,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
     val nextParentElements =
       if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
-        parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset 
+        parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
       } else {
         Nil
       }

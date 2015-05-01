@@ -67,6 +67,8 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.EscapeSchemeNoneStackUnpa
 import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.grammar.EmptyGram
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.processors.unparsers.TermUnparser
+import scala.collection.mutable.ArraySeq
 
 case class DelimiterStackCombinatorSequence(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
   val isLengthKindDelimited =
@@ -109,7 +111,7 @@ case class EscapeSchemeStackCombinatorElement(e: ElementBase, body: Gram) extend
   def parser: DaffodilParser =
     if (schemeOpt.isDefined) new EscapeSchemeStackParser(schemeOpt.get, e.runtimeData, body.parser)
     else new EscapeSchemeNoneStackParser(e.runtimeData, body.parser)
-  
+
   override def unparser: DaffodilUnparser =
     if (schemeOpt.isDefined) new EscapeSchemeStackUnparser(schemeOpt.get, e.runtimeData, body.unparser)
     else new EscapeSchemeNoneStackUnparser(e.runtimeData, body.unparser)
@@ -122,10 +124,24 @@ case class ComplexTypeCombinator(ct: ComplexTypeBase, body: Gram) extends Termin
     new ComplexTypeUnparser(ct.runtimeData, body.unparser)
 }
 
-case class SequenceCombinator(sq: Sequence, body: Gram) extends Terminal(sq, !body.isEmpty) {
+case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
+  extends Terminal(sq, !rawTerms.filterNot { _.isEmpty }.isEmpty) {
 
-  def parser: DaffodilParser = new SequenceCombinatorParser(sq.runtimeData, body.parser)
-  override def unparser: DaffodilUnparser = new SequenceCombinatorUnparser(sq.runtimeData, body.unparser)
+  private val mt: Gram = EmptyGram
+  lazy val body = rawTerms.foldRight(mt) { _ ~ _ }
+  lazy val terms = rawTerms.filterNot { _.isEmpty }
+  lazy val unparsers = terms.map { _.unparser }.toVector
+
+  def parser: DaffodilParser = new SequenceCombinatorParser(sq.termRuntimeData, body.parser)
+
+  override def unparser: DaffodilUnparser =
+    new SequenceCombinatorUnparser(sq.modelGroupRuntimeData, unparsers)
+}
+
+case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
+  extends Terminal(s, false) {
+  // stub for now. These are not implemented currently.
+  override def parser: Parser = Assert.notYetImplemented("Unordered sequences")
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {
@@ -145,7 +161,7 @@ case class OptionalCombinator(e: ElementBase, body: Gram) extends Terminal(e, !b
  * determine which branch to go down. In the parser case, we just rely on the
  * AltCompParser behavior to handle the backtracking. In the unparser case, we
  * know which element we got from the infoset, but we need to determine which
- * branch of the infoset to take. This unparser uses a Map to make the
+ * branch of the choice to take. This unparser uses a Map to make the
  * determination based on the element seen.
  */
 case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Terminal(ch, !alternatives.isEmpty) {
@@ -158,7 +174,7 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
     val qnameRDMap = ch.choiceBranchMap
     val qnameUnparserMap = qnameRDMap.mapValues { v =>
       alternatives.find(_.context.runtimeData =:= v).get.unparser
-    }.asInstanceOf[Map[QNameBase,DaffodilUnparser]]
+    }.asInstanceOf[Map[QNameBase, DaffodilUnparser]]
 
     // The following line is required because mapValues() creates a "view" of
     // the map, which is not serializable. map()ing this "view" with the
@@ -167,7 +183,7 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
     // discussions about this issue.
     val serializableMap = qnameUnparserMap.map(identity)
 
-    new ChoiceCombinatorUnparser(ch.runtimeData, serializableMap)
+    new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
   }
 }
 

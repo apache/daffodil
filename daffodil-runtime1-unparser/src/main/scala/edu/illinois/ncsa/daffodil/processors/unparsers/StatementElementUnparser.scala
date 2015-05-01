@@ -47,12 +47,12 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DIElement
 
 abstract class StatementElementUnparserBase(
-  rd: RuntimeData,
+  rd: ElementRuntimeData,
   name: String,
   setVarUnparser: Seq[Unparser],
   eUnparser: Option[Unparser],
   eAfterUnparser: Option[Unparser])
-  extends Unparser(rd) {
+  extends TermUnparser(rd) {
 
   override lazy val childProcessors: Seq[Processor] = setVarUnparser ++ eUnparser ++ eAfterUnparser
 

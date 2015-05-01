@@ -70,10 +70,10 @@ abstract class RepUnparser(n: Long, rUnparser: Unparser, context: ElementRuntime
 
   final def unparse(ustate: UState): Unit = {
     checkN(ustate, n)
-    parseAllRepeats(ustate)
+    unparseAllRepeats(ustate)
   }
 
-  protected def parseAllRepeats(ustate: UState): Unit
+  protected def unparseAllRepeats(ustate: UState): Unit
 
   override def toString = "Rep" + baseName + "(" + rUnparser.toString + ")"
 
@@ -105,7 +105,7 @@ object Rep {
 class RepExactlyNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, context, "ExactlyN") {
 
-  def parseAllRepeats(ustate: UState) {
+  def unparseAllRepeats(ustate: UState) {
     1 to intN foreach { _ =>
       {
         // Debugger.beforeRepetition(pResult, this)
@@ -120,7 +120,7 @@ class RepExactlyNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeD
 class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, erd, "AtMostTotalN") {
 
-  def parseAllRepeats(ustate: UState): Unit = {
+  def unparseAllRepeats(ustate: UState): Unit = {
     while (ustate.arrayPos <= intN && !ustate.peekArrayEnd) {
       // Debugger.beforeRepetition(ustate, this)
       rUnparser.unparse1(ustate, context)
@@ -134,7 +134,7 @@ class RepAtMostTotalNUnparser(n: Long, rUnparser: Unparser, erd: ElementRuntimeD
 class RepExactlyTotalNUnparser(n: Long, rUnparser: Unparser, context: ElementRuntimeData)
   extends RepUnparser(n, rUnparser, context, "ExactlyTotalN") {
 
-  def parseAllRepeats(ustate: UState) {
+  def unparseAllRepeats(ustate: UState) {
     Rep.loopExactlyTotalN(intN, rUnparser, ustate, context, this)
   }
 }
@@ -153,7 +153,7 @@ class RepExactlyTotalNUnparser(n: Long, rUnparser: Unparser, context: ElementRun
 class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Unparser, erd: ElementRuntimeData)
   extends RepUnparser(-1, rUnparser, erd, "Unbounded") {
 
-  def parseAllRepeats(ustate: UState) {
+  def unparseAllRepeats(ustate: UState) {
     val arr = ustate.currentInfosetNode.getOrElse(Assert.invariantFailed("There must be a current node."))
     arr match {
       case arr: DIArray => {
@@ -176,7 +176,7 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
 
 class RepAtMostOccursCountUnparser(rUnparser: Unparser, intN: Long, erd: ElementRuntimeData)
   extends RepUnparser(intN, rUnparser, erd, "AtMostOccursCount") {
-  def parseAllRepeats(ustate: UState) {
+  def unparseAllRepeats(ustate: UState) {
     // repeat either n times, or occursCount times if that's less than n.
     val n = math.min(ustate.occursBounds, erd.minOccurs.get)
     Rep.loopExactlyTotalN(intN.toInt, rUnparser, ustate, erd, this)

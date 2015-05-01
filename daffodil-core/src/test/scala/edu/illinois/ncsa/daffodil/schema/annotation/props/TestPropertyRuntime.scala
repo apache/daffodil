@@ -126,7 +126,7 @@ object TheExampleProp extends Enum[TheExampleProp] {
 }
 
 trait TheExamplePropMixin
-  extends PropertyMixin with ThrowsSDE { self: SchemaComponentBase =>
+  extends PropertyMixin with ThrowsSDE { self: OOLAGHost =>
 
   def SDE(id: String, args: Any*): Nothing = {
     throw new Exception(id.toString + args)

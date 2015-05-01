@@ -30,36 +30,33 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.dsom
+package edu.illinois.ncsa.daffodil.section14.sequence_groups
 
-import scala.xml.Node
-import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.grammar._
-import edu.illinois.ncsa.daffodil.schema.annotation.props._
-import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
-import edu.illinois.ncsa.daffodil.xml._
-import edu.illinois.ncsa.daffodil.api.WithDiagnostics
-import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
-import scala.util.matching.Regex
-import edu.illinois.ncsa.daffodil.dsom.Facet._
-import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils._
+import junit.framework.Assert._
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.processors._
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo
-import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
+import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
+import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
+import org.junit.AfterClass
 
-final class LocalElementDecl(xmlArg: Node, parent: ModelGroup, position: Int)
-  extends LocalElementBase(xmlArg, parent, position)
-  with ElementFormDefaultMixin
-  with ElementDeclMixin {
-
-  lazy val elementRef = None
-
-  requiredEvaluations(minOccurs, maxOccurs)
-
-  final override lazy val namedQName = {
-    val isQualified = elementFormDefault == "qualified"
-    QName.createLocal(name, targetNamespace, isQualified, namespaces)
+object TestSequenceGroupUnparse {
+  val testDir = "edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+  val aa = testDir + "SequenceGroupUnparse.tdml"
+  val res = Misc.getRequiredResource(aa)
+  var runner = new DFDLTestSuite(res)
+  @AfterClass def shutDown {
+    runner = null
   }
 }
+class TestSequenceGroupUnparse {
+  import TestSequenceGroupUnparse._
 
+  @Test def test_seqWithOptionals1() { runner.runOneTest("seqWithOptionals1") }
+  @Test def test_seqWithOptionals2() { runner.runOneTest("seqWithOptionals2") }
+  @Test def test_seqWithOptionals3() { runner.runOneTest("seqWithOptionals3") }
+  @Test def test_seqWithOptionals4() { runner.runOneTest("seqWithOptionals4") }
+  @Test def test_seqWithOptionals5() { runner.runOneTest("seqWithOptionals5") }
+
+}

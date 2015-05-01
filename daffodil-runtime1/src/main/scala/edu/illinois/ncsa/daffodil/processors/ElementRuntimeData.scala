@@ -97,8 +97,9 @@ class ElementRuntimeData(
   override val slotIndexInParent: Int,
   val isNillable: Boolean,
   val defaultValue: Option[Any],
-  val isArray: Boolean,
-  val isOptional: Boolean,
+  val isArray: Boolean, // can have more than 1 occurrence
+  val isOptional: Boolean, // can have only 0 or 1 occurrence
+  val isRequired: Boolean, // must have at least 1 occurrence
   /**
    * This is the properly qualified name for recognizing this
    * element.

@@ -142,7 +142,7 @@ class ModelGroupRuntimeData(
   override val path: String,
   override val namespaces: NamespaceBinding,
   override val defaultBitOrder: BitOrder,
-  val groupMembers: Seq[RuntimeData],
+  val groupMembers: Seq[TermRuntimeData],
   val erd: ElementRuntimeData,
   isRepresented: Boolean,
   couldHaveText: Boolean,

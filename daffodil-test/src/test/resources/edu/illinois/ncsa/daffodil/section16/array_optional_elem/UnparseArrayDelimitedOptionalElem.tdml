@@ -166,7 +166,7 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed End Array</tdml:error>
+      <tdml:error>Needed End of Array</tdml:error>
       <tdml:error>opt</tdml:error>
       <tdml:error>found</tdml:error>
     </tdml:errors>

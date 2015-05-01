@@ -116,6 +116,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def elementSimpleType: SimpleTypeBase
   def typeDef: TypeBase
 
+  def isRequired = true // overridden in particle mixin.
+
   final lazy val notReferencedByExpressions = {
     val ise = inScopeExpressions
     val hasThem = ise.exists { _.hasReferenceTo(dpathElementCompileInfo) }
@@ -357,8 +359,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       slotIndexInParent,
       isNillable,
       defaultValue,
-      isArray,
-      isOptional,
+      isArray, // can have more than 1 occurrence
+      isOptional, // can have exactly 0 or 1 occurrence
+      isRequired, // must have at least 1 occurrence
       namedQName,
       isRepresented,
       couldHaveText,
@@ -989,7 +992,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
     arrayNext ++ nextSiblingElements ++ nextParentElements
   }.value
-  
+
   final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
     val couldBeLast = enclosingTerm match {
       case None => true
@@ -1007,7 +1010,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final def couldBeFirstChildElementInInfoset: Seq[ElementBase] = LV('couldBeFirstChildElementInInfoset) {
     val firstChildren = couldBeFirstChildTerm.flatMap {
       case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset  
+      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
     }
     firstChildren
   }.value

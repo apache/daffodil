@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tdml:testSuite 
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  xmlns:ex="http://example.com" 
+  xmlns:daf="urn:ogf:dfdl:2013:imp:opensource.ncsa.illinois.edu:2012:ext"
+  xmlns:fn="http://www.w3.org/2005/xpath-functions">
+
+  <tdml:defineSchema name="s1">
+    <dfdl:format ref="ex:daffodilTest1"/>
+
+    <xs:element name="e1" dfdl:initiator="[" dfdl:terminator="]">
+      <xs:complexType>
+        <xs:sequence dfdl:initiator="[" dfdl:terminator="]">
+          <xs:element name="r1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          <xs:sequence dfdl:terminator="seq1"/>
+          <xs:element name="o1" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="implicit"/>
+          <xs:element name="o2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2" minOccurs="0" dfdl:occursCountKind="parsed"/>
+          <xs:choice dfdl:initiator="ch1">
+            <xs:sequence dfdl:terminator="seq2"/>
+            <xs:element name="r2" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+          </xs:choice>
+          <xs:element name="r3" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="2"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+
+  </tdml:defineSchema>
+
+  <tdml:unparserTestCase name="seqWithOptionals5" root="e1" model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1 xmlns="http://example.com">
+          <r1>r1</r1>
+          <o1>o1</o1>
+          <r2>r2</r2>
+          <r3>r3</r3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>[[r1seq1o1ch1r2r3]]</tdml:document>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="seqWithOptionals4" root="e1" model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1 xmlns="http://example.com">
+          <r1>r1</r1>
+          <o1>o1</o1>
+          <o2>o2</o2>          
+          <o2>o2</o2>          
+          <o2>o2</o2>
+          <r2>r2</r2>
+          <r3>r3</r3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>[[r1seq1o1o2o2o2ch1r2r3]]</tdml:document>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="seqWithOptionals3" root="e1" model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1 xmlns="http://example.com">
+          <r1>r1</r1>
+          <o1>o1</o1>
+          <o2>o2</o2>
+          <r2>r2</r2>
+          <r3>r3</r3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>[[r1seq1o1o2ch1r2r3]]</tdml:document>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="seqWithOptionals2" root="e1" model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1 xmlns="http://example.com">
+          <r1>r1</r1>
+          <o2>o2</o2>
+          <o2>o2</o2>
+          <r3>r3</r3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>[[r1seq1o2o2ch1seq2r3]]</tdml:document>
+
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="seqWithOptionals1" root="e1" model="s1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e1 xmlns="http://example.com">
+          <r1>r1</r1>
+          <r3>r3</r3>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>[[r1seq1ch1seq2r3]]</tdml:document>
+
+  </tdml:unparserTestCase>
+
+
+</tdml:testSuite>

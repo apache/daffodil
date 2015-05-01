@@ -50,12 +50,12 @@ trait SequenceGrammarMixin extends GrammarMixin { self: Sequence =>
   }
 
   private lazy val orderedSequenceContent = prod("sequenceContent") {
-    SequenceCombinator(this, terms.foldRight(mt) { _ ~ _ })
+    SequenceCombinator(this, terms)
   }
 
   private lazy val unorderedSequenceContent = prod("unorderedSequenceContent") {
     val uoseq = self.unorderedSeq.get
-    SequenceCombinator(this, UnorderedSequence(this, uoseq.terms.foldRight(mt) { _ ~ _ }))
+    UnorderedSequenceCombinator(this, uoseq.terms)
   }
 
   private lazy val terms = groupMembers.map { _.asTermInSequence }

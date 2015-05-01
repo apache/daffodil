@@ -40,6 +40,11 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
 
+/**
+ * Vast majority of unparsers (all?) are actually Term unparsers.
+ */
+abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends Unparser(termRuntimeData)
+
 abstract class Unparser(val context: RuntimeData)
   extends Processor {
 
