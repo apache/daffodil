@@ -58,7 +58,7 @@ class TestTextNumberPropsUnparse {
   import TestTextNumberPropsUnparse._
 
   //DFDL-1325
-  //@Test def test_unparseDelimitedPaddedString05() { runner.runOneTest("unparseDelimitedPaddedString05") }
+  @Test def test_unparseDelimitedPaddedString05() { runner.runOneTest("unparseDelimitedPaddedString05") }
 
   @Test def test_unparseDelimitedPaddedString01() { runner.runOneTest("unparseDelimitedPaddedString01") }
   @Test def test_unparseDelimitedPaddedString02() { runner.runOneTest("unparseDelimitedPaddedString02") }
@@ -70,7 +70,7 @@ class TestTextNumberPropsUnparse {
   @Test def test_unparseDelimitedPaddedString09() { runner.runOneTest("unparseDelimitedPaddedString09") }
 
   //DFDL-1327
-  //@Test def test_unparseDelimitedPaddedString10() { runner.runOneTest("unparseDelimitedPaddedString10") }
+  @Test def test_unparseDelimitedPaddedString10() { runner.runOneTest("unparseDelimitedPaddedString10") }
 
   @Test def test_unparsePaddedStringTruncate01() { runner.runOneTest("unparsePaddedStringTruncate01") }
   @Test def test_unparsePaddedStringTruncate02() { runner.runOneTest("unparsePaddedStringTruncate02") }

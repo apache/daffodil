@@ -57,11 +57,5 @@ class TestTextNumberPropsUnparseDebug {
 
   import TestTextNumberPropsUnparseDebug._
 
-  //DFDL-1325
-  @Test def test_unparseDelimitedPaddedString05() { runner.runOneTest("unparseDelimitedPaddedString05") }
-  
-  //DFDL-1327
-  @Test def test_unparseDelimitedPaddedString10() { runner.runOneTest("unparseDelimitedPaddedString10") }
-
 }
 
