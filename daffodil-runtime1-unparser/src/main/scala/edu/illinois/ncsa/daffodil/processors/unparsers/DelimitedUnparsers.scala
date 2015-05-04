@@ -20,6 +20,8 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedUnparser
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.GenerateEscape
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
+import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
+import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
@@ -132,9 +134,14 @@ class LiteralNilDelimitedEndOfDataUnparser(
   nilValue: String,
   justPad: TextJustificationType.Type,
   padChar: Maybe[Char],
-  isDelimRequired: Boolean)
+  isDelimRequired: Boolean,
+  outputNewLine: CompiledExpression)
   extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired) {
 
-  final override def theString(ignored: UState) = nilValue
+  final override def theString(ustate: UState) = {
+    val onl = outputNewLine.evaluate(ustate).asInstanceOf[String]
+    val nv = EntityReplacer { er => er.replaceNLForUnparse(nilValue, onl) }
+    nv
+  }
 }
 

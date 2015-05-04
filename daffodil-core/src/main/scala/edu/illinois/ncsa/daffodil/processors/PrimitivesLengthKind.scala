@@ -427,8 +427,15 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase)
 
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
+
   lazy val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
-  lazy val nilValueString = nilValuesCooked(0).replace("%ES;", "")
+
+  lazy val nilValueUnparseString = {
+    val firstNilValue = eb.nilValue.split("""\s""").head
+    val nv = EntityReplacer { er => er.replaceForUnparse(firstNilValue) }
+    nv
+  }
+
   lazy val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
 
   lazy val isDelimRequired: Boolean = false
@@ -443,7 +450,8 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       nilValuesCooked)
 
   override lazy val unparser: DaffodilUnparser =
-    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueString, justificationPad, parsingPadChar, isDelimRequired)
+    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueUnparseString, justificationPad, parsingPadChar, isDelimRequired,
+      eb.outputNewLine)
 
 }
 

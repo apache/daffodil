@@ -50,7 +50,7 @@ import scala.util.matching.Regex
  * to provide pattern match literals (like delimiters).
  *
  */
-class EntityReplacer {
+final class EntityReplacer {
 
   val dfdlEntityName = "NUL|SOH|STX|ETX|EOT|ENQ|ACK|BEL|BS|HT|LF|VT|FF|CR|SO|SI|DLE|DC[1-4]|NAK|SYN|ETB|CAN|EM|SUB|ESC|FS|GS|RS|US|SP|DEL|NBSP|NEL|LS"
   val dfdlCharClassEntityName = "NL|WSP|WSP\\*|WSP\\+|ES"
@@ -94,6 +94,13 @@ class EntityReplacer {
       ("NBSP", "\u00A0", Pattern.compile("%" + "NBSP" + ";", Pattern.MULTILINE).matcher("")),
       ("NEL", "\u0085", Pattern.compile("%" + "NEL" + ";", Pattern.MULTILINE).matcher("")),
       ("LS", "\u2028", Pattern.compile("%" + "LS" + ";", Pattern.MULTILINE).matcher("")))
+
+  val charClassReplacements: List[(String, String, Matcher)] =
+    List(
+      ("WSP", "\u0020", Pattern.compile("%" + "WSP" + ";", Pattern.MULTILINE).matcher("")),
+      ("WSP*", "", Pattern.compile("%" + "WSP\\*" + ";", Pattern.MULTILINE).matcher("")),
+      ("WSP+", "\u0020", Pattern.compile("%" + "WSP\\+" + ";", Pattern.MULTILINE).matcher("")),
+      ("ES", "", Pattern.compile("%" + "ES" + ";", Pattern.MULTILINE).matcher("")))
 
   val escapeReplacements: List[(String, String, Matcher)] = List(("%", "\u0025", Pattern.compile("%%", Pattern.MULTILINE).matcher("")))
 
@@ -220,9 +227,66 @@ class EntityReplacer {
     replace(input, escapeReplacements)
   }
 
-  private def replaceEntity(proposedEntity: String, orig: String, context: Option[ThrowsSDE]): String = {
+  /**
+   * Replace entities, except for %NL; with their unparse equivalents
+   * %NL; must be done separately because it is replaced with dfdl:outputNewline
+   * which can be computed at runtime.
+   */
+  def replaceCharClassForUnparse(input: String): String = {
+    replace(input, charClassReplacements)
+  }
+
+  private val markerForNL = "\uFFFC__NL_ENTITY__\uFFFC"
+  private val markerForDoublePercent = "\uFFFC__DOUBLE_PERCENT__\uFFFC"
+
+  // double percent, but not triple (or longer). Must be viewed as pairs So that %%%CR; is %% followed by %CR;
+  private val DPMatcher = Pattern.compile("(?<!%)%%", Pattern.MULTILINE).matcher("")
+  private val markerForDPMatcher = Pattern.compile(markerForDoublePercent, Pattern.MULTILINE).matcher("")
+
+  private val NLMatcher = Pattern.compile("%NL;", Pattern.MULTILINE).matcher("")
+  private val markerForNLMatcher = Pattern.compile(markerForNL, Pattern.MULTILINE).matcher("")
+
+  /**
+   * Replaces all the entities, including the char class entities.
+   *
+   * Special treatment for the NL entity, and double percent.
+   * These are replaced with unique marker strings. (Which cannot appear in the data - this is checked)
+   */
+  def replaceForUnparse(raw: String): String = {
+    markerForDPMatcher.reset(raw)
+    Assert.usage(!markerForDPMatcher.find(), "string cannot contain " + markerForDPMatcher)
+    markerForNLMatcher.reset(raw)
+    Assert.usage(!markerForNLMatcher.find(), "string cannot contain " + markerForNL)
+
+    DPMatcher.reset(raw)
+    val dpMarked = DPMatcher.replaceAll(markerForDoublePercent)
+    NLMatcher.reset(dpMarked)
+    val nlMarked = NLMatcher.replaceAll(markerForNL)
+    val s = replaceAll(nlMarked, None, true)
+    s
+  }
+
+  /**
+   * replace marked NL entity with replacement string (from dfdl:outputNewline computation)
+   * and replace double-percent markers with "%".
+   */
+  def replaceNLForUnparse(input: String, replacement: String): String = {
+    markerForNLMatcher.reset(input)
+    val a = markerForNLMatcher.replaceAll(replacement)
+    markerForDPMatcher.reset(a)
+    val b = markerForDPMatcher.replaceAll("%")
+    b
+  }
+
+  private def replaceEntity(proposedEntity: String, orig: String, context: Option[ThrowsSDE], forUnparse: Boolean): String = {
     val result = proposedEntity match {
-      case charClassEntityRegex(_, _) => { proposedEntity } // WSP, WSP+/*, NL, etc. Don't get replaced.
+      case charClassEntityRegex(_, _) => {
+        if (forUnparse) {
+          replaceCharClassForUnparse(proposedEntity)
+        } else {
+          proposedEntity // WSP, WSP+/*, NL, etc. Don't get replaced for parsing
+        }
+      }
       case hexRegex(entity, rest) => { replaceHex(proposedEntity) }
       case decRegex(entity, rest) => { replaceDecimal(proposedEntity) }
       case byteRegex(entity, rest) => { replaceByte(proposedEntity) }
@@ -270,7 +334,7 @@ class EntityReplacer {
     }
   }
 
-  private def process(input: String, orig: String, context: Option[ThrowsSDE]): String = {
+  private def process(input: String, orig: String, context: Option[ThrowsSDE], forUnparse: Boolean): String = {
     if (!input.contains("%")) { return input }
 
     // Has a % in it, possibly an entity.  Try to see if we can
@@ -278,24 +342,31 @@ class EntityReplacer {
     checkForMalformedEntityFormat(input, orig, context)
 
     val tokens = input.split("""(?<!%)%""")
-    val tokens2 = tokens.map(tok => (tok, tok.split("[^%]*?;")))
+    val tokens2 = tokens.map(tok => (tok, tok.split("[^%]*?;").toList)) // can split to more than 2 things if many semicolons
 
-    val tokens3 = tokens2.map {
-      case (ent: String, Array()) => {
-        // The initial split for 'tokens' removed the %
-        // we have to add it back in here.
-        replaceEntity("%" + ent, orig, context)
+    val tokens3 = tokens2.map { tok2 =>
+      tok2 match {
+        case (ent: String, List()) => {
+          // The initial split for 'tokens' removed the %
+          // we have to add it back in here.
+          replaceEntity("%" + ent, orig, context, forUnparse)
+        }
+        case (ent: String, List("", rest)) => {
+          // The initial split for 'tokens' removed the %
+          // we have to add it back in here.
+          replaceEntity("%" + ent, orig, context, forUnparse)
+        }
+        case (ent: String, List("", _, _, _*)) => { // handles case of many semicolons
+          // The initial split for 'tokens' removed the %
+          // we have to add it back in here.
+          replaceEntity("%" + ent, orig, context, forUnparse)
+        }
+        case (tok: String, List(tok2)) => {
+          Assert.invariant(tok == tok2) // not an entity
+          tok
+        }
+        case x => Assert.invariantFailed("Can't be: " + x)
       }
-      case (ent: String, Array("", rest)) => {
-        // The initial split for 'tokens' removed the %
-        // we have to add it back in here.
-        replaceEntity("%" + ent, orig, context)
-      }
-      case (tok: String, Array(tok2)) => {
-        Assert.invariant(tok == tok2) // not an entity
-        tok
-      }
-      case _ => Assert.impossibleCase
     }
     val res = tokens3.mkString
     res
@@ -312,7 +383,7 @@ class EntityReplacer {
   /**
    * Replaces all valid dfdl entities with their appropriate values.
    */
-  def replaceAll(input: String, context: Option[ThrowsSDE] = None): String = {
+  def replaceAll(input: String, context: Option[ThrowsSDE] = None, forUnparse: Boolean = false): String = {
     if (!input.contains("%")) { return input } // No entities, no replacement.
 
     val startOfPossibleEntity = input.indexOf("%")
@@ -321,7 +392,7 @@ class EntityReplacer {
 
     if (!inputWithPossibleEntity.contains("%%")) {
       // No escaped percents, just process
-      val processedInput = process(inputWithPossibleEntity, input, context)
+      val processedInput = process(inputWithPossibleEntity, input, context, forUnparse)
       val fullResult = inputUntilPossibleEntity + processedInput
       return fullResult
     }
@@ -334,7 +405,7 @@ class EntityReplacer {
     // Below we process each token and at the end call mkString to add back in
     // the escaped % literals if necessary. This works automatically except in the case where a
     // double percent occurred at the end of the input.
-    val replaced = splitByDoublePercent.map(token => process(token, input, context))
+    val replaced = splitByDoublePercent.map(token => process(token, input, context, forUnparse))
     val recomposedWithLiteralPercents = inputUntilPossibleEntity + replaced.mkString("%") + (if (endedWithDoublePercent) "%" else "")
     recomposedWithLiteralPercents
   }
