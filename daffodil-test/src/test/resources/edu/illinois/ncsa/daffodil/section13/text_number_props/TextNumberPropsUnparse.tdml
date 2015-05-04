@@ -90,7 +90,7 @@
       <xs:element name="e5" dfdl:lengthKind="implicit">
         <xs:complexType>
           <xs:sequence  dfdl:separator="," >
-            <xs:element name="s1" type="st10" dfdl:lengthKind="implicit" 
+            <xs:element name="s1" type="st10" dfdl:lengthKind="delimited" 
                 dfdl:textStringPadCharacter="_" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="center" />
           </xs:sequence>
         </xs:complexType>
@@ -129,7 +129,7 @@
       
       <xs:element name="e11" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="2" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
       
-      <xs:element name="e12" type="ex:st10" dfdl:lengthKind="implicit" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
+      <xs:element name="e12" type="ex:st10" dfdl:lengthKind="explicit" dfdl:length="{ 2 }" dfdl:textStringPadCharacter="#" dfdl:textPadKind="padChar" dfdl:textTrimKind="padChar" dfdl:textStringJustification="left" />
       
       <xs:element name="e13" dfdl:lengthKind="implicit">
         <xs:complexType>
@@ -243,6 +243,7 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>_____1____</tdml:document>
+    <!--<tdml:document>____1_____</tdml:document>--> <!-- actual unparsed output currently-->
   </tdml:unparserTestCase>
 
 <!--
