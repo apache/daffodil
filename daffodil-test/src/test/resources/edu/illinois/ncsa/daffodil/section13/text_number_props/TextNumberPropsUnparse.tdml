@@ -140,6 +140,19 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      
+      <xs:simpleType name="st10vals" dfdl:textTrimKind="padChar" dfdl:textPadKind="padChar" dfdl:textStringPadCharacter="*" dfdl:textStringJustification="right">
+        <xs:restriction base="xs:string">
+          <xs:maxLength value="10" />
+          <xs:minLength value="10" />
+        </xs:restriction>
+      </xs:simpleType>
+      
+      <xs:element name="e14" type="ex:st10vals" dfdl:lengthKind="delimited" />
+
+      <xs:element name="e15" type="ex:st10" dfdl:lengthKind="delimited" dfdl:textPadKind="padChar" dfdl:textStringPadCharacter="%WSP+;" dfdl:textStringJustification="right" />
+      <xs:element name="e16" type="ex:st10" dfdl:lengthKind="delimited" dfdl:textPadKind="padChar" dfdl:textStringPadCharacter="%NL;" dfdl:textStringJustification="right" />
+      <xs:element name="e17" type="ex:st10" dfdl:lengthKind="delimited" dfdl:textPadKind="padChar" dfdl:textStringPadCharacter="%ES;" dfdl:textStringJustification="right" />
 
   </tdml:defineSchema>
   
@@ -368,6 +381,75 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>O#########</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString11
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, the associated properties are all defined on the simpleType and not the element itself.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString11" model="delimitedStringsPadding" root="e14">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e14 xmlns:ex="http://example.com">0</ex:e14>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>*********0</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString12
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, the padChar is a DFDL Character class (WSP+), which is not allowed.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString12" model="delimitedStringsPadding" root="e15">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e15 xmlns:ex="http://example.com">0</ex:e15>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStringPadCharacter cannot contain WSP+!</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString13
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, the padChar is a DFDL Character class (NL), which is not allowed.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString13" model="delimitedStringsPadding" root="e16">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e16 xmlns:ex="http://example.com">0</ex:e16>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStringPadCharacter cannot contain NL!</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedPaddedString14
+      Schema: delimitedStringsPadding
+      Purpose: This test demonstrates unparsing a string with padding
+               In this case, the padChar is a DFDL Character class (ES), which is not allowed.
+-->
+  <tdml:unparserTestCase name="unparseDelimitedPaddedString14" model="delimitedStringsPadding" root="e17">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e17 xmlns:ex="http://example.com">0</ex:e17>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>textStringPadCharacter cannot contain ES!</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
