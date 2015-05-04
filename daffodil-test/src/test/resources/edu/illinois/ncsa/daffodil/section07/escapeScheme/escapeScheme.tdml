@@ -163,7 +163,7 @@
   </defineSchema>
 
   <parserTestCase name="escapeSchemeSimple" model="es1"
-    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1" roundTrip="true">
+    description="Section 7 defineEscapeScheme - DFDL-7-079R" root="list1" roundTrip="false">
     <document><![CDATA[ab#,cd,/*ef,gh*/]]></document>
     <infoset>
       <dfdlInfoset>

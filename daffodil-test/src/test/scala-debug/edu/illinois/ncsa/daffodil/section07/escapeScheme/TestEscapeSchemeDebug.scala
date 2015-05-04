@@ -48,11 +48,6 @@ class TestEscapeSchemeDebug {
   val aa = testDir + "escapeScheme.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
-  //DFDL-1246
-  @Test def test_escapeSchemeSimple() { runner.runOneTest("escapeSchemeSimple") }
-  @Test def test_escapeSchemeEmpty() { runner.runOneTest("escapeSchemeEmpty") }
-  @Test def test_escapeSchemeUnused() { runner.runOneTest("escapeSchemeUnused") }
-
   @Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
 
   val bb = testDir + "escapeScenarios.tdml"
