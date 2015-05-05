@@ -45,7 +45,7 @@ import scala.util.matching.Regex
  *
  * Deals with self-escaping of the '%' which introduces a DFDL character entity.
  *
- * Does not deal with raw %#rHH; entities. Those have to be preserved because they get interpreted differently
+ * Note that %#rHH; Byte Value Entities (aka raw), have to be preserved because they get interpreted differently
  * depending on how the string literal is used. Similarly the character class entities like %WSP*; which are used
  * to provide pattern match literals (like delimiters).
  *
@@ -490,7 +490,7 @@ class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
 
 class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
   def cooked = {
-    val list = rawArg.split("\\s").toList
+    val list = rawArg.split("\\s+").toList
     val cookedList: ListBuffer[String] = ListBuffer.empty
     list.foreach(x => {
       val l = new StringValueAsLiteral(x, context)
@@ -502,7 +502,7 @@ class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
 
 class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE) {
   def cooked = {
-    val list = rawArg.split("\\s")
+    val list = rawArg.split("\\s+")
     val cookedList: ListBuffer[Char] = ListBuffer.empty
     list.foreach(x => {
       val l = new SingleCharacterLiteral(x, context)

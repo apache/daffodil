@@ -431,7 +431,7 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   lazy val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
 
   lazy val nilValueUnparseString = {
-    val firstNilValue = eb.nilValue.split("""\s""").head
+    val firstNilValue = eb.nilValue.split("""\s+""").head
     val nv = EntityReplacer { er => er.replaceForUnparse(firstNilValue) }
     nv
   }
