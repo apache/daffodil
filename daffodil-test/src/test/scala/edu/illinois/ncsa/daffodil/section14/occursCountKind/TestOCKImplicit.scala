@@ -42,11 +42,14 @@ import edu.illinois.ncsa.daffodil.util.Misc
 
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 
-class TestOCKImplicit {
+object TestOCKImplicit {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
   val aa = testDir + "ockImplicit.tdml"
   val res = Misc.getRequiredResource(aa)
   lazy val runner = new DFDLTestSuite(res)
+}
+class TestOCKImplicit {
+  import TestOCKImplicit._
 
   @Test def test_ockImplicit1() { runner.runOneTest("ockImplicit1") }
   @Test def test_ockImplicit2() { runner.runOneTest("ockImplicit2") }

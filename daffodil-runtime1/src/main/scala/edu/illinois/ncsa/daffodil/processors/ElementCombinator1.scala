@@ -100,6 +100,9 @@ abstract class StatementElementParserBase(
   def parse(pstate: PState): PState = {
     //Removed checks now done at compilation
 
+    val startingBitPos = pstate.bitPos
+    val startingCharPos = pstate.charPos
+    val startingRdr = pstate.inStream.reader
     var afterPatDisc = pstate //we're first so don't do .withPos(pstate.bitPos, pstate.charPos)
     patDiscrimParser.foreach(d => {
       afterPatDisc = d.parse1(afterPatDisc, rd)
@@ -109,7 +112,7 @@ abstract class StatementElementParserBase(
 
     // now here we backup and run the pattern Asserts 
     // against the data at the start of the element's representation again.
-    var afterPatAssrt = afterPatDisc.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+    var afterPatAssrt = afterPatDisc.withPos(startingBitPos, startingCharPos, startingRdr)
     patAssertParser.foreach(d => {
       afterPatAssrt = d.parse1(afterPatAssrt, rd)
       // Pattern fails at the start of the Element
@@ -119,7 +122,7 @@ abstract class StatementElementParserBase(
     // backup again. If all pattern discriminators and/or asserts
     // have passed, now we parse the element. But we backup
     // as if the pattern matching had not advanced the state.
-    val beforeEState = afterPatAssrt.withPos(pstate.bitPos, pstate.charPos, pstate.inStream.reader)
+    val beforeEState = afterPatAssrt.withPos(startingBitPos, startingCharPos, startingRdr)
 
     val postElementStartState = parseBegin(beforeEState)
 

@@ -42,13 +42,55 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
+import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+
+object TestArrayOptionalElem {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
+  private val aa = testDir + "ArrayOptionalElem.tdml"
+
+  private var runnerv: DFDLTestSuite = null
+
+  def runner = {
+    if (runnerv == null) runnerv = new DFDLTestSuite(Misc.getRequiredResource(aa))
+    runnerv
+  }
+
+  private val testDir01 = "/edu/illinois/ncsa/daffodil/section05/facets/"
+  private val ab = testDir01 + "Facets.tdml"
+  private var runner01v: DFDLTestSuite = null
+  def runner01 = {
+    if (runner01v == null) runner01v = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false)
+    runner01v
+  }
+
+  private val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  private val tdml1 = testDir1 + "dpaext2.tdml"
+  private var runner1v: DFDLTestSuite = null
+  def runner1 = {
+    if (runner1v == null) runner1v = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+    runner1v
+  }
+
+  private val tdmlBack = testDir + "backtracking.tdml"
+  private var rBackv: DFDLTestSuite = null
+  def rBack = {
+    if (rBackv == null) rBackv = new DFDLTestSuite(Misc.getRequiredResource(tdmlBack))
+    rBackv
+  }
+
+  def dbg = {
+    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
+    Debugger.withTracing(false)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
+}
 
 class TestArrayOptionalElem {
-  val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "ArrayOptionalElem.tdml"
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
- 
+  import TestArrayOptionalElem._
+
   //DFDL-1302 
   //@Test def test_impOptArrayThenScalar02b() { runner.runOneTest("impOptArrayThenScalar02b") }
 
@@ -73,18 +115,9 @@ class TestArrayOptionalElem {
   @Test def test_Lesson6_variable_array_01() { runner.runOneTest("Lesson6_variable_array_01") }
   @Test def test_Lesson6_variable_array_02() { runner.runOneTest("Lesson6_variable_array_02") }
 
-  val testDir01 = "/edu/illinois/ncsa/daffodil/section05/facets/"
-  val ab = testDir01 + "Facets.tdml"
-  lazy val runner01 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false)
   @Test def test_leftOverData_Neg() { runner01.runOneTest("leftOverData_Neg") }
 
-  val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml1 = testDir1 + "dpaext2.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
   @Test def test_arrays_16_01() { runner1.runOneTest("arrays_16_01") }
-
-  val tdmlBack = testDir + "backtracking.tdml"
-  lazy val rBack = new DFDLTestSuite(Misc.getRequiredResource(tdmlBack))
 
   @Test def test_backtrack1Text() = { rBack.runOneTest("backtrack1Text") }
 }

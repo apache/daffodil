@@ -730,7 +730,8 @@
       <tdml:error>multi_C_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_D_03.dfdl.xsd</tdml:error>    
       <tdml:error>multi_E_03.dfdl.xsd</tdml:error>   
-      <tdml:error>Location line 50 column 4</tdml:error>                         
+      <tdml:error>Location line</tdml:error>
+      <tdml:error>column</tdml:error>                         
     </tdml:errors>
   </tdml:parserTestCase>
 

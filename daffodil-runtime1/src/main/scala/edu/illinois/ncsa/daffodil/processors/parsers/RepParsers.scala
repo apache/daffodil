@@ -84,7 +84,7 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
 
   override def toBriefXML(depthLimit: Int = -1): String = {
     if (depthLimit == 0) "..." else
-      "<Rep" + baseName + ">" + rParser.toBriefXML(depthLimit - 1) +
+      "<Rep" + baseName + " name='" + context.name + "' n='" + n + "'>" + rParser.toBriefXML(depthLimit - 1) +
         "</Rep" + baseName + ">"
   }
 }
@@ -122,7 +122,7 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
         val pNext = rParser.parse1(pResult, context)
         Debugger.afterRepetition(pResult, pNext, this)
         if (pNext.status != Success) {
-          return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+          return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
             context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
         }
         pstate.mpstate.moveOverOneArrayIndexOnly
@@ -137,13 +137,15 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(n, rParser, erd, "AtMostTotalN") {
 
   def parseAllRepeats(pstate: PState): PState = {
-    var pResult = pstate
+    var pResult = pstate.duplicate()
+    var priorResult = pstate
     while (pResult.mpstate.arrayPos <= intN) {
       // Since each one could fail, each is a new point of uncertainty.
       val newpou = pResult.withNewPointOfUncertainty
       // 
       // save the state of the infoset
       //
+      val infosetElement = newpou.infoset
       val cloneNode = newpou.captureInfosetElementState
 
       Debugger.beforeRepetition(newpou, this)
@@ -166,10 +168,12 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         //
         // backout any element appended as part of this attempt.
         //
+        pResult.infoset = infosetElement
         pResult.restoreInfosetElementState(cloneNode)
-        return pResult // success at prior state. 
+        return priorResult // success at prior state. 
       }
-      pstate.mpstate.moveOverOneArrayIndexOnly
+      priorResult = pNext.duplicate()
+      pNext.mpstate.moveOverOneArrayIndexOnly
       pResult = pNext.withRestoredPointOfUncertainty
     }
     pResult
@@ -183,7 +187,7 @@ class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeDa
     val pNext = Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
 
     if (pNext.status != Success) {
-      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
         context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
     }
     pNext
@@ -212,6 +216,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       }
 
       val cloneNode = pResult.captureInfosetElementState
+      val infosetElement = pResult.infoset
       //
       // Every parse is a new point of uncertainty.
       val newpou = pResult.withNewPointOfUncertainty
@@ -232,6 +237,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
         // 
         // no discriminator, so suppress the failure. Loop terminated with prior element.
         //
+        pResult.infoset = infosetElement
         pResult.restoreInfosetElementState(cloneNode)
         log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
         return priorResult // note that it has the prior point of uncertainty. No restore needed.
@@ -310,7 +316,7 @@ class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
     val ocInt = pstate.mpstate.occursBounds.toInt
     val pNext = Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
     if (pNext.status != Success) {
-      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s items.",
+      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
         erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
     }
     pNext

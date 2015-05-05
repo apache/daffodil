@@ -36,7 +36,8 @@
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format textNumberCheckPolicy="lax" textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" />
+      <dfdl:format textNumberCheckPolicy="lax" textNumberRounding="explicit" textNumberRoundingMode="roundUnnecessary" textNumberRoundingIncrement="0" textStandardDecimalSeparator="." textStandardGroupingSeparator="," textStandardExponentRep="E" textStandardZeroRep="0" textStandardInfinityRep="Inf" textStandardNaNRep="NaN" textNumberPattern="#,##0.###;-#,##0.###" separator="" ignoreCase="no" separatorPosition="infix" separatorSuppressionPolicy="anyEmpty" leadingSkip='0' initiator="" terminator="B" occursCountKind="parsed" initiatedContent="no" representation="text" textNumberRep="standard" encoding="ASCII" textTrimKind="none" 
+        escapeSchemeRef=""/>
     </xs:appinfo>
   </xs:annotation>
   

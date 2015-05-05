@@ -41,11 +41,57 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import org.junit.AfterClass
 
+object TestEntities {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
+  private val tdml = testDir + "charClassEntities.tdml"
+  private var runnerv: DFDLTestSuite = null
+  def runner = {
+    if (runnerv == null) runnerv = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+    runnerv
+  }
+
+  private val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
+  private val tdml_01 = testDir_01 + "Entities.tdml"
+  private var runner_01v: DFDLTestSuite = null
+  def runner_01 = {
+    if (runner_01v == null) runner_01v = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+    runner_01v
+  }
+
+  private val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  private val tdml_02 = testDir_02 + "dpaext1.tdml"
+  private var runner_02v: DFDLTestSuite = null
+  def runner_02 = {
+    if (runner_02v == null) runner_02v = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+    runner_02v
+  }
+
+  private val entity = testDir + "entities_01.tdml"
+  private var runnerEntityv: DFDLTestSuite = null
+  def runnerEntity = {
+    if (runnerEntityv == null) runnerEntityv = new DFDLTestSuite(Misc.getRequiredResource(entity))
+    runnerEntityv
+  }
+
+  private val tdml_03 = testDir + "InvalidEntities.tdml"
+  private var runnerInvalidv: DFDLTestSuite = null
+  def runnerInvalid = {
+    if (runnerInvalidv == null) runnerInvalidv = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
+    runnerInvalidv
+  }
+
+  @AfterClass private def shutDown {
+    runnerv = null
+    runner_01v = null
+    runner_02v = null
+    runnerEntityv = null
+    runnerInvalidv = null
+  }
+}
 class TestEntities {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  val tdml = testDir + "charClassEntities.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  import TestEntities._
 
   @Test def test_doubleNL2() { runner.runOneTest("doubleNL2") }
 
@@ -61,10 +107,6 @@ class TestEntities {
   @Test def test_NextLine_byte() { runner.runOneTest("NextLine_byte") }
   @Test def test_FormFeed() { runner.runOneTest("FormFeed") }
   @Test def test_HexCodePoint() { runner.runOneTest("HexCodePoint") }
-
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  val tdml_01 = testDir_01 + "Entities.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
   @Test def test_entityAndNonMix_01() { runner_01.runOneTest("entityAndNonMix_01") }
   @Test def test_entityAndNonMix_02() { runner_01.runOneTest("entityAndNonMix_02") }
@@ -105,24 +147,17 @@ class TestEntities {
   @Test def test_emptyStringEntityTermInExpression_01() { runner_01.runOneTest("emptyStringEntityTermInExpression_01") }
   @Test def test_emptyStringEntityTermInExpression_02() { runner_01.runOneTest("emptyStringEntityTermInExpression_02") }
 
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml_02 = testDir_02 + "dpaext1.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
   @Test def test_syntax_entities_6_01() { runner_02.runOneTest("syntax_entities_6_01") }
   @Test def test_syntax_entities_6_02() { runner_02.runOneTest("syntax_entities_6_02") }
   // 
   // Needs dfdl:utf16Width='variable' implementation
   //  @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
 
-  val entity = testDir + "entities_01.tdml"
-  lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
   @Test def test_entity_fail_01() { runnerEntity.runOneTest("entity_fail_01") }
   @Test def test_entity_fail_02() { runnerEntity.runOneTest("entity_fail_02") }
   @Test def test_entity_fail_03() { runnerEntity.runOneTest("entity_fail_03") }
   @Test def test_entity_fail_04() { runnerEntity.runOneTest("entity_fail_04") }
 
-  val tdml_03 = testDir + "InvalidEntities.tdml"
-  lazy val runnerInvalid = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
   @Test def test_invalid_entity_01() { runnerInvalid.runOneTest("text_invalid_entity_name") }
   @Test def test_invalid_entity_02() { runnerInvalid.runOneTest("text_invalid_entity_decimalCodePoint") }
   @Test def test_invalid_entity_03() { runnerInvalid.runOneTest("text_invalid_entity_hexaDecimalCodePoint") }

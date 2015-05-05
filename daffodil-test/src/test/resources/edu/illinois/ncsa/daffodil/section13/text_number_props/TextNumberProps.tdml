@@ -38,7 +38,7 @@
   xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:tns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 
   <tdml:defineSchema name="textNumberPattern">
-    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" occursCountKind="implicit"/>
 
     <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textStandardBase="16" dfdl:textNumberPattern="0000" />
     <xs:element name="tnp02" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern=";0000" />

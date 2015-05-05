@@ -566,7 +566,7 @@
     <tdml:errors>
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
-      <tdml:error>Expected 2 items</tdml:error>
+      <tdml:error>Expected 2 item(s)</tdml:error>
       <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
@@ -601,7 +601,7 @@
     <tdml:errors>
       <tdml:error>Failed to populate</tdml:error>
       <tdml:error>ex:a[2]</tdml:error>
-      <tdml:error>Expected 2 items</tdml:error>
+      <tdml:error>Expected 2 item(s)</tdml:error>
       <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>

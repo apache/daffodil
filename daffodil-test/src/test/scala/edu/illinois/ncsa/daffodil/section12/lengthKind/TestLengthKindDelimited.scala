@@ -41,19 +41,27 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
+import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestLengthKindDelimited {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
-  val aa = testDir + "DelimitedTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  // Debug Template
-  // @Test def test_name() = Debugger.withDebugger { 
-  // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  // runner.runOneTest("test_name") 
-  // }
+  private val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+
+  val runner = Runner(testDir, "DelimitedTests.tdml")
+  val runnerAB = Runner(testDir, "AB.tdml")
+  val runnerAN = Runner(testDir, "AN.tdml")
+
+  val runner_01 = Runner("/edu/illinois/ncsa/daffodil/ibm-tests/", "dpaext1.tdml")
+
+  def dbg = {
+    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
+    Debugger.withTracing(true)
+    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
+  }
 
   @Test def test_delimited_binary_int_seqSep() = { runner.runOneTest("delimited_binary_int_seqSep") }
 
@@ -92,9 +100,6 @@ class TestLengthKindDelimited {
   @Test def test_Lesson4_delimited_fixed_length() { runner.runOneTest("Lesson4_delimited_fixed_length") }
   @Test def test_delimited_construct() { runner.runOneTest("delimited_construct") }
 
-  val ab = testDir + "AB.tdml"
-  lazy val runnerAB = new DFDLTestSuite(Misc.getRequiredResource(ab))
-
   @Test def test_AB000() { runnerAB.runOneTest("AB000") }
   @Test def test_AB001() { runnerAB.runOneTest("AB001") }
   @Test def test_AB002() { runnerAB.runOneTest("AB002") }
@@ -102,15 +107,8 @@ class TestLengthKindDelimited {
   @Test def test_AB004() { runnerAB.runOneTest("AB004") }
   @Test def test_AB005() { runnerAB.runOneTest("AB005") }
 
-  val an = testDir + "AN.tdml"
-  lazy val runnerAN = new DFDLTestSuite(Misc.getRequiredResource(an))
-
   @Test def test_AN000() { runnerAN.runOneTest("AN000") }
   @Test def test_AN001() { runnerAN.runOneTest("AN001") }
-
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml_01 = testDir_01 + "dpaext1.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
   @Test def test_introduction_1_02() { runner_01.runOneTest("introduction_1_02") }
   @Test def test_length_delimited_12_03() { runner_01.runOneTest("length_delimited_12_03") }

@@ -55,11 +55,21 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.parsers.DelimiterTextType
 import edu.illinois.ncsa.daffodil.processors.unparsers.DelimiterTextUnparser
+import java.nio.charset.StandardCharsets
 
 trait ComputesValueFoundInstead {
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    val dl = state.currentLocation.asInstanceOf[DataLoc]
-    val foundInstead = dl.utf8Dump(maxDelimiterLength)
+    val ei = state.getContext().encodingInfo
+    val cs = if (ei.isKnownEncoding) ei.knownEncodingCharset.charset else StandardCharsets.UTF_8 // guess utf8
+    var rdr = state.inStream.getCharReader(cs, state.bitPos0b)
+    val sb = new StringBuilder(maxDelimiterLength)
+    var i = 0
+    while (i < maxDelimiterLength && !rdr.atEnd) {
+      i += 1
+      sb + rdr.first
+      rdr = rdr.rest
+    }
+    val foundInstead = sb.mkString
     foundInstead
   }
 }

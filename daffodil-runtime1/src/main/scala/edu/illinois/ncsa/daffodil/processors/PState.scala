@@ -290,17 +290,20 @@ class PState(
     diagnostics = vde :: diagnostics
     this
   }
+
   def withValidationErrorNoContext(msg: String, args: Any*) = {
     val vde = new ValidationError(None, this, msg, args: _*)
-    copy(diagnostics = vde :: diagnostics)
+    diagnostics = vde :: diagnostics
+    this
   }
 
   def failed(msg: => String): PState =
     failed(new GeneralParseFailure(msg))
 
   def failed(failureDiagnostic: Diagnostic) = {
-    copy(status = new Failure(failureDiagnostic),
-      diagnostics = failureDiagnostic :: diagnostics)
+    status = new Failure(failureDiagnostic)
+    diagnostics = failureDiagnostic :: diagnostics
+    this
   }
 
   def setFailed(failureDiagnostic: Diagnostic) {
@@ -309,14 +312,19 @@ class PState(
   }
 
   def withNewPointOfUncertainty = {
-    copy(discriminatorStack = false +: discriminatorStack)
+    discriminatorStack = false +: discriminatorStack
+    this
   }
 
-  def withRestoredPointOfUncertainty =
-    copy(discriminatorStack = discriminatorStack.tail)
+  def withRestoredPointOfUncertainty = {
+    discriminatorStack = discriminatorStack.tail
+    this
+  }
 
-  def withDiscriminator(disc: Boolean) =
-    copy(discriminatorStack = disc +: discriminatorStack.tail)
+  def withDiscriminator(disc: Boolean) = {
+    discriminatorStack = disc +: discriminatorStack.tail
+    this
+  }
 
   /**
    * withPos changes the bit position of the stream, and maintains the char reader
@@ -366,7 +374,8 @@ class PState(
   def withBitOrder(bitOrder: BitOrder) = {
     schemaDefinitionUnless((bitPos1b % 8) == 1,
       "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position (1 based) mod 8 is %s.", bitPos1b)
-    copy(inStream = inStream.withBitOrder(bitOrder))
+    inStream = inStream.withBitOrder(bitOrder)
+    this
   }
 }
 

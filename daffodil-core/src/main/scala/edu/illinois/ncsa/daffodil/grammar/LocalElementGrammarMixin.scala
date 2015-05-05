@@ -82,16 +82,19 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   /**
    * speculate parsing forward until we get an error
    */
-  private lazy val separatedContentUnboundedWithoutTrailingEmpties = prod("separatedContentUnboundedWithoutTrailingEmpties", isRecurring) {
+  private lazy val separatedContentWithMinUnboundedWithoutTrailingEmpties = prod("separatedContentWithMinUnboundedWithoutTrailingEmpties", isRecurring) {
     RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
       RepUnbounded(self, separatedRecurringNonDefault) ~
       StopValue(this)
   }
 
-  private lazy val separatedContentUnbounded = prod("separatedContentUnbounded", isRecurring) {
-    separatedContentUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
-    //        ~
-    //        RepUnbounded(separatedEmpty)
+  private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", isRecurring) {
+    separatedContentWithMinUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
+  }
+
+  private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", isRecurring) {
+    RepUnbounded(self, separatedRecurringNonDefault) ~
+      StopValue(this)
   }
 
   private lazy val separatedContentAtMostNWithoutTrailingEmpties = prod("separatedContentAtMostNWithoutTrailingEmpties", isRecurring) {
@@ -105,8 +108,13 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
   // thinking about how occursCountKind='stopValue' works.)
 
   private lazy val separatedContentAtMostN = prod("separatedContentAtMostN") {
-    separatedContentAtMostNWithoutTrailingEmpties ~
-      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
+    (separatedContentAtMostNWithoutTrailingEmpties // FIXME: We don't know whether we can absorb trailing separators or not here.
+    // We don't know if this repeating thing is in trailing position, or in the middle
+    // of a sequence. There is also ambiguity if the enclosing sequence and this sequence
+    // have the same separator. 
+    //      ~
+    //      RepAtMostTotalN(self, maxOccurs, separatedEmpty) // absorb extra separators, if found.
+    )
   }
 
   /**
@@ -196,15 +204,15 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
       case (Never______, Implicit__, max, ___) => separatedContentExactlyN(max)
       case (Never______, ock /****/ , ___, __2) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
       case (Trailing___, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (Trailing___, Implicit__, UNB, min) => separatedContentUnbounded
+      case (Trailing___, Implicit__, UNB, min) => separatedContentWithMinUnbounded
       case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
       case (TrailingStr, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
-      case (TrailingStr, Implicit__, UNB, ___) => separatedContentUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
+      case (TrailingStr, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.
       case (TrailingStr, Implicit__, max, ___) => separatedContentAtMostNWithoutTrailingEmpties
-      case (Always_____, Implicit__, UNB, ___) => separatedContentUnbounded
+      case (Always_____, Implicit__, UNB, ___) => separatedContentWithMinUnbounded
       case (Always_____, Implicit__, max, ___) => separatedContentAtMostN
-      case (Always_____, Parsed____, ___, __2) => separatedContentUnbounded
-      case (Always_____, StopValue_, ___, __2) => separatedContentUnbounded
+      case (Always_____, Parsed____, ___, __2) => separatedContentZeroToUnbounded
+      case (Always_____, StopValue_, ___, __2) => separatedContentZeroToUnbounded
       case (policy /**/ , ock /****/ , max, __2) => SDE("separatorSuppressionPolicy='" + policy + "' not allowed with occursCountKind='" + ock + "'.")
     }
     res

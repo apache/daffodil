@@ -202,7 +202,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
@@ -239,7 +239,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
@@ -276,7 +276,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
@@ -525,7 +525,7 @@
     <dfdl:format ref="ex:daffodilTest1" initiator=""
       terminator="" leadingSkip="0" trailingSkip="0" textBidi="no"
       floating="no" encoding="utf-8" byteOrder="bigEndian" alignment="1"
-      alignmentUnits="bytes" fillByte="f" occursCountKind="parsed"
+      alignmentUnits="bytes" fillByte="f" occursCountKind="implicit"
       truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
       lengthKind="delimited" nilValueDelimiterPolicy="both"
       emptyValueDelimiterPolicy="none"
@@ -682,7 +682,7 @@
   -->
 
   <tdml:parserTestCase name="lessThanMinBasic" root="basic"
-    model="facets-min5max10.dfdl.xsd" description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-062R">
+    model="facets-min5max10-2.dfdl.xsd" description="Section 5 - minOccurs 5 maxOccurs 10 - DFDL-5-062R">
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[1|2|3]]></tdml:documentPart>
@@ -3817,9 +3817,9 @@
 
     <tdml:errors>
       <tdml:error>Parse Error: Failed to populate ex:array[1].</tdml:error>
-      <tdml:error>Expected 1 items.</tdml:error>
+      <tdml:error>Expected 1 item(s)</tdml:error>
       <tdml:error>Parse Error: Failed to populate ex:data[1].</tdml:error>
-      <tdml:error>Expected 3 items.</tdml:error>
+      <tdml:error>Expected 3 item(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   
@@ -3883,7 +3883,7 @@
 
     <tdml:errors>
       <tdml:error>Parse Error: Failed to populate ex:array[2].</tdml:error>
-      <tdml:error>Expected 3 items.</tdml:error>
+      <tdml:error>Expected 3 item(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>  
   

@@ -962,7 +962,7 @@
   </tdml:parserTestCase>
   
   <tdml:defineSchema name="facetCombos">
-    <dfdl:format ref="ex:daffodilTest1" />
+    <dfdl:format ref="ex:daffodilTest1" occursCountKind="implicit" />
 
     <xs:element name="intRestrict" dfdl:lengthKind="delimited">
       <xs:simpleType>
@@ -1333,7 +1333,7 @@
     <tdml:document>1,2</tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Failed to populate ex:e[3]</tdml:error>
-      <tdml:error>Expected 3 items</tdml:error>
+      <tdml:error>Expected 3 item(s)</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

@@ -36,7 +36,7 @@
 
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
-      <dfdl:format terminator="E"/>
+      <dfdl:format terminator="E" escapeSchemeRef=""/>
     </xs:appinfo>
   </xs:annotation>
   

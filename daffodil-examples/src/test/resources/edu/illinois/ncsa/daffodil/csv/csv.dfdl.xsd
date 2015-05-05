@@ -44,7 +44,7 @@ SOFTWARE.
       <dfdl:format ref="ex:daffodilTest1" separator="" initiator=""
         terminator="" leadingSkip='0' textTrimKind="none" initiatedContent="no"
         alignment="implicit" alignmentUnits="bits" trailingSkip="0" ignoreCase="no"
-        separatorPosition="infix" occursCountKind="parsed"
+        separatorPosition="infix" occursCountKind="implicit"
         emptyValueDelimiterPolicy="both" representation="text" textNumberRep="standard"
         lengthKind="delimited" encoding="ASCII" />
     </xs:appinfo>

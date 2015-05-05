@@ -89,13 +89,11 @@ abstract class Parser(val context: RuntimeData)
     val beforeState = if (Debugger.getDebugging()) pstate.duplicate() else pstate
     val afterState = parse(pstate)
     if (!(afterState eq pstate)) {
-      // they're not the same state object
-      // we make them so.
+      // if they're not the same state object we make them so.
       pstate.assignFrom(afterState)
       pstate.inStream.assignFrom(afterState.inStream)
     }
-    Debugger.after(beforeState, afterState, this)
-    // afterState
+    Debugger.after(beforeState, pstate, this)
     pstate
   }
 
@@ -173,7 +171,6 @@ class SeqCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           // failed in a sequence
           return pResult
         }
-        pResult = pResult
       }
     }
     pResult

@@ -234,8 +234,8 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 
 /**
  * This is essentially just a wrapper around the bodyParser, which is an
- * AltCompParser. This is only hear to maintain symmetry with the unparse side,
- * which has a more complicated parser that differs from an AltCompUnparser.
+ * AltCompParser. This is only here to maintain symmetry with the unparse side,
+ * which has a more complicated unparser that differs from an AltCompUnparser.
  */
 class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd) {
@@ -248,7 +248,6 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
     parseState
   }
 }
-
 
 class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends Parser(erd) {
   override def nom = "Array"

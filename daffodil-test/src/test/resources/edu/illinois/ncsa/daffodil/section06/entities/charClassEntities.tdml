@@ -441,14 +441,16 @@
     model="charClassEntities.dfdl.xsd"
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
 
+    <!-- this fails to parse the first data row because it has too many elements.
+         The backtracking unwinds and you get an array element with zero entries, but
+         of course all the data is not used up. So the error is Left over data.  -->
     <document><![CDATA[last,first,middle,DOB
 jones,robert,brandon,1988-03-24,extra,extra
 johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
 ]]></document>
    <errors>
-     <error>Parse Error: Sep('CompiledExpression(%NL;)') - sequence: Delimiter not found!</error>
-     <error>Was looking for (%NL;) but found "03-2" instead.</error>
+     <error>Left over data</error>
    </errors>
   </parserTestCase>
   

@@ -40,7 +40,7 @@
         separatorPosition="infix" ignoreCase="no" separatorSuppressionPolicy="anyEmpty" representation="text" 
         textNumberRep="standard" lengthKind="delimited" encoding="ASCII"
         alignment="implicit" alignmentUnits="bytes" trailingSkip="0" outputNewLine="%LF;"
-        fillByte="%SP;" truncateSpecifiedLengthString="yes"/>
+        fillByte="%SP;" truncateSpecifiedLengthString="yes" escapeSchemeRef=""/>
     </xs:appinfo>
   </xs:annotation>
    

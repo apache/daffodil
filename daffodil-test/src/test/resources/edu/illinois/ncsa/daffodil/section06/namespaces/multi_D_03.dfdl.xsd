@@ -37,7 +37,7 @@
   <xs:annotation>
     <xs:appinfo source="http://www.ogf.org/dfdl/">
       <dfdl:format ignoreCase="no" terminator="D" leadingSkip="0" representation="text"
-        textNumberRep="standard"/>
+        textNumberRep="standard" escapeSchemeRef=""/>
     </xs:appinfo>
   </xs:annotation>
   

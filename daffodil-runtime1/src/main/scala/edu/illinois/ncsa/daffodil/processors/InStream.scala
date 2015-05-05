@@ -256,7 +256,7 @@ case class InStreamFromByteChannel private (
     //      if (rdr.characterPos != newCharPos)
     //        println("withPos newCharPos of %s not same as reader characterPos of %s".format(newCharPos, rdr.characterPos))
     //    }
-    val res = this.duplicate()
+    val res = this // .duplicate()
     res.bitPos0b = newBitPos0b
     res.reader = newReader.map { _.atCharPos(newCharPos0b.toInt) }
     res
@@ -291,7 +291,8 @@ case class InStreamFromByteChannel private (
    */
   def withBitOrder(bitOrder: BitOrder) = {
     Assert.usage((bitPos0b % 8) == 0)
-    copy(byteReader = byteReader.changeBitOrder(bitOrder))
+    byteReader = byteReader.changeBitOrder(bitOrder)
+    this
   }
 
   def getCharReader(charset: Charset, bitPos0b: Long): DFDLCharReader = {
