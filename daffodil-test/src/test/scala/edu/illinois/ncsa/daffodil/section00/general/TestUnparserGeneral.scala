@@ -65,13 +65,14 @@ class TestUnparserGeneral {
 
   @Test def test_negativeUnparseTest01() { runner.runOneTest("negativeUnparseTest01") }
   @Test def test_negativeUnparseTest02() { runner.runOneTest("negativeUnparseTest02") }
-  @Test def test_negativeUnparseTest05() { runner.runOneTest("negativeUnparseTest05") }
-
-  //DFDL-1294
   @Test def test_negativeUnparseTest03() { runner.runOneTest("negativeUnparseTest03") }
   @Test def test_negativeUnparseTest04() { runner.runOneTest("negativeUnparseTest04") }
+  @Test def test_negativeUnparseTest05() { runner.runOneTest("negativeUnparseTest05") }
 
   @Test def test_unparseDelimitedString01() { runner.runOneTest("unparseDelimitedString01") }
+  @Test def test_unparseDelimitedString02() { runner.runOneTest("unparseDelimitedString02") }
+  @Test def test_unparseDelimitedString03() { runner.runOneTest("unparseDelimitedString03") }
+
   @Test def test_parseDelimitedString01() { runner.runOneTest("parseDelimitedString01") }
 
 }

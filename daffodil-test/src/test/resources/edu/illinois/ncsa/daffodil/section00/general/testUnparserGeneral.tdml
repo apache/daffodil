@@ -191,8 +191,11 @@
     <tdml:document>too much data</tdml:document>
     
     <tdml:errors>
-      <tdml:error>data length</tdml:error>
-      <tdml:error>too m</tdml:error>      
+      <tdml:error>output data length</tdml:error>
+      <tdml:error>length 5</tdml:error>
+      <tdml:error>doesn't match expected</tdml:error>
+      <tdml:error>length 13</tdml:error>
+      <tdml:error>too much data</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -217,7 +220,7 @@
 
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>padding</tdml:error>
+      <tdml:error>padding is required</tdml:error>
       <tdml:error>textPadKind</tdml:error>
       <tdml:error>none</tdml:error>
       <tdml:error>e3</tdml:error>
@@ -297,5 +300,53 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+<!--
+      Test Name: unparseDelimitedString02
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case
+               there is too much data and an error should occur
+-->
+  <tdml:unparserTestCase name="unparseDelimitedString02" model="delimitedStrings" root="e1" roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+          <ex:s2>2</ex:s2>
+          <ex:s2>2</ex:s2>
+          <ex:s2>2</ex:s2>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found next element</tdml:error>
+      <tdml:error>s2</tdml:error>
+      <tdml:error>no element is expected</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedString03
+      Schema: delimitedStrings
+      Purpose: This test demonstrates unparsing a sequence of delimited strings. In this case
+               there is not enough data and an error should occur
+-->
+  <tdml:unparserTestCase name="unparseDelimitedString03" model="delimitedStrings" root="e1" roundTrip="false">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1 xmlns:ex="http://example.com">
+          <ex:s1>1</ex:s1>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Expected Start Element</tdml:error>
+      <tdml:error>but received: End</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
