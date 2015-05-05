@@ -80,7 +80,7 @@ case class EscapeSchemeBlockUnparserHelper(private val escEscChar: Maybe[String]
   val fieldEscDFA = CreateFieldDFA(blockEndDFA, eec)
   val extraEscCharsDFAs: Seq[DFADelimiter] = CreateDelimiterDFA(extraEscChar.getOrElse(Seq.empty))
 
-  override val lookingFor = blockEndDFA +: blockEndDFA +: extraEscCharsDFAs
+  override val lookingFor = blockStartDFA +: extraEscCharsDFAs
 
   override def toString() = "<EscapeSchemeBlock escapeEscapeChar='" + escEscChar.getOrElse("") +
     "' blockStart='" + blockStart + "' blockEnd='" + blockEnd + "' generateEscapeBlock='" + generateEscapeBlock + "'/>"

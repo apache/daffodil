@@ -38,18 +38,141 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
   def escape(input: DFDLCharReader,
     field: DFAField,
     delims: Seq[DFADelimiter],
-    escapeEscapeChar: Char,
+    blockEndDFA: DFADelimiter,
+    escapeEscapeChar: Maybe[Char],
     blockStart: String,
     blockEnd: String,
     generateEscapeBlock: Boolean, state: UState): (String, Boolean) = {
 
-    val (resultString, escapeOccurred) = escape(input, field, delims, escapeEscapeChar, Nope, state)
+    val (resultString, shouldGenerateEscapeBlock) = escapeBlock(input, field, delims, blockEndDFA, escapeEscapeChar, state)
 
-    val result = if (generateEscapeBlock || escapeOccurred) blockStart + resultString + blockEnd else resultString
-    (result, escapeOccurred)
+    val result = if (generateEscapeBlock || shouldGenerateEscapeBlock) blockStart + resultString + blockEnd else resultString
+    (result, shouldGenerateEscapeBlock)
   }
 
-  def escape(input: DFDLCharReader,
+  /**
+   * Performs escaping for escapeSchemeKind Block for unparsing.
+   */
+  def escapeBlock(input: DFDLCharReader,
+    field: DFAField,
+    delims: Seq[DFADelimiter],
+    blockEnd: DFADelimiter,
+    escapeEscapeChar: Maybe[Char],
+    state: UState): (String, Boolean) = {
+    Assert.invariant(delims != null)
+    Assert.invariant(field != null)
+
+    val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
+
+    // We need to recognize the blockEnd in addition to the other pieces of
+    // text we should escape
+    //
+    val fieldReg: Registers = new Registers(blockEnd +: delims)
+
+    fieldReg.reset(input, 0)
+
+    val initialCharPos = 0
+
+    var stillSearching: Boolean = true
+    var stateNum: Int = 0 // initial state is 0
+    var actionNum: Int = 0
+    var numCharsInserted: Int = 0
+
+    var fieldResumingCharPos: Int = -1
+
+    var shouldGenerateEscapeBlock: Boolean = false
+
+    while (stillSearching) {
+      if (fieldResumingCharPos != -1) {
+        val newReader = input.atCharPos(fieldResumingCharPos)
+        fieldReg.resumeForUnparse(newReader)
+        fieldResumingCharPos = -1
+      }
+      // We want to examine each character and if it's not part of a
+      // delimiter append it to the 'field' member.  If it is part of
+      // a delimiter we want to perform a longest match.  We then
+      // append the 'escape' character to the 'field' member followed
+      // by the matched delimiter.  We then start the process again
+      // starting with the character following that of the matched 
+      // delimiter until we reach end of data.
+      //
+      val dfaStatus = field.run(stateNum, fieldReg, actionNum)
+      actionNum = 0
+
+      dfaStatus.status match {
+        case StateKind.EndOfData => stillSearching = false
+        case StateKind.Failed => stillSearching = false
+        case StateKind.Paused => {
+
+          // We check for a blockEnd first, if it exists then we MUST
+          // generate an escape block
+          //
+          val blockEndReg: Registers = new Registers(Seq(blockEnd))
+          blockEndReg.copy(fieldReg)
+          val blockEndStatus = blockEnd.run(0, blockEndReg)
+          blockEndStatus.status match {
+            case StateKind.Succeeded if (!escapeEscapeChar.isDefined) => UnparseError(One(context.schemaFileLocation),
+              One(state),
+              "escapeEscapeCharacter was not defined but the escapeBlockEnd (%s) was present in the data.",
+              blockEnd.lookingFor)
+            case StateKind.Succeeded => {
+              fieldReg.appendToField(escapeEscapeChar.get)
+              blockEndReg.delimString.foreach(fieldReg.appendToField(_))
+              numCharsInserted += 1
+              shouldGenerateEscapeBlock = true
+
+              // resume field parse
+              fieldResumingCharPos = initialCharPos + fieldReg.numCharsRead - numCharsInserted // subtract for inserted escape character
+
+              actionNum = 0
+              stateNum = 0
+            }
+            case _ => {
+              // Looking for the blockEnd failed, check for the other pieces
+              // of text we should generate an escape block for
+              //
+              delims.foreach(d => { // Pick up where field left off
+                val delimReg: Registers = new Registers(delims)
+                delimReg.copy(fieldReg)
+                val delimStatus = d.run(0, delimReg)
+                delimStatus.status match {
+                  case StateKind.Succeeded => {
+                    successes += (d -> delimReg)
+                  }
+                  case _ => {
+                    // resume field parse
+                    actionNum = dfaStatus.actionNum + 1 // goto next rule
+                    stateNum = dfaStatus.currentStateNum
+                  }
+                }
+              })
+              if (!successes.isEmpty) {
+                val (matchedDelim, matchedReg) = longestMatch(successes).get
+                matchedReg.delimString.foreach(fieldReg.appendToField(_))
+                successes.clear
+
+                shouldGenerateEscapeBlock = true
+
+                // resume field parse
+                fieldResumingCharPos = initialCharPos + fieldReg.numCharsRead - numCharsInserted // subtract for inserted escape character
+
+                actionNum = 0
+                stateNum = 0
+              }
+            }
+          }
+        }
+      }
+    }
+
+    (fieldReg.resultString.toString, shouldGenerateEscapeBlock)
+  }
+
+  /**
+   * Performs escaping appropriate when escapeSchemeKind is Character for
+   * unparsing.
+   */
+  def escapeCharacter(input: DFDLCharReader,
     field: DFAField,
     delims: Seq[DFADelimiter],
     escapeChar: Char,
@@ -115,7 +238,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               else
                 UnparseError(One(context.schemaFileLocation), One(state), "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.", escapeChar)
             } else { fieldReg.appendToField(escapeChar) }
-            matchedDelim.lookingFor.foreach(fieldReg.appendToField(_))
+            matchedReg.delimString.foreach(fieldReg.appendToField(_))
             successes.clear
 
             escapeOccurred = true

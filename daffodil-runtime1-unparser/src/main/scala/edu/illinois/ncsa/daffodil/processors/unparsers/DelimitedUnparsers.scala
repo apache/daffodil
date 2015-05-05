@@ -77,7 +77,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
               val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
               val thingsToEscape = inscopeDelimiters ++ scheme.lookingFor
 
-              textUnparser.escape(rdr, fieldDFA, thingsToEscape, theScheme.ec.get, theScheme.eec, state)
+              textUnparser.escapeCharacter(rdr, fieldDFA, thingsToEscape, theScheme.ec.get, theScheme.eec, state)
             } else {
               val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
 
@@ -95,8 +95,8 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
 
               val thingsToEscape = theScheme.lookingFor // blockEnd and extraEscapedCharacters
 
-              textUnparser.escape(rdr, fieldDFA, thingsToEscape,
-                theScheme.eec.get, theScheme.blockStart, theScheme.blockEnd,
+              textUnparser.escape(rdr, fieldDFA, thingsToEscape, theScheme.blockEndDFA,
+                theScheme.eec, theScheme.blockStart, theScheme.blockEnd,
                 generateEscapeBlock, state)
             }
           }
