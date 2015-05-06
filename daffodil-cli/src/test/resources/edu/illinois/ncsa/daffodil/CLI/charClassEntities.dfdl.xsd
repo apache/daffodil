@@ -11,7 +11,7 @@
       <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="ASCII"
         byteOrder="bigEndian" alignment="implicit" alignmentUnits="bits"
-        fillByte="f" occursCountKind="parsed"
+        fillByte="f" occursCountKind="implicit"
         truncateSpecifiedLengthString="no" ignoreCase="no"
         representation="text" lengthKind="delimited"
         nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
