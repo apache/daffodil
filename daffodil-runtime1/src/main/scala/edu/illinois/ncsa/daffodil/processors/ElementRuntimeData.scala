@@ -57,9 +57,10 @@ trait HasSlotIndexInParent {
 
 class ElementRuntimeData(
   /**
-   * These transient by-name args are part of how we
-   * hook these objects into a parent-child tree without
-   * having to use an assignment to a var.
+   * These transient by-name args are part of how we hook these objects into a
+   * parent-child tree without having to use an assignment to a var. Note that
+   * all transient elements must be added to the preSerialization method below
+   * to allow parser serialization/deserialization to work.
    */
   @transient parentArg: => Option[ElementRuntimeData],
   @transient childrenArg: => Seq[ElementRuntimeData],
@@ -140,6 +141,8 @@ class ElementRuntimeData(
     children
     parent
     variableMap
+    nextElementResolver
+    childElementResolver
   }
 
   @throws(classOf[java.io.IOException])

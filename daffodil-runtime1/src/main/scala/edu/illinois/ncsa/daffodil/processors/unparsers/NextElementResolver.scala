@@ -22,7 +22,7 @@ trait NextElementResolver extends Serializable {
   def nextElement(name: String, nameSpace: String): ElementRuntimeData
 }
 
-sealed abstract class ResolverType(val name: String)
+sealed abstract class ResolverType(val name: String) extends Serializable
 case object SiblingResolver extends ResolverType("next")
 case object ChildResolver extends ResolverType("child")
 case object RootResolver extends ResolverType("root")

@@ -133,10 +133,9 @@ sealed class NS protected (uriArg: URI) extends Serializable { // protected cons
   def isUnspecified = false
   override def hashCode() = toString.hashCode()
   
-  final private def readObject (in: java.io.ObjectInputStream) : Unit = {
-    in.defaultReadObject();
-    val s = this.toString();
-    if (!NS.nsCache.contains(s)) NS.nsCache.put(s, this)
+  final protected def readResolve(): AnyRef = {
+    val s = if (this.toString == NoNamespace.toString) "" else this.toString
+    NS.nsCache.getOrElseUpdate(s, this)
   }
   
   def equalsNS(other: NS): Boolean = {
