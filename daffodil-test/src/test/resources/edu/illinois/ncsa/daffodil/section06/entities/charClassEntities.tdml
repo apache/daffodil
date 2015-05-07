@@ -450,7 +450,8 @@ johnson,john,henry,1986-01-23
 jonesington,david,frederick,1986-02-19
 ]]></document>
    <errors>
-     <error>Left over data</error>
+     <error>Parse error</error>
+     <error>Expected 1 item</error>
    </errors>
   </parserTestCase>
   
