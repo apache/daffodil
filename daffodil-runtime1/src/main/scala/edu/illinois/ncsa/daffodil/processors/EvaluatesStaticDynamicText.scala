@@ -70,19 +70,19 @@ trait EvaluatesStaticDynamicTextParser
   def evaluateDynamicText(dynamic: Option[CompiledExpression],
     start: PState,
     context: RuntimeData,
-    errorOnWSPStar: Boolean): (Seq[DFADelimiter], PState) = {
+    errorOnWSPStar: Boolean): Seq[DFADelimiter] = {
 
     if (dynamic.isDefined) {
       val (res, newVMap) = dynamic.get.evaluate(start)
-      val newState = start.withVariables(newVMap)
+      start.setVariables(newVMap)
       val finalValueCooked = new ListOfStringValueAsLiteral(res.toString, context).cooked
 
       if (errorOnWSPStar) errorIfDelimsHaveWSPStar(finalValueCooked, context)
 
       val dfas = CreateDelimiterDFA(finalValueCooked)
 
-      (dfas, newState)
-    } else { (Seq.empty, start) }
+      dfas
+    } else { Seq.empty }
   }
 }
 
@@ -129,7 +129,7 @@ trait EvaluatesStaticDynamicTextUnparser
     outputNewLine: CompiledExpression,
     start: UState,
     context: RuntimeData,
-    errorOnWSPStar: Boolean): Option[DFADelimiter]= {
+    errorOnWSPStar: Boolean): Option[DFADelimiter] = {
 
     if (dynamic.isDefined) {
       val res = dynamic.get.evaluate(start)

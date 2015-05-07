@@ -64,7 +64,7 @@ class StringPatternMatchedParser(pattern: String,
 
   val eName = erd.name
 
-  def parse(start: PState): PState = withParseErrorThrowing(start) {
+  def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
     log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at byte position: %s", eName, (start.bitPos >> 3))
     log(LogLevel.Debug, "StringPatternMatched - %s - Parsing pattern at bit position: %s", eName, start.bitPos)
@@ -96,10 +96,9 @@ class StringPatternMatchedParser(pattern: String,
         val endCharPos = if (start.charPos == -1) s.field.length() else start.charPos + s.field.length()
         val field = trimByJustification(s.field)
         start.simpleElement.setDataValue(field)
-        start.withPos(endBitPos, endCharPos, One(s.next))
+        start.setPos(endBitPos, endCharPos, One(s.next))
       }
 
     }
-    postState
   }
 }

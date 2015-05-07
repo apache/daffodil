@@ -425,11 +425,11 @@ case class TextDelimitedParserFactory(
   }
 
   protected def constructParser(state: PState) = {
-    val (postEvalState, delims, delimsCooked, fieldDFA, scheme) = fieldFact.getFieldDFA(state)
+    val (delims, delimsCooked, fieldDFA, scheme) = fieldFact.getFieldDFA(state)
 
-    (postEvalState, preConstructedParser, delims, delimsCooked, fieldDFA, scheme)
+    (preConstructedParser, delims, delimsCooked, fieldDFA, scheme)
   }
 
-  def getParser(state: PState): (PState, TextDelimitedParserBase, Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = constructParser(state)
+  def getParser(state: PState): (TextDelimitedParserBase, Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = constructParser(state)
 
 }

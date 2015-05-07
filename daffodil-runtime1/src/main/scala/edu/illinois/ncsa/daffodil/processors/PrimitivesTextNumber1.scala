@@ -60,36 +60,42 @@ case class ConvertTextNumberParser[S](
   e: ElementRuntimeData) extends PrimParser(e) {
   override def toString = "to(xs:" + helper.xsdType + ")"
 
-  def parse(start: PState): PState = withParseErrorThrowing(start) {
+  def parse(start: PState): Unit = withParseErrorThrowing(start) {
     val node: InfosetSimpleElement = start.simpleElement
     var str = node.dataValueAsString
 
     Assert.invariant(str != null) // worst case it should be empty string. But not null.
-    if (str == "") return PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.prettyType, helper.xsdType)
+    if (str == "") {
+      PE(start, "Convert to %s (for xs:%s): Cannot parse number from empty string", helper.prettyType, helper.xsdType)
+      return
+    }
 
     // because of the way the zero rep regular expressions are generated, they
     // will match either all or none of 'str', never part of it. Thus,
     // findFirstIn() either matches and it's a zero rep, or it doesn't and it's
     // not a zero
-    val (resultState, numValue) = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
-      case Some(_) => (start, helper.getNum(0))
+    val numValue = helper.zeroRepList.find { _.findFirstIn(str).isDefined } match {
+      case Some(_) => helper.getNum(0)
       case None => {
-        val (newstate, df) = nff.getNumFormat(start)
+        val df = nff.getNumFormat(start)
         val pos = new ParsePosition(0)
         val num = try {
           df.get.parse(str, pos)
         } catch {
           case u: UnsuppressableException => throw u
-          case e: Exception =>
-            return PE(newstate, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
+          case e: Exception => {
+            PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",
               helper.prettyType, helper.xsdType, str, e)
+            return
+          }
         }
 
         // Verify that what was parsed was what was passed exactly in byte count.
         // Use pos to verify all characters consumed & check for errors!
         if (num == null || pos.getIndex != str.length) {
-          return PE(newstate, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
+          PE(start, "Convert to %s (for xs:%s): Unable to parse '%s' (using up all characters).",
             helper.prettyType, helper.xsdType, str)
+          return
         }
 
         val numValue = num match {
@@ -102,8 +108,9 @@ case class ConvertTextNumberParser[S](
           case d: java.lang.Double if (d.isNaN) => XMLUtils.NaN
           case _ => {
             if (helper.isInvalidRange(num)) {
-              return PE(newstate, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
+              PE(start, "Convert to %s (for xs:%s): Out of Range: '%s' converted to %s, is not in range for the type.",
                 helper.prettyType, helper.xsdType, str, num)
+              return
             }
 
             // convert to proper type
@@ -121,14 +128,13 @@ case class ConvertTextNumberParser[S](
             asNumber
           }
         }
-        (newstate, numValue)
+        numValue
       }
     }
 
     Assert.invariant(!numValue.isInstanceOf[String])
     node.setDataValue(numValue)
 
-    resultState
   }
 }
 
@@ -587,8 +593,8 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   // as per ICU4J documentation, "DecimalFormat objects are not
   // synchronized. Multiple threads should not access one formatter
   // concurrently."
-  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat])
-  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat])
+  def getNumFormat(state: PState): ThreadLocal[NumberFormat]
+  def getNumFormat(state: UState): ThreadLocal[NumberFormat]
 
 }
 
@@ -642,11 +648,11 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     }
   }
 
-  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat]) = {
-    (state, numFormat)
+  def getNumFormat(state: PState): ThreadLocal[NumberFormat] = {
+    numFormat
   }
-  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat]) = {
-    (state, numFormat)
+  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
+    numFormat
   }
 }
 
@@ -690,23 +696,23 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
 
-  def getNumFormat(state: PState): (PState, ThreadLocal[NumberFormat]) = {
+  def getNumFormat(state: PState): ThreadLocal[NumberFormat] = {
 
-    val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
+    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
       (s: PState, c: Any) =>
         {
           getDecimalSepList(c.asInstanceOf[String], s)
         }
     }
 
-    val (groupingSepState, groupingSep) = evalWithConversion(decimalSepState, groupingSepCached) {
+    val groupingSep = evalWithConversion(state, groupingSepCached) {
       (s: PState, c: Any) =>
         {
           getGroupingSep(c.asInstanceOf[String], s)
         }
     }
 
-    val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
+    val exponentRep = evalWithConversion(state, exponentRepCached) {
       (s: PState, c: Any) =>
         {
           getExponentRep(c.asInstanceOf[String], s)
@@ -741,26 +747,26 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       }
     }
 
-    (exponentRepState, numFormat)
+    numFormat
   }
-  
-  def getNumFormat(state: UState): (UState, ThreadLocal[NumberFormat]) = {
 
-    val (decimalSepState, decimalSepList) = evalWithConversion(state, decimalSepListCached) {
+  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
+
+    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
       (s: UState, c: Any) =>
         {
           getDecimalSepList(c.asInstanceOf[String], s)
         }
     }
 
-    val (groupingSepState, groupingSep) = evalWithConversion(decimalSepState, groupingSepCached) {
+    val groupingSep = evalWithConversion(state, groupingSepCached) {
       (s: UState, c: Any) =>
         {
           getGroupingSep(c.asInstanceOf[String], s)
         }
     }
 
-    val (exponentRepState, exponentRep) = evalWithConversion(groupingSepState, exponentRepCached) {
+    val exponentRep = evalWithConversion(state, exponentRepCached) {
       (s: UState, c: Any) =>
         {
           getExponentRep(c.asInstanceOf[String], s)
@@ -795,6 +801,6 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
       }
     }
 
-    (exponentRepState, numFormat)
+    numFormat
   }
 }

@@ -71,30 +71,27 @@ abstract class Parser(val context: RuntimeData)
   import TypeConversions._
 
   def PE(pstate: PState, s: String, args: Any*) = {
-    pstate.failed(new ParseError(One(context.schemaFileLocation), One(pstate), s, args: _*))
+    pstate.setFailed(new ParseError(One(context.schemaFileLocation), One(pstate), s, args: _*))
   }
 
   def processingError(state: PState, str: String, args: Any*) =
     PE(state, str, args) // long form synonym
 
-  protected def parse(pstate: PState): PState
+  protected def parse(pstate: PState): Unit
 
-  final def parse1(pstate: PState, context: RuntimeData): PState = {
-    Debugger.before(pstate, this)
+  final def parse1(pstate: PState, context: RuntimeData): Unit = {
     // 
     // Since the pstate is being overwritten (in most case) now,
     // we must explicitly make a copy so we can compute a delta
     // after
     //
-    val beforeState = if (Debugger.getDebugging()) pstate.duplicate() else pstate
-    val afterState = parse(pstate)
-    if (!(afterState eq pstate)) {
-      // if they're not the same state object we make them so.
-      pstate.assignFrom(afterState)
-      pstate.inStream.assignFrom(afterState.inStream)
-    }
-    Debugger.after(beforeState, pstate, this)
-    pstate
+    val beforeState =
+      if (Debugger.getDebugging()) {
+        Debugger.before(pstate, this)
+        pstate.duplicate()
+      } else pstate
+    parse(pstate)
+    if (Debugger.getDebugging()) Debugger.after(beforeState, pstate, this)
   }
 
   // TODO: other methods for things like asking for the ending position of something
@@ -114,7 +111,7 @@ class EmptyGramParser(context: RuntimeData = null) extends Parser(context) {
 }
 
 class ErrorParser(context: RuntimeData = null) extends Parser(context) {
-  def parse(pstate: PState): PState = Assert.abort("Error Parser")
+  def parse(pstate: PState): Unit = Assert.abort("Error Parser")
   override def toBriefXML(depthLimit: Int = -1) = "<error/>"
   override def toString = "Error Parser"
   override def childProcessors = Nil
@@ -162,18 +159,16 @@ class SeqCompParser(context: RuntimeData, val childParsers: Seq[Parser])
 
   override def nom = "seq"
 
-  def parse(pstate: PState): PState = {
-    var pResult = pstate
+  def parse(pstate: PState): Unit = {
     childParsers.foreach { parser =>
       {
-        pResult = parser.parse1(pResult, context)
-        if (pResult.status != Success) {
+        parser.parse1(pstate, context)
+        if (pstate.status != Success) {
           // failed in a sequence
-          return pResult
+          return
         }
       }
     }
-    pResult
   }
 
 }
@@ -185,17 +180,17 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
 
   override def nom = "alt"
 
-  def parse(pInitial: PState): PState = {
-    val pStart = pInitial.withNewPointOfUncertainty
-    var pResult: PState = null
+  def parse(pstate: PState): Unit = {
+    pstate.pushDiscriminator
+    var pBefore: PState = null
     var diagnostics: Seq[Diagnostic] = Nil
-    val cloneNode = pStart.captureInfosetElementState // we must undo side-effects on the JDOM if we backtrack.
+    val cloneNode = pstate.captureInfosetElementState // we must undo side-effects on the JDOM if we backtrack.
     childParsers.foreach { parser =>
       {
         log(LogLevel.Debug, "Trying choice alternative: %s", parser)
         try {
-          val ps = pStart.duplicate()
-          pResult = parser.parse1(ps, context)
+          pBefore = pstate.duplicate()
+          parser.parse1(pstate, context)
         } catch {
           case u: UnsuppressableException => throw u
           case rsde: RuntimeSchemaDefinitionError => throw rsde
@@ -205,46 +200,48 @@ class AltCompParser(context: RuntimeData, val childParsers: Seq[Parser])
           // because they're getting caught and converted into rSDEs which makes them 
           // look to be DFDL Schema or parser issues when they are code problems.
         }
-        if (pResult.status == Success) {
+        if (pstate.status == Success) {
           log(LogLevel.Debug, "Choice alternative success: %s", parser)
-          val res = pResult.withRestoredPointOfUncertainty
-          return res
+          pstate.popDiscriminator
+          return
         }
         // If we get here, then we had a failure
         log(LogLevel.Debug, "Choice alternative failed: %s", parser)
         // Unwind any side effects on the Infoset 
         // The infoset is the primary non-functional data structure. We have to un-side-effect it.
-        pStart.restoreInfosetElementState(cloneNode)
-        val diag = new ParseAlternativeFailed(context.schemaFileLocation, pStart, pResult.diagnostics)
+        pstate.restoreInfosetElementState(cloneNode)
+        val diag = new ParseAlternativeFailed(context.schemaFileLocation, pstate, pstate.diagnostics)
         diagnostics = diag +: diagnostics
         // check for discriminator evaluated to true.
-        if (pResult.discriminator == true) {
+        if (pstate.discriminator == true) {
           log(LogLevel.Debug, "Failure, but discriminator true. Additional alternatives discarded.")
           // If so, then we don't run the next alternative, we
           // consume this discriminator status result (so it doesn't ripple upward)
           // and return the failed state withall the diagnostics.
           //
-          val allDiags = new AltParseFailed(context.schemaFileLocation, pResult, diagnostics.reverse)
-          val res = pResult.failed(allDiags).withRestoredPointOfUncertainty
-          return res
+          val allDiags = new AltParseFailed(context.schemaFileLocation, pstate, diagnostics.reverse)
+          pstate.setFailed(allDiags)
+          pstate.popDiscriminator
+          return
         }
         //
         // Here we have a failure, but no discriminator was set, so we try the next alternative.
         // Which means we just go around the loop
+        pstate.assignFrom(pBefore)
       }
     }
     // Out of alternatives. All of them failed. 
-    val allDiags = new AltParseFailed(context.schemaFileLocation, pStart, diagnostics.reverse)
-    val allFailedResult = pStart.failed(allDiags)
+    val allDiags = new AltParseFailed(context.schemaFileLocation, pBefore, diagnostics.reverse)
+    pBefore.setFailed(allDiags)
     log(LogLevel.Debug, "All AltParser alternatives failed.")
-    val result = allFailedResult.withRestoredPointOfUncertainty
-    result
+    pstate.assignFrom(pBefore)
+    pstate.popDiscriminator
   }
 
 }
 
 case class DummyParser(rd: RuntimeData) extends Parser(null) {
-  def parse(pstate: PState): PState = pstate.SDE("Parser for " + rd + " is not yet implemented.")
+  def parse(pstate: PState): Unit = pstate.SDE("Parser for " + rd + " is not yet implemented.")
 
   override def childProcessors = Nil
   override def toBriefXML(depthLimit: Int = -1) = "<dummy/>"

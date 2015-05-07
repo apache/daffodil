@@ -108,8 +108,8 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
   lazy val parserName = "HexBinaryFixedLengthInBytes"
   lazy val lengthText = nBytes.toString
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
+  def getLength(pstate: PState): Long = {
+    nBytes
   }
 
   def parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
@@ -122,9 +122,9 @@ case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
   lazy val parserName = "HexBinaryFixedLengthInBits"
   lazy val lengthText = nBits.toString
 
-  def getLength(pstate: PState): (Long, PState) = {
+  def getLength(pstate: PState): Long = {
     val nBytes = scala.math.ceil(nBits / 8).toLong
-    (nBytes, pstate)
+    nBytes
   }
 
   def parser: DaffodilParser = new HexBinaryFixedLengthInBitsParser(nBits,
@@ -147,8 +147,8 @@ case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: 
   lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
   lazy val lengthText = nBytes.toString
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
+  def getLength(pstate: PState): Long = {
+    nBytes
   }
 
   override lazy val parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
@@ -172,8 +172,8 @@ case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nByte
   lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
   lazy val lengthText = nBytes.toString
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
+  def getLength(pstate: PState): Long = {
+    nBytes
   }
 
   override lazy val parser: DaffodilParser = new StringFixedLengthInBytesVariableWidthCharactersParser(
@@ -287,17 +287,17 @@ trait HasEscapeScheme { self: StringDelimited =>
     } else Nope
   }
 
-  protected def runtimeEvalEsc(optEsc: Maybe[CompiledExpression], state: PState): (Maybe[String], PState) = {
-    val (finalOptEsc, afterEscEval) =
-      if (!optEsc.isDefined) (Nope, state)
+  protected def runtimeEvalEsc(optEsc: Maybe[CompiledExpression], state: PState): Maybe[String] = {
+    val finalOptEsc =
+      if (!optEsc.isDefined) Nope
       else {
         val (res, newVMap) = optEsc.get.evaluate(state)
         val l = new SingleCharacterLiteralES(res.toString, context)
         val resultEsc = l.cooked
-        val newState = state.withVariables(newVMap)
-        (One(resultEsc), newState)
+        state.setVariables(newVMap)
+        One(resultEsc)
       }
-    (finalOptEsc, afterEscEval)
+    finalOptEsc
   }
 
 }

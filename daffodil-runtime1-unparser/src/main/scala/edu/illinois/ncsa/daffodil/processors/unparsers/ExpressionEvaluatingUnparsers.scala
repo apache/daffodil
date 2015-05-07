@@ -74,7 +74,7 @@ class SetVariableUnparser(expr: CompiledExpression, decl: VariableRuntimeData)
       UnparseError(One(decl.schemaFileLocation), One(start), "%s - Evaluation failed for %s.", nom, expr)
 
     val newVMap = start.variableMap.setVariable(decl.globalQName, someValue, decl)
-    start.withVariables(newVMap)
+    start.setVariables(newVMap)
 
     if (start.status.isInstanceOf[Failure])
       UnparseError(One(decl.schemaFileLocation), One(start), "%s - SetVariable failed for %s.", nom, expr)

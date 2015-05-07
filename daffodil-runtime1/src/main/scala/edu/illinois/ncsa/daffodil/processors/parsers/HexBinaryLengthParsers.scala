@@ -46,16 +46,19 @@ abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
 
   protected def parserName: String
 
-  protected def getLength(pstate: PState): (Long, PState)
+  protected def getLength(pstate: PState): Long
 
-  final def parse(pstate: PState): PState = {
+  final def parse(start: PState): Unit = {
 
-    log(LogLevel.Debug, "Parsing starting at bit position: %s", pstate.bitPos)
+    log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos)
 
-    val (nBytes, start) = getLength(pstate)
+    val nBytes = getLength(start)
     log(LogLevel.Debug, "Explicit length %s", nBytes)
 
-    if (start.bitPos % 8 != 0) { return PE(start, "%s - not byte aligned.", parserName) }
+    if (start.bitPos % 8 != 0) {
+      PE(start, "%s - not byte aligned.", parserName)
+      return
+    }
 
     val bytes = start.inStream.getBytes(start.bitPos, nBytes)
     val currentElement = start.simpleElement
@@ -65,7 +68,7 @@ abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
       PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: wanted %s byte(s), but found only %s available.",
         parserName, nBytes, bytes.length)
     else
-      start.withPos(start.bitPos + (bytes.length * 8), -1, Nope)
+      start.setPos(start.bitPos + (bytes.length * 8), -1, Nope)
   }
 
 }
@@ -75,9 +78,8 @@ final class HexBinaryFixedLengthInBytesParser(nBytes: Long, erd: ElementRuntimeD
 
   def parserName = "HexBinaryFixedLengthInBytes"
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
-  }
+  def getLength(pstate: PState): Long = nBytes
+
 }
 
 final class HexBinaryFixedLengthInBitsParser(nBits: Long, erd: ElementRuntimeData)
@@ -85,9 +87,9 @@ final class HexBinaryFixedLengthInBitsParser(nBits: Long, erd: ElementRuntimeDat
 
   def parserName = "HexBinaryFixedLengthInBits"
 
-  def getLength(pstate: PState): (Long, PState) = {
+  def getLength(pstate: PState): Long = {
     val nBytes = scala.math.ceil(nBits / 8).toLong
-    (nBytes, pstate)
+    nBytes
   }
 }
 

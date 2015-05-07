@@ -147,7 +147,7 @@ class UState(
     diagnostics = vde :: diagnostics
   }
   
-  def withVariables(newVariableMap: VariableMap) = {
+  def setVariables(newVariableMap: VariableMap) = {
     this.variableMap = newVariableMap
   }
 }

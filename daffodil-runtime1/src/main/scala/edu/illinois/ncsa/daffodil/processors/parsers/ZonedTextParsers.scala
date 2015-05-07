@@ -39,7 +39,7 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
 class ZonedTextNumberParser(e: ElementRuntimeData)
   extends PrimParser(e) {
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     e.notYetImplemented("Zoned Numbers")
   }
 }

@@ -259,6 +259,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
 
   override def setDataValue(x: Any) {
     Assert.invariant(x != null)
+    Assert.invariant(!x.isInstanceOf[(Any, Any)])
     //
     // let's find places where we're putting a string in the infoset
     // but the simple type is not string.

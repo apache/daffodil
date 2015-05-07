@@ -73,36 +73,34 @@ class StringDelimitedParser(
 
   protected def dcharset = erd.encodingInfo.knownEncodingCharset.charset
 
-  def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
-    val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
-      else {
-        val result = parseResult.get
-        val field = result.field.getOrElse("")
-        val numBits = result.numBits
-        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
-        val endBitPos = state.bitPos + numBits
-        state.simpleElement.setDataValue(field)
-        val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-        if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-        return stateWithPos
-      }
+  def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
+
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    else {
+      val result = parseResult.get
+      val field = result.field.getOrElse("")
+      val numBits = result.numBits
+      val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+      val endBitPos = state.bitPos + numBits
+      state.simpleElement.setDataValue(field)
+      state.setPos(endBitPos, endCharPos, One(result.next))
+      if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
     }
-    res
+
   }
 
-  def parse(start: PState): PState = withParseErrorThrowing(start) {
+  def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
     // TODO: DFDL-451 - Has been put on the backburner until we can figure out the appropriate behavior
     //
     //      gram.checkDelimiterDistinctness(esObj.escapeSchemeKind, optPadChar, finalOptEscChar,
     //        finalOptEscEscChar, optEscBlkStart, optEscBlkEnd, delimsCooked, postEscapeSchemeEvalState)
 
-    val (postEvalState, textParser, delims, delimsCooked, fieldDFA, scheme) = pf.getParser(start)
+    val (textParser, delims, delimsCooked, fieldDFA, scheme) = pf.getParser(start)
 
-    val bytePos = (postEvalState.bitPos >> 3).toInt
+    val bytePos = (start.bitPos >> 3).toInt
 
-    val reader = getReader(dcharset, postEvalState.bitPos, postEvalState)
+    val reader = getReader(dcharset, start.bitPos, start)
     val hasDelim = delimsCooked.length > 0
 
     start.mpstate.clearDelimitedText
@@ -116,9 +114,9 @@ class StringDelimitedParser(
       } else textParser.parse(reader, fieldDFA, delims, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
-        throw new ParseError(One(erd.schemaFileLocation), Some(postEvalState), "Malformed input, length: %s", mie.getInputLength())
+        throw new ParseError(One(erd.schemaFileLocation), Some(start), "Malformed input, length: %s", mie.getInputLength())
     }
-    processResult(result, postEvalState)
+    processResult(result, start)
   }
 }
 
@@ -135,36 +133,35 @@ class LiteralNilDelimitedEndOfDataParser(
 
   val isDelimRequired: Boolean = false
 
-  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
-    val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
-      else {
-        val result = parseResult.get
-        // We have a field, is it empty?
-        val field = result.field.getOrElse("")
-        val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
+  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    else {
+      val result = parseResult.get
+      // We have a field, is it empty?
+      val field = result.field.getOrElse("")
+      val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
-        if (isFieldEmpty && !isEmptyAllowed) {
-          return this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
-        } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
-          dp.isFieldDfdlLiteral(field, nilValues.toSet)) { // Not empty, but matches.
-          // Contains a nilValue, Success!
-          state.thisElement.setNilled()
+      if (isFieldEmpty && !isEmptyAllowed) {
+        this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+        return
+      } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
+        dp.isFieldDfdlLiteral(field, nilValues.toSet)) { // Not empty, but matches.
+        // Contains a nilValue, Success!
+        state.thisElement.setNilled()
 
-          val numBits = result.numBits
-          val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
-          val endBitPos = numBits + state.bitPos
+        val numBits = result.numBits
+        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+        val endBitPos = numBits + state.bitPos
 
-          val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-          if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-          return stateWithPos
-        } else {
-          // Fail!
-          return this.PE(state, "%s - Does not contain a nil literal!", erd.prettyName)
-        }
+        state.setPos(endBitPos, endCharPos, One(result.next))
+        if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        return
+      } else {
+        // Fail!
+        this.PE(state, "%s - Does not contain a nil literal!", erd.prettyName)
+        return
       }
     }
-    res
   }
 }
 
@@ -186,22 +183,19 @@ class HexBinaryDelimitedParser(
    */
   override lazy val dcharset = Charset.forName("ISO-8859-1")
 
-  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): PState = {
-    val res = {
-      if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
-      else {
-        val result = parseResult.get
-        val field = result.field.getOrElse("")
-        val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
-        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
-        val endBitPos = state.bitPos + numBits
-        val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
-        state.simpleElement.setDataValue(hexStr)
-        val stateWithPos = state.withPos(endBitPos, endCharPos, One(result.next))
-        if (result.matchedDelimiterValue.isDefined) stateWithPos.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
-        return stateWithPos
-      }
+  override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
+    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    else {
+      val result = parseResult.get
+      val field = result.field.getOrElse("")
+      val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
+      val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
+      val endBitPos = state.bitPos + numBits
+      val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
+      state.simpleElement.setDataValue(hexStr)
+      state.setPos(endBitPos, endCharPos, One(result.next))
+      if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+      return
     }
-    res
   }
 }

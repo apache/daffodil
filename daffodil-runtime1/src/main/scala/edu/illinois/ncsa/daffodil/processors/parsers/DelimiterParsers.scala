@@ -149,7 +149,7 @@ class DelimiterTextParser(
   }
   override def toString = kindString + "('" + delimExpr + "')"
 
-  override def parse(start: PState): PState = withParseErrorThrowing(start) {
+  override def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
     val localDelimsCooked = start.mpstate.localDelimiters.getAllDelimiters
 
@@ -175,24 +175,26 @@ class DelimiterTextParser(
           val endCharPos = start.charPos
           val endBitPosDelim = numBits + start.bitPos
 
-          val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-          state.mpstate.clearDelimitedText
-          return state
+          start.setPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
+          start.mpstate.clearDelimitedText
+          return
         } else if (hasRemoteES(start)) {
           // has remote but not local (PE)
           val (remoteDelimValue, remoteElemName, remoteElemPath) =
             getMatchedDelimiterInfo("%ES;", start)
 
-          return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+          PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
             this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
             kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+          return
         } else {
           // no match and no ES in delims
           val maxDelimLength = start.mpstate.localDelimiters.getMaxDelimiterLength
 
           val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
-          return PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
+          PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
             this.toString(), rd.prettyName, localDelimsCooked.mkString(", "), foundInstead)
+          return
         }
       } else {
         val res = result.get
@@ -202,16 +204,18 @@ class DelimiterTextParser(
             getMatchedDelimiterInfo(res.originalDelimiterRep,
               start)
 
-          return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+          PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
             this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
             kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+          return
         }
 
         val numBits = res.numBits
         val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
         val endBitPosDelim = numBits + start.bitPos
 
-        return start.withPos(endBitPosDelim, endCharPos, Some(res.next))
+        start.setPos(endBitPosDelim, endCharPos, Some(res.next))
+        return
       }
     } else {
       val found = start.mpstate.foundDelimiter.get
@@ -220,17 +224,17 @@ class DelimiterTextParser(
           getMatchedDelimiterInfo(found.originalRepresentation,
             start)
 
-        return PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
+        PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
           this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
           kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+        return
       } else {
         val numBits = rd.encodingInfo.knownEncodingStringBitLength(found.foundText)
         val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
         val endBitPosDelim = numBits + start.bitPos
 
-        val state = start.withPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-        state.mpstate.clearDelimitedText
-        return state
+        start.setPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
+        start.mpstate.clearDelimitedText
       }
     }
 

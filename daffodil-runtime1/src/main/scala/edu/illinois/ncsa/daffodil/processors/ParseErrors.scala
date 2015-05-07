@@ -220,46 +220,49 @@ trait WithParseErrorThrowing {
    * This wrapper then implements the required behavior for parsers
    * that being returning a failed parser state.
    */
-  def withParseErrorThrowing(pstate: PState)(body: => PState): PState = {
+  def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
     val saveCanThrowParseErrors = WithParseErrorThrowing.flag
     WithParseErrorThrowing.flag = true
-    val result =
-      try body
-      catch {
-        case e: ParseError => {
-          val maybePS = e.pstate
-          // if there is a maybePS, then use it to create the failed state (because it 
-          // is probably more specific about the failure location), otherwise
-          // use the one passed as an argument. 
-          val res = maybePS.map { _.failed(e) }.getOrElse(pstate.failed(e))
-          res
+    try body
+    catch {
+      case e: ParseError => {
+        val maybePS = e.pstate
+        // if there is a maybePS, then use it to create the failed state (because it 
+        // is probably more specific about the failure location), otherwise
+        // use the one passed as an argument. 
+        if (maybePS.isDefined) {
+          val ps = maybePS.get
+          ps.setFailed(e)
+          pstate.assignFrom(ps)
+        } else {
+          pstate.setFailed(e)
         }
-        // TODO: Runtime SDEs should be distinguished somehow usefully.
-        //        case e : SchemaDefinitionError => {
-        //          val res = pstate.failed(e)
-        //          res
-        //        }
-        //
-        case e: NumberFormatException => {
-          val ie = pstate.infoset.asInstanceOf[InfosetElement]
-          val msg =
-            if (e.getMessage() != null && e.getMessage() != "")
-              e.getMessage()
-            else Misc.getNameFromClass(e)
-          val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate), msg)
-          pstate.failed(pe)
-        }
-        // Note: We specifically do not catch other exceptions here
-        // On purpose. If those exist, then there's someplace that should have already caught them
-        // and turned them into a thrown parse error, or a schema definition error.
-        //
-        // Other kinds of spontaneous throws are bugs, and we don't want to mask them by 
-        // putting blanket catches in. 
-        //
-      } finally {
-        WithParseErrorThrowing.flag = saveCanThrowParseErrors
       }
-    result
+      // TODO: Runtime SDEs should be distinguished somehow usefully.
+      //        case e : SchemaDefinitionError => {
+      //          val res = pstate.failed(e)
+      //          res
+      //        }
+      //
+      case e: NumberFormatException => {
+        val ie = pstate.infoset.asInstanceOf[InfosetElement]
+        val msg =
+          if (e.getMessage() != null && e.getMessage() != "")
+            e.getMessage()
+          else Misc.getNameFromClass(e)
+        val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate), msg)
+        pstate.setFailed(pe)
+      }
+      // Note: We specifically do not catch other exceptions here
+      // On purpose. If those exist, then there's someplace that should have already caught them
+      // and turned them into a thrown parse error, or a schema definition error.
+      //
+      // Other kinds of spontaneous throws are bugs, and we don't want to mask them by 
+      // putting blanket catches in. 
+      //
+    } finally {
+      WithParseErrorThrowing.flag = saveCanThrowParseErrors
+    }
   }
 
   /**

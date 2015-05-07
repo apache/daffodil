@@ -255,11 +255,7 @@ class EscapeSchemeStackUnparser(escapeScheme: EscapeSchemeObject, rd: RuntimeDat
 
   def unparse(start: UState): Unit = {
     // Evaluate
-    val (afterEval, escScheme) = {
-      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeSchemeUnparser(start)
-
-      (afterDynamicEval, evaluatedScheme)
-    }
+    val escScheme = scheme.getEscapeSchemeUnparser(start)
 
     // Set Escape Scheme
     start.currentEscapeScheme = One(escScheme)

@@ -43,16 +43,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class TestAlignedData {
+object TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
-  val tdml1 = testDir_01 + "Aligned_Data.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
+  val tdml1 = "Aligned_Data.tdml"
+  lazy val runner1 = Runner(testDir_01, tdml1) // new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
   def dbg = {
     Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
     Debugger.withTracing(false)
     // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
   }
+}
+
+class TestAlignedData {
+  import TestAlignedData._
 
   @Test def test_alignmentUnitsInvalid() = { runner1.runOneTest("alignmentUnitsInvalid") }
 

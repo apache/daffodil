@@ -161,7 +161,7 @@ abstract class ParseOrUnparseState(
   }
 }
 
-class PState(
+final class PState private (
   var infoset: InfosetItem,
   var inStream: InStream,
   vmap: VariableMap,
@@ -176,7 +176,7 @@ class PState(
 
   // No longer a case-class, so we need our own copy routine... since PStates get copied 
   // a lot.
-  def copy(inStream: InStream = inStream,
+  private def copy(inStream: InStream = inStream,
     infoset: InfosetItem = infoset, variableMap: VariableMap = variableMap, status: ProcessorResult = status,
     diagnostics: List[Diagnostic] = diagnostics,
     discriminatorStack: List[Boolean] = discriminatorStack,
@@ -224,7 +224,6 @@ class PState(
   def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, inStream)
 
   def discriminator = discriminatorStack.head
-  // def inStreamState = inStreamStateStack top
   def bitPos0b = inStream.bitPos0b
   def bitLimit0b = inStream.bitLimit0b
   def charPos = inStream.charPos0b
@@ -248,62 +247,34 @@ class PState(
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
   def textReader = inStream.reader
 
-  /**
-   * Convenience functions for creating a new state, changing only
-   * one or a related subset of the state components to a new one.
-   */
-
-  //  def withPos(bitPos: Long, charPos: Long, newStatus: ProcessorResult = Success) = {
-  //    val newInStream = inStream.withPos(bitPos, charPos)
-  //    copy(inStream = newInStream, status = newStatus)
-  //  }
-
-  def withEndBitLimit(bitLimit0b: Long, newStatus: ProcessorResult = this.status) = {
-    if (bitLimit0b == inStream.bitLimit0b) { this } // already have this bitLimit.
-    else {
+  def setEndBitLimit(bitLimit0b: Long, newStatus: ProcessorResult = this.status) {
+    if (bitLimit0b == inStream.bitLimit0b) {
+      // already have this bitLimit.
+    } else {
       var newInStream = inStream.withEndBitLimit(bitLimit0b)
-      // copy(inStream = newInStream, status = newStatus)
       this.inStream = newInStream
       this.status = newStatus
     }
-    this
   }
 
-  def withParent(newParent: InfosetItem, newStatus: ProcessorResult = Success) = {
-    //    copy(infoset = newParent, status = newStatus)
+  def setParent(newParent: InfosetItem) {
     this.infoset = newParent
-    this.status = newStatus
-    this
   }
 
-  def withVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) = {
-    //    copy(variableMap = newVariableMap, status = newStatus)
+  def setVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) {
     this.variableMap = newVariableMap
     this.status = newStatus
-    this
   }
 
-  def withValidationError(msg: String, args: Any*) = {
+  def withValidationError(msg: String, args: Any*) {
     val ctxt = getContext()
     val vde = new ValidationError(Some(ctxt.schemaFileLocation), this, msg, args: _*)
-    // copy(diagnostics = vde :: diagnostics)
     diagnostics = vde :: diagnostics
-    this
   }
 
-  def withValidationErrorNoContext(msg: String, args: Any*) = {
+  def withValidationErrorNoContext(msg: String, args: Any*) {
     val vde = new ValidationError(None, this, msg, args: _*)
     diagnostics = vde :: diagnostics
-    this
-  }
-
-  def failed(msg: => String): PState =
-    failed(new GeneralParseFailure(msg))
-
-  def failed(failureDiagnostic: Diagnostic) = {
-    status = new Failure(failureDiagnostic)
-    diagnostics = failureDiagnostic :: diagnostics
-    this
   }
 
   def setFailed(failureDiagnostic: Diagnostic) {
@@ -311,19 +282,16 @@ class PState(
     diagnostics = failureDiagnostic :: diagnostics
   }
 
-  def withNewPointOfUncertainty = {
+  def pushDiscriminator {
     discriminatorStack = false +: discriminatorStack
-    this
   }
 
-  def withRestoredPointOfUncertainty = {
+  def popDiscriminator {
     discriminatorStack = discriminatorStack.tail
-    this
   }
 
-  def withDiscriminator(disc: Boolean) = {
+  def setDiscriminator(disc: Boolean) {
     discriminatorStack = disc +: discriminatorStack.tail
-    this
   }
 
   /**
@@ -348,11 +316,9 @@ class PState(
    * needs to avoid just passing None also. So this Scaladoc appears both here and on the withPos
    * method of inStream.
    */
-  def withPos(bitPos: Long, charPos: Long, reader: Maybe[DFDLCharReader]) = {
+  def setPos(bitPos: Long, charPos: Long, reader: Maybe[DFDLCharReader]) {
     val newInStream = inStream.withPos(bitPos, charPos, reader)
-    //    copy(inStream = newInStream)
     this.inStream = newInStream
-    this
   }
 
   def captureInfosetElementState = thisElement.captureState()
@@ -371,11 +337,10 @@ class PState(
    * Must be done at a byte boundary.
    */
 
-  def withBitOrder(bitOrder: BitOrder) = {
+  def setBitOrder(bitOrder: BitOrder) {
     schemaDefinitionUnless((bitPos1b % 8) == 1,
       "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position (1 based) mod 8 is %s.", bitPos1b)
     inStream = inStream.withBitOrder(bitOrder)
-    this
   }
 }
 

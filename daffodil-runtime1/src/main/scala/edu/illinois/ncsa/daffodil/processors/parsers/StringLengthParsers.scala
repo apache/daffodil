@@ -62,21 +62,24 @@ abstract class StringLengthParser(
   def lengthText: String
   def parserName: String
 
-  def getLength(pstate: PState): (Long, PState)
-  def parseInput(start: PState, charset: Charset, nBytes: Long): PState
+  def getLength(pstate: PState): Long
+  def parseInput(start: PState, charset: Charset, nBytes: Long): Unit
 
-  def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
+  def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
-    log(LogLevel.Debug, "Parsing starting at bit position: %s", pstate.bitPos)
+    log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos)
 
-    val (nBytes, start) = getLength(pstate)
+    val nBytes = getLength(start)
     log(LogLevel.Debug, "Explicit length %s", nBytes)
 
-    if (start.bitPos % 8 != 0) { return PE(start, "%s - not byte aligned.", parserName) }
+    if (start.bitPos % 8 != 0) {
+      PE(start, "%s - not byte aligned.", parserName)
+      return
+    }
 
     try {
-      val postState = parseInput(start, erd.encodingInfo.knownEncodingCharset.charset, nBytes)
-      return postState
+      parseInput(start, erd.encodingInfo.knownEncodingCharset.charset, nBytes)
+      return
     } catch {
       // Malformed input exception indicates bytes/bits couldn't be decoded into 
       // characters.
@@ -87,16 +90,19 @@ abstract class StringLengthParser(
       // part of the buffer might never be consumed. It just represents perhaps 
       // decoding ahead past end of string into some binary data perhaps.
       //
-      case m: MalformedInputException => { return PE(start, "%s - MalformedInputException: \n%s", parserName, m.getMessage()) }
+      case m: MalformedInputException => {
+        PE(start, "%s - MalformedInputException: \n%s", parserName, m.getMessage())
+        return
+      }
       //
       // Thrown if the length is explicit but there aren't enough bytes/bits to
       // meet the length.
       //
       case e: IndexOutOfBoundsException => {
-        return PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
+        PE(start, "%s - Insufficient Bits in field: IndexOutOfBounds: \n%s", parserName, e.getMessage())
+        return
       }
     }
-    pstate
   }
 }
 
@@ -169,9 +175,7 @@ class StringFixedLengthInBytesVariableWidthCharactersParser(
 
   lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
-  }
+  def getLength(pstate: PState): Long = nBytes
 }
 
 class StringFixedLengthInBytesFixedWidthCharactersParser(
@@ -187,9 +191,8 @@ class StringFixedLengthInBytesFixedWidthCharactersParser(
 
   lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nBytes, pstate)
-  }
+  def getLength(pstate: PState): Long = nBytes
+
 }
 
 abstract class StringLengthInCharsParser(
@@ -199,13 +202,13 @@ abstract class StringLengthInCharsParser(
   erd: ElementRuntimeData)
   extends StringLengthParser(justificationTrim, pad, erd) {
 
-  def getLength(pstate: PState): (Long, PState) = {
-    (nChars, pstate)
+  def getLength(pstate: PState): Long = nChars
+
+  def parseInput(start: PState, charset: Charset, nChars: Long): Unit = {
+    // do nothing
   }
 
-  def parseInput(start: PState, charset: Charset, nChars: Long): PState = start
-
-  override def parse(start: PState): PState = withParseErrorThrowing(start) {
+  override def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
     log(LogLevel.Debug, "Parsing starting at bit position: %s", start.bitPos)
 
@@ -220,7 +223,8 @@ abstract class StringLengthInCharsParser(
     val fieldLength = field.length
 
     if (fieldLength != nChars.toInt) {
-      return PE(start, "Parse failed to find exactly %s characters.", nChars)
+      PE(start, "Parse failed to find exactly %s characters.", nChars)
+      return
     } else {
       val parsedField = trimByJustification(field)
       val parsedBits = erd.encodingInfo.knownEncodingStringBitLength(field)
@@ -233,8 +237,8 @@ abstract class StringLengthInCharsParser(
       start.simpleElement.setDataValue(parsedField)
 
       val nextReader = reader.atBitPos(endBitPos)
-      val postState = start.withPos(endBitPos, endCharPos, One(nextReader))
-      return postState
+      start.setPos(endBitPos, endCharPos, One(nextReader))
+      return
     }
   }
 
@@ -250,7 +254,7 @@ abstract class StringLengthInBytesParser(
     value
   }
 
-  def parseInput(start: PState, charset: Charset, nBytes: Long): PState = {
+  def parseInput(start: PState, charset: Charset, nBytes: Long): Unit = {
     val in = start.inStream
     val decoder = charset.newDecoder()
 
@@ -284,19 +288,16 @@ abstract class StringLengthInBytesParser(
     // we will have parsed all the bytes, so the endBitPos and endCharPos 
     // are synchronized still. 
     // 
-    val postState = {
-      // TODO: Shouldn't the 8 * nBytes really be codepointWidth * nBytes?
-      if ((endBitPos - start.bitPos) == (8 * nBytes)) {
-        start.withPos(endBitPos, endCharPos, One(reader))
-      } else {
-        Assert.invariant((endBitPos - start.bitPos) < (8 * nBytes))
-        start.withPos(endBitPos, -1, Nope)
-        // -1 means a subsequent primitive will have to construct
-        // a new reader at said bitPosition              
-      }
-    }
 
-    return postState
+    // TODO: Shouldn't the 8 * nBytes really be codepointWidth * nBytes?
+    if ((endBitPos - start.bitPos) == (8 * nBytes)) {
+      start.setPos(endBitPos, endCharPos, One(reader))
+    } else {
+      Assert.invariant((endBitPos - start.bitPos) < (8 * nBytes))
+      start.setPos(endBitPos, -1, Nope)
+      // -1 means a subsequent primitive will have to construct
+      // a new reader at said bitPosition              
+    }
   }
 }
 

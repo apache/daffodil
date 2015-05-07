@@ -69,9 +69,9 @@ trait Dynamic {
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A](s: PState, e: CachedDynamic[A])(conv: (PState, Any) => A): (PState, A) = {
+  def evalWithConversion[A](s: PState, e: CachedDynamic[A])(conv: (PState, Any) => A): A = {
     e match {
-      case Right(r) => (s, r)
+      case Right(r) => r
       case Left(l) => {
         val (aAsAny, newVMap) = l.evaluate(s)
         s.status match {
@@ -84,7 +84,8 @@ trait Dynamic {
           }
         }
         val a: A = conv(s, aAsAny)
-        (s.withVariables(newVMap), a)
+        s.setVariables(newVMap)
+        a
       }
     }
   }
@@ -92,9 +93,9 @@ trait Dynamic {
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A](s: UState, e: CachedDynamic[A])(conv: (UState, Any) => A): (UState, A) = {
+  def evalWithConversion[A](s: UState, e: CachedDynamic[A])(conv: (UState, Any) => A): A = {
     e match {
-      case Right(r) => (s, r)
+      case Right(r) => r
       case Left(l) => {
         val (aAsAny, newVMap) = l.evaluate(s)
         s.status match {
@@ -107,59 +108,49 @@ trait Dynamic {
           }
         }
         val a: A = conv(s, aAsAny)
-        (s, a)//(s.withVariables(newVMap), a)
+        //
+        // FIXME ?? Why not set the variables here?? This was commented out, but 
+        // it seems like it should be setting them.
+        //
+        //s.setVariables(newVMap)
+        a
       }
     }
   }
 
-  def evalWithConversion[A](s: PState, oe: Maybe[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, Maybe[A]) = {
-    //    oe match {
-    //      case Some(e) => {
-    //        val (s1, a) = evalWithConversion[A](s, e)(conv)
-    //        (s1, Some(a))
-    //      }
-    //      case None => (s, None)
-    //    }
+  def evalWithConversion[A](s: PState, oe: Maybe[CachedDynamic[A]])(conv: (PState, Any) => A): Maybe[A] = {
     if (oe.isDefined) {
-      val (s1, a) = evalWithConversion[A](s, oe.get)(conv)
-      (s1, One(a))
-    } else (s, Nope)
+      val a = evalWithConversion[A](s, oe.get)(conv)
+      One(a)
+    } else Nope
   }
-  def evalWithConversion[A](s: UState, oe: Maybe[CachedDynamic[A]])(conv: (UState, Any) => A): (UState, Maybe[A]) = {
+  def evalWithConversion[A](s: UState, oe: Maybe[CachedDynamic[A]])(conv: (UState, Any) => A): Maybe[A] = {
     if (oe.isDefined) {
-      val (s1, a) = evalWithConversion[A](s, oe.get)(conv)
-      (s1, One(a))
-    } else (s, Nope)
+      val a = evalWithConversion[A](s, oe.get)(conv)
+      One(a)
+    } else Nope
   }
 
-  def evalWithConversion[A](s: PState, oe: List[CachedDynamic[A]])(conv: (PState, Any) => A): (PState, List[A]) = {
+  def evalWithConversion[A](s: PState, oe: List[CachedDynamic[A]])(conv: (PState, Any) => A): List[A] = {
     var state = s
     val listE = oe.map(e => {
-      val (newState, exp) = evalWithConversion[A](state, e)(conv)
-      state = newState
+      val exp = evalWithConversion[A](state, e)(conv)
       exp
     })
-    (state, listE)
+    listE
   }
-  def evalWithConversion[A](s: UState, oe: List[CachedDynamic[A]])(conv: (UState, Any) => A): (UState, List[A]) = {
+  def evalWithConversion[A](s: UState, oe: List[CachedDynamic[A]])(conv: (UState, Any) => A): List[A] = {
     var state = s
     val listE = oe.map(e => {
-      val (newState, exp) = evalWithConversion[A](state, e)(conv)
-      state = newState
+      val exp = evalWithConversion[A](state, e)(conv)
       exp
     })
-    (state, listE)
+    listE
   }
 
   // With an property that can potentially be compiled, this returns an Option,
   // which is either Some(s) if the value of the property is static, or None
   // otherwise
-  //  def getStatic[A](e: CachedDynamic[A]): Option[A] = {
-  //    e match {
-  //      case Left(l) => None
-  //      case Right(r) => Some(r)
-  //    }
-  //  }
 
   def getStatic[A](e: CachedDynamic[A]): Maybe[A] = {
     e match {
@@ -167,13 +158,6 @@ trait Dynamic {
       case Right(r) => One(r)
     }
   }
-
-  //  def getStatic[A](oe: Option[CachedDynamic[A]]): Option[A] = {
-  //    oe match {
-  //      case Some(e) => getStatic(e)
-  //      case None => None
-  //    }
-  //  }
 
   def getStatic[A](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
     if (oe.isDefined) getStatic(oe.get)

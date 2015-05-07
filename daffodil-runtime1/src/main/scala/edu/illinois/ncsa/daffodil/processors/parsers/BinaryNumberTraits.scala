@@ -51,17 +51,17 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def getBitLength(s: PState): (PState, Long) = {
+  def getBitLength(s: PState): Long = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    val start = s.withVariables(newVMap)
-    (start, nBytes * toBits)
+    s.setVariables(newVMap)
+    nBytes * toBits
   }
-  def getLength(s: PState): (PState, Long) = {
+  def getLength(s: PState): Long = {
     val (nBytesAsAny, newVMap) = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    val start = s.withVariables(newVMap)
-    (start, nBytes)
+    s.setVariables(newVMap)
+    nBytes
   }
 }
 
@@ -69,15 +69,15 @@ trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
   def e: ElementRuntimeData
   def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
 
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
+  def getByteOrder(s: PState): java.nio.ByteOrder = {
     val (byteOrderAsAny, newVMap) = bo.evaluate(s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
       case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
     }
-    val start = s.withVariables(newVMap)
-    (start, byteOrder)
+    s.setVariables(newVMap)
+    byteOrder
   }
 }
 
@@ -99,5 +99,5 @@ trait HasUnsignedNumber[T] { self: BinaryNumberBaseParser[T] =>
 trait HasKnownLengthInBits[T] {
   self: BinaryNumberBaseParser[T] =>
   def len: Long
-  def getBitLength(s: PState) = (s, len) // already in bits, so no multiply by 8 for this one.
+  def getBitLength(s: PState) = len // already in bits, so no multiply by 8 for this one.
 }

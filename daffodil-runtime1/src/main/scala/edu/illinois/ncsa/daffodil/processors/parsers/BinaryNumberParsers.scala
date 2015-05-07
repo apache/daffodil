@@ -107,8 +107,8 @@ class HexBinaryRuntimeLengthBinaryNumberParser(
   extends BinaryNumberBaseParser[String](e)
   with HasRuntimeExplicitLength[String] {
 
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    (s, java.nio.ByteOrder.BIG_ENDIAN)
+  def getByteOrder(s: PState): java.nio.ByteOrder = {
+    java.nio.ByteOrder.BIG_ENDIAN
   }
 
   final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
@@ -127,15 +127,15 @@ class HexBinaryKnownLengthBinaryNumberParser(
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    (s, java.nio.ByteOrder.BIG_ENDIAN)
+  def getByteOrder(s: PState): java.nio.ByteOrder = {
+    java.nio.ByteOrder.BIG_ENDIAN
   }
 
-  def getBitLength(s: PState): (PState, Long) = {
-    (s, len * toBits)
+  def getBitLength(s: PState): Long = {
+    len * toBits
   }
-  def getLength(s: PState): (PState, Long) = {
-    (s, len)
+  def getLength(s: PState): Long = {
+    len
   }
 
   final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
@@ -191,8 +191,8 @@ abstract class BinaryNumberBaseParser[T](
 
   val bitOrd = e.defaultBitOrder
 
-  protected def getBitLength(s: PState): (PState, Long)
-  protected def getByteOrder(s: PState): (PState, java.nio.ByteOrder)
+  protected def getBitLength(s: PState): Long
+  protected def getByteOrder(s: PState): java.nio.ByteOrder
   protected def convertValue(n: BigInt, msb: Int): T
 
   override def toString = Misc.getNameFromClass(this) // e.prettyName
@@ -201,25 +201,26 @@ abstract class BinaryNumberBaseParser[T](
     n.toString
   }
 
-  def parse(start0: PState): PState = withParseErrorThrowing(start0) {
+  def parse(start: PState): Unit = withParseErrorThrowing(start) {
     try {
-      val (start1, nBits) = getBitLength(start0)
-      val (start, bo) = getByteOrder(start1)
+      val nBits = getBitLength(start)
+      val bo = getByteOrder(start)
       if (start.bitLimit0b != -1L && (start.bitLimit0b - start.bitPos0b < nBits)) {
-        return PE(start, "Insufficient bits to create an xs:" + primName)
+        PE(start, "Insufficient bits to create an xs:" + primName)
+        return
       }
       val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
       val newPos = start.bitPos + nBits
       val convertedValue: T = convertValue(value, nBits.toInt)
       start.simpleElement.setDataValue(convertedValue)
-      start.withPos(newPos, -1, Nope)
+      start.setPos(newPos, -1, Nope)
     } catch {
       /*
        * The reason we catch IndexOutOfBounds is that is the exception 
        * thrown when indexing into the data stream and you reach past the end.
        */
       case e: IndexOutOfBoundsException => {
-        return PE(start0, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
+        PE(start, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
       }
     }
   }

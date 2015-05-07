@@ -63,19 +63,20 @@ class LiteralNilPatternParser(
   extends LiteralNilParserBase(erd, eName, nilValues)
   with TextReader {
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     // withLoggingLevel(LogLevel.Info) 
     {
 
-      val postEvalState = start //start.withVariables(vars)
-
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
 
-      val bytePos = (postEvalState.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
       log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-      if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+      if (start.bitPos % 8 != 0) {
+        PE(start, "LiteralNilPattern - not byte aligned.")
+        return
+      }
 
       log(LogLevel.Debug, "Retrieving reader state.")
       val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
@@ -83,8 +84,10 @@ class LiteralNilPatternParser(
       val result = d.get.parseInputPatterned(pattern, reader, start)
 
       result match {
-        case _: DelimParseFailure =>
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        case _: DelimParseFailure => {
+          PE(start, "%s - %s - Parse failed.", this.toString(), eName)
+          return
+        }
         case s: DelimParseSuccess => {
           // We have a field, is it empty?
           val field = trimByJustification(s.field)
@@ -93,10 +96,11 @@ class LiteralNilPatternParser(
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
             start.thisElement.setNilled()
-            return postEvalState // Empty, no need to advance
+            return // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            PE(start, "%s - Empty field found but not allowed!", eName)
+            return
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
             start.thisElement.setNilled()
@@ -104,18 +108,20 @@ class LiteralNilPatternParser(
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
 
             val endCharPos =
-              if (postEvalState.charPos == -1) s.field.length
-              else postEvalState.charPos + s.field.length
+              if (start.charPos == -1) s.field.length
+              else start.charPos + s.field.length
             val endBitPos = numBits + start.bitPos
 
             log(LogLevel.Debug, "%s - Found %s", eName, s.field)
             log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
             log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            return
           } else {
             // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            PE(start, "%s - Does not contain a nil literal!", eName)
+            return
           }
         }
       }
@@ -134,19 +140,20 @@ class LiteralNilExplicitParser(
   extends LiteralNilParserBase(erd, eName, nilValues)
   with TextReader {
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     // withLoggingLevel(LogLevel.Info) 
     {
 
-      val postEvalState = start //start.withVariables(vars)
-
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
 
-      val bytePos = (postEvalState.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
       log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-      if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+      if (start.bitPos % 8 != 0) {
+        PE(start, "LiteralNilPattern - not byte aligned.")
+        return
+      }
 
       log(LogLevel.Debug, "Retrieving reader state.")
       val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
@@ -157,8 +164,10 @@ class LiteralNilExplicitParser(
       val result = d.get.parseInputPatterned(pattern, reader, start)
 
       result match {
-        case _: DelimParseFailure =>
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        case _: DelimParseFailure => {
+          PE(start, "%s - %s - Parse failed.", this.toString(), eName)
+          return
+        }
         case s: DelimParseSuccess => {
           // We have a field, is it empty?
           val field = trimByJustification(s.field)
@@ -167,10 +176,11 @@ class LiteralNilExplicitParser(
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
             start.thisElement.setNilled()
-            return postEvalState // Empty, no need to advance
+            return // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            PE(start, "%s - Empty field found but not allowed!", eName)
+            return
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
             start.thisElement.setNilled()
@@ -178,19 +188,21 @@ class LiteralNilExplicitParser(
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
             //val endCharPos = start.charPos + result.field.length()
             val endCharPos =
-              if (postEvalState.charPos == -1) s.field.length
-              else postEvalState.charPos + s.field.length
+              if (start.charPos == -1) s.field.length
+              else start.charPos + s.field.length
             val endBitPos = numBits + start.bitPos
 
             log(LogLevel.Debug, "%s - Found %s", eName, s.field)
             log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
             log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            //return postEvalState.withPos(endBitPos, endCharPos) // Need to advance past found nilValue
-            return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            //return start.setPos(endBitPos, endCharPos) // Need to advance past found nilValue
+            start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            return
           } else {
             // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            PE(start, "%s - Does not contain a nil literal!", eName)
+            return
           }
         }
       }
@@ -213,42 +225,42 @@ class LiteralNilExplicitLengthInCharsParser(
 
   val exprText = expr.prettyExpr
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     // withLoggingLevel(LogLevel.Info) 
     {
 
-      //val postEvalState = start //start.withVariables(vars)
-
       val (nCharsAsAny, newVMap) = expr.evaluate(start)
       val nChars = AsIntConverters.asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
-      val postEvalState = start.withVariables(newVMap)
+      start.setVariables(newVMap)
       log(LogLevel.Debug, "Explicit length %s", nChars)
 
       val pattern = "(?s)^.{%s}".format(nChars)
 
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
 
-      val bytePos = (postEvalState.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
       log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
       // Don't check this here. This can vary by encoding.
-      //if (postEvalState.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+      //if (start.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       log(LogLevel.Debug, "Retrieving reader state.")
       val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
       if (nChars == 0 && isEmptyAllowed) {
         log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
-        postEvalState.thisElement.setNilled()
-        return postEvalState // Empty, no need to advance
+        start.thisElement.setNilled()
+        return // Empty, no need to advance
       }
 
-      val result = d.get.parseInputPatterned(pattern, reader, postEvalState)
+      val result = d.get.parseInputPatterned(pattern, reader, start)
 
       result match {
-        case _: DelimParseFailure =>
-          return PE(postEvalState, "%s - %s - Parse failed.", this.toString(), eName)
+        case _: DelimParseFailure => {
+          PE(start, "%s - %s - Parse failed.", this.toString(), eName)
+          return
+        }
         case s: DelimParseSuccess => {
           // We have a field, is it empty?
           val field = trimByJustification(s.field)
@@ -257,28 +269,31 @@ class LiteralNilExplicitLengthInCharsParser(
           if (isFieldEmpty && isEmptyAllowed) {
             // Valid!
             start.thisElement.setNilled()
-            return postEvalState // Empty, no need to advance
+            return // Empty, no need to advance
           } else if (isFieldEmpty && !isEmptyAllowed) {
             // Fail!
-            return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+            PE(start, "%s - Empty field found but not allowed!", eName)
+            return
           } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
             // Contains a nilValue, Success!
             start.thisElement.setNilled()
 
             val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
             val endCharPos =
-              if (postEvalState.charPos == -1) s.field.length
-              else postEvalState.charPos + s.field.length
+              if (start.charPos == -1) s.field.length
+              else start.charPos + s.field.length
             val endBitPos = numBits + start.bitPos
 
             log(LogLevel.Debug, "%s - Found %s", eName, s.field)
             log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
             log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            return postEvalState.withPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+            return
           } else {
             // Fail!
-            return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+            PE(start, "%s - Does not contain a nil literal!", eName)
+            return
           }
         }
       }
@@ -344,75 +359,81 @@ abstract class LiteralNilInBytesParserBase(
 
   protected def computeLength(start: PState): (Long, VariableMap)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     //      withLoggingLevel(LogLevel.Debug) 
     {
 
       // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
 
       val (nBytes: Long, newVMap: VariableMap) = computeLength(start)
-      val postEvalState = start.withVariables(newVMap)
+      start.setVariables(newVMap)
+
       log(LogLevel.Debug, "Explicit length %s", nBytes)
 
-      //val postEvalState = start //start.withVariables(vars)
-
       log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
-      val in = postEvalState.inStream
+      val in = start.inStream
 
-      val bytePos = (postEvalState.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, postEvalState.bitPos)
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
       log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
       // some encodings aren't whole bytes
-      // if (postEvalState.bitPos % 8 != 0) { return PE(postEvalState, "LiteralNilPattern - not byte aligned.") }
+      // if (start.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
       val decoder = erd.encodingInfo.knownEncodingCharset.charset.newDecoder()
 
       try {
-        val reader = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, postEvalState.bitPos)
-        val bytes = in.getBytes(postEvalState.bitPos, nBytes.toInt)
+        val reader = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos)
+        val bytes = in.getBytes(start.bitPos, nBytes.toInt)
         val cb = decoder.decode(ByteBuffer.wrap(bytes))
         val result = cb.toString
         val trimmedResult = trimByJustification(result)
-        val endBitPos = postEvalState.bitPos + (nBytes.toInt * 8)
-        val endCharPos = if (postEvalState.charPos == -1) result.length() else postEvalState.charPos + result.length()
+        val endBitPos = start.bitPos + (nBytes.toInt * 8)
+        val endCharPos = if (start.charPos == -1) result.length() else start.charPos + result.length()
 
         // We have a field, is it empty?
         val isFieldEmpty = trimmedResult.length == 0 //result.length() == 0
 
         if (isFieldEmpty && isEmptyAllowed) {
           // Valid!
-          postEvalState.thisElement.setNilled()
-          return postEvalState // Empty, no need to advance
+          start.thisElement.setNilled()
+          return // Empty, no need to advance
         } else if (isFieldEmpty && !isEmptyAllowed) {
           // Fail!
-          return PE(postEvalState, "%s - Empty field found but not allowed!", eName)
+          PE(start, "%s - Empty field found but not allowed!", eName)
+          return
         } else if (d.get.isFieldDfdlLiteral(trimmedResult, nilValues.toSet)) {
           // Contains a nilValue, Success!
-          postEvalState.thisElement.setNilled()
+          start.thisElement.setNilled()
 
           log(LogLevel.Debug, "%s - Found %s", eName, trimmedResult)
           log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
           log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-          return postEvalState.withPos(endBitPos, endCharPos, One(reader)) // Need to advance past found nilValue
+          start.setPos(endBitPos, endCharPos, One(reader)) // Need to advance past found nilValue
+          return
         } else {
           // Fail!
-          return PE(postEvalState, "%s - Does not contain a nil literal!", eName)
+          PE(start, "%s - Does not contain a nil literal!", eName)
+          return
         }
       } catch {
         case e: IndexOutOfBoundsException => {
           // In this case, we failed to get the bytes
           if (isEmptyAllowed) {
             // Valid!
-            postEvalState.thisElement.setNilled()
-            return postEvalState // Empty, no need to advance
+            start.thisElement.setNilled()
+            return // Empty, no need to advance
           } else {
-            return PE(postEvalState, "%s - Insufficient Bytes in field; required %s", name, nBytes)
+            PE(start, "%s - Insufficient Bytes in field; required %s", name, nBytes)
+            return
           }
         }
         case u: UnsuppressableException => throw u
-        case e: Exception => { return PE(postEvalState, "%s - Exception: \n%s", name, e.getMessage()) }
+        case e: Exception => {
+          PE(start, "%s - Exception: \n%s", name, e.getMessage())
+          return
+        }
       }
     }
   }

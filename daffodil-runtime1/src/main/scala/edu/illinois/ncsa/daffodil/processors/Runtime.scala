@@ -202,69 +202,48 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     }
   }
 
-  def parse(initialState: PState): ParseResult = {
+  def parse(state: PState): ParseResult = {
     ExecutionMode.usingRuntimeMode {
-      val pr = new ParseResult(this) {
-        val p = ssrd.parser
-        val postParseState = { // Not lazy. We want to parse right now.
-          try {
-            p.parse1(initialState, ssrd.elementRuntimeData)
-          } catch {
-            // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
-            // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
-            // exception handling construct.
-            //
-            // But we might not catch everything inside...
-            //
-            case pe: ParseError => {
-              // if we get one here, then someone threw instead of returning a status. 
-              Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
-            }
-            case procErr: ProcessingError => {
-              val x = procErr
-              Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
-            }
-            case sde: SchemaDefinitionError => {
-              // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
-              // These are fatal, and there's no notion of backtracking them, so they propagate to top level
-              // here.
-              initialState.failed(sde)
-            }
-            case rsde: RuntimeSchemaDefinitionError => {
-              initialState.failed(rsde)
-            }
-            case e: ErrorAlreadyHandled => {
-              initialState.failed(e.th)
-            }
-            case e: TunableLimitExceededError => {
-              initialState.failed(e)
-            }
-          }
-        }
-
-        val resultState = {
-          val finalState = validateResult(postParseState)
-          finalState
-        }
-
-        lazy val isValidationSuccess = {
-          val res = getValidationMode match {
-            case ValidationMode.Off => true
-            case _ => {
-              val res = resultState.diagnostics.exists { d =>
-                d match {
-                  case ve: ValidationError => true
-                  case _ => false
-                }
-              }
-              res
-            }
-          }
-          res
-        }
-
-      }
+      doParse(ssrd.parser, state)
+      val pr = new ParseResult(this, state)
+      pr.validateResult(state)
       pr
+    }
+  }
+
+  private def doParse(p: Parser, state: PState) {
+    try {
+      p.parse1(state, ssrd.elementRuntimeData)
+    } catch {
+      // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
+      // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
+      // exception handling construct.
+      //
+      // But we might not catch everything inside...
+      //
+      case pe: ParseError => {
+        // if we get one here, then someone threw instead of returning a status. 
+        Assert.invariantFailed("ParseError caught. ParseErrors should be returned as failed status, not thrown. Fix please.")
+      }
+      case procErr: ProcessingError => {
+        val x = procErr
+        Assert.invariantFailed("got a processing error that was not a parse error: %s. This is the parser!".format(x))
+      }
+      case sde: SchemaDefinitionError => {
+        // A SDE was detected at runtime (perhaps due to a runtime-valued property like byteOrder or encoding)
+        // These are fatal, and there's no notion of backtracking them, so they propagate to top level
+        // here.
+        state.setFailed(sde)
+      }
+      case rsde: RuntimeSchemaDefinitionError => {
+        state.setFailed(rsde)
+      }
+      case e: ErrorAlreadyHandled => {
+        state.setFailed(e.th)
+      }
+      case e: TunableLimitExceededError => {
+        state.setFailed(e)
+      }
     }
   }
 
@@ -312,7 +291,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
 }
 
-abstract class ParseResult(dp: DataProcessor)
+class ParseResult(dp: DataProcessor, override val resultState: PState)
   extends DFDL.ParseResult
   with WithDiagnosticsImpl {
 
@@ -328,10 +307,6 @@ abstract class ParseResult(dp: DataProcessor)
     writer.write("\n")
     writer.flush()
   }
-
-  def resultState: PState
-  protected def postParseState: PState
-  def isValidationSuccess: Boolean
 
   /**
    * Xerces validation.
@@ -350,42 +325,51 @@ abstract class ParseResult(dp: DataProcessor)
    * errors and add them to the Diagnostics list in the PState.
    *
    * @param state the initial parse state.
-   * @return the final parse state with any validation diagnostics.
    */
-  def validateResult(state: PState) = {
-    val resultState =
-      if (dp.getValidationMode == ValidationMode.Full) {
-        val postValidateState =
-          try {
-            validateWithXerces(state)
-            state
-          } catch {
-            case (spe: SAXParseException) =>
-              state.withValidationErrorNoContext(spe.getMessage)
+  def validateResult(state: PState) {
+    if (dp.getValidationMode == ValidationMode.Full) {
+      try {
+        validateWithXerces(state)
+      } catch {
+        case (spe: SAXParseException) =>
+          state.withValidationErrorNoContext(spe.getMessage)
 
-            case (se: SAXException) =>
-              state.withValidationErrorNoContext(se.getMessage)
+        case (se: SAXException) =>
+          state.withValidationErrorNoContext(se.getMessage)
 
-            case (ve: ValidationException) =>
-              state.withValidationErrorNoContext(ve.getMessage)
+        case (ve: ValidationException) =>
+          state.withValidationErrorNoContext(ve.getMessage)
+      }
+    }
+  }
+
+  lazy val isValidationSuccess = {
+    val res = dp.getValidationMode match {
+      case ValidationMode.Off => true
+      case _ => {
+        val res = resultState.diagnostics.exists { d =>
+          d match {
+            case ve: ValidationError => true
+            case _ => false
           }
-        postValidateState
-      } else state
-
-    resultState
+        }
+        res
+      }
+    }
+    res
   }
 
   lazy val result =
-    if (postParseState.status == Success) {
+    if (resultState.status == Success) {
       resultAsScalaXMLElement
     } else {
       Assert.abort(new IllegalStateException("There is no result. Should check by calling isError() first."))
     }
 
   lazy val resultAsScalaXMLElement =
-    if (postParseState.status == Success) {
+    if (resultState.status == Success) {
       val xmlClean = {
-        val nodeSeq = postParseState.infoset.toXML()
+        val nodeSeq = resultState.infoset.toXML()
         val Seq(eNoHidden) = XMLUtils.removeHiddenElements(nodeSeq)
         //        val eNoAttribs = XMLUtils.removeAttributes(eNoHidden)
         //        eNoAttribs

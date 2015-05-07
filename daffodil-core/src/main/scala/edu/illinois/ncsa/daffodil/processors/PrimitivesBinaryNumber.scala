@@ -142,8 +142,8 @@ class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
   with RuntimeExplicitLengthMixin[String] {
 
   override def toString = "hexBinary(xs:" + primName + ", " + label + ")"
-  def getByteOrder(s: PState): (PState, java.nio.ByteOrder) = {
-    (s, java.nio.ByteOrder.BIG_ENDIAN)
+  def getByteOrder(s: PState): java.nio.ByteOrder = {
+    java.nio.ByteOrder.BIG_ENDIAN
   }
 
   override lazy val parser = new HexBinaryRuntimeLengthBinaryNumberParser(lUnits, e.length, e.elementRuntimeData)

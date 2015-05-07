@@ -88,7 +88,7 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     }
   }
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     val node: InfosetSimpleElement = start.simpleElement
     var str = node.dataValueAsString
 
@@ -102,7 +102,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
     // Use pos to verify all characters consumed & check for errors
     if (pos.getIndex != str.length || pos.getErrorIndex >= 0) {
       val errIndex = if (pos.getErrorIndex >= 0) pos.getErrorIndex else pos.getIndex
-      return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, str, errIndex + 1)
+      PE(start, "Convert to %s (for xs:%s): Failed to parse '%s' at character %d.", prettyType, xsdType, str, errIndex + 1)
+      return
     }
 
     // Unfortunately, there is no publicly available method for validating
@@ -113,7 +114,8 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
       cal.getTime
     } catch {
       case e: IllegalArgumentException => {
-        return PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage)
+        PE(start, "Convert to %s (for xs:%s): Failed to parse '%s': %s.", prettyType, xsdType, str, e.getMessage)
+        return
       }
     }
 
@@ -126,7 +128,6 @@ case class ConvertTextCalendarParser(erd: ElementRuntimeData,
 
     node.setDataValue(newCal)
 
-    start
   }
 }
 
@@ -135,12 +136,12 @@ object TextCalendarConstants {
 
   // before being used, setCalendar must be called on the SimpleDateFormat
   final val tlDateTimeNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss.SSSSSS")
-  final val tlDateTimeInfosetFormatter: ThreadLocal[SimpleDateFormat]     = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
-  final val tlDateNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat]     = createTLInfosetFormatter("uuuu-MM-dd")
-  final val tlDateInfosetFormatter: ThreadLocal[SimpleDateFormat]         = createTLInfosetFormatter("uuuu-MM-ddxxxxx")
-  final val tlTimeNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat]     = createTLInfosetFormatter("HH:mm:ss.SSSSSS")
-  final val tlTimeInfosetFormatter: ThreadLocal[SimpleDateFormat]         = createTLInfosetFormatter("HH:mm:ss.SSSSSSxxxxx")
-  final val tlTzInfosetFormatter: ThreadLocal[SimpleDateFormat]           = createTLInfosetFormatter("xxx") // -08:00 The ISO8601 extended format with hours and minutes fields.
+  final val tlDateTimeInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd'T'HH:mm:ss.SSSSSSxxxxx")
+  final val tlDateNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-dd")
+  final val tlDateInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("uuuu-MM-ddxxxxx")
+  final val tlTimeNoTZInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ss.SSSSSS")
+  final val tlTimeInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("HH:mm:ss.SSSSSSxxxxx")
+  final val tlTzInfosetFormatter: ThreadLocal[SimpleDateFormat] = createTLInfosetFormatter("xxx") // -08:00 The ISO8601 extended format with hours and minutes fields.
 
   private def createTLInfosetFormatter(pattern: String) = new ThreadLocal[SimpleDateFormat] {
     override def initialValue = {

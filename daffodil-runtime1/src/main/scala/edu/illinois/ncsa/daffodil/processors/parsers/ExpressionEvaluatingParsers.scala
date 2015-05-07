@@ -66,17 +66,16 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
   extends ExpressionEvaluationParser(expr, e) {
   Assert.invariant(e.isSimpleType)
 
-  def parse(start: PState): PState =
+  def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
         log(LogLevel.Debug, "This is %s", toString)
         val currentElement: InfosetSimpleElement = start.simpleElement
         val (res, newVMap) = eval(start)
-        if (start.status != Success) return start
+        if (start.status != Success) return
         currentElement.setDataValue(res)
-        val postState = start.withVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
-        postState
+        start.setVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
       }
     }
 }
@@ -84,19 +83,18 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
 class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
   extends ExpressionEvaluationParser(expr, decl) {
 
-  def parse(start: PState): PState =
+  def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
         log(Debug("This is %s", toString)) // important. Don't toString unless we have to log. 
         val (res, newVMap) = eval(start)
         res match {
-          case ps: PState => return ps;
+          case ps: PState => return ;
           case _ => /*fall through*/ }
-        if (start.status.isInstanceOf[Failure]) return start
+        if (start.status.isInstanceOf[Failure]) return
         val newVMap2 = newVMap.setVariable(decl.globalQName, res, decl)
-        val postState = start.withVariables(newVMap2)
-        postState
+        start.setVariables(newVMap2)
       }
     }
 }
@@ -126,7 +124,7 @@ class AssertExpressionEvaluationParser(
   expr: CompiledExpression)
   extends ExpressionEvaluationParser(expr, decl) {
 
-  def parse(start: PState): PState =
+  def parse(start: PState): Unit =
     // withLoggingLevel(LogLevel.Info) 
     {
       withParseErrorThrowing(start) {
@@ -146,16 +144,16 @@ class AssertExpressionEvaluationParser(
         // Assert.invariant(res != null)
         start.status match {
           case Success => // ok
-          case f: Failure => return start
+          case f: Failure => return
         }
         val testResult = res.asInstanceOf[Boolean]
-        val postState = start.withVariables(newVMap)
+        start.setVariables(newVMap)
         if (testResult) {
-          postState.withDiscriminator(discrim)
+          start.setDiscriminator(discrim)
         } else {
           // The assertion failed. Prepare a failure message etc. in case backtracking ultimately fails from here.
-          val diag = new AssertionFailed(decl.schemaFileLocation, postState, msg)
-          postState.failed(diag)
+          val diag = new AssertionFailed(decl.schemaFileLocation, start, msg)
+          start.setFailed(diag)
         }
       }
     }
@@ -180,40 +178,35 @@ class AssertPatternParser(
     }
   }
 
-  def parse(start: PState): PState =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      withParseErrorThrowing(start) {
-        val lastState = start // .withLastState
-        val bytePos = (lastState.bitPos >> 3).toInt
-        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, lastState.bitPos)
-        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
+  def parse(start: PState): Unit =
+    withParseErrorThrowing(start) {
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
+      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-        log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
+      log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
-        if (lastState.bitPos % 8 != 0) {
-          return PE(lastState, "%s - not byte aligned.", eName)
+      if (start.bitPos % 8 != 0) {
+        PE(start, "%s - not byte aligned.", eName)
+        return
+      }
+
+      log(LogLevel.Debug, "Retrieving reader")
+
+      val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
+
+      val result = d.get.parseInputPatterned(testPattern, reader, start)
+
+      result match {
+        case s: DelimParseSuccess => {
+          val endBitPos = start.bitPos + s.numBits
+          log(LogLevel.Debug, "Assert Pattern success for testPattern %s", testPattern)
         }
-
-        log(LogLevel.Debug, "Retrieving reader")
-
-        val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, lastState)
-
-        val result = d.get.parseInputPatterned(testPattern, reader, start)
-
-        val postState = result match {
-          case s: DelimParseSuccess => {
-            val endBitPos = lastState.bitPos + s.numBits
-            log(LogLevel.Debug, "Assert Pattern success for testPattern %s", testPattern)
-            start
-          }
-          case f: DelimParseFailure => {
-            log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
-            val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
-            start.failed(diag)
-          }
+        case f: DelimParseFailure => {
+          log(LogLevel.Debug, "Assert Pattern fail for testPattern %s\nDetails: %s", testPattern, f.msg)
+          val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
+          start.setFailed(diag)
         }
-        postState
       }
     }
 }
@@ -237,37 +230,34 @@ class DiscriminatorPatternParser(
     }
   }
 
-  def parse(start: PState): PState =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      withParseErrorThrowing(start) {
-        val lastState = start // .withLastState
-        val bytePos = (lastState.bitPos >> 3).toInt
-        log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, lastState.bitPos)
-        log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
+  def parse(start: PState): Unit = {
+    withParseErrorThrowing(start) {
+      val bytePos = (start.bitPos >> 3).toInt
+      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
+      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-        log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
+      log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
-        if (lastState.bitPos % 8 != 0) {
-          return PE(lastState, "%s - not byte aligned.", eName)
+      if (start.bitPos % 8 != 0) {
+        PE(start, "%s - not byte aligned.", eName)
+        return
+      }
+
+      log(LogLevel.Debug, "Retrieving reader")
+
+      val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
+
+      val result = d.get.parseInputPatterned(testPattern, reader, start)
+
+      // Only want to set the discriminator if it is true
+      // we do not want to modify it unless it's true
+      result match {
+        case s: DelimParseSuccess => start.setDiscriminator(true)
+        case f: DelimParseFailure => {
+          val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
+          start.setFailed(diag)
         }
-
-        log(LogLevel.Debug, "Retrieving reader")
-
-        val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, lastState)
-
-        val result = d.get.parseInputPatterned(testPattern, reader, start)
-
-        // Only want to set the discriminator if it is true
-        // we do not want to modify it unless it's true
-        val finalState = result match {
-          case s: DelimParseSuccess => start.withDiscriminator(true)
-          case f: DelimParseFailure => {
-            val diag = new AssertionFailed(rd.schemaFileLocation, start, message, One(f.msg))
-            start.failed(diag)
-          }
-        }
-        finalState
       }
     }
+  }
 }

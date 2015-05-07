@@ -64,7 +64,9 @@ abstract class PrimUnparser(contextArg: RuntimeData)
 class NadaParser(context: RuntimeData) extends PrimParser(context) {
   override def toString = "Nada"
 
-  def parse(start: PState): PState = start
+  def parse(start: PState): Unit = {
+    // do nothing
+  }
 }
 
 class NadaUnparser(context: RuntimeData) extends PrimUnparser(context) {

@@ -47,7 +47,7 @@ class LeadingSkipRegionParser(
     // Is there a reason why we can't do alignment * leadingSkip before this step?
     // Doesn't follow PEMDAS?
     val newBitPos = alignment * leadingSkip + pstate.bitPos
-    pstate.withPos(newBitPos, -1, Nope)
+    pstate.setPos(newBitPos, -1, Nope)
   }
 }
 
@@ -58,7 +58,7 @@ class TrailingSkipRegionParser(
   extends PrimParser(e) {
   def parse(pstate: PState) = {
     val newBitPos = alignment * trailingSkip + pstate.bitPos
-    pstate.withPos(newBitPos, -1, Nope)
+    pstate.setPos(newBitPos, -1, Nope)
   }
 }
 
@@ -75,12 +75,11 @@ class AlignmentFillParser(
     return false
   }
 
-  def parse(pstate: PState) = {
+  def parse(pstate: PState): Unit = {
     if (!isAligned(pstate.bitPos)) {
       val maxBitPos = pstate.bitPos + alignmentInBits - 1
       val newBitPos = maxBitPos - maxBitPos % alignmentInBits
-      pstate.withPos(newBitPos, -1, Nope)
-    } else
-      pstate
+      pstate.setPos(newBitPos, -1, Nope)
+    }
   }
 }

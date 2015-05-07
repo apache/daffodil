@@ -65,11 +65,10 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
 
   override lazy val childProcessors = Seq(bodyParser)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
-    val parseState = bodyParser.parse1(start, rd)
+    bodyParser.parse1(start, rd)
     start.mpstate.childIndexStack.pop()
-    parseState
   }
 }
 
@@ -106,13 +105,12 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
   val (staticSeps, dynamicSeps) = getStaticAndDynamicText(separatorOpt, context, isLengthKindDelimited)
   val (staticTerms, dynamicTerms) = getStaticAndDynamicText(terminatorOpt, context, isLengthKindDelimited)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
 
     // Evaluate Delimiters
-    val (dynamicInitsSeq, afterInits) = evaluateDynamicText(dynamicInits, start, context, false)
-    val (dynamicSepsSeq, afterSeps) = evaluateDynamicText(dynamicSeps, afterInits, context, isLengthKindDelimited)
-    val (dynamicTermsSeq, afterTerms) = evaluateDynamicText(dynamicTerms, afterSeps, context, isLengthKindDelimited)
-    val afterDynamicEval = afterTerms
+    val dynamicInitsSeq = evaluateDynamicText(dynamicInits, start, context, false)
+    val dynamicSepsSeq = evaluateDynamicText(dynamicSeps, start, context, isLengthKindDelimited)
+    val dynamicTermsSeq = evaluateDynamicText(dynamicTerms, start, context, isLengthKindDelimited)
 
     val allInits: Seq[DFADelimiter] = combineStaticAndDynamic(staticInits, dynamicInitsSeq)
     val allSeps: Seq[DFADelimiter] = combineStaticAndDynamic(staticSeps, dynamicSepsSeq)
@@ -126,15 +124,16 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
       { if (allTerms.isEmpty) Nope else One(terminatorLoc) })
 
     // Push Delimiters
-    afterDynamicEval.mpstate.pushDelimiters(node)
+    start.mpstate.pushDelimiters(node)
 
     // Parse
-    val parseState = bodyParser.parse1(start, rd)
+    bodyParser.parse1(start, rd)
 
     // Pop Delimiters
-    parseState.mpstate.popDelimiters
+    start.mpstate.popDelimiters
 
-    parseState
+    start.assignFrom(start)
+
   }
 }
 
@@ -173,24 +172,20 @@ class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
     }
   }
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     // Evaluate
-    val (afterEval, escScheme) = {
-      val (afterDynamicEval, evaluatedScheme) = scheme.getEscapeSchemeParser(start)
-
-      (afterDynamicEval, evaluatedScheme)
-    }
+    val escScheme = scheme.getEscapeSchemeParser(start)
 
     // Set Escape Scheme
-    afterEval.mpstate.currentEscapeScheme = One(escScheme)
+    start.mpstate.currentEscapeScheme = One(escScheme)
 
     // Parse
-    val parseState = bodyParser.parse1(start, rd)
+    bodyParser.parse1(start, rd)
 
     // Clear EscapeScheme
-    parseState.mpstate.currentEscapeScheme = Nope
+    start.mpstate.currentEscapeScheme = Nope
 
-    parseState
+    start.assignFrom(start)
   }
 }
 
@@ -200,18 +195,16 @@ class EscapeSchemeNoneStackParser(
 
   override lazy val childProcessors = Seq(bodyParser)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
 
     // Clear EscapeScheme
     start.mpstate.currentEscapeScheme = Nope
 
     // Parse
-    val parseState = bodyParser.parse1(start, rd)
+    bodyParser.parse1(start, rd)
 
     // Clear EscapeScheme
-    parseState.mpstate.currentEscapeScheme = Nope
-
-    parseState
+    start.mpstate.currentEscapeScheme = Nope
   }
 }
 
@@ -221,14 +214,13 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 
   override lazy val childProcessors = Seq(bodyParser)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
 
-    val parseState = bodyParser.parse1(start, rd)
+    bodyParser.parse1(start, rd)
 
-    parseState.mpstate.groupIndexStack.pop()
-    parseState.mpstate.moveOverOneGroupIndexOnly()
-    parseState
+    start.mpstate.groupIndexStack.pop()
+    start.mpstate.moveOverOneGroupIndexOnly()
   }
 }
 
@@ -243,9 +235,8 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
 
   override lazy val childProcessors = Seq(bodyParser)
 
-  def parse(start: PState): PState = {
-    val parseState = bodyParser.parse1(start, rd)
-    parseState
+  def parse(start: PState): Unit = {
+    bodyParser.parse1(start, rd)
   }
 }
 
@@ -253,41 +244,38 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
   override def nom = "Array"
   override lazy val childProcessors = Seq(bodyParser)
 
-  def parse(start: PState): PState = {
+  def parse(start: PState): Unit = {
 
     start.mpstate.arrayIndexStack.push(1L) // one-based indexing
     start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
-    val parseState = bodyParser.parse1(start, erd)
-    if (parseState.status != Success) return parseState
+    bodyParser.parse1(start, erd)
+    if (start.status != Success) return
 
     val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off
 
     val actualOccurs = start.mpstate.arrayIndexStack.pop()
     start.mpstate.occursBoundsStack.pop()
 
-    val finalState = {
-      (erd.minOccurs, erd.maxOccurs) match {
-        case (Some(minOccurs), Some(maxOccurs)) if shouldValidate =>
-          val isUnbounded = maxOccurs == -1
-          val occurrence = actualOccurs - 1
-          val postValidationState = {
-            if (isUnbounded && occurrence < minOccurs)
-              parseState.withValidationError("%s occurred '%s' times when it was expected to be a " +
-                "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
-                occurrence, minOccurs)
-            else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
-              parseState.withValidationError("%s occurred '%s' times when it was expected to be a " +
-                "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
-                occurrence, minOccurs, maxOccurs)
-            else
-              parseState
-          }
-          postValidationState
-        case _ => parseState
+    (erd.minOccurs, erd.maxOccurs) match {
+      case (Some(minOccurs), Some(maxOccurs)) if shouldValidate => {
+        val isUnbounded = maxOccurs == -1
+        val occurrence = actualOccurs - 1
+
+        if (isUnbounded && occurrence < minOccurs)
+          start.withValidationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of 'UNBOUNDED' times.", erd.prettyName,
+            occurrence, minOccurs)
+        else if (!isUnbounded && (occurrence < minOccurs || occurrence > maxOccurs))
+          start.withValidationError("%s occurred '%s' times when it was expected to be a " +
+            "minimum of '%s' and a maximum of '%s' times.", erd.prettyName,
+            occurrence, minOccurs, maxOccurs)
+        else {
+          //ok
+        }
       }
+      case _ => //ok
     }
-    finalState
   }
 }
 

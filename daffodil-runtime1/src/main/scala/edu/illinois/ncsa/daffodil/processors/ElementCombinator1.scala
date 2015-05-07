@@ -61,8 +61,8 @@ abstract class StatementElementParserBase(
   Assert.invariant(patDiscrimParser.size <= 1)
 
   def move(pstate: PState): Unit // implement for different kinds of "moving over to next thing"
-  def parseBegin(pstate: PState): PState
-  def parseEnd(pstate: PState): PState
+  def parseBegin(pstate: PState): Unit
+  def parseEnd(pstate: PState): Unit
 
   override lazy val childProcessors = patDiscrimParser ++ patAssertParser ++ eParser.toSeq ++ setVarParser ++ testDiscrimParser ++ testAssertParser ++ eAfterParser
 
@@ -97,99 +97,94 @@ abstract class StatementElementParserBase(
     resultState
   }
 
-  def parse(pstate: PState): PState = {
-    //Removed checks now done at compilation
+  def parse(pstate: PState): Unit = {
 
     val startingBitPos = pstate.bitPos
     val startingCharPos = pstate.charPos
     val startingRdr = pstate.inStream.reader
-    var afterPatDisc = pstate //we're first so don't do .withPos(pstate.bitPos, pstate.charPos)
     patDiscrimParser.foreach(d => {
-      afterPatDisc = d.parse1(afterPatDisc, rd)
+      d.parse1(pstate, rd)
       // Pattern fails at the start of the Element
-      if (afterPatDisc.status != Success) { return afterPatDisc }
+      if (pstate.status != Success) { return }
     })
 
     // now here we backup and run the pattern Asserts 
     // against the data at the start of the element's representation again.
-    var afterPatAssrt = afterPatDisc.withPos(startingBitPos, startingCharPos, startingRdr)
+    pstate.setPos(startingBitPos, startingCharPos, startingRdr)
     patAssertParser.foreach(d => {
-      afterPatAssrt = d.parse1(afterPatAssrt, rd)
+      d.parse1(pstate, rd)
       // Pattern fails at the start of the Element
-      if (afterPatAssrt.status != Success) { return afterPatAssrt }
+      if (pstate.status != Success) { return }
     })
 
     // backup again. If all pattern discriminators and/or asserts
     // have passed, now we parse the element. But we backup
     // as if the pattern matching had not advanced the state.
-    val beforeEState = afterPatAssrt.withPos(startingBitPos, startingCharPos, startingRdr)
+    pstate.setPos(startingBitPos, startingCharPos, startingRdr)
 
-    val postElementStartState = parseBegin(beforeEState)
+    parseBegin(pstate)
+    try {
 
-    if (postElementStartState.status != Success) return postElementStartState
+      if (pstate.status != Success) return
 
-    // We just successfully created the element in the infoset. Notify the
-    // debugger of this so it can do things like check for break points
-    Debugger.startElement(postElementStartState, this)
+      // We just successfully created the element in the infoset. Notify the
+      // debugger of this so it can do things like check for break points
+      if (Debugger.getDebugging()) Debugger.startElement(pstate, this)
 
-    val postEState = eParser.map { eParser =>
-      eParser.parse1(postElementStartState, rd)
-    }.getOrElse(postElementStartState)
+      eParser.foreach { eParser =>
+        eParser.parse1(pstate, rd)
+      }
 
-    var someSetVarFailed: Maybe[PState] = Nope
+      var someSetVarFailed: Maybe[PState] = Nope
 
-    var afterSetVar = postEState
-    if (postEState.status == Success) {
-      setVarParser.foreach(d => {
-        val afterOneSetVar = d.parse1(afterSetVar, rd)
-        if (afterOneSetVar.status == Success) {
-          afterSetVar = afterOneSetVar
-        } else {
-          // a setVariable statement failed. But we want to continue to try 
-          // more of the setVariable statements, as they may be necessary
-          // to evaluate the test discriminator below, and some might 
-          // be successful even if one fails, allowing the discriminator to be true.
-          //
-          // So it's a bit odd, but we're going to just keep parsing using this
-          // failed state as the input to the next setVariable parse step.
-          someSetVarFailed = One(afterOneSetVar)
-          afterSetVar = afterOneSetVar
+      if (pstate.status == Success) {
+        setVarParser.foreach { d =>
+          d.parse1(pstate, rd)
+          if (pstate.status != Success) {
+            someSetVarFailed = One(pstate.duplicate())
+            // a setVariable statement may fail. But we want to continue to try 
+            // more of the setVariable statements, as they may be necessary
+            // to evaluate the test discriminator below, and some might 
+            // be successful even if one fails, allowing the discriminator to be true.
+            //
+            // So it's a bit odd, but we're going to just keep parsing using this
+            // failed state as the input to the next setVariable parse step.
+          }
         }
+      }
+
+      testDiscrimParser.foreach(d => {
+        d.parse1(pstate, rd)
+        // Tests fail at the end of the Element
+        if (pstate.status != Success) { return }
       })
+
+      // 
+      // We're done with the discriminator, so now we revisit the set variable statements.
+      // If a failure occurred there, then now we can fail out right here.
+      // 
+      someSetVarFailed.foreach { svState =>
+        pstate.assignFrom(svState) // set state to failure of first setVar that failed.
+        return
+      }
+
+      // Element evaluation failed, return
+      if (pstate.status != Success) { return }
+
+      testAssertParser.foreach(d => {
+        d.parse1(pstate, rd)
+        // Tests fail at the end of the Element
+        if (pstate.status != Success) { return }
+      })
+
+      eAfterParser.foreach { eAfterParser =>
+        eAfterParser.parse1(pstate, rd)
+      }
+
+      if (pstate.status != Success) return
+    } finally {
+      parseEnd(pstate)
     }
-
-    var afterTestDisc = afterSetVar
-    testDiscrimParser.foreach(d => {
-      afterTestDisc = d.parse1(afterTestDisc, rd)
-      // Tests fail at the end of the Element
-      if (afterTestDisc.status != Success) { return afterTestDisc }
-    })
-
-    // 
-    // We're done with the discriminator, so now we revisit the set variable statements.
-    // If a failure occurred there, then now we can fail out right here.
-    // 
-    someSetVarFailed.exists { return _ }
-
-    // Element evaluation failed, return
-    if (postEState.status != Success) { return postEState }
-
-    var afterTestAssrt = afterTestDisc
-    testAssertParser.foreach(d => {
-      afterTestAssrt = d.parse1(afterTestAssrt, rd)
-      // Tests fail at the end of the Element
-      if (afterTestAssrt.status != Success) { return afterTestAssrt }
-    })
-
-    val postAfterState = eAfterParser.map { eAfterParser =>
-      eAfterParser.parse1(afterTestAssrt, rd)
-    }.getOrElse(afterTestAssrt)
-
-    if (postAfterState.status != Success) return postAfterState
-
-    val postElementEndState = parseEnd(postAfterState)
-
-    postElementEndState //afterTestAssrt
   }
 }
 
@@ -219,7 +214,7 @@ class StatementElementParser(
     start.mpstate.moveOverOneElementChildOnly
   }
 
-  def parseBegin(pstate: PState): PState = {
+  def parseBegin(pstate: PState): Unit = {
     val currentElement = Infoset.newElement(erd)
 
     log(LogLevel.Debug, "currentElement = %s", currentElement)
@@ -233,31 +228,30 @@ class StatementElementParser(
       }
     }
     log(LogLevel.Debug, "priorElement = %s", priorElement)
-    val postState = pstate.withParent(currentElement)
-    postState
+    pstate.setParent(currentElement)
   }
 
-  def parseEnd(pstate: PState): PState = {
+  def parseEnd(pstate: PState): Unit = {
     val currentElement = pstate.thisElement
+    val priorElement = currentElement.parent
 
-    val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
-    val postValidate =
+    if (pstate.status == Success) {
+      val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
       if (shouldValidate && erd.isSimpleType) {
         // Execute checkConstraints
-        val resultState = validate(pstate)
-        resultState
-      } else pstate
-
-    // Assert.invariant(currentElement.getName() != "_document_" )
-    val priorElement = currentElement.parent
-    // Note: interaction of unboxed Maybe[T] with pass by name args of log method
-    // require us to call toScalaOption here.
-    log(LogLevel.Debug, "priorElement = %s", priorElement.toScalaOption)
-    val postState =
-      if (priorElement.isDefined) postValidate.withParent(priorElement.get)
-      else postValidate
-    move(pstate)
-    postState
+        validate(pstate)
+      }
+      if (priorElement.isDefined) pstate.setParent(priorElement.get)
+      move(pstate)
+    } else { // failure.
+      if (priorElement.isDefined) {
+        // We set the context back to the parent infoset element here
+        // But we do not remove the child here. That's done at the 
+        // point of uncertainty when it restores the state of the 
+        // element after a failure.
+        pstate.setParent(priorElement.get)
+      }
+    }
   }
 }
 
@@ -318,32 +312,26 @@ class ChoiceStatementElementParser(
    * ElementBegin just adds the element we are constructing to the infoset and changes
    * the state to be referring to this new element as what we're parsing data into.
    */
-  def parseBegin(pstate: PState): PState = {
+  def parseBegin(pstate: PState): Unit = {
     val currentElement = Infoset.newElement(erd)
-
     log(LogLevel.Debug, "currentElement = %s", currentElement)
-    pstate
   }
 
   // We don't want to modify the state here except
   // for validation.
-  def parseEnd(pstate: PState): PState = {
+  def parseEnd(pstate: PState): Unit = {
     val currentElement = pstate.thisElement
 
     val shouldValidate = pstate.dataProc.getValidationMode != ValidationMode.Off
-    val postValidate =
-      if (shouldValidate && erd.isSimpleType) {
-        // Execute checkConstraints
-        val resultState = validate(pstate)
-        resultState
-      } else pstate
+    if (shouldValidate && erd.isSimpleType) {
+      // Execute checkConstraints
+      validate(pstate)
+    }
 
     val priorElement = currentElement.parent
     // Note: interaction of unboxed Maybe[T] with pass by name args of log method
     // require us to call toScalaOption here.
     log(LogLevel.Debug, "priorElement = %s", priorElement.toScalaOption)
-    val postState = postValidate
     move(pstate)
-    postState
   }
 }

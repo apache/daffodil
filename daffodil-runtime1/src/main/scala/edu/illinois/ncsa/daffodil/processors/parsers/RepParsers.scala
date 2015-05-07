@@ -44,6 +44,7 @@ import java.nio._
 import java.nio.charset._
 import scala.collection.JavaConversions._
 import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.Parser
@@ -63,22 +64,22 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
 
   val intN = n.toInt
 
-  def checkN(pstate: PState, n: Long): Option[PState] = {
+  def checkN(pstate: PState, n: Long): Boolean = {
     if (n > DaffodilTunableParameters.maxOccursBounds) {
       // TODO: how can we go after bigger than max int bytes? We have 64-bit computers
       // after all....
-      Some(PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.maxOccursBounds))
-    } else None
+      PE(pstate, "Occurs count %s exceeds implementation maximum of %s.", n, DaffodilTunableParameters.maxOccursBounds)
+      false
+    } else true
   }
 
-  final def parse(pstate: PState): PState = {
-    checkN(pstate, n).map { perr => return perr }
-    val res = parseAllRepeats(pstate)
+  final def parse(pstate: PState): Unit = {
+    if (!checkN(pstate, n)) return
+    parseAllRepeats(pstate)
     pstate.mpstate.clearDelimitedText
-    res
   }
 
-  protected def parseAllRepeats(pstate: PState): PState
+  protected def parseAllRepeats(pstate: PState): Unit
 
   override def toString = "Rep" + baseName + "(" + rParser.toString + ")"
 
@@ -97,117 +98,131 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
  * otherwise, we know N.
  */
 object Rep {
-  def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): PState = {
-    var pResult = pstate
-    while (pResult.mpstate.arrayPos <= intN) {
-      Debugger.beforeRepetition(pResult, iParser)
-      val pNext = rParser.parse1(pResult, context)
-      Debugger.afterRepetition(pResult, pNext, iParser)
-      if (pNext.status != Success) return pNext // fail if we don't get them all 
+  def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): Unit = {
+    while (pstate.mpstate.arrayPos <= intN) {
+      val beforeState =
+        if (Debugger.getDebugging) {
+          val before = pstate.duplicate()
+          Debugger.beforeRepetition(pstate, iParser)
+          before
+        } else pstate
+      rParser.parse1(pstate, context)
+      if (Debugger.getDebugging) {
+        Debugger.afterRepetition(pstate, beforeState, iParser)
+      }
+      if (pstate.status != Success) return // fail if we don't get them all 
       pstate.mpstate.moveOverOneArrayIndexOnly
-      pResult = pNext
     }
-    pResult
   }
 }
 
 class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
   extends RepParser(n, rParser, context, "ExactlyN") {
 
-  def parseAllRepeats(pstate: PState): PState = {
-    var pResult = pstate // TODO: find perfect monad functional programming idiom to eliminate this var
-    1 to intN foreach { _ =>
-      {
-        Debugger.beforeRepetition(pResult, this)
-        val pNext = rParser.parse1(pResult, context)
-        Debugger.afterRepetition(pResult, pNext, this)
-        if (pNext.status != Success) {
-          return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-            context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
-        }
-        pstate.mpstate.moveOverOneArrayIndexOnly
-        pResult = pNext
+  def parseAllRepeats(pstate: PState): Unit = {
+    var i = 0
+    while (i < intN) {
+      i += 1
+      val beforeState =
+        if (Debugger.getDebugging) {
+          val before = pstate.duplicate()
+          Debugger.beforeRepetition(pstate, rParser)
+          before
+        } else pstate
+      rParser.parse1(pstate, context)
+      if (Debugger.getDebugging) {
+        Debugger.afterRepetition(pstate, beforeState, rParser)
       }
+      if (pstate.status != Success) {
+        PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
+          context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+        return
+      }
+      pstate.mpstate.moveOverOneArrayIndexOnly
     }
-    pResult
   }
 }
 
 class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(n, rParser, erd, "AtMostTotalN") {
 
-  def parseAllRepeats(pstate: PState): PState = {
-    var pResult = pstate.duplicate()
-    var priorResult = pstate
-    while (pResult.mpstate.arrayPos <= intN) {
+  def parseAllRepeats(initialState: PState): Unit = {
+    val startState = initialState.duplicate()
+    var priorState = initialState.duplicate()
+    var pstate = initialState.duplicate()
+    while (pstate.mpstate.arrayPos <= intN) {
       // Since each one could fail, each is a new point of uncertainty.
-      val newpou = pResult.withNewPointOfUncertainty
       // 
       // save the state of the infoset
       //
-      val infosetElement = newpou.infoset
-      val cloneNode = newpou.captureInfosetElementState
+      val cloneNode = pstate.captureInfosetElementState
+      val infosetElement = pstate.infoset
 
-      Debugger.beforeRepetition(newpou, this)
-      val pNext = rParser.parse1(newpou, context)
-      Debugger.afterRepetition(newpou, pNext, this)
+      pstate.pushDiscriminator
 
-      if (pNext.status != Success) {
+      if (Debugger.getDebugging()) Debugger.beforeRepetition(pstate, this)
+      rParser.parse1(pstate, context)
+      if (Debugger.getDebugging()) Debugger.afterRepetition(pstate, priorState, this)
+
+      if (pstate.status != Success) {
         // 
         // Did not succeed
         // 
         // Was a discriminator set?
         // 
-        if (pNext.discriminator == true) {
+        if (pstate.discriminator == true) {
           // we fail the whole RepUnbounded, because there was a discriminator set 
           // before the failure.
-          val pNextNext = PE(pNext, "Failed to populate %s:%s[%s].  Expected at most %s items.",
-            erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
-          return pNextNext.withRestoredPointOfUncertainty
+          pstate.popDiscriminator
+          initialState.assignFrom(pstate)
+          //          PE(pstate, "Failed to populate %s:%s[%s].  Expected at most %s items.",
+          //            erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+          return
         }
         //
         // backout any element appended as part of this attempt.
         //
-        pResult.infoset = infosetElement
-        pResult.restoreInfosetElementState(cloneNode)
-        return priorResult // success at prior state. 
+        pstate.infoset = infosetElement
+        pstate.restoreInfosetElementState(cloneNode)
+        initialState.assignFrom(priorState)
+        return // success at prior state. 
       }
-      priorResult = pNext.duplicate()
-      pNext.mpstate.moveOverOneArrayIndexOnly
-      pResult = pNext.withRestoredPointOfUncertainty
+      priorState = pstate.duplicate()
+      pstate.mpstate.moveOverOneArrayIndexOnly
+      pstate.popDiscriminator
     }
-    pResult
+    initialState.assignFrom(pstate)
   }
 }
 
 class RepExactlyTotalNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
   extends RepParser(n, rParser, context, "ExactlyTotalN") {
 
-  def parseAllRepeats(pstate: PState): PState = {
-    val pNext = Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
+  def parseAllRepeats(pstate: PState): Unit = {
+    Rep.loopExactlyTotalN(intN, rParser, pstate, context, this)
 
-    if (pNext.status != Success) {
-      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-        context.thisElementsNamespacePrefix, context.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+    if (pstate.status != Success) {
+      PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
+        context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
     }
-    pNext
   }
 }
 
 class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(-1, rParser, erd, "Unbounded") {
 
-  def parseAllRepeats(pstate: PState): PState = {
-
-    var pResult = pstate.duplicate()
-    var priorResult = pstate
-    while (pResult.status == Success) {
+  def parseAllRepeats(initialState: PState): Unit = {
+    Assert.invariant(initialState.status =:= Success)
+    val startState = initialState.duplicate()
+    var pstate = initialState.duplicate()
+    var priorState = initialState.duplicate()
+    while (pstate.status == Success) {
 
       erd.maxOccurs.foreach { maxOccurs =>
         if ((occursCountKind == OccursCountKind.Implicit) &&
           (maxOccurs == -1)) {
           erd.minOccurs.foreach { minOccurs =>
-            if (pResult.mpstate.arrayPos - 1 <= minOccurs) {
+            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
               // Is required element
               // Somehow need to return that this element is required
             }
@@ -215,44 +230,48 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
         }
       }
 
-      val cloneNode = pResult.captureInfosetElementState
-      val infosetElement = pResult.infoset
+      val cloneNode = pstate.captureInfosetElementState
+      val infosetElement = pstate.infoset
       //
       // Every parse is a new point of uncertainty.
-      val newpou = pResult.withNewPointOfUncertainty
-      Debugger.beforeRepetition(newpou, this)
-      val pNext = rParser.parse1(newpou, erd)
-      Debugger.afterRepetition(newpou, pNext, this)
-      if (pNext.status != Success) {
+      pstate.pushDiscriminator
+      if (Debugger.getDebugging()) Debugger.beforeRepetition(pstate, this)
+      rParser.parse1(pstate, erd)
+      if (Debugger.getDebugging()) Debugger.afterRepetition(pstate, priorState, this)
+      if (pstate.status != Success) {
         // 
         // Did not succeed
         // 
         // Was a discriminator set?
         // 
-        if (pNext.discriminator == true) {
+        if (pstate.discriminator == true) {
           // we fail the whole RepUnbounded, because there was a discriminator set 
           // before the failure.
-          return pNext.withRestoredPointOfUncertainty
+          pstate.popDiscriminator
+          initialState.assignFrom(pstate)
+          return
         }
         // 
         // no discriminator, so suppress the failure. Loop terminated with prior element.
         //
-        pResult.infoset = infosetElement
-        pResult.restoreInfosetElementState(cloneNode)
+        pstate.infoset = infosetElement
+        pstate.restoreInfosetElementState(cloneNode)
         log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
-        return priorResult // note that it has the prior point of uncertainty. No restore needed.
+        initialState.assignFrom(priorState)
+        return // note that it has the prior point of uncertainty. No restore needed.
       }
       // Success
       // Need to check for forward progress
-      if (priorResult.bitPos == pNext.bitPos) {
-        return PE(pNext,
+      if (pstate.bitPos =#= priorState.bitPos) {
+        PE(pstate,
           "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
             "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
-          pResult.bytePos, erd.prettyName)
+          pstate.bytePos, erd.prettyName)
+        return
       }
-      priorResult = pNext.duplicate()
-      pNext.mpstate.moveOverOneArrayIndexOnly // was pstate, not pNext....why?
-      pResult = pNext.withRestoredPointOfUncertainty // point of uncertainty has been resolved.
+      priorState = pstate.duplicate()
+      pstate.mpstate.moveOverOneArrayIndexOnly // was pstate, not pNext....why?
+      pstate.popDiscriminator // point of uncertainty has been resolved.
 
     }
     Assert.invariantFailed("Unbounded loop terminated wrong")
@@ -264,18 +283,17 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
 
   override lazy val childProcessors = Nil
 
-  def parse(pstate: PState): PState = withParseErrorThrowing(pstate) {
-
-    val res = try {
+  def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
+    try {
       val (oc, newVMap) = occursCount.evaluate(pstate)
-      val postEvalState = pstate.withVariables(newVMap)
+      pstate.setVariables(newVMap)
       val ocLong = AsIntConverters.asLong(oc)
       if (ocLong < 0 ||
         ocLong > DaffodilTunableParameters.maxOccursBounds) {
-        return PE(postEvalState, "Evaluation of occursCount expression %s returned out of range value %s.", occursCount.prettyExpr, ocLong)
+        PE(pstate, "Evaluation of occursCount expression %s returned out of range value %s.", occursCount.prettyExpr, ocLong)
+        return
       }
       pstate.mpstate.updateBoundsHead(ocLong)
-      postEvalState
     } catch {
       case u: UnsuppressableException => throw u
       case r: RuntimeException => throw r
@@ -285,8 +303,8 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
         // set of things that are "real" and allowing anything else to ripple to
         // the top as a bug.
         PE(pstate, "Evaluation of occursCount expression %s threw exception %s", occursCount.prettyExpr, e)
+        return
     }
-    res
   }
 
   override def toString = toBriefXML() // "OccursCount(" + e.occursCount.prettyExpr + ")"
@@ -298,27 +316,27 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
 
 class RepAtMostOccursCountParser(rParser: Parser, intN: Long, erd: ElementRuntimeData)
   extends RepParser(intN, rParser, erd, "AtMostOccursCount") {
-  def parseAllRepeats(pstate: PState): PState = {
+  def parseAllRepeats(pstate: PState): Unit = {
     // repeat either n times, or occursCount times if that's less than n.
     val n = math.min(pstate.mpstate.occursBounds, erd.minOccurs.get)
-    val pNext = Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
-    if (pNext.status != Success) {
-      return PE(pNext, "Failed to populate %s:%s[%s].  Expected at most %s items.",
-        erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+    Rep.loopExactlyTotalN(intN.toInt, rParser, pstate, erd, this)
+    if (pstate.status != Success) {
+      PE(pstate, "Failed to populate %s:%s[%s].  Expected at most %s items.",
+        erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+      return
     }
-    pNext
   }
 }
 
 class RepExactlyTotalOccursCountParser(rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(-1, rParser, erd, "ExactlyTotalOccursCount") {
-  def parseAllRepeats(pstate: PState): PState = {
+  def parseAllRepeats(pstate: PState): Unit = {
     val ocInt = pstate.mpstate.occursBounds.toInt
-    val pNext = Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
-    if (pNext.status != Success) {
-      return PE(pNext, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-        erd.thisElementsNamespacePrefix, erd.name, pNext.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
+    Rep.loopExactlyTotalN(ocInt, rParser, pstate, erd, this)
+    if (pstate.status != Success) {
+      PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
+        erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, ocInt) // they all must succeed, otherwise we fail here.
+      return
     }
-    pNext
   }
 }
