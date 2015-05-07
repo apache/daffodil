@@ -97,6 +97,30 @@
           </xs:sequence>
         </xs:complexType>
       </xs:element>
+      
+      <xs:element name="e6">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="cStyleComment" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="e7">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="e8">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="," >
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="slashes" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
   
   </tdml:defineSchema>
 
@@ -151,7 +175,7 @@
       Schema: delimitedStringsEscapeScheme
       Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
 -->
-  <tdml:unparserTestCase name="unparseDelimitedEscapedString03" model="delimitedStringsEscapeScheme" root="e3">
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString03" model="delimitedStringsEscapeScheme" root="e3" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e3 xmlns:ex="http://example.com">
@@ -180,7 +204,7 @@
       Schema: delimitedStringsEscapeScheme
       Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
 -->
-  <tdml:unparserTestCase name="unparseDelimitedEscapedString04" model="delimitedStringsEscapeScheme" root="e4">
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString04" model="delimitedStringsEscapeScheme" root="e4" roundTrip="true">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e4 xmlns:ex="http://example.com">
@@ -232,5 +256,94 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString06
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString06" model="delimitedStringsEscapeScheme" root="e6" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>/*three*/</ex:s1>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>/*one,two*/,/*/*three#*/*/</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString07
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString07" model="delimitedStringsEscapeScheme" root="e6" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6 xmlns:ex="http://example.com">
+          <ex:s1>one,</ex:s1>
+          <ex:s1>two</ex:s1>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>/*one,*/,two</tdml:document>
+ </tdml:unparserTestCase>
+ 
+<!--
+      Test Name: unparseDelimitedEscapedString08
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString08" model="delimitedStringsEscapeScheme" root="e7" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e7 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>three</ex:s1>
+          <ex:s1>fou,,,,r</ex:s1>
+        </ex:e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one#,two,three,fou#,#,#,#,r</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString09
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString09" model="delimitedStringsEscapeScheme" root="e8" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>three</ex:s1>
+          <ex:s1>fou/,r</ex:s1>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one/,two,three,fou\//,r</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString10
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString10" model="delimitedStringsEscapeScheme" root="e8" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e8 xmlns:ex="http://example.com">
+          <ex:s1>one,two</ex:s1>
+          <ex:s1>three</ex:s1>
+          <ex:s1>four/</ex:s1>
+          <ex:s1>five</ex:s1>
+        </ex:e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>one/,two,three,four\/,five</tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
