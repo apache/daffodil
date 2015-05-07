@@ -50,6 +50,4 @@ class TestNillableUnparseNew {
   val ln = testDir + "literal-value-nils-unparse.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
 
-  @Test def test_text_complex_nil() { runnerLN.runOneTest("text_complex_nil") }
-
 }

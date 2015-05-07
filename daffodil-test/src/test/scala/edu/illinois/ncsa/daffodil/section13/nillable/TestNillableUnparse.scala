@@ -61,6 +61,10 @@ object TestNillableUnparse {
 class TestNillableUnparse {
 
   import TestNillableUnparse._
+  
+  @Test def test_text_complex_nil() { runnerLN.runOneTest("text_complex_nil") }
+  @Test def test_text_complex_nil2() { runnerLN.runOneTest("text_complex_nil2") }
+  @Test def test_text_complex_nil3() { runnerLN.runOneTest("text_complex_nil3") }
 
   //DFDL-1304
   //@Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }

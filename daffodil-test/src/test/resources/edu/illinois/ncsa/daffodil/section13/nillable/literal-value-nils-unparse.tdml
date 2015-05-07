@@ -627,11 +627,44 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="doc2" nillable="true" dfdl:nilValue="NOPE %ES;">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="/">
+          <xs:element name="ct" nillable="true">
+            <xs:complexType>
+              <xs:sequence dfdl:separator="," dfdl:terminator=";">
+                <xs:element name="e1" type="xsd:int" />
+                <xs:element name="e2" type="xsd:int" />
+                <xs:element name="e3" type="xsd:int" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+          <xs:element name="after" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="doc3" nillable="true" dfdl:nilValue="%ES; NIL">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="e1" type="xsd:int" dfdl:initiator="#" />
+          <xs:element name="e3" type="xsd:int" dfdl:initiator="-"/>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
+
+<!--
+  Test Name: text_complex_nil
+     Schema: nillableComplex
+       Root: doc
+    Purpose: This test demonstrates unparsing a complex literal nil.
+-->
   
   <tdml:unparserTestCase name="text_complex_nil" root="doc"
     model="nillableComplex"
-    description="Verify complex elements can be nilllable">
+    description="Verify complex elements can be nilllable" roundTrip="true">
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
@@ -645,6 +678,54 @@
 
     <tdml:document>
       <tdml:documentPart type="text"><![CDATA[nil/after]]></tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_complex_nil2
+     Schema: nillableComplex
+       Root: doc2
+    Purpose: This test demonstrates unparsing a complex literal nil.
+-->
+  
+  <tdml:unparserTestCase name="text_complex_nil2" root="doc2"
+    model="nillableComplex"
+    description="Verify complex elements can be nilllable" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[NOPE]]></tdml:documentPart>
+    </tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_complex_nil3
+     Schema: nillableComplex
+       Root: doc3
+    Purpose: This test demonstrates unparsing a complex literal nil.
+-->
+  
+  <tdml:unparserTestCase name="text_complex_nil3" root="doc3"
+    model="nillableComplex"
+    description="Verify complex elements can be nilllable" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
     </tdml:document>
 
   </tdml:unparserTestCase>

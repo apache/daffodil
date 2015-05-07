@@ -48,6 +48,8 @@ class TestNillable {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val aa = testDir + "nillable.tdml"
   lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
 
   @Test def test_litNil1() { runnerAA.runOneTest("litNil1") }
   @Test def test_litNil2() { runnerAA.runOneTest("litNil2") }

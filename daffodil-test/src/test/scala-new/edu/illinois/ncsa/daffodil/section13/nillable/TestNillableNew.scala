@@ -50,6 +50,4 @@ class TestNillableNew {
   val ln = testDir + "literal-value-nils.tdml"
   lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
 
-  @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
-
 }
