@@ -216,16 +216,16 @@
     <tdml:document>/*/*three*/,*/four</tdml:document>
   </tdml:unparserTestCase>
   
+<!--
+      Test Name: parseDelimitedEscapedString04
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test was previously failing with memory issues. The test would spin and eventually fail with a Java heap space error (DFDL-1315). This test will remain to demonstrate that the issue has been fixed. The intended functionality of this test is now covered by unparseDelimitedEscapedString04 with roundTrip="true"
+-->
   <tdml:parserTestCase name="parseDelimitedEscapedString04" model="delimitedStringsEscapeScheme" root="e4">
     <tdml:document>/*three,#*/four</tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <ex:e4 xmlns:ex="http://example.com">
-          <ex:s1>/*three</ex:s1>
-          <ex:s2>*/four</ex:s2>
-        </ex:e4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
 <!--

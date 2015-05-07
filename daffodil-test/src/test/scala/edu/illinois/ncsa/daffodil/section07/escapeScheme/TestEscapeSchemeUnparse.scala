@@ -73,9 +73,7 @@ class TestEscapeSchemeUnparse {
 
   @Test def test_parseDelimitedEscapedString01() { runner.runOneTest("parseDelimitedEscapedString01") }
   @Test def test_parseDelimitedEscapedString03() { runner.runOneTest("parseDelimitedEscapedString03") }
-
-  //DFDL-1315 
-  //@Test def test_parseDelimitedEscapedString04() { runner.runOneTest("parseDelimitedEscapedString04") }
+  @Test def test_parseDelimitedEscapedString04() { runner.runOneTest("parseDelimitedEscapedString04") }
 
 }
 
