@@ -91,9 +91,6 @@ class TestArrayOptionalElem {
 
   import TestArrayOptionalElem._
 
-  //DFDL-1302 
-  //@Test def test_impOptArrayThenScalar02b() { runner.runOneTest("impOptArrayThenScalar02b") }
-
   @Test def test_arrayExpressions01() { runner.runOneTest("arrayExpressions01") }
   @Test def test_arrayExpressions02() { runner.runOneTest("arrayExpressions02") }
   @Test def test_arrayExpressions02b() { runner.runOneTest("arrayExpressions02b") }

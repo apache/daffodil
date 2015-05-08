@@ -50,7 +50,5 @@ class TestArrayOptionalElemDebug {
 
   @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   
-  //DFDL-1302 
-  @Test def test_impOptArrayThenScalar02b() { runner.runOneTest("impOptArrayThenScalar02b") }
 }
 

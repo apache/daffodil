@@ -42,9 +42,9 @@
     <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
       separator="" initiator="" terminator="" occursCountKind="parsed"
       ignoreCase="no" textNumberRep="standard" representation="text"
-      textPadKind='padChar' textStringPadCharacter="%SP;" />
+      textPadKind='padChar' textStringPadCharacter="%SP;" textNumberJustification="center"/>
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1"
+      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1" textNumberJustification="center"
         separator="" initiator="" terminator="" representation="text" />
     </dfdl:defineFormat>
 
@@ -78,6 +78,16 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element name="opt" type="xs:string" minOccurs="0" />
+          <xs:element name="sca" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="r4b" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:float" minOccurs="0"
+            maxOccurs="3" />
           <xs:element name="sca" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
@@ -274,19 +284,19 @@
 <!--
   Test Name: parsedOptArrayThenScalar03
      Schema: s1
-       Root: r4
+       Root: r4b
     Purpose: This test demonsrates unparsing a sequence of an optional array and a scalar
              with occursCountKind="parsed." In this case the optional array is not present.
 -->
 
-  <tdml:unparserTestCase name="parsedOptArrayThenScalar03" root="r4"
+  <tdml:unparserTestCase name="parsedOptArrayThenScalar03" root="r4b"
     model="s1">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
-        <r4>
+        <r4b>
           <sca>3</sca>
-        </r4>
+        </r4b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[3]]></tdml:document>

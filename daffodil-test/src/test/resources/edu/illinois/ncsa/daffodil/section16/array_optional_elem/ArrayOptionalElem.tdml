@@ -58,29 +58,8 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
   </tdml:defineSchema>
-
-<!--
-  Test Name: impOptArrayThenScalar02b
-     Schema: s1
-       Root: r4
-    Purpose: This test demonsrates parsing a sequence of an optional array and a scalar
-             with occursCountKind="implicit." In this case the optional array is not present.
--->
-
-  <tdml:parserTestCase name="impOptArrayThenScalar02b" root="r4"
-    model="s1">
-    <tdml:document><![CDATA[3]]></tdml:document>
-    <tdml:infoset xmlns="http://example.com">
-      <tdml:dfdlInfoset>
-        <r4>
-          <sca>3</sca>
-        </r4>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
-
-  </tdml:parserTestCase>
 
   <tdml:defineSchema name="array-optionalElem.dfdl.xsd">
 

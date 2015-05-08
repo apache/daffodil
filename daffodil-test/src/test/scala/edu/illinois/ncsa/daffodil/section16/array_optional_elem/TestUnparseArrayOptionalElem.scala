@@ -95,9 +95,6 @@ class TestUnparseArrayOptionalElem {
   @Test def test_impOptScalarThenArray03() { runner_imp.runOneTest("impOptScalarThenArray03") }
   @Test def test_impOptArrayThenScalar03() { runner_imp.runOneTest("impOptArrayThenScalar03") }
   
-  //DFDL-1302
-  //@Test def test_parsedOptArrayThenScalar03() { runner_parsed.runOneTest("parsedOptArrayThenScalar03") }
-
   @Test def test_fixedOptPresent() { runner_fixed.runOneTest("fixedOptPresent") }
   @Test def test_fixedOptPresentArray() { runner_fixed.runOneTest("fixedOptPresentArray") }
   @Test def test_fixedOptAbsentArray() { runner_fixed.runOneTest("fixedOptAbsentArray") }
@@ -126,5 +123,6 @@ class TestUnparseArrayOptionalElem {
   @Test def test_parsedOptScalarThenArray02() { runner_parsed.runOneTest("parsedOptScalarThenArray02") }
   @Test def test_parsedOptArrayThenScalar() { runner_parsed.runOneTest("parsedOptArrayThenScalar") }
   @Test def test_parsedOptArrayThenScalar02() { runner_parsed.runOneTest("parsedOptArrayThenScalar02") }
+  @Test def test_parsedOptArrayThenScalar03() { runner_parsed.runOneTest("parsedOptArrayThenScalar03") }
 
 }
