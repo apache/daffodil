@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit._
 
 object TestUnparseArrayOptionalElemDebug {
-  
+
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
   val aa_fixed = testDir + "UnparseArrayFixedOptionalElem.tdml"
   var runner_fixed = new DFDLTestSuite(Misc.getRequiredResource(aa_fixed))
@@ -62,8 +62,8 @@ object TestUnparseArrayOptionalElemDebug {
   /**
    * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
    */
-  @AfterClass def tearDown() { 
-    runner_fixed = null 
+  @AfterClass def tearDown() {
+    runner_fixed = null
     runner_imp = null
     runner_parsed = null
     runner_expr = null
@@ -72,7 +72,7 @@ object TestUnparseArrayOptionalElemDebug {
 }
 
 class TestUnparseArrayOptionalElemDebug {
-  
+
   import TestUnparseArrayOptionalElemDebug._
 
   //DFDL-1296
@@ -85,5 +85,5 @@ class TestUnparseArrayOptionalElemDebug {
 
   //DFDL-1301
   @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
-  
+
 }

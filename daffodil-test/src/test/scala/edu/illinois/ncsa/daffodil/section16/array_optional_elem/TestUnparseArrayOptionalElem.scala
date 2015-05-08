@@ -45,7 +45,7 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit._
 
 object TestUnparseArrayOptionalElem {
-  
+
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
   val aa_fixed = testDir + "UnparseArrayFixedOptionalElem.tdml"
   var runner_fixed = new DFDLTestSuite(Misc.getRequiredResource(aa_fixed))
@@ -58,15 +58,15 @@ object TestUnparseArrayOptionalElem {
 
   val aa_expr = testDir + "UnparseArrayExpressionConstant.tdml"
   var runner_expr = new DFDLTestSuite(Misc.getRequiredResource(aa_expr))
-  
+
   val aa_delim = testDir + "UnparseArrayDelimitedOptionalElem.tdml"
   var runner_delim = new DFDLTestSuite(Misc.getRequiredResource(aa_delim))
 
   /**
    * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
    */
-  @AfterClass def tearDown() { 
-    runner_fixed = null 
+  @AfterClass def tearDown() {
+    runner_fixed = null
     runner_imp = null
     runner_parsed = null
     runner_expr = null
@@ -78,7 +78,7 @@ object TestUnparseArrayOptionalElem {
 class TestUnparseArrayOptionalElem {
 
   import TestUnparseArrayOptionalElem._
-  
+
   //DFDL-1296
   //@Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
   //@Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
@@ -86,15 +86,15 @@ class TestUnparseArrayOptionalElem {
   //@Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
   //@Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
   //@Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
-  
+
   //DFDL-1301
   //@Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
-  
+
   //DFDL-1301 - ticket to improve diagnostic. test will need to be updated.
   @Test def test_fixedUnparseArrayTooFewElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooFewElements01") }
   @Test def test_impOptScalarThenArray03() { runner_imp.runOneTest("impOptScalarThenArray03") }
   @Test def test_impOptArrayThenScalar03() { runner_imp.runOneTest("impOptArrayThenScalar03") }
-  
+
   @Test def test_fixedOptPresent() { runner_fixed.runOneTest("fixedOptPresent") }
   @Test def test_fixedOptPresentArray() { runner_fixed.runOneTest("fixedOptPresentArray") }
   @Test def test_fixedOptAbsentArray() { runner_fixed.runOneTest("fixedOptAbsentArray") }

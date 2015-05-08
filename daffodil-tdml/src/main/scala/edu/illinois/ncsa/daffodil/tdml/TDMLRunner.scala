@@ -687,7 +687,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               testData = outStream.toByteArray
             }
             
-            else throw e
+            else  throw e
           }
         }
         
@@ -769,9 +769,9 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       if (!parseActual.canProceed) {
         // Means there was an error, not just warnings.
-        val diagObjs = actual.getDiagnostics
+        val diagObjs = parseActual.getDiagnostics
         if (diagObjs.length == 1) throw diagObjs(0)
-        val diags = actual.getDiagnostics.map(_.getMessage).mkString("\n")
+        val diags = parseActual.getDiagnostics.map(_.getMessage).mkString("\n")
         throw new TDMLException(diags) // if you just assertTrue(objectToDiagnose.canProceed), and it fails, you get NOTHING useful.
       }
       val loc: DataLocation = parseActual.resultState.currentLocation
