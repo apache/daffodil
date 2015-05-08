@@ -291,10 +291,9 @@ trait HasEscapeScheme { self: StringDelimited =>
     val finalOptEsc =
       if (!optEsc.isDefined) Nope
       else {
-        val (res, newVMap) = optEsc.get.evaluate(state)
+        val res = optEsc.get.evaluate(state)
         val l = new SingleCharacterLiteralES(res.toString, context)
         val resultEsc = l.cooked
-        state.setVariables(newVMap)
         One(resultEsc)
       }
     finalOptEsc

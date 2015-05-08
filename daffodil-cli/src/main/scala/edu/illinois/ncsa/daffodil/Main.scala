@@ -236,7 +236,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
         // the 'wrong format' error only occurs on --schema when options are
         // provided after the trailing arg, so let's give a more helpful error
         // message
-        "Options are not allow after a trailing argument"
+        "Options are not allowed after a trailing argument"
       } else {
         message
       }
@@ -280,7 +280,7 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     descr("parse data to a DFDL infoset")
     helpWidth(76)
 
-    val schema = opt[URI]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")
+    val schema = opt[File]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")
     val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the first schema")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
@@ -664,7 +664,7 @@ object Main extends Logging {
           } else {
             val extVarsBindings = retrieveExternalVariables(parseOpts.vars, cfgFileNode)
             val tunables = retrieveTunables(parseOpts.tunables, cfgFileNode)
-            createProcessorFromSchema(parseOpts.schema(), parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
+            createProcessorFromSchema(parseOpts.schema().toURI(), parseOpts.rootNS.get, parseOpts.path.get, extVarsBindings, tunables, validate)
           }
         }
 

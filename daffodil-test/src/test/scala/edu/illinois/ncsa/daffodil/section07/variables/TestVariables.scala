@@ -47,10 +47,13 @@ import java.io.File
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.util.Fakes
 
-class TestVariables {
+object TestVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
   val tdml = testDir + "variables.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+}
+class TestVariables {
+  import TestVariables._
 
   @Test def test_setVarAbsolutePath() { runner.runOneTest("setVarAbsolutePath") }
   @Test def test_varAsSeparator() { runner.runOneTest("varAsSeparator") }

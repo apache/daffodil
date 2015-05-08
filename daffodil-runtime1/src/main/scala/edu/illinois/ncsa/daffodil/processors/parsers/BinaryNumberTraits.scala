@@ -52,15 +52,13 @@ trait HasRuntimeExplicitLength[T] { self: BinaryNumberBaseParser[T] =>
   }
 
   def getBitLength(s: PState): Long = {
-    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    s.setVariables(newVMap)
     nBytes * toBits
   }
   def getLength(s: PState): Long = {
-    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    s.setVariables(newVMap)
     nBytes
   }
 }
@@ -70,13 +68,12 @@ trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
   def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
 
   def getByteOrder(s: PState): java.nio.ByteOrder = {
-    val (byteOrderAsAny, newVMap) = bo.evaluate(s)
+    val byteOrderAsAny = bo.evaluate(s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
     val byteOrder = dfdlByteOrderEnum match {
       case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
       case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
     }
-    s.setVariables(newVMap)
     byteOrder
   }
 }

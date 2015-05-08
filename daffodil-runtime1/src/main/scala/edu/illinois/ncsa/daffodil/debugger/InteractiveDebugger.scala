@@ -52,6 +52,8 @@ import edu.illinois.ncsa.daffodil.dpath.DPathUtil
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
+import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
+import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -224,9 +226,16 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     val context = state.getContext()
     val namespaces = context.namespaces
     try {
-      val compiledExpr = eCompiler.compile(
-        NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo, false)
-      val (res, vars) = compiledExpr.evaluate(state)
+      val compiledExpr = try {
+        eCompiler.compile(
+          NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo, false)
+      } catch {
+        case errs: ErrorsNotYetRecorded => {
+          debugPrintln(errs)
+          throw errs
+        }
+      }
+      val res = compiledExpr.evaluate(state)
       res match {
         case b: Boolean => b
         case _ => false
@@ -595,7 +604,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |evaluates to true. If the result of the DFDL expression is not
                         |a boolean value, it is treated as false.
                         |
-                        |Example: condition 1 dfdl:occursIndex() = 3""".stripMargin
+                        |Example: condition 1 dfdl:occursIndex() eq 3""".stripMargin
       override lazy val short = "cond"
 
       override def validate(args: Seq[String]) {
@@ -874,7 +883,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           val compiledExpression = eCompiler.compile(
             NodeInfo.AnyType, expressionWithBraces, namespaces, context.dpathCompileInfo,
             isEvaluatedAbove)
-          val (res, vmap) = compiledExpression.evaluate(state)
+          val res = compiledExpression.evaluate(state)
           res match {
             case ie: InfosetElement => debugPrettyPrintXML(ie)
             case nodeSeq: Seq[Any] => nodeSeq.foreach { a =>

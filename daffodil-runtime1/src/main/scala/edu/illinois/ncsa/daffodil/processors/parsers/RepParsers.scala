@@ -175,8 +175,6 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
           // before the failure.
           pstate.popDiscriminator
           initialState.assignFrom(pstate)
-          //          PE(pstate, "Failed to populate %s:%s[%s].  Expected at most %s items.",
-          //            erd.thisElementsNamespacePrefix, erd.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
           return
         }
         //
@@ -285,8 +283,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
 
   def parse(pstate: PState): Unit = withParseErrorThrowing(pstate) {
     try {
-      val (oc, newVMap) = occursCount.evaluate(pstate)
-      pstate.setVariables(newVMap)
+      val oc = occursCount.evaluate(pstate)
       val ocLong = AsIntConverters.asLong(oc)
       if (ocLong < 0 ||
         ocLong > DaffodilTunableParameters.maxOccursBounds) {

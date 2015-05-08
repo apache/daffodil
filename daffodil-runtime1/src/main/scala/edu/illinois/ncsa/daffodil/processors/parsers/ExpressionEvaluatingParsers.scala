@@ -57,7 +57,7 @@ abstract class ExpressionEvaluationParser(
   /**
    * Returns a pair. Modifies the PState
    */
-  protected def eval(start: PState): (Any, VariableMap) = {
+  protected def eval(start: PState): Any = {
     expr.evaluate(start)
   }
 }
@@ -72,10 +72,9 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
       withParseErrorThrowing(start) {
         log(LogLevel.Debug, "This is %s", toString)
         val currentElement: InfosetSimpleElement = start.simpleElement
-        val (res, newVMap) = eval(start)
+        val res = eval(start)
         if (start.status != Success) return
         currentElement.setDataValue(res)
-        start.setVariables(newVMap) // inputValueCalc consumes nothing. Just creates a value.
       }
     }
 }
@@ -83,20 +82,18 @@ class IVCParser(expr: CompiledExpression, e: ElementRuntimeData)
 class SetVariableParser(expr: CompiledExpression, decl: VariableRuntimeData)
   extends ExpressionEvaluationParser(expr, decl) {
 
-  def parse(start: PState): Unit =
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      withParseErrorThrowing(start) {
-        log(Debug("This is %s", toString)) // important. Don't toString unless we have to log. 
-        val (res, newVMap) = eval(start)
-        res match {
-          case ps: PState => return ;
-          case _ => /*fall through*/ }
-        if (start.status.isInstanceOf[Failure]) return
-        val newVMap2 = newVMap.setVariable(decl.globalQName, res, decl)
-        start.setVariables(newVMap2)
-      }
+  def parse(start: PState): Unit = {
+    withParseErrorThrowing(start) {
+      log(Debug("This is %s", toString)) // important. Don't toString unless we have to log. 
+      val res = eval(start)
+      res match {
+        case ps: PState => return ;
+        case _ => /*fall through*/ }
+      if (start.status.isInstanceOf[Failure]) return
+      val vmap = start.variableMap
+      start.setVariable(decl.globalQName, res, decl)
     }
+  }
 }
 
 class NewVariableInstanceStartParser(
@@ -133,7 +130,7 @@ class AssertExpressionEvaluationParser(
         // This now informs us of the success/failure of the expression
         // evaluation via side-effect on the start state passed here.
         //
-        val (res, newVMap) = eval(start)
+        val res = eval(start)
         //
         // a PE during evaluation of an assertion is a PE
         //
@@ -147,7 +144,6 @@ class AssertExpressionEvaluationParser(
           case f: Failure => return
         }
         val testResult = res.asInstanceOf[Boolean]
-        start.setVariables(newVMap)
         if (testResult) {
           start.setDiscriminator(discrim)
         } else {

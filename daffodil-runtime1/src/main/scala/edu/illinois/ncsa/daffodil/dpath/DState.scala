@@ -79,6 +79,7 @@ case class DState() {
   }
 
   def setCurrentValue(v: Any) {
+    Assert.invariant(!v.isInstanceOf[(Any, Any)])
     _currentValue = v
     _currentNode = null
   }

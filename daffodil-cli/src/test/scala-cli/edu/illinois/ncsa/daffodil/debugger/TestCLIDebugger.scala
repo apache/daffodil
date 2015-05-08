@@ -49,12 +49,12 @@ import net.sf.expectit.matcher.Matchers.times
 
 class TestCLIdebugger {
 
-  val DAFFODIL_JAVA_OPTS = Map ("DAFFODIL_JAVA_OPTS" -> "-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
-//  Dubugging tests were not executing under Windows and especially under Eclipse 
-//  due to the use of a non-interactive console. 
-//  Set the DAFFODIL_JAVA_OPTS environment variable for Debugger tests to specify 
-//  the use of an unsupported terminal: -Djline.terminal=jline.UnsupportedTerminal 
-//  Also added a Java option to specify the character encoding: -Dfile.encoding=UTF-8
+  val DAFFODIL_JAVA_OPTS = Map("DAFFODIL_JAVA_OPTS" -> "-Xms1024m -Xmx1024m -XX:MaxPermSize=256m -XX:ReservedCodeCacheSize=128m -Djline.terminal=jline.UnsupportedTerminal -Dfile.encoding=UTF-8")
+  //  Dubugging tests were not executing under Windows and especially under Eclipse 
+  //  due to the use of a non-interactive console. 
+  //  Set the DAFFODIL_JAVA_OPTS environment variable for Debugger tests to specify 
+  //  the use of an unsupported terminal: -Djline.terminal=jline.UnsupportedTerminal 
+  //  Also added a Java option to specify the character encoding: -Dfile.encoding=UTF-8
 
   @Test def test_3385_CLI_Debugger_invalidExpressions() {
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
@@ -66,7 +66,7 @@ class TestCLIdebugger {
     try {
       val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
-           
+
       shell.expect(contains("(debug)"))
 
       shell.sendLine("eval (/invalid)")
@@ -618,10 +618,35 @@ class TestCLIdebugger {
 
       shell.sendLine("step")
       shell.sendLine("step")
-      shell.expect(contains("<cell>2</cell>"))
+      shell.expect(contains("<cell>2</cell>")) // lacks tns: prefix because debugger explicitly strips them.
 
       shell.sendLine("continue")
-      shell.expect(contains("<tns:cell>6</tns:cell>"))
+      shell.expect(contains("<tns:cell>6</tns:cell>")) // has tns prefix because this is the final infoset, not the debugger printing this.
+      shell.sendLine("quit")
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_CLI_Debugger_SDE_message() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input2.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = if (Util.isWindows) Util.start("", envp = DAFFODIL_JAVA_OPTS) else Util.start("")
+
+    try {
+      val cmd = String.format("%s -d parse -s %s -r matrix %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("(debug)"))
+
+      shell.sendLine("display info infoset")
+      shell.sendLine("break cell")
+      shell.sendLine("condition 1 fn:count(../cell) eq 3") // ../cell is wrong. Needs to be ../tns:cell
+
+      shell.sendLine("continue")
+      shell.expect(allOf(contains("Schema Definition Error"), contains("{}cell"), contains("{http://www.example.org/example1/}cell")))
+
       shell.sendLine("quit")
     } finally {
       shell.close()

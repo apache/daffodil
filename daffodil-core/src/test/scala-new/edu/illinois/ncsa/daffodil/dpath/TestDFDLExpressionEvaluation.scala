@@ -52,7 +52,7 @@ import edu.illinois.ncsa.daffodil.util.TestUtils
 
 class TestDFDLExpressionEvaluation extends Parsers {
 
-  def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: (Any, VariableMap) => Unit) {
+  def testExpr(testSchema: scala.xml.Elem, infosetAsXML: scala.xml.Elem, expr: String)(body: Any => Unit) {
     val schemaCompiler = Compiler()
     val pf = schemaCompiler.compileNode(testSchema).asInstanceOf[ProcessorFactory]
     if (pf.isError) fail("pf compile errors")
@@ -71,8 +71,8 @@ class TestDFDLExpressionEvaluation extends Parsers {
     doc.setRootElement(infosetRootElem)
 
     val pstate = PState.createInitialPState(doc, erd, null, dp)
-    val (result, newVMap) = compiledExpr.evaluate(pstate)
-    body(result, newVMap)
+    val result = compiledExpr.evaluate(pstate)
+    body(result)
   }
 
   @Test def test_a() = {
@@ -81,7 +81,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
       <xs:element name="a" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(5) }"/>)
 
     val data = <a xmlns="http://example.com">aaaaa</a>
-    testExpr(schema, data, "{ /tns:a }") { (res: Any, vmap: VariableMap) =>
+    testExpr(schema, data, "{ /tns:a }") { (res: Any) =>
       assertEquals("aaaaa", res)
     }
   }
@@ -97,7 +97,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
         </xs:complexType>
       </xs:element>)
     val data = <b xmlns="http://example.com"><a>aaaaa</a></b>
-    testExpr(schema, data, "{ /tns:b/a }") { (res: Any, vmap: VariableMap) =>
+    testExpr(schema, data, "{ /tns:b/a }") { (res: Any) =>
       assertEquals("aaaaa", res)
     }
   }
@@ -113,7 +113,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
         </xs:complexType>
       </xs:element>)
     val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
-    testExpr(schema, data, "{ fn:count(/tns:b/a) }") { (res: Any, vmap: VariableMap) =>
+    testExpr(schema, data, "{ fn:count(/tns:b/a) }") { (res: Any) =>
       assertEquals(2L, res)
     }
   }
@@ -129,7 +129,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
         </xs:complexType>
       </xs:element>)
     val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
-    testExpr(schema, data, "{ /tns:b/a[1] }") { (res: Any, vmap: VariableMap) =>
+    testExpr(schema, data, "{ /tns:b/a[1] }") { (res: Any) =>
       assertEquals("aaaaa", res)
     }
   }
@@ -145,7 +145,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
         </xs:complexType>
       </xs:element>)
     val data = <b xmlns="http://example.com"><a>aaaaa</a><a>bbbbb</a></b>
-    testExpr(schema, data, "{ /tns:b/a[2] }") { (res: Any, vmap: VariableMap) =>
+    testExpr(schema, data, "{ /tns:b/a[2] }") { (res: Any) =>
       assertEquals("bbbbb", res)
     }
   }

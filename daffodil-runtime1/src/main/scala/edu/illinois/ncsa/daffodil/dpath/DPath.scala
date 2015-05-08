@@ -82,7 +82,7 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
       case pstate: PState => {
         val pe = new ParseError(One(ci.schemaFileLocation), One(pstate), msg)
         pstate.setFailed(pe)
-        (null, null)
+        null
       }
       case ustate: UState => {
         UnparseError(One(ci.schemaFileLocation), One(ustate), msg)
@@ -96,32 +96,32 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
       case pstate: PState => pstate.setFailed(pe)
       case _ => //ok
     }
-    (null, null)
+    null
   }
 
   private def evaluateForParserOrUnparser(pstate: ParseOrUnparseState): Any = {
-    val (value, newVMap) =
+    val value =
       try {
         recipe.runExpression(pstate)
 
         val dstate = pstate.dstate
-        val newVMap = dstate.vmap
-        val pair = {
+        pstate.variableMap = dstate.vmap
+        val v = {
           dstate.currentNode match {
             case null => {
               // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger
-              (dstate.currentValue, newVMap)
+              dstate.currentValue
             }
-            case n: DIElement if n.isNilled => (n, newVMap)
+            case n: DIElement if n.isNilled => n
             case c: DIComplex => {
               Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
-              (c, newVMap)
+              c
             }
-            case s: DISimple => (s.dataValue, newVMap)
+            case s: DISimple => s.dataValue
             case _ => Assert.invariantFailed("must be an element, simple or complex.")
           }
         }
-        pair
+        v
       } catch {
         //
         // Here we catch exceptions that indicate something went wrong with the
@@ -144,13 +144,12 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
         case e: NumberFormatException => doPE(e, pstate)
         case e: ArithmeticException => doPE(e, pstate)
       }
-    (value, newVMap) match {
-      case (null, null) => {
+    value match {
+      case null => {
         Assert.invariant(pstate.status != Success)
-        return (null, null)
+        return null
       }
       case _ => {
-        pstate.variableMap = newVMap
         // then fall through
       }
     }
@@ -208,108 +207,9 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
     evaluateForParserOrUnparser(ustate)
   }
 
-  final def evaluate(pstate: PState): (Any, VariableMap) = {
+  final def evaluate(pstate: PState): Any = {
     val v = evaluateForParserOrUnparser(pstate)
-    val vmap = pstate.variableMap
-    (v, vmap)
+    v
   }
-
-  //  final def evaluate(pstate: PState): (Any, VariableMap) = {
-  //    val (value, vmap) =
-  //      try {
-  //        recipe.runExpression(pstate)
-  //
-  //        val dstate = pstate.dstate
-  //        val vmap = dstate.vmap
-  //        val value = {
-  //          dstate.currentNode match {
-  //            case null => {
-  //              // there is no element. Can happen if one evaluates say, 5 + 6 in the debugger
-  //              dstate.currentValue
-  //            }
-  //            case n: DIElement if n.isNilled => n
-  //            case c: DIComplex => {
-  //              Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
-  //              c
-  //            }
-  //            case s: DISimple => s.dataValue
-  //            case _ => Assert.invariantFailed("must be an element, simple or complex.")
-  //          }
-  //        }
-  //        (value, vmap)
-  //      } catch {
-  //        //
-  //        // Here we catch exceptions that indicate something went wrong with the
-  //        // expression, but by that we mean legal evaluation of a compiled expression
-  //        // produced an error such as divide by zero or string having wrong format for 
-  //        // conversion to another type. I.e., things te DFDL schema author could get
-  //        // wrong that some data inputs would exacerbate.
-  //        //
-  //        // This should not catch things that indicate a Daffodil code problem e.g.,
-  //        // class cast exceptions. 
-  //        //
-  //        // Of course some things that are daffodil code bugs can hide - if for example
-  //        // there is an arithmetic error in daffodil code, this catch can't distinguish 
-  //        // that error (which should be an abort, from an arithmetic exception 
-  //        // due to an expression dividing by zero say. 
-  //        case e: InfosetNoSuchChildElementException => doSDE(e, pstate)
-  //        case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, pstate)
-  //        case e: IllegalArgumentException => doPE(e, pstate)
-  //        case e: IllegalStateException => doPE(e, pstate)
-  //        case e: NumberFormatException => doPE(e, pstate)
-  //        case e: ArithmeticException => doPE(e, pstate)
-  //      }
-  //    value match {
-  //      case null => {
-  //        Assert.invariant(pstate.status != Success)
-  //        return (null, null)
-  //      }
-  //      case _ => // fall through
-  //    }
-  //    val value1 =
-  //      if (!value.isInstanceOf[DIElement]) {
-  //        targetType match {
-  //          case NodeInfo.AnyType => value // ok
-  //          case NodeInfo.Long => {
-  //            value match {
-  //              case bi: BigInt => bi.toLong
-  //              case bd: BigDecimal => bd.toLong
-  //              case d: Double => d.toLong
-  //              case i: Int => i.toLong
-  //              case l: Long => l
-  //              case _ => Assert.invariantFailed("wasn't a number. Was %s.".format(Misc.getNameFromClass(value)))
-  //            }
-  //          }
-  //          case NodeInfo.NonEmptyString => {
-  //            Assert.invariant(value.isInstanceOf[String])
-  //            ci.schemaDefinitionUnless(value.asInstanceOf[String].length > 0,
-  //              "Non-empty string required.")
-  //            value
-  //          }
-  //          case NodeInfo.DateTime | NodeInfo.Date | NodeInfo.Time => {
-  //            Assert.invariant(value.isInstanceOf[DFDLCalendar])
-  //            value
-  //          }
-  //          case _: NodeInfo.String.Kind => {
-  //            Assert.invariant(value.isInstanceOf[String])
-  //            value
-  //          }
-  //          case NodeInfo.Boolean => {
-  //            Assert.invariant(value.isInstanceOf[Boolean])
-  //            value
-  //          }
-  //          case NodeInfo.HexBinary => {
-  //            Assert.invariant(value.isInstanceOf[Array[Byte]])
-  //            value
-  //          }
-  //          case _ => // TODO: add more checks. E.g., that proper type matching occurred for all the number 
-  //            // and date types as well.
-  //            value
-  //        }
-  //      } else {
-  //        value
-  //      }
-  //    (value1, vmap)
-  //  }
 
 }

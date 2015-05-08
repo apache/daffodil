@@ -64,6 +64,7 @@ import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.xml.GlobalQName
 
 case class MPState() {
 
@@ -247,13 +248,12 @@ final class PState private (
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
   def textReader = inStream.reader
 
-  def setEndBitLimit(bitLimit0b: Long, newStatus: ProcessorResult = this.status) {
+  def setEndBitLimit(bitLimit0b: Long) {
     if (bitLimit0b == inStream.bitLimit0b) {
       // already have this bitLimit.
     } else {
       var newInStream = inStream.withEndBitLimit(bitLimit0b)
       this.inStream = newInStream
-      this.status = newStatus
     }
   }
 
@@ -261,9 +261,8 @@ final class PState private (
     this.infoset = newParent
   }
 
-  def setVariables(newVariableMap: VariableMap, newStatus: ProcessorResult = Success) {
-    this.variableMap = newVariableMap
-    this.status = newStatus
+  def setVariable(varQName: GlobalQName, newValue: Any, referringContext: RuntimeData) {
+    this.variableMap = variableMap.setVariable(varQName, newValue, referringContext)
   }
 
   def withValidationError(msg: String, args: Any*) {

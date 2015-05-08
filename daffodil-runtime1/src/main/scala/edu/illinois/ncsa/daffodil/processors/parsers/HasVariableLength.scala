@@ -41,9 +41,8 @@ trait HasVariableLength { self: PrimParser =>
   def length: CompiledExpression
 
   def getLength(pstate: PState): Long = {
-    val (lengthAsAny: Any, newVMap) = length.evaluate(pstate)
+    val lengthAsAny = length.evaluate(pstate)
     val l = TypeConversions.convertToLong(lengthAsAny, pstate)
-    pstate.setVariables(newVMap)
     l
   }
 }

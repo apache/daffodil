@@ -73,8 +73,7 @@ trait EvaluatesStaticDynamicTextParser
     errorOnWSPStar: Boolean): Seq[DFADelimiter] = {
 
     if (dynamic.isDefined) {
-      val (res, newVMap) = dynamic.get.evaluate(start)
-      start.setVariables(newVMap)
+      val res = dynamic.get.evaluate(start)
       val finalValueCooked = new ListOfStringValueAsLiteral(res.toString, context).cooked
 
       if (errorOnWSPStar) errorIfDelimsHaveWSPStar(finalValueCooked, context)

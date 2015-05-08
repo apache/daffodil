@@ -73,7 +73,7 @@ trait Dynamic {
     e match {
       case Right(r) => r
       case Left(l) => {
-        val (aAsAny, newVMap) = l.evaluate(s)
+        val aAsAny = l.evaluate(s)
         s.status match {
           case Success => // nothing
           case f: Failure => {
@@ -84,7 +84,6 @@ trait Dynamic {
           }
         }
         val a: A = conv(s, aAsAny)
-        s.setVariables(newVMap)
         a
       }
     }
@@ -97,7 +96,7 @@ trait Dynamic {
     e match {
       case Right(r) => r
       case Left(l) => {
-        val (aAsAny, newVMap) = l.evaluate(s)
+        val aAsAny = l.evaluate(s)
         s.status match {
           case Success => // nothing
           case f: Failure => {

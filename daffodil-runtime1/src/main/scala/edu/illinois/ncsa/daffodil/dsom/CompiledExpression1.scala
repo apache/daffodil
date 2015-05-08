@@ -120,7 +120,7 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
    *
    *
    */
-  def evaluate(pstate: PState): (Any, VariableMap)
+  def evaluate(pstate: PState): Any
 
   /**
    * evaluate for the unparser.
@@ -130,11 +130,6 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
    * out of scope, and being set. But no rewinding to prior settings.
    */
   def evaluate(ustate: UState): Any
-
-  final def evaluateTo[T](pstate: PState): (T, VariableMap) = {
-    val (resAny, vmap) = evaluate(pstate)
-    (resAny.asInstanceOf[T], vmap)
-  }
 
   override def toString(): String = "CompiledExpression(" + value.toString + ")"
 }
@@ -150,7 +145,7 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant: Any = v
-  def evaluate(pstate: PState) = (constant, pstate.variableMap)
+  def evaluate(pstate: PState) = constant
 
   def evaluate(ustate: UState) = constant
 }

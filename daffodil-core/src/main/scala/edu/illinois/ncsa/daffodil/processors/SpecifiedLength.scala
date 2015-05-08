@@ -232,9 +232,8 @@ class SpecifiedLengthExplicitBitsParser(
   // function and getLength are all copied in numerous places 
 
   def getBitLength(s: PState): Long = {
-    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    s.setVariables(newVMap)
     nBytes * toBits
   }
 
@@ -301,9 +300,8 @@ class SpecifiedLengthExplicitBytesParser(
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   def getLength(s: PState): Long = {
-    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    s.setVariables(newVMap)
     nBytes
   }
 
@@ -390,9 +388,8 @@ class SpecifiedLengthExplicitCharactersParser(
   extends SpecifiedLengthParserBase(eParser, erd) {
 
   def getLength(s: PState): Long = {
-    val (nBytesAsAny, newVMap) = length.evaluate(s)
+    val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    s.setVariables(newVMap)
     nBytes
   }
 

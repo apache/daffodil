@@ -229,9 +229,8 @@ class LiteralNilExplicitLengthInCharsParser(
     // withLoggingLevel(LogLevel.Info) 
     {
 
-      val (nCharsAsAny, newVMap) = expr.evaluate(start)
+      val nCharsAsAny = expr.evaluate(start)
       val nChars = AsIntConverters.asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
-      start.setVariables(newVMap)
       log(LogLevel.Debug, "Explicit length %s", nChars)
 
       val pattern = "(?s)^.{%s}".format(nChars)
@@ -309,8 +308,9 @@ class LiteralNilKnownLengthInBytesParser(
   eName: String,
   nilValues: List[String])
   extends LiteralNilInBytesParserBase(erd, eName, nilValues) {
+
   final def computeLength(start: PState) = {
-    (lengthInBytes, start.variableMap)
+    lengthInBytes
   }
 }
 
@@ -325,9 +325,9 @@ class LiteralNilExplicitLengthInBytesParser(
   val exprText = expr.prettyExpr
 
   final def computeLength(start: PState) = {
-    val (nBytesAsAny, newVMap) = expr.evaluate(start)
+    val nBytesAsAny = expr.evaluate(start)
     val nBytes = AsIntConverters.asLong(nBytesAsAny) //nBytesAsAny.asInstanceOf[Long]
-    (nBytes, newVMap)
+    nBytes
   }
 }
 
@@ -357,7 +357,7 @@ abstract class LiteralNilInBytesParserBase(
   nilValues: List[String])
   extends LiteralNilParserBase(erd, eName, nilValues) {
 
-  protected def computeLength(start: PState): (Long, VariableMap)
+  protected def computeLength(start: PState): Long
 
   def parse(start: PState): Unit = {
     //      withLoggingLevel(LogLevel.Debug) 
@@ -365,8 +365,7 @@ abstract class LiteralNilInBytesParserBase(
 
       // TODO: What if someone passes in nBytes = 0 for Explicit length, is this legal?
 
-      val (nBytes: Long, newVMap: VariableMap) = computeLength(start)
-      start.setVariables(newVMap)
+      val nBytes: Long = computeLength(start)
 
       log(LogLevel.Debug, "Explicit length %s", nBytes)
 
