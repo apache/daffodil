@@ -48,8 +48,8 @@ class TestEscapeSchemeUnparseDebug {
   val aa = testDir + "escapeSchemeUnparse.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
-  // Fails due to an unparseError.  escapeEscapeCharacter was not defined but the escapeCharacter (#) was present in the data.
-  //
+  //DFDL-1316
   @Test def test_unparseDelimitedEscapedString05() { runner.runOneTest("unparseDelimitedEscapedString05") }
+
 
 }

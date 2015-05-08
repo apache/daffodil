@@ -42,6 +42,10 @@
         <dfdl:escapeScheme escapeCharacter='#'
           escapeKind="escapeCharacter" escapeEscapeCharacter="" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
         </dfdl:defineEscapeScheme>
+      <dfdl:defineEscapeScheme name="pound2">
+        <dfdl:escapeScheme escapeCharacter='#'
+          escapeKind="escapeCharacter" escapeEscapeCharacter="/" extraEscapedCharacters="" generateEscapeBlock="whenNeeded" />
+        </dfdl:defineEscapeScheme>
         <dfdl:defineEscapeScheme name='cStyleComment'>
           <dfdl:escapeScheme escapeBlockStart='/*'
             escapeBlockEnd='*/' escapeKind="escapeBlock"
@@ -94,6 +98,15 @@
           <xs:sequence dfdl:separator="#">
             <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound"/>
             <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      
+      <xs:element name="e5b">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="#">
+            <xs:element name="s1" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound2"/>
+            <xs:element name="s2" type="xs:string" dfdl:lengthKind="delimited" dfdl:escapeSchemeRef="pound2"/>
           </xs:sequence>
         </xs:complexType>
       </xs:element>
@@ -233,13 +246,13 @@
       Schema: delimitedStringsEscapeScheme
       Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
 -->
-  <tdml:unparserTestCase name="unparseDelimitedEscapedString05" model="delimitedStringsEscapeScheme" root="e5">
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString05" model="delimitedStringsEscapeScheme" root="e5b">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <ex:e5 xmlns:ex="http://example.com">
+        <ex:e5b xmlns:ex="http://example.com">
           <ex:s1>test</ex:s1>
           <ex:s2>double te#st</ex:s2>
-        </ex:e5>
+        </ex:e5b>
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document>test#double te##st</tdml:document>
