@@ -69,7 +69,7 @@ abstract class ProcessingError(
 
   override def getDataLocations(): Seq[DataLocation] = state.map { _.currentLocation }.toSeq
 
-  private val schemaLocationsString = {
+  private lazy val schemaLocationsString = {
     val strings = getLocationsInSchemaFiles().map { _.locationDescription }
     val res = if (strings.length > 0)
       " " + strings.mkString(", ")
