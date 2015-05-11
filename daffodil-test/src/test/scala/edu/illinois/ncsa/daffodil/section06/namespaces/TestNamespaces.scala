@@ -203,8 +203,7 @@ class TestNamespaces {
   @Test def test_typeNameOverlap_01() { runner.runOneTest("typeNameOverlap_01") }
   @Test def test_typeNameOverlap_02() { runner.runOneTest("typeNameOverlap_02") }
 
-  // Moved to debug.  See comment in TestNamespacesDebug.scala
-  // @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
+  @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
   @Test def test_namespace_scope_02() { runner.runOneTest("namespace_scope_02") }
 
   @Test def test_error_messages_01() { runner.runOneTest("error_messages_01") }

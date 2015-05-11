@@ -51,7 +51,7 @@
   <xs:element name="notAStringy" type="foo:string"/>
   
   <!-- notAString2 uses an overridden definition of foo, which has no stringy type -->
-  <xs:element name="notAStringy2" type="foo:stringy"/>
+  <xs:element xmlns:foo="http://www.w3.org/2001/XMLSchema" name="notAStringy2" type="foo:stringy"/>
   
   <foo:element xmlns:foo="http://www.w3.org/2001/XMLSchema" xmlns:bar="http://foo.com" name="notAStringy3" type="bar:stringy">
     <xs:annotation>

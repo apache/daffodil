@@ -1679,7 +1679,8 @@
     <tdml:document>thisIsNotAnInteger</tdml:document>
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>No type definition found for 'foo:stringy'</tdml:error>
+      <tdml:error>No type definition found for</tdml:error>
+      <tdml:error>foo:stringy</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

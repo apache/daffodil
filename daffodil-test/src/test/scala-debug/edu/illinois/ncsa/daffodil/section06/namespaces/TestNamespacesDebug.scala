@@ -52,14 +52,6 @@ class TestNamespacesDebug {
   @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }
   @Test def test_indexOutOfBounds_01() { runner.runOneTest("indexOutOfBounds_01") }
 
-  // These tests are being moved to debug because of ticket DFDL-714.
-  // We changed the error handling to escalate Xerces parser warning to SDE errors.
-  // Because of an imported schema that has errors in it for testing, all of these tests are now failing.
-  // They will need to be updated to import only the schemas necessary to properly test each case
-  // and not include those schemas that they do not use but are causing parser errors.
-
-  @Test def test_namespace_scope_01() { runner.runOneTest("namespace_scope_01") }
-
   // DFDL-1204 - this test no longer works. New loader won't accept character U+00B7 as a character
   // in a prefix name. 
   @Test def test_namespaceSpecialChars() { runner.runOneTest("namespaceSpecialChars") }
