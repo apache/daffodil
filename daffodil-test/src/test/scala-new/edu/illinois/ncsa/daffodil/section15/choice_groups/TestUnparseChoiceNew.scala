@@ -44,7 +44,7 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-object TestUnparseChoice {
+object TestUnparseChoiceNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
   val aa = testDir + "choice-unparse.tdml"
   var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
@@ -54,11 +54,7 @@ object TestUnparseChoice {
   }
 }
 
-class TestUnparseChoice {
-  import TestUnparseChoice._
+class TestUnparseChoiceNew {
+  import TestUnparseChoiceNew._
 
-  @Test def test_choice1() { runnerCH.runOneTest("choice1") }
-  @Test def test_choice2() { runnerCH.runOneTest("choice2") }
-  @Test def test_choice3() { runnerCH.runOneTest("choice3") }
-  @Test def test_choice4() { runnerCH.runOneTest("choice4") }
 }
