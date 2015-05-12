@@ -416,7 +416,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   lazy val model = (testCaseXML \ "@model").text
   lazy val config = (testCaseXML \ "@config").text
   lazy val tcRoundTrip = (testCaseXML \ "@roundTrip").text
-  lazy val roundTrip = tcRoundTrip != "" && tcRoundTrip.toBoolean 
+  lazy val roundTrip = tcRoundTrip != "" && tcRoundTrip.toBoolean
   lazy val description = (testCaseXML \ "@description").text
   lazy val unsupported = (testCaseXML \ "@unsupported").text match {
     case "true" => true
@@ -668,9 +668,9 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 
       // if we get here, the test passed. If we don't get here then some exception was
       // thrown either during the run of the test or during the comparison.
-      
-      if (roundTrip && testPass < 2){
-        
+
+      if (roundTrip && testPass < 2) {
+
         val outStream = new java.io.ByteArrayOutputStream()
         val output = java.nio.channels.Channels.newChannel(outStream)
         val uActual = processor.unparse(output, actual.result)
@@ -679,22 +679,17 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         try {
           VerifyTestCase.verifyUnparserTestData(Channels.newChannel(new ByteArrayInputStream(testData)), outStream)
           stillTesting = false
-        }
-        catch {
+        } catch {
           case (e: TDMLException) => {
             if (testPass == 1) {
               // Try again
               testData = outStream.toByteArray
-            }
-            
-            else  throw e
+            } else throw e
           }
         }
-        
+
         testPass += 1
-      }
-      
-      else stillTesting = false
+      } else stillTesting = false
     }
   }
 }
@@ -883,7 +878,7 @@ object VerifyTestCase {
 
     XMLUtils.compareAndReport(expectedNoAttrs, actualNoAttrs)
   }
-  
+
   def verifyUnparserTestData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream) {
     val actualBytes = actualOutStream.toByteArray
 
@@ -951,7 +946,7 @@ object VerifyTestCase {
         actualDiagMsgs.mkString("\n"))
     }
   }
-  
+
   def verifyTextData(expectedData: DFDL.Input, actualOutStream: java.io.ByteArrayOutputStream, encodingName: String) {
     val actualText = actualOutStream.toString(encodingName)
     val expectedText = IOUtils.toString(Channels.newInputStream(expectedData), encodingName)
@@ -1020,7 +1015,19 @@ object VerifyTestCase {
 }
 
 case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
+  /* Because the TDMLRunner is dumb and the thing that reads in the xml has no
+   * knowledge of tdml.xsd, we have to set a default value here even though one
+   * is specified in tdml.xsd.
+   * */
+  final val DEFAULT_ELEMENT_FORM_DEFAULT_VALUE = "qualified"
+
   val name = (xml \ "@name").text.toString
+  val elementFormDefault = {
+    val value = (xml \ "@elementFormDefault").text.toString
+
+    if (value == "") DEFAULT_ELEMENT_FORM_DEFAULT_VALUE
+    else  value
+  }
 
   val defineFormats = (xml \ "defineFormat")
   val defaultFormats = (xml \ "format")
@@ -1045,7 +1052,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     case None => ""
   }
   lazy val xsdSchema =
-    SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName = fileName, schemaScope = xml.scope)
+    SchemaUtils.dfdlTestSchema(dfdlTopLevels, xsdTopLevels, fileName = fileName, schemaScope = xml.scope, elementFormDefault = elementFormDefault)
 }
 
 case class DefinedConfig(xml: Node, parent: DFDLTestSuite) {

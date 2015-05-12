@@ -78,6 +78,10 @@
 			<!-- <any namespace="##other" processContents="lax"/> -->
 		</choice>
 		<attribute name="name" type="xs:NCName" use="required" />
+		<!-- We want the default to be 'unqualified' in the longer term but 
+		     we leave it 'qualified here to prevent lots of tests from breaking. -->
+		<attribute name="elementFormDefault" type="tns:elementFormDefaultType" 
+			default="qualified"  />
 	</complexType>
 
 	<element name="defineConfig" type="tns:defineConfigType" />
@@ -117,6 +121,13 @@
 		<attribute name="validation" type="tns:onOff" use="optional"
 			default="off" />
 	</attributeGroup>
+	
+	<simpleType name="elementFormDefaultType">
+		<restriction base="xs:token">
+			<enumeration value="qualified"/>
+			<enumeration value="unqualified"/>
+		</restriction>
+	</simpleType>
 
 	<simpleType name="onOff">
 		<restriction base="xs:token">
