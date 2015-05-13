@@ -66,6 +66,7 @@ sealed trait DINode {
   def children: Stream[DINode]
   def toWriter(writer: java.io.Writer, removeHidden: Boolean = true): Unit
   def totalElementCount: Long
+  def namedQName: NamedQName
 }
 
 /**
@@ -126,6 +127,7 @@ final class FakeDINode extends DISimple(null) {
   override def isDefaulted: Boolean = die
 
   override def children = die
+
 }
 
 /**
@@ -136,6 +138,7 @@ sealed trait DIElement extends DINode with InfosetElement {
   protected def erd: ElementRuntimeData
   override final def name: String = erd.name
   override final def namespace: NS = erd.targetNamespace
+  override final def namedQName = erd.namedQName
 
   /**
    * Note: there is no infoset data member for isHidden. A hidden group is

@@ -103,10 +103,7 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
             ev match {
               case Start(diNode) => {
 
-                val eventNQN = diNode match {
-                  case a: DIArray => a.namedQName
-                  case e: DIElement => e.runtimeData.namedQName
-                }
+                val eventNQN = diNode.namedQName
                 if (eventNQN =:= erd.namedQName) {
                   doUnparser = true
                 }
@@ -162,10 +159,7 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, qnameUnparserMap: Ma
 
     val event: InfosetEvent = start.peek
     val eventQName = event match {
-      case Start(diNode) => diNode match {
-        case a: DIArray => a.namedQName
-        case e: DIElement => e.runtimeData.namedQName
-      }
+      case Start(diNode) => diNode.namedQName
       case _ => UnparseError(Nope, One(start), "Expected element start event, but received: %s", event)
     }
 

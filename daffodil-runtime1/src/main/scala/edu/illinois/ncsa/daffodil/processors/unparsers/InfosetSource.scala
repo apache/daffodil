@@ -15,6 +15,8 @@ import edu.illinois.ncsa.daffodil.processors.ProcessingError
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Buffer
+import edu.illinois.ncsa.daffodil.xml.NamedQName
+import edu.illinois.ncsa.daffodil.processors.DIElement
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args: _*)
 
@@ -57,7 +59,10 @@ trait InfosetSource extends Iterator[InfosetEvent] {
   def peek: InfosetEvent
 }
 
-sealed abstract class InfosetEvent(val node: DINode)
+sealed abstract class InfosetEvent(val node: DINode) {
+  def namedQName = node.namedQName
+}
+
 case class End(override val node: DINode) extends InfosetEvent(node)
 case class Start(override val node: DINode) extends InfosetEvent(node)
 
