@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -120,16 +121,7 @@ abstract class CompiledExpression(val value: Any) extends Serializable {
    *
    *
    */
-  def evaluate(pstate: PState): Any
-
-  /**
-   * evaluate for the unparser.
-   *
-   * Note that variable map updated as part of state update.
-   * No backtracking in unparser means we just have variables going into and
-   * out of scope, and being set. But no rewinding to prior settings.
-   */
-  def evaluate(ustate: UState): Any
+  def evaluate(state: ParseOrUnparseState): Any
 
   override def toString(): String = "CompiledExpression(" + value.toString + ")"
 }
@@ -145,9 +137,8 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
   def isConstant = true
   def isKnownNonEmpty = value != ""
   def constant: Any = v
-  def evaluate(pstate: PState) = constant
+  def evaluate(state: ParseOrUnparseState) = constant
 
-  def evaluate(ustate: UState) = constant
 }
 
 /**

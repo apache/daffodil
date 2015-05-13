@@ -275,13 +275,13 @@ case class EscapeSchemeFactoryDynamic(
     val theScheme = escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeCharacter => {
         val finalOptEscChar = evalWithConversion(state, escapeCharacterCached) {
-          (s: PState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }
         }
         val finalOptEscEscChar = evalWithConversion(state, escapeEscapeCharacterCached) {
-          (s: PState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }
@@ -290,7 +290,7 @@ case class EscapeSchemeFactoryDynamic(
       }
       case EscapeKind.EscapeBlock => {
         val finalOptEscEscChar = evalWithConversion(state, escapeEscapeCharacterCached) {
-          (s: PState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }
@@ -305,13 +305,13 @@ case class EscapeSchemeFactoryDynamic(
     val theScheme = escapeSchemeObject.escapeKind match {
       case EscapeKind.EscapeCharacter => {
         val finalOptEscChar = evalWithConversion(state, escapeCharacterCached) {
-          (s: UState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }
         }
         val finalOptEscEscChar = evalWithConversion(state, escapeEscapeCharacterCached) {
-          (s: UState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }
@@ -321,7 +321,7 @@ case class EscapeSchemeFactoryDynamic(
       }
       case EscapeKind.EscapeBlock => {
         val finalOptEscEscChar = evalWithConversion(state, escapeEscapeCharacterCached) {
-          (s: UState, c: Any) =>
+          (s: ParseOrUnparseState, c: Any) =>
             {
               getEscValue(c.asInstanceOf[String], s)
             }

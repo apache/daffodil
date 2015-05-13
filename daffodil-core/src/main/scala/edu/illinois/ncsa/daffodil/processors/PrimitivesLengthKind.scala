@@ -258,53 +258,9 @@ case class StringPatternMatched(e: ElementBase)
   }
 }
 
-trait HasEscapeScheme { self: StringDelimited =>
-
-  var escEscChar: Maybe[Char] = Nope
-  var escChar: Maybe[Char] = Nope
-  var blockStart: Option[DFADelimiter] = None
-  var blockEnd: Option[DFADelimiter] = None
-
-  protected def constEval(knownValue: Option[String]) = {
-    val optConstValue = knownValue match {
-      case None => None
-      case Some(constValue) => {
-        val l = new SingleCharacterLiteralES(constValue, context)
-        val result = l.cooked
-        One(result)
-      }
-    }
-    optConstValue
-  }
-
-  protected def evalAsConstant(knownValue: Maybe[CompiledExpression]) = {
-    if (!knownValue.isDefined) Nope
-    else if (knownValue.get.isConstant) {
-      val constValue = knownValue.get.constantAsString
-      val l = new SingleCharacterLiteralES(constValue, context)
-      val result = l.cooked
-      One(result)
-    } else Nope
-  }
-
-  protected def runtimeEvalEsc(optEsc: Maybe[CompiledExpression], state: PState): Maybe[String] = {
-    val finalOptEsc =
-      if (!optEsc.isDefined) Nope
-      else {
-        val res = optEsc.get.evaluate(state)
-        val l = new SingleCharacterLiteralES(res.toString, context)
-        val resultEsc = l.cooked
-        One(resultEsc)
-      }
-    finalOptEsc
-  }
-
-}
-
 abstract class StringDelimited(e: ElementBase)
   extends DelimParserBase(e, true)
-  with Padded
-  with HasEscapeScheme {
+  with Padded {
 
   // TODO: DFDL-451 - Has been placed on the backburner until we can figure out the appropriate behavior
   //

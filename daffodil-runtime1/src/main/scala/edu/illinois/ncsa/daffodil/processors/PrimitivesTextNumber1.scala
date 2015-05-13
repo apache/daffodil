@@ -593,8 +593,7 @@ abstract class NumberFormatFactoryBase[S](parserHelper: ConvertTextNumberParserU
   // as per ICU4J documentation, "DecimalFormat objects are not
   // synchronized. Multiple threads should not access one formatter
   // concurrently."
-  def getNumFormat(state: PState): ThreadLocal[NumberFormat]
-  def getNumFormat(state: UState): ThreadLocal[NumberFormat]
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat]
 
 }
 
@@ -648,10 +647,7 @@ class NumberFormatFactoryStatic[S](context: ThrowsSDE,
     }
   }
 
-  def getNumFormat(state: PState): ThreadLocal[NumberFormat] = {
-    numFormat
-  }
-  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
     numFormat
   }
 }
@@ -696,24 +692,24 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
 
   val roundingInc = roundingIncrement.map { ri => getRoundingIncrement(ri, staticContext) }
 
-  def getNumFormat(state: PState): ThreadLocal[NumberFormat] = {
+  def getNumFormat(state: ParseOrUnparseState): ThreadLocal[NumberFormat] = {
 
     val decimalSepList = evalWithConversion(state, decimalSepListCached) {
-      (s: PState, c: Any) =>
+      (s: ParseOrUnparseState, c: Any) =>
         {
           getDecimalSepList(c.asInstanceOf[String], s)
         }
     }
 
     val groupingSep = evalWithConversion(state, groupingSepCached) {
-      (s: PState, c: Any) =>
+      (s: ParseOrUnparseState, c: Any) =>
         {
           getGroupingSep(c.asInstanceOf[String], s)
         }
     }
 
     val exponentRep = evalWithConversion(state, exponentRepCached) {
-      (s: PState, c: Any) =>
+      (s: ParseOrUnparseState, c: Any) =>
         {
           getExponentRep(c.asInstanceOf[String], s)
         }
@@ -750,57 +746,57 @@ class NumberFormatFactoryDynamic[S](staticContext: ThrowsSDE,
     numFormat
   }
 
-  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
-
-    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
-      (s: UState, c: Any) =>
-        {
-          getDecimalSepList(c.asInstanceOf[String], s)
-        }
-    }
-
-    val groupingSep = evalWithConversion(state, groupingSepCached) {
-      (s: UState, c: Any) =>
-        {
-          getGroupingSep(c.asInstanceOf[String], s)
-        }
-    }
-
-    val exponentRep = evalWithConversion(state, exponentRepCached) {
-      (s: UState, c: Any) =>
-        {
-          getExponentRep(c.asInstanceOf[String], s)
-        }
-    }
-
-    checkUnique(
-      decimalSepList,
-      groupingSep,
-      One(exponentRep),
-      infRep,
-      nanRep,
-      parserHelper.zeroRepListRaw,
-      state)
-
-    val generatedNumFormat =
-      generateNumFormat(
-        decimalSepList,
-        groupingSep,
-        exponentRep,
-        infRep,
-        nanRep,
-        checkPolicy,
-        pattern,
-        rounding,
-        roundingMode,
-        roundingInc)
-
-    val numFormat = new ThreadLocal[NumberFormat] {
-      override def initialValue() = {
-        generatedNumFormat
-      }
-    }
-
-    numFormat
-  }
+  //  def getNumFormat(state: UState): ThreadLocal[NumberFormat] = {
+  //
+  //    val decimalSepList = evalWithConversion(state, decimalSepListCached) {
+  //      (s: UState, c: Any) =>
+  //        {
+  //          getDecimalSepList(c.asInstanceOf[String], s)
+  //        }
+  //    }
+  //
+  //    val groupingSep = evalWithConversion(state, groupingSepCached) {
+  //      (s: UState, c: Any) =>
+  //        {
+  //          getGroupingSep(c.asInstanceOf[String], s)
+  //        }
+  //    }
+  //
+  //    val exponentRep = evalWithConversion(state, exponentRepCached) {
+  //      (s: UState, c: Any) =>
+  //        {
+  //          getExponentRep(c.asInstanceOf[String], s)
+  //        }
+  //    }
+  //
+  //    checkUnique(
+  //      decimalSepList,
+  //      groupingSep,
+  //      One(exponentRep),
+  //      infRep,
+  //      nanRep,
+  //      parserHelper.zeroRepListRaw,
+  //      state)
+  //
+  //    val generatedNumFormat =
+  //      generateNumFormat(
+  //        decimalSepList,
+  //        groupingSep,
+  //        exponentRep,
+  //        infRep,
+  //        nanRep,
+  //        checkPolicy,
+  //        pattern,
+  //        rounding,
+  //        roundingMode,
+  //        roundingInc)
+  //
+  //    val numFormat = new ThreadLocal[NumberFormat] {
+  //      override def initialValue() = {
+  //        generatedNumFormat
+  //      }
+  //    }
+  //
+  //    numFormat
+  //  }
 }

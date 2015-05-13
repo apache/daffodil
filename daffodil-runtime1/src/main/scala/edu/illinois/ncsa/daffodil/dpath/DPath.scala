@@ -99,13 +99,13 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
     null
   }
 
-  private def evaluateForParserOrUnparser(pstate: ParseOrUnparseState): Any = {
+  final def evaluate(state: ParseOrUnparseState): Any = {
     val value =
       try {
-        recipe.runExpression(pstate)
+        recipe.runExpression(state)
 
-        val dstate = pstate.dstate
-        pstate.variableMap = dstate.vmap
+        val dstate = state.dstate
+        state.variableMap = dstate.vmap
         val v = {
           dstate.currentNode match {
             case null => {
@@ -137,16 +137,16 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
         // there is an arithmetic error in daffodil code, this catch can't distinguish 
         // that error (which should be an abort, from an arithmetic exception 
         // due to an expression dividing by zero say. 
-        case e: InfosetNoSuchChildElementException => doSDE(e, pstate)
-        case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, pstate)
-        case e: IllegalArgumentException => doPE(e, pstate)
-        case e: IllegalStateException => doPE(e, pstate)
-        case e: NumberFormatException => doPE(e, pstate)
-        case e: ArithmeticException => doPE(e, pstate)
+        case e: InfosetNoSuchChildElementException => doSDE(e, state)
+        case e: InfosetArrayIndexOutOfBoundsException => doSDE(e, state)
+        case e: IllegalArgumentException => doPE(e, state)
+        case e: IllegalStateException => doPE(e, state)
+        case e: NumberFormatException => doPE(e, state)
+        case e: ArithmeticException => doPE(e, state)
       }
     value match {
       case null => {
-        Assert.invariant(pstate.status != Success)
+        Assert.invariant(state.status != Success)
         return null
       }
       case _ => {
@@ -197,19 +197,6 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
         value
       }
     value1
-  }
-
-  /**
-   * Evaluate for unparser. The value is returned. The ustate is modified
-   * to contain any updated variable map.
-   */
-  final def evaluate(ustate: UState): Any = {
-    evaluateForParserOrUnparser(ustate)
-  }
-
-  final def evaluate(pstate: PState): Any = {
-    val v = evaluateForParserOrUnparser(pstate)
-    v
   }
 
 }

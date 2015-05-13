@@ -69,7 +69,7 @@ trait Dynamic {
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A](s: PState, e: CachedDynamic[A])(conv: (PState, Any) => A): A = {
+  def evalWithConversion[A](s: ParseOrUnparseState, e: CachedDynamic[A])(conv: (ParseOrUnparseState, Any) => A): A = {
     e match {
       case Right(r) => r
       case Left(l) => {
@@ -88,57 +88,15 @@ trait Dynamic {
       }
     }
   }
-  // For any expression that couldn't be evaluated in cacheConstantExpression,
-  // this evaluates that. This is used to evaluate only runtime expressions.
-  // This also carries along PState that is modified during expression
-  // evaluation.
-  def evalWithConversion[A](s: UState, e: CachedDynamic[A])(conv: (UState, Any) => A): A = {
-    e match {
-      case Right(r) => r
-      case Left(l) => {
-        val aAsAny = l.evaluate(s)
-        s.status match {
-          case Success => // nothing
-          case f: Failure => {
-            // evaluation failed
-            // we can't continue this code path
-            // have to throw out of here
-            throw f.cause
-          }
-        }
-        val a: A = conv(s, aAsAny)
-        //
-        // FIXME ?? Why not set the variables here?? This was commented out, but 
-        // it seems like it should be setting them.
-        //
-        //s.setVariables(newVMap)
-        a
-      }
-    }
-  }
 
-  def evalWithConversion[A](s: PState, oe: Maybe[CachedDynamic[A]])(conv: (PState, Any) => A): Maybe[A] = {
-    if (oe.isDefined) {
-      val a = evalWithConversion[A](s, oe.get)(conv)
-      One(a)
-    } else Nope
-  }
-  def evalWithConversion[A](s: UState, oe: Maybe[CachedDynamic[A]])(conv: (UState, Any) => A): Maybe[A] = {
+  def evalWithConversion[A](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
     if (oe.isDefined) {
       val a = evalWithConversion[A](s, oe.get)(conv)
       One(a)
     } else Nope
   }
 
-  def evalWithConversion[A](s: PState, oe: List[CachedDynamic[A]])(conv: (PState, Any) => A): List[A] = {
-    var state = s
-    val listE = oe.map(e => {
-      val exp = evalWithConversion[A](state, e)(conv)
-      exp
-    })
-    listE
-  }
-  def evalWithConversion[A](s: UState, oe: List[CachedDynamic[A]])(conv: (UState, Any) => A): List[A] = {
+  def evalWithConversion[A](s: ParseOrUnparseState, oe: List[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): List[A] = {
     var state = s
     val listE = oe.map(e => {
       val exp = evalWithConversion[A](state, e)(conv)
