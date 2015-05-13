@@ -40,28 +40,29 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.TextReader
-import edu.illinois.ncsa.daffodil.processors.DelimParseFailure
-import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
+import edu.illinois.ncsa.daffodil.processors.ScalaPatternParser
 
 class LiteralNilPatternParser(
   override val parsingPadChar: Maybe[Char],
   val justificationTrim: TextJustificationType.Type,
   erd: ElementRuntimeData,
-  pattern: String,
+  patternString: String,
   eName: String,
-  nilValues: List[String])
+  override val nilValues: List[String])
   extends LiteralNilParserBase(erd, eName, nilValues)
-  with TextReader {
+  with TextReader
+  with NilMatcherMixin {
+
+  private lazy val compiledPattern = ScalaPatternParser.compilePattern(patternString, erd)
 
   def parse(start: PState): Unit = {
     // withLoggingLevel(LogLevel.Info) 
@@ -81,14 +82,14 @@ class LiteralNilPatternParser(
       log(LogLevel.Debug, "Retrieving reader state.")
       val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
-      val result = d.get.parseInputPatterned(pattern, reader, start)
+      val result = ScalaPatternParser.parseInputPatterned(compiledPattern, reader)
 
       result match {
-        case _: DelimParseFailure => {
+        case f if f.isFailure => {
           PE(start, "%s - %s - Parse failed.", this.toString(), eName)
           return
         }
-        case s: DelimParseSuccess => {
+        case s => {
           // We have a field, is it empty?
           val field = trimByJustification(s.field)
           val isFieldEmpty = field.length() == 0
@@ -101,11 +102,11 @@ class LiteralNilPatternParser(
             // Fail!
             PE(start, "%s - Empty field found but not allowed!", eName)
             return
-          } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
+          } else if (isFieldNilLiteral(field)) {
             // Contains a nilValue, Success!
             start.thisElement.setNilled()
 
-            val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
+            val numBits = erd.encodingInfo.knownEncodingStringBitLength(s.field)
 
             val endCharPos =
               if (start.charPos == -1) s.field.length
@@ -116,87 +117,6 @@ class LiteralNilPatternParser(
             log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
             log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
-            return
-          } else {
-            // Fail!
-            PE(start, "%s - Does not contain a nil literal!", eName)
-            return
-          }
-        }
-      }
-    }
-  }
-}
-
-class LiteralNilExplicitParser(
-  override val parsingPadChar: Maybe[Char],
-  val justificationTrim: TextJustificationType.Type,
-  nUnits: Long,
-  erd: ElementRuntimeData,
-  eName: String,
-  pattern: String,
-  nilValues: List[String])
-  extends LiteralNilParserBase(erd, eName, nilValues)
-  with TextReader {
-
-  def parse(start: PState): Unit = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-
-      log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
-
-      val bytePos = (start.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
-      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
-
-      if (start.bitPos % 8 != 0) {
-        PE(start, "LiteralNilPattern - not byte aligned.")
-        return
-      }
-
-      log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
-
-      //        val byteReader = in.byteReader.atPos(bytePos)
-      //        val reader = byteReader.charReader(decoder.charset().name())
-
-      val result = d.get.parseInputPatterned(pattern, reader, start)
-
-      result match {
-        case _: DelimParseFailure => {
-          PE(start, "%s - %s - Parse failed.", this.toString(), eName)
-          return
-        }
-        case s: DelimParseSuccess => {
-          // We have a field, is it empty?
-          val field = trimByJustification(s.field)
-          val isFieldEmpty = field.length() == 0
-
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.thisElement.setNilled()
-            return // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            PE(start, "%s - Empty field found but not allowed!", eName)
-            return
-          } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
-            // Contains a nilValue, Success!
-            start.thisElement.setNilled()
-
-            val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
-            //val endCharPos = start.charPos + result.field.length()
-            val endCharPos =
-              if (start.charPos == -1) s.field.length
-              else start.charPos + s.field.length
-            val endBitPos = numBits + start.bitPos
-
-            log(LogLevel.Debug, "%s - Found %s", eName, s.field)
-            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
-            log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
-
-            //return start.setPos(endBitPos, endCharPos) // Need to advance past found nilValue
             start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
             return
           } else {
@@ -216,84 +136,79 @@ class LiteralNilExplicitLengthInCharsParser(
   erd: ElementRuntimeData,
   eName: String,
   expr: CompiledExpression,
-  nilValues: List[String])
+  override val nilValues: List[String])
   extends LiteralNilParserBase(erd, eName, nilValues)
-  with TextReader {
-  override def toBriefXML(depthLimit: Int = -1): String = {
-    "<" + name + " nilValue='" + nilValues + "'/>"
-  }
+  with TextReader
+  with NilMatcherMixin {
 
   val exprText = expr.prettyExpr
 
   def parse(start: PState): Unit = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
 
-      val nCharsAsAny = expr.evaluate(start)
-      val nChars = AsIntConverters.asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
-      log(LogLevel.Debug, "Explicit length %s", nChars)
+    val nCharsAsAny = expr.evaluate(start)
+    val nChars = AsIntConverters.asLong(nCharsAsAny) //nBytesAsAny.asInstanceOf[Long]
+    log(LogLevel.Debug, "Explicit length %s", nChars)
 
-      val pattern = "(?s)^.{%s}".format(nChars)
+    val regexParser = ScalaPatternParser.compilePattern("(?s)^.{%s}".format(nChars), erd) // FIXME: this is awful overhead at runtime.
 
-      log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
+    log(LogLevel.Debug, "%s - Looking for: %s Count: %s", eName, nilValues, nilValues.length)
 
-      val bytePos = (start.bitPos >> 3).toInt
-      log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
-      log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
+    val bytePos = (start.bitPos >> 3).toInt
+    log(LogLevel.Debug, "%s - Starting at bit pos: %s", eName, start.bitPos)
+    log(LogLevel.Debug, "%s - Starting at byte pos: %s", eName, bytePos)
 
-      // Don't check this here. This can vary by encoding.
-      //if (start.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
+    // Don't check this here. This can vary by encoding.
+    //if (start.bitPos % 8 != 0) { return PE(start, "LiteralNilPattern - not byte aligned.") }
 
-      log(LogLevel.Debug, "Retrieving reader state.")
-      val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
+    log(LogLevel.Debug, "Retrieving reader state.")
+    val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
-      if (nChars == 0 && isEmptyAllowed) {
-        log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
-        start.thisElement.setNilled()
-        return // Empty, no need to advance
+    if (nChars == 0 && isEmptyAllowed) {
+      log(LogLevel.Debug, "%s - explicit length of 0 and %ES; found as nilValue.", eName)
+      start.thisElement.setNilled()
+      return // Empty, no need to advance
+    }
+
+    val result = ScalaPatternParser.parseInputPatterned(regexParser, reader)
+
+    result match {
+      case f if f.isFailure => {
+        PE(start, "%s - %s - Parse failed.", this.toString(), eName)
+        return
       }
+      case s => {
+        // We have a field, is it empty?
+        val field = trimByJustification(s.field)
+        val isFieldEmpty = field.length() == 0
 
-      val result = d.get.parseInputPatterned(pattern, reader, start)
-
-      result match {
-        case _: DelimParseFailure => {
-          PE(start, "%s - %s - Parse failed.", this.toString(), eName)
+        if (isFieldEmpty && isEmptyAllowed) {
+          // Valid!
+          start.thisElement.setNilled()
+          return // Empty, no need to advance
+        } else if (isFieldEmpty && !isEmptyAllowed) {
+          // Fail!
+          PE(start, "%s - Empty field found but not allowed!", eName)
           return
-        }
-        case s: DelimParseSuccess => {
-          // We have a field, is it empty?
-          val field = trimByJustification(s.field)
-          val isFieldEmpty = field.length() == 0
+        } else if (isFieldNilLiteral(field)) {
+          // Contains a nilValue, Success!
+          start.thisElement.setNilled()
 
-          if (isFieldEmpty && isEmptyAllowed) {
-            // Valid!
-            start.thisElement.setNilled()
-            return // Empty, no need to advance
-          } else if (isFieldEmpty && !isEmptyAllowed) {
-            // Fail!
-            PE(start, "%s - Empty field found but not allowed!", eName)
-            return
-          } else if (d.get.isFieldDfdlLiteral(field, nilValues.toSet)) {
-            // Contains a nilValue, Success!
-            start.thisElement.setNilled()
+          val numBits = s.numBits(erd) //e.knownEncodingStringBitLength(result.field)
+          val endCharPos =
+            if (start.charPos == -1) s.field.length
+            else start.charPos + s.field.length
+          val endBitPos = numBits + start.bitPos
 
-            val numBits = s.numBits //e.knownEncodingStringBitLength(result.field)
-            val endCharPos =
-              if (start.charPos == -1) s.field.length
-              else start.charPos + s.field.length
-            val endBitPos = numBits + start.bitPos
+          log(LogLevel.Debug, "%s - Found %s", eName, s.field)
+          log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
+          log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
 
-            log(LogLevel.Debug, "%s - Found %s", eName, s.field)
-            log(LogLevel.Debug, "%s - Ended at byte position %s", eName, (endBitPos >> 3))
-            log(LogLevel.Debug, "%s - Ended at bit position ", eName, endBitPos)
-
-            start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
-            return
-          } else {
-            // Fail!
-            PE(start, "%s - Does not contain a nil literal!", eName)
-            return
-          }
+          start.setPos(endBitPos, endCharPos, One(s.next)) // Need to advance past found nilValue
+          return
+        } else {
+          // Fail!
+          PE(start, "%s - Does not contain a nil literal!", eName)
+          return
         }
       }
     }
@@ -344,18 +259,14 @@ abstract class LiteralNilParserBase(
 
   val isEmptyAllowed = nilValues.contains("%ES;")
 
-  @transient lazy val d = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(erd)
-    }
-  }
 }
 
 abstract class LiteralNilInBytesParserBase(
   erd: ElementRuntimeData,
   eName: String,
-  nilValues: List[String])
-  extends LiteralNilParserBase(erd, eName, nilValues) {
+  override val nilValues: List[String])
+  extends LiteralNilParserBase(erd, eName, nilValues)
+  with NilMatcherMixin {
 
   protected def computeLength(start: PState): Long
 
@@ -401,7 +312,7 @@ abstract class LiteralNilInBytesParserBase(
           // Fail!
           PE(start, "%s - Empty field found but not allowed!", eName)
           return
-        } else if (d.get.isFieldDfdlLiteral(trimmedResult, nilValues.toSet)) {
+        } else if (isFieldNilLiteral(trimmedResult)) {
           // Contains a nilValue, Success!
           start.thisElement.setNilled()
 
@@ -429,7 +340,7 @@ abstract class LiteralNilInBytesParserBase(
           }
         }
         case u: UnsuppressableException => throw u
-        case e: Exception => {
+        case e: java.nio.charset.CharacterCodingException => {
           PE(start, "%s - Exception: \n%s", name, e.getMessage())
           return
         }

@@ -43,7 +43,6 @@ import scala.xml.NamespaceBinding
 import javax.xml.XMLConstants
 import java.util.HashMap
 import edu.illinois.ncsa.daffodil.processors.PState
-import scala.util.parsing.combinator.RegexParsers
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.Implicits._
 import com.ibm.icu.text.DateFormat

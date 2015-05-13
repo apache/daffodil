@@ -37,7 +37,6 @@ import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
-import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
@@ -68,8 +67,6 @@ class StringDelimitedParser(
   isDelimRequired: Boolean)
   extends PrimParser(erd)
   with TextReader {
-
-  val dp = new DFDLDelimParser(erd)
 
   protected def dcharset = erd.encodingInfo.knownEncodingCharset.charset
 
@@ -126,8 +123,9 @@ class LiteralNilDelimitedEndOfDataParser(
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
-  nilValues: Seq[String])
-  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false) {
+  override val nilValues: List[String])
+  extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false)
+  with NilMatcherMixin {
 
   val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
 
@@ -145,7 +143,7 @@ class LiteralNilDelimitedEndOfDataParser(
         this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
         return
       } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
-        dp.isFieldDfdlLiteral(field, nilValues.toSet)) { // Not empty, but matches.
+        isFieldNilLiteral(field)) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
 

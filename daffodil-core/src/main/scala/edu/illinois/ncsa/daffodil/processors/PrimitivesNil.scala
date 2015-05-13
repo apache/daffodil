@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilExplicitLengthInBytesParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilKnownLengthInBytesParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilExplicitLengthInCharsParser
-import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilExplicitParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilPatternParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilPatternUnparser
 
@@ -114,24 +113,24 @@ case class LiteralNilExplicitLengthInChars(e: ElementBase)
 
 }
 
-case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
-  extends StaticText(e.nilValue, e, e, "LiteralNilExplicit", e.isNillable)
-  with Padded {
-  val charset = e.knownEncodingCharset
-
-  lazy val unparserDelim = Assert.notYetImplemented()
-  //val stParser = super.parser
-
-  override lazy val parser = new LiteralNilExplicitParser(
-    parsingPadChar,
-    justificationTrim: TextJustificationType.Type,
-    nUnits: Long,
-    e.elementRuntimeData,
-    e.name,
-    e.lengthPattern,
-    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
-
-}
+//case class LiteralNilExplicit(e: ElementBase, nUnits: Long)
+//  extends StaticText(e.nilValue, e, e, "LiteralNilExplicit", e.isNillable)
+//  with Padded {
+//  val charset = e.knownEncodingCharset
+//
+//  lazy val unparserDelim = Assert.notYetImplemented()
+//  //val stParser = super.parser
+//
+//  override lazy val parser = new LiteralNilExplicitParser(
+//    parsingPadChar,
+//    justificationTrim: TextJustificationType.Type,
+//    nUnits: Long,
+//    e.elementRuntimeData,
+//    e.name,
+//    e.lengthPattern,
+//    new ListOfStringValueAsLiteral(e.nilValue, e).cooked)
+//
+//}
 
 case class LiteralNilPattern(e: ElementBase)
   extends StaticText(e.nilValue, e, e, "LiteralNilPattern", e.isNillable)

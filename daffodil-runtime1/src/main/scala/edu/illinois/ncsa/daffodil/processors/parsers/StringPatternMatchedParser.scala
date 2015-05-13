@@ -36,33 +36,23 @@ import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import java.nio.charset.Charset
-import edu.illinois.ncsa.daffodil.processors.DFDLDelimParser
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.util.LogLevel
-import edu.illinois.ncsa.daffodil.processors.DelimParseFailure
-import edu.illinois.ncsa.daffodil.processors.DelimParseSuccess
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
+import edu.illinois.ncsa.daffodil.processors.ScalaPatternParser
 
-class StringPatternMatchedParser(pattern: String,
+class StringPatternMatchedParser(patternString: String,
   erd: ElementRuntimeData,
   override val justificationTrim: TextJustificationType.Type,
   val parsingPadChar: Maybe[Char])
   extends PrimParser(erd) with TextReader with PaddingRuntimeMixin {
 
-  // The pattern will always be defined
-
-  lazy val dp = new ThreadLocal[DFDLDelimParser] {
-    override def initialValue() = {
-      new DFDLDelimParser(erd)
-    }
-  }
-
-  // TODO: Add parameter for changing CharBuffer size
-
   val eName = erd.name
+
+  private lazy val compiledPattern = ScalaPatternParser.compilePattern(patternString, erd)
 
   def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
@@ -78,18 +68,18 @@ class StringPatternMatchedParser(pattern: String,
 
     val reader = getReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
 
-    val result = dp.get.parseInputPatterned(pattern, reader, start)
+    val result = ScalaPatternParser.parseInputPatterned(compiledPattern, reader)
 
     val postState = result match {
-      case _: DelimParseFailure => {
+      case f if f.isFailure => {
         // A no match means zero length.  
         // Because we check for Nil first, this is valid and allowed.
         // Since it's zero length, the start state is the end state. 
         start.simpleElement.setDataValue("") // empty string is the value.
         start
       }
-      case s: DelimParseSuccess => {
-        val endBitPos = start.bitPos + s.numBits
+      case s => {
+        val endBitPos = start.bitPos + s.numBits(erd)
         log(LogLevel.Debug, "StringPatternMatched - Parsed: %s", s.field)
         log(LogLevel.Debug, "StringPatternMatched - Ended at bit position %s", endBitPos)
 

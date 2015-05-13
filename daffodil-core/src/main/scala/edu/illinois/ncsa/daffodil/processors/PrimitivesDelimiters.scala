@@ -222,7 +222,6 @@ case class Terminator(e: Term) extends DelimiterText("Term", e.terminator, e, e)
 
 abstract class DelimParserBase(e: Term, guard: Boolean) extends Terminal(e, guard) {
   override def toString = "DelimParserBase[" + name + "]"
-  val dp = new DFDLDelimParser(e.termRuntimeData)
 
   private def isPrefixOf(possiblePrefix: String, string: String): Boolean = {
     string.startsWith(possiblePrefix)

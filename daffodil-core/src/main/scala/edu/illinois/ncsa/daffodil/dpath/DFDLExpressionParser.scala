@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.ExecutionMode
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG.OOLAGHost
-import edu.illinois.ncsa.daffodil.util.DebugRegexParsers
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.dsom._
 import scala.xml.NamespaceBinding
@@ -42,6 +41,7 @@ import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors._
 import scala.util.parsing.input.CharSequenceReader
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
+import scala.util.parsing.combinator.RegexParsers
 
 /**
  * Parses DPath expressions. Most real analysis is done later. This is
@@ -61,7 +61,7 @@ class DFDLPathExpressionParser(
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean = false) extends DebugRegexParsers {
+  isEvaluatedAbove: Boolean = false) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)
