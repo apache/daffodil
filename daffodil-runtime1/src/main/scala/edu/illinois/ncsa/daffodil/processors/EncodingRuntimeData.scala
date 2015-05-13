@@ -77,7 +77,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
   }
 
   final lazy val knownEncodingCharset = {
-    Assert.invariant(isKnownEncoding)
+    schemaDefinitionUnless(isKnownEncoding, "Runtime expressions for encodings are not supported in this version of Daffodil.")
     new DFDLCharset(knownEncodingName)
   }
 

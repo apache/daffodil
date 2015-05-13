@@ -99,14 +99,11 @@
   <tdml:parserTestCase name="encoding_property_expression" root="root1"
     model="ContentFramingProperties-Embedded.dfdl.xsd" description="Use of DFDL expression for encoding property - DFDL-11-002R">
     <tdml:document><tdml:documentPart type="text">ASCII</tdml:documentPart><tdml:documentPart type="byte">31</tdml:documentPart></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <root1>
-        <e1>855</e1>
-        <e2>1</e2>
-        </root1>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+        <tdml:error>runtime expression</tdml:error>
+        <tdml:error>encoding</tdml:error>
+      </tdml:errors>
   </tdml:parserTestCase>
  
   <tdml:parserTestCase name="xml_illegal_chars" root="root"
