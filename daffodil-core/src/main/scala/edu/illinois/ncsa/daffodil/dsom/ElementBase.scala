@@ -88,7 +88,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with NumberTextMixin
   with CalendarTextMixin
   with BooleanTextMixin
-  with TextNumberFormatMixin {
+  with TextNumberFormatMixin
+  with RealTermMixin {
 
   ElementBase.count += 1 // how many elements in this schema.
 
@@ -252,7 +253,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * this element.
    */
   private lazy val uniqueScope: NamespaceBinding = pairsToNSBinding(myUniquePairs, scala.xml.TopScope)
-
 
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
@@ -985,25 +985,9 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     case _ => None
   }
 
-  final def couldBeNextElementInInfoset: Seq[ElementBase] = LV('couldBeNextElementInInfoset) {
-    val arrayNext = if (isArray) Seq(this) else Nil
+  protected final def couldBeFirstChildTerm: Seq[Term] = termChildren
 
-    val nextSiblingElements = couldBeNextSiblingTerm.flatMap {
-      case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
-    }
-
-    val nextParentElements =
-      if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
-        enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
-      } else {
-        Nil
-      }
-
-    arrayNext ++ nextSiblingElements ++ nextParentElements
-  }.value
-
-  final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
+  protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
     val couldBeLast = enclosingTerm match {
       case None => true
       case Some(s: Sequence) if s.isOrdered => {
@@ -1017,38 +1001,11 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     couldBeLast
   }.value
 
-  final def couldBeFirstChildElementInInfoset: Seq[ElementBase] = LV('couldBeFirstChildElementInInfoset) {
-    val firstChildren = couldBeFirstChildTerm.flatMap {
-      case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
+  protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
+    if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
+      enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+    } else {
+      Nil
     }
-    firstChildren
   }.value
-
-  final def couldBeFirstChildTerm: Seq[Term] = termChildren
-
-  /*
-   * Returns a list of sibling Terms that could follow this term. This will not
-   * return any children of sibling Terms, or any siblings of the parent.
-   */
-  final def couldBeNextSiblingTerm: Seq[Term] = LV('couldBeNextSiblingTerm) {
-    val listOfNextTerm = enclosingTerm match {
-      case None => Nil // root element, has no siblings
-      case Some(c: Choice) => Nil // in choice, no other siblings could come after this one
-      case Some(s: Sequence) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
-      case Some(s: Sequence) => {
-        // in a sequence, the next term could be any later sibling that is not
-        // or does not have a required element, up to and including the first
-        // term that is/has a required element
-        val nextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
-        val (optional, firstRequiredAndLater) = nextSiblings.span {
-          case e: ElementBase => e.isOptional || !e.isRequiredArrayElement
-          case mg: ModelGroup => !mg.mustHaveRequiredElement
-        }
-        optional ++ firstRequiredAndLater.take(1)
-      }
-    }
-    listOfNextTerm
-  }.value
-
 }

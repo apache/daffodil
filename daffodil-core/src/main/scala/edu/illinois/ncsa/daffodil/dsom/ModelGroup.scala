@@ -87,7 +87,8 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   extends GroupBase(xmlArg, parentArg, position)
   with DFDLStatementMixin
   with ModelGroupGrammarMixin
-  with OverlapCheckMixin {
+  with OverlapCheckMixin
+  with RealTermMixin {
 
   requiredEvaluations(groupMembers)
 
@@ -263,22 +264,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     } else false
   }.value
 
-  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
-    val es = nearestEnclosingSequence
-    // how do we determine what child node we are? We search. 
-    // TODO: better structure for O(1) answer to this.
-    es match {
-      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
-      case Some(s) =>
-        {
-          val members = s.groupMembersNoRefs
-
-          if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality. 
-          else false
-        }
-    }
-  }.value
-
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembersNoRefs.map(m => {
@@ -290,62 +275,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       }).flatten
       listOfTerms
     }.value
-
-  final def couldBeNext: Seq[Term] = LV('couldBeNext) {
-    // We're a ModelGroup, we want a list of all
-    // Terms that follow this ModelGroup.
-    //
-    val es = this.nearestEnclosingSequence
-    val eus = this.nearestEnclosingUnorderedSequenceBeforeSequence
-    val ec = this.nearestEnclosingChoiceBeforeSequence
-
-    val enclosingUnorderedGroup = {
-      (ec, eus) match {
-        case (None, None) => None
-        case (Some(choice), _) => Some(choice)
-        case (None, Some(uoSeq)) => Some(uoSeq)
-      }
-    }
-
-    val listOfNextTerm =
-      (enclosingUnorderedGroup, es) match {
-        case (None, None) => Seq.empty
-        case (Some(unorderedGroup), _) => {
-          // We're in a choice or unordered sequence
-
-          // List must be all of our peers since
-          // we could be followed by any of them plus
-          // whatever follows the unordered group.
-          val peersCouldBeNext = unorderedGroup.groupMembersNoRefs
-          peersCouldBeNext
-        }
-        case (None, Some(oSeq)) => {
-          // We're in an ordered sequence
-
-          val termsUntilFirstRequiredTerm =
-            isDeclaredLastInSequence match {
-              case true => oSeq.couldBeNext
-              case false => {
-
-                val members = oSeq.group.groupMembersNoRefs
-
-                val nextMember = members.dropWhile(m => m != thisTermNoRefs).filterNot(m => m == thisTermNoRefs).headOption
-
-                val nextMembers =
-                  nextMember match {
-                    case Some(e: LocalElementBase) if e.isOptional => Seq(e) ++ e.couldBeNext
-                    case Some(e: LocalElementBase) => Seq(e)
-                    case Some(gb: GroupBase) => Seq(gb.group)
-                    case None => Nil
-                  }
-                nextMembers
-              }
-            }
-          termsUntilFirstRequiredTerm
-        }
-      }
-    listOfNextTerm
-  }.value
 
   final def identifyingElementsForChoiceBranch: Seq[ElementBase] = LV('identifyingElementsForChoiceBranch) {
     Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[Choice], "identifyingElementsForChoiceBranch must only be called on children of choices")
@@ -361,20 +290,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   }.value
 
   /*
-   * Returns list of Elements that could be the first child in the infoset of this model group
-   */
-  final def couldBeFirstChildElementInInfoset: Seq[ElementBase] = LV('couldBeFirstChildElementInInfoset) {
-    val firstChildren = couldBeFirstChildTerm.flatMap {
-      case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
-    }
-    firstChildren
-  }.value
-
-  /*
    * Returns list of Terms that could contain the first child element in the infoset
    */
-  final def couldBeFirstChildTerm: Seq[Term] = LV('couldBeFirstChildTerm) {
+  protected final def couldBeFirstChildTerm: Seq[Term] = LV('couldBeFirstChildTerm) {
     val firstTerms = this match {
       case c: Choice => groupMembersNoRefs
       case s: Sequence if !s.isOrdered => groupMembersNoRefs
@@ -391,52 +309,16 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     firstTerms
   }.value
 
-  /*
-   * Returns a list of Elements that could follow this ModelGroup, including
-   * siblings, children of siblings, and siblings of the parent and their children.
-   */
-  final def couldBeNextElementInInfoset: Seq[ElementBase] = LV('couldBeNextElementInInfoset) {
-    val nextSiblingElements = couldBeNextSiblingTerm.flatMap {
-      case e: ElementBase => Seq(e)
-      case mg: ModelGroup => mg.couldBeFirstChildElementInInfoset
+  protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
+    if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
+      parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+    } else {
+      Nil
     }
-
-    val nextParentElements =
-      if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
-        parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
-      } else {
-        Nil
-      }
-
-    val nextElementsInInfoset = nextSiblingElements ++ nextParentElements
-    nextElementsInInfoset
   }.value
 
-  /*
-   * Returns a list of sibling Terms that could follow this term. This will not
-   * return any children of sibling Terms, or any siblings of the parent.
-   */
-  final def couldBeNextSiblingTerm: Seq[Term] = LV('couldBeNextSiblingTerm) {
-
-    val listOfNextTerm = enclosingTerm match {
-      case None => Nil // root element, has no siblings
-      case Some(e: ElementBase) => Nil // complex element, cannot have another model group other than this one
-      case Some(c: Choice) => Nil // in choice, no other siblings could come after this one
-      case Some(s: Sequence) if !s.isOrdered => s.groupMembersNoRefs // unorderd sequence, all siblings (and myself) could be next
-      case Some(s: Sequence) => {
-        // in a sequence, the next term could be any later sibling that is not
-        // or does not have a required element, up to and including the first
-        // term that is/has a required element
-        val nextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
-        val (optional, firstRequiredAndLater) = nextSiblings.span {
-          case e: ElementBase => e.isOptional || !e.isRequiredArrayElement
-          case mg: ModelGroup => !mg.mustHaveRequiredElement
-        }
-        optional ++ firstRequiredAndLater.take(1)
-      }
-    }
-    listOfNextTerm
-  }.value
+  // model groups can't be elements.
+  protected final def couldBeLastElementInModelGroup: Boolean = false
 
   /*
    * Determines if any of the of the terms that could be next have or are

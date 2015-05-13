@@ -68,20 +68,6 @@ trait LocalElementMixin
     }
   }.value
 
-  final def isDeclaredLastInSequence = LV('isDeclaredLastInSequence) {
-    val es = nearestEnclosingSequence
-    // how do we determine what child node we are? We search. 
-    // TODO: better structure for O(1) answer to this.
-    es match {
-      case None => Assert.invariantFailed("We are not in a sequence therefore isDeclaredLastInSequence is an invalid question.")
-      case Some(s) => {
-        val members = s.groupMembersNoRefs
-        if (members.last eq thisTermNoRefs) true // we want object identity comparison here, not equality. 
-        else false
-      }
-    }
-  }.value
-
   final def lengthKnownToBeGreaterThanZero = LV('lengthKnownToBeGreaterThanZero) {
     val pt = {
       if (isPrimType) typeDef.asInstanceOf[PrimType]
