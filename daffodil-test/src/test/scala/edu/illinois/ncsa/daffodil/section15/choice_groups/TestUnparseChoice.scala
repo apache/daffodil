@@ -30,10 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.pcap
+package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 import junit.framework.Assert._
 import org.junit.Test
+import org.junit.AfterClass
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -43,16 +44,24 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestPCAP {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+object TestUnparseChoice {
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val aa = testDir + "choice-unparse.tdml"
+  var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_invalid_magic_number() { runner.runOneTest("invalid_magic_number") }
-  @Test def test_invalid_version() { runner.runOneTest("invalid_version") }
-  @Test def test_invalid_network_type() { runner.runOneTest("invalid_network_type") }
+  @AfterClass def tearDown() {
+    runnerCH = null
+  }
+}
 
-  //DFDL-1341
-  //@Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
+class TestUnparseChoice {
+  import TestUnparseChoice._
 
+  @Test def test_choice1() { runnerCH.runOneTest("choice1") }
+  @Test def test_choice2() { runnerCH.runOneTest("choice2") }
+  @Test def test_choice3() { runnerCH.runOneTest("choice3") }
+  @Test def test_choice4() { runnerCH.runOneTest("choice4") }
+  //DFDL-1337
+  //@Test def test_choice5() { runnerCH.runOneTest("choice5") }
+  @Test def test_choice6() { runnerCH.runOneTest("choice6") }
 }

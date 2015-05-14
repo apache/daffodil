@@ -60,6 +60,33 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:complexType name="choice">
+      <xs:choice>
+        <xs:element name="int" type="xs:int" dfdl:lengthKind="delimited" />
+        <xs:element name="dec" type="xs:decimal" dfdl:lengthKind="delimited" />
+        <xs:element name="str" type="xs:string" dfdl:lengthKind="delimited" />
+      </xs:choice>
+    </xs:complexType>
+
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";" dfdl:terminator="!" >
+          <xs:element name="a" type="ex:choice" minOccurs="3" maxOccurs="3" dfdl:occursCountKind="fixed" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root3">
+      <xs:complexType>
+        <xs:sequence>
+           <xs:choice>
+             <xs:element name="one" type="ex:choice" dfdl:initiator="1=" dfdl:lengthKind="delimited" />
+             <xs:element name="two" type="xs:string" dfdl:initiator="2=" dfdl:lengthKind="delimited" />
+           </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="choice1" root="root" model="choice">
@@ -107,6 +134,33 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[empty;after]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choice5" root="root2" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root2>
+          <ex:a><ex:dec>3.5</ex:dec></ex:a>
+          <ex:a><ex:str>abc</ex:str></ex:a>
+          <ex:a><ex:int>12</ex:int></ex:a>
+        </ex:root2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[3.5;abc;12!]]></tdml:document>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="choice6" root="root3" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root3>
+          <ex:one><ex:wrong>fail</ex:wrong></ex:one>
+        </ex:root3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>expected one of</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,10 +30,11 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.pcap
+package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 import junit.framework.Assert._
 import org.junit.Test
+import org.junit.AfterClass
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -43,16 +44,19 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestPCAP {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+object TestUnparseChoiceDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val aa = testDir + "choice-unparse.tdml"
+  var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_invalid_magic_number() { runner.runOneTest("invalid_magic_number") }
-  @Test def test_invalid_version() { runner.runOneTest("invalid_version") }
-  @Test def test_invalid_network_type() { runner.runOneTest("invalid_network_type") }
+  @AfterClass def tearDown() {
+    runnerCH = null
+  }
+}
 
-  //DFDL-1341
-  //@Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
+class TestUnparseChoiceDebug {
+  import TestUnparseChoiceDebug._
 
+  //DFDL-1337
+  @Test def test_choice5() { runnerCH.runOneTest("choice5") }
 }

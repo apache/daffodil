@@ -31,7 +31,7 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
     SOFTWARE.
 -->
-<testSuite suiteName="Namespaces"
+<testSuite suiteName="Pcap"
   xmlns="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData">
 
@@ -89,6 +89,25 @@
       <tdml:error>Parse Error: Assertion failed</tdml:error>
       <tdml:error>Link layer type is not Ethernet</tdml:error>
     </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test name: pcap_simple_outOfBoundsError
+       Schema: pcap.simple.dfdl.xsd
+         Root: PCAP
+      Purpose: This test demonstrates that the 1m simple pcap performance test is currently failing with an indexOutOfBounds exception
+  -->
+
+  <tdml:parserTestCase name="pcap_simple_outOfBoundsError" root="pcap"
+    model="pcap.simple.dfdl.xsd">
+    <tdml:document>
+      <tdml:documentPart type="file">1m.pcap</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <pcap/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
 
 </testSuite>

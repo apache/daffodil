@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2015 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -43,16 +43,12 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestPCAP {
+class TestPCAPDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
   val aa = testDir + "pcap.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  @Test def test_invalid_magic_number() { runner.runOneTest("invalid_magic_number") }
-  @Test def test_invalid_version() { runner.runOneTest("invalid_version") }
-  @Test def test_invalid_network_type() { runner.runOneTest("invalid_network_type") }
-
   //DFDL-1341
-  //@Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
+  @Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }
 
 }
