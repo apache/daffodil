@@ -39,6 +39,12 @@
       nilValue="nil %ES;" nilKind="literalValue" textNumberRep="standard" ignoreCase="no"/>
 
     <xs:element name="doc" dfdl:lengthKind="delimited" nillable="true" type="xsd:string"/>
+    <xs:element name="doc2" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%ES;"/>
+    <xs:element name="doc3" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%WSP;"/>
+    <xs:element name="doc4" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%WSP+;"/>
+    <xs:element name="doc5" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%WSP*;"/>
+    <xs:element name="doc6" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%CR;%LF;" dfdl:nilValue="%NL;"/>
+    <xs:element name="doc7" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%LF;" dfdl:nilValue="%NL;"/>
 
   </tdml:defineSchema>
 
@@ -728,6 +734,120 @@
       <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
     </tdml:document>
 
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_01
+     Schema: text_nil_only1
+       Root: doc2
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_01" root="doc2" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc2 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_02
+     Schema: text_nil_only1
+       Root: doc3
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_02" root="doc3" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc3 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_03
+     Schema: text_nil_only1
+       Root: doc4
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_03" root="doc4" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc4 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[ ]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_04
+     Schema: text_nil_only1
+       Root: doc5
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_04" root="doc5" model="text_nil_only1" description="unparse a character class nil">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc5 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_05
+     Schema: text_nil_only1
+       Root: doc6
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_05" root="doc6" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc6 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0D0A</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: text_nil_characterClass_06
+     Schema: text_nil_only1
+       Root: doc7
+    Purpose: This test demonstrates unparsing a literal nil with nilValue set to a character entity. 
+-->
+
+  <tdml:unparserTestCase name="text_nil_characterClass_06" root="doc7" model="text_nil_only1" description="unparse a character class nil" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc7 xsi:nil="true"/>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="byte">0A</tdml:documentPart>
+    </tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

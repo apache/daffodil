@@ -86,4 +86,11 @@ class TestNillableUnparse {
   @Test def test_text_nil_only16() { runnerLN.runOneTest("text_nil_only16") }
   @Test def test_text_nil_only17() { runnerLN.runOneTest("text_nil_only17") }
 
+  @Test def test_text_nil_characterClass_01() { runnerLN.runOneTest("text_nil_characterClass_01") }
+  @Test def test_text_nil_characterClass_02() { runnerLN.runOneTest("text_nil_characterClass_02") }
+  @Test def test_text_nil_characterClass_03() { runnerLN.runOneTest("text_nil_characterClass_03") }
+  @Test def test_text_nil_characterClass_04() { runnerLN.runOneTest("text_nil_characterClass_04") }
+  @Test def test_text_nil_characterClass_05() { runnerLN.runOneTest("text_nil_characterClass_05") }
+  @Test def test_text_nil_characterClass_06() { runnerLN.runOneTest("text_nil_characterClass_06") }
+
 }
