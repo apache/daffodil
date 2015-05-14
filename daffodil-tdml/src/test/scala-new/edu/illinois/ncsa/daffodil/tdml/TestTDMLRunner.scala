@@ -49,8 +49,18 @@ import edu.illinois.ncsa.daffodil.util._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
+import org.junit.AfterClass
+
+object TestTDMLRunnerNew {
+  val runner = Runner("/test/tdml/", "tdmlQuoting.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+}
 
 class TestTDMLRunnerNew {
+  import TestTDMLRunnerNew._
 
   val tdml = XMLUtils.TDML_NAMESPACE
   val dfdl = XMLUtils.DFDL_NAMESPACE
@@ -437,4 +447,59 @@ abc # a comment
     runner.runOneTest("test1")
   }
 
+  @Test def testTDMLUnparse() {
+    val testSuite = <ts:testSuite xmlns:ts={ tdml } xmlns:tns={ tns } xmlns:dfdl={ dfdl } xmlns:xs={ xsd } xmlns:xsi={ xsi } suiteName="theSuiteName">
+                      <ts:defineSchema name="unparseTestSchema1">
+                        <dfdl:format ref="tns:daffodilTest1"/>
+                        <xs:element name="data" type="xs:string" dfdl:lengthKind="explicit" dfdl:length="{ 9 }"/>
+                      </ts:defineSchema>
+                      <ts:unparserTestCase ID="some identifier" name="testTDMLUnparse" root="data" model="unparseTestSchema1">
+                        <ts:infoset>
+                          <ts:dfdlInfoset>
+                            <data xmlns={ example }>123456789</data>
+                          </ts:dfdlInfoset>
+                        </ts:infoset>
+                        <ts:document>123456789</ts:document>
+                      </ts:unparserTestCase>
+                    </ts:testSuite>
+    lazy val ts = new DFDLTestSuite(testSuite)
+    ts.runOneTest("testTDMLUnparse")
+  }
+
+  @Test def test_quote_test1() = {
+    runner.runOneTest("quote_test1")
+  }
+
+  val tdmlWithEmbeddedSchema =
+    <tdml:testSuite suiteName="theSuiteName" xmlns:tns={ tns } xmlns:tdml={ tdml } xmlns:dfdl={ dfdl } xmlns:xsd={ xsd } xmlns:xs={ xsd } xmlns:xsi={ xsi }>
+      <tdml:defineSchema name="mySchema">
+        <dfdl:format ref="tns:daffodilTest1"/>
+        <xsd:element name="data" type="xsd:int" dfdl:lengthKind="explicit" dfdl:length="{ xs:unsignedInt(2) }"/>
+      </tdml:defineSchema>
+      <parserTestCase xmlns={ tdml } name="testEmbeddedSchemaWorks" root="data" model="mySchema">
+        <document>37</document>
+        <infoset>
+          <dfdlInfoset>
+            <data xmlns={ example }>37</data>
+          </dfdlInfoset>
+        </infoset>
+      </parserTestCase>
+    </tdml:testSuite>
+
+  @Test def testTrace() {
+    val tmpTDMLFileName = getClass.getName() + ".tdml"
+    val testSuite = tdmlWithEmbeddedSchema
+    try {
+      using(new java.io.FileWriter(tmpTDMLFileName)) {
+        fw =>
+          fw.write(testSuite.toString())
+      }
+      lazy val ts = new DFDLTestSuite(new java.io.File(tmpTDMLFileName))
+      ts.trace
+      ts.runAllTests()
+    } finally {
+      val t = new java.io.File(tmpTDMLFileName)
+      t.delete()
+    }
+  }
 }

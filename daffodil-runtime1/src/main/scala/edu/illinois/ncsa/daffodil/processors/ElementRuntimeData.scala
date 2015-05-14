@@ -132,6 +132,7 @@ class ElementRuntimeData(
 
   lazy val children = childrenArg
   lazy val parent = parentArg
+  lazy val rootERD: ElementRuntimeData = parent.map { _.rootERD }.getOrElse(this)
   override lazy val variableMap = variableMapArg
   lazy val nextElementResolver = nextElementResolverArg
   lazy val childElementResolver = childElementResolverArg

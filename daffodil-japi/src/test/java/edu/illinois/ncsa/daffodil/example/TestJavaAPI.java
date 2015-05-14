@@ -78,14 +78,14 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		DataProcessor dp = pf.onPath("/");
+		dp.setDebugger(debugger);
+		dp.setDebugging(true);
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
@@ -123,9 +123,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
-
 	}
 
 	// This is a duplicate of test testJavaAPI1 that serializes the parser
@@ -137,8 +134,6 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
@@ -155,6 +150,8 @@ public class TestJavaAPI {
 		ReadableByteChannel input = Channels.newChannel(is);
 		edu.illinois.ncsa.daffodil.japi.Compiler compiler = Daffodil.compiler();
 		DataProcessor parser = compiler.reload(input);
+		parser.setDebugger(debugger);
+		parser.setDebugging(true);
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -193,8 +190,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
 	}
 
 	// This is a duplicate of test testJavaAPI1 that serializes the parser
@@ -206,14 +201,14 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		DataProcessor dp = pf.onPath("/");
+		dp.setDebugger(debugger);
+		dp.setDebugging(true);
 
 		// Serialize the parser to memory, then deserialize for parsing.
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -237,8 +232,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
 	}
 
 	@Test
@@ -721,8 +714,6 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw2);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
@@ -730,6 +721,9 @@ public class TestJavaAPI {
 		java.io.File schemaFile = getResource("/test/japi/mySchema1.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		DataProcessor dp = pf.onPath("/");
+		dp.setDebugger(debugger);
+		dp.setDebugging(true);
+
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
 		java.nio.channels.ReadableByteChannel rbc = java.nio.channels.Channels
@@ -765,8 +759,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
 	}
 
 	@Test
@@ -778,8 +770,6 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
@@ -789,6 +779,8 @@ public class TestJavaAPI {
 		ProcessorFactory pf = c.compileFile(schemaFile);
 
 		DataProcessor dp = pf.onPath("/");
+		dp.setDebugger(debugger);
+		dp.setDebugging(true);
 
 		java.io.File file = getResource("/test/japi/myData.dat");
 		java.io.FileInputStream fis = new java.io.FileInputStream(file);
@@ -829,8 +821,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
 	}
 
 	@Test
@@ -842,8 +832,6 @@ public class TestJavaAPI {
 
 		Daffodil.setLogWriter(lw);
 		Daffodil.setLoggingLevel(LogLevel.Debug);
-		Daffodil.setDebugger(debugger);
-		Daffodil.setDebugging(true);
 
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
@@ -851,6 +839,8 @@ public class TestJavaAPI {
 		java.io.File schemaFile = getResource("/test/japi/mySchemaWithVars.dfdl.xsd");
 		ProcessorFactory pf = c.compileFile(schemaFile);
 		DataProcessor dp = pf.onPath("/");
+		dp.setDebugger(debugger);
+		dp.setDebugging(true);
 		dp.setExternalVariables(extVarFile);
 
 		java.io.File file = getResource("/test/japi/myData.dat");
@@ -893,8 +883,6 @@ public class TestJavaAPI {
 		// reset the global logging and debugger state
 		Daffodil.setLogWriter(new ConsoleLogWriter());
 		Daffodil.setLoggingLevel(LogLevel.Info);
-		Daffodil.setDebugger(null);
-		Daffodil.setDebugging(false);
 	}
 
 }

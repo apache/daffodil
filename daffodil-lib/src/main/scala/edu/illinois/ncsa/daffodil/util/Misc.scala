@@ -45,6 +45,12 @@ import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import scala.language.reflectiveCalls
 import java.net.URLClassLoader
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.Charset
+import java.nio.charset.CodingErrorAction
+import scala.collection.JavaConversions._
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Various reusable utilities that I couldn't easily find a better place for.
@@ -302,52 +308,186 @@ object Misc {
    * in the unicode x2400 block helps.
    */
   def remapControlsAndLineEndingsToVisibleGlyphs(s: String) = {
-    def remap(c: Char) = {
-      val URC = 0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
-      val code = c.toInt match {
-        //
-        // C0 Control pictures
-        case n if (n <= 0x1F) => n + 0x2400
-        case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
-        case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
-        //
-        // Unicode separators & joiners
-        case 0x00A0 => URC // no-break space
-        case 0x200B => URC // zero width space
-        case 0x2028 => URC // line separator 
-        case 0x2029 => URC // paragraph separator 
-        case 0x200C => URC // zero width non-joiner
-        case 0x200D => URC // zero width joiner
-        case 0x2060 => URC // word joiner
-        // bi-di controls
-        case 0x200E | 0x200F => URC
-        case b if (b >= 0x202A && b <= 0x202E) => URC
-        // byte order mark
-        case 0xFFFE => URC // ZWNBS aka Byte Order Mark
-        case 0xFFFF => URC // non-character FFFF
-        // we assume surrogate codepoints all have a glyph (depends on font used of course)
-        //
-        // TODO: this could go on and on. There's a flock of 'space' characters (EM SPACE)
-        // all over the place in Unicode. 
-        // 
-        // TODO: combining characters,
-        // all whitespace, zero-width, and combining/joining characters would be 
-        // represented by a separate glyph-character.
-        //
-        // Probably could be done by checking the character against some
-        // unicode regex character classes like \p{M} which is the class 
-        // of combining mark characters
-        //
-        //
-        // Special case - if incoming character is one of the glyph
-        // characters we're remapping onto, then change to URC
-        //
-        case n if (n > 0x2400 && n < 0x2423) => URC
-        case _ => c
-      }
-      code.toChar
+    s.map { remapControlOrLineEndingToVisibleGlyphs(_) }.mkString
+  }
+
+  def remapControlOrLineEndingToVisibleGlyphs(c: Char) = {
+    val URC = 0x2426 // Unicode control picture character for substutition (also looks like arabic q-mark)
+    val code = c.toInt match {
+      //
+      // C0 Control pictures
+      case n if (n <= 0x1F) => n + 0x2400
+      case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
+      case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
+      //
+      // Unicode separators & joiners
+      case 0x00A0 => URC // no-break space
+      case 0x200B => URC // zero width space
+      case 0x2028 => URC // line separator 
+      case 0x2029 => URC // paragraph separator 
+      case 0x200C => URC // zero width non-joiner
+      case 0x200D => URC // zero width joiner
+      case 0x2060 => URC // word joiner
+      // bi-di controls
+      case 0x200E | 0x200F => URC
+      case b if (b >= 0x202A && b <= 0x202E) => URC
+      // byte order mark
+      case 0xFFFE => URC // ZWNBS aka Byte Order Mark
+      case 0xFFFF => URC // non-character FFFF
+      // we assume surrogate codepoints all have a glyph (depends on font used of course)
+      //
+      // TODO: this could go on and on. There's a flock of 'space' characters (EM SPACE)
+      // all over the place in Unicode. 
+      // 
+      // TODO: combining characters,
+      // all whitespace, zero-width, and combining/joining characters would be 
+      // represented by a separate glyph-character.
+      //
+      // Probably could be done by checking the character against some
+      // unicode regex character classes like \p{M} which is the class 
+      // of combining mark characters
+      //
+      //
+      // Special case - if incoming character is one of the glyph
+      // characters we're remapping onto, then change to URC
+      //
+      case n if (n > 0x2400 && n < 0x2423) => URC
+      case _ => c
     }
-    s.map { remap(_) }.mkString
+    code.toChar
+  }
+
+  private val bytesCharset = Charset.forName("windows-1252") // same as iso-8859-1 but has a few more glyphs.
+  private val bytesDecoder = {
+    val decoder = bytesCharset.newDecoder()
+    decoder.onMalformedInput(CodingErrorAction.REPLACE)
+    decoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
+    decoder
+  }
+
+  /**
+   * Used when creating a debugging dump of data, where the data might be binary stuff
+   * but we want to show some sort of glyph for each byte.
+   *
+   * This uses windows-1252 for all the places it has glyphs, and other unicode
+   * glyph characters to replace the control characters and unused characters.
+   *
+   * This allows printing a data dump to the screen, without worry that the control
+   * characters will ring bells or cause the text to jump around, and unmapped
+   * characters will not look like spaces, nor all look like the same unicde replacement
+   * character.
+   */
+  def remapBytesToVisibleGlyphs(bb: ByteBuffer, cb: CharBuffer) {
+    val numBytes = bb.remaining()
+    bytesDecoder.decode(bb, cb, true)
+    cb.flip
+    var i = 0
+    while (i < numBytes) {
+      val newCodepoint = remapOneByteToVisibleGlyph(bb.get(i))
+      if (newCodepoint != -1) {
+        cb.put(i, newCodepoint.toChar)
+      }
+      i += 1
+    }
+  }
+
+  /**
+   * For unicode codepoints in the range 0 to 255, or signed -128 to 127,
+   * make sure there is a visible glyph.
+   */
+  def remapCodepointToVisibleGlyph(codepoint: Int): Int = {
+    if (codepoint > 255 || codepoint < -128) return codepoint
+    val b = Bits.asSignedByte(codepoint)
+    val r = remapOneByteToVisibleGlyph(b)
+    if (r == -1) codepoint else r
+  }
+
+  def remapStringToVisibleGlyphs(s: String) = {
+    s.map { c => remapCodepointToVisibleGlyph(c.toInt).toChar }
+  }
+
+  def remapByteToVisibleGlyph(b: Byte): Int = {
+    val bb = ByteBuffer.allocate(1)
+    bb.put(0, b)
+    val cb = CharBuffer.allocate(1)
+    remapBytesToVisibleGlyphs(bb, cb)
+    cb.get(0).toChar.toInt
+  }
+
+  /**
+   * A difficulty is that there do not seem to be generally available Unicode fonts
+   * which are truly monospaced for every Unicode character. So since we are
+   * trying to produce data dumps that are monospaced, the tabular layout is off a bit.
+   *
+   * Even if there was such a font, it wouldn't be the default font.
+   *
+   * Courier New seems to work well. It is monospaced for every character we use
+   * in this remap stuff. But not for the "double wide" Kanji or other wide oriental
+   * characters.
+   */
+
+  private def remapOneByteToVisibleGlyph(b: Byte): Int = {
+    Bits.asUnsignedByte(b) match {
+      //
+      // replace C0 controls with unicode control pictures
+      //
+      case n if (n <= 0x1F) => n + 0x2400
+      //
+      // replace space and DEL with control pictures
+      //
+      case 0x20 => 0x2423 // For space we use the SP we use the ␣ (Unicode OPEN BOX)
+      case 0x7F => 0x2421 // DEL pic isn't at 0x247F, it's at 0x2421
+      //
+      // replace undefined characters in the C1 control space with 
+      // glyph characters. These are the only codepoints in the C1 
+      // space which do not have a glyph defined by windows-1252
+      // 
+      // We remap these into the Unicode Latin Extended B codepoints by
+      // adding 0x100 to their basic value. 
+      //
+      case 0x81 => 0x0181
+      case 0x8D => 0x018d
+      case 0x8F => 0x018F
+      case 0x90 => 0x0190
+      case 0x9D => 0x019D
+      //
+      // Non-break space
+      //
+      case 0xA0 => 0x2422 // little b with stroke
+      case 0xAD => 0x002D // soft hyphen becomes hyphen
+      case regular => -1 // all other cases -1 means we just use the regular character glyph.
+    }
+  }
+
+  /**
+   * True if this charset encoding is suitable for display using the
+   * all-visible-glyph stuff above.
+   */
+  def isAsciiBased(csName: String): Boolean = isAsciiBased(Charset.forName(csName))
+
+  def isAsciiBased(cs: Charset): Boolean = {
+    val aliases: Seq[String] = cs.aliases().toSeq.map { _.toUpperCase }
+    val byName =
+      aliases.exists { s =>
+        !(s.contains("7-BIT")) &&
+          !(s.contains("EBCDIC")) && (
+            s.startsWith("ASCII") ||
+            s.startsWith("US-ASCII") ||
+            s.startsWith("ISO-8859") ||
+            s.startsWith("UTF"))
+      }
+    if (byName) byName
+    else {
+      val decoder = cs.newDecoder()
+      decoder.onMalformedInput(CodingErrorAction.REPLACE)
+      decoder.onUnmappableCharacter(CodingErrorAction.REPLACE)
+      val abcBytes = "abc".getBytes("ascii")
+      val bb = ByteBuffer.wrap(abcBytes)
+      val cb = decoder.decode(bb)
+      val abc = cb.toString()
+      if (abc =:= "abc") true
+      else false
+    }
   }
 
   import scala.language.reflectiveCalls // scala 2.10 creates warning unless we have this.
@@ -382,4 +522,17 @@ object Misc {
 
   def determineEncoding(file: File): String = determineEncoding(file.toURI)
 
+  /**
+   * CharSequence to String
+   */
+  def csToString(cs: CharSequence): String = {
+    cs match {
+      case s: String => s
+      case _ => {
+        val sb = new StringBuilder(cs.length())
+        sb.append(cs)
+        sb.mkString
+      }
+    }
+  }
 }

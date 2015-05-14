@@ -307,8 +307,8 @@
 
     <document>
       <documentPart type="byte">302C312C322C332C34e280a8352C362C372C382C39e280a831302C31312C31322C31332C3134</documentPart>
-      <!-- The bytes above represent 0,1,2,3,4%NL;5,6,7,8,9%NL;10,11,12,13,14 
-        where %NL; is 0xe280a8 -->
+      <!-- The bytes above represent 0,1,2,3,4%#x2028;5,6,7,8,9%#x2028;10,11,12,13,14 
+        where %NL; is U+2028 aka "Line Separator" -->
     </document>
 
     <infoset>
@@ -422,10 +422,10 @@
     model="charClassEntities.dfdl.xsd"
     description="Hexadecimal code point used in document tag - DFDL-6-044R">
 
-    <document><documentPart replaceDFDLEntities="true" type="text">%#x00a9;</documentPart></document>
+    <document><documentPart replaceDFDLEntities="true" type="text">%#x0040;</documentPart></document>
     <infoset>
       <dfdlInfoset>
-        <hcp>&#169;</hcp>
+        <hcp>&#64;</hcp>
       </dfdlInfoset>
     </infoset>
   </parserTestCase>

@@ -75,14 +75,14 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
@@ -111,14 +111,12 @@ class TestScalaAPI {
     assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
-        .contains("----------------------------------------------------------------- 1\n"))
+      .contains("----------------------------------------------------------------- 1\n"))
     assertTrue(debugger.getCommand().equals("trace"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
 
   }
 
@@ -131,8 +129,6 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -149,7 +145,8 @@ class TestScalaAPI {
     val input = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(input)
-
+    parser.setDebugger(debugger)
+    parser.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
@@ -162,7 +159,7 @@ class TestScalaAPI {
       //xo.output(doc, System.out)
     }
     val diags = res.getDiagnostics
-    diags.foreach { d => 
+    diags.foreach { d =>
       System.err.println(d.getMessage())
     }
     assertTrue(res.location().isAtEnd())
@@ -176,14 +173,13 @@ class TestScalaAPI {
     assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
-        .contains("----------------------------------------------------------------- 1\n"))
+      .contains("----------------------------------------------------------------- 1\n"))
     assertTrue(debugger.getCommand().equals("trace"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
+
   }
 
   @Test
@@ -233,7 +229,7 @@ class TestScalaAPI {
 
   /**
    * Verify that we can detect when the parse did not consume all the data.
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -370,11 +366,11 @@ class TestScalaAPI {
     c.setValidateDFDLSchemas(false)
     val schemaFileName = getResource("/test/sapi/mySchema3.dfdl.xsd")
     c.setDistinguishedRootNode("e4", null); // e4 is a 4-byte long string
-                        // element
+    // element
     val pf = c.compileFile(schemaFileName)
     val dp = pf.onPath("/")
     val file = getResource("/test/sapi/myData3.dat"); // contains 5
-                                  // bytes
+    // bytes
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
     val res = dp.parse(rbc, 4 << 3)
@@ -391,17 +387,18 @@ class TestScalaAPI {
     }
     assertFalse(err)
     assertTrue("Assertion failed: End of data not reached.", res.location()
-        .isAtEnd())
+      .isAtEnd())
     assertEquals(5, res.location().bytePos1b())
     assertEquals(33, res.location().bitPos1b())
     System.err.println("bitPos = " + res.location().bitPos1b())
     System.err.println("bytePos = " + res.location().bytePos1b())
   }
 
-  /***
+  /**
+   * *
    * Verify that the compiler throws a FileNotFound exception when fed a list
    * of schema files that do not exist.
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -433,7 +430,7 @@ class TestScalaAPI {
   /**
    * Tests a user submitted case where the XML appears to be serializing odd
    * xml entities into the output.
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -493,7 +490,7 @@ class TestScalaAPI {
    * that this test uses double newline as a terminator for the first element
    * in the sequence rather than double newline as a separator for the
    * sequence
-   * 
+   *
    * @throws IOException
    */
   @Test
@@ -649,8 +646,6 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw2)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -658,6 +653,8 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
@@ -685,13 +682,12 @@ class TestScalaAPI {
     assertTrue(lw2.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
-        .contains("----------------------------------------------------------------- 1\n"))
+      .contains("----------------------------------------------------------------- 1\n"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
+
   }
 
   @Test
@@ -703,8 +699,6 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -714,7 +708,8 @@ class TestScalaAPI {
     val pf = c.compileFile(schemaFile)
 
     val dp = pf.onPath("/")
-
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
     val file = getResource("/test/sapi/myData.dat")
     val fis = new java.io.FileInputStream(file)
     val rbc = java.nio.channels.Channels.newChannel(fis)
@@ -731,8 +726,7 @@ class TestScalaAPI {
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
+
   }
 
   @Test
@@ -744,8 +738,6 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
@@ -753,6 +745,8 @@ class TestScalaAPI {
     val schemaFile = getResource("/test/sapi/mySchemaWithVars.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
     dp.setExternalVariables(extVarFile)
 
     val file = getResource("/test/sapi/myData.dat")
@@ -783,15 +777,14 @@ class TestScalaAPI {
     assertTrue(lw.others.size > 0)
     assertTrue(debugger.lines.size > 0)
     assertTrue(debugger.lines
-        .contains("----------------------------------------------------------------- 1\n"))
+      .contains("----------------------------------------------------------------- 1\n"))
 
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
+
   }
-  
+
   // This is a duplicate of test testJavaAPI1 that serializes the parser
   // before executing the test.
   // Demonstrates that setting validation to Full for a saved parser fails.
@@ -803,15 +796,14 @@ class TestScalaAPI {
 
     Daffodil.setLogWriter(lw)
     Daffodil.setLoggingLevel(LogLevel.Debug)
-    Daffodil.setDebugger(debugger)
-    Daffodil.setDebugging(true)
 
     val c = Daffodil.compiler()
     c.setValidateDFDLSchemas(false)
     val schemaFile = getResource("/test/sapi/mySchema1.dfdl.xsd")
     val pf = c.compileFile(schemaFile)
     val dp = pf.onPath("/")
-
+    dp.setDebugger(debugger)
+    dp.setDebugging(true)
     // Serialize the parser to memory, then deserialize for parsing.
     val os = new ByteArrayOutputStream()
     val output = Channels.newChannel(os)
@@ -821,16 +813,15 @@ class TestScalaAPI {
     val input = Channels.newChannel(is)
     val compiler = Daffodil.compiler()
     val parser = compiler.reload(input)
-    
+
     try {
       parser.setValidationMode(ValidationMode.Full)
       fail()
-    } catch { case e: InvalidUsageException => assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage())}
-    
+    } catch { case e: InvalidUsageException => assertEquals("'Full' validation not allowed when using a restored parser.", e.getMessage()) }
+
     // reset the global logging and debugger state
     Daffodil.setLogWriter(new ConsoleLogWriter())
     Daffodil.setLoggingLevel(LogLevel.Info)
-    Daffodil.setDebugger(null)
-    Daffodil.setDebugging(false)
+
   }
 }

@@ -52,17 +52,31 @@ import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import java.nio.charset.StandardCharsets
 
-trait HasDelimiterText {
-
+trait ComputesValueFoundInstead {
+  //
+  // TODO: DFDL-1370 - This really should be replaced by having the DFA that matches delimiters
+  // extract the non-matching data found instead. This way of doing it separately is expensive
+  // and cannot be avoided every time we backtrack due to a non-found delimiter.
+  //
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
-    val dl = state.currentLocation.asInstanceOf[DataLoc]
-    val foundInstead = dl.utf8Dump(maxDelimiterLength)
+    val ei = state.getContext().encodingInfo
+    val cs = if (ei.isKnownEncoding) ei.knownEncodingCharset.charset else StandardCharsets.UTF_8 // guess utf8
+    var rdr = state.inStream.getCharReader(cs, state.bitPos0b)
+    val sb = new StringBuilder(maxDelimiterLength)
+    var i = 0
+    while (i < maxDelimiterLength && !rdr.atEnd) {
+      i += 1
+      sb + rdr.first
+      rdr = rdr.rest
+    }
+    val foundInstead = sb.mkString
     foundInstead
   }
 }
 
-abstract class DelimiterValues extends HasDelimiterText with Serializable
+abstract class DelimiterValues extends Serializable
 
 class InitiatorDelimiterValues(val init: String, context: TermRuntimeData)
   extends StaticTextDelimiterValues(init, List.empty, context)
@@ -90,7 +104,7 @@ object DelimiterTextType extends Enum {
 abstract class DelimiterTextParserBase(rd: TermRuntimeData,
   delimiterType: DelimiterTextType.Type)
   extends PrimParser(rd)
-  with HasDelimiterText {
+  with ComputesValueFoundInstead {
 
   val isInitiator: Boolean = delimiterType == DelimiterTextType.Initiator
 

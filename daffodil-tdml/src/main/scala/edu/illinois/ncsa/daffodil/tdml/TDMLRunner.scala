@@ -60,6 +60,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.configuration.ConfigurationLoader
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
@@ -79,6 +80,8 @@ import edu.illinois.ncsa.daffodil.xml.DaffodilXMLLoader
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.util.Bits
 import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.debugger._
 import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.channels.Channels
@@ -96,6 +99,7 @@ import javax.xml.stream.XMLInputFactory
 import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable
 import org.apache.commons.io.IOUtils
+import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
@@ -132,7 +136,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false)
-  extends Logging {
+  extends Logging with HasSetDebugger {
 
   System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -275,6 +279,28 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     println("tak call equivalents per byte (takeons/byte) =  " + callsPerByte)
   }
 
+  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler)
+
+  final var optDebugger: Option[Debugger] = None
+
+  private def areTracing: Boolean = optDebugger.isDefined
+
+  def trace = {
+    setDebugging(true)
+    this // allows chaining like runner.trace.runOneTest(....)
+  }
+
+  def setDebugging(b: Boolean) {
+    if (b == true)
+      if (optDebugger.isEmpty) optDebugger = Some(builtInTracer)
+      else
+        optDebugger = None
+  }
+
+  def setDebugger(d: Debugger) {
+    optDebugger = Some(d)
+  }
+
   def runOneTest(testName: String, schema: Option[Node] = None, leakCheck: Boolean = false) {
     if (leakCheck) {
       System.gc()
@@ -348,49 +374,52 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
   extends Logging {
 
-  def toOpt[T](n: Seq[T]) = {
-    n match {
-      case Seq() => None
-      case Seq(a) => Some(a)
-      // ok for it to error if there is more than one in sequence.
+  /**
+   * This doesn't fetch a serialized processor, it runs whatever the processor is
+   * through a serialize then unserialize path to get a processor as if
+   * it were being fetched from a file.
+   */
+  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
+    val p = pf.onPath("/")
+    if (p.isError) Left(p.getDiagnostics)
+    else {
+      val dp =
+        if (useSerializedProcessor) {
+          val os = new java.io.ByteArrayOutputStream()
+          val output = Channels.newChannel(os)
+          p.save(output)
+
+          val is = new java.io.ByteArrayInputStream(os.toByteArray)
+          val input = Channels.newChannel(is)
+          val compiler_ = Compiler()
+          compiler_.reload(input)
+        } else p
+      Right(dp)
     }
   }
 
-  final protected def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): DFDL.DataProcessor = {
-    val p = pf.onPath("/")
-    if (useSerializedProcessor) {
-      val os = new java.io.ByteArrayOutputStream()
-      val output = Channels.newChannel(os)
-      p.save(output)
-
-      val is = new java.io.ByteArrayInputStream(os.toByteArray)
-      val input = Channels.newChannel(is)
-      val compiler_ = Compiler()
-      compiler_.reload(input)
-    } else p
-  }
-
-  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean) = {
+  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
     val pf = compiler.compileSource(schemaSource)
     if (pf.isError) {
-      val diags = pf.getDiagnostics.map(_.getMessage).mkString("\n")
-      throw new TDMLException(diags)
+      val diags = pf.getDiagnostics
+      Left(diags) // throw new TDMLException(diags)
+    } else {
+      val processor = this.generateProcessor(pf, useSerializedProcessor)
+      processor
     }
-    val processor = this.generateProcessor(pf, useSerializedProcessor)
-    processor
   }
 
-  final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean) = {
+  final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
     val res = schemaSource match {
       case uss: URISchemaSource if parent.checkAllTopLevel == true => {
         // check if we've already got this compiled
         val cacheRes = DFDLTestSuite.compiledSchemaCache.get(uss)
         val dp = cacheRes match {
-          case Some(dp) => dp
+          case Some(dp) => Right(dp)
           case None => {
             // missed the cache. Let's compile it and put it in 
             val dp = compileProcessor(schemaSource, useSerializedProcessor)
-            DFDLTestSuite.compiledSchemaCache.put(uss, dp)
+            if (dp.isRight) DFDLTestSuite.compiledSchemaCache.put(uss, dp.right.get)
             dp
           }
         }
@@ -403,11 +432,11 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     res
   }
 
-  lazy val document = toOpt(testCaseXML \ "document").map { node => new Document(node, this) }
-  lazy val optExpectedOrInputInfoset = toOpt(testCaseXML \ "infoset").map { node => new Infoset(node, this) }
-  lazy val errors = toOpt(testCaseXML \ "errors").map { node => new ExpectedErrors(node, this) }
-  lazy val warnings = toOpt(testCaseXML \ "warnings").map { node => new ExpectedWarnings(node, this) }
-  lazy val validationErrors = toOpt(testCaseXML \ "validationErrors").map { node => new ExpectedValidationErrors(node, this) }
+  lazy val document = (testCaseXML \ "document").headOption.map { node => new Document(node, this) }
+  lazy val optExpectedOrInputInfoset = (testCaseXML \ "infoset").headOption.map { node => new Infoset(node, this) }
+  lazy val errors = (testCaseXML \ "errors").headOption.map { node => new ExpectedErrors(node, this) }
+  lazy val warnings = (testCaseXML \ "warnings").headOption.map { node => new ExpectedWarnings(node, this) }
+  lazy val validationErrors = (testCaseXML \ "validationErrors").headOption.map { node => new ExpectedValidationErrors(node, this) }
 
   val name = (testCaseXML \ "@name").text
   lazy val tcID = (testCaseXML \ "@ID").text
@@ -438,7 +467,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     warnings: Option[ExpectedWarnings],
     validationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean = false): Unit
+    roundTrip: Boolean,
+    tracer: Option[Debugger]): Unit
 
   private def retrieveBindings(cfg: DefinedConfig): Seq[Binding] = {
     val bindings: Seq[Binding] = cfg.externalVariableBindings match {
@@ -510,7 +540,8 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     val optInputOrExpectedData = document.map { _.data }
     val nBits = document.map { _.nBits }
 
-    runProcessor(suppliedSchema, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode, roundTrip)
+    runProcessor(suppliedSchema, optInputOrExpectedData, nBits, errors, warnings, validationErrors, validationMode,
+      roundTrip, parent.optDebugger)
 
     val bytesProcessed = IterableReadableByteChannel.getAndResetCalls
     val charsProcessed = DFDLCharCounter.getAndResetCount
@@ -520,6 +551,14 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     // if we get here, the test passed. If we don't get here then some exception was
     // thrown either during the run of the test or during the comparison.
     // log(LogLevel.Debug, "Test %s passed.", id))
+  }
+
+  def setupDebugOrTrace(processor: DFDL.DataProcessor) {
+    parent.optDebugger.foreach { d =>
+      val p = processor.asInstanceOf[DataProcessor]
+      p.setDebugger(d)
+      p.setDebugging(true)
+    }
   }
 }
 
@@ -535,25 +574,29 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean) = {
+    roundTrip: Boolean,
+    tracer: Option[Debugger]) = {
 
     val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
     val nBits = optLengthLimitInBits.get
     val dataToParse = optDataToParse.get
 
+    val processor = getProcessor(schemaSource, useSerializedProcessor)
+    processor.right.foreach { setupDebugOrTrace(_) }
+
     (optExpectedInfoset, optErrors) match {
       case (Some(infoset), None) => {
-
-        val processor = getProcessor(schemaSource, useSerializedProcessor)
-        runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode, roundTrip)
+        processor.left.foreach { diags => throw new TDMLException(diags) }
+        processor.right.foreach { processor =>
+          runParseExpectSuccess(processor, dataToParse, nBits, optWarnings, optValidationErrors, validationMode, roundTrip)
+        }
       }
 
       case (None, Some(errors)) => {
-        val pf = compiler.compileSource(schemaSource) // lazy because we may not need it.
-
-        if (pf.isError) VerifyTestCase.verifyAllDiagnosticsFound(pf.getDiagnostics, Some(errors))
-        else {
-          val processor = this.generateProcessor(pf, useSerializedProcessor)
+        processor.left.foreach { diags =>
+          VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors))
+        }
+        processor.right.foreach { processor =>
           runParseExpectErrors(processor, dataToParse, nBits, errors, optWarnings, optValidationErrors, validationMode)
         }
       }
@@ -708,26 +751,30 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     optWarnings: Option[ExpectedWarnings],
     optValidationErrors: Option[ExpectedValidationErrors],
     validationMode: ValidationMode.Type,
-    roundTrip: Boolean) = {
+    roundTrip: Boolean,
+    tracer: Option[Debugger]) = {
 
     val useSerializedProcessor = if (validationMode == ValidationMode.Full) false else true
-
-    val pf = compiler.compileSource(schemaSource)
+    val processor = getProcessor(schemaSource, useSerializedProcessor)
+    processor.right.foreach { setupDebugOrTrace(_) }
 
     (optExpectedData, optErrors) match {
       case (Some(expectedData), None) => {
-        val processor = getProcessor(schemaSource, useSerializedProcessor)
-        runUnparserExpectSuccess(processor, expectedData, optWarnings, roundTrip)
+        processor.left.foreach { diags => throw new TDMLException(diags) }
+        processor.right.foreach { processor =>
+          runUnparserExpectSuccess(processor, expectedData, optWarnings, roundTrip)
+        }
       }
+
       case (_, Some(errors)) => {
-        val pf = compiler.compileSource(schemaSource)
-        if (pf.isError) VerifyTestCase.verifyAllDiagnosticsFound(pf.getDiagnostics, Some(errors))
-        else {
-          val processor = this.generateProcessor(pf, useSerializedProcessor)
+        processor.left.foreach { diags =>
+          VerifyTestCase.verifyAllDiagnosticsFound(diags, Some(errors))
+        }
+        processor.right.foreach { processor =>
           runUnparserExpectErrors(processor, optExpectedData, errors, optWarnings)
         }
       }
-      case _ => Assert.invariantFailed("Should be Some None, or None Some only.")
+      case _ => Assert.impossibleCase()
     }
 
   }
@@ -1028,7 +1075,7 @@ case class DefinedSchema(xml: Node, parent: DFDLTestSuite) {
     val value = (xml \ "@elementFormDefault").text.toString
 
     if (value == "") DEFAULT_ELEMENT_FORM_DEFAULT_VALUE
-    else  value
+    else value
   }
 
   val defineFormats = (xml \ "defineFormat")

@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
+
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 class TestNillableDebug {

@@ -102,6 +102,10 @@ case class InStreamFixedWidthTextOnly(
   with Logging
   with WithParseErrorThrowing {
 
+  override def setDebugging(b: Boolean) {
+    // ok - we can ignore this. Other places will avoid debugging for these streams.
+  }
+
   override def assignFrom(other: InStream) {
     val oth = other.asInstanceOf[InStreamFixedWidthTextOnly]
     cPos0b = oth.cPos0b

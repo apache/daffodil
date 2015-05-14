@@ -61,11 +61,12 @@ trait Processor
   with Logging
   with Serializable {
   // things common to both unparser and parser go here. 
+  def context: RuntimeData
 }
 /**
  * Encapsulates lower-level parsing with a uniform interface
  */
-abstract class Parser(val context: RuntimeData)
+abstract class Parser(override val context: RuntimeData)
   extends Processor {
 
   import TypeConversions._
@@ -80,18 +81,9 @@ abstract class Parser(val context: RuntimeData)
   protected def parse(pstate: PState): Unit
 
   final def parse1(pstate: PState, context: RuntimeData): Unit = {
-    // 
-    // Since the pstate is being overwritten (in most case) now,
-    // we must explicitly make a copy so we can compute a delta
-    // after
-    //
-    val beforeState =
-      if (Debugger.getDebugging()) {
-        Debugger.before(pstate, this)
-        pstate.duplicate()
-      } else pstate
+    pstate.dataProc.before(pstate, this)
     parse(pstate)
-    if (Debugger.getDebugging()) Debugger.after(beforeState, pstate, this)
+    pstate.dataProc.after(pstate, this)
   }
 
   // TODO: other methods for things like asking for the ending position of something
@@ -162,7 +154,9 @@ class SeqCompParser(context: RuntimeData, val childParsers: Seq[Parser])
   def parse(pstate: PState): Unit = {
     childParsers.foreach { parser =>
       {
+        val handlers = pstate.dataProc.handlers
         parser.parse1(pstate, context)
+        Assert.invariant(pstate.dataProc.handlers == handlers)
         if (pstate.status != Success) {
           // failed in a sequence
           return

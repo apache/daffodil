@@ -56,6 +56,7 @@ import edu.illinois.ncsa.daffodil.processors.Infoset
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.processors.Failure
 
 abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, baseName: String)
   extends Parser(context) {
@@ -100,16 +101,9 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
 object Rep {
   def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): Unit = {
     while (pstate.mpstate.arrayPos <= intN) {
-      val beforeState =
-        if (Debugger.getDebugging) {
-          val before = pstate.duplicate()
-          Debugger.beforeRepetition(pstate, iParser)
-          before
-        } else pstate
+      pstate.dataProc.beforeRepetition(pstate, iParser)
       rParser.parse1(pstate, context)
-      if (Debugger.getDebugging) {
-        Debugger.afterRepetition(pstate, beforeState, iParser)
-      }
+      pstate.dataProc.afterRepetition(pstate, iParser)
       if (pstate.status != Success) return // fail if we don't get them all 
       pstate.mpstate.moveOverOneArrayIndexOnly
     }
@@ -123,19 +117,14 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
     var i = 0
     while (i < intN) {
       i += 1
-      val beforeState =
-        if (Debugger.getDebugging) {
-          val before = pstate.duplicate()
-          Debugger.beforeRepetition(pstate, rParser)
-          before
-        } else pstate
+      pstate.dataProc.beforeRepetition(pstate, rParser)
       rParser.parse1(pstate, context)
-      if (Debugger.getDebugging) {
-        Debugger.afterRepetition(pstate, beforeState, rParser)
-      }
+      pstate.dataProc.afterRepetition(pstate, rParser)
       if (pstate.status != Success) {
-        PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s).",
-          context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n) // they all must succeed, otherwise we fail here.
+        val cause = pstate.status.asInstanceOf[Failure].cause
+        PE(pstate, "Failed to populate %s:%s[%s].  Expected %s item(s). Cause: %s.",
+          context.thisElementsNamespacePrefix, context.name, pstate.mpstate.arrayPos, n,
+          cause) // they all must succeed, otherwise we fail here.
         return
       }
       pstate.mpstate.moveOverOneArrayIndexOnly
@@ -160,9 +149,9 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
       pstate.pushDiscriminator
 
-      if (Debugger.getDebugging()) Debugger.beforeRepetition(pstate, this)
+      pstate.dataProc.beforeRepetition(priorState, this)
       rParser.parse1(pstate, context)
-      if (Debugger.getDebugging()) Debugger.afterRepetition(pstate, priorState, this)
+      pstate.dataProc.afterRepetition(pstate, this)
 
       if (pstate.status != Success) {
         // 
@@ -233,9 +222,9 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       //
       // Every parse is a new point of uncertainty.
       pstate.pushDiscriminator
-      if (Debugger.getDebugging()) Debugger.beforeRepetition(pstate, this)
+      pstate.dataProc.beforeRepetition(priorState, this)
       rParser.parse1(pstate, erd)
-      if (Debugger.getDebugging()) Debugger.afterRepetition(pstate, priorState, this)
+      pstate.dataProc.afterRepetition(pstate, this)
       if (pstate.status != Success) {
         // 
         // Did not succeed

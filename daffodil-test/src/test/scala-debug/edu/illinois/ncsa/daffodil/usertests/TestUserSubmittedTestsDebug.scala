@@ -55,15 +55,14 @@ class TestUserSubmittedTestsDebug {
   @Test def test_dfdl_782() = {
     val tr = new CustomTraceRunner1
     val db = new InteractiveDebugger(tr, ExpressionCompiler)
-    Debugger.setDebugging(true)
-    Debugger.setDebugger(db)
+    runner.setDebugger(db)
+    runner.setDebugging(true)
 
     runner.runOneTest("test_DFDL_782")
 
-    // Comment out these two lines to see issue
+    // Comment out this line to see issue
     // documented in DFDL-790
-    Debugger.setDebugging(false)
-    Debugger.setDebugger(null)
+    runner.setDebugging(false)
   }
 
 }

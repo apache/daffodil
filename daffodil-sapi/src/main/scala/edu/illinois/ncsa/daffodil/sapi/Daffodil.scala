@@ -102,36 +102,6 @@ object Daffodil {
     SLoggingDefaults.setLoggingLevel(LoggingConversions.levelToScala(lvl))
   }
 
-  /**
-   * Enable/disable debugging.
-   *
-   * Before enabling, [[Daffodil$#setDebugger]] must be called with a non-null debugger.
-   *
-   * @param flag true to enable debugging, false to disabled
-   */
-  def setDebugging(flag: Boolean) {
-    SDebugger.setDebugging(flag)
-  }
-
-  /**
-   * Set the debugger runer
-   *
-   * @param dr debugger runner
-   */
-  def setDebugger(dr: DebuggerRunner) {
-    val runner = dr match {
-      case tdr: TraceDebuggerRunner => new STraceDebuggerRunner()
-      case dr: DebuggerRunner => new JavaInteractiveDebuggerRunner(dr)
-      case null => null
-    }
-
-    val debugger = if (runner != null) {
-      new SInteractiveDebugger(runner, ExpressionCompiler)
-    } else {
-      null
-    }
-    SDebugger.setDebugger(debugger)
-  }
 }
 
 /**
@@ -442,6 +412,35 @@ class LocationInSchemaFile private[sapi] (lsf: SLocationInSchemaFile) {
  */
 class DataProcessor private[sapi] (dp: SDataProcessor)
   extends WithDiagnostics(dp) {
+
+  /**
+   * Enable/disable debugging.
+   *
+   * Before enabling, [[Daffodil$#setDebugger]] must be called with a non-null debugger.
+   *
+   * @param flag true to enable debugging, false to disabled
+   */
+  def setDebugging(b: Boolean) = dp.setDebugging(b)
+
+  /**
+   * Set the debugger runer
+   *
+   * @param dr debugger runner
+   */
+  def setDebugger(dr: DebuggerRunner) {
+    val runner = dr match {
+      case tdr: TraceDebuggerRunner => new STraceDebuggerRunner()
+      case dr: DebuggerRunner => new JavaInteractiveDebuggerRunner(dr)
+      case null => null
+    }
+
+    val debugger = if (runner != null) {
+      new SInteractiveDebugger(runner, ExpressionCompiler)
+    } else {
+      null
+    }
+    dp.setDebugger(debugger)
+  }
 
   /**
    * Set validation mode

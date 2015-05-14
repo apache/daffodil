@@ -111,7 +111,7 @@ class TestCLIdebugger {
       shell.expect(contains("(debug)"))
 
       shell.sendLine("s")
-      shell.expect(contains("occursBounds: occurs bounds not set"))
+      shell.expect(contains("occursBounds: 1024"))
 
       shell.sendLine("complete")
       shell.sendLine("quit")
@@ -138,7 +138,7 @@ class TestCLIdebugger {
       shell.expect(contains("error: undefined info command: oc"))
 
       shell.sendLine("s")
-      shell.expect(contains("occursBounds: occurs bounds not set"))
+      shell.expect(contains("occursBounds: 1024"))
 
       shell.sendLine("complete")
       shell.sendLine("quit")
@@ -246,19 +246,19 @@ class TestCLIdebugger {
       shell.expect(contains("debug"))
 
       shell.sendLine("info data")
-      shell.expect(contains("0,1,2,3,4,5,6\n"))
+      shell.expect(contains("0,1,2,3,4,5,6"))
 
-      shell.sendLine("set dataLength 5")
-      shell.sendLine("info data")
-      shell.expect(contains("0,1,2\n"))
+      //      shell.sendLine("set dataLength 5")
+      //      shell.sendLine("info data")
+      //      shell.expect(contains("0,1,2"))
 
       shell.sendLine("set dataLength -938")
       shell.sendLine("info data")
-      shell.expect(contains("0,1,2,3,4,5,6\n"))
+      shell.expect(contains("0,1,2,3,4,5,6"))
 
-      shell.sendLine("set wrapLength 2")
-      shell.sendLine("info data")
-      shell.expect(contains("0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6\n"))
+      //      shell.sendLine("set wrapLength 2")
+      //      shell.sendLine("info data")
+      //      shell.expect(contains("0,\n    1,\n    2,\n    3,\n    4,\n    5,\n    6\n"))
 
       shell.sendLine("continue")
       shell.sendLine("quit")
@@ -297,17 +297,16 @@ class TestCLIdebugger {
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
 
-      shell.sendLine("display eval (.)")
-
+      shell.sendLine("display eval (..)")
       shell.sendLine("step")
       shell.expect(contains("matrix"))
 
       shell.sendLine("info displays")
-      shell.expect(contains("1: eval (.)"))
+      shell.expect(contains("1: eval (..)"))
 
       shell.sendLine("disable display 1")
       shell.sendLine("info displays")
-      shell.expect(contains("1*: eval (.)"))
+      shell.expect(contains("1*: eval (..)"))
       shell.sendLine("step")
       shell.sendLine("enable display 1")
 
@@ -683,7 +682,7 @@ class TestCLIdebugger {
       shell.expect(contains("1*: cell"))
 
       shell.sendLine("info data")
-      shell.expect(contains("(2 to 2)"))
+      // shell.expect(contains("(2 to 2)"))
       shell.expect(contains("0,1,2,3,4,5,6"))
 
       shell.sendLine("continue")
@@ -849,23 +848,23 @@ class TestCLIdebugger {
       shell.sendLine("info data")
       shell.expect(contains("0,1,2,3,4,5,6"))
 
-      shell.sendLine("set dataLength 2")
-      shell.sendLine("info data")
-      shell.expect(contains("0,"))
+      //      shell.sendLine("set dataLength 2")
+      //      shell.sendLine("info data")
+      //      shell.expect(contains("0,"))
 
       shell.sendLine("set dataLength -938")
       shell.sendLine("info data")
       shell.expect(contains("0,1,2,3,4,5,6"))
 
-      shell.sendLine("set wrapLength 2")
-      shell.sendLine("info data")
-      shell.expect(contains("    0,"))
-      shell.expect(contains("    1,"))
-      shell.expect(contains("    2,"))
-      shell.expect(contains("    3,"))
-      shell.expect(contains("    4,"))
-      shell.expect(contains("    5,"))
-      shell.expect(contains("    6"))
+      //      shell.sendLine("set wrapLength 2")
+      //      shell.sendLine("info data")
+      //      shell.expect(contains("    0,"))
+      //      shell.expect(contains("    1,"))
+      //      shell.expect(contains("    2,"))
+      //      shell.expect(contains("    3,"))
+      //      shell.expect(contains("    4,"))
+      //      shell.expect(contains("    5,"))
+      //      shell.expect(contains("    6"))
 
       shell.sendLine("disable breakpoint 1")
       shell.sendLine("continue")
@@ -946,15 +945,17 @@ class TestCLIdebugger {
 
       shell.sendLine("display info data")
       shell.sendLine("step")
-      shell.expect(contains("│ (0 to 0)"))
+      shell.expect(contains("│")) //  (0 to 0)
       shell.expect(contains("0,1,2,3,4,5,6"))
 
       shell.sendLine("break cell")
       shell.sendLine("condition 1 dfdl:occursIndex() eq 5")
       shell.sendLine("continue")
 
-      shell.expect(contains("│ (8 to 8)"))
-      shell.expect(contains("    4,5,6"))
+      // Gaak. Eclipse default font isn't monospaced. The visible space character is wider than a regular character!
+      shell.expect(contains("""#                                  │                            │
+                               #    87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0123456789abcdef
+                               #    00000000: 302c 312c 322c 332c 342c 352c 36         0,1,2,3,4,5,6   """.stripMargin('#')))
 
       shell.sendLine("continue")
       shell.sendLine("quit")
@@ -988,8 +989,6 @@ class TestCLIdebugger {
     }
   }
 
-/*
-  // See DFDL-1351
   @Test def test_3585_CLI_Debugger_simpleDebugger_unparse() {
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
     val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt"
@@ -1001,11 +1000,17 @@ class TestCLIdebugger {
       val cmd = String.format("%s -d unparse -s %s -r e1 %s", Util.binPath, testSchemaFile, testInputFile)
       shell.sendLine(cmd)
       shell.expect(contains("(debug)"))
-      shell.sendLine("continue")
+      shell.sendLine("break e1")
+      shell.expect(contains("1: e1"))
+      shell sendLine ("continue")
+      shell.expect(contains("Hello  breakpoint 1: e1"))
+      shell.sendLine("info data")
+      shell.expect(contains(
+        """4865 6c6c 6f                             Hello"""))
       shell.sendLine("quit")
     } finally {
       shell.close()
     }
   }
-*/
+
 }

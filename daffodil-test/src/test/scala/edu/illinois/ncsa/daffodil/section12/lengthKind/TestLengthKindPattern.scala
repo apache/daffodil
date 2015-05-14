@@ -42,20 +42,22 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TestLengthKindPattern {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
-  val aa = testDir + "PatternTests.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
-  val ai = testDir + "AI.tdml"
-  var runnerAI = new DFDLTestSuite(Misc.getRequiredResource(ai))
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+
+  val runner = Runner(testDir, "PatternTests.tdml")
+
+  val runnerAI = Runner(testDir, "AI.tdml")
 
   @AfterClass def shutDown {
-    runner = null
-    runnerAI = null
+    runner.reset
+    runnerAI.reset
   }
 }
+
 class TestLengthKindPattern {
 
   import TestLengthKindPattern._

@@ -85,7 +85,7 @@ class TestTDMLRunner2 {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   @Test def test_quote_test1() = {
-    Debugger.setDebugging(true)
+    runner.setDebugging(true)
     runner.runOneTest("quote_test1")
   }
 

@@ -63,11 +63,11 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends 
     val thing =
       if (stack.isEmpty) constructor
       else stack.pop()
-    optionalResetFunc(thing)
     val result =
       try {
         body(thing)
       } finally {
+        optionalResetFunc(thing) // reset before we stack it.
         stack.push(thing)
       }
     result

@@ -80,11 +80,6 @@ object TestArrayOptionalElem {
     rBackv
   }
 
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(false)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
 }
 
 class TestArrayOptionalElem {

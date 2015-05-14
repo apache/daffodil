@@ -67,6 +67,12 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
 
+  lazy val passeraLicense = Seq(licenses := Seq("BSD" -> url("https://github.com/nystrom/scala-unsigned/blob/master/BSD-LICENSE.txt")))
+
+  lazy val passeraUnsigned  = Project(id = "passera-unsigned", base = file("third-party-sourced/passera-unsigned"), settings = s ++ passeraLicense)
+                             .configs(DebugTest)
+                             .configs(NewTest)
+
   lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings ++ schemasgenSettings ++ managedgenSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
@@ -75,6 +81,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(lib)
+                             .dependsOn(passeraUnsigned)
 
   lazy val runtime1    = Project(id = "daffodil-runtime1", base = file("daffodil-runtime1"), settings = s)
                              .configs(DebugTest)
@@ -106,6 +113,7 @@ object DaffodilBuild extends Build {
                              .configs(DebugTest)
                              .configs(NewTest)
                              .dependsOn(core)
+                             .dependsOn(core % "test->test") // need TestUtils
 
   lazy val cli    = Project(id = "daffodil-cli", base = file("daffodil-cli"), settings = s ++ cliOnlySettings)
                              .configs(DebugTest)

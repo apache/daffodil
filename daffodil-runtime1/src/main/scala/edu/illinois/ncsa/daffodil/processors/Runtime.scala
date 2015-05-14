@@ -78,6 +78,7 @@ import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
+import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -102,16 +103,49 @@ class SerializableDataProcessor(val data: SchemaSetRuntimeData)
   }
 }
 
+trait HasSetDebugger {
+  def setDebugger(dbg: Debugger): Unit
+  def setDebugging(b: Boolean): Unit
+}
 /**
  * The very last aspects of compilation, and the start of the
  * back-end runtime.
  */
 class DataProcessor(val ssrd: SchemaSetRuntimeData)
-  extends DFDL.DataProcessor with Logging with Serializable {
+  extends DFDL.DataProcessor with Logging
+  with HasSetDebugger with Serializable
+  with MultipleEventHandler {
 
   def setValidationMode(mode: ValidationMode.Type): Unit = { ssrd.validationMode = mode }
   def getValidationMode() = ssrd.validationMode
   def getVariables = ssrd.variables
+
+  @transient private var areDebugging_ = false
+
+  def areDebugging = areDebugging_
+
+  @transient private var optDebugger_ : Option[Debugger] = None
+
+  private def optDebugger = {
+    if (optDebugger_ == null) {
+      // transient value restored as null
+      optDebugger_ = None
+    }
+    optDebugger_
+  }
+
+  def debugger = {
+    Assert.invariant(areDebugging)
+    optDebugger.get
+  }
+
+  def setDebugger(dbg: Debugger) {
+    optDebugger_ = Some(dbg)
+  }
+
+  def setDebugging(flag: Boolean) {
+    areDebugging_ = flag
+  }
 
   def setExternalVariables(extVars: Map[String, String]): Unit = {
     val bindings = ExternalVariablesLoader.getVariables(extVars)
@@ -145,7 +179,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val rootERD = ssrd.elementRuntimeData
 
     val initialState =
-      if (ssrd.encodingInfo.isScannable &&
+      if (!areDebugging && ssrd.encodingInfo.isScannable &&
         ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         ssrd.encodingInfo.knownEncodingIsFixedWidth &&
         ssrd.encodingInfo.knownEncodingAlignmentInBits == 8 // byte-aligned characters
@@ -165,19 +199,14 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
           bitOffset = 0,
           bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
       }
-    try {
-      Debugger.init(ssrd.parser)
-      parse(initialState)
-    } finally {
-      Debugger.fini(ssrd.parser)
-    }
+    parse(initialState)
   }
 
   def parse(file: File): DFDL.ParseResult = {
     Assert.usage(!this.isError)
 
     val initialState =
-      if (ssrd.encodingInfo.isScannable &&
+      if (!areDebugging && ssrd.encodingInfo.isScannable &&
         ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
         ssrd.encodingInfo.knownEncodingIsFixedWidth) {
         // use simpler I/O layer
@@ -194,20 +223,25 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
           bitOffset = 0,
           bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
       }
-    try {
-      Debugger.init(ssrd.parser)
-      parse(initialState)
-    } finally {
-      Debugger.fini(ssrd.parser)
-    }
+    parse(initialState)
   }
 
   def parse(state: PState): ParseResult = {
     ExecutionMode.usingRuntimeMode {
-      doParse(ssrd.parser, state)
-      val pr = new ParseResult(this, state)
-      pr.validateResult(state)
-      pr
+      try {
+        if (areDebugging) {
+          Assert.invariant(optDebugger.isDefined)
+          addEventHandler(debugger)
+          state.notifyDebugging(true)
+        }
+        state.dataProc.init(ssrd.parser)
+        doParse(ssrd.parser, state)
+        val pr = new ParseResult(this, state)
+        pr.validateResult(state)
+        return pr
+      } finally {
+        state.dataProc.fini(ssrd.parser)
+      }
     }
   }
 
@@ -271,7 +305,7 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         this,
         infosetSource) // TODO also want to pass here the externally set variables, other flags/settings.
     try {
-      // Debugger.init(ssrd.parser)
+      unparserState.dataProc.init(ssrd.unparser)
       unparse(unparserState)
       unparserState.unparseResult
     } catch {
@@ -280,11 +314,16 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         unparserState.unparseResult
       }
     } finally {
-      // Debugger.fini(ssrd.parser)
+      unparserState.dataProc.fini(ssrd.unparser)
     }
   }
 
   def unparse(state: UState): Unit = {
+    if (areDebugging) {
+      Assert.invariant(optDebugger.isDefined)
+      addEventHandler(debugger)
+      state.notifyDebugging(true)
+    }
     val rootUnparser = ssrd.unparser
     rootUnparser.unparse(state)
   }

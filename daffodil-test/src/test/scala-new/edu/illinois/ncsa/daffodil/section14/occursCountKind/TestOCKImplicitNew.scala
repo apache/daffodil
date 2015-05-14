@@ -37,7 +37,7 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.debugger.Debugger.withDebugger
+
 
 class TestOCKImplicitNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"

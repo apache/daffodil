@@ -57,12 +57,6 @@ class TestLengthKindDelimited {
 
   val runner_01 = Runner("/edu/illinois/ncsa/daffodil/ibm-tests/", "dpaext1.tdml")
 
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(true)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
-
   @Test def test_delimited_binary_int_seqSep() = { runner.runOneTest("delimited_binary_int_seqSep") }
 
   @Test def test_DoubleNewLineTerminator() = { runner.runOneTest("TestDoubleNewLineTerminator") }

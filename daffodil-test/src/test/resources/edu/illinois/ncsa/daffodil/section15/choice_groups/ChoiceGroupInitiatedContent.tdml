@@ -61,6 +61,26 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="e1r" dfdl:lengthKind="implicit"><!-- same but with minOccurs 2 on the array -->
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="s" dfdl:lengthKind="implicit"
+            minOccurs="2" maxOccurs="unbounded" dfdl:occursCountKind='implicit'>
+            <xs:complexType>
+              <xs:choice dfdl:ref="def">
+                <xs:element name="s1" dfdl:initiator="[s1:"
+                  type="xs:int" dfdl:terminator="]" dfdl:lengthKind="explicit"
+                  dfdl:length="{ 3 }" />
+                <xs:element name="s2" dfdl:initiator="[s2:"
+                  type="xs:string" dfdl:terminator="]" dfdl:lengthKind="explicit"
+                  dfdl:length="{ 3 }" />
+              </xs:choice>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
     <xs:element name="e2" dfdl:lengthKind="implicit">
       <xs:complexType>
@@ -254,10 +274,13 @@
 
   <tdml:parserTestCase name="initiatedContentChoice2"
     description="parsing error in branch - DFDL-15-003R" model="s1"
-    root="e1">
+    root="e1r">
     <tdml:document><![CDATA[[s2:abc][s1:noi]]]></tdml:document>
     <tdml:errors>
-      <tdml:error>[s1:noi]</tdml:error>
+      <tdml:error>noi</tdml:error>
+      <tdml:error>noi</tdml:error>
+      <tdml:error>convert</tdml:error>
+      <tdml:error>unable to parse</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

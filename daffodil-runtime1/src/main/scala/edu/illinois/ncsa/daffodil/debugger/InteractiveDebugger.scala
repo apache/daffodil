@@ -54,6 +54,9 @@ import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
 import edu.illinois.ncsa.daffodil.dsom.DiagnosticUtils
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -72,8 +75,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     case object Trace extends Type
   }
 
-  case class DebugException(str: String) extends java.lang.Exception {
-    override def toString = "error: " + str
+  case class DebugException(str: String, cause: Throwable) extends java.lang.Exception(str, cause) {
+    override def toString = "error: " + DiagnosticUtils.getSomeMessage(this).get
+    def this(str: String) = this(str, null)
   }
 
   trait Disablable {
@@ -139,16 +143,24 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     runner.init(this)
   }
 
+  override def init(unparser: Unparser) {
+    runner.init(this)
+  }
+
   override def fini(parser: Parser) {
     runner.fini
   }
 
-  def debugStep(before: PState, after: PState, parser: Parser, ignoreBreakpoints: Boolean) {
+  override def fini(unparser: Unparser) {
+    runner.fini
+  }
+
+  def debugStep(before: ParseOrUnparseState, after: ParseOrUnparseState, processor: Processor, ignoreBreakpoints: Boolean) {
     ExecutionMode.usingUnrestrictedMode {
       debugState = debugState match {
         case _ if (after.status != Success && DebuggerConfig.breakOnFailure) => DebugState.Pause
         case DebugState.Continue | DebugState.Trace if !ignoreBreakpoints => {
-          findBreakpoint(after, parser) match {
+          findBreakpoint(after, processor) match {
             case Some(bp) => {
               debugPrintln("breakpoint %s: %s   %s".format(bp.id, bp.breakpoint, bp.condition.getOrElse("")))
               DebugState.Pause
@@ -161,7 +173,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       }
 
       if (debugState == DebugState.Pause || debugState == DebugState.Trace) {
-        DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, parser) }
+        DebuggerConfig.displays.filter(_.enabled).foreach { d => runCommand(d.cmd, before, after, processor) }
 
         if (after.status != Success) {
           debugPrintln("failure:")
@@ -177,7 +189,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
       while (debugState == DebugState.Pause) {
         val args = readCmd
-        debugState = runCommand(args, before, after, parser)
+        debugState = runCommand(args, before, after, processor)
       }
     }
   }
@@ -200,9 +212,46 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     debugStep(state, state, parser, false)
   }
 
-  override def after(before: PState, after: PState, parser: Parser) {
+  override def endElement(state: UState, unparser: Unparser) {
+    debugStep(state, state, unparser, false)
+  }
+
+  private val parseStack = new scala.collection.mutable.Stack[(PState, Parser)]
+
+  override def before(before: PState, parser: Parser) {
     if (isInteresting(parser)) {
+      parseStack.push((before.duplicate(), parser))
+    }
+  }
+  override def after(after: PState, parser: Parser) {
+    if (isInteresting(parser)) {
+      val (before, beforeParser) = parseStack.pop
+      Assert.invariant(beforeParser eq parser)
       debugStep(before, after, parser, DebuggerConfig.breakOnlyOnCreation)
+    }
+  }
+
+  private def isInteresting(unparser: Unparser): Boolean = {
+    true
+  }
+
+  private val unparseStack = new scala.collection.mutable.Stack[(UState, Unparser)]
+
+  override def before(before: UState, unparser: Unparser) {
+    if (isInteresting(unparser)) {
+      unparseStack.push((before.copyUState(), unparser))
+    }
+    while (debugState == DebugState.Pause) {
+      val args = readCmd
+      debugState = runCommand(args, before, before, unparser)
+    }
+  }
+
+  override def after(after: UState, unparser: Unparser) {
+    if (isInteresting(unparser)) {
+      val (before, beforeUnparser) = unparseStack.pop
+      Assert.invariant(beforeUnparser eq unparser)
+      debugStep(before, after, unparser, false)
     }
   }
 
@@ -223,13 +272,13 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     cmd.split(" ").filter(_ != "")
   }
 
-  private def evaluateBooleanExpression(expression: String, state: PState, parser: Parser): Boolean = {
+  private def evaluateBooleanExpression(expression: String, state: ParseOrUnparseState, processor: Processor): Boolean = {
     val context = state.getContext()
     val namespaces = context.namespaces
     try {
       val compiledExpr = try {
         eCompiler.compile(
-          NodeInfo.Boolean, expression, parser.context.namespaces, context.dpathCompileInfo, false)
+          NodeInfo.Boolean, expression, processor.context.namespaces, context.dpathCompileInfo, false)
       } catch {
         case errs: ErrorsNotYetRecorded => {
           debugPrintln(errs)
@@ -246,27 +295,27 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     }
   }
 
-  private def findBreakpoint(state: PState, parser: Parser): Option[Breakpoint] = {
+  private def findBreakpoint(state: ParseOrUnparseState, processor: Processor): Option[Breakpoint] = {
     val foundBreakpoint =
       DebuggerConfig.breakpoints
         .filter(_.enabled)
         .filter { bp =>
-          bp.breakpoint == parser.context.prettyName ||
-            bp.breakpoint == parser.context.path ||
-            "element." + bp.breakpoint == parser.context.prettyName
+          bp.breakpoint == processor.context.prettyName ||
+            bp.breakpoint == processor.context.path ||
+            "element." + bp.breakpoint == processor.context.prettyName
         }
         .find { bp =>
           bp.condition match {
-            case Some(expression) => evaluateBooleanExpression(expression, state, parser)
+            case Some(expression) => evaluateBooleanExpression(expression, state, processor)
             case None => true
           }
         }
     foundBreakpoint
   }
 
-  private def runCommand(cmd: Seq[String], before: PState, after: PState, parser: Parser): DebugState.Type = {
+  private def runCommand(cmd: Seq[String], before: ParseOrUnparseState, after: ParseOrUnparseState, processor: Processor): DebugState.Type = {
     try {
-      DebugCommandBase(cmd, before, after, parser)
+      DebugCommandBase(cmd, before, after, processor)
     } catch {
       case e: DebugException => {
         debugPrintln(e)
@@ -312,14 +361,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     val subcommands: Seq[DebugCommand] = Seq()
     val hidden = false
 
-    def apply(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+    def apply(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
       validate(args)
-      act(args, prestate, state, parser)
+      act(args, prestate, state, processor)
     }
 
     def validate(args: Seq[String]): Unit
 
-    def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type
+    def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type
 
     override def equals(that: Any): Boolean = {
       that match {
@@ -520,10 +569,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     override lazy val short = ""
     override val subcommands = Seq(Break, Clear, Complete, Condition, Continue, Delete, Disable, Display, Enable, Eval, Help, History, Info, Quit, Set, Step, Trace)
 
-    def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+    def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
       val subcmd = args.head
       val subcmdArgs = args.tail
-      val newState = subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
+      val subcmdActor = subcommands.find(_ == subcmd).get
+      val newState = subcmdActor.act(subcmdArgs, prestate, state, processor)
       newState
     }
 
@@ -550,7 +600,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Example: break foo""".stripMargin
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val bp = new Breakpoint(DebuggerConfig.breakpointIndex, args.head)
         DebuggerConfig.breakpoints += bp
         debugPrintln("%s: %s".format(bp.id, bp.breakpoint))
@@ -567,7 +617,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Clear the screen.""".stripMargin
       override lazy val short = "cl"
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         print(27: Char)
         print('[')
         print("2J")
@@ -588,7 +638,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |breakpoints are ignored.""".stripMargin
       override lazy val short = "comp"
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebuggerConfig.breakpoints.foreach(_.disable)
         DebuggerConfig.displays.foreach(_.disable)
         DebugState.Continue
@@ -625,7 +675,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val id = args.head.toInt
         val expression = args.tail.mkString(" ")
         val b = DebuggerConfig.breakpoints.find(_.id == id).get
@@ -643,7 +693,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Continue parsing the input data until a breakpoint is encountered. At
                         |which point, pause parsing and display a debugger console to the user.""".stripMargin
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebugState.Continue
       }
     }
@@ -659,10 +709,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |         delete display 1""".stripMargin
       override val subcommands = Seq(DeleteBreakpoint, DeleteDisplay)
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, processor)
         DebugState.Pause
       }
 
@@ -675,7 +725,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: delete breakpoint 1""".stripMargin
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.breakpoints.find(_.id == id) match {
             case Some(b) => DebuggerConfig.breakpoints -= b
@@ -695,7 +745,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: delete display 1""".stripMargin
         override lazy val short = "di"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.displays.find(d => d.id == id) match {
             case Some(d) => DebuggerConfig.displays -= d
@@ -718,10 +768,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       override lazy val short = "dis"
       override val subcommands = Seq(DisableBreakpoint, DisableDisplay)
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, processor)
         DebugState.Pause
       }
 
@@ -735,7 +785,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: disable breakpoint 1""".stripMargin
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.breakpoints.find(_.id == id) match {
             case Some(b) => b.disable
@@ -756,7 +806,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: disable display 1""".stripMargin
         override lazy val short = "di"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.displays.find(_.id == id) match {
             case Some(d) => d.disable
@@ -779,7 +829,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       override lazy val short = "di"
       override val subcommands = Seq(Eval, Info)
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebuggerConfig.displays += new Display(DebuggerConfig.displayIndex, args)
         DebuggerConfig.displayIndex += 1
         DebugState.Pause
@@ -797,10 +847,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |         enable display 1""".stripMargin
       override val subcommands = Seq(EnableBreakpoint, EnableDisplay)
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, processor)
         DebugState.Pause
       }
 
@@ -814,7 +864,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: enable breakpoint 1""".stripMargin
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.breakpoints.find(_.id == id) match {
             case Some(b) => b.enable
@@ -834,7 +884,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |
                           |Example: enable display 1""".stripMargin
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val id = args.head.toInt
           DebuggerConfig.displays.find(_.id == id) match {
             case Some(d) => d.enable
@@ -861,10 +911,14 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val expressionList = args
         val expression = expressionList.mkString(" ")
 
+        if (!state.hasInfoset) {
+          debugPrintln("eval: There is no infoset currently.")
+          return DebugState.Pause
+        }
         val element = state.infoset match {
           case e: InfosetElement => e
           case d: InfosetDocument => d.getRootElement()
@@ -896,9 +950,22 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             case _ => debugPrintln(res)
           }
         } catch {
+          case e: ErrorsNotYetRecorded => {
+            val diags = e.diags
+            val newDiags = diags.flatMap { d =>
+              d match {
+                case rel: RelativePathPastRootError => Nil
+                case _ => List(d)
+              }
+            }
+            if (!newDiags.isEmpty) {
+              val ex = new ErrorsNotYetRecorded(newDiags)
+              throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
+            }
+          }
           case e: Throwable => {
-            val ex = DiagnosticUtils.getSomeMessage(e).get
-            throw new DebugException("expression evaluation failed: %s".format(ex))
+            val ex = e // just so we can see it in the debugger.
+            throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
           }
         }
         DebugState.Pause
@@ -920,7 +987,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         // no validation
       }
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebugCommandBase.help(args)
         DebugState.Pause
       }
@@ -939,7 +1006,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |Example: history
                         |         history out.txt""".stripMargin
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         args.size match {
           case 0 => {
             debugPrintln("%s:".format(name))
@@ -983,7 +1050,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |multiple times to display multiple pieces of information.
                         |
                         |Example: info data infoset""".stripMargin
-      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoPath)
+      override val subcommands = Seq(InfoArrayIndex, InfoBitLimit, InfoBitPosition, InfoBreakpoints, InfoChildIndex, InfoData, InfoDiff, InfoDiscriminator, InfoDisplays, InfoGroupIndex, InfoInfoset, InfoOccursBounds, InfoParser, InfoUnparser, InfoPath)
 
       override def validate(args: Seq[String]) {
         if (args.size == 0) {
@@ -997,9 +1064,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         })
       }
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         args.foreach(arg => {
-          subcommands.find(_ == arg).get.act(Seq(), prestate, state, parser)
+          subcommands.find(_ == arg).get.act(Seq(), prestate, state, processor)
         })
         DebugState.Pause
       }
@@ -1027,9 +1094,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "ai"
         val desc = "display the current array limit"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.mpstate.arrayPos != -1) {
-            debugPrintln("%s: %d".format(name, state.mpstate.arrayPos))
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          if (state.arrayPos != -1) {
+            debugPrintln("%s: %d".format(name, state.arrayPos))
           } else {
             debugPrintln("%s: not in an array".format(name))
           }
@@ -1042,7 +1109,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "bl"
         val desc = "display the current bit limit"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           if (state.bitLimit0b != -1) {
             debugPrintln("%s: %d".format(name, state.bitLimit0b))
           } else {
@@ -1057,7 +1124,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "bp"
         val desc = "display the current bit position"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           if (state.bitPos != -1) {
             debugPrintln("%s: %d".format(name, state.bitPos))
           } else {
@@ -1071,7 +1138,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         val name = "breakpoints"
         val desc = "display the current breakpoints"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           if (DebuggerConfig.breakpoints.size == 0) {
             debugPrintln("%s: no breakpoints set".format(name))
           } else {
@@ -1092,9 +1159,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "ci"
         val desc = "display the current child index"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.mpstate.childPos != -1) {
-            debugPrintln("%s: %d".format(name, state.mpstate.childPos))
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          if (state.childPos != -1) {
+            debugPrintln("%s: %d".format(name, state.childPos))
           } else {
             debugPrintln("%s: not a child element".format(name))
           }
@@ -1104,67 +1171,33 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
       object InfoData extends DebugCommand with DebugCommandValidateZeroArgs {
         val name = "data"
-        val desc = "display the input data"
+        val desc = "display the input/output data"
         val longDesc = desc
 
-        def printData(rep: Representation.Value, l: Int, prestate: PState, state: PState, parser: Parser) {
+        def printData(rep: Option[Representation], l: Int, prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
-
-          val infoset = state.infoset
-
-          rep match {
-            case Representation.Text => {
-              val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
-              val dumpLoc = ((prestate.bitPos >> 6) << 6) / 8;
-
-              val numPrespaces = (math.max(prestate.charPos, 0L) - dumpLoc).toInt
-              val numSpaces = (math.max(state.charPos, 0L) - dumpLoc).toInt
-
-              val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
-
-              val formatStr =
-                if (numPrespaces == numSpaces) {
-                  "│"
-                } else if (numPrespaces == numSpaces - 1) {
-                  "║"
-                } else {
-                  val parseLen = numSpaces - numPrespaces
-                  val lineLength = wrap.min(length)
-                  val barLen = parseLen.min(lineLength - numPrespaces)
-                  val dashLen = barLen - 2
-                  val base = "├" + ("─" * dashLen)
-                  if (numPrespaces + parseLen > lineLength) {
-                    base + "═"
-                  } else {
-                    base + "┤"
-                  }
-                }
-              val paddedFormatStr = "%s" + formatStr + " (%d to %d)".format(dumpLoc + numPrespaces, dumpLoc + numSpaces)
-
-              val rawUtf8 = dataLoc.utf8Dump(length)
-              val utf8 = Misc.remapControlsAndLineEndingsToVisibleGlyphs(rawUtf8)
-              val lines = utf8.grouped(wrap)
-
-              debugPrintln(paddedFormatStr.format(" " * numPrespaces), "  ")
-              lines.foreach(l => debugPrintln(l, "  "))
-            }
-
-            case Representation.Binary => {
-              debugPrintln(state.currentLocation.asInstanceOf[DataLoc].dump(length), "  ")
-            }
-          }
+          val dataLoc = state.currentLocation.asInstanceOf[DataLoc]
+          val lines = dataLoc.dump(rep, prestate, state)
+          debugPrintln(lines, "  ")
         }
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
           val rep = if (args.size > 0) {
             args(0).toLowerCase match {
-              case "t" => Representation.Text
-              case "b" => Representation.Binary
-              case _ => throw new DebugException("uknown representation: %s. Must be one of 't' for text or 'b' for binary".format(args(0)))
+              case "t" => Some(Representation.Text)
+              case "b" => Some(Representation.Binary)
+              case _ =>
+                throw new DebugException("uknown representation: %s. Must be one of 't' for text or 'b' for binary".format(args(0)))
             }
           } else {
-            DebuggerConfig.representation
+            if (state.hasInfoset) {
+              state.infoset match {
+                case e: DIElement => Some(e.runtimeData.impliedRepresentation)
+              }
+            } else {
+              None
+            }
           }
 
           val len = if (args.size > 1) {
@@ -1177,7 +1210,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             DebuggerConfig.dataLength
           }
 
-          printData(rep, len, prestate, state, parser)
+          printData(rep, len, prestate, state, processor)
           DebugState.Pause
         }
       }
@@ -1187,16 +1220,28 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "diff"
         val desc = "display the differences from the previous state"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           debugPrintln("%s:".format(name))
           var diff = false
-          if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
-          if (prestate.bitLimit0b != state.bitLimit0b) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit0b, state.bitLimit0b), "  "); diff = true }
-          if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
-          if (prestate.mpstate.arrayPos != state.mpstate.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.mpstate.arrayPos, state.mpstate.arrayPos), "  "); diff = true }
-          if (prestate.mpstate.groupPos != state.mpstate.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.mpstate.groupPos, state.mpstate.groupPos), "  "); diff = true }
-          if (prestate.mpstate.childPos != state.mpstate.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.mpstate.childPos, state.mpstate.childPos), "  "); diff = true }
-
+          (prestate, state) match {
+            case (prestate: ParseOrUnparseState, state: ParseOrUnparseState) => {
+              if (prestate.bytePos != state.bytePos) { debugPrintln("position (bytes): %d -> %d".format(prestate.bytePos, state.bytePos), "  "); diff = true }
+              if (prestate.bitLimit0b != state.bitLimit0b) { debugPrintln("bitLimit: %d -> %d".format(prestate.bitLimit0b, state.bitLimit0b), "  "); diff = true }
+              if (prestate.arrayPos != state.arrayPos) { debugPrintln("arrayIndex: %d -> %d".format(prestate.arrayPos, state.arrayPos), "  "); diff = true }
+              if (prestate.groupPos != state.groupPos) { debugPrintln("groupIndex: %d -> %d".format(prestate.groupPos, state.groupPos), "  "); diff = true }
+              if (prestate.childPos != state.childPos) { debugPrintln("childIndex: %d -> %d".format(prestate.childPos, state.childPos), "  "); diff = true }
+            }
+            case _ => // ok
+          }
+          (prestate, state) match {
+            case (prestate: PState, state: PState) => {
+              if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
+            }
+            case (prestate: UState, state: UState) => {
+              // nothing yet that is specific to Unparser
+            }
+            case _ => Assert.impossibleCase()
+          }
           if (diff == false) {
             debugPrintln("No differences", "  ")
           }
@@ -1210,8 +1255,11 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "dis"
         val desc = "display whether or not a discriminator is set"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          debugPrintln("%s: %b".format(name, state.discriminator))
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          state match {
+            case state: PState => debugPrintln("%s: %b".format(name, state.discriminator))
+            case _ => debugPrintln("%s: info only available for parse steps".format(name))
+          }
           DebugState.Pause
         }
       }
@@ -1221,7 +1269,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "di"
         val desc = "display the current 'display' expressions"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           if (DebuggerConfig.displays.size == 0) {
             debugPrintln("%s: no displays set".format(name))
           } else {
@@ -1242,9 +1290,9 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "gi"
         val desc = "display the current group index"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          if (state.mpstate.groupPos != -1) {
-            debugPrintln("%s: %d".format(name, state.mpstate.groupPos))
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          if (state.groupPos != -1) {
+            debugPrintln("%s: %d".format(name, state.groupPos))
           } else {
             debugPrintln("%s: not in a group".format(name))
           }
@@ -1277,7 +1325,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           xmlClean
         }
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val infoset = getInfoset(state.infoset)
           val wrap = if (DebuggerConfig.wrapLength <= 0) Int.MaxValue else DebuggerConfig.wrapLength
           val pp = new PrettyPrinter(wrap, 2)
@@ -1305,8 +1353,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "ob"
         val desc = "display the current occurs bounds"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          state.mpstate.occursBoundsStack.headOption match {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          state.occursBoundsStack.headOption match {
             case Some(ob) => debugPrintln("%s: %d".format(name, ob))
             case None => debugPrintln("%s: occurs bounds not set".format(name))
           }
@@ -1314,14 +1362,21 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         }
       }
 
-      object InfoParser extends DebugCommand with DebugCommandValidateZeroArgs {
-        val name = "parser"
-        val desc = "display the current Daffodil parser"
+      abstract class InfoProcessorBase extends DebugCommand with DebugCommandValidateZeroArgs {
+        val desc = "display the current Daffodil " + name
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          debugPrintln("%s: %s".format(name, parser.toBriefXML(2))) // only 2 levels of output, please!
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s: %s".format(name, processor.toBriefXML(2))) // only 2 levels of output, please!
           DebugState.Pause
         }
+      }
+
+      object InfoParser extends InfoProcessorBase {
+        override val name = "parser"
+      }
+
+      object InfoUnparser extends InfoProcessorBase {
+        override val name = "unparser"
       }
 
       object InfoPath extends DebugCommand with DebugCommandValidateZeroArgs {
@@ -1329,8 +1384,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         override lazy val short = "path"
         val desc = "display the current schema component designator/path"
         val longDesc = desc
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
-          debugPrintln("%s: %s".format(name, parser.context.path))
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
+          debugPrintln("%s: %s".format(name, processor.context.path))
           DebugState.Pause
         }
       }
@@ -1343,7 +1398,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Immediately abort all processing.""".stripMargin
       override lazy val short = "q"
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         sys.exit(1)
       }
     }
@@ -1360,10 +1415,10 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       override val subcommands = Seq(SetBreakOnFailure, SetBreakOnlyOnCreation, SetDataLength, SetInfosetLines, SetRemoveHidden, SetRepresentation, SetWrapLength)
       override lazy val short = "set"
 
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         val subcmd = args.head
         val subcmdArgs = args.tail
-        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, parser)
+        subcommands.find(_ == subcmd).get.act(subcmdArgs, prestate, state, processor)
         DebugState.Pause
       }
 
@@ -1380,7 +1435,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set breakOnlyOnCreation false""".stripMargin
         override lazy val short = "booc"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val state = args.head
           DebuggerConfig.breakOnlyOnCreation =
             if (state == "true" || state == "1") {
@@ -1405,7 +1460,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set breakOnFailure true""".stripMargin
         override lazy val short = "bof"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val state = args.head
           DebuggerConfig.breakOnFailure =
             if (state == "true" || state == "1") {
@@ -1430,7 +1485,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |         set dataLength -1""".stripMargin
         override lazy val short = "dl"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.dataLength = args.head.toInt
           DebugState.Pause
         }
@@ -1449,7 +1504,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set infosetLines 25""".stripMargin
         override lazy val short = "il"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.infosetLines = args.head.toInt
           DebugState.Pause
         }
@@ -1468,7 +1523,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |Example: set removeHidden true""".stripMargin
         override lazy val short = "rh"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           val state = args.head
           DebuggerConfig.removeHidden =
             if (state == "true" || state == "1") {
@@ -1504,7 +1559,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
           }
         }
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.representation = args.head.toLowerCase match {
             case "text" => Representation.Text
             case "binary" => Representation.Binary
@@ -1526,7 +1581,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                           |         set wrapLength -1""".stripMargin
         override lazy val short = "wl"
 
-        def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+        def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
           DebuggerConfig.wrapLength = args.head.toInt
           DebugState.Pause
         }
@@ -1540,7 +1595,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |
                         |Perform a single parse action, pause parsing, and display a debugger
                         |prompt.""".stripMargin
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebugState.Step
       }
     }
@@ -1554,7 +1609,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
                         |while running display commands after every parse step. When a
                         |breakpoint is encountered, pause parsing and display a debugger
                         |console to the user.""".stripMargin
-      def act(args: Seq[String], prestate: PState, state: PState, parser: Parser): DebugState.Type = {
+      def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
         DebugState.Trace
       }
     }

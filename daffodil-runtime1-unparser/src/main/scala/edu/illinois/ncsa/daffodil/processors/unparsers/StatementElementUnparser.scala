@@ -93,6 +93,7 @@ abstract class StatementElementUnparserBase(
 
   def unparse(state: UState): Unit = {
 
+    state.dataProc.startElement(state, this)
     unparseBegin(state)
     // Debugger.startElement(state, this)
     eUnparser.map { eUnparser =>
@@ -105,6 +106,8 @@ abstract class StatementElementUnparserBase(
       eAfterUnparser.unparse1(state, rd)
     }
     unparseEnd(state)
+    state.dataProc.endElement(state, this)
+
   }
 }
 

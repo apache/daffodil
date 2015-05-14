@@ -51,14 +51,8 @@ class TestJSON5Debug {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
   val aa = testDir + "json5.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(true)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
-  
+
   val bb = testDir + "testWSPStar.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
-  
 
 }

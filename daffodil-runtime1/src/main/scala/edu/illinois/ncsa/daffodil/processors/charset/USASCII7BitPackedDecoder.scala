@@ -83,7 +83,7 @@ trait NonByteSizeCharsetEncoderDecoder
     startBitOffsetHasBeenSet = true
   }
 
-  def getStartBitOffset() = {
+  final protected def getStartBitOffset() = {
     if (startBitOffsetHasBeenUsed) 0 // one time we return the value. After that 0 until a reset.
     else {
       startBitOffsetHasBeenUsed = true
@@ -91,7 +91,7 @@ trait NonByteSizeCharsetEncoderDecoder
     }
   }
 
-  def resetStartBit() {
+  final protected def resetStartBit() {
     startBitOffsetHasBeenUsed = false
     startBitOffset = 0
     startBitOffsetHasBeenSet = false
@@ -132,15 +132,10 @@ class USASCII7BitPackedDecoder
     // println("Reset")
     resetStartBit()
     buf = null
-    bitLimit = Long.MaxValue
-    bitPos = 0
     hasPriorByte = false
     priorByte = 0
     priorByteBitCount = 0
   }
-
-  var bitLimit: Long = Long.MaxValue
-  var bitPos = 0
 
   private var buf: ByteBuffer = _
 
@@ -169,10 +164,7 @@ class USASCII7BitPackedDecoder
       // println("charcode = %2x".format(charCode))
       val char = charCode.toChar
       out.put(char)
-      bitPos += widthOfACodeUnit
     }
-
-    Assert.invariant(bitPos <= bitLimit)
 
     //
     // Now we have to adjust for the starting bit offset
@@ -183,10 +175,6 @@ class USASCII7BitPackedDecoder
     }
 
     while (true) {
-      if (bitPos + widthOfACodeUnit > bitLimit) {
-        // not enough bits to create another character
-        return CoderResult.UNDERFLOW
-      }
 
       (hasPriorByte, priorByteBitCount, in.hasRemaining(), out.hasRemaining()) match {
         // 

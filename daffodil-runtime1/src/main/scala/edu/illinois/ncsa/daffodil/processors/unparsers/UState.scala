@@ -30,6 +30,8 @@ import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
+import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -40,6 +42,12 @@ class UState(
   dataProcArg: DataProcessor, var outStream: OutStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
   with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
+
+  def copyUState() = {
+    val res = new UState(infosetSource, variableMap, diagnostics, dataProc, outStream)
+    res.outStream = outStream.copyOutStream()
+    res
+  }
 
   def addUnparseError(ue: UnparseError) {
     diagnostics = ue :: diagnostics
@@ -76,7 +84,19 @@ class UState(
 
   var mode: UnparserMode = UnparseMode
 
-  def thisElement: InfosetElement = currentInfosetNode.get.asInstanceOf[InfosetElement]
+  override def hasInfoset = currentInfosetNode.isDefined
+
+  override def infoset = {
+    Assert.invariant(currentInfosetNode.isDefined)
+    currentInfosetNode.get match {
+      case a: DIArray => {
+        a.getOccurrence(arrayPos)
+      }
+      case e: DIElement => thisElement
+    }
+  }
+
+  override def thisElement: InfosetElement = currentInfosetNode.get.asInstanceOf[InfosetElement]
 
   private var status_ : ProcessorResult = Success
 
@@ -92,6 +112,16 @@ class UState(
     //expressions when we have the ENTIRE infoset.
   }
 
+  private def maybeCurrentInfosetElement: Maybe[DIElement] = {
+    if (!currentInfosetNode.isDefined) Nope
+    else {
+      currentInfosetNode.get match {
+        case e: DIElement => One(e)
+        case a: DIArray => Nope
+      }
+    }
+  }
+
   /**
    * flag indicates that the caller of the unparser does NOT care that the infoset
    * elements are retained; hence, the unparser is free to delete them, clobber
@@ -99,7 +129,10 @@ class UState(
    */
   var removeUnneededInfosetElements = false // set from API of top level Unparser call. 
 
-  def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, outStream)
+  def currentLocation: DataLocation = {
+    new DataLoc(bitPos1b, bitLimit1b, Left(outStream),
+      maybeCurrentInfosetElement.map { _.runtimeData })
+  }
 
   val currentInfosetNodeStack = Stack[Maybe[DINode]]()
 
@@ -134,11 +167,8 @@ class UState(
 
   def bitPos0b = outStream.bitPos0b
   def bitLimit0b = outStream.bitLimit0b
-  def bytePos0b = bitPos0b >> 3
-  def bytePos1b = (bitPos0b >> 3) + 1
-  def bitPos1b = bitPos0b + 1
-  def bitLimit1b = bitLimit0b + 1
-  def whichBit0b = bitPos0b % 8
+
+  def charPos = -1L
 
   def validationError(msg: String, args: Any*) {
     val ctxt = getContext()
@@ -146,10 +176,15 @@ class UState(
     status_ = new Failure(vde)
     diagnostics = vde :: diagnostics
   }
-  
+
   def setVariables(newVariableMap: VariableMap) = {
     this.variableMap = newVariableMap
   }
+
+  final def notifyDebugging(flag: Boolean) {
+    outStream.setDebugging(flag)
+  }
+
 }
 
 object UState {

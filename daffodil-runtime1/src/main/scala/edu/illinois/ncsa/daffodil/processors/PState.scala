@@ -65,6 +65,10 @@ import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import java.io.StringReader
+import org.apache.commons.io.input.ReaderInputStream
+import edu.illinois.ncsa.daffodil.events.EventHandler
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 case class MPState() {
 
@@ -128,18 +132,52 @@ abstract class ParseOrUnparseState(
   var diagnostics: List[Diagnostic],
   var dataProc: DataProcessor)
   extends DFDL.State with ThrowsSDE with SavesErrorsAndWarnings {
+
   override def schemaFileLocation = getContext().schemaFileLocation
 
-  def bitPos1b: Long
-  def bitLimit1b: Long
+  def bitPos0b: Long
+  def bitLimit0b: Long
+  final def bytePos0b = bitPos0b >> 3
+  final def bytePos1b = (bitPos0b >> 3) + 1
+  final def bitPos1b = bitPos0b + 1
+  final def bitLimit1b = bitLimit0b + 1
+  final def whichBit0b = bitPos0b % 8
+
+  // TODO: many off-by-one errors due to not keeping strong separation of 
+  // one-based and zero-based indexes.
+  // 
+  // We could separate these with the type system.
+  //
+  // So implement a OneBasedBitPos and ZeroBasedBitPos value class with
+  // operations that convert between them, allow adding & subtracting only
+  // in sensible ways, etc. 
+  final def bitPos = bitPos0b
+  final def bytePos = bytePos0b
+  def charPos: Long
+
+  def groupPos: Long
+  def arrayPos: Long
+  def childPos: Long
+  def occursBoundsStack: Stack[Long]
+
+  def hasInfoset: Boolean
+  def infoset: InfosetItem
 
   def thisElement: InfosetElement
 
   def getContext(): ElementRuntimeData = {
-    val currentElement = thisElement
+    val currentElement = infoset.asInstanceOf[InfosetElement]
     val res = currentElement.runtimeData
     res
   }
+
+  /**
+   * The User API sets the debugger and debug on/off flag on the DataProcessor object.
+   * When a PState or UState is created by the DataProcessor, the DataProcessor
+   * sets notifies the state object so that it can setup any debug-specific behaviors.
+   */
+  def notifyDebugging(flag: Boolean): Unit
+
   def SDE(str: String, args: Any*) = {
     ExecutionMode.requireRuntimeMode
     val ctxt = getContext()
@@ -173,10 +211,16 @@ final class PState private (
   dataProcArg: DataProcessor)
   extends ParseOrUnparseState(mpstate.dstate, vmap, diagnosticsArg, dataProcArg) {
 
+  override def hasInfoset = true
   def thisElement = infoset.asInstanceOf[InfosetElement]
 
+  override def groupPos = mpstate.groupPos
+  override def arrayPos = mpstate.arrayPos
+  override def childPos = mpstate.childPos
+  override def occursBoundsStack = mpstate.occursBoundsStack
+
   // No longer a case-class, so we need our own copy routine... since PStates get copied 
-  // a lot.
+  // for debugging, and for backtracking
   private def copy(inStream: InStream = inStream,
     infoset: InfosetItem = infoset, variableMap: VariableMap = variableMap, status: ProcessorResult = status,
     diagnostics: List[Diagnostic] = diagnostics,
@@ -185,16 +229,6 @@ final class PState private (
     dataProc: DataProcessor = dataProc) =
     new PState(infoset, inStream,
       variableMap, status, diagnostics, discriminatorStack, mpstate, dataProc)
-  // TODO: many off-by-one errors due to not keeping strong separation of 
-  // one-based and zero-based indexes.
-  // 
-  // We could separate these with the type system.
-  //
-  // So implement a OneBasedBitPos and ZeroBasedBitPos value class with
-  // operations that convert between them, allow adding & subtracting only
-  // in sensible ways, etc. 
-  def bitPos = bitPos0b
-  def bytePos = bytePos0b
 
   def duplicate() = {
     val res = copy()
@@ -212,17 +246,13 @@ final class PState private (
     dataProc = other.dataProc
   }
 
-  def bytePos0b = bitPos0b >> 3
-  def bytePos1b = (bitPos0b >> 3) + 1
-  def bitPos1b = bitPos0b + 1
-  def bitLimit1b = bitLimit0b + 1
-  def whichBit = bitPos0b % 8
-
   override def toString() = {
     "PState( bitPos=%s charPos=%s status=%s )".format(bitPos0b, charPos, status)
   }
 
-  def currentLocation: DataLocation = new DataLoc(bitPos1b, bitLimit1b, inStream)
+  def currentLocation: DataLocation =
+    new DataLoc(bitPos1b, bitLimit1b, Right(inStream),
+      Maybe(thisElement.runtimeData))
 
   def discriminator = discriminatorStack.head
   def bitPos0b = inStream.bitPos0b
@@ -340,6 +370,10 @@ final class PState private (
     schemaDefinitionUnless((bitPos1b % 8) == 1,
       "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position (1 based) mod 8 is %s.", bitPos1b)
     inStream = inStream.withBitOrder(bitOrder)
+  }
+
+  final def notifyDebugging(flag: Boolean) {
+    inStream.setDebugging(flag)
   }
 }
 

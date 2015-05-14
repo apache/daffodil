@@ -89,6 +89,9 @@ import scala.xml.pull.XMLEventReader
 import scala.io.Source
 import org.rogach.scallop.ArgType
 import org.rogach.scallop.ValueConverter
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.api.DFDL
+import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -222,16 +225,16 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     val eQN = QName.refQNameFromExtendedSyntax(s)
     eQN.get
   }
-  
+
   def singleArgConverter[A](conv: String => A)(implicit tt: TypeTag[A]) = new ValueConverter[A] {
-    def parse(s: List[(String, List[String])]) = { 
+    def parse(s: List[(String, List[String])]) = {
       s match {
         case (_, i :: Nil) :: Nil =>
           try { Right(Some(conv(i))) } catch { case e: Throwable => Left(e.getMessage()) }
         case Nil => Right(None)
         case _ => Left("you should provide exactly one argument for this option")
-      }   
-    }   
+      }
+    }
     val tag = tt
     val argType = ArgType.SINGLE
   }
@@ -323,8 +326,6 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (Some(None), Some("-")) | (Some(None), None) => Left("Input must not be stdin during interactive debugging")
       case _ => Right(Unit)
     }
-    
-    
 
     validateOpt(schema, parser, rootNS) {
       case (None, None, _) => Left("One of --schema or --parser must be defined")
@@ -332,8 +333,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case (None, Some(_), Some(_)) => Left("--root cannot be defined with --parser")
       case _ => Right(Unit)
     }
-    
-    validateOpt(parser, validate){
+
+    validateOpt(parser, validate) {
       case (Some(_), Some(v)) if v == ValidationMode.Full => Left("The validation mode must be 'limited' or 'off' when using a saved parser.")
       case _ => Right(Unit)
     }
@@ -602,6 +603,27 @@ object Main extends Logging {
     combined
   }
 
+  def setupDebugOrTrace(proc: HasSetDebugger, conf: CLIConf) = {
+    if (conf.trace() || conf.debug.isDefined) {
+      val runner =
+        if (conf.trace()) {
+          new TraceDebuggerRunner
+        } else {
+          if (System.console == null) {
+            log(LogLevel.Warning, "Using --debug on a non-interactive console may result in display issues")
+          }
+          conf.debug() match {
+            case Some(f) => new CLIDebuggerRunner(new File(f))
+            case None => new CLIDebuggerRunner()
+          }
+        }
+      val id = new InteractiveDebugger(runner, ExpressionCompiler)
+      runner.init(id)
+      proc.setDebugger(id)
+      proc.setDebugging(true)
+    }
+  }
+
   def createProcessorFromSchema(schema: URI, rootNS: Option[RefQName], path: Option[String],
     extVars: Seq[Binding],
     tunables: Map[String, String],
@@ -653,23 +675,6 @@ object Main extends Logging {
     }
     LoggingDefaults.setLoggingLevel(verboseLevel)
 
-    if (conf.trace() || conf.debug.isDefined) {
-      val runner =
-        if (conf.trace()) {
-          new TraceDebuggerRunner
-        } else {
-          if (System.console == null) {
-            log(LogLevel.Warning, "Using --debug on a non-interactive console may result in display issues")
-          }
-          conf.debug() match {
-            case Some(f) => new CLIDebuggerRunner(new File(f))
-            case None => new CLIDebuggerRunner()
-          }
-        }
-      Debugger.setDebugger(new InteractiveDebugger(runner, ExpressionCompiler))
-      Debugger.setDebugging(true)
-    }
-
     val ret = conf.subcommand match {
 
       case Some(conf.parse) => {
@@ -707,6 +712,7 @@ object Main extends Logging {
             val inChannel = java.nio.channels.Channels.newChannel(input);
 
             processor.setValidationMode(validate)
+            setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
 
             val parseResult = Timer.getResult("parsing",
               optDataSize match {
@@ -865,8 +871,8 @@ object Main extends Logging {
 
             val sec = totalTime / NSConvert
             val action = performanceOpts.unparse() match {
-                case true => "unparse"
-                case false => "parse"
+              case true => "unparse"
+              case false => "parse"
             }
             printf("total %s time (sec): %f\n", action, sec)
             printf("min rate (files/sec): %f\n", rates.min)
@@ -921,6 +927,7 @@ object Main extends Logging {
         val rc = processor match {
           case None => 1
           case Some(processor) => {
+            setupDebugOrTrace(processor.asInstanceOf[DataProcessor], conf)
             val unparseResult = Timer.getResult("unparsing", processor.unparse(outChannel, xmlReader))
             output.close()
             displayDiagnostics(unparseResult)
@@ -964,6 +971,7 @@ object Main extends Logging {
 
         val tdmlFile = testOpts.tdmlfile()
         val tdmlRunner = new DFDLTestSuite(new java.io.File(tdmlFile))
+        setupDebugOrTrace(tdmlRunner, conf)
 
         val tests = {
           if (testOpts.names.isDefined) {

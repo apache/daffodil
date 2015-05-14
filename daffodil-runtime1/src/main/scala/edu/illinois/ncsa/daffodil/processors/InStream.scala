@@ -53,6 +53,17 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.unparsers.OutStream
+import java.nio.charset.CharsetDecoder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
+import edu.illinois.ncsa.daffodil.io.Utils
+import edu.illinois.ncsa.daffodil.io.Dump
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
+import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import java.nio.channels.Channels
+import java.io.ByteArrayOutputStream
+import edu.illinois.ncsa.daffodil.processors.unparsers.GeneralOutStream
+import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 
 object InStream {
 
@@ -64,7 +75,13 @@ object InStream {
     numBitsLimit: Long, // a count, not a position
     bitOrder: BitOrder) = {
     val bitLimit0b = if (numBitsLimit == -1) -1 else bitStartPos0b + numBitsLimit
-    new InStreamFromByteChannel(context, in, bitStartPos0b, bitLimit0b, bitOrder)
+    val is = Channels.newInputStream(in)
+    val bos = new ByteArrayOutputStream()
+    IOUtils.copy(is, bos)
+    bos.close()
+    val ba = bos.toByteArray()
+    val bb = ByteBuffer.wrap(ba)
+    new InStreamFromByteBuffer(context, bb, bitStartPos0b, bitLimit0b, bitOrder)
   }
 
   /**
@@ -192,30 +209,40 @@ trait InStream {
     (str, nBits)
   }
 
+  def setDebugging(b: Boolean): Unit
 }
 
 /**
  * Don't use this class directly. Use the factory on InStream object to create.
  */
-case class InStreamFromByteChannel private (
+case class InStreamFromByteBuffer private (
   var context: RuntimeData,
   var byteReader: DFDLByteReader,
   var bitPos0b: Long,
   var bitLimit0b: Long, // the bit position position one past the last valid bit position.
   var charLimit0b: Long,
-  var reader: Maybe[DFDLCharReader])
+  var reader: Maybe[DFDLCharReader],
+  var dataInputStream: ByteBufferDataInputStream) /// HAAAAACK. Must go away "real soon now". Duplicates all data in a ByteBuffer.
   extends InStream
   with Logging
   with WithParseErrorThrowing {
 
+  override def setDebugging(b: Boolean) {
+    dataInputStream.setDebugging(b)
+  }
+
+  // just keep a private dataInputStream because it has the access to pastData and futureData
+  // that we want for making dumps.
+
   override def assignFrom(other: InStream) {
-    val oth = other.asInstanceOf[InStreamFromByteChannel]
+    val oth = other.asInstanceOf[InStreamFromByteBuffer]
     context = oth.context
     byteReader = oth.byteReader
     bitPos0b = oth.bitPos0b
     bitLimit0b = oth.bitLimit0b
     charLimit0b = oth.charLimit0b
     reader = oth.reader
+    dataInputStream = oth.dataInputStream
   }
 
   override def duplicate() = copy()
@@ -229,8 +256,12 @@ case class InStreamFromByteChannel private (
   // 
   // This guarantees then that nobody is doing I/O by going around the DFDLByteReader layer.
   //
-  def this(context: ElementRuntimeData, inArg: DFDL.Input, bitStartPos: Long, bitLimit: Long, bitOrder: BitOrder) =
-    this(context, new DFDLByteReader(inArg, bitOrder), bitStartPos, bitLimit, -1, Nope)
+  def this(context: ElementRuntimeData, bb: ByteBuffer, bitStartPos: Long, bitLimit: Long, bitOrder: BitOrder) =
+    this(context, new DFDLByteReader(Channels.newChannel(new ByteArrayInputStream(bb.array())), bitOrder), bitStartPos, bitLimit, -1, Nope, {
+      val dis = ByteBufferDataInputStream(bb)
+      val bbdis = dis.asInstanceOf[ByteBufferDataInputStream]
+      bbdis
+    })
 
   /**
    * withPos changes the bit position of the stream, and maintains the char reader
@@ -258,6 +289,7 @@ case class InStreamFromByteChannel private (
     //    }
     val res = this // .duplicate()
     res.bitPos0b = newBitPos0b
+    dataInputStream.notifyNewBitPos0b(newBitPos0b)
     res.reader = newReader.map { _.atCharPos(newCharPos0b.toInt) }
     res
   }
@@ -276,6 +308,7 @@ case class InStreamFromByteChannel private (
     }
     val res = this // .duplicate()
     res.bitPos0b = newBitPos0b
+    dataInputStream.notifyNewBitPos0b(newBitPos0b)
     res.reader = rdr
     res
   }
@@ -566,68 +599,121 @@ case class InStreamFromByteChannel private (
 
 }
 
-class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStreamOrOutStream: Any) extends DataLocation {
-  private val DEFAULT_DUMP_SIZE = 40
+class DataLoc(val bitPos1b: Long, bitLimit1b: Long, eitherStream: Either[OutStream, InStream],
+  val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
 
-  /**
-   * FIXME: This whole code path for creating dumps for debug purposes is a crock and
-   * needs to be redone.
-   */
-  def inStream: InStream = inStreamOrOutStream match {
-    case is: InStream => is
-    case os: OutStream => {
-      ???
-    }
-    case _ => Assert.usageError("Must be an InStream or an OutStream")
-  }
-
-  val bytePos1b = (bitPos1b >> 3) + 1
-
+  // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {
-    "byte " + bitPos1b / 8 + {
-      val s = inStreamOrOutStream match {
-        case os: OutStream => ""
-        case is: InStream => {
-          "\nUTF-8 text starting at byte " + aligned64BitsPos / 8 + " is: (" + utf8Dump() + ")" +
-            "\nData (hex) starting at byte " + aligned64BitsPos / 8 + " is: (" + dump() + ")"
-        }
-      }
-      s
+    "byte " + bitPos1b / 8 + " limit " + bitLimit1b / 8
+  }
+
+  lazy val optERD = maybeERD.toScalaOption
+
+  Assert.usage(bitLimit1b >= 0)
+  Assert.usage(bitPos1b >= 1)
+
+  lazy val bitPos0b = math.max(bitPos1b - 1, 0).toInt
+  lazy val bitLimit0b = math.max(bitLimit1b - 1, 0).toInt
+  lazy val lengthInBits = math.max(bitLimit0b - bitPos0b, 0)
+
+  // The dump region is the identified data for this data loc
+  lazy val regionStartBitPos0b = bitPos0b
+  lazy val regionLengthInBits = lengthInBits
+  lazy val regionEndPos0b = bitPos0b + lengthInBits
+
+  // The dump rounds down and up to boundaries of 16 bytes (128 bits)
+  lazy val dumpStartBitPos0b = (regionStartBitPos0b >> 7) << 7
+  lazy val dumpEndBitPos0b = (math.ceil(regionEndPos0b / 128.0) * 128).toInt
+  lazy val dumpLengthInBits = dumpEndBitPos0b - dumpStartBitPos0b
+
+  lazy val (bytePos0b, lengthInBytes, endBytePos0b) = Dump.convertBitsToBytesUnits(bitPos0b, lengthInBits)
+  lazy val bytePos1b = bytePos0b + 1
+  lazy val (dumpStartBytePos0b, dumpLengthInBytes, dumpEndBytePos0b) = Dump.convertBitsToBytesUnits(dumpStartBitPos0b, dumpLengthInBits)
+  lazy val (regionStartBytePos0b, regionLengthInBytes, regionEndBytePos0b) = Dump.convertBitsToBytesUnits(regionStartBitPos0b, regionLengthInBits)
+
+  def dump(rep: Option[Representation], prestate: ParseOrUnparseState, state: ParseOrUnparseState): String = {
+
+    val maybeEncodingName = optERD.flatMap { erd =>
+      if (erd.encodingInfo.isKnownEncoding) {
+        if (erd.encodingInfo.knownEncodingAlignmentInBits != 8) None // non byte aligned encoding
+        else Some(erd.encodingInfo.knownEncodingName) // byte-aligned encoding
+      } else None
     }
-  }
+    val optEncodingName = maybeEncodingName.toScalaOption
 
-  def aligned64BitsPos = (bitPos1b >> 6) << 6
-
-  def byteDump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
-    var bytes: List[Byte] = Nil
-    try {
-      for (i <- 0 until numBytes) {
-        bytes = inStream.getRawByte(aligned64BitsPos + (i * 8), java.nio.ByteOrder.BIG_ENDIAN,
-          BitOrder.MostSignificantBitFirst) +: bytes
+    def binary: Dump.Kind = optERD.map { erd =>
+      val bitOrder: BitOrder = erd.defaultBitOrder
+      bitOrder match {
+        case BitOrder.MostSignificantBitFirst => Dump.MixedHexLTR(optEncodingName)
+        case BitOrder.LeastSignificantBitFirst => Dump.MixedHexRTL(None)
       }
-    } catch {
-      case e: IndexOutOfBoundsException =>
+    }.getOrElse(Dump.MixedHexLTR(optEncodingName))
+
+    def text: Dump.Kind = optERD.map { erd =>
+      val rootERD = erd.parent
+      if (erd.rootERD.encodingInfo.isScannable) Dump.TextOnly(optEncodingName)
+      else binary
+    }.getOrElse(binary)
+
+    val dumpKind: Dump.Kind = (rep, optERD.toScalaOption) match {
+      case (None, None) => binary
+      case (Some(Representation.Binary), _) => binary
+      case (Some(Representation.Text), _) => text
+      case (None, Some(erd)) => erd.impliedRepresentation match {
+        case Representation.Text => text
+        case Representation.Binary => binary
+      }
     }
-    bytes.reverse.toArray
+    // dumpStream(dumpKind, prestate, state)
+    dumpStream(binary, prestate, state) // for now. Let's require the hex+text dumps always.
   }
 
-  //val cBuf = 
-  /**
-   * Assumes utf-8
-   */
-  def utf8Dump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
-    val cb = CharBuffer.allocate(128)
-    val is = new ByteArrayInputStream(byteDump(numBytes))
-    val ir = new InputStreamReader(is)
-    val count = ir.read(cb)
-    val arr = cb.array
-    val chars = for { i <- 0 to count - 1 } yield arr(i)
-    chars.mkString("")
+  private def dumpStream(dumpKind: Dump.Kind, prestate: ParseOrUnparseState, state: ParseOrUnparseState): String = {
+
+    val startOfInterestRegionBits0b = prestate.bitPos0b
+    val endOfInterestRegionBits0b = state.bitPos0b
+    val lengthOfInterestRegionInBits = endOfInterestRegionBits0b - startOfInterestRegionBits0b
+    val regionSpecifier = Some((startOfInterestRegionBits0b, lengthOfInterestRegionInBits.toInt))
+
+    val s = (eitherStream, prestate, state) match {
+      //
+      // Unparsing
+      //
+      case (Left(os: GeneralOutStream), prestate: UState, state: UState) => {
+        val howFarIntoPastData = 16 // bytePos0b - dumpStartBytePos0b
+        val pastBBuf = os.pastData(howFarIntoPastData.toInt)
+        val howMuchPast = pastBBuf.remaining()
+        if (pastBBuf.remaining == 0) return "No data yet"
+        val pastDump = Dump.dump(dumpKind,
+          dumpStartBitPos0b, howMuchPast.toInt * 8, pastBBuf,
+          includeHeadingLine = true,
+          indicatorInfo = regionSpecifier)
+        pastDump.mkString("\n")
+      }
+      //
+      // Parsing
+      //
+      case (Right(is: InStreamFromByteBuffer), prestate: PState, state: PState) => {
+        // Parser
+        val vis = is.dataInputStream
+        val howFarIntoPastData = bytePos0b - dumpStartBytePos0b
+        val pastBBuf = vis.pastData(howFarIntoPastData.toInt)
+        val howFarIntoFutureData = (dumpEndBytePos0b + 1) - bytePos0b
+        Assert.invariant(howFarIntoFutureData >= 0)
+        val futureBBuf = vis.futureData(howFarIntoFutureData.toInt)
+        val allDataBBuf = Utils.concatByteBuffers(pastBBuf, futureBBuf)
+        val dataLength = allDataBBuf.remaining
+        val dump = Dump.dump(dumpKind, dumpStartBitPos0b, dataLength * 8, allDataBBuf,
+          includeHeadingLine = true,
+          indicatorInfo = regionSpecifier).mkString("\n")
+        dump
+      }
+      case _ => "No data dump available from Text-only input stream" // ??? // debug dumps for optimized InStreams (text only)
+    }
+    s
   }
 
-  def dump(numBytes: Int = DEFAULT_DUMP_SIZE) = {
-    "0x" + bytes2Hex(byteDump(numBytes))
-  }
+  def aligned128BitsPos = (bitPos1b >> 7) << 7
 
   /*
    * We're at the end if the position is at the limit. 
@@ -635,5 +721,5 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Long, inStreamOrOutStream: Any) ex
   def isAtEnd: Boolean = {
     bitPos1b >= bitLimit1b
   }
-
 }
+

@@ -51,12 +51,6 @@ class TestJSON5 {
   val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
   val aa = testDir + "json5.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), compileAllTopLevel = true)
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(true)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-
-  }
 
   @Test def test_json5_1() { runner.runOneTest("json5_1") }
   @Test def test_json5_2() { runner.runOneTest("json5_2") }

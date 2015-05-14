@@ -40,28 +40,27 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 /**
  * Vast majority of unparsers (all?) are actually Term unparsers.
  */
 abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends Unparser(termRuntimeData)
 
-abstract class Unparser(val context: RuntimeData)
+abstract class Unparser(override val context: RuntimeData)
   extends Processor {
 
   def unparse(ustate: UState): Unit
 
   final def unparse1(ustate: UState, context: RuntimeData): Unit = {
-    // TODO: Debugger hooks
-    // Debugger.before(ustate, this)
+    ustate.dataProc.before(ustate, this)
     // 
     // Since the state is being overwritten (in most case) now,
     // we must explicitly make a copy so we can compute a delta
     // after
     //
-    // val beforeState = if (Debugger.getDebugging()) ustate.duplicate() else ustate
     unparse(ustate)
-    // Debugger.after(beforeState, ustate, this)
+    ustate.dataProc.after(ustate, this)
   }
 
   def UE(ustate: UState, s: String, args: Any*) = {
@@ -122,19 +121,6 @@ case class DummyUnparser(primitiveName: String) extends Unparser(null) {
   override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
-//
-//  /**
-//   * Construct our OutStream object and initialize the state block.
-//   */
-//  def createInitialState(rootElemDecl: GlobalElementDecl, output: DFDL.Output, document: org.jdom2.Document, sizeHint: Long = -1): UState = {
-//    ???
-//    /*
-//    val outStream =
-//      if (sizeHint != -1) new OutStreamFromByteChannel(rootElemDecl, output, sizeHint)
-//      else new OutStreamFromByteChannel(rootElemDecl, output)
-//    createInitialState(rootElemDecl, outStream, document)
-//*/
-//  }
 //}
 //
 ///**

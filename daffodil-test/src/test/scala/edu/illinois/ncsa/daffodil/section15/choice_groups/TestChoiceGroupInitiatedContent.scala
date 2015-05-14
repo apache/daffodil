@@ -42,12 +42,12 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestChoiceGroupInitiatedContent {
 
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  val tdml_01 = testDir_01 + "ChoiceGroupInitiatedContent.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
 
   @Test def test_initiatedContentChoice1() { runner_01.runOneTest("initiatedContentChoice1") }
   @Test def test_initiatedContentChoice2() { runner_01.runOneTest("initiatedContentChoice2") }

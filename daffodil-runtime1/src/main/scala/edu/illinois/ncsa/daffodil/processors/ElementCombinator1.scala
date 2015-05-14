@@ -129,7 +129,7 @@ abstract class StatementElementParserBase(
 
       // We just successfully created the element in the infoset. Notify the
       // debugger of this so it can do things like check for break points
-      if (Debugger.getDebugging()) Debugger.startElement(pstate, this)
+      pstate.dataProc.startElement(pstate, this)
 
       eParser.foreach { eParser =>
         eParser.parse1(pstate, rd)
@@ -184,6 +184,7 @@ abstract class StatementElementParserBase(
       if (pstate.status != Success) return
     } finally {
       parseEnd(pstate)
+      pstate.dataProc.endElement(pstate, this)
     }
   }
 }

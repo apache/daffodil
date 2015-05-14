@@ -46,14 +46,15 @@ class TestTDMLUnparseCases {
                     </ts:testSuite>
     lazy val ts = new DFDLTestSuite(testSuite)
     val tc: UnparserTestCase = ts.unparserTestCases.find { utc => utc.name == "test1" }.get
-    println(tc)
+    // println(tc)
     val doc = tc.document
     val is = tc.inputInfoset
-    println(is)
+    // println(is)
     val bar = is.dfdlInfoset.rawContents
     val scala.xml.Elem(pre, label, _, _, child) = bar
     assertEquals("ex", pre)
     assertEquals("bar", label)
+    // ts.trace
     ts.runOneTest("test1")
   }
 

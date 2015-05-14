@@ -45,17 +45,22 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestLengthKindPatternDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+
+  lazy val runner = Runner(testDir, "PatternTests.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+}
 
 class TestLengthKindPatternDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
-  val aa = testDir + "PatternTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(false)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
+  import TestLengthKindPatternDebug._
 
   // DFDL-935 dfdl:encodingErrorPolicy='error'
-  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { dbg; runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
+  @Test def test_LengthPatternIllegalBits_02_EncodingErrorPolicy_Error() { runner.runOneTest("LengthPatternIllegalBits_02_EncodingErrorPolicy_Error") }
 }

@@ -398,12 +398,6 @@ class TestDFDLParser {
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
 
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(false)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
-
   @Test def testParseOccursCountKindOfParsedDelimitedBySeparator() {
     val sch = SchemaUtils.dfdlTestSchema(
       <dfdl:format ref="tns:daffodilTest1"/>,

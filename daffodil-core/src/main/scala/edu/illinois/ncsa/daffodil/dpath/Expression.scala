@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import scala.util.{ Success, Failure }
+import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 
 /**
  * Root class of the type hierarchy for the AST nodes used when we
@@ -764,6 +765,10 @@ case class RelativePathExpression(steps1: List[StepExpression], isEvaluatedAbove
 sealed abstract class StepExpression(val step: String, val pred: Option[PredicateExpression])
   extends Expression {
 
+  def relPathErr() = {
+    val err = new RelativePathPastRootError("Relative path .. past root element.")
+    toss(err)
+  }
   requiredEvaluations(priorStep)
   requiredEvaluations(compileInfo)
   requiredEvaluations(stepElement)
@@ -882,7 +887,7 @@ case class Self(predArg: Option[PredicateExpression]) extends StepExpression(nul
     priorStep.map { _.stepElement }.getOrElse {
       //  no prior step, so we're the first step 
       this.compileInfo.elementCompileInfo.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
     }
 }
@@ -904,7 +909,7 @@ case class Self2(s: String, predArg: Option[PredicateExpression])
     val ci = priorStep.map { _.stepElement }.getOrElse {
       //  no prior step, so we're the first step 
       this.compileInfo.elementCompileInfo.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
     }
     if (!ci.namedQName.matches(stepQName))
@@ -932,7 +937,7 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
       }
       val e2 = e1.enclosingElementCompileInfo
       val e3 = e2.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       e3
     } else {
@@ -940,11 +945,11 @@ case class Up(predArg: Option[PredicateExpression]) extends StepExpression(null,
       val ps = priorStep
       val ps2 = ps.map { _.stepElement }
       val ps3 = ps2.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       val ps4 = ps3.enclosingElementCompileInfo
       val ps5 = ps4.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       ps5
     }
@@ -976,7 +981,7 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
       }
       val e2 = e1.enclosingElementCompileInfo
       val e3 = e2.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       e3
     } else {
@@ -984,11 +989,11 @@ case class Up2(s: String, predArg: Option[PredicateExpression])
       val ps = priorStep
       val ps2 = ps.map { _.stepElement }
       val ps3 = ps2.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       val ps4 = ps3.enclosingElementCompileInfo
       val ps5 = ps4.getOrElse {
-        SDE("Relative path .. past root element.")
+        relPathErr()
       }
       ps5
     }

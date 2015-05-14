@@ -49,11 +49,6 @@ object TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
   val tdml1 = "Aligned_Data.tdml"
   lazy val runner1 = Runner(testDir_01, tdml1) // new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
-  def dbg = {
-    Debugger.setDebugger(new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler))
-    Debugger.withTracing(false)
-    // LoggingDefaults.setLoggingLevel(LogLevel.Debug)
-  }
 }
 
 class TestAlignedData {
