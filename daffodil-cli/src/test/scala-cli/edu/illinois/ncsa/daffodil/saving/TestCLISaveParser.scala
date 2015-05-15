@@ -387,4 +387,48 @@ class TestCLISaveParser {
     shell.expect(eof())
     shell.close()
   }*/
+
+/* // See DFDL-1342
+  @Test def test_3572_CLI_Saving_SaveParser_unparse() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/output/output1.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+    val shell = Util.start("")
+
+    try {
+      String.format("%s save-parser -s %s -r matrix %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+
+      var cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("0,1,2"))
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+*/
+
+  @Test def test_3573_CLI_Saving_SaveParser_unparse2() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.start("")
+
+    try {
+      String.format("%s save-parser -s %s -r e1 %s", Util.binPath, testSchemaFile, savedParserFile.getName()) !
+
+      var cmd = String.format("%s unparse --parser %s %s", Util.binPath, savedParserFile.getName(), testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Hello"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
 }
