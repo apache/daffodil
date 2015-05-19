@@ -35,10 +35,12 @@ package edu.illinois.ncsa.daffodil
 import java.io.FileOutputStream
 import java.io.BufferedWriter
 import java.io.OutputStreamWriter
+import java.io.OutputStream
 import java.io.FileInputStream
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
+import java.nio.channels.ReadableByteChannel
 import java.net.URI
 import scala.xml.SAXParseException
 import org.rogach.scallop
@@ -85,6 +87,14 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.xml.UnspecifiedNamespace
 import scala.xml.pull.XMLEventReader
 import scala.io.Source
+
+class NullOutputStream extends OutputStream {
+  override def close() {}
+  override def flush() {}
+  override def write(b: Array[Byte]) {}
+  override def write(b: Array[Byte], off: Int, len: Int) {}
+  override def write(b: Int) {}
+}
 
 class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with Logging {
 
@@ -316,21 +326,24 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
   val performance = new scallop.Subcommand("performance") {
     banner("""|Usage: daffodil performance (-s <schema> [-r [{namespace}]<root>] [-p <path>] |
               |                       -P <parser>)
+              |                      [--unparse]
               |                      [--validate [mode]]
-              |                      [-N <number to parse> -t <threadcount>]
+              |                      [-N <number of files to process>]
+              |                      [-t <threadcount>]
               |                      [-D[{namespace}]<variable>=<value>...]
               |                      [-c <file>] <infile>
               |
-              |Run a performance test, using either a DFDL schema or a saved parser
+              |Run a performance test (parse or unparse), using either a DFDL schema or a saved parser
               |
               |Performance Options:""".stripMargin)
 
     descr("run performance test")
     helpWidth(76)
 
+    val unparse = opt[Boolean](default = Some(false), descr = "perform unparse instead of parse for performance.")
     val schema = opt[URI]("schema", argName = "file", descr = "the annotated DFDL schema to use to create the parser.")
     val rootNS = opt[RefQName]("root", argName = "node", descr = "the root element of the XML file to use.  An optional namespace may be provided. This needs to be one of the top-level elements of the DFDL schema defined with --schema. Requires --schema. If not supplied uses the first element of the schema")
-    val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "The total number of files to parse.")
+    val number = opt[Int](short = 'N', argName = "number", default = Some(1), descr = "The total number of files to process.")
     val threads = opt[Int](short = 't', argName = "threads", default = Some(1), descr = "The number of threads to use.")
     val path = opt[String](argName = "path", descr = "path to the node to create parser.")
     val parser = opt[File](short = 'P', argName = "file", descr = "use a previously saved parser.")
@@ -338,10 +351,10 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
       case None => ValidationMode.Full
       case Some(mode) => mode
     })
-    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when parsing. An optional namespace may be provided.")
-    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when parsing.")
+    val vars = props[String]('D', keyName = "variable", valueName = "value", descr = "variables to be used when processing. An optional namespace may be provided.")
+    val tunables = props[String]('T', keyName = "tunable", valueName = "value", descr = "daffodil tunable to be used when processing.")
     val config = opt[String](short = 'c', argName = "file", descr = "path to file containing configuration items.")
-    val infile = trailArg[String](required = true, descr = "input file or directory containing files to parse.")
+    val infile = trailArg[String](required = true, descr = "input file or directory containing files to process.")
 
     validateOpt(schema, parser, rootNS) {
       case (None, None, _) => Left("One of --schema or --parser must be defined")
@@ -769,15 +782,25 @@ object Main extends Logging {
               (filePath, fileContent, dataSize * 8)
             }
 
-            val channels = (0 until performanceOpts.number()).map { n =>
+            val inputs = (0 until performanceOpts.number()).map { n =>
               val index = n % dataSeq.length
               val (path, data, dataLen) = dataSeq(index)
               val newArr: Array[Byte] = data.clone()
-              val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
-              val inChannel = java.nio.channels.Channels.newChannel(bais);
-              (path, inChannel, dataLen)
+              val inData = performanceOpts.unparse() match {
+                case true => {
+                  val input = Source.fromBytes(data)
+                  val xmlEventReader = new XMLEventReader(input)
+                  Left(xmlEventReader)
+                }
+                case false => {
+                  val bais: ByteArrayInputStream = new ByteArrayInputStream(newArr)
+                  val channel = java.nio.channels.Channels.newChannel(bais);
+                  Right(channel)
+                }
+              }
+              (path, inData, dataLen)
             }
-            val channelsWithIndex = channels.zipWithIndex
+            val inputsWithIndex = inputs.zipWithIndex
 
             processor.setValidationMode(validate)
 
@@ -791,14 +814,22 @@ object Main extends Logging {
               def reportFailure(t: Throwable) {}
             }
 
+            val nullChannelForUnparse = java.nio.channels.Channels.newChannel(new NullOutputStream)
+            //the following line allows output verification
+            //val nullChannelForUnparse = java.nio.channels.Channels.newChannel(System.out)
+
             val NSConvert = 1000000000.0
             val (totalTime, results) = Timer.getTimeResult({
-              val tasks = channelsWithIndex.map {
+              val tasks = inputsWithIndex.map {
                 case (c, n) =>
                   val task: Future[(Int, Long, Boolean)] = Future {
-                    val (path, channel, len) = c
-                    val (time, parseResult) = Timer.getTimeResult({ processor.parse(channel, len) })
-                    (n, time, parseResult.isError)
+                    val (path, inData, len) = c
+                    val (time, result) = inData match {
+                      case Left(xmlData) => Timer.getTimeResult({ processor.unparse(nullChannelForUnparse, xmlData) })
+                      case Right(channel) => Timer.getTimeResult({ processor.parse(channel, len) })
+                    }
+
+                    (n, time, result.isError)
                   }
                   task
               }
@@ -819,7 +850,11 @@ object Main extends Logging {
             }
 
             val sec = totalTime / NSConvert
-            printf("total parse time (sec): %f\n", sec)
+            val action = performanceOpts.unparse() match {
+                case true => "unparse"
+                case false => "parse"
+            }
+            printf("total %s time (sec): %f\n", action, sec)
             printf("min rate (files/sec): %f\n", rates.min)
             printf("max rate (files/sec): %f\n", rates.max)
             printf("avg rate (files/sec): %f\n", (performanceOpts.number() / sec))
