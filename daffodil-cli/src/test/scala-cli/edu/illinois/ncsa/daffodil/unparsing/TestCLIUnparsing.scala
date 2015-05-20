@@ -153,6 +153,31 @@ class TestCLIunparsing {
   }
 
 /*
+  // See DFDL-1350
+  @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4() {
+
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      val input = """'<tns:file xmlns:tns="http://www.example.org/example1/"><tns:header><tns:title>1</tns:title><tns:title>2</tns:title><tns:title>3</tns:title></tns:header><tns:record><tns:item>4</tns:item><tns:item>5</tns:item><tns:item>6</tns:item></tns:record></tns:file>'"""
+      var cmd = String.format("echo %s | %s unparse -s %s --root file", input, Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("1,2,3"))
+      shell.expect(contains("4,5,6"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+*/
+
+/*
   // See DFDL-1347
   @Test def test_3574_CLI_Unparsing_SimpleUnparse_extVars() {
 
