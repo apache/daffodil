@@ -22,6 +22,7 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockUnparserHelper
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
+import edu.illinois.ncsa.daffodil.equality._
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
@@ -76,8 +77,9 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
             if (scheme.isInstanceOf[EscapeSchemeCharUnparserHelper]) {
               val theScheme = scheme.asInstanceOf[EscapeSchemeCharUnparserHelper]
               val thingsToEscape = inscopeDelimiters ++ scheme.lookingFor
+              val hasEscCharAsDelimiter = inscopeDelimiters.exists(d => d.lookingFor.length == 1 && d.lookingFor(0) =:= theScheme.ec.get)
 
-              textUnparser.escapeCharacter(rdr, fieldDFA, thingsToEscape, theScheme.ec.get, theScheme.eec, state)
+              textUnparser.escapeCharacter(rdr, fieldDFA, thingsToEscape, hasEscCharAsDelimiter, theScheme.ec.get, theScheme.eec, state)
             } else {
               val theScheme = scheme.asInstanceOf[EscapeSchemeBlockUnparserHelper]
 

@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data
@@ -175,6 +176,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
   def escapeCharacter(input: DFDLCharReader,
     field: DFAField,
     delims: Seq[DFADelimiter],
+    hasEscCharAsDelimiter: Boolean,
     escapeChar: Char,
     escapeEscapeChar: Maybe[Char], state: UState): (String, Boolean) = {
     Assert.invariant(delims != null)
@@ -232,8 +234,9 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           })
           if (!successes.isEmpty) {
             val (matchedDelim, matchedReg) = longestMatch(successes).get
-            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) == escapeChar) {
-              if (escapeEscapeChar.isDefined)
+            if (matchedDelim.lookingFor.length() == 1 && matchedDelim.lookingFor(0) =:= escapeChar) {
+              if (hasEscCharAsDelimiter) { fieldReg.appendToField(escapeChar) }
+              else if (escapeEscapeChar.isDefined)
                 fieldReg.appendToField(escapeEscapeChar.get)
               else
                 UnparseError(One(context.schemaFileLocation), One(state), "escapeEscapeCharacter was not defined but the escapeCharacter (%s) was present in the data.", escapeChar)
