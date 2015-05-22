@@ -868,4 +868,27 @@ class TestCLIparsing {
       shell.close()
     }
   }
+
+  @Test def test_3606_CLI_Parsing_SimpleParse_largeInfoset() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+    val shell = Util.start("")
+
+    try {
+      val longInput = "0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64,0,1,24,5,64"
+      val cmd = String.format("echo %s| %s parse -s %s -r matrix", longInput, Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+
+      val result = shell.expect(contains("<tns:row")).getBefore()
+      println(result)
+      if(result.contains("""<tns:matrix xmlns:tns="http://www.example.org/example1/"><tns:matrix xmlns:tns="http://www.example.org/example1/">""")) {
+        throw new Exception("Error - Root has been duplicated")
+      }
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
 }
