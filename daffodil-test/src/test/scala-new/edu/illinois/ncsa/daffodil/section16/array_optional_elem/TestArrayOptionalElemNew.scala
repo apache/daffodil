@@ -78,11 +78,4 @@ class TestArrayOptionalElemNew {
 
   import TestArrayOptionalElemNew._
 
-  // DFDL-1254
-  @Test def test_delimOptPresent() { runner_delim.runOneTest("delimOptPresent") }
-  @Test def test_delimOptPresentArray() { runner_delim.runOneTest("delimOptPresentArray") }
-  @Test def test_delimOptPresentArrayMax2() { runner_delim.runOneTest("delimOptPresentArrayMax2") }
-  @Test def test_delimOptAbsentArray() { runner_delim.runOneTest("delimOptAbsentArray") }
-  @Test def test_delimOptTwoArrays() { runner_delim.runOneTest("delimOptTwoArrays") }
-
 }

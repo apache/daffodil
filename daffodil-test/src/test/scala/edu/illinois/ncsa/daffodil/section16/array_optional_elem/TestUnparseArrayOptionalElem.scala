@@ -124,5 +124,18 @@ class TestUnparseArrayOptionalElem {
   @Test def test_parsedOptArrayThenScalar() { runner_parsed.runOneTest("parsedOptArrayThenScalar") }
   @Test def test_parsedOptArrayThenScalar02() { runner_parsed.runOneTest("parsedOptArrayThenScalar02") }
   @Test def test_parsedOptArrayThenScalar03() { runner_parsed.runOneTest("parsedOptArrayThenScalar03") }
+  
+  @Test def test_delimOptPresent() { runner_delim.runOneTest("delimOptPresent") }
+  @Test def test_delimOptPresentArray() { runner_delim.runOneTest("delimOptPresentArray") }
+  @Test def test_delimOptPresentArrayMax2() { runner_delim.runOneTest("delimOptPresentArrayMax2") }
+  @Test def test_delimOptAbsentArray() { runner_delim.runOneTest("delimOptAbsentArray") }
+  @Test def test_delimOptTwoArrays() { runner_delim.runOneTest("delimOptTwoArrays") }
+
+  @Test def test_delimOptScalarThenArray() { runner_delim.runOneTest("delimOptScalarThenArray") }
+  @Test def test_delimOptScalarThenArray02() { runner_delim.runOneTest("delimOptScalarThenArray02") }
+  @Test def test_delimOptScalarThenArray03() { runner_delim.runOneTest("delimOptScalarThenArray03") }
+  @Test def test_delimOptArrayThenScalar() { runner_delim.runOneTest("delimOptArrayThenScalar") }
+  @Test def test_delimOptArrayThenScalar02() { runner_delim.runOneTest("delimOptArrayThenScalar02") }
+  @Test def test_delimOptArrayThenScalar03() { runner_delim.runOneTest("delimOptArrayThenScalar03") }
 
 }

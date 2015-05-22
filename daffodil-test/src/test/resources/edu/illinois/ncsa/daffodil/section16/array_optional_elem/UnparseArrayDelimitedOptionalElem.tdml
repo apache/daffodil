@@ -41,10 +41,10 @@
 
     <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
       separator="" initiator="" terminator="" occursCountKind="implicit"
-      ignoreCase="no" textNumberRep="standard" representation="text" />
+      ignoreCase="no" textNumberRep="standard" representation="text" separatorSuppressionPolicy="anyEmpty" textPadKind="padChar" textStringPadCharacter="."/>
     <dfdl:defineFormat name="root">
-      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1"
-        separator="," initiator="" terminator="" representation="text" separatorPosition="infix" />
+      <dfdl:format lengthKind="delimited" ref="ex:daffodilTest1" separatorSuppressionPolicy="anyEmpty"
+        separator="," initiator="" terminator="" representation="text" separatorPosition="infix" textPadKind="padChar" textStringPadCharacter="."/>
     </dfdl:defineFormat>
 
     <xs:element name="r1" dfdl:ref="ex:root">
@@ -89,13 +89,13 @@
     <xs:element name="r4" dfdl:ref="ex:root">
       <xs:complexType>
         <xs:sequence dfdl:ref="ex:root">
-          <xs:element name="opt" type="xs:string" minOccurs="0"
+          <xs:element name="opt" type="xs:string" minOccurs="0" dfdl:initiator="opt:"
             maxOccurs="3" />
           <xs:element name="sca" type="xs:string" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
-
+    
   </tdml:defineSchema>
 
 <!--
@@ -107,7 +107,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptPresent" root="r1"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -129,7 +129,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptPresentArray" root="r1"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -173,7 +173,7 @@
   </tdml:unparserTestCase>
 
 <!--
-  Test Name: delimOptAbsentArrayMax
+  Test Name: delimOptAbsentArray
      Schema: s1
        Root: r1
     Purpose: This test demonsrates unparsing an optional array with occursCountKind="implicit"
@@ -181,7 +181,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptAbsentArray" root="r1"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -202,7 +202,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptTwoArrays" root="r2"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -229,7 +229,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptScalarThenArray" root="r3"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -253,7 +253,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptScalarThenArray02" root="r3"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -276,7 +276,7 @@
 -->
 
   <tdml:unparserTestCase name="delimOptScalarThenArray03" root="r3"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
@@ -291,8 +291,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed End Array Infoset Event</tdml:error>
-      <tdml:error>found Start</tdml:error>
+      <tdml:error>Needed end of array</tdml:error>
+      <tdml:error>but found Start</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
@@ -317,7 +317,7 @@
         </r4>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document><![CDATA[1,2,3]]></tdml:document>
+    <tdml:document><![CDATA[opt:1,opt:2,3]]></tdml:document>
 
   </tdml:unparserTestCase>
 
@@ -330,12 +330,11 @@
 -->
 
   <tdml:unparserTestCase name="delimOptArrayThenScalar02" root="r4"
-    model="s1">
+    model="s1" roundTrip="true">
 
     <tdml:infoset xmlns="http://example.com">
       <tdml:dfdlInfoset>
         <r4>
-          <opt/>
           <sca>3</sca>
         </r4>
       </tdml:dfdlInfoset>
@@ -370,8 +369,8 @@
     </tdml:infoset>
     <tdml:errors>
       <tdml:error>Unparse Error</tdml:error>
-      <tdml:error>Needed End Array Infoset Event</tdml:error>
-      <tdml:error>found Start</tdml:error>
+      <tdml:error>Needed end of array</tdml:error>
+      <tdml:error>but found Start</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>
