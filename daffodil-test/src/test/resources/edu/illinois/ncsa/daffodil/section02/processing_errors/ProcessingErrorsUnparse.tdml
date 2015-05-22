@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2015 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="ProcessingErrorUnparseTests"
+  description="Section 2.3 - Processing Errors" xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ex="http://example.com">
+
+  <!-- ===================================================================== 
+    Schemas ======================================================================= -->
+
+  <!--
+    Schema name: upaFailure
+    Purpose: This schema does not adhere to the Unique Particule Attribution 
+    schema constraint
+  -->
+
+  <tdml:defineSchema name="upaFailure">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" textBidi="no" floating="no" encoding="ascii"
+      byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+      fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorSuppressionPolicy="never" separatorPosition="infix"/>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="a1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+          <xs:element name="a1">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="a1" type="xs:string"
+                  dfdl:lengthKind="delimited" minOccurs="0"/>
+                <xs:element name="a1" type="xs:string"
+                  dfdl:lengthKind="delimited" />
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root2">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="a1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="1" minOccurs="1"
+            maxOccurs="4" />
+          <xs:element name="a1" type="xs:string" minOccurs="2"
+            maxOccurs="3" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <tdml:defineSchema name="okSchema">
+
+    <dfdl:format ref="ex:daffodilTest1" initiator=""
+      terminator="" textBidi="no" floating="no" encoding="ascii"
+      byteOrder="bigEndian" alignment="1" alignmentUnits="bytes"
+      fillByte="f" occursCountKind="implicit"
+      truncateSpecifiedLengthString="no" ignoreCase="no" representation="text"
+      lengthKind="delimited" nilValueDelimiterPolicy="both"
+      emptyValueDelimiterPolicy="none"
+      documentFinalTerminatorCanBeMissing="yes" initiatedContent="no"
+      separatorSuppressionPolicy="never" separatorPosition="infix"/>
+
+    <xs:element name="root">
+      <xs:complexType>
+        <xs:choice>
+          <xs:element name="a1" type="xs:string"
+            dfdl:lengthKind="explicit" dfdl:length="{ 4 }" />
+          <xs:element name="a2">
+            <xs:complexType>
+              <xs:sequence dfdl:separator=",">
+                <xs:element name="b1" type="xs:string"
+                  dfdl:lengthKind="delimited" minOccurs="0"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+        </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>  
+
+  <!--
+    Test name: upaInvalidSchemaUnparse
+    Schema: upaFailure
+    Purpose: This test uses an invalid schema and should fail.
+  -->
+
+  <tdml:unparserTestCase name="upaInvalidSchemaUnparse" root="root"
+    model="upaFailure" description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:a1>1234</ex:a1>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Multiple elements with name 'a1', with different types, appear in the model group</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: upaInvalidSchemaUnparse2
+    Schema: upaFailure
+    Purpose: This test uses an invalid schema and should fail.
+  -->
+
+  <tdml:unparserTestCase name="upaInvalidSchemaUnparse2"
+    root="root2" model="upaFailure"
+    description="Section 2 - Schema Component Constraint - DFDL-2-005R5-1">
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root>
+          <ex:a1>one</ex:a1>
+          <ex:a1>one</ex:a1>
+        </ex:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Multiple elements with name 'a1', with different types, appear in the model group</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+  
+  <!--
+    Test name: missingNamespacePrefixUnparse
+    Schema: okSchema
+    Purpose: This infoset does not use namespace prefixes and should fail
+  -->
+
+  <tdml:unparserTestCase name="missingNamespacePrefixUnparse"
+    root="root" model="okSchema">
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <root>
+          <a1>four</a1>
+        </root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found root element {}root</tdml:error>
+      <tdml:error>expected {http://example.com}root</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: incorrectRootUnparse
+    Schema: okSchema
+    Purpose: This infoset uses the wrong root element and should fail
+  -->
+
+  <tdml:unparserTestCase name="incorrectRootUnparse"
+    root="root" model="okSchema">
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:arbitrary>
+          <ex:a1>four</ex:a1>
+        </ex:arbitrary>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found root element {http://example.com}arbitrary</tdml:error>
+      <tdml:error>expected {http://example.com}root</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: incorrectNamespaceUnparse
+    Schema: okSchema
+    Purpose: This infoset uses the wrong root namespace and should fail
+  -->
+
+  <tdml:unparserTestCase name="incorrectNamespaceUnparse"
+    root="root" model="okSchema">
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <xs:root>
+          <ex:a1>four</ex:a1>
+        </xs:root>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found root element {http://www.w3.org/2001/XMLSchema}root</tdml:error>
+      <tdml:error>expected {http://example.com}root</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>
