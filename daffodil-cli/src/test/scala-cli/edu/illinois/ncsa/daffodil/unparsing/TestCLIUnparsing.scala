@@ -152,7 +152,6 @@ class TestCLIunparsing {
     }
   }
 
-/*
   // See DFDL-1350
   @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4() {
 
@@ -175,7 +174,6 @@ class TestCLIunparsing {
       shell.close()
     }
   }
-*/
 
 /*
   // See DFDL-1347

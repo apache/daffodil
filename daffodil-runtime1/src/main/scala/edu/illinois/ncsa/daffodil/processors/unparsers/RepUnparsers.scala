@@ -154,17 +154,12 @@ class RepUnboundedUnparser(occursCountKind: OccursCountKind.Value, rUnparser: Un
   extends RepUnparser(-1, rUnparser, erd, "Unbounded") {
 
   def unparseAllRepeats(ustate: UState) {
-    val arr = ustate.currentInfosetNode.getOrElse(Assert.invariantFailed("There must be a current node."))
-    arr match {
-      case arr: DIArray => {
-        while (!ustate.peekArrayEnd) {
-          // Debugger.beforeRepetition(ustate, this)
-          rUnparser.unparse1(ustate, erd)
-          // Debugger.afterRepetition(ustate, this)
-          ustate.moveOverOneArrayIndexOnly
-        }
-      }
-      case _ => Assert.invariantFailed("Must be a DIArray")
+    Assert.invariant(ustate.currentInfosetNode.isDefined)
+    while (!ustate.peekArrayEnd) {
+      // Debugger.beforeRepetition(ustate, this)
+      rUnparser.unparse1(ustate, erd)
+      // Debugger.afterRepetition(ustate, this)
+      ustate.moveOverOneArrayIndexOnly
     }
   }
 }
