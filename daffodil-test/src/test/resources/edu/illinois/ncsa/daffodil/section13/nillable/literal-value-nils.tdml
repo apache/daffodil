@@ -36,6 +36,15 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/"
   xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ct="http://w3.ibm.com/xmlns/dfdl/ctInfoset"
   xmlns:ex="http://example.com" xmlns="http://example.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+  <tdml:defineSchema name="text_nil_only1">
+    <dfdl:format ref="ex:daffodilTest1" initiator="" terminator="" separator="" separatorSuppressionPolicy="anyEmpty" separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes" encoding="ASCII" representation="text" occursCountKind="parsed" nilValueDelimiterPolicy="none"
+      nilValue="nil %ES;" nilKind="literalValue" textNumberRep="standard" ignoreCase="no"/>
+
+    <xs:element name="doc5" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:nilValue="%WSP*;"/>
+
+  </tdml:defineSchema>
+
 
   <tdml:defineSchema name="text_03">
     <dfdl:format ref="ex:daffodilTest1" initiator=""
@@ -346,6 +355,26 @@
           <ct xsi:nil="true" />
           <after>after</after>
         </doc>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: text_nil_characterClass_04_parse
+     Schema: text_nil_only1
+     Purpose: This test demonstrates using the character class WSP* as the nilValue
+-->
+
+  <tdml:parserTestCase name="text_nil_characterClass_04_parse" root="doc5"
+    model="text_nil_only1">
+
+    <tdml:document>
+      <tdml:documentPart type="text"></tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc5 xmlns="http://www.example.org/example1/" xsi:nil="true" />
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
