@@ -203,4 +203,153 @@ class TestCLIPerformance {
       shell.close()
     }
   }
+
+  @Test def test_3641_CLI_Performance_Unparse_2_Threads_2_Times() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -N 2 -t 2 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+          
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+          
+          val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_3643_CLI_Performance_Unparse_3_Threads_20_Times() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -N 20 -t 3 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+          
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+          
+          val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_3644_CLI_Performance_Unparse_5_Threads_50_Times() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input14.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -N 50 -t 5 -s %s -r e3 %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+
+      try {
+        var error = shell.expectIn(1, anyString).group()
+        fail(error)
+      } catch {
+        case ae: ExpectIOException => {
+          //No error was found, which is correct
+          val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+          shell.sendLine(exitCodeCmd)
+          
+          if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+          else shell.expect(contains("\n"))
+          
+          val sExitCode = shell.expect(contains("\n")).getBefore()
+          val exitCode = Integer.parseInt(sExitCode.trim())
+          if (exitCode != 0)
+            fail("Tests failed. Exit code: " + exitCode)
+        }
+      }
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_3642_CLI_Performance_Unparse_2_Threads_2_Times_Negative() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd"
+    val inputFile = "daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input16.txt"
+    val (testSchemaFile, testInputFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile), Util.cmdConvert(inputFile)) else (schemaFile, inputFile)
+
+    val shell = Util.startIncludeErrors("")
+
+    try {
+      val cmd = String.format("%s performance --unparse -N 2 -t 2 -s %s %s", Util.binPath, testSchemaFile, testInputFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("total unparse time (sec):"))
+      shell.expect(contains("avg rate (files/sec):"))
+      shell.expectIn(1, (contains("error")))
+
+      val exitCodeCmd = if (Util.isWindows) "echo %errorlevel%" else "echo $?"
+      shell.sendLine(exitCodeCmd)
+      
+      if (Util.isWindows) shell.expect(contains(exitCodeCmd + "\n"))
+      else shell.expect(contains("\n"))
+    	  
+      val sExitCode = shell.expect(contains("\n")).getBefore()
+      val exitCode = Integer.parseInt(sExitCode.trim())
+      if (exitCode == 0)
+        fail("Tests were successful when they were expected to fail. Exit code: " + exitCode)
+
+      shell.sendLine("exit")
+      shell.expect(eof())
+    } finally {
+      shell.close()
+    }
+  }
 }
