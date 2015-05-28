@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.LocalElementGrammarMixin
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Common to local element decls and element references
@@ -68,54 +69,75 @@ trait LocalElementMixin
     }
   }.value
 
-  final def lengthKnownToBeGreaterThanZero = LV('lengthKnownToBeGreaterThanZero) {
-    val pt = {
-      if (isPrimType) typeDef.asInstanceOf[PrimType]
-      else {
-        val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-        st.primitiveType
-      }
-    }
+  /**
+   * True if the length of the SimpleContent region or the ComplexContent region
+   * (see DFDL Spec section 9.2) is known to be greater than zero.
+   *
+   * These content grammar regions are orthogonal to both nillable representations, and
+   * empty representations, and to all aspects of framing - alignment, skip, delimiters
+   * etc.
+   *
+   */
+  final def isContentRegionLengthKnownToBeGreaterThanZero = LV('isContentRegionLengthKnownToBeGreaterThanZero) {
+    val pt = primType
     val res = lengthKind match {
       case LengthKind.Explicit => (isFixedLength && (fixedLength > 0))
       case LengthKind.Prefixed => false
-      case LengthKind.Pattern => lengthPattern.r.findFirstIn("") match {
+      case LengthKind.Pattern => lengthPattern.r.findFirstIn("") match { // can regex match nothing?
         case None => true
         case Some(s) => false
       }
-      case LengthKind.Delimited => (pt == PrimType.String)
-      case LengthKind.Implicit => false
-      case LengthKind.EndOfParent => false
+      case LengthKind.Delimited =>
+        (pt != PrimType.String && // delimited strings can be zero length
+          pt != PrimType.HexBinary) // delimited hexBinary can be zero length
+      case LengthKind.Implicit => {
+        if ((pt =:= PrimType.String || pt =:= PrimType.HexBinary) && self.hasMaxLength && BigInt(self.maxLength.toBigInteger) > 0) true
+        else if (representation =:= Representation.Binary) true
+        else false
+      }
+      case LengthKind.EndOfParent => ??? // not yet implemented.
     }
     res
   }.value
 
-  final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    if ((minOccurs > 0) || isScalar || isFixedOccurrences) {
-      if (emptyValueDelimiterPolicy == EmptyValueDelimiterPolicy.None) true
-      else if (emptyIsAnObservableConcept) true
-      else {
-        val pt = {
-          if (isPrimType) typeDef.asInstanceOf[PrimType]
-          else {
-            val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
-            st.primitiveType
-          }
+  final override def hasKnownRequiredSyntax: Boolean = LV('hasKnownRequiredSyntax) {
+    !couldBeMissing
+  }.value
+
+  final def couldBeMissing: Boolean = LV('couldBeMissing) {
+    val res =
+      if (minOccurs == 0) true
+      else if (isNillable && !hasNilValueRequiredSyntax) true
+      else if (isDefaultable && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.None) true
+      else if (isDefaultable && !hasInitiator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Initiator) true
+      else if (isDefaultable && !hasTerminator && emptyValueDelimiterPolicy =:= EmptyValueDelimiterPolicy.Terminator) true
+      else if (hasInitiator) false
+      else if (hasTerminator) false
+      else if (isSimpleType) {
+        primType match {
+          case PrimType.String | PrimType.HexBinary => !isContentRegionLengthKnownToBeGreaterThanZero
+          case PrimType.Boolean => false // Note that textBooleanTrueRep and textBooleanFalseRep cannot contain %ES; so there is no way for an ES as boolean rep.
+          case _ => false // all other types require some syntax.
         }
-        ((pt == PrimType.String) || (pt == PrimType.HexBinary) && lengthKnownToBeGreaterThanZero)
-      }
-    } else false
+      } else if (isComplexType) {
+        !elementComplexType.modelGroup.group.hasKnownRequiredSyntax
+      } else Assert.impossibleCase()
+    res
   }.value
 
   final def isLastDeclaredRequiredElementOfSequence = LV('isLastDeclaredRequiredElementOfSequence) {
-    if (hasKnownRequiredSyntax) {
+    if (isRequired) {
       val es = nearestEnclosingSequence
-      es match {
+      val res = es match {
         case None => true
-        case Some(s) =>
-          if (s.groupMembers.filter(_.hasKnownRequiredSyntax).last eq this) true
+        case Some(s) => {
+          val allRequired = s.groupMembersNoRefs.filter(_.isRequired)
+          val lastDeclaredRequired = allRequired.last
+          if (lastDeclaredRequired eq this) true
           else false
+        }
       }
+      res
       // Since we can't determine at compile time, return true so that we can continue processing.
       // Runtime checks will make final determination.
     } else true

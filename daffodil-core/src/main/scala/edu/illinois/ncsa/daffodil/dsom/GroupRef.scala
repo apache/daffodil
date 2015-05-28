@@ -73,6 +73,9 @@ final class GroupRef(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   override lazy val elementChildren = group.elementChildren
 
+  override def isOptional = Assert.usageError("not to be used on GroupRef")
+  override def isRequired = Assert.usageError("not to be used on GroupRef")
+
   // delegate to the model group object. It assembles properties from
   // the group ref and the group def
   override def findPropertyOption(pname: String): PropertyLookupResult = {

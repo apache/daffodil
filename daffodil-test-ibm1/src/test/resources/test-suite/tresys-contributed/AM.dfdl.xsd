@@ -37,6 +37,7 @@
           <complexType>
             <choice>
               <!-- GIF -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'image/gif' }">
                 <annotation>
@@ -52,7 +53,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- JPEG -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'image/jpeg' }">
                 <annotation>
@@ -66,7 +69,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- STP -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'STP' }">
                 <annotation>
@@ -89,7 +94,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- PNG -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'image/png' }">
                 <annotation>
@@ -107,7 +114,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- .class -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/java-byte-code' }">
                 <annotation>
@@ -121,7 +130,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- midi -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'audio/midi' }">
                 <annotation>
@@ -135,7 +146,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- shell script -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/x-sh' }">
                 <annotation>
@@ -147,7 +160,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- postscript -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/postscript' }">
                 <annotation>
@@ -159,7 +174,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- PDF -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/pdf' }">
                 <annotation>
@@ -173,7 +190,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- ZIP -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/zip' }">
                 <annotation>
@@ -185,7 +204,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- MPEG -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'video/mpg' }">
                 <annotation>
@@ -207,7 +228,9 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
               <!-- GZIP -->
+              <sequence>
               <element name="type" type="xsd:string"
                 dfdl:inputValueCalc="{ 'application/x-gzip' }">
                 <annotation>
@@ -220,6 +243,7 @@
                   </appinfo>
                 </annotation>
               </element>
+              </sequence>
             </choice>
           </complexType>
         </element>

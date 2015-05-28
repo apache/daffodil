@@ -111,7 +111,7 @@
             <xs:complexType>
               <xs:sequence dfdl:separator=",">
                 <xs:element name="b1" type="xs:string"
-                  dfdl:lengthKind="delimited" minOccurs="0"/>
+                  dfdl:lengthKind="delimited" minOccurs="1"/>
               </xs:sequence>
             </xs:complexType>
           </xs:element>

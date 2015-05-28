@@ -494,8 +494,9 @@
           <xs:element name="c">
             <xs:complexType>
               <xs:choice>
-                <xs:element name="a1" type="xs:string"
-                  dfdl:inputValueCalc="{ 'a1' }">
+                <xs:sequence>
+                  <xs:element name="a1" type="xs:string"
+                    dfdl:inputValueCalc="{ 'a1' }">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
                       <dfdl:assert>
@@ -503,9 +504,12 @@
                       </dfdl:assert>
                     </xs:appinfo>
                   </xs:annotation>
-                </xs:element>
-                <xs:element name="a2" type="xs:string"
-                  dfdl:inputValueCalc="{ 'a2' }" />
+                  </xs:element>
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:element name="a2" type="xs:string"
+                    dfdl:inputValueCalc="{ 'a2' }" />
+                </xs:sequence>
               </xs:choice>
             </xs:complexType>
           </xs:element>

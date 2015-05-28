@@ -50,6 +50,7 @@
             <!-- theNextByte=\f => dont read anything, leave header intact 
               for
               next xTable element -->
+            <sequence>
             <element name="moreStuff" type="xs:string"
               dfdl:inputValueCalc="{ 'Another page coming' }">
               <annotation>
@@ -58,6 +59,7 @@
                 </appinfo>
               </annotation>
             </element>
+            </sequence>
             <!-- theNextByte=\n => end of data, read all the way to the end, 
               leave
               nothing for next xTable element -->

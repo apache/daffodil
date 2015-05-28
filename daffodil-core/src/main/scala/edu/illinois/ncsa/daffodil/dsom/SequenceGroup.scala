@@ -115,9 +115,27 @@ class Sequence(xmlArg: Node, parent: SchemaComponent, position: Int)
   }
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
-    if (hasInitiator || hasTerminator) true
-    else if (isKnownToBeAligned) true
-    else groupMembers.exists(_.hasKnownRequiredSyntax)
+    lazy val memberHasRequiredSyntax = groupMembersNoRefs.exists(_.hasKnownRequiredSyntax)
+    lazy val prefixOrPostfixAndStaticallyRequiredInstance =
+      groupMembersNoRefs.filter { _.isRepresented }.exists { _.hasStaticallyRequiredInstances } &&
+        (hasPrefixSep || hasPostfixSep)
+    lazy val infixAnd2OrMoreStaticallyRequiredInstances =
+      groupMembersNoRefs.filter { m => m.isRepresented && m.hasStaticallyRequiredInstances }.length > 1 && hasInfixSep
+    lazy val sepAndArryaWith2OrMoreStaticallyRequiredInstances =
+      groupMembersNoRefs.filter { m =>
+        m.isRepresented && m.hasStaticallyRequiredInstances && (m match {
+          case e: LocalElementBase => e.minOccurs > 1
+          case _ => false
+        })
+      }.length > 0 && hasSeparator
+    val res =
+      hasInitiator ||
+        hasTerminator ||
+        memberHasRequiredSyntax ||
+        prefixOrPostfixAndStaticallyRequiredInstance ||
+        infixAnd2OrMoreStaticallyRequiredInstances ||
+        sepAndArryaWith2OrMoreStaticallyRequiredInstances
+    res
   }.value
 
   /**

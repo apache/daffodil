@@ -1399,18 +1399,20 @@
     <xs:element name="root3">
       <xs:complexType>
         <xs:choice>
-          <xs:element name="one" dfdl:inputValueCalc="{ 42 }" dfdl:lengthKind="delimited">
+          <xs:sequence>
+            <xs:element name="one" dfdl:inputValueCalc="{ 42 }">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:discriminator><![CDATA[{ fn:true() }]]></dfdl:discriminator>
               </xs:appinfo>
             </xs:annotation>
-            <xs:simpleType>
-              <xs:restriction base="xs:int">
-                <xs:minExclusive value="42"/>
-              </xs:restriction>
-            </xs:simpleType>
-          </xs:element>
+              <xs:simpleType>
+                <xs:restriction base="xs:int">
+                  <xs:minExclusive value="42"/>
+                </xs:restriction>
+              </xs:simpleType>
+            </xs:element>
+          </xs:sequence>
           <xs:element name="two" type="xs:string" dfdl:lengthKind="delimited">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">

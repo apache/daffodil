@@ -75,7 +75,8 @@
               </xs:restriction>
             </xs:simpleType>
           </xs:element>
-          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+            dfdl:initiator="(" dfdl:terminator=")">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
                 <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -155,7 +156,7 @@
     <xs:element name="r6">
       <xs:complexType>
         <xs:sequence dfdl:separator="," dfdl:separatorSuppressionPolicy="trailingEmpty">
-          <xs:element name="b" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit"
+          <xs:element name="b" minOccurs="1" maxOccurs="100" dfdl:occursCountKind="implicit"
             dfdl:initiator="(" dfdl:terminator=")">
             <xs:annotation>
               <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -247,7 +248,7 @@
             </xs:simpleType>
           </xs:element>
           <xs:choice>
-            <xs:element name="c" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+            <xs:element name="c" minOccurs="1" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
               <xs:annotation>
                 <xs:appinfo source="http://www.ogf.org/dfdl/">
                   <dfdl:assert test="{ dfdl:checkConstraints(.) }"
@@ -404,7 +405,7 @@
             </xs:simpleType>
           </xs:element>
           <xs:element name="d" type="xs:string" minOccurs="1" dfdl:lengthKind="pattern"
-            dfdl:lengthPattern=".*" dfdl:occursCountKind="implicit"/>
+            dfdl:lengthPattern=".+" dfdl:occursCountKind="implicit"/>
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -714,15 +715,14 @@
   <tdml:parserTestCase name="ockImplicit10" root="r8"
     model="s1" description="Section 14.2.2">
     <tdml:document><![CDATA[(23),(25),ab]]></tdml:document>
-    <tdml:infoset>
-      <tdml:dfdlInfoset>
-        <r8>
-          <b>23</b>
-          <b>25</b>
-          <c>ab</c>
-        </r8>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+     <tdml:error>occursCountKind</tdml:error>
+     <tdml:error>implicit</tdml:error>
+     <tdml:error>maxOccurs</tdml:error>
+     <tdml:error>unbounded</tdml:error>
+     <tdml:error>only allowed for last element</tdml:error>
+    </tdml:errors>
   </tdml:parserTestCase>
 
   <!--
@@ -983,7 +983,7 @@
          Root: r21
       Purpose: This test shows that maxOccurs="unbounded" and occursCountKind="implicit"
                is only allowed on the last required element of a sequence.  In this case there is
-               a required unbounded element (minOccurs > 0, hexBinary, lengthKnownToBeGreaterThanZero) followed by another.
+               a required unbounded element (minOccurs > 0, hexBinary, isContentRegionLengthKnownToBeGreaterThanZero) followed by another.
   -->
 
   <tdml:parserTestCase name="ockImplicit23" root="r21" model="s1" description="Section 14.2.2">

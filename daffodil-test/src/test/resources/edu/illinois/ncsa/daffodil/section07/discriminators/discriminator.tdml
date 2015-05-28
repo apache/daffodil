@@ -285,8 +285,10 @@
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
-                <xs:element name="a2" type="xs:string"
-                  dfdl:inputValueCalc="{ 'a2' }" />
+                <xs:sequence>
+                  <xs:element name="a2" type="xs:string"
+                    dfdl:inputValueCalc="{ 'a2' }" />
+                </xs:sequence>
               </xs:choice>
             </xs:complexType>
           </xs:element>
@@ -641,7 +643,7 @@
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="num" dfdl:lengthKind="delimited"
-                        type="xs:int" minOccurs="0" maxOccurs="1" />
+                        type="xs:int" minOccurs="1" maxOccurs="1" />
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
@@ -674,7 +676,7 @@
                         </xs:appinfo>
                       </xs:annotation>
                       <xs:element name="num" dfdl:lengthKind="delimited"
-                        type="xs:int" minOccurs="0" maxOccurs="1" />
+                        type="xs:int" minOccurs="1" maxOccurs="1" />
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>

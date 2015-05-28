@@ -98,6 +98,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case gb: GroupBase => gb.group.elementChildren
     }
 
+  final override def isOptional = false
+  final override def isRequired = true
+
   final override lazy val runtimeData: RuntimeData = modelGroupRuntimeData
 
   final override lazy val termRuntimeData: TermRuntimeData = modelGroupRuntimeData

@@ -42,6 +42,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 
 class TestChoice {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
@@ -49,7 +50,7 @@ class TestChoice {
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   //DFDL-1355
-  //@Test def test_optionalChoice05() { runnerCH.runOneTest("optionalChoice05") }
+  @Test def test_optionalChoice05() { runnerCH.runOneTest("optionalChoice05") }
 
   @Test def test_optionalChoice01() { runnerCH.runOneTest("optionalChoice01") }
   @Test def test_optionalChoice02() { runnerCH.runOneTest("optionalChoice02") }

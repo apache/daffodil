@@ -139,7 +139,6 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   def isScalar: Boolean
   def isRequiredArrayElement: Boolean
-  def isOptional: Boolean
 
   // override in Particle
   lazy val optMinOccurs: Option[Int] = None
@@ -605,6 +604,17 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
   private lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
+  lazy val nilValues = new ListOfStringValueAsLiteral(nilValue, this).cooked
+  lazy val hasESNilValue = nilValues.contains("")
+
+  final lazy val hasNilValueRequiredSyntax = isNillable &&
+    ((isDefinedNilLit && (hasNilValueInitiator || hasNilValueTerminator)) ||
+      (isDefinedNilLit && !hasESNilValue) ||
+      (isDefinedNilValue && (hasInitiator || hasTerminator)) ||
+      // below is the case of string or hexbinary and nilKind logicalValue. A logical value of ES can 
+      // cause a nil value to be created. 
+      (isDefinedNilValue && (isSimpleType && (simpleType.primitiveType =:= PrimType.String || simpleType.primitiveType =:= PrimType.HexBinary) && !hasESNilValue)))
+
   final lazy val hasEmptyValueInitiator = initTermTestExpression(initiator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Initiator)
   final lazy val hasEmptyValueTerminator = initTermTestExpression(terminator, emptyValueDelimiterPolicy, EVDP.Both, EVDP.Terminator)
 
@@ -688,14 +698,14 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     } else { false }
   }
 
-  private lazy val hasMinLength = {
+  protected lazy val hasMinLength = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMinLength
     } else { false }
   }
 
-  private lazy val hasMaxLength = {
+  protected lazy val hasMaxLength = {
     if (isSimpleType && !isPrimType) {
       val st = elementSimpleType.asInstanceOf[SimpleTypeDefBase]
       st.hasMaxLength

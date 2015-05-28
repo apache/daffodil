@@ -81,6 +81,9 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
   with RawDelimitedRuntimeValuedPropertiesMixin // initiator and terminator (not separator)
   with ChoiceGrammarMixin {
 
+  requiredEvaluations(branchesAreNonOptional)
+  requiredEvaluations(branchesAreNotIVCElements)
+
   protected final override lazy val myPeers = choicePeers
 
   protected final override def annotationFactory(node: Node): DFDLAnnotation = {
@@ -104,16 +107,55 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   final override def hasKnownRequiredSyntax = LV('hasKnownRequiredSyntax) {
     if (hasInitiator || hasTerminator) true
-    else if (isKnownToBeAligned) true
+    // else if (isKnownToBeAligned) true //TODO: Alignment may not occur; hence, cannot be part of determining whether there is known syntax.
     else groupMembers.forall(_.hasKnownRequiredSyntax)
   }.value
 
+  /**
+   * The DFDL Spec as of this writing 2015-06-02 says that branches cannot be optional, but then
+   * specifies that what it means is that if a choice branch root is an element/element-ref, it
+   * cannot have minOccurs="0". This is a different notion of optional.
+   *
+   * The DFDL Working group has Action 280 which is about whether this should be corrected/modified.
+   * There are two notions of optionality in DFDL. First is optional meaning 0 or 1 occurrence of an
+   * element. The second is "not required", and that is defined in terms of dfdl:occursCountKind.
+   *
+   * For the time being, the definition of non-optional used here is that is not minOccurs="0" if an
+   * element, and that unless it is a calculated element, it must have some footprint syntactically
+   * from the data value or framing.
+   *
+   * Open issues:
+   * 1) Is alignment or leading/trailing skip to be considered syntax. Alignment might not be there.
+   * 2) What about an empty sequence that only carries statement annotations such as dfdl:assert
+   *
+   * This latter need to be allowed, and are because while they do not have known required syntax,
+   * they are still considered to be represented. (all sequence and choice groups are isRepresented == true).
+   */
+  final def branchesAreNonOptional = LV('branchesAreNonOptional) {
+    val branchesOk = groupMembersNoRefs map { branch =>
+      if (branch.isOptional) {
+        schemaDefinitionErrorButContinue("Branch of choice %s must be non-optional.".format(branch.path))
+        false
+      } else true
+    }
+    assuming(branchesOk.forall { x => x })
+  }.value
+
+  final def branchesAreNotIVCElements = LV('branchesAreNotIVCElements) {
+    val branchesOk = groupMembersNoRefs map { branch =>
+      if (!branch.isRepresented) {
+        schemaDefinitionErrorButContinue("Branch of choice %s cannot have the dfdl:inputValueCalc property.".format(branch.path))
+        false
+      } else true
+    }
+    assuming(branchesOk.forall { x => x })
+  }.value
 
   final def choiceBranchMap: Map[NamedQName, RuntimeData] = LV('choiceBranchMap) {
     val qnameERDTuples = groupMembersNoRefs.flatMap {
       case e: ElementBase => Seq((e.namedQName, e.runtimeData))
       case mg: ModelGroup => {
-        val idElems =  mg.identifyingElementsForChoiceBranch
+        val idElems = mg.identifyingElementsForChoiceBranch
         if (idElems.isEmpty) {
           Assert.notYetImplemented("Unable to find identifying element of %s.".format(mg))
         }
@@ -124,12 +166,13 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     // converts a sequence of tuples into a multi-map
     val qnameERDMap = qnameERDTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
 
-    val noDupes = qnameERDMap.map { case (qname, erds) =>
-      if (erds.length > 1) {
-        SDW("Element %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this element.",
-          qname, erds.mkString(", "))
-      }
-      (qname, erds(0))
+    val noDupes = qnameERDMap.map {
+      case (qname, erds) =>
+        if (erds.length > 1) {
+          SDW("Element %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this element.",
+            qname, erds.mkString(", "))
+        }
+        (qname, erds(0))
     }
 
     noDupes

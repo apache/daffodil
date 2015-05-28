@@ -139,17 +139,15 @@ case class LiteralNilPattern(e: ElementBase)
   lazy val unparserDelim = Assert.notYetImplemented()
   //val stParser = super.parser
 
-  lazy val nilValues = new ListOfStringValueAsLiteral(e.nilValue, e).cooked
-
   override lazy val parser = new LiteralNilPatternParser(
     parsingPadChar,
     justificationTrim: TextJustificationType.Type,
     e.elementRuntimeData,
     e.lengthPattern,
     e.name,
-    nilValues)
+    e.nilValues)
 
-  override lazy val unparser = new LiteralNilPatternUnparser(e.elementRuntimeData, nilValues.head)
+  override lazy val unparser = new LiteralNilPatternUnparser(e.elementRuntimeData, e.nilValues.head)
 }
 
 case class LogicalNilValue(e: ElementBase) extends Primitive(e, e.isNillable)

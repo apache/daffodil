@@ -3562,8 +3562,12 @@
           <xs:element name="choice">
             <xs:complexType>
               <xs:choice>
-                <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
-                <xs:element name="int" type="xs:int" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
+                <xs:sequence>
+                  <xs:element name="nonNeg" type="xs:nonNegativeInteger" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
+                </xs:sequence>
+                <xs:sequence>
+                  <xs:element name="int" type="xs:int" dfdl:inputValueCalc="{ /ex:abs05/ex:absval }"/>
+                </xs:sequence>
               </xs:choice>
             </xs:complexType>
           </xs:element> 
@@ -3910,6 +3914,7 @@
           <xs:element name="choice">
             <xs:complexType>
               <xs:choice>
+                <xs:sequence>
                 <xs:element name="empty" type="xs:string" dfdl:inputValueCalc="{ 'There is no one waiting right now' }">
                   <xs:annotation>
                     <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -3917,10 +3922,11 @@
                     </xs:appinfo>
                   </xs:annotation>
                 </xs:element>
+                </xs:sequence>
                 <xs:element name="orders">
                   <xs:complexType>
                     <xs:sequence dfdl:separator=",">
-                      <xs:element name="order" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+                      <xs:element name="order" type="xs:string" minOccurs="1" maxOccurs="3" dfdl:lengthKind="delimited"/>
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
@@ -4001,11 +4007,13 @@
                   </xs:annotation>
                   <xs:complexType>
                     <xs:sequence dfdl:separator=",">
-                      <xs:element name="order" type="xs:string" minOccurs="0" maxOccurs="3" dfdl:lengthKind="delimited"/>
+                      <xs:element name="order" type="xs:string" minOccurs="1" maxOccurs="3" dfdl:lengthKind="delimited"/>
                     </xs:sequence>
                   </xs:complexType>
                 </xs:element>
-                <xs:element name="exists" type="xs:string" dfdl:inputValueCalc="{ 'There is no one waiting right now' }"/>
+                <xs:sequence>
+                  <xs:element name="exists" type="xs:string" dfdl:inputValueCalc="{ 'There is no one waiting right now' }"/>
+                </xs:sequence>
               </xs:choice>
             </xs:complexType>
           </xs:element>

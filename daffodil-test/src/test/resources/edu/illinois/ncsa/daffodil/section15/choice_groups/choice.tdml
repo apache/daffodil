@@ -480,12 +480,6 @@
 
   </tdml:parserTestCase>
 
-
-
-
-
-
-
   <tdml:defineSchema name="nestedChoice1">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
 
@@ -1375,7 +1369,7 @@
             <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
               <xs:complexType>
                 <xs:choice>
-                  <xs:element name="blue" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="blue" minOccurs="0" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
                   <xs:element name="red" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
                 </xs:choice>
               </xs:complexType>
@@ -1469,18 +1463,11 @@ it sure is/
 it sure is/
 ]]></tdml:document>
 
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <e2>
-          <redOrBlue>
-            <blue>
-              <descrip>is a color</descrip>
-            </blue>
-          </redOrBlue>
-          <moreInfo>it sure is</moreInfo>
-        </e2>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>Branch of choice</tdml:error>
+    <tdml:error>non-optional</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
 
@@ -1496,18 +1483,11 @@ it sure is/
 it sure is/
 ]]></tdml:document>
 
-    <tdml:infoset>
-      <tdml:dfdlInfoset xmlns:ex="http://example.com">
-        <e2>
-          <redOrBlue>
-            <red>
-              <descrip>is also a color</descrip>
-            </red>
-          </redOrBlue>
-          <moreInfo>it sure is</moreInfo>
-        </e2>
-      </tdml:dfdlInfoset>
-    </tdml:infoset>
+    <tdml:errors>
+    <tdml:error>Schema Definition Error</tdml:error>
+    <tdml:error>Branch of choice</tdml:error>
+    <tdml:error>non-optional</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
 

@@ -76,6 +76,9 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
 
   override final def term = this
 
+  def isOptional: Boolean
+  def isRequired: Boolean
+
   def termRuntimeData: TermRuntimeData
 
   def elementChildren: Seq[ElementBase]
