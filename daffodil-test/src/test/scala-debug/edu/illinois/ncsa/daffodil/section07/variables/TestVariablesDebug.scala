@@ -48,5 +48,7 @@ class TestVariablesDebug {
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
+  
+  @Test def test_unparse_setVarOnGroupRef() { runner.runOneTest("unparse_setVarOnGroupRef") }
 
 }

@@ -61,7 +61,9 @@ class TestVariables {
   @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }
   @Test def test_setVarChoice() { runner.runOneTest("setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }
+  @Test def test_unparse_setVarOnSeq() { runner.runOneTest("unparse_setVarOnSeq") }
   @Test def test_setVarOnGroupRef() { runner.runOneTest("setVarOnGroupRef") }
+  //@Test def test_unparse_setVarOnGroupRef() { runner.runOneTest("unparse_setVarOnGroupRef") }
   @Test def test_setVarSimpleType() { runner.runOneTest("setVarSimpleType") }
 
   @Test def test_setVarValAttribute() { runner.runOneTest("setVarValAttribute") }
@@ -88,6 +90,7 @@ class TestVariables {
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }
   @Test def test_setAfterReadErr_d() { runner_01.runOneTest("setAfterReadErr_d") }
+  @Test def test_setVar1_d_unparse() { runner_01.runOneTest("setVar1_d_unparse") }
 
   /*****************************************************************/
   val tdmlVal = XMLUtils.TDML_NAMESPACE
