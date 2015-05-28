@@ -1337,5 +1337,163 @@
     </tdml:errors>
 
   </tdml:parserTestCase>
+  
+  <tdml:defineSchema name="optionalChoices">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" />
+
+      <xs:complexType name="redSeq">
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="descrip" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:complexType name="blueSeq">
+        <xs:sequence dfdl:separator="/" dfdl:separatorPosition="prefix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+          <xs:element name="descrip" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+
+      <xs:element name="e1">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="/%NL;" dfdl:separatorPosition="postfix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+            <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="red" minOccurs="0" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="blue" minOccurs="0" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="moreInfo" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="e2">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="/%NL;" dfdl:separatorPosition="postfix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+            <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="blue" minOccurs="0" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="red" minOccurs="0" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="moreInfo" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: optionalChoice01
+     Schema: optionalChoices
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the first element should be selected.
+-->
+  
+  <tdml:parserTestCase name="optionalChoice01" root="e1"
+    model="optionalChoices">
+    <tdml:document><![CDATA[red/is a color/
+it sure is/
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <e1>
+          <redOrBlue>
+            <red>
+              <descrip>is a color</descrip>
+            </red>
+          </redOrBlue>
+          <moreInfo>it sure is</moreInfo>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: optionalChoice02
+     Schema: optionalChoices
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the second element should be selected.
+-->
+  
+  <tdml:parserTestCase name="optionalChoice02" root="e1"
+    model="optionalChoices">
+    <tdml:document><![CDATA[blue/is also a color/
+it sure is/
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <e1>
+          <redOrBlue>
+            <blue>
+              <descrip>is also a color</descrip>
+            </blue>
+          </redOrBlue>
+          <moreInfo>it sure is</moreInfo>
+        </e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: optionalChoice03
+     Schema: optionalChoices
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the first element should be selected.
+-->
+  
+  <tdml:parserTestCase name="optionalChoice03" root="e2"
+    model="optionalChoices">
+    <tdml:document><![CDATA[blue/is a color/
+it sure is/
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <e2>
+          <redOrBlue>
+            <blue>
+              <descrip>is a color</descrip>
+            </blue>
+          </redOrBlue>
+          <moreInfo>it sure is</moreInfo>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: optionalChoice04
+     Schema: optionalChoices
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the second element should be selected.
+-->
+  
+  <tdml:parserTestCase name="optionalChoice04" root="e2"
+    model="optionalChoices">
+    <tdml:document><![CDATA[red/is also a color/
+it sure is/
+]]></tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <e2>
+          <redOrBlue>
+            <red>
+              <descrip>is also a color</descrip>
+            </red>
+          </redOrBlue>
+          <moreInfo>it sure is</moreInfo>
+        </e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
 
 </tdml:testSuite>

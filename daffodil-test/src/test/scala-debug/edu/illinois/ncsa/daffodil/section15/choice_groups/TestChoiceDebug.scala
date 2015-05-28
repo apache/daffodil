@@ -48,6 +48,10 @@ class TestChoiceDebug {
   val aa = testDir + "choice.tdml"
 
   lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  //DFDL-1355
+  @Test def test_optionalChoice02() { runnerCH.runOneTest("optionalChoice02") }
+  @Test def test_optionalChoice04() { runnerCH.runOneTest("optionalChoice04") }
 
   @Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") }
 }

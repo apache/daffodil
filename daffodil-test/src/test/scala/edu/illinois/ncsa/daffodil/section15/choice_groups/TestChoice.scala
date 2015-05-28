@@ -46,10 +46,17 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 class TestChoice {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
   val aa = testDir + "choice.tdml"
+  lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  //DFDL-1355
+  //@Test def test_optionalChoice02() { runnerCH.runOneTest("optionalChoice02") }
+  //@Test def test_optionalChoice04() { runnerCH.runOneTest("optionalChoice04") }
+
+  @Test def test_optionalChoice01() { runnerCH.runOneTest("optionalChoice01") }
+  @Test def test_optionalChoice03() { runnerCH.runOneTest("optionalChoice03") }
 
   @Test def test_choiceOfGroupRefs() { runnerCH.runOneTest("choiceOfGroupRefs") }
 
-  lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
   @Test def test_basic() { runnerCH.runOneTest("basic") }
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
