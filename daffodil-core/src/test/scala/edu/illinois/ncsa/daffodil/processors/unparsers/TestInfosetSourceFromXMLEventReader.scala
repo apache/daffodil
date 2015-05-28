@@ -363,4 +363,43 @@ class TestInfosetSourceFromXMLEventReader {
     assertEquals(bar_s1.toXML(), infosetXML)
   }
 
+  @Test def testInfosetArrayComplex1() {
+    val sch = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="e" dfdl:lengthKind="implicit">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="s" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="c1" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
+                  <xs:element name="c2" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+    val infosetXML = <e xmlns={ XMLUtils.EXAMPLE_NAMESPACE }><s><c1>Hello</c1></s><s><c2>World</c2></s></e>
+    val is = infosetSource(sch, infosetXML)
+    val Start(e: DIComplex) = is.next
+    val Start(as: DIArray) = is.next
+    val Start(s1: DIComplex) = is.next
+    val Start(c1: DISimple) = is.next
+    val End(c1e: DISimple) = is.next
+    val End(s1e: DIComplex) = is.next
+    val Start(s2: DIComplex) = is.next
+    val Start(c2: DISimple) = is.next
+    val End(c2e: DISimple) = is.next
+    val End(s2e: DIComplex) = is.next
+    val End(ase: DIArray) = is.next
+    val End(ee: DIComplex) = is.next
+    assertFalse(is.hasNext)
+    assertTrue(as eq ase) // exact same object
+    assertTrue(e eq ee)
+    assertTrue(c1.dataValue.isInstanceOf[String])
+    assertTrue(c1.dataValueAsString =:= "Hello")
+    assertTrue(c2.dataValue.isInstanceOf[String])
+    assertTrue(c2.dataValueAsString =:= "World")
+  }
 }
