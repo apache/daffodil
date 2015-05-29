@@ -203,6 +203,29 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e7">
+      <xs:complexType>
+        <xs:sequence dfdl:separator="-">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+          <xs:element name="month" type="xsd:string" dfdl:lengthKind="delimited"
+            dfdl:outputValueCalc="{ $ex:v1_no_default }" />
+          <xs:element name="day" type="xsd:string" dfdl:lengthKind="delimited">
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="ex:v2_with_default">{ 9 }</dfdl:setVariable>
+              </xs:appinfo>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="hour" type="xsd:int" dfdl:lengthKind="delimited"
+            dfdl:outputValueCalc="{ $ex:v2_with_default }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <xs:simpleType name="s1">
       <xs:annotation>
         <xs:appinfo source="http://www.ogf.org/dfdl/">
@@ -243,6 +266,27 @@
       </xs:complexType>
     </xs:element>
     
+    <xs:group name="g8">
+      <xs:sequence>
+        <xs:element name="month" type="xsd:string" dfdl:lengthKind="delimited"
+          dfdl:outputValueCalc="{ $ex:v1_no_default }" />
+        <xs:element ref="day" dfdl:lengthKind="explicit"
+          dfdl:length="2" />
+      </xs:sequence>
+    </xs:group>
+
+    <xs:element name="e8">
+      <xs:complexType>
+        <xs:group ref="ex:g5">
+          <xs:annotation>
+            <xs:appinfo source="http://www.ogf.org/dfdl/">
+              <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+            </xs:appinfo>
+          </xs:annotation>
+        </xs:group>
+      </xs:complexType>
+    </xs:element>
+
     <dfdl:defineVariable name="badscope" type="xs:int" defaultValue="70"/>
 
   </tdml:defineSchema>
@@ -355,6 +399,23 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="unparse_setVarOnSeq"
+    root="e7" model="v"
+    description="setVariable on a sequence and an element reference - DFDL-7-121R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e7 xmlns="http://www.example.org/example1/">
+          <month>January</month>
+          <day>23</day>
+          <hour>9</hour>
+        </e7>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>January-23-9</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="setVarChoice" root="e4"
     model="v"
     description="setVariable on a choice and choice branches - DFDL-7-132R, DFDL-7-121R">
@@ -383,6 +444,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse_setVarOnGroupRef" root="e8"
+    model="v" description="setVariable on a group reference - DFDL-7-121R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e8 xmlns="http://www.example.org/example1/">
+          <month>anything</month>
+          <day>23</day>
+        </e8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:document>January,23</tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="setVarSimpleType" root="e6"
     model="v" description="setVariable on a simpleType - DFDL-7-121R">
