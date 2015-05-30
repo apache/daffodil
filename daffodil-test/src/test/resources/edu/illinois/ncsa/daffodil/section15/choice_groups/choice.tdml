@@ -1359,8 +1359,8 @@
             <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
               <xs:complexType>
                 <xs:choice>
-                  <xs:element name="red" minOccurs="0" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
-                  <xs:element name="blue" minOccurs="0" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="red" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="blue" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
                 </xs:choice>
               </xs:complexType>
             </xs:element>
@@ -1375,8 +1375,24 @@
             <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
               <xs:complexType>
                 <xs:choice>
-                  <xs:element name="blue" minOccurs="0" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
-                  <xs:element name="red" minOccurs="0" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="blue" type="ex:blueSeq" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="red" type="ex:redSeq" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="moreInfo" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="e3">
+        <xs:complexType>
+          <xs:sequence dfdl:separator="/%NL;" dfdl:separatorPosition="postfix" dfdl:separatorSuppressionPolicy="trailingEmptyStrict">
+            <xs:element name="redOrBlue" minOccurs="0" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="blue" type="ex:blueSeq" minOccurs="0" dfdl:initiator="blue" dfdl:occursCountKind="implicit"/>
+                  <xs:element name="red" type="ex:redSeq" minOccurs="0" dfdl:initiator="red" dfdl:occursCountKind="implicit"/>
                 </xs:choice>
               </xs:complexType>
             </xs:element>
@@ -1390,7 +1406,7 @@
 <!--
      Test Name: optionalChoice01
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the first element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the first element should be selected.
 -->
   
   <tdml:parserTestCase name="optionalChoice01" root="e1"
@@ -1417,7 +1433,7 @@ it sure is/
 <!--
      Test Name: optionalChoice02
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the second element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the second element should be selected.
 -->
   
   <tdml:parserTestCase name="optionalChoice02" root="e1"
@@ -1444,7 +1460,7 @@ it sure is/
 <!--
      Test Name: optionalChoice03
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the first element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the first element should be selected.
 -->
   
   <tdml:parserTestCase name="optionalChoice03" root="e2"
@@ -1471,7 +1487,7 @@ it sure is/
 <!--
      Test Name: optionalChoice04
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated optional elements. In this case the second element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the second element should be selected.
 -->
   
   <tdml:parserTestCase name="optionalChoice04" root="e2"
@@ -1492,6 +1508,24 @@ it sure is/
         </e2>
       </tdml:dfdlInfoset>
     </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+     Test Name: optionalChoice05
+     Schema: optionalChoices
+     Purpose: This test demonstrates the scenario where you have a choice of optional elements. This should result in a Schema Definition Error.
+-->
+  
+  <tdml:parserTestCase name="optionalChoice05" root="e3"
+    model="optionalChoices">
+    <tdml:document><![CDATA[blue/is a color/
+it sure is/
+]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+    </tdml:errors>
 
   </tdml:parserTestCase>
 
