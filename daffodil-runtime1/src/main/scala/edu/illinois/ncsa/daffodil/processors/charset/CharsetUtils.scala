@@ -37,6 +37,9 @@ import java.nio.charset.Charset
 import com.ibm.icu.charset.CharsetICU
 import java.nio.charset.IllegalCharsetNameException
 import java.io.UnsupportedEncodingException
+import java.nio.ByteBuffer
+import java.nio.CharBuffer
+import java.nio.charset.CodingErrorAction
 
 class DFDLCharset(val charsetName: String) extends Serializable {
   charset // Force charset to be evaluted to ensure it's valid at compile time.  It's a lazy val so it will be evaluated when de-serialized
@@ -64,6 +67,37 @@ object CharsetUtils {
     }
     cs.getOrElse(throw new UnsupportedEncodingException(csn))
   }
+
+  /**
+   * Subtle bug in decoders in Java 7 when there is room for only 1
+   * character in the CharBuffer.
+   *
+   * While we could just test for Java 8, which doesn't have this bug,
+   * it is worthwhile to keep this in case we end up trying to support
+   * Java 7 at some point in the future.
+   */
+  lazy val hasJava7DecoderBug = {
+    val decoder = Charset.forName("utf-8").newDecoder()
+    decoder.onMalformedInput(CodingErrorAction.REPORT)
+    decoder.onUnmappableCharacter(CodingErrorAction.REPORT)
+    val bb = ByteBuffer.allocate(6)
+    bb.put(-16.toByte) // invalid first utf-8 byte
+    bb.limit(6).position(0)
+    val cb = CharBuffer.allocate(1)
+    val cr = decoder.decode(bb, cb, true)
+    if (cr.isOverflow && // This is the bug!
+      cb.position == 0 &&
+      bb.position == 0) true
+    else if (cr.isError) false // no bug
+    //    else if (cr.isOverflow && // This is what *should* happen if CodingErrorAction.REPLACE is used.
+    //      cb.position == 1 &&
+    //      bb.position == 1 &&
+    //      cb.get(0) == this.unicodeReplacementChar) false
+    else
+      Assert.invariantFailed("Unexpected decoder behavior. " + cr)
+  }
+
+  val unicodeReplacementChar = '\uFFFD'
 }
 
 class CharacterSetAlignmentError(csName: String, requiredAlignmentInBits: Int, alignmentInBitsWas: Int)
