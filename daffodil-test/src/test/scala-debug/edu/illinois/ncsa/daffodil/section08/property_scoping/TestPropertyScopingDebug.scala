@@ -51,4 +51,12 @@ class TestPropertyScopingDebug {
   //DFDL-1036 (was fixed) now DFDL-1159
   @Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
 
+  val tdml = testDir + "PropertyScoping_01.tdml"
+  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  // See DFDL-1337
+  @Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
+  // See DFDL-1342
+  @Test def test_unparse_property_scoping_04() { runner_01.runOneTest("unparse_property_scoping_04") }
+  @Test def test_unparse_property_scoping_05() { runner_01.runOneTest("unparse_property_scoping_05") }
 }

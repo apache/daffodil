@@ -87,6 +87,21 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="unparse_property_scoping_01"
+    root="myStringSeq1" model="defineFormat-Embedded.dfdl.xsd"
+    description="Section 8 - reference to a named format - DFDL-8-009R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:myStringSeq1>
+          <ex:Test1>abcd</ex:Test1>
+          <ex:Test2>efgh</ex:Test2>
+        </ex:myStringSeq1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[abcd~efgh@]]></tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:defineSchema name="defineFormat_01-Embedded.dfdl.xsd">
     <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited"
       lengthUnits="characters" encoding="UTF-8" separator="" initiator=""
@@ -108,6 +123,25 @@
       <xs:complexType>
         <xs:sequence>
           <xs:element ref="ex:shirt" maxOccurs="unbounded" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pant">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=","
+          dfdl:separatorPosition="infix" dfdl:terminator=";">
+          <xs:element name="brand" type="xs:string" />
+          <xs:element name="size" type="xs:string" />
+          <xs:element name="color" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="pants" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element ref="ex:pant" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:complexType>
     </xs:element>
@@ -143,6 +177,36 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse_property_scoping_06"
+    root="pants" model="defineFormat_01-Embedded.dfdl.xsd"
+    description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:pants>
+          <ex:pant>
+            <ex:brand>Gap</ex:brand>
+            <ex:size>15</ex:size>
+            <ex:color>blue</ex:color>
+          </ex:pant>
+          <ex:pant>
+            <ex:brand>Levi</ex:brand>
+            <ex:size>16</ex:size>
+            <ex:color>green</ex:color>
+          </ex:pant>
+          <ex:pant>
+            <ex:brand>Arrow</ex:brand>
+            <ex:size>14</ex:size>
+            <ex:color>white</ex:color>
+          </ex:pant>
+        </ex:pants>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[Gap,15,blue;Levi,16,green;Arrow,14,white;]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:defineSchema name="dfdl_subset-Embedded">
 

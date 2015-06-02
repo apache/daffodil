@@ -62,7 +62,9 @@ class TestPropertyScoping {
   //@Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }
 
   @Test def test_property_scoping_01() { runner.runOneTest("property_scoping_01") }
+  @Test def test_unparse_property_scoping_01() { runner.runOneTest("unparse_property_scoping_01") }
   @Test def test_property_scoping_06() { runner.runOneTest("property_scoping_06") }
+  @Test def test_unparse_property_scoping_06() { runner.runOneTest("unparse_property_scoping_06") }
   @Test def test_group_ref() { runner.runOneTest("group_ref") }
   @Test def test_multipleDefinition() { runner.runOneTest("multipleDefinition") }
   @Test def test_multipleDefinition2() { runner.runOneTest("multipleDefinition2") }
@@ -78,14 +80,26 @@ class TestPropertyScoping {
   lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
+  //See DFDL-1337
+  //@Test def test_unparse_property_scoping_02() { runner_01.runOneTest("unparse_property_scoping_02") }
   @Test def test_property_scoping_03() = { runner_01.runOneTest("property_scoping_03") }
+  @Test def test_unparse_property_scoping_03() = { runner_01.runOneTest("unparse_property_scoping_03") }
   @Test def test_property_scoping_04() { runner_01.runOneTest("property_scoping_04") }
   @Test def test_property_scoping_05() { runner_01.runOneTest("property_scoping_05") }
+  // See DFDL-1342
+  //@Test def test_unparse_property_scoping_04() { runner_01.runOneTest("unparse_property_scoping_04") }
+  //@Test def test_unparse_property_scoping_05() { runner_01.runOneTest("unparse_property_scoping_05") }
   @Test def test_property_scoping_07() { runner_01.runOneTest("property_scoping_07") }
+  @Test def test_unparse_property_scoping_07() { runner_01.runOneTest("unparse_property_scoping_07") }
   @Test def test_property_scoping_08() { runner_01.runOneTest("property_scoping_08") }
+  @Test def test_unparse_property_scoping_08() { runner_01.runOneTest("unparse_property_scoping_08") }
   @Test def test_property_scoping_09() { runner_01.runOneTest("property_scoping_09") }
+  @Test def test_unparse_property_scoping_09() { runner_01.runOneTest("unparse_property_scoping_09") }
   @Test def test_property_scoping_10() { runner_01.runOneTest("property_scoping_10") }
+  @Test def test_unparse_property_scoping_10() { runner_01.runOneTest("unparse_property_scoping_10") }
   @Test def test_property_scoping_11() { runner_01.runOneTest("property_scoping_11") }
+  @Test def test_unparse_property_scoping_11() { runner_01.runOneTest("unparse_property_scoping_11") }
+  @Test def test_unparse_property_scoping_12() { runner_01.runOneTest("unparse_property_scoping_12") }
   @Test def test_NearestEnclosingSequenceElementRef() { runner_01.runOneTest("NearestEnclosingSequenceElementRef") }
 
   @Test def test_property_refElementFormFail() = { runner_01.runOneTest("refElementFormFail") }
