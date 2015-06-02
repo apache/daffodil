@@ -70,6 +70,66 @@
     </xs:element>
   </tdml:defineSchema>
 
+  <tdml:defineSchema name="s1-u">
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="tns:def1" encoding="ascii"
+        lengthKind="explicit" lengthUnits="characters" length="5"
+        textNumberRep="zoned" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def2">
+      <dfdl:format ref="tns:def3" lengthKind="explicit"
+        lengthUnits="characters" length="4" representation="text"
+        textNumberRep="standard" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def3">
+      <dfdl:format ref="tns:daffodilTest1" representation="binary" />
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def1">
+      <dfdl:format ref="tns:def2" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
+      lengthUnits="characters" length="3" />
+
+    <xs:element name="easy" type="xs:int" dfdl:textNumberRep="standard">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element ref="tns:def"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
+  <tdml:defineSchema name="s1-u2">
+    <dfdl:defineFormat name="def">
+      <dfdl:format ref="tns:def1" encoding="ascii"
+        lengthKind="explicit" lengthUnits="characters" length="5"/>
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def2">
+      <dfdl:format lengthKind="explicit"
+        lengthUnits="characters" length="4" representation="text"/>
+    </dfdl:defineFormat>
+
+    <dfdl:defineFormat name="def1">
+      <dfdl:format ref="tns:def2" />
+    </dfdl:defineFormat>
+
+    <dfdl:format ref="tns:daffodilTest1" lengthKind="explicit"
+      lengthUnits="characters" length="3" />
+
+    <xs:element name="easy" type="xs:string">
+      <xs:annotation>
+        <xs:appinfo source="http://www.ogf.org/dfdl/">
+          <dfdl:element ref="tns:def"/>
+        </xs:appinfo>
+      </xs:annotation>
+    </xs:element>
+  </tdml:defineSchema>
+
 
 
   <tdml:defineSchema name="s2">
@@ -323,6 +383,17 @@
     </tdml:infoset>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="unparse_property_scoping_02"
+    root="easy" model="s1-u"
+    description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:easy>-1009</tns:easy>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>-1009</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="property_scoping_03"
     root="c3" model="s2"
     description="Section 8 An xs:simpleType restriction and its base xs:simpleType restriction - DFDL-8-024R">
@@ -337,6 +408,22 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
+  <tdml:unparserTestCase name="unparse_property_scoping_03"
+    root="c3" model="s2"
+    description="Section 8 An xs:simpleType restriction and its base xs:simpleType restriction - DFDL-8-024R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:c3>test</tns:c3>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>lengthUnits</tdml:error>
+      <tdml:error>characters</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="property_scoping_04"
     root="a" model="s3"
     description="Section 8 An xs:element and its referenced xs:simpleType restriction - DFDL-8-021R">
@@ -350,6 +437,20 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse_property_scoping_04"
+    root="a" model="s3"
+    description="Section 8 An xs:element and its referenced xs:simpleType restriction - DFDL-8-021R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:a>3</tns:a>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte">00000003</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="property_scoping_05"
     root="aaa" model="s3"
@@ -368,6 +469,24 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+  
+  <tdml:unparserTestCase name="unparse_property_scoping_05"
+    root="aaa" model="s3"
+    description="Section 8 An xs:element reference and its referenced global xs:element - DFDL-8-022R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:aaa>
+          <tns:aa>3</tns:aa>
+          <tns:aa>6</tns:aa>
+          <tns:aa>1</tns:aa>
+        </tns:aaa>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte">000000030000000600000001</tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
   
   <!--
     Test name: property_scoping_07
@@ -388,6 +507,29 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: unparse_property_scoping_07
+       Schema: dfdlRefNotFound
+         Root: easy
+      Purpose: This test demonstrates that when a format ref is not found, an error occurs.
+  -->
+
+  <tdml:unparserTestCase name="unparse_property_scoping_07"
+    root="easy" model="dfdlRefNotFound"
+    description="A test to verify that when a format ref is not found (from element) an error occurs">
+    
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:easy>3</tns:easy>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>DNE</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <!--
     Test name: property_scoping_08
        Schema: dfdlRefNotFound
          Root: easy2
@@ -405,6 +547,29 @@
       <tdml:error>found</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
+  
+  <!--
+    Test name: unparse_property_scoping_08
+       Schema: dfdlRefNotFound
+         Root: easy2
+      Purpose: This test demonstrates that when a format ref is not found, an error occurs.
+               In this case the ref is nested.
+  -->
+
+  <tdml:unparserTestCase name="unparse_property_scoping_08"
+    root="easy2" model="dfdlRefNotFound"
+    description="A test to verify that when a format ref is not found (from format) an error occurs">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:easy2>3</tns:easy2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>noWayMan</tdml:error>
+      <tdml:error>not found</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
   
   <!--
     Test name: property_scoping_09
@@ -429,6 +594,30 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: unparse_property_scoping_09
+       Schema: formatRefLongVsShortForm
+         Root: long
+      Purpose: This test demonstrates that when a format ref is not found, an error occurs.
+               In this case the ref is represented in a long-form annotation
+  -->
+
+  <tdml:unparserTestCase name="unparse_property_scoping_09"
+    root="long" model="formatRefLongVsShortForm"
+    description="A test to verify that when a format ref is not found in longForm an error occurs">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:long>3</tns:long>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dummy</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>element.aa::DFDLElement</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <!--
     Test name: property_scoping_10
        Schema: formatRefLongVsShortForm
          Root: short
@@ -451,6 +640,30 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: unparse_property_scoping_10
+       Schema: formatRefLongVsShortForm
+         Root: short
+      Purpose: This test demonstrates that when a format ref is not found, an error occurs.
+               In this case the ref is short-form
+   -->
+
+  <tdml:unparserTestCase name="unparse_property_scoping_10"
+    root="short" model="formatRefLongVsShortForm"
+    description="A test to verify that when a format ref is not found in shortForm an error occurs">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:short>3</tns:short>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>dummy</tdml:error>
+      <tdml:error>not found</tdml:error>
+      <tdml:error>sequence::element.aa::DFDLElement</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <!--
     Test name: property_scoping_11
        Schema: formatRefLongVsShortForm
          Root: longAndShort
@@ -471,6 +684,38 @@
     </tdml:errors>
   </tdml:parserTestCase>
   
+  <!--
+    Test name: unparse_property_scoping_11
+       Schema: formatRefLongVsShortForm
+         Root: longAndShort
+      Purpose: This test demonstrates that when a format ref is in both long and short form, an error occurs
+   -->
+
+  <tdml:unparserTestCase name="unparse_property_scoping_11"
+    root="longAndShort" model="formatRefLongVsShortForm"
+    description="A test to verify that when a format ref is found in both long and short form an error occurs">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:longAndShort>3</tns:longAndShort>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Both long form and short form ref attribute found</tdml:error>
+    </tdml:errors>
+  </tdml:unparserTestCase>
+  
+  <tdml:unparserTestCase name="unparse_property_scoping_12"
+    root="easy" model="s1-u2"
+    description="Section 8 Combining DFDL Representation Properties from a dfdl:defineFormat - DFDL-8-018R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <tns:easy>abcde</tns:easy>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>abcde</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="refElementFormFail"
     root="easy" model="PropertyScoping_05.dfdl.xsd"
     description="ref property may be specified in attribute or short form - DFDL-7-016R">

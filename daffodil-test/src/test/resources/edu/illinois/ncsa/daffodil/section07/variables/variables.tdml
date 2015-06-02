@@ -287,6 +287,42 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="e9" dfdl:lengthKind="implicit">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:annotation>
+              <xs:appinfo source="http://www.ogf.org/dfdl/">
+                <dfdl:setVariable ref="ex:v1_no_default">{ "January" }</dfdl:setVariable>
+              </xs:appinfo>
+            </xs:annotation>
+            <xs:element name="Sale" type="xs:string"
+              dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:setVariable ref="ex:v2_with_default">{ 29 }</dfdl:setVariable>
+                  <dfdl:assert><![CDATA[{ xs:string(.) eq "Friday" }]]></dfdl:assert>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+            <xs:element name="NoSale" type="xs:string"
+              dfdl:lengthKind="delimited">
+              <xs:annotation>
+                <xs:appinfo source="http://www.ogf.org/dfdl/">
+                  <dfdl:assert><![CDATA[{ xs:string(.) eq "Monday" }]]></dfdl:assert>
+                  <dfdl:setVariable ref="ex:v2_with_default">{ 36 }</dfdl:setVariable>
+                </xs:appinfo>
+              </xs:annotation>
+            </xs:element>
+          </xs:choice>
+          <xsd:element name="month" type="xs:string" dfdl:lengthKind="delimited"
+            dfdl:outputValueCalc="{ $ex:v1_no_default }" />
+          <xsd:element name="price" type="xs:int" dfdl:lengthKind="delimited"
+            dfdl:outputValueCalc="{ $ex:v2_with_default }" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
     <dfdl:defineVariable name="badscope" type="xs:int" defaultValue="70"/>
 
   </tdml:defineSchema>
@@ -430,6 +466,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse_setVarChoice" root="e9"
+    model="v"
+    description="setVariable on a choice and choice branches - DFDL-7-132R, DFDL-7-121R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e9 xmlns="http://www.example.org/example1/">
+          <NoSale>Monday</NoSale>
+          <month>month</month>
+          <price>36</price>
+        </e9>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>MondayJanuary36</tdml:document>
+  </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="setVarOnGroupRef" root="e5"
     model="v" description="setVariable on a group reference - DFDL-7-121R">

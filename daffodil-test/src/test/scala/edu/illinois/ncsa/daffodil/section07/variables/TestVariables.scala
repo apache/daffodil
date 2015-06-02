@@ -63,6 +63,7 @@ class TestVariables {
   @Test def test_multiSetErr() { runner.runOneTest("multiSetErr") }
   @Test def test_setAfterReadErr() { runner.runOneTest("setAfterReadErr") }
   @Test def test_setVarChoice() { runner.runOneTest("setVarChoice") }
+  @Test def test_unparse_setVarChoice() { runner.runOneTest("unparse_setVarChoice") }
   @Test def test_setVarOnSeqAndElemRef() { runner.runOneTest("setVarOnSeqAndElemRef") }
   @Test def test_unparse_setVarOnSeq() { runner.runOneTest("unparse_setVarOnSeq") }
   @Test def test_setVarOnGroupRef() { runner.runOneTest("setVarOnGroupRef") }
