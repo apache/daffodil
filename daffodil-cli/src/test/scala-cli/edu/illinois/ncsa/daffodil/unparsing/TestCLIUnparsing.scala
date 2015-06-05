@@ -152,7 +152,6 @@ class TestCLIunparsing {
     }
   }
 
-  // See DFDL-1350
   @Test def test_3584_CLI_Unparsing_SimpleUnparse_stdin4() {
 
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
@@ -402,5 +401,23 @@ class TestCLIunparsing {
     }
   }
 */
+
+  @Test def test_3662_CLI_Unparsing_badSchemaPath() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/doesnotexist.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo '<tns:e1>Hello</tns:e1>' | %s unparse -s %s -r root", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Bad arguments for option 'schema'"))
+      shell.expect(contains("Could not find file or resource"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
 
 }

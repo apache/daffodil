@@ -515,6 +515,24 @@ class TestCLIparsing {
     }
   }
 
+  @Test def test_3661_CLI_Parsing_badSchemaPath() {
+    val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/doesnotexist.dfdl.xsd"
+    val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
+
+    val shell = Util.start("", true)
+
+    try {
+      val cmd = String.format("echo 12| %s parse -s %s -r root", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("Bad arguments for option 'schema'"))
+      shell.expect(contains("Could not find file or resource"))
+      shell.sendLine("exit")
+      shell.expect(eof)
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_1002_CLI_Parsing_negativeTest03() {
     val schemaFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd"
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
