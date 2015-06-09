@@ -190,6 +190,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
       case _: AltCompParser => false
       case _: RepParser => false
       case _: OptionalInfixSepParser => false
+      case _: ConvertTextCombinatorParser => false
       case _ => true
     }
     interesting

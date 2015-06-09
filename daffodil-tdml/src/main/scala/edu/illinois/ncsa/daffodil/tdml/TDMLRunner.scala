@@ -618,10 +618,11 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
     var testPass = 1
     var stillTesting = true
     var testData = IOUtils.toByteArray(Channels.newInputStream(dataToParse))
+    var testDataLength = lengthLimitInBits
     val testInfoset = optExpectedInfoset.get
 
     while (stillTesting) {
-      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), lengthLimitInBits)
+      val actual = processor.parse(Channels.newChannel(new ByteArrayInputStream(testData)), testDataLength)
 
       if (!actual.canProceed) {
         // Means there was an error, not just warnings.
@@ -684,6 +685,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
             if (testPass == 1) {
               // Try again
               testData = outStream.toByteArray
+              testDataLength = testData.length * 8
             } else throw e
           }
         }

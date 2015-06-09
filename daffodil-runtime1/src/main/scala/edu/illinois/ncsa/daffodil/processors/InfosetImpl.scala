@@ -314,13 +314,13 @@ sealed class DISimple(val erd: ElementRuntimeData)
         //
         // Print these as needed in XML/XSD
         //
-        if (d == Double.PositiveInfinity) "INF"
-        else if (d == Double.NegativeInfinity) "-INF"
+        if (d == Double.PositiveInfinity) XMLUtils.PositiveInfinityString
+        else if (d == Double.NegativeInfinity) XMLUtils.NegativeInfinityString
         else d.toString
       }
       case f: Float => {
-        if (f == Float.PositiveInfinity) "INF"
-        else if (f == Float.NegativeInfinity) "-INF"
+        if (f == Float.PositiveInfinity) XMLUtils.PositiveInfinityString
+        else if (f == Float.NegativeInfinity) XMLUtils.NegativeInfinityString
         else f.toString
       }
       case _ => dataValue.toString
@@ -746,8 +746,22 @@ object Infoset {
         context.schemaDefinitionUnless(res.doubleValue >= 0, "Cannot convert %s to %s.", value, primType.name)
         res
       }
-      case Double => value.toDouble
-      case Float => value.toFloat
+      case Double => {
+        value match {
+          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
+          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
+          case XMLUtils.NaNString => scala.Double.NaN
+          case _ => value.toDouble
+        }
+      }
+      case Float => {
+        value match {
+          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
+          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
+          case XMLUtils.NaNString => scala.Float.NaN
+          case _ => value.toFloat
+        }
+      }
       case HexBinary => Misc.hex2Bytes(value) // convert hex constant into byte array
       case Boolean => {
         if (value == "true") true

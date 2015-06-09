@@ -51,6 +51,16 @@ import com.ibm.icu.text.NumberFormat
 import com.ibm.icu.text.DecimalFormat
 import com.ibm.icu.text.DecimalFormatSymbols
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextNumberUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
+
+case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
+  extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
+
+  def parser = new ConvertTextCombinatorParser(e.runtimeData, value.parser, converter.parser)
+
+  override def unparser = new ConvertTextCombinatorUnparser(e.runtimeData, value.unparser, converter.unparser)
+}
 
 abstract class ConvertTextNumberPrim[S](e: ElementBase)
   extends Terminal(e, true) {
@@ -149,7 +159,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
 
   def parser: Parser = new ConvertTextNumberParser[S](helper, numFormatFactory, e.elementRuntimeData)
 
-  //new ConvertTextNumberUnparser[S](helper, numFormatFactory, e)
+  override def unparser: Unparser = new ConvertTextNumberUnparser[S](helper, numFormatFactory, e.elementRuntimeData)
 }
 
 case class ConvertTextIntegerPrim(e: ElementBase) extends ConvertTextNumberPrim[BigInteger](e) {

@@ -358,27 +358,27 @@ trait ElementBaseGrammarMixin
   // depending on the length kind.
   // 
   private lazy val standardTextInteger = prod("standardTextInteger",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextIntegerPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntegerPrim(this)) }
   private lazy val standardTextDecimal = prod("standardTextDecimal",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextDecimalPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDecimalPrim(this)) }
   private lazy val standardTextNonNegativeInteger = prod("standardTextNonNegativeInteger",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextNonNegativeIntegerPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextNonNegativeIntegerPrim(this)) }
   private lazy val standardTextLong = prod("standardTextLong",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextLongPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextLongPrim(this)) }
   private lazy val standardTextInt = prod("standardTextInt",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextIntPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextIntPrim(this)) }
   private lazy val standardTextShort = prod("standardTextShort",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextShortPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextShortPrim(this)) }
   private lazy val standardTextByte = prod("standardTextByte",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextBytePrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextBytePrim(this)) }
   private lazy val standardTextUnsignedLong = prod("standardTextUnsignedLong",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextUnsignedLongPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedLongPrim(this)) }
   private lazy val standardTextUnsignedInt = prod("standardTextUnsignedInt",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextUnsignedIntPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedIntPrim(this)) }
   private lazy val standardTextUnsignedShort = prod("standardTextUnsignedShort",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextUnsignedShortPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedShortPrim(this)) }
   private lazy val standardTextUnsignedByte = prod("standardTextUnsignedByte",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextUnsignedBytePrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextUnsignedBytePrim(this)) }
   private lazy val zonedTextInt = prod("zonedTextInt",
     textNumberRep == TextNumberRep.Zoned) { ZonedTextIntPrim(this) }
 
@@ -415,7 +415,7 @@ trait ElementBaseGrammarMixin
     }
 
   private lazy val standardTextDouble = prod("standardTextDouble",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextDoublePrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextDoublePrim(this)) }
 
   private lazy val zonedTextDouble = prod("zonedTextDouble",
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
@@ -453,21 +453,21 @@ trait ElementBaseGrammarMixin
   //    }
 
   private lazy val standardTextFloat = prod("standardTextFloat",
-    textNumberRep == TextNumberRep.Standard) { stringValue ~ ConvertTextFloatPrim(this) }
+    textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextFloatPrim(this)) }
 
   private lazy val zonedTextFloat = prod("zonedTextFloat",
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
 
   private lazy val textDate = prod("textDate", impliedRepresentation == Representation.Text) {
-    stringValue ~ ConvertTextDatePrim(this)
+    ConvertTextCombinator(this, stringValue, ConvertTextDatePrim(this))
   }
 
   private lazy val textTime = prod("textTime", impliedRepresentation == Representation.Text) {
-    stringValue ~ ConvertTextTimePrim(this)
+    ConvertTextCombinator(this, stringValue, ConvertTextTimePrim(this))
   }
 
   private lazy val textDateTime = prod("textDateTime", impliedRepresentation == Representation.Text) {
-    stringValue ~ ConvertTextDateTimePrim(this)
+    ConvertTextCombinator(this, stringValue, ConvertTextDateTimePrim(this))
   }
 
   // shorthand
