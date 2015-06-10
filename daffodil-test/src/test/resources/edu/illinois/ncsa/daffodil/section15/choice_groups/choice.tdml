@@ -1454,7 +1454,7 @@ it sure is/
 <!--
      Test Name: optionalChoice03
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the first element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of optional elements. This should result in a Schema Definition Error.
 -->
   
   <tdml:parserTestCase name="optionalChoice03" root="e2"
@@ -1474,7 +1474,7 @@ it sure is/
 <!--
      Test Name: optionalChoice04
      Schema: optionalChoices
-     Purpose: This test demonstrates the scenario where you have a choice of two initiated elements in an optional choice. In this case the second element should be selected.
+     Purpose: This test demonstrates the scenario where you have a choice of optional elements. This should result in a Schema Definition Error.
 -->
   
   <tdml:parserTestCase name="optionalChoice04" root="e2"
@@ -1505,6 +1505,8 @@ it sure is/
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Branch of choice element</tdml:error>
+      <tdml:error>must be non-optional</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>
