@@ -1511,5 +1511,40 @@ it sure is/
 
   </tdml:parserTestCase>
 
+  <tdml:defineSchema name="invalidChoices">
+    <dfdl:format ref="ex:daffodilTest1" />
+
+    <xs:element name="ch1">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:choice>
+            <xs:element name="inty" type="xs:int"
+              dfdl:lengthKind="delimited" dfdl:inputValueCalc="{ 5 }" />
+            <xs:element name="stringy" type="xs:string"
+              dfdl:lengthKind="delimited" />
+          </xs:choice>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
+  </tdml:defineSchema>
+
+<!--
+     Test Name: choice_with_inputvaluecalc
+     Schema: invalidChoices
+     Purpose: This test demonstrates the scenario where you have a choice of with an inputValueCalc. This should result in a Schema Definition Error.
+-->
+
+  <tdml:parserTestCase name="choice_with_inputvaluecalc" root="ch1"
+    model="invalidChoices">
+    <tdml:document><![CDATA[test]]></tdml:document>
+
+    <tdml:errors>
+      <tdml:error>Schema Definition Error</tdml:error>
+      <tdml:error>Branch of choice element</tdml:error>
+      <tdml:error>cannot have the dfdl:inputValueCalc property</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
 
 </tdml:testSuite>

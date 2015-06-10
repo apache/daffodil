@@ -113,6 +113,8 @@ class TestChoice {
   @Test def test_choice_minOccurs() { runnerCH.runOneTest("choice_minOccurs") }
   @Test def test_choice_maxOccurs() { runnerCH.runOneTest("choice_maxOccurs") }
 
+  @Test def test_choice_with_inputvaluecalc() { runnerCH.runOneTest("choice_with_inputvaluecalc") }
+
   val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
   val tdml1 = testDir1 + "dpaext2.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
