@@ -762,7 +762,7 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val scalarNonDefaultSimpleContent = prod("scalarNonDefaultSimpleContent", isSimpleType) {
-    withDelimiterStack(nilLit || parsedNil | parsedValue)
+    withDelimiterStack(nilOrValue || nonNilNonEmptyParsedValue)
   }
 
   private def specifiedLength(bodyArg: => Gram) = {
