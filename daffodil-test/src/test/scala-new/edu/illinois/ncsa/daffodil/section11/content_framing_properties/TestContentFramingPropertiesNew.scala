@@ -48,7 +48,5 @@ class TestContentFramingPropertiesNew {
   val tdml2 = testDir_02 + "ContentFramingProps.tdml"
   lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
-  // DFDL-627 - now issues an SDE, not an abort.
-  @Test def test_encoding_property_expression() { runner2.runOneTest("encoding_property_expression") }
 
 }

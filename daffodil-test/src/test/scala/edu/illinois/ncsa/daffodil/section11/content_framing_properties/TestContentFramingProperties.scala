@@ -91,5 +91,6 @@ class TestContentFramingProperties {
   @Test def test_encodingErrorReplace2() { runner2.runOneTest("encodingErrorReplace2") }
   @Test def test_encodingErrorReplace3() { runner2.runOneTest("encodingErrorReplace3") }
   @Test def test_encodingErrorReplace4() { runner2.runOneTest("encodingErrorReplace4") }
+  @Test def test_encoding_property_expression() { runner2.runOneTest("encoding_property_expression") }
 
 }
