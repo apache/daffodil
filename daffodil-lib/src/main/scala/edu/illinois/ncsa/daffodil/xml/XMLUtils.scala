@@ -79,9 +79,8 @@ object XMLUtils {
   /**
    * Legal XML v1.0 chars are #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
    */
-  def remapXMLIllegalCharToPUA(c: Char, checkForExistingPUA: Boolean = true): Char = {
+  def remapXMLIllegalCharToPUA(checkForExistingPUA: Boolean = true)(c: Char): Char = {
     val cInt = c.toInt
-    // println("%x".format(cInt))
     val res = cInt match {
       case 0x9 => c
       case 0xA => c
@@ -100,6 +99,24 @@ object XMLUtils {
       }
       case _ => c
 
+    }
+    res
+  }
+
+  /**
+   * Reverse of the above method
+   */
+  def remapPUAToXMLIllegalChar(checkForExistingPUA: Boolean = true)(c: Char): Char = {
+    val cInt = c.toInt
+    val res = cInt match {
+      case _ if (c >= 0xE000 && c < 0xE020) => (c - 0xE000).toChar
+      case _ if (c > 0xE7FF && c < 0xF000) => (c - 0x1000).toChar
+      case 0xF0FE => 0xFFFE.toChar
+      case 0xF0FF => 0xFFFF.toChar
+      case _ if (c > 0x10FFFF) => {
+        Assert.invariantFailed("Character code beyond U+10FFFF found in data. Codepoint: %s".format(c.toInt))
+      }
+      case _ => c
     }
     res
   }
@@ -170,13 +187,13 @@ object XMLUtils {
    * it. Any changes made to this function probably need to be incorporated
    * into the other.
    */
-  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
+  def remapXMLCharacters(dfdlString: String, remapFunc: (Char) => Char): String = {
     // we want to remap XML-illegal characters
     // but leave legal surrogate-pair character pairs alone.
     def remapOneChar(previous: Char, current: Char, next: Char): Char = {
       if (isLeadingSurrogate(current) && isTrailingSurrogate(next)) return current
       if (isTrailingSurrogate(current) && isLeadingSurrogate(previous)) return current
-      remapXMLIllegalCharToPUA(current, false)
+      remapFunc(current)
     }
 
     val len = dfdlString.length
@@ -199,6 +216,14 @@ object XMLUtils {
     }
 
     sb.toString
+  }
+
+  def remapXMLIllegalCharactersToPUA(dfdlString: String): String = {
+    remapXMLCharacters(dfdlString, remapXMLIllegalCharToPUA(false))
+  }
+
+  def remapPUAToXMLIllegalCharacters(dfdlString: String): String = {
+    remapXMLCharacters(dfdlString, remapPUAToXMLIllegalChar(false))
   }
 
   /*

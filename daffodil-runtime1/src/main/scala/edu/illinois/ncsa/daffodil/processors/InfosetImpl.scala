@@ -933,15 +933,9 @@ object Infoset {
         // a node. Wierd that node.child produces a NodeSeq of children
         // which are Text or PCData or ...? nodes. But .text does the 
         // right thing with them. 
-        //
-        // The only thing left is we want to invert our illegal-XML characters
-        // from the PUA to their regular character values. E.g., &#xE000; produces
-        // unicode U+E000, but we want U+0000 (aka NUL). 
-        //
-        // FIXME: This needs to invert the PUA mapping (unless a tunable says
-        // not to)
         val value = node.child.text
-        convertToInfosetRepType(primType, value, erd)
+        val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(value)
+        convertToInfosetRepType(primType, remapped, erd)
       }
     rep
   }

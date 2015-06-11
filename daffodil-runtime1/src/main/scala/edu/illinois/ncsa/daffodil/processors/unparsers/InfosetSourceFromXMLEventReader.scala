@@ -109,7 +109,8 @@ class InfosetSourceFromXMLEventReader(
             val node = new DISimple(erd)
             nodeStack.top.addChild(node)
             val primType = erd.optPrimType.get
-            val obj = primType.fromXMLString(text)
+            val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(text)
+            val obj = primType.fromXMLString(remapped)
             node.setDataValue(obj)
             Seq(Start(node), End(node))
           }

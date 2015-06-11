@@ -384,13 +384,27 @@ object NodeInfo extends Enum {
     protected sealed trait FloatKind extends SignedNumeric.Kind
     case object Float extends PrimTypeNode(SignedNumeric, Nil) with FloatKind {
       type Kind = FloatKind
-      override def fromXMLString(s: String) = s.toFloat
+      override def fromXMLString(s: String) = {
+        s match {
+          case XMLUtils.PositiveInfinityString => scala.Float.PositiveInfinity
+          case XMLUtils.NegativeInfinityString => scala.Float.NegativeInfinity
+          case XMLUtils.NaNString => scala.Float.NaN
+          case _ => s.toFloat
+        }
+      }
     }
 
     protected sealed trait DoubleKind extends SignedNumeric.Kind
     case object Double extends PrimTypeNode(SignedNumeric, Nil) with DoubleKind {
       type Kind = DoubleKind
-      override def fromXMLString(s: String) = s.toDouble
+      override def fromXMLString(s: String) = {
+        s match {
+          case XMLUtils.PositiveInfinityString => scala.Double.PositiveInfinity
+          case XMLUtils.NegativeInfinityString => scala.Double.NegativeInfinity
+          case XMLUtils.NaNString => scala.Double.NaN
+          case _ => s.toDouble
+        }
+      }
     }
 
     protected sealed trait DecimalKind extends SignedNumeric.Kind

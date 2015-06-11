@@ -124,10 +124,17 @@ class TestXMLUtils {
   }
 
   @Test def testRemapXMLIllegalCharToPUA() {
-    val ec = XMLUtils.remapXMLIllegalCharToPUA(0x0, false)
+    val ec = XMLUtils.remapXMLIllegalCharToPUA(false)(0x0)
     assertEquals(0xE000, ec)
-    val ed = XMLUtils.remapXMLIllegalCharToPUA(0xd880, false)
+    val ed = XMLUtils.remapXMLIllegalCharToPUA(false)(0xd880)
     assertEquals(0xE880, ed)
+  }
+
+  @Test def testRemapPUAToXMLIllegalChar() {
+    val ec = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE000)
+    assertEquals(0x0, ec)
+    val ed = XMLUtils.remapPUAToXMLIllegalChar(false)(0xE880)
+    assertEquals(0xD880, ed)
   }
 
   @Test def testWalkUnicodeString1() {
