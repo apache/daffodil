@@ -258,6 +258,23 @@
     <tdml:document>test#double te##st</tdml:document>
   </tdml:unparserTestCase>
   
+<!--
+      Test Name: unparseDelimitedEscapedString11
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates unparsing a sequence of delimited strings with escape schemes
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString11" model="delimitedStringsEscapeScheme" root="e5">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e5 xmlns:ex="http://example.com">
+          <ex:s1>test</ex:s1>
+          <ex:s2>double te#st</ex:s2>
+        </ex:e5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>test#double te##st</tdml:document>
+  </tdml:unparserTestCase>
+
   <tdml:parserTestCase name="parseDelimitedEscapedString05" model="delimitedStringsEscapeScheme" root="e5">
     <tdml:document>test#double te##st</tdml:document>
     <tdml:infoset>

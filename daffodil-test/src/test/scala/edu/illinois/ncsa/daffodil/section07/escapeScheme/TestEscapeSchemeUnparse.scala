@@ -57,18 +57,17 @@ class TestEscapeSchemeUnparse {
 
   import TestEscapeSchemeUnparse._
 
-  //DFDL-1316
-  //@Test def test_unparseDelimitedEscapedString05() { runner.runOneTest("unparseDelimitedEscapedString05") }
-  
   @Test def test_unparseDelimitedEscapedString01() { runner.runOneTest("unparseDelimitedEscapedString01") }
   @Test def test_unparseDelimitedEscapedString02() { runner.runOneTest("unparseDelimitedEscapedString02") }
   @Test def test_unparseDelimitedEscapedString03() { runner.runOneTest("unparseDelimitedEscapedString03") }
   @Test def test_unparseDelimitedEscapedString04() { runner.runOneTest("unparseDelimitedEscapedString04") }
+  @Test def test_unparseDelimitedEscapedString05() { runner.runOneTest("unparseDelimitedEscapedString05") }
   @Test def test_unparseDelimitedEscapedString06() { runner.runOneTest("unparseDelimitedEscapedString06") }
   @Test def test_unparseDelimitedEscapedString07() { runner.runOneTest("unparseDelimitedEscapedString07") }
   @Test def test_unparseDelimitedEscapedString08() { runner.runOneTest("unparseDelimitedEscapedString08") }
   @Test def test_unparseDelimitedEscapedString09() { runner.runOneTest("unparseDelimitedEscapedString09") }
   @Test def test_unparseDelimitedEscapedString10() { runner.runOneTest("unparseDelimitedEscapedString10") }
+  @Test def test_unparseDelimitedEscapedString11() { runner.runOneTest("unparseDelimitedEscapedString11") }
 
   @Test def test_parseDelimitedEscapedString01() { runner.runOneTest("parseDelimitedEscapedString01") }
   @Test def test_parseDelimitedEscapedString03() { runner.runOneTest("parseDelimitedEscapedString03") }
