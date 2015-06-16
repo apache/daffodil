@@ -62,7 +62,7 @@ class TestCLIexecuting {
   val output16 = Util.getExpectedString("output16.txt", true)
 
   @Test def test_995_CLI_Executing_Listing_negativeTest01() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")
@@ -78,7 +78,7 @@ class TestCLIexecuting {
   }
 
   @Test def test_1001_CLI_Executing_Listing_execRegex01() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")
@@ -94,7 +94,7 @@ class TestCLIexecuting {
   }
 
   @Test def test_1000_CLI_Executing_Listing_listRegex02() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("", timeout = 5)
@@ -113,7 +113,7 @@ class TestCLIexecuting {
   }
 
   @Test def test_999_CLI_Executing_Listing_listRegex01() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")
@@ -135,7 +135,7 @@ class TestCLIexecuting {
   // JIRA DFDL-1240
   //
   //  @Test def test_994_CLI_Executing_Listing_execAll() {
-  //    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml"
+  //    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section31/escape_characters/Escapes.tdml")
   //    val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
   //
   //    val shell = Util.start("")
@@ -151,7 +151,7 @@ class TestCLIexecuting {
   //  }
 
   @Test def test_993_CLI_Executing_Listing_listAll() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")
@@ -173,7 +173,7 @@ class TestCLIexecuting {
   }
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")
@@ -187,9 +187,9 @@ class TestCLIexecuting {
       shell.close()
     }
   }
-  
+
   @Test def test_990_CLI_Executing_Listing_singleTest() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
 
     val shell = Util.start("")

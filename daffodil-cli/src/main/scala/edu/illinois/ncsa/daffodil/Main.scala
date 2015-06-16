@@ -618,7 +618,7 @@ object Main extends Logging {
           }
         }
       val id = new InteractiveDebugger(runner, ExpressionCompiler)
-      runner.init(id)
+      // runner.init(id)
       proc.setDebugger(id)
       proc.setDebugging(true)
     }

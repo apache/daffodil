@@ -43,6 +43,7 @@ import java.io.File
 import java.nio.file.Paths
 import scala.collection.JavaConverters._
 import java.util.concurrent.TimeUnit
+import edu.illinois.ncsa.daffodil.xml.XMLUtils
 
 object Util {
 
@@ -52,7 +53,13 @@ object Util {
 
   val isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows")
 
-  val binPath = Paths.get(".", "daffodil-cli", "target", "universal", "stage", "bin", String.format("daffodil%s", (if (isWindows) ".bat" else ""))).toString()
+  val dafRoot = sys.env.get("DAFFODIL_HOME").getOrElse(".")
+
+  def daffodilPath(dafRelativePath: String): String = {
+    XMLUtils.slashify(dafRoot) + dafRelativePath
+  }
+
+  val binPath = Paths.get(dafRoot, "daffodil-cli", "target", "universal", "stage", "bin", String.format("daffodil%s", (if (isWindows) ".bat" else ""))).toString()
 
   def getExpectedString(filename: String, convertToDos: Boolean = false): String = {
     val rsrc = Misc.getRequiredResource(outputDir + filename)
@@ -63,29 +70,29 @@ object Util {
     fileConvert(lines)
   }
 
-  def start(cmd: String, expectErr: Boolean = false, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
+  def start(cmd: String, expectErr: Boolean = false, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k " + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
-    
+
     return getShell(cmd, spawnCmd, expectErr, envp, timeout)
   }
 
-  def startIncludeErrors(cmd: String, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
+  def startIncludeErrors(cmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmdConvert(cmd)
     } else {
       "/bin/bash"
     }
-    
+
     getShellWithErrors(cmd, spawnCmd, envp, timeout)
   }
 
   // This function will be used if you are providing two separate commands
   // and doing the os check on the 'front end' (not within this utility class)
-  def startNoConvert(cmd: String, envp: Map[String,String] = Map.empty[String,String], timeout: Long = 30): Expect = {
+  def startNoConvert(cmd: String, envp: Map[String, String] = Map.empty[String, String], timeout: Long = 30): Expect = {
     val spawnCmd = if (isWindows) {
       "cmd /k" + cmd
     } else {

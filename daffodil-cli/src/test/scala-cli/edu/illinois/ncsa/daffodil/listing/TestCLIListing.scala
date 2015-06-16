@@ -50,7 +50,7 @@ import net.sf.expectit.matcher.Matchers.eof
 class TestCLIlisting {
 
   @Test def test_992_CLI_Executing_Listing_singleTestList() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/Entities.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")
 
@@ -97,7 +97,7 @@ class TestCLIlisting {
 */
 
   @Test def test_1016_CLI_Executing_Listing_listVerbose() {
-    val tdmlFile = "daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml"
+    val tdmlFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/assertions/assert.tdml")
     val testTdmlFile = if (Util.isWindows) Util.cmdConvert(tdmlFile) else tdmlFile
     val shell = Util.start("")
 
@@ -107,7 +107,7 @@ class TestCLIlisting {
 
       shell.sendLine(String.format("%s test -l -i --regex %s assertPattern.*", Util.binPath, testTdmlFile))
       shell.expect(contains("assertPatternAndExp              s2                e3         Section 7 - Assert Schema Error for Expression/Pattern - DFDL-7-047R"))
-      
+
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {
