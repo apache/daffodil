@@ -69,9 +69,7 @@ import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters.TunableLimi
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import java.util.zip.GZIPOutputStream
-import edu.illinois.ncsa.daffodil.processors.unparsers.OutStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
-import edu.illinois.ncsa.daffodil.processors.unparsers.GeneralOutStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.xml.scalaLib.PrettyPrinter
@@ -79,6 +77,10 @@ import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorAlreadyHandled
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * Implementation mixin - provides simple helper methods
@@ -179,26 +181,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     val rootERD = ssrd.elementRuntimeData
 
     val initialState =
-      if (!areDebugging && ssrd.encodingInfo.isScannable &&
-        ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        ssrd.encodingInfo.knownEncodingIsFixedWidth &&
-        ssrd.encodingInfo.knownEncodingAlignmentInBits == 8 // byte-aligned characters
-        ) {
-        // use simpler text only I/O layer
-        val jis = Channels.newInputStream(input)
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-          ssrd.elementRuntimeData,
-          jis, ssrd.encodingInfo.knownEncodingName, lengthLimitInBits)
-        PState.createInitialPState(rootERD,
-          inStream,
-          this)
-      } else {
-        PState.createInitialPState(rootERD,
-          input,
-          this,
-          bitOffset = 0,
-          bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
-      }
+      PState.createInitialPState(rootERD,
+        input,
+        this,
+        bitOffset = 0,
+        bitLengthLimit = lengthLimitInBits) // TODO also want to pass here the externally set variables, other flags/settings.
     parse(initialState)
   }
 
@@ -206,23 +193,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
     Assert.usage(!this.isError)
 
     val initialState =
-      if (!areDebugging && ssrd.encodingInfo.isScannable &&
-        ssrd.encodingInfo.defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace &&
-        ssrd.encodingInfo.knownEncodingIsFixedWidth) {
-        // use simpler I/O layer
-        val inStream = InStream.forTextOnlyFixedWidthErrorReplace(
-          ssrd.elementRuntimeData,
-          file, ssrd.encodingInfo.knownEncodingName, -1)
-        PState.createInitialPState(ssrd.elementRuntimeData,
-          inStream,
-          this)
-      } else {
-        PState.createInitialPState(ssrd.elementRuntimeData,
-          FileChannel.open(file.toPath),
-          this,
-          bitOffset = 0,
-          bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
-      }
+      PState.createInitialPState(ssrd.elementRuntimeData,
+        FileChannel.open(file.toPath),
+        this,
+        bitOffset = 0,
+        bitLengthLimit = file.length * 8) // TODO also want to pass here the externally set variables, other flags/settings.
     parse(initialState)
   }
 
@@ -239,15 +214,35 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         val pr = new ParseResult(this, state)
         pr.validateResult(state)
         return pr
+      } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
+        case th: Throwable =>
+          System.err.println("Unexpected throw of " + th)
+          throw th // place for a breakpoint
       } finally {
-        state.dataProc.fini(ssrd.parser)
+        val s = state
+        val dp = s.dataProc
+        val ssrdParser = ssrd.parser
+        dp.fini(ssrdParser)
       }
     }
   }
 
+  object dataInputStreamLimits extends DataStreamCommon.Limits {
+    def maximumSimpleElementSizeInBytes: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
+    def maximumSimpleElementSizeInCharacters: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
+    def maximumForwardSpeculationLengthInBytes: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
+    def maximumRegexMatchLengthInCharacters: Long = DaffodilTunableParameters.maxFieldContentLengthInBytes
+    def defaultInitialRegexMatchLimitInChars: Long = DaffodilTunableParameters.defaultInitialRegexMatchLimitInChars
+  }
+
   private def doParse(p: Parser, state: PState) {
     try {
-      p.parse1(state, ssrd.elementRuntimeData)
+      state.dataInputStream.setLimits(dataInputStreamLimits)
+      this.startElement(state, p)
+      p.parse1(state)
+      this.endElement(state, p)
     } catch {
       // technically, runtime shouldn't throw. It's really too heavyweight a construct. And "failure" 
       // when parsing isn't exceptional, it's routine behavior. So ought not be implemented via an 
@@ -278,6 +273,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
       case e: TunableLimitExceededError => {
         state.setFailed(e)
       }
+    } finally {
+      state.dataInputStream.validateFinalStreamState
     }
   }
 
@@ -295,10 +292,8 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
 
   def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = {
     Assert.usage(!this.isError)
-    val out = new GeneralOutStream(output,
-      0L,
-      -1L, // a count, not a position
-      BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0.
+    val out = BasicDataOutputStream(output)
+    out.setBitOrder(BitOrder.MostSignificantBitFirst) // FIXME: derive from rootERD (doesn't have currently.) Note: only needed if starting bit position isn't 0
     val unparserState =
       UState.createInitialUState(
         out,

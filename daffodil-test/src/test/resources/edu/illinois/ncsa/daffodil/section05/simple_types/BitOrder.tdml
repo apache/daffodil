@@ -162,7 +162,8 @@
   <tdml:defineSchema name="s2">
     <dfdl:format ref="ex:daffodilTest1" representation="binary"
       lengthUnits="bits" bitOrder='leastSignificantBitFirst' lengthKind='explicit'
-      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'/>
+      alignmentUnits='bits' alignment='1' binaryNumberRep='binary'
+      byteOrder="littleEndian"/>
 
     <xs:element name="leastFirst" dfdl:lengthKind='implicit'>
       <xs:complexType>

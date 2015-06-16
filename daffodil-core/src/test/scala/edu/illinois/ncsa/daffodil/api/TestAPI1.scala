@@ -147,7 +147,6 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       val actual = TestUtils.testString(sch, "55.001")
     }
-    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
@@ -238,7 +237,6 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       val actual = TestUtils.testString(sch, "-3")
     }
-    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedLong"))
   }
 
@@ -250,7 +248,6 @@ class TestDFDLParser {
       // As of 18:31 UTC (EST+5) Jun 8, 2012
       val actual = TestUtils.testString(sch, "7,018,631,476")
     }
-    println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedInt"))
   }
 
@@ -261,7 +258,6 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       val actual = TestUtils.testString(sch, "-1")
     }
-    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedShort"))
   }
 
@@ -272,7 +268,6 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       val actual = TestUtils.testString(sch, "256")
     }
-    // println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:unsignedByte"))
   }
 
@@ -331,7 +326,6 @@ class TestDFDLParser {
     val e = intercept[Exception] {
       val actual = TestUtils.testString(sch, "A").result
     }
-    //println("ERROR!!!!!" + e.getMessage())
     assertTrue(e.getMessage().contains("xs:int"))
   }
 
@@ -393,7 +387,8 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5;6;7;8;.").result
+    val areTracing = false
+    val actual = TestUtils.testString(sch, "5;6;7;8;.", areTracing).result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }
@@ -408,7 +403,8 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testString(sch, "5;6;7;8;.").result
+    val areTracing = false
+    val actual = TestUtils.testString(sch, "5;6;7;8;.", areTracing).result
     val expected = <e1><s1>5</s1><s1>6</s1><s1>7</s1><s1>8</s1></e1>
 
     TestUtils.assertEqualsXMLElements(expected, actual)
@@ -440,7 +436,8 @@ class TestDFDLParser {
           </xs:sequence>
         </xs:complexType>
       </xs:element>)
-    val actual = TestUtils.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F").result
+    val areTracing = false
+    val actual = TestUtils.testBinary(sch, "000000013bFFFFFFFF3b080402013b000000003bFFFFFF7F", areTracing).result
     val expected = <e1><s1>1</s1><s1>-1</s1><s1>134480385</s1><s1>0</s1><s2>2147483647</s2></e1>
     TestUtils.assertEqualsXMLElements(expected, actual)
   }

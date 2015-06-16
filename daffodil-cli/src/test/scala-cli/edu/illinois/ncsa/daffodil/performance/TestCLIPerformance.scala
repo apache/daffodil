@@ -52,6 +52,7 @@ import net.sf.expectit.matcher.Matchers.regexp
 import net.sf.expectit.matcher.Matchers.eof
 import net.sf.expectit.matcher.Matchers.anyString
 import scala.language.postfixOps
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestCLIPerformance {
 
@@ -132,6 +133,10 @@ class TestCLIPerformance {
       shell.close()
     }
   }
+
+  lazy val runner = Runner("/", "clitests.tdml")
+
+  @Test def test_3395_CLI_Performance_5_Threads_50_Times_tdml() { runner.runOneTest("test_3395_CLI_Performance_5_Threads_50_Times") }
 
   @Test def test_3395_CLI_Performance_5_Threads_50_Times() {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd")

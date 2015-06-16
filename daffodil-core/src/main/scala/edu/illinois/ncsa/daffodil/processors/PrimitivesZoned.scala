@@ -39,8 +39,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.parsers.ZonedTextNumberParser
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 
-abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends Terminal(e, guard) {
-  def parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)
+abstract class ZonedTextNumberPrim(e: ElementBase, guard: Boolean) extends UnimplementedPrimitive(e, guard) {
+  // def parser: DaffodilParser = new ZonedTextNumberParser(e.elementRuntimeData)
 }
 
 case class ZonedTextBytePrim(el: ElementBase) extends ZonedTextNumberPrim(el, false)

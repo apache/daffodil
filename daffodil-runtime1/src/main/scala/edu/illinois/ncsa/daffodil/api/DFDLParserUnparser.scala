@@ -211,14 +211,9 @@ object DFDL {
    * Interface for Parse and Unparse states
    */
   trait State {
-    // TODO: add common elements
     def status: ProcessorResult
     def diagnostics: Seq[Diagnostic]
     def currentLocation: DataLocation
-    /**
-     * Calling this forces the entire input into memory.
-     */
-    def lengthInBytes: Long
   }
 
   /**

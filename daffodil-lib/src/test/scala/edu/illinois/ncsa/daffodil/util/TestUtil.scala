@@ -58,8 +58,12 @@ class TestUtil {
 
   @Test
   def testAssert() {
-    intercept[Abort] {
+    try {
       Assert.abort("yadda")
+      fail()
+    } catch {
+      case u: UnsuppressableException => // ok
+        assertTrue(u.getMessage().contains("yadda"))
     }
   }
 

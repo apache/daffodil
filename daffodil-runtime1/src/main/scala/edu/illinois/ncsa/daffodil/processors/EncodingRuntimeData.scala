@@ -44,6 +44,11 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.NoSchemaFileLocation
 import edu.illinois.ncsa.daffodil.util.PreSerialization
+import edu.illinois.ncsa.daffodil.processors.charset.CharsetUtils
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.CharsetDecoder
+import java.nio.charset.Charset
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -90,35 +95,37 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
   final lazy val knownEncodingIsFixedWidth = {
     if (!isKnownEncoding) false
     else {
-      val res = knownEncodingName.toUpperCase match {
-        case "US-ASCII" | "ASCII" => true
-        case "US-ASCII-7-BIT-PACKED" => true
-        case "UTF-8" => false
-        case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
-          if (utf16Width == UTF16Width.Fixed) true
-          else false
+      val res = knownEncodingCharset.charset match {
+        case nbs: NonByteSizeCharset => true
+        case _ => knownEncodingName.toUpperCase match {
+          case "US-ASCII" | "ASCII" => true
+          case "UTF-8" => false
+          case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
+            if (utf16Width == UTF16Width.Fixed) true
+            else false
+          }
+          case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
+          case "ISO-8859-1" => true
+          case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
         }
-        case "UTF-32" | "UTF-32BE" | "UTF-32LE" => true
-        case "ISO-8859-1" => true
-        case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
       }
       res
     }
   }
 
-  final lazy val knownEncodingWidthInBits = {
-    // knownEncodingCharset.width()
-    val res = knownEncodingName match {
-      case "US-ASCII" | "ASCII" => 8
-      case "US-ASCII-7-BIT-PACKED" => 7 // NOTE! 7-bit characters dense packed. 8th bit is NOT unused. 
-      case "UTF-8" => -1
-      case "UTF-16" | "UTF-16LE" | "UTF-16BE" => {
-        if (utf16Width == UTF16Width.Fixed) 16
-        else -1
+  final lazy val knownEncodingWidthInBits = encodingMinimumCodePointWidthInBits(knownEncodingCharset.charset)
+
+  final def encodingMinimumCodePointWidthInBits(cs: Charset) = {
+    val res = cs match {
+      case nbs: NonByteSizeCharset => nbs.bitWidthOfACodeUnit
+      case _ => cs.name match {
+        case "US-ASCII" | "ASCII" => 8
+        case "UTF-8" => 8
+        case "UTF-16" | "UTF-16LE" | "UTF-16BE" => 16
+        case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 32
+        case "ISO-8859-1" => 8
+        case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
       }
-      case "UTF-32" | "UTF-32BE" | "UTF-32LE" => 32
-      case "ISO-8859-1" => 8
-      case _ => schemaDefinitionError("Text encoding '%s' is not supported.", knownEncodingName)
     }
     res
   }
@@ -134,22 +141,30 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
 
   final lazy val couldBeVariableWidthEncoding = !knownEncodingIsFixedWidth
 
-  final def knownEncodingStringBitLength(str: String) = {
-    //
-    // This will be called at runtime, so let's decide
-    // what we can, and return an optimized function that 
-    // has characteristics of the encoding wired down.
-    //
-    if (knownEncodingIsFixedWidth) {
-      str.length * knownEncodingWidthInBits
-    } else {
-      // variable width encoding, so we have to convert each character 
-      // We assume here that it will be a multiple of bytes
-      // that is, that variable-width encodings are all some number
-      // of bytes.
-      str.getBytes(knownEncodingName).length * 8
-    }
+  final def knownFixedWidthEncodingInCharsToBits(nChars: Long): Long = {
+    Assert.usage(isKnownEncoding)
+    Assert.usage(knownEncodingIsFixedWidth)
+    val nBits = knownEncodingWidthInBits * nChars
+    nBits
   }
+
+  //  @deprecated("2015-07-09", "Can't measure string bit lengths properly this way. Use DataInputStream.")
+  //  final def knownEncodingStringBitLength(str: String) = {
+  //    //
+  //    // This will be called at runtime, so let's decide
+  //    // what we can, and return an optimized function that 
+  //    // has characteristics of the encoding wired down.
+  //    //
+  //    if (knownEncodingIsFixedWidth) {
+  //      str.length * knownEncodingWidthInBits
+  //    } else {
+  //      // variable width encoding, so we have to convert each character 
+  //      // We assume here that it will be a multiple of bytes
+  //      // that is, that variable-width encodings are all some number
+  //      // of bytes.
+  //      str.getBytes(knownEncodingName).length * 8
+  //    }
+  //  }
 }
 
 /**
@@ -174,6 +189,26 @@ final class EncodingRuntimeData(
   val isScannable: Boolean,
   override val knownEncodingAlignmentInBits: Int)
   extends KnownEncodingMixin with ImplementsThrowsSDE with PreSerialization {
+
+  private def getCharset(state: ParseOrUnparseState): Charset = {
+    if (isKnownEncoding) return knownEncodingCharset.charset
+    val encAsAny = encoding.evaluate(state)
+    val encString = encAsAny.asInstanceOf[String]
+    val cs = CharsetUtils.getCharset(encString)
+    cs
+  }
+
+  def getDecoder(state: ParseOrUnparseState): CharsetDecoder = {
+    val cs = getCharset(state)
+    val decoder = state.getDecoder(cs)
+    decoder
+  }
+
+  def getEncoder(state: ParseOrUnparseState): CharsetEncoder = {
+    val cs = getCharset(state)
+    val encoder = state.getEncoder(cs)
+    encoder
+  }
 
   lazy val termRuntimeData = termRuntimeDataArg
 

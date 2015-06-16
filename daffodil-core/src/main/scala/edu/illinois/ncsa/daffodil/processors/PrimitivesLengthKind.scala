@@ -61,15 +61,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EscapeKind._
 import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInBytesParser
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInBytesFixedWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringFixedLengthInBytesVariableWidthCharactersParser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInVariableWidthCharactersParser
-import edu.illinois.ncsa.daffodil.processors.parsers.StringVariableLengthInBytesVariableWidthCharactersParser
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
@@ -78,24 +72,18 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsP
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
-import edu.illinois.ncsa.daffodil.processors.parsers.StringPatternMatchedParser
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.parsers.OptionalInfixSepParser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringFixedLengthInBytesFixedWidthCharactersUnparser
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.unparsers.LiteralNilDelimitedEndOfDataUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StringDelimitedUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.OptionalInfixSepUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.StringPatternMatchedUnparser
-
-abstract class StringLength(e: ElementBase)
-  extends DelimParserBase(e, true)
-  with Padded {
-
-  def lengthText: String
-  def parserName: String
-
-}
+import edu.illinois.ncsa.daffodil.processors.parsers.StringOfSpecifiedLengthParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringOfSpecifiedLengthUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.processors.unparsers.StringLiteralForUnparser
 
 abstract class HexBinaryLengthInBytes(e: ElementBase)
   extends Terminal(e, true) {
@@ -112,8 +100,10 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
     nBytes
   }
 
-  def parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
+  override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
     e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
@@ -127,8 +117,10 @@ case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
     nBytes
   }
 
-  def parser: DaffodilParser = new HexBinaryFixedLengthInBitsParser(nBits,
+  override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBitsParser(nBits,
     e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
@@ -137,126 +129,103 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
   lazy val parserName = "HexBinaryVariableLengthInBytes"
   lazy val lengthText = e.length.prettyExpr
 
-  def parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
+  override lazy val parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
     e.length)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
-case class StringFixedLengthInBytesFixedWidthCharacters(e: ElementBase, nBytes: Long)
-  extends StringLength(e) {
+case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {
 
-  lazy val parserName = "StringFixedLengthInBytesFixedWidthCharacters"
-  lazy val lengthText = nBytes.toString
+  override lazy val parser: DaffodilParser =
+    new StringOfSpecifiedLengthParser(parsingPadChar,
+      justificationTrim,
+      e.elementRuntimeData)
 
-  def getLength(pstate: PState): Long = {
-    nBytes
-  }
+  override lazy val unparser: Unparser =
+    new StringOfSpecifiedLengthUnparser(unparsingPadChar,
+      justificationPad,
+      e.elementRuntimeData, true)
 
-  override lazy val parser: DaffodilParser = new StringFixedLengthInBytesFixedWidthCharactersParser(
-    nBytes,
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    lengthText)
-
-  override lazy val unparser: DaffodilUnparser = new StringFixedLengthInBytesFixedWidthCharactersUnparser(
-    nBytes,
-    justificationPad,
-    unparsingPadChar, // for unparsing, we use the unparsingPadChar
-    e.elementRuntimeData,
-    lengthText)
 }
 
-case class StringFixedLengthInBytesVariableWidthCharacters(e: ElementBase, nBytes: Long)
-  extends StringLength(e) {
-
-  lazy val parserName = "StringFixedLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = nBytes.toString
-
-  def getLength(pstate: PState): Long = {
-    nBytes
-  }
-
-  override lazy val parser: DaffodilParser = new StringFixedLengthInBytesVariableWidthCharactersParser(
-    nBytes,
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    lengthText)
-}
-
-case class StringFixedLengthInVariableWidthCharacters(e: ElementBase, numChars: Long)
-  extends StringLength(e) {
-
-  lazy val parserName = "StringFixedLengthInVariableWidthCharacters"
-  lazy val lengthText = numChars.toString
-
-  override lazy val parser: DaffodilParser = new StringFixedLengthInVariableWidthCharactersParser(
-    numChars,
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    lengthText)
-}
-
-case class StringVariableLengthInBytes(e: ElementBase)
-  extends StringLength(e) {
-
-  lazy val parserName = "StringVariableLengthInBytes"
-  lazy val lengthText = e.length.prettyExpr
-
-  override lazy val parser: DaffodilParser = new StringVariableLengthInBytesParser(
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    e.length,
-    lengthText)
-}
-
-case class StringVariableLengthInBytesVariableWidthCharacters(e: ElementBase)
-  extends StringLength(e) {
-
-  lazy val parserName = "StringVariableLengthInBytesVariableWidthCharacters"
-  lazy val lengthText = e.length.prettyExpr
-
-  override lazy val parser: DaffodilParser = new StringVariableLengthInBytesVariableWidthCharactersParser(
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    e.length,
-    lengthText)
-}
-
-case class StringVariableLengthInVariableWidthCharacters(e: ElementBase)
-  extends StringLength(e) {
-
-  lazy val parserName = "StringVariableLengthInVariableWidthCharacters"
-  lazy val lengthText = e.length.prettyExpr
-
-  override lazy val parser: DaffodilParser = new StringVariableLengthInVariableWidthCharactersParser(
-    justificationTrim,
-    parsingPadChar,
-    e.elementRuntimeData,
-    e.length,
-    lengthText)
-}
-
-case class StringPatternMatched(e: ElementBase)
-  extends Terminal(e, true)
-  with Padded {
-
-  val pattern = e.lengthPattern
-
-  def parser: DaffodilParser = {
-    PatternChecker.checkPattern(pattern, e)
-    new StringPatternMatchedParser(pattern, e.elementRuntimeData,
-      justificationTrim, parsingPadChar)
-  }
-
-  override def unparser: DaffodilUnparser = {
-    PatternChecker.checkPattern(pattern, e)
-    new StringPatternMatchedUnparser(e.elementRuntimeData)
-  }
-}
+//case class StringFixedLengthInBytes(e: ElementBase, nBytes: Long)
+//  extends StringLength(e) {
+//
+//  lazy val parserName = "StringFixedLengthInBytes"
+//  lazy val lengthText = nBytes.toString
+//
+//  def getLength(pstate: PState): Long = {
+//    nBytes
+//  }
+//
+//  override lazy val parser: DaffodilParser = new StringFixedLengthInBytesParser(
+//    nBytes,
+//    justificationTrim,
+//    parsingPadChar,
+//    e.elementRuntimeData,
+//    lengthText)
+//}
+//
+//case class StringFixedLengthInCharacters(e: ElementBase, numChars: Long)
+//  extends StringLength(e) {
+//
+//  lazy val parserName = "StringFixedLengthInCharacters"
+//  lazy val lengthText = numChars.toString
+//
+//  override lazy val parser: DaffodilParser = new StringFixedLengthInCharactersParser(
+//    numChars,
+//    justificationTrim,
+//    parsingPadChar,
+//    e.elementRuntimeData,
+//    lengthText)
+//}
+//
+//case class StringVariableLengthInBytes(e: ElementBase)
+//  extends StringLength(e) {
+//
+//  lazy val parserName = "StringVariableLengthInBytes"
+//  lazy val lengthText = e.length.prettyExpr
+//
+//  override lazy val parser: DaffodilParser = new StringVariableLengthInBytesParser(
+//    justificationTrim,
+//    parsingPadChar,
+//    e.elementRuntimeData,
+//    e.length,
+//    lengthText)
+//}
+//
+//case class StringVariableLengthInCharacters(e: ElementBase)
+//  extends StringLength(e) {
+//
+//  lazy val parserName = "StringVariableLengthInCharacters"
+//  lazy val lengthText = e.length.prettyExpr
+//
+//  override lazy val parser: DaffodilParser = new StringVariableLengthInCharactersParser(
+//    justificationTrim,
+//    parsingPadChar,
+//    e.elementRuntimeData,
+//    e.length,
+//    lengthText)
+//}
+//
+//case class StringPatternMatched(e: ElementBase)
+//  extends Terminal(e, true)
+//  with Padded {
+//
+//  val pattern = e.lengthPattern
+//
+//  def parser: DaffodilParser = {
+//    PatternChecker.checkPattern(pattern, e)
+//    new StringPatternMatchedParser(pattern, e.elementRuntimeData,
+//      justificationTrim, parsingPadChar)
+//  }
+//
+//  override def unparser: DaffodilUnparser = {
+//    PatternChecker.checkPattern(pattern, e)
+//    new StringPatternMatchedUnparser(e.elementRuntimeData)
+//  }
+//}
 
 abstract class StringDelimited(e: ElementBase)
   extends DelimParserBase(e, true)
@@ -383,16 +352,6 @@ case class HexBinaryDelimitedEndOfData(e: ElementBase)
 case class LiteralNilDelimitedEndOfData(eb: ElementBase)
   extends StringDelimited(eb) {
 
-  lazy val nilValuesCooked = new ListOfStringValueAsLiteral(eb.nilValue, eb).cooked
-
-  lazy val nilValueUnparseString = {
-    val firstNilValue = eb.nilValue.split("""\s+""").head
-    val nv = EntityReplacer { er => er.replaceForUnparse(firstNilValue) }
-    nv
-  }
-
-  lazy val isEmptyAllowed = eb.nilValue.contains("%ES;") // TODO: move outside parser
-
   lazy val isDelimRequired: Boolean = false
 
   override lazy val parser: DaffodilParser =
@@ -402,15 +361,18 @@ case class LiteralNilDelimitedEndOfData(eb: ElementBase)
       parsingPadChar,
       fieldFactory,
       parserFactory,
-      nilValuesCooked)
+      eb.cookedNilValuesForParse,
+      eb.rawNilValuesForParse)
+
+  private lazy val slNilValue =
+    StringLiteralForUnparser(eb.elementRuntimeData, eb.outputNewLine, eb.rawNilValuesForUnparse.head)
 
   override lazy val unparser: DaffodilUnparser =
-    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, nilValueUnparseString, justificationPad, parsingPadChar, isDelimRequired,
-      eb.outputNewLine)
+    new LiteralNilDelimitedEndOfDataUnparser(eb.elementRuntimeData, slNilValue, justificationPad, parsingPadChar, isDelimRequired)
 
 }
 
-case class PrefixLength(e: ElementBase) extends Primitive(e, e.lengthKind == LengthKind.Prefixed)
+case class PrefixLength(e: ElementBase) extends UnimplementedPrimitive(e, e.lengthKind == LengthKind.Prefixed)
 
 class OptionalInfixSep(term: Term, sep: => Gram, guard: Boolean = true) extends Terminal(term, guard) {
 

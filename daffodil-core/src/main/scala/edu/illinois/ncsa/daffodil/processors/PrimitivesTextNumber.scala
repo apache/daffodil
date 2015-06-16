@@ -90,7 +90,7 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       try {
         val nf = new DecimalFormat(p)
       } catch {
-        case ex: Exception => e.SDE("Invalid textNumberPattern: " + ex.getMessage)
+        case ex: IllegalArgumentException => e.SDE("Invalid textNumberPattern: " + ex.getMessage)
       }
 
       (p, patternNoQuoted)

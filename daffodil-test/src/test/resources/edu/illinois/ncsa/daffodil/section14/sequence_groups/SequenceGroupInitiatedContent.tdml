@@ -58,7 +58,7 @@
         <xs:sequence dfdl:initiatedContent="yes"
           dfdl:separatorPosition="infix" dfdl:separator="">
           <xs:element name="s1" dfdl:initiator="[s1:" type="xs:int"
-            dfdl:terminator="]" minOccurs="0" dfdl:lengthKind="explicit"
+            dfdl:terminator="]" dfdl:lengthKind="explicit"
             dfdl:length="{ 3 }" />
           <xs:element name="s2" dfdl:initiator="[s2:" type="xs:int"
             dfdl:terminator="]" minOccurs="0" dfdl:lengthKind="explicit"

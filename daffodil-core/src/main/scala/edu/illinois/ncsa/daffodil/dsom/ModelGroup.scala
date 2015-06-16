@@ -244,6 +244,9 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     case _ => None
   }
 
+  // FIXME:
+  // THis is wrong. Somewhere one must compute whether something is known to be of byte length
+  //  but this code never does. 
   final override lazy val isKnownToBePrecededByAllByteLengthItems: Boolean = {
     val es = nearestEnclosingSequence
     es match {
@@ -258,17 +261,6 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       }
     }
   }
-
-  final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
-    if (alignmentValueInBits == 1) {
-      alignmentUnits match {
-        case AlignmentUnits.Bits => true
-        case AlignmentUnits.Bytes => isKnownToBePrecededByAllByteLengthItems
-      }
-    } else if (alignmentValueInBits > 1) {
-      isKnownToBePrecededByAllByteLengthItems
-    } else false
-  }.value
 
   final def allSelfContainedTermsTerminatedByRequiredElement: Seq[Term] =
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
@@ -312,7 +304,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       } else {
         var ec = enclosingTerm.get
         while (!ec.isInstanceOf[ElementBase] &&
-               !ec.asInstanceOf[ModelGroup].hasRequiredNextSiblingElement) {
+          !ec.asInstanceOf[ModelGroup].hasRequiredNextSiblingElement) {
           ec = ec.enclosingTerm.get
         }
         val ee = ec match {

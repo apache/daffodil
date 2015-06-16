@@ -1701,13 +1701,13 @@
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+      <tdml:error>Cannot parse number from empty string</tdml:error>
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
       <!-- <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('C') - element.branch2: Delimiter not found!</tdml:error> -->
-      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('CompiledExpression(C)') - element.branch2: Delimiter not found!</tdml:error>
-      <tdml:error>Was looking for (C) but found "2" instead</tdml:error>
+      <tdml:error>branch2</tdml:error>
+      <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
 
     <tdml:validationErrors>
@@ -1760,12 +1760,12 @@
       
       <!-- Failure for branch1:e2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Convert to Unlimited Size Non Negative Integer (for xs:nonNegativeInteger): Cannot parse number from empty string</tdml:error>
+      <tdml:error>Cannot parse number from empty string</tdml:error>
 
       <!-- Failure for branch2  -->
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Alternative failed. Reason(s): List(Parse Error: Init('CompiledExpression(C)') - element.branch2: Delimiter not found!</tdml:error>
-      <tdml:error>Was looking for (C) but found "2" instead</tdml:error>
+      <tdml:error>branch2</tdml:error>
+      <tdml:error>Delimiter not found</tdml:error>
     </tdml:errors>
   
   </tdml:parserTestCase>

@@ -53,6 +53,7 @@ object TypeConversions extends TypeChecks {
 
   private def tryCatch[T](context: ThrowsSDE, msg: String, args: Any*)(f: => T): T = {
     try { f } catch {
+      case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case n: Exception => context.SDE(msg, args: _*) // TODO: Internationalization
     }
@@ -199,11 +200,15 @@ trait TypeChecks {
       val dt = df.parse(date)
       new java.math.BigDecimal(dt.getTime())
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e1: Exception => {
         try {
           // Could already be a BigDecimal
           new java.math.BigDecimal(date)
         } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
           case e2: Exception => context.SDE("Failed to parse (%s) to %s (%s) due to %s (after %s).", date, dateType, format, e2.getMessage(), e1.getMessage())
         }
       }

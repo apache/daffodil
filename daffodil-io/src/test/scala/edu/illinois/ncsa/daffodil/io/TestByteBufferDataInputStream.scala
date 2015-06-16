@@ -15,6 +15,8 @@ import java.util.regex.Pattern
 import scala.collection.mutable.ArrayBuffer
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 
 class TestByteBufferDataInputStream {
   val tenDigits = "1234567890"
@@ -93,15 +95,14 @@ class TestByteBufferDataInputStream {
   @Test def testBitLengthLimit1 {
     val dis = ByteBufferDataInputStream(twenty)
     val bb = ByteBuffer.allocate(20)
-    val nobj = dis.withBitLengthLimit(80) {
-      val res = dis.fillByteBuffer(bb).asInstanceOf[Any]
+    val isLimitOk = dis.withBitLengthLimit(80) {
+      val maybeNBytes = dis.fillByteBuffer(bb)
       assertEquals(80, dis.bitLimit0b.get)
       assertEquals(80, dis.bitPos0b)
-      res
+      assertTrue(maybeNBytes.isDefined)
+      assertEquals(10, maybeNBytes.get)
     }
-    val n = nobj.asInstanceOf[Maybe[Int]]
-    assertTrue(n.isDefined)
-    assertEquals(10, n.get)
+    assertTrue(isLimitOk)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
     assertEquals(0x30.toByte, bb.get())
@@ -192,11 +193,14 @@ class TestByteBufferDataInputStream {
 
   @Test def testSignedLong3 {
     val dis = ByteBufferDataInputStream(twenty)
+    // buffer has 0x3132 in first 16 bits
+    // binary that is 00110001 00110010
     var ml = dis.getSignedLong(1)
     assertEquals(0L, ml.get)
     assertEquals(1, dis.bitPos0b)
     ml = dis.getSignedLong(9)
-    assertEquals(0x31.toLong << 2, ml.get)
+    // those bits are 0110001 00 which is 0x0C4 and sign bit is 0 (positive)
+    assertEquals(0x0C4L, ml.get)
     assertEquals(10, dis.bitPos0b)
   }
 
@@ -226,17 +230,18 @@ class TestByteBufferDataInputStream {
     assertEquals(1, ml.get)
     ml = dis.getSignedLong(32)
     assertEquals(33, dis.bitPos0b)
-    assertEquals(((0xC1C2C3C4C5C6C7C8L << 1) >> 32), ml.get)
+    val expected = (((0xC1C2C3C4C5L >> 7) & 0xFFFFFFFFL) << 32) >> 32 // sign extend
+    assertEquals(expected, ml.get)
   }
 
   @Test def testSignedLong7 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
-    var ml = dis.getSignedLong(1)
-    assertEquals(1, dis.bitPos0b)
-    assertEquals(1, ml.get)
+    var ml = dis.getSignedLong(2)
+    assertEquals(2, dis.bitPos0b)
+    assertEquals(-1, ml.get)
     ml = dis.getSignedLong(32)
-    assertEquals(33, dis.bitPos0b)
-    val expected = (0xC1C2C3C4C5000000L << 1) >> 32
+    assertEquals(34, dis.bitPos0b)
+    val expected = (0xC1C2C3C4C5L >> 6) & 0xFFFFFFFFL // will be positive, no sign extend
     assertEquals(expected, ml.get)
   }
 
@@ -249,12 +254,12 @@ class TestByteBufferDataInputStream {
   }
 
   @Test def testUnsignedLong2 {
-    val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
+    val dis = ByteBufferDataInputStream(List(0xA5, 0xA5, 0xA5, 0xA5, 0xA5).map { _.toByte }.toArray)
     dis.getSignedLong(1)
     assertEquals(1, dis.bitPos0b)
     var ml = dis.getUnsignedLong(32)
     assertEquals(33, dis.bitPos0b)
-    val expected = (ULong(0xC1C2C3C4C5000000L) << 1) >> 32
+    val expected = ULong(0x4b4b4b4bL)
     assertEquals(expected, ml.get)
   }
 
@@ -296,6 +301,45 @@ class TestByteBufferDataInputStream {
     assertEquals(40, dis.bitPos0b)
     val expected = BigInt(0xC1C2C3C4C5L)
     assertEquals(expected, ml.get)
+  }
+
+  @Test def testUnsignedBigInt3 {
+    val dat = "7766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100"
+    val dats = dat.sliding(2, 2).toList.flatMap { Misc.hex2Bytes(_) }.toArray
+    val dis = ByteBufferDataInputStream(dats)
+    dis.setByteOrder(ByteOrder.LittleEndian)
+    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
+    val mbi = dis.getUnsignedBigInt(dat.length * 4)
+    assertTrue(mbi.isDefined)
+    val expected = BigInt(dat.reverse, 16)
+    val expectedHex = "%x".format(expected)
+    val actualHex = "%x".format(mbi.get)
+    assertEquals(expectedHex, actualHex)
+  }
+
+  @Test def testUnsignedBigInt4 {
+    val expectedHex = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff0011223344556677"
+    assertEquals(720, expectedHex.length)
+    val expected = BigInt(expectedHex, 16)
+    val valueWithExtraLSByte = expected << 8
+    assertEquals(0, (valueWithExtraLSByte & 0xFF).toInt)
+    assertEquals(0x77, (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xFF).toInt)
+    val valueWith3BitsInLSByte = valueWithExtraLSByte >> 3
+    assertEquals(0xE0, (valueWith3BitsInLSByte & 0xFF).toInt)
+    val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian = valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
+    val dat = valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian.toArray
+    assertEquals(361, dat.length)
+    assertEquals(0xE0.toByte, dat.head)
+    val dis = ByteBufferDataInputStream(dat, 5)
+    dis.setByteOrder(ByteOrder.LittleEndian)
+    dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
+    val nBits = (expectedHex.length * 4)
+    val mbi = dis.getUnsignedBigInt(nBits)
+    assertTrue(mbi.isDefined)
+    val actual = mbi.get
+    val actualHex = "%x".format(actual)
+    val expectedHexNoLeadingZeros = "%x".format(expected)
+    assertEquals(expectedHexNoLeadingZeros, actualHex)
   }
 
   @Test def testAlignAndSkip1 {
@@ -457,7 +501,7 @@ class TestByteBufferDataInputStream {
    * Illustrates that you cannot restart a match that is
    * partway through the regex.
    */
-  @Test def characterizeMatcherAfterHitEndRequireEnd1 {
+  @Test def testCharacterizeMatcherAfterHitEndRequireEnd1 {
     val pat = Pattern.compile("a*")
     val m = pat.matcher("")
     val cb = CharBuffer.wrap("aaaaa")
@@ -486,7 +530,7 @@ class TestByteBufferDataInputStream {
     assertEquals(1, end)
   }
 
-  @Test def characterizeMatcherAfterHitEndRequireEnd2 {
+  @Test def testCharacterizeMatcherAfterHitEndRequireEnd2 {
     val pat = Pattern.compile("a*b")
     val m = pat.matcher("")
     val cb = CharBuffer.wrap("aaab")
@@ -524,7 +568,7 @@ class TestByteBufferDataInputStream {
    * the nBytesConsumed by the fillCharBuffer gives the right
    * length.
    */
-  @Test def characterizeMatcherAfterHitEndRequireEnd2a {
+  @Test def testCharacterizeMatcherAfterHitEndRequireEnd2a {
     val pat = Pattern.compile("aaa*b")
     val m = pat.matcher("")
     val cb = CharBuffer.wrap("aaab")
@@ -619,6 +663,27 @@ class TestByteBufferDataInputStream {
     assertEquals("abc年de月fg日\uFFFDхи", actual)
     val expectedByteLength = data1.length + badByte.length + "хи".getBytes(enc).length
     assertEquals(expectedByteLength * 8, dis.bitPos0b)
+  }
+
+  @Test def testDotMatchesNewline1 {
+    val enc = "iso-8859-1"
+    val dataURI = Misc.getRequiredResource("iso8859.doc.dat")
+    val dataInput = dataURI.toURL.openStream()
+    val dis = ByteBufferDataInputStream(dataInput, 0)
+    val regex = """(?x)(?s) # free spacing mode, dot matches newlines too
+            .{1,8192}?                # up to 8K of front matter page content
+            \f?                       # a form-feed
+            (?=                       # lookahead (followed by but not including...)
+              (?> \s | \x08 ){1,100}? # whitespace or backspace (x08)
+              MESSAGE\ DESCRIPTION\r
+              \s{1,100}?
+              -{19}\r                 # exactly 19 hyphens and a CR
+            )                         # end lookahead """
+    val pattern = Pattern.compile(regex)
+    val matcher = pattern.matcher("")
+    val isMatch = dis.lookingAt(matcher)
+    assertFalse(isMatch)
+    assertTrue(matcher.hitEnd)
   }
 
 }

@@ -168,7 +168,7 @@ class UnorderedSequenceParser(
 
   def parse(start: PState): Unit = withParseErrorThrowing(start) {
     ???
-    val end = uoSeqParser.parse1(start, context)
+    val end = uoSeqParser.parse1(start)
     //    val currentElemAfter = end.parentElement.jdomElt.get
 
     //    checkScalarsOccurExactlyOnce(currentElemAfter, end)

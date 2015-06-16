@@ -46,7 +46,7 @@ abstract class PrimParser(contextArg: RuntimeData)
   extends DaffodilParser(contextArg)
   with WithParseErrorThrowing {
 
-  override def childProcessors = Nil
+  override protected def childProcessors = Nil
 
 }
 

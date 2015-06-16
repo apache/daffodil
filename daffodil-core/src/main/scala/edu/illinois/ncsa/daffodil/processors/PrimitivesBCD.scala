@@ -34,4 +34,4 @@ package edu.illinois.ncsa.daffodil.processors
 
 import edu.illinois.ncsa.daffodil.dsom._
 
-case class BCDIntPrim(e: ElementBase) extends Primitive(e, false)
+case class BCDIntPrim(e: ElementBase) extends UnimplementedPrimitive(e, false)

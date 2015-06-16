@@ -8,9 +8,6 @@ import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.parsers.LeadingSkipRegionParser
-import edu.illinois.ncsa.daffodil.processors.parsers.TrailingSkipRegionParser
-import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
 

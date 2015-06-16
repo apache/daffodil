@@ -409,7 +409,8 @@
     <tdml:document><![CDATA[1:2;3;4.]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error: Assertion failed.</tdml:error>
-      <tdml:error>Details: string matching regex `(?s)\d:\d;\d,\d.' expected</tdml:error>
+      <tdml:error>Assertion failed for pattern '12345'</tdml:error>
+      <!-- <tdml:error>\d:\d;\d,\d.</tdml:error> -->
     </tdml:errors>
   </tdml:parserTestCase>
 

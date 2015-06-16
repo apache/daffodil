@@ -53,7 +53,6 @@ class TestDumpDisplay {
         "¡¢£¤¥¦§¨©ª«¬" +
         "-" + // 0xAD soft hyphen mapped to regular hyphen (because soft hyphen seems to be a zero-width in many fonts.
         "®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþÿ"
-    println(exp)
     assertEquals(exp, res)
   }
 

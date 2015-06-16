@@ -38,6 +38,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer._
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
+import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 
 /**
  * These are the DFDL properties which can have their values come
@@ -51,15 +53,32 @@ trait CommonRuntimeValuedPropertiesMixin
   with RawCommonRuntimeValuedPropertiesMixin { decl: SchemaComponent =>
 
   final lazy val byteOrder = LV('byteOrder) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, byteOrderRaw) }.value
-  final lazy val encoding = LV('encoding) { ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw) }.value
-  final lazy val outputNewLine = LV('outputNewLine) {
-    //
-    // FIXME unparser: outputNewLineRaw might be a literal, in which case
-    // we do entity replacements. However, if it is an expression, we don't
-    // do entity replacements. This code just always replaces entities.
-    val exprOrLiteral = EntityReplacer { _.replaceAll(outputNewLineRaw.value, Some(decl)) }
 
-    val c = ExpressionCompiler.compile(NodeInfo.NonEmptyString, Found(exprOrLiteral, outputNewLineRaw.location))
+  final lazy val encoding = LV('encoding) {
+    this match {
+      case eb: ElementBase if (eb.isSimpleType && eb.primType =:= PrimType.HexBinary) => {
+        //
+        // We treat hex binary as a string in iso-8859-1 encoding.
+        // That lets us reuse the various string parsing bases to grab the content.
+        //
+        ConstantExpression(PrimType.HexBinary, "iso-8859-1")
+      }
+      case _ => ExpressionCompiler.compile(NodeInfo.NonEmptyString, encodingRaw)
+    }
+  }.value
+
+  final lazy val outputNewLine = LV('outputNewLine) {
+    // First compile is just to take advantage of the expression compiler's ability
+    // to detect expressions vs. string literals, so we know whether or not to substitute
+    // for entities.
+    val ce = ExpressionCompiler.compile(NodeInfo.NonEmptyString, outputNewLineRaw)
+    val exprOrLiteral = if (ce.isConstant) EntityReplacer { _.replaceAll(ce.constantAsString, Some(decl)) } else outputNewLineRaw.value
+
+    val c =
+      if (ce.isConstant) {
+        // compile again, since we've now substituted for entities
+        ExpressionCompiler.compile(NodeInfo.NonEmptyString, Found(exprOrLiteral, outputNewLineRaw.location))
+      } else ce // use what we already compiled.
     if (c.isConstant) {
       val s = c.constantAsString
       this.schemaDefinitionUnless(!s.contains("%NL;"), "outputNewLine cannot contain NL")

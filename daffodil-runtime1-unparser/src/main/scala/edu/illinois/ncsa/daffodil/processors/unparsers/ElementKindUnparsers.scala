@@ -171,7 +171,7 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
     }
 
     val childUnparser = eventUnparserMap.get(key).getOrElse {
-      UnparseError(One(mgrd.schemaFileLocation), One(start), "Encountered event %s. Expected one of %s.",
+      UnparseError(One(mgrd.schemaFileLocation), One(start.currentLocation), "Encountered event %s. Expected one of %s.",
         key, eventUnparserMap.keys.mkString(", "))
     }
     childUnparser.unparse1(start, mgrd)
@@ -306,7 +306,7 @@ class ArrayCombinatorUnparser(erd: ElementRuntimeData, bodyUnparser: Unparser)
 
     event = ustate.next()
     if (!(event.isInstanceOf[End] && event.node.isInstanceOf[DIArray])) {
-      UnparseError(One(erd.schemaFileLocation), One(ustate), "Needed end of array, but found %s.", event)
+      UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Needed end of array, but found %s.", event)
     }
 
     val shouldValidate = ustate.dataProc.getValidationMode != ValidationMode.Off

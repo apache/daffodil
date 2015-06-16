@@ -43,6 +43,35 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 /**
+ * This mixin for setting up all the characteristics of charset encoding
+ */
+trait TextUnparserRuntimeMixin extends TextParserUnparserRuntimeBase {
+
+  /**
+   * Override this in selected derived classes such as the hexBinary ones in order
+   * to force use of specific encodings.
+   */
+  protected def encoder(state: UState, trd: TermRuntimeData) = trd.encodingInfo.getEncoder(state)
+
+  // TODO: This is the wrong way to do these sorts of setting changes, as this incurs overhead
+  // for every Term instance parsed/unparsed.
+  //
+  // The right way to fix this is the way BitOrderChange works. The schema compiler
+  // detects when the encoding may have changed, and inserts a parser that just changes it then,
+  // at that point. 
+  //
+  // Since the vast bulk of DFDL schemas will use a constant encoding (even if it is computed at runtime), that's going to mean it is set
+  // once at the root, and never touched again.
+  //
+  final protected def setupEncoder(state: UState, trd: TermRuntimeData) {
+    val dis = state.dataOutputStream
+    setupEncoding(state, trd)
+    dis.setEncoder(encoder(state, trd)) // must set after the above since this will compute other settings based on those.
+  }
+
+}
+
+/**
  * Vast majority of unparsers (all?) are actually Term unparsers.
  */
 abstract class TermUnparser(val termRuntimeData: TermRuntimeData) extends Unparser(termRuntimeData)
@@ -64,7 +93,7 @@ abstract class Unparser(override val context: RuntimeData)
   }
 
   def UE(ustate: UState, s: String, args: Any*) = {
-    UnparseError(One(context.schemaFileLocation), One(ustate), s, args: _*)
+    UnparseError(One(context.schemaFileLocation), One(ustate.currentLocation), s, args: _*)
   }
 }
 
@@ -121,162 +150,3 @@ case class DummyUnparser(primitiveName: String) extends Unparser(null) {
   override def toBriefXML(depthLimit: Int = -1) = "<dummy primitive=\"%s\"/>".format(primitiveName)
   override def toString = "DummyUnparser (%s)".format(primitiveName)
 }
-//}
-//
-///**
-// * Encapsulates the I/O as an abstraction that works something like a java.nio.CharBuffer, but a
-// * bit more specialized for DFDL needs.
-// */
-//trait OutStream {
-//  def setEncoder(encoder: CharsetEncoder)
-//  def write()
-//  def charBufferToByteBuffer()
-//
-//  def getData(): String
-//  def clearCharBuffer()
-//  def fillCharBuffer(str: String)
-//  def fillByteBuffer[T](num: T, name: String, order: java.nio.ByteOrder)
-//}
-//
-///*
-// * Not thread safe. We're depending on the CharBuffer being private to us.
-// */
-//class OutStreamFromByteChannel(context: ElementBase, outStream: DFDL.Output, sizeHint: Long = 1024 * 128, bufPos: Int = 0) extends OutStream with Logging { // 128K characters by default.
-//  val maxCharacterWidthInBytes = 4 //FIXME: worst case. Ok for testing. Don't use this pessimistic technique for real data.
-//  var cbuf = CharBuffer.allocate(maxCharacterWidthInBytes * sizeHint.toInt) // FIXME: all these Int length limits are too small for large data blobs
-//  var bbuf = ByteBuffer.allocate(0)
-//  var encoder: CharsetEncoder = null //FIXME
-//  var charBufPos = bufPos //pointer to end of CharBuffer
-//
-//  def setEncoder(enc: CharsetEncoder) { encoder = enc }
-//
-//  /*
-//   * Writes unparsed data in CharBuffer to outputStream.
-//   */
-//  def write() {
-//    //if CharBuffer was used, move contents to ByteBuffer
-//    //FIXME: CharBuffer overwrites ByteBuffer for mixed data
-//    if (encoder != null) charBufferToByteBuffer()
-//
-//    outStream.write(bbuf)
-//  }
-//
-//  /*
-//   * Takes unparsed data from CharBuffer and encodes it in ByteBuffer
-//   */
-//  def charBufferToByteBuffer() {
-//    bbuf = ByteBuffer.allocate(cbuf.length() * maxCharacterWidthInBytes)
-//    encoder.reset()
-//
-//    val cr1 = encoder.encode(cbuf, bbuf, true) // true means this is all the input you get.
-//    cbuf.clear() //remove old data from previous element
-//    charBufPos = bufPos //reset pointer to end of CharBuffer
-//
-//    log(LogLevel.Debug, "Encode Error1: " + cr1.toString())
-//    if (cr1 != CoderResult.UNDERFLOW) {
-//      if (cr1 == CoderResult.OVERFLOW) {
-//        // it's ok. It just means we've satisfied the byte buffer.
-//      } //else
-//      // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr1)   
-//    }
-//    val cr2 = encoder.flush(bbuf)
-//    log(LogLevel.Debug, "Encode Error2: " + cr2.toString())
-//    if (cr2 != CoderResult.UNDERFLOW) {
-//      // Something went wrong
-//      // Assert.abort("Something went wrong while encoding characters: CoderResult = " + cr2) 
-//      // FIXME: proper handling of errors. Some of which are 
-//      // to be suppressed, other converted, others skipped, etc. 
-//    }
-//    encoder = null
-//    bbuf.flip() // so the caller can read
-//  }
-//
-//  def getData(): String = {
-//    cbuf.toString
-//  }
-//
-//  def clearCharBuffer() {
-//    cbuf.clear()
-//    charBufPos = 0
-//  }
-//
-//  /*
-//   * Moves data to CharBuffer, resizing as necessary.
-//   */
-//  def fillCharBuffer(str: String) {
-//    var isTooSmall = true
-//    val temp =
-//      if (charBufPos != 0) cbuf.toString()
-//      else ""
-//
-//    while (isTooSmall) {
-//      try { //writing all data to char buffer
-//        cbuf.position(charBufPos)
-//        cbuf.put(str, 0, str.length())
-//        charBufPos = cbuf.position()
-//
-//        cbuf.flip()
-//        isTooSmall = false
-//      } catch { //make sure buffer was not written to capacity
-//        case u: UnsuppressableException => throw u
-//        case e: Exception => {
-//          cbuf = CharBuffer.allocate(cbuf.position() * 4) // TODO: more efficient algorithm than size x4
-//          if (temp != "")
-//            cbuf.put(temp)
-//        }
-//      }
-//    }
-//  }
-//
-//  /*
-//   * Moves data to ByteBuffer by data's type and byte order.
-//   */
-//  def fillByteBuffer[T](num: T, name: String, order: java.nio.ByteOrder) {
-//
-//    name match {
-//      case "byte" | "unsignedByte" => {
-//        bbuf = ByteBuffer.allocate(1)
-//        bbuf.order(order)
-//        bbuf.put(num.asInstanceOf[Byte])
-//      }
-//      case "short" | "unsignedShort" => {
-//        bbuf = ByteBuffer.allocate(2)
-//        bbuf.order(order)
-//        bbuf.putShort(num.asInstanceOf[Short])
-//      }
-//      case "int" | "unsignedInt" => {
-//        bbuf = ByteBuffer.allocate(4)
-//        bbuf.order(order)
-//        bbuf.putInt(num.asInstanceOf[Int])
-//      }
-//      case "long" | "unsignedLong" => {
-//        bbuf = ByteBuffer.allocate(8)
-//        bbuf.order(order)
-//        bbuf.putLong(num.asInstanceOf[Long])
-//      }
-//      case "double" => {
-//        bbuf = ByteBuffer.allocate(8)
-//        bbuf.order(order)
-//        bbuf.putDouble(num.asInstanceOf[Double])
-//      }
-//      case "float" => {
-//        bbuf = ByteBuffer.allocate(4)
-//        bbuf.order(order)
-//        bbuf.putFloat(num.asInstanceOf[Float])
-//      }
-//      case "hexBinary" => {
-//        val bytes = num.asInstanceOf[Array[Byte]]
-//        bbuf = ByteBuffer.allocate(bytes.length)
-//        bbuf.order(order)
-//        for (i <- 0 until bytes.length) {
-//          bbuf.put(bytes(i))
-//        }
-//      }
-//      case _ => {
-//        Assert.notYetImplemented()
-//      }
-//    }
-//    bbuf.flip() //so bbuf can be read
-//  }
-//}
-

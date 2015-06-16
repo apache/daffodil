@@ -80,12 +80,12 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
     val msg = "Expression evaluation failed due to: %s.".format(DiagnosticUtils.getSomeMessage(e).get)
     state match {
       case pstate: PState => {
-        val pe = new ParseError(One(ci.schemaFileLocation), One(pstate), msg)
+        val pe = new ParseError(One(ci.schemaFileLocation), One(pstate.currentLocation), msg)
         pstate.setFailed(pe)
         null
       }
       case ustate: UState => {
-        UnparseError(One(ci.schemaFileLocation), One(ustate), msg)
+        UnparseError(One(ci.schemaFileLocation), One(ustate.currentLocation), msg)
       }
     }
   }

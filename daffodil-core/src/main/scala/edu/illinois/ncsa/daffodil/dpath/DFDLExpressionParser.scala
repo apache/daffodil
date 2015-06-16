@@ -61,7 +61,7 @@ class DFDLPathExpressionParser(
   nodeInfoKind: NodeInfo.Kind,
   namespaces: NamespaceBinding,
   context: DPathCompileInfo,
-  isEvaluatedAbove: Boolean = false) extends RegexParsers {
+  isEvaluatedAbove: Boolean) extends RegexParsers {
 
   def compile(expr: String): CompiledExpression = {
     val tree = getExpressionTree(expr)

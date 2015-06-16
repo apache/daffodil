@@ -48,7 +48,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
    * further overridden in ElementRefGrammarMixin
    */
   override lazy val termContentBody = prod("termContentBody") { // override in ElementRef
-    bitOrderChange ~ (if (isScalar) scalarDefaultable else recurrance)
+    (if (isScalar) scalarDefaultable else recurrance)
   }
 
   protected final lazy val allowedValue = prod("allowedValue") { notStopValue | value }

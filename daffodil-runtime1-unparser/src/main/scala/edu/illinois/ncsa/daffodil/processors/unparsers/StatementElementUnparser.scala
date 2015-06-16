@@ -138,7 +138,7 @@ class StatementElementUnparser(
         Assert.invariant(infoElement.runtimeData == erd)
       }
       //      case Start(infoArr: DIArray) => UE(state, "Required Start Element event, but recieved: %s.", event)
-      case _ => UnparseError(Nope, One(state), "Expected Start Element event, but received: %s.", event)
+      case _ => UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
     }
   }
 
@@ -148,7 +148,7 @@ class StatementElementUnparser(
       case End(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
       }
-      case _ => UnparseError(Nope, One(state), "Expected element end event, but received: %s.", event)
+      case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event, but received: %s.", event)
     }
     move(state)
   }

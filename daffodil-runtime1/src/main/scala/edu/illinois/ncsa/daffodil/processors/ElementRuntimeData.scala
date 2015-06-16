@@ -127,7 +127,8 @@ class ElementRuntimeData(
   val notReferencedByExpressions: Boolean,
   fillByteValue: Int,
   val optTruncateSpecifiedLengthString: Option[Boolean])
-  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue)
+  extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue,
+    defaultBitOrder)
   with HasSlotIndexInParent {
 
   lazy val children = childrenArg

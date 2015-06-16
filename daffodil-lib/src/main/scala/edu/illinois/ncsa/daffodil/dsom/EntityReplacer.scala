@@ -236,7 +236,7 @@ final class EntityReplacer {
     replace(input, charClassReplacements)
   }
 
-  private val markerForNL = "\uFFFC__NL_ENTITY__\uFFFC"
+  val markerForNL = "\uFFFC__NL_ENTITY__\uFFFC"
   private val markerForDoublePercent = "\uFFFC__DOUBLE_PERCENT__\uFFFC"
 
   // double percent, but not triple (or longer). Must be viewed as pairs So that %%%CR; is %% followed by %CR;
@@ -251,6 +251,8 @@ final class EntityReplacer {
    *
    * Special treatment for the NL entity, and double percent.
    * These are replaced with unique marker strings. (Which cannot appear in the data - this is checked)
+   *
+   * The returned value has the NL entities replaced by the markerforNL
    */
   def replaceForUnparse(raw: String): String = {
     markerForDPMatcher.reset(raw)
@@ -260,10 +262,11 @@ final class EntityReplacer {
 
     DPMatcher.reset(raw)
     val dpMarked = DPMatcher.replaceAll(markerForDoublePercent)
-    NLMatcher.reset(dpMarked)
+    val forUnp = replaceAll(dpMarked, None, true)
+    NLMatcher.reset(forUnp)
     val nlMarked = NLMatcher.replaceAll(markerForNL)
-    val s = replaceAll(nlMarked, None, true)
-    s
+    val s2 = nlMarked.replaceAll(markerForDoublePercent, "%") // put back double percents. Leaving the markers for NL
+    s2
   }
 
   /**
@@ -451,9 +454,9 @@ abstract class StringLiteralBase(rawArg: String) {
  *
  *  This is the kind of string literal you can use within an expression.
  */
-class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
+class StringValueAsLiteral(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer { e => e.replaceAll(raw, Some(context)) }
+  def cooked = EntityReplacer { e => e.replaceAll(raw, Some(context), forUnparse) }
 
   val whitespaceMatcher = """.*(\s+).*""".r
   val hasWhitespace: Boolean = rawArg match {
@@ -463,19 +466,19 @@ class StringValueAsLiteral(rawArg: String, context: ThrowsSDE)
   context.schemaDefinitionWhen(hasWhitespace, "The string (%s) must not contain any whitespace. Use DFDL Entities instead.", rawArg)
 }
 
-class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE)
-  extends StringValueAsLiteral(rawArg, context) {
+class SingleCharacterLiteral(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false)
+  extends StringValueAsLiteral(rawArg, context, forUnparse) {
   context.schemaDefinitionUnless(cooked.length == 1, "Length of string must be exactly 1 character.")
 }
 
-class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE)
-  extends StringValueAsLiteral(rawArg, context) {
+class SingleCharacterLiteralES(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false)
+  extends StringValueAsLiteral(rawArg, context, forUnparse) {
   context.schemaDefinitionUnless(cooked.length() == 1 || cooked.length() == 0, "Length of string must be exactly 1 character or be empty.")
 }
 
-class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
+class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false)
   extends StringLiteralBase(rawArg) {
-  def cooked = EntityReplacer { _.replaceAll(raw, Some(context)) }
+  def cooked = EntityReplacer { _.replaceAll(raw, Some(context), forUnparse) }
   // deal with raw bytes entities
   // deal with character class entities
 
@@ -488,24 +491,24 @@ class OneDelimiterLiteral(rawArg: String, context: ThrowsSDE)
 
 }
 
-class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE) {
+class ListOfStringValueAsLiteral(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false) {
+  def rawList = rawArg.split("\\s+").toList
   def cooked = {
-    val list = rawArg.split("\\s+").toList
     val cookedList: ListBuffer[String] = ListBuffer.empty
-    list.foreach(x => {
-      val l = new StringValueAsLiteral(x, context)
+    rawList.foreach(x => {
+      val l = new StringValueAsLiteral(x, context, forUnparse)
       cookedList += l.cooked
     })
     cookedList.toList
   }
 }
 
-class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE) {
+class ListOfSingleCharacterLiteral(rawArg: String, context: ThrowsSDE, forUnparse: Boolean = false) {
   def cooked = {
     val list = rawArg.split("\\s+")
     val cookedList: ListBuffer[Char] = ListBuffer.empty
     list.foreach(x => {
-      val l = new SingleCharacterLiteral(x, context)
+      val l = new SingleCharacterLiteral(x, context, forUnparse)
       cookedList += l.cooked(0)
     })
     cookedList.toList

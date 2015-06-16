@@ -12,7 +12,11 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
-import edu.illinois.ncsa.daffodil.processors.ScalaPatternParser
+import java.util.regex.Pattern
+import edu.illinois.ncsa.daffodil.util.OnStack
+import java.util.regex.Matcher
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import java.nio.charset.CharsetDecoder
 
 abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
   erd: ElementRuntimeData)
@@ -21,27 +25,41 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
 
   override lazy val childProcessors = Seq(eParser)
 
-  final def parse(pstate: PState, endBitPos: Long) = {
-    log(LogLevel.Debug, "Limiting data to %s bits.", endBitPos)
-    val savedLimit = pstate.bitLimit0b
-    val startPos0b = pstate.bitPos0b
-    pstate.setEndBitLimit(endBitPos)
-    eParser.parse1(pstate, erd)
-    val limitedLength = endBitPos - startPos0b
-    val endOfChildrenPos0b = pstate.bitPos0b
-    val childrenLength = endOfChildrenPos0b - startPos0b
+  /**
+   * Computes number of bits in length. If an error occurs this should
+   * modify the state to reflect a processing error.
+   */
+  protected def getBitLength(s: PState): Long
 
-    log(LogLevel.Debug, "Restoring data limit to %s bits.", pstate.bitLimit0b)
+  final def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
 
-    pstate.setEndBitLimit(savedLimit)
-    pstate.status match {
-      case Success => {
-        // Check that the parsed length is less than or equal to the length of the parent
-        //Assert.invariant(postState2.bitPos <= endBitPos)
-        this.PECheck(pstate.bitPos <= endBitPos, "The parsed length of the children (%s bits) was greater than that of the parent (%s bits).", childrenLength, limitedLength)
-        pstate.setPos(endBitPos, -1, Nope)
-      }
-      case _ => //ok
+    val nBits = getBitLength(pState)
+    if (pState.status ne Success) return
+    var dis = pState.dataInputStream
+
+    val startingBitPos0b = dis.bitPos0b
+    val isLimitOk = dis.withBitLengthLimit(nBits) {
+      eParser.parse1(pState)
+    }
+    if (!isLimitOk) {
+      val availBits = dis.remainingBits.map { _.toString }.getOrElse("(unknown)")
+      PE(pState, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
+      return
+    }
+    // at this point the recursive parse of the children is finished
+    // so if we're still successful we need to advance the position
+    // to skip past any bits that the recursive child parse did not 
+    // consume at the end. That is, the specified length can be an 
+    // outer constraint, but the children may not use it all up, leaving
+    // a section at the end.
+    if (pState.status != Success) return
+    val finalEndPos0b = startingBitPos0b + nBits
+    Assert.invariant(dis eq pState.dataInputStream)
+    val bitsToSkip = finalEndPos0b - dis.bitPos0b
+    Assert.invariant(bitsToSkip >= 0) // if this is < 0, then the parsing of children went past the limit, which it isn't supposed to.
+    if (bitsToSkip > 0) {
+      // skip left over bits
+      dis.skip(bitsToSkip)
     }
   }
 
@@ -50,193 +68,138 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
 class SpecifiedLengthPatternParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
-  patternString: String)
+  pattern: java.util.regex.Pattern)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  private lazy val compiledPattern = ScalaPatternParser.compilePattern(patternString, erd)
+  object withMatcher extends OnStack[Matcher](pattern.matcher(""))
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
-    val in = start.inStream
+  final override protected def getBitLength(s: PState): Long = {
+    val dis = s.dataInputStream
+    val mark = dis.mark
+    withMatcher { m =>
+      val isMatch = dis.lookingAt(m)
 
-    val reader = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos)
+      // That matched or it didn't. We don't care. We care that
+      // the lookingAt call advanced the bitPos to after the match
+      // which means not at all if there was no match.
+      val endBitLimit = dis.bitPos0b
 
-    val result = ScalaPatternParser.parseInputPatterned(compiledPattern, reader)
-
-    val endBitPos =
-      result match {
-        case f if f.isFailure => start.bitPos + 0 // no match == length is zero!
-        case s => start.bitPos + s.numBits(erd)
-      }
-    parse(start, endBitPos)
+      dis.reset(mark)
+      val length = endBitLimit - dis.bitPos0b
+      length
+    }
   }
 }
 
 class SpecifiedLengthExplicitBitsParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   length: CompiledExpression,
   toBits: Int)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  // TODO: These SpecifiedLength* classes need some refactorization. This
-  // function and getLength are all copied in numerous places 
-
-  def getBitLength(s: PState): Long = {
+  final override def getBitLength(s: PState): Long = {
     val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
     nBytes * toBits
-  }
-
-  def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
-
-    val nBits = getBitLength(pState)
-    val in = pState.inStream
-
-    val startBitPos = pState.bitPos
-    try {
-      val nBytes = scala.math.ceil(nBits / 8.0).toLong
-      val bytes = in.getBytes(pState.bitPos, nBytes)
-      val endBitPos = pState.bitPos + nBits
-      parse(pState, endBitPos)
-    } catch {
-      case ex: IndexOutOfBoundsException => {
-        // Insufficient bytes in field, but we need to still allow processing
-        // to test for Nils
-        val endBitPos = startBitPos + 0
-        parse(pState, endBitPos)
-      }
-      case u: UnsuppressableException => throw u
-      case e: Exception => {
-        PE(pState, "SpecifiedLengthExplicitBitsParser - Exception: \n%s", e.getStackTraceString)
-      }
-    }
   }
 }
 
 class SpecifiedLengthExplicitBitsFixedParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
-  nBits: Long,
-  dcharset: DFDLCharset)
+  nBits: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
-
-    val in = start.inStream
-
-    try {
-      val nBytes = scala.math.ceil(nBits / 8.0).toLong
-      val bytes = in.getBytes(start.bitPos, nBytes)
-      val endBitPos = start.bitPos + nBits
-      parse(start, endBitPos)
-    } catch {
-      case ex: IndexOutOfBoundsException => {
-        // Insufficient bits in field, but we need to still allow processing
-        // to test for Nils
-        val endBitPos = start.bitPos + 0
-        parse(start, endBitPos)
-      }
-      case u: UnsuppressableException => throw u
-      case ex: Exception => { PE(start, "SpecifiedLengthExplicitBitsFixedParser - Exception: \n%s", ex.getStackTraceString) }
-    }
-  }
+  final override def getBitLength(s: PState): Long = nBits
 }
 
 class SpecifiedLengthExplicitBytesParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
-  dcharset: DFDLCharset,
   length: CompiledExpression)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  def getLength(s: PState): Long = {
+  final override def getBitLength(s: PState): Long = {
     val nBytesAsAny = length.evaluate(s)
     val nBytes = AsIntConverters.asLong(nBytesAsAny)
-    nBytes
-  }
-
-  def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
-    val limit = pState.bitLimit0b
-    val lenAvailable = pState.bitLimit0b - pState.bitPos0b
-    val nBytes = getLength(pState)
-    val in = pState.inStream
-    val bytes = try {
-      in.getBytes(pState.bitPos, nBytes)
-    } catch {
-      case ex: IndexOutOfBoundsException => {
-        PE("Insufficient data. Required %s bytes.%s", nBytes,
-          {
-
-            if (limit != -1) " Only %s bytes were available.".format(scala.math.ceil(lenAvailable / 8.0).toLong)
-            else ""
-          })
-        // Insufficient bytes in field, but we need to still allow processing
-        // to test for Nils
-        //        val endBitPos = start.bitPos + 0
-        //        val postEState = parse(start, endBitPos)
-        //        return postEState
-      }
-    }
-    val endBitPos = pState.bitPos + (nBytes * 8)
-    parse(pState, endBitPos)
+    nBytes * 8
   }
 }
 
 class SpecifiedLengthExplicitBytesFixedParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
-  nBytes: Long,
-  dcharset: DFDLCharset)
+  nBytes: Long)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  final override def getBitLength(s: PState): Long = nBytes * 8
+}
 
-    val in = start.inStream
+/**
+ * This is used when length is measured in characters, and couldn't be
+ * converted to a computation on length in bytes because a character is encoded as a variable number
+ * of bytes, e.g., in utf-8 encoding where a character can be 1 to 4 bytes.
+ *
+ * This base is used for complex types where we need to know how long the "box"
+ * is, that all the complex content must fit within, where that box length is
+ * measured in characters. In the complex content case we do not need the string that is all the
+ * characters, as we're going to recursively descend and parse it into the complex structure.
+ *
+ * TODO: Idea - this base also ends up being used for nilLiterals (as of this
+ * comment being written 2015-06-30), and there, these two passes, one to
+ * measure, and then one to parse, really are redundant. Could change the way nilLiterals are
+ * parsed to not use this base, and that could boost performance (maybe...) for nilLiteral-intensive formats.
+ */
+abstract class SpecifiedLengthExplicitCharactersParserBase(
+  eParser: DaffodilParser,
+  erd: ElementRuntimeData)
+  extends SpecifiedLengthParserBase(eParser, erd) {
 
-    try {
-      // val bytes = in.getBytes(start.bitPos, nBytes)
-      val endBitPos = start.bitPos + (nBytes * 8)
-      super.parse(start, endBitPos)
-    } catch {
-      case ex: IndexOutOfBoundsException => {
-        // Insufficient bytes in field, but we need to still allow processing
-        // to test for Nils
-        val endBitPos = start.bitPos + 0
-        super.parse(start, endBitPos)
-      }
-      case u: UnsuppressableException => throw u
+  private def maybeBitPosAfterNChars(start: PState, nChars: Long): Maybe[Long] = {
+    val dis = start.dataInputStream
+    val mark = dis.mark
+    val hasNChars = dis.skipChars(nChars)
+    if (!hasNChars) {
+      dis.reset(mark)
+      Nope
+    } else {
+      val bitLimitAfterNChars = dis.bitPos0b
+      dis.reset(mark)
+      Maybe(bitLimitAfterNChars)
+    }
+  }
+
+  protected def getLength(s: PState): Long
+
+  final protected override def getBitLength(s: PState): Long = {
+    val nChars = getLength(s)
+    val mBitLimit = maybeBitPosAfterNChars(s, nChars)
+    if (!mBitLimit.isDefined)
+      PE(s.schemaFileLocation, "%s - %s - Parse failed.  Failed to find exactly %s characters.",
+        this.toString(), erd.name, nChars)
+    else {
+      val bitLength = mBitLimit.get - s.bitPos0b
+      bitLength
     }
   }
 }
 
-class SpecifiedLengthExplicitCharactersFixedParser(
+final class SpecifiedLengthExplicitCharactersFixedParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
   nChars: Long)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
 
-  def parse(start: PState): Unit = withParseErrorThrowing(start) {
+  override def getLength(s: PState) = nChars
 
-    val in = start.inStream
-    val rdr = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, start.bitPos)
-    val field = rdr.getStringInChars(nChars.toInt).toString() // TODO: Don't we want getStringInChars to accept Long?!
-    val fieldLength = field.length
-    val endBitPos =
-      if (fieldLength != nChars.toInt) start.bitPos + 0 // no match == length is zero!
-      else {
-        val numBits = erd.encodingInfo.knownEncodingStringBitLength(field)
-        start.bitPos + numBits
-      }
-    parse(start, endBitPos)
-  }
 }
 
-class SpecifiedLengthExplicitCharactersParser(
+final class SpecifiedLengthExplicitCharactersParser(
   eParser: DaffodilParser,
   erd: ElementRuntimeData,
   length: CompiledExpression)
-  extends SpecifiedLengthParserBase(eParser, erd) {
+  extends SpecifiedLengthExplicitCharactersParserBase(eParser, erd) {
 
   def getLength(s: PState): Long = {
     val nBytesAsAny = length.evaluate(s)
@@ -244,21 +207,4 @@ class SpecifiedLengthExplicitCharactersParser(
     nBytes
   }
 
-  def parse(pState: PState): Unit = withParseErrorThrowing(pState) {
-
-    val nChars = getLength(pState)
-    val in = pState.inStream
-    val rdr = in.getCharReader(erd.encodingInfo.knownEncodingCharset.charset, pState.bitPos)
-
-    val field = rdr.getStringInChars(nChars.toInt).toString()
-    val fieldLength = field.length
-    val endBitPos =
-      if (fieldLength != nChars.toInt) pState.bitPos + 0 // no match == length is zero!
-      else {
-        val numBits = erd.encodingInfo.knownEncodingStringBitLength(field)
-        pState.bitPos + numBits
-      }
-
-    parse(pState, endBitPos)
-  }
 }

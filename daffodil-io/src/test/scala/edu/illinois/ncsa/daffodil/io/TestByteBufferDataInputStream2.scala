@@ -55,14 +55,16 @@ class TestByteBufferDataInputStream2 {
   @Test def testMark2 {
     val dis = ByteBufferDataInputStream(twenty)
     var bb = ByteBuffer.allocate(20)
-    dis.setBitLimit0b(One(5 * 8))
-    var n = dis.fillByteBuffer(bb)
-    assertTrue(n.isDefined)
-    assertEquals(5, n.get)
-    val m1 = dis.mark
-    assertFalse(dis.asIteratorChar.hasNext)
+    var m1: DataInputStream.Mark = null
+    dis.withBitLengthLimit(5 * 8) {
+      var n = dis.fillByteBuffer(bb)
+      assertTrue(n.isDefined)
+      assertEquals(5, n.get)
+      m1 = dis.mark
+      assertFalse(dis.asIteratorChar.hasNext)
+    }
     dis.setBitLimit0b(One(10 * 8))
-    n = dis.fillByteBuffer(bb)
+    var n = dis.fillByteBuffer(bb)
     val m2 = dis.mark
     assertEquals(One(5), n)
     bb.flip()
@@ -77,7 +79,7 @@ class TestByteBufferDataInputStream2 {
     bb = ByteBuffer.allocate(10)
     n = dis.fillByteBuffer(bb)
     assertFalse(n.isDefined)
-    dis.setBitLimit0b(One(10 * 8))
+    dis.asInstanceOf[ByteBufferDataInputStream].resetBitLimit0b(One(10 * 8))
     n = dis.fillByteBuffer(bb)
     assertEquals(5, n.get)
     bb.flip()
@@ -91,7 +93,7 @@ class TestByteBufferDataInputStream2 {
   }
 
   @Test def testMark3 {
-    val dis = ByteBufferDataInputStream(twenty)
+    val dis = ByteBufferDataInputStream(twenty).asInstanceOf[ByteBufferDataInputStream]
     var bb = ByteBuffer.allocate(20)
     dis.setBitLimit0b(One(5 * 8))
     var n = dis.fillByteBuffer(bb)
@@ -99,7 +101,7 @@ class TestByteBufferDataInputStream2 {
     assertEquals(5, n.get)
     val m1 = dis.mark
     assertFalse(dis.asIteratorChar.hasNext)
-    dis.setBitLimit0b(One(10 * 8))
+    dis.resetBitLimit0b(One(10 * 8))
     n = dis.fillByteBuffer(bb)
     val m2 = dis.mark
     assertEquals(One(5), n)

@@ -36,8 +36,8 @@ import java.io.{ ByteArrayInputStream, BufferedInputStream }
 import edu.illinois.ncsa.daffodil.xml.NS
 import scala.language.reflectiveCalls
 import scala.language.implicitConversions
-
 import scala.language.{ implicitConversions, reflectiveCalls } // silences scala 2.10 warnings
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 object Implicits {
 
@@ -69,6 +69,7 @@ object Implicits {
       body
       None
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
       case u: Throwable => {
         if (!clazz.isAssignableFrom(u.getClass)) {
           throw new InterceptFailedException(

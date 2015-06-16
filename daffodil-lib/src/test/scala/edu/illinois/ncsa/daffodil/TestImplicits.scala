@@ -64,7 +64,7 @@ class TestImplicits {
     val e = intercept[InterceptFailedException] {
       intercept[FileNotFoundException] {
         // an exception is caught, but not the right kind
-        Assert.abort("yadda")
+        throw new Exception("yadda")
       }
     }
     assertTrue(e.getMessage.contains("Expected 'java.io.FileNotFoundException'"))

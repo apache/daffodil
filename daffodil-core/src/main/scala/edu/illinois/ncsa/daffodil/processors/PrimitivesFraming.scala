@@ -36,32 +36,40 @@ import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.{ AlignmentUnits, LengthKind, TextTrimKind, TextNumberJustification, TextStringJustification, TextCalendarJustification, TextBooleanJustification }
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
-import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import edu.illinois.ncsa.daffodil.processors.parsers.LeadingSkipRegionParser
-import edu.illinois.ncsa.daffodil.processors.parsers.TrailingSkipRegionParser
+import edu.illinois.ncsa.daffodil.processors.parsers.SkipRegionParser
 import edu.illinois.ncsa.daffodil.processors.parsers.AlignmentFillParser
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
+import edu.illinois.ncsa.daffodil.processors.unparsers.AlignmentFillUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SkipRegionUnparser
 
-case class LeadingSkipRegion(e: Term) extends Terminal(e, true) {
-  e.schemaDefinitionUnless(e.leadingSkip < DaffodilTunableParameters.maxSkipLength,
-    "Property leadingSkip %s is larger than limit %s", e.leadingSkip, DaffodilTunableParameters.maxSkipLength)
+abstract class SkipRegion(e: Term, skipLengthInAlignmentUnits: Int, propName: String) extends Terminal(e, true) {
 
-  val alignment = e.alignmentUnits match {
-    case AlignmentUnits.Bits => 1
-    case AlignmentUnits.Bytes => 8
-    case _ => 0 //SDE("Skip/Alignment values must have length units of Bits or Bytes.")
+  protected val skipLengthInBits = e.alignmentUnits match {
+    case AlignmentUnits.Bits => skipLengthInAlignmentUnits
+    case AlignmentUnits.Bytes => skipLengthInAlignmentUnits * 8
   }
 
-  def parser: DaffodilParser = new LeadingSkipRegionParser(alignment, e.leadingSkip, e.runtimeData)
+  e.schemaDefinitionUnless(skipLengthInBits < DaffodilTunableParameters.maxSkipLengthInBytes * 8,
+    "Property %s %s(bits) is larger than limit %s(bits).", propName, skipLengthInBits, DaffodilTunableParameters.maxSkipLengthInBytes * 8)
+
+  protected val alignmentInBits = e.alignmentUnits match {
+    case AlignmentUnits.Bits => 1
+    case AlignmentUnits.Bytes => 8
+    case _ => SDE("Skip/Alignment values must have length units of Bits or Bytes.")
+  }
+
+  final def parser: Parser = new SkipRegionParser(alignmentInBits, skipLengthInBits, e.runtimeData)
+  final def unparser: Unparser = new SkipRegionUnparser(alignmentInBits, skipLengthInBits, e.runtimeData)
 }
 
-case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
-  e.schemaDefinitionUnless(e.trailingSkip < DaffodilTunableParameters.maxSkipLength,
-    "Property trailingSkip %s is larger than limit %s", e.trailingSkip, DaffodilTunableParameters.maxSkipLength)
+case class LeadingSkipRegion(e: Term) extends SkipRegion(e, e.leadingSkip, "leadingSkip")
+
+case class TrailingSkipRegion(e: Term) extends SkipRegion(e, e.trailingSkip, "trailingSkip") {
 
   val lengthKindContext = e match {
     case eb: ElementBase => eb
@@ -72,29 +80,22 @@ case class TrailingSkipRegion(e: Term) extends Terminal(e, true) {
   }
   e.schemaDefinitionWhen(lengthKindContext.lengthKind == LengthKind.Delimited && e.terminator.isConstant && e.terminator.constantAsString == "",
     "Property terminator must be defined when trailingSkip > 0 and lengthKind='delimited'")
-
-  val alignment = e.alignmentUnits match {
-    case AlignmentUnits.Bits => 1
-    case AlignmentUnits.Bytes => 8
-    case _ => 0 //SDE("Skip/Alignment values must have lenght units of Bits or Bytes")
-  }
-
-  def parser: Parser = new TrailingSkipRegionParser(alignment, e.trailingSkip, e.runtimeData)
 }
 
 case class AlignmentFill(e: Term) extends Terminal(e, true) {
 
-  val alignment = e.alignmentValueInBits
+  private val alignment = e.alignmentValueInBits
 
-  def isAligned(currBitPos: Long): Boolean = {
-    if (alignment == 0 || currBitPos == 0) return true
-    if ((currBitPos - alignment) < 0) return false
-    if ((currBitPos % alignment) == 0) return true
-    return false
-  }
+  //  def isAligned(currBitPos: Long): Boolean = {
+  //    if (alignment == 0 || currBitPos == 0) return true
+  //    if ((currBitPos - alignment) < 0) return false
+  //    if ((currBitPos % alignment) == 0) return true
+  //    return false
+  //  }
 
-  def parser: Parser = new AlignmentFillParser(e.alignment, alignment, e.runtimeData)
+  def parser: Parser = new AlignmentFillParser(alignment, e.runtimeData)
+  def unparser: Unparser = new AlignmentFillUnparser(alignment, e.runtimeData)
 }
 
-case class FinalUnusedRegion(e: ElementBase) extends Primitive(e, false)
+case class FinalUnusedRegion(e: ElementBase) extends UnimplementedPrimitive(e, false)
 

@@ -59,4 +59,10 @@ class TresysTestsDebug {
   lazy val runnerMD = new DFDLTestSuite(Misc.getRequiredResource(td), validateTDMLFile = true, validateDFDLSchemas = false)
   runnerMD.setCheckAllTopLevel(true)
 
+  // Jira DFDL-1392 - Issue with escapeEscape character that is first and precedes an escape-block start. 
+  // Is being removed, but should be preserved as it does not precede an escape character, nor an escape block end.
+  val ba = testDir + "BA.tdml"
+  lazy val runnerBA = new DFDLTestSuite(Misc.getRequiredResource(ba))
+  @Test def test_BA000() { runnerBA.runOneTest("BA000") } // escape schemes and delimiters
+
 }

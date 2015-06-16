@@ -41,14 +41,13 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestNillable {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val aa = testDir + "nillable.tdml"
-  lazy val runnerAA = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+  lazy val runnerAA = Runner(testDir, "nillable.tdml")
+
   @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
 
   @Test def test_litNil1() { runnerAA.runOneTest("litNil1") }
@@ -62,8 +61,7 @@ class TestNillable {
   @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
   @Test def test_nillable1() { runnerAA.runOneTest("nillable1") }
 
-  val ln = testDir + "literal-value-nils.tdml"
-  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  lazy val runnerLN = Runner(testDir, "literal-value-nils.tdml")
 
   //DFDL-1353
   //@Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }

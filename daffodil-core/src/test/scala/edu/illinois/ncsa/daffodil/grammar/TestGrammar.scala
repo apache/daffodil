@@ -48,7 +48,7 @@ class TestGrammar extends GrammarMixin {
 
   final override protected def grammarContext = fakeTerm
 
-  case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) {
+  case class Primitive1(e: Term, guard: Boolean = true) extends Terminal(e, guard) with HasNoUnparser {
     def parser: Parser = Assert.notYetImplemented()
   }
   //  case class Primitive2(e: SchemaComponent, guard: Boolean = true) extends Terminal(e, guard)

@@ -68,8 +68,11 @@ object DaffodilTunableParameters {
   // that we generate.
 
   var maxFieldContentLengthInBytes: Long = 1024 * 1024 // Can be as large as Int.MaxValue
+  var defaultInitialRegexMatchLimitInChars: Long = 32
+  var maxDataDumpSizeInBytes: Long = 256
+
   var maxOccursBounds: Long = 1024 // Can be as large as Int.MaxValue
-  var maxSkipLength: Long = 1024 // applicable to leadingSkip and trailingSkip
+  var maxSkipLengthInBytes: Long = 1024 // applicable to leadingSkip and trailingSkip
   var maxBinaryDecimalVirtualPoint: Int = 200 // Can be as large as Int.MaxValue
   var minBinaryDecimalVirtualPoint: Int = -200 // Can be as small as Int.MinValue
 
@@ -125,4 +128,5 @@ object DaffodilTunableParameters {
    * output. Set to 0 to disable pretty printing.
    */
   var prettyPrintElementLimit: Int = 200
+
 }

@@ -40,6 +40,7 @@ import java.io.FileOutputStream
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * Simple logging system evolved from code found on Stack Overflow, on the web.
@@ -119,13 +120,37 @@ abstract class LogWriter {
       val s = suffix(logID, glob)
       write(p + mess + s)
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e: Exception => {
-        val estring = try { e.toString } catch { case _: Throwable => e.getClass.getName }
+        val estring = try { e.toString } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
+          case _: Throwable => e.getClass.getName
+        }
         System.err.println("Exception while logging: " + estring)
-        val globmsg = try { glob.msg } catch { case _: Throwable => "?glob.msg?" }
-        val globargs = try { glob.args } catch { case _: Throwable => Nil }
-        val globargsList = try { glob.args.map { x => x } } catch { case _: Throwable => List("globargsList failed") }
-        val globargsListStrings = globargsList.map { arg => try { arg.toString } catch { case _: Throwable => "?arg?" } }
+        val globmsg = try { glob.msg } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
+          case _: Throwable => "?glob.msg?"
+        }
+        val globargs = try { glob.args } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
+          case _: Throwable => Nil
+        }
+        val globargsList = try { glob.args.map { x => x } } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
+          case _: Throwable => List("globargsList failed")
+        }
+        val globargsListStrings = globargsList.map { arg =>
+          try { arg.toString } catch {
+            case s: scala.util.control.ControlThrowable => throw s
+            case u: UnsuppressableException => throw u
+            case _: Throwable => "?arg?"
+          }
+        }
         System.err.println("Glob was: " + globmsg + " " + globargsListStrings)
         Assert.abort("Exception while logging")
       }
@@ -181,6 +206,8 @@ class FileWriter(val file: File) extends LogWriter {
   private val destFile = {
     try { new PrintStream(new FileOutputStream(file)) }
     catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e: Throwable =>
         ConsoleWriter.log("FileWriter", Error("Unable to create FileWriter for file %s exception was %s", file, e)); Console.out
     }
@@ -212,8 +239,14 @@ class Glob(val lvl: LogLevel.Type, msgArg: => String, argSeq: => Seq[Any]) {
         }
         str
       } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
         case e: Exception => {
-          val estring = try { e.toString } catch { case _: Throwable => e.getClass.getName }
+          val estring = try { e.toString } catch {
+            case s: scala.util.control.ControlThrowable => throw s
+            case u: UnsuppressableException => throw u
+            case _: Throwable => e.getClass.getName
+          }
           Assert.abort("An exception occurred whilst logging. Exception: " + estring)
         }
       }

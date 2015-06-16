@@ -54,4 +54,7 @@ class TestContentFramingPropertiesDebug {
   // Implementing DFDL-951 caused regression - see DFDL-965
   @Test def test_xml_utf8_4byte_chars() { runner2.runOneTest("xml_utf8_4byte_chars") }
   @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
+
+  // JIRA Ticket DFDL-1386 - 4-byte utf-8 characters/surrogate-pair issue.
+  @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
 }

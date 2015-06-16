@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateFieldDFA
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
+import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
   extends Parser(rd) {
@@ -67,8 +68,9 @@ class ComplexTypeParser(rd: RuntimeData, bodyParser: Parser)
 
   def parse(start: PState): Unit = {
     start.mpstate.childIndexStack.push(1L) // one-based indexing
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
     start.mpstate.childIndexStack.pop()
+    ()
   }
 }
 
@@ -92,13 +94,18 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
   extends PrimParser(rd)
   with EvaluatesStaticDynamicTextParser {
 
+  private def unlessEmptyString(ce: Option[CompiledExpression]): Option[CompiledExpression] =
+    ce.flatMap { ce => if (ce.isConstant && ce.constantAsString == "") None else Some(ce) }
+
   override def toBriefXML(depthLimit: Int = -1): String = {
-    if (depthLimit == 0) "..." else
-      "<DelimiterStack initiator='" + initiatorOpt +
-        "' separator='" + separatorOpt +
-        "' terminator='" + terminatorOpt + "'>" +
+    if (depthLimit == 0) "..." else {
+      "<DelimiterStack" +
+        unlessEmptyString(initiatorOpt).map { i => " initiator='" + i + "'" }.getOrElse("") +
+        unlessEmptyString(separatorOpt).map { s => " separator='" + s + "'" }.getOrElse("") +
+        unlessEmptyString(terminatorOpt).map { t => " terminator='" + t + "'" }.getOrElse("") + ">" +
         bodyParser.toBriefXML(depthLimit - 1) +
         "</DelimiterStack>"
+    }
   }
 
   val (staticInits, dynamicInits) = getStaticAndDynamicText(initiatorOpt, context)
@@ -127,13 +134,12 @@ class DelimiterStackParser(initiatorOpt: Option[CompiledExpression],
     start.mpstate.pushDelimiters(node)
 
     // Parse
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
 
     // Pop Delimiters
     start.mpstate.popDelimiters
-
-    start.assignFrom(start)
-
+    start.clearDelimitedText
+    ()
   }
 }
 
@@ -180,12 +186,10 @@ class EscapeSchemeStackParser(escapeScheme: EscapeSchemeObject,
     start.mpstate.currentEscapeScheme = One(escScheme)
 
     // Parse
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
 
     // Clear EscapeScheme
     start.mpstate.currentEscapeScheme = Nope
-
-    start.assignFrom(start)
   }
 }
 
@@ -201,7 +205,7 @@ class EscapeSchemeNoneStackParser(
     start.mpstate.currentEscapeScheme = Nope
 
     // Parse
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
 
     // Clear EscapeScheme
     start.mpstate.currentEscapeScheme = Nope
@@ -217,10 +221,11 @@ class SequenceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   def parse(start: PState): Unit = {
     start.mpstate.groupIndexStack.push(1L) // one-based indexing
 
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
 
     start.mpstate.groupIndexStack.pop()
     start.mpstate.moveOverOneGroupIndexOnly()
+    ()
   }
 }
 
@@ -236,7 +241,7 @@ class ChoiceCombinatorParser(rd: RuntimeData, bodyParser: Parser)
   override lazy val childProcessors = Seq(bodyParser)
 
   def parse(start: PState): Unit = {
-    bodyParser.parse1(start, rd)
+    bodyParser.parse1(start)
   }
 }
 
@@ -249,7 +254,7 @@ class ArrayCombinatorParser(erd: ElementRuntimeData, bodyParser: Parser) extends
     start.mpstate.arrayIndexStack.push(1L) // one-based indexing
     start.mpstate.occursBoundsStack.push(DaffodilTunableParameters.maxOccursBounds)
 
-    bodyParser.parse1(start, erd)
+    bodyParser.parse1(start)
     if (start.status != Success) return
 
     val shouldValidate = start.dataProc.getValidationMode != ValidationMode.Off

@@ -47,7 +47,10 @@ import edu.illinois.ncsa.daffodil.dsom.Term
 // Groups System
 /////////////////////////////////////////////////////////////////
 
-trait TermGrammarMixin extends BitOrderMixin { self: Term =>
+trait TermGrammarMixin
+  extends AlignedMixin
+  with BitOrderMixin
+  with EncodingChangeMixin { self: Term =>
 
   override protected final def grammarContext = this
 
@@ -59,6 +62,8 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
 
   private lazy val newVarStarts = newVars.map { _.gram }
   private lazy val newVarEnds = newVars.map { _.endGram }
+
+  protected lazy val ioPropertiesChange = prod("ioPropertiesChange") { bitOrderChange ~ byteOrderChange ~ encodingChange }
 
   // TODO: replace dfdlScopeBegin and dfdlScopeEnd with a single Combinator.
   protected final lazy val dfdlScopeBegin = prod("dfdlScopeBegin", newVarStarts.length > 0) {
@@ -146,6 +151,16 @@ trait TermGrammarMixin extends BitOrderMixin { self: Term =>
   private def ignoreES = inChoiceBeforeNearestEnclosingSequence == true
 
   private lazy val separatorItself = prod("separator", !ignoreES && hasES) {
+    //
+    // TODO: (JIRA DFDL-1400) The separators may be in a different encoding than the terms
+    // that they separate.
+    //
+    // So we must allow for a change of encoding (which may also imply a change
+    // of bit order)
+    //
+    // However, this isn't the same as just plopping down a bitOrderChange ~ encodingChange, since
+    // those examine prior peer, and what we want to scrutinize is the prior term being separated.
+    //
     Separator(es, self)
   }
 

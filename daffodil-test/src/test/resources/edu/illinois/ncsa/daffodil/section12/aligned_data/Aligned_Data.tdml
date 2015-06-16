@@ -558,7 +558,8 @@
   
   <tdml:defineSchema name="alignmentBitOrder">
       <dfdl:format ref="ex:daffodilTest1" lengthUnits='bits' representation='binary'
-      binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'/>
+      binaryNumberRep='binary' alignmentUnits='bits' lengthKind='explicit'
+      byteOrder="littleEndian"/>
 
     <xs:element name="least" dfdl:lengthKind='implicit' >
       <xs:complexType >
@@ -737,7 +738,8 @@
 
     <tdml:errors>
       <tdml:error>Schema Definition Error</tdml:error>
-      <tdml:error>Property leadingSkip 3000000 is larger than limit 1024</tdml:error>
+      <tdml:error>Property leadingSkip</tdml:error>
+      <tdml:error>is larger than limit</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

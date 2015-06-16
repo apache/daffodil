@@ -77,7 +77,7 @@ abstract class RepParser(n: Long, rParser: Parser, context: ElementRuntimeData, 
   final def parse(pstate: PState): Unit = {
     if (!checkN(pstate, n)) return
     parseAllRepeats(pstate)
-    pstate.mpstate.clearDelimitedText
+    // pstate.mpstate.clearDelimitedText
   }
 
   protected def parseAllRepeats(pstate: PState): Unit
@@ -102,7 +102,7 @@ object Rep {
   def loopExactlyTotalN(intN: Int, rParser: Parser, pstate: PState, context: RuntimeData, iParser: Parser): Unit = {
     while (pstate.mpstate.arrayPos <= intN) {
       pstate.dataProc.beforeRepetition(pstate, iParser)
-      rParser.parse1(pstate, context)
+      rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, iParser)
       if (pstate.status != Success) return // fail if we don't get them all 
       pstate.mpstate.moveOverOneArrayIndexOnly
@@ -118,7 +118,7 @@ class RepExactlyNParser(n: Long, rParser: Parser, context: ElementRuntimeData)
     while (i < intN) {
       i += 1
       pstate.dataProc.beforeRepetition(pstate, rParser)
-      rParser.parse1(pstate, context)
+      rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, rParser)
       if (pstate.status != Success) {
         val cause = pstate.status.asInstanceOf[Failure].cause
@@ -136,9 +136,9 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
   extends RepParser(n, rParser, erd, "AtMostTotalN") {
 
   def parseAllRepeats(initialState: PState): Unit = {
-    val startState = initialState.duplicate()
-    var priorState = initialState.duplicate()
-    var pstate = initialState.duplicate()
+    val startState = initialState.mark
+    var priorState = initialState.mark
+    var pstate = initialState
     while (pstate.mpstate.arrayPos <= intN) {
       // Since each one could fail, each is a new point of uncertainty.
       // 
@@ -149,8 +149,8 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
 
       pstate.pushDiscriminator
 
-      pstate.dataProc.beforeRepetition(priorState, this)
-      rParser.parse1(pstate, context)
+      pstate.dataProc.beforeRepetition(pstate, this)
+      rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, this)
 
       if (pstate.status != Success) {
@@ -162,8 +162,8 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         if (pstate.discriminator == true) {
           // we fail the whole RepUnbounded, because there was a discriminator set 
           // before the failure.
-          pstate.popDiscriminator
-          initialState.assignFrom(pstate)
+          // pstate.popDiscriminator // pop happens when we reset.
+          pstate.reset(startState)
           return
         }
         //
@@ -171,14 +171,19 @@ class RepAtMostTotalNParser(n: Long, rParser: Parser, erd: ElementRuntimeData)
         //
         pstate.infoset = infosetElement
         pstate.restoreInfosetElementState(cloneNode)
-        initialState.assignFrom(priorState)
+        pstate.reset(priorState)
+        pstate.discard(startState)
         return // success at prior state. 
       }
-      priorState = pstate.duplicate()
+      //
+      // Success
+      //
+      pstate.discard(priorState)
+      priorState = pstate.mark
       pstate.mpstate.moveOverOneArrayIndexOnly
       pstate.popDiscriminator
     }
-    initialState.assignFrom(pstate)
+    pstate.discard(startState)
   }
 }
 
@@ -200,30 +205,36 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
 
   def parseAllRepeats(initialState: PState): Unit = {
     Assert.invariant(initialState.status =:= Success)
-    val startState = initialState.duplicate()
-    var pstate = initialState.duplicate()
-    var priorState = initialState.duplicate()
+    val startState = initialState.mark
+    var pstate = initialState
+    var priorState = initialState.mark
+
     while (pstate.status == Success) {
 
-      erd.maxOccurs.foreach { maxOccurs =>
-        if ((occursCountKind == OccursCountKind.Implicit) &&
-          (maxOccurs == -1)) {
-          erd.minOccurs.foreach { minOccurs =>
-            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
-              // Is required element
-              // Somehow need to return that this element is required
-            }
-          }
-        }
-      }
+      //      erd.maxOccurs.foreach { maxOccurs =>
+      //        if ((occursCountKind == OccursCountKind.Implicit) &&
+      //          (maxOccurs == -1)) {
+      //          erd.minOccurs.foreach { minOccurs =>
+      //            if (pstate.mpstate.arrayPos - 1 <= minOccurs) {
+      //              // Is required element
+      //              // Need to trigger default value creation 
+      //              // in right situations (like the element is defaultable)
+      //              // This is relatively easy for simple types
+      //              // for complex types, defaulting is trickier as one
+      //              // must recursively traverse the type, and then determine one
+      //              // has not advanced the data at all.
+      //            }
+      //          }
+      //        }
+      //      }
 
       val cloneNode = pstate.captureInfosetElementState
       val infosetElement = pstate.infoset
       //
       // Every parse is a new point of uncertainty.
       pstate.pushDiscriminator
-      pstate.dataProc.beforeRepetition(priorState, this)
-      rParser.parse1(pstate, erd)
+      pstate.dataProc.beforeRepetition(pstate, this)
+      rParser.parse1(pstate)
       pstate.dataProc.afterRepetition(pstate, this)
       if (pstate.status != Success) {
         // 
@@ -235,7 +246,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
           // we fail the whole RepUnbounded, because there was a discriminator set 
           // before the failure.
           pstate.popDiscriminator
-          initialState.assignFrom(pstate)
+          pstate.reset(startState)
           return
         }
         // 
@@ -244,22 +255,26 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
         pstate.infoset = infosetElement
         pstate.restoreInfosetElementState(cloneNode)
         log(LogLevel.Debug, "Failure suppressed. This is normal termination of a occursCountKind='parsed' array.")
-        initialState.assignFrom(priorState)
+        pstate.reset(priorState)
+        pstate.discard(startState)
         return // note that it has the prior point of uncertainty. No restore needed.
       }
       // Success
       // Need to check for forward progress
-      if (pstate.bitPos =#= priorState.bitPos) {
+      if (pstate.bitPos =#= priorState.get.bitPos0b) {
+        val bytePos = pstate.bytePos
+        pstate.discard(priorState) // didn't move, but might have assigned variables.
+        pstate.discard(startState)
         PE(pstate,
           "RepUnbounded - No forward progress at byte %s. Attempt to parse %s " +
             "succeeded but consumed no data.\nPlease re-examine your schema to correct this infinite loop.",
           pstate.bytePos, erd.prettyName)
         return
       }
-      priorState = pstate.duplicate()
+      pstate.discard(priorState)
+      priorState = pstate.mark
       pstate.mpstate.moveOverOneArrayIndexOnly // was pstate, not pNext....why?
       pstate.popDiscriminator // point of uncertainty has been resolved.
-
     }
     Assert.invariantFailed("Unbounded loop terminated wrong")
   }
@@ -281,6 +296,7 @@ class OccursCountExpressionParser(occursCount: CompiledExpression, erd: ElementR
       }
       pstate.mpstate.updateBoundsHead(ocLong)
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case r: RuntimeException => throw r
       case e: Exception =>

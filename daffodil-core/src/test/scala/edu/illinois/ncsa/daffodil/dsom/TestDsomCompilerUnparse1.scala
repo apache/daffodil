@@ -112,7 +112,8 @@ class TestDsomCompilerUnparse1 {
         </xs:complexType>
       </xs:element>, elementFormDefault = "unqualified")
     val infoset = <ex:e1 xmlns:ex={ example }><s1>one, two</s1><s2>, three and four*/</s2></ex:e1>
-    TestUtils.testUnparsing(sch, infoset, "one#, two,/*, three and four#*/*/")
+    val areTracing = false
+    TestUtils.testUnparsing(sch, infoset, "one#, two,/*, three and four#*/*/", areTracing)
   }
 
 }

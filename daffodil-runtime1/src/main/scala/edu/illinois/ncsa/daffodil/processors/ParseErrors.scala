@@ -61,13 +61,13 @@ import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 abstract class ProcessingError(
   pOrU: String,
   rd: Maybe[SchemaFileLocation],
-  val state: Maybe[ParseOrUnparseState],
+  loc: Maybe[DataLocation],
   kind: String,
   args: Any*)
   extends Exception with ThinThrowable with DiagnosticImplMixin {
   override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = rd.toSeq
 
-  override def getDataLocations(): Seq[DataLocation] = state.map { _.currentLocation }.toSeq
+  override def getDataLocations(): Seq[DataLocation] = loc.toSeq
 
   private lazy val schemaLocationsString = {
     val strings = getLocationsInSchemaFiles().map { _.locationDescription }
@@ -101,18 +101,18 @@ abstract class ProcessingError(
     val res = pOrU + ": " + msg +
       componentText +
       "\nSchema context: %s%s".format(rd.map { _.toString }.getOrElse("(no schema component identifier)"), schemaLocationsString) +
-      state.map { ps => "\nData location was preceding %s".format(ps.currentLocation) }.getOrElse("(no data location)")
+      loc.map { l => "\nData location was preceding %s".format(l) }.getOrElse("(no data location)")
     res
   }
 
   override def getMessage = toString
 }
 
-class ParseError(rd: Maybe[SchemaFileLocation], val pstate: Maybe[PState], kind: String, args: Any*)
-  extends ProcessingError("Parse Error", rd, pstate, kind, args: _*)
+class ParseError(rd: Maybe[SchemaFileLocation], val loc: Maybe[DataLocation], kind: String, args: Any*)
+  extends ProcessingError("Parse Error", rd, loc, kind, args: _*)
 
 class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, details: Maybe[String] = Nope)
-  extends ParseError(One(rd), One(state), "Assertion failed. %s", msg) {
+  extends ParseError(One(rd), One(state.currentLocation), "Assertion failed. %s", msg) {
   override def componentText: String = {
     val currentElem = state.infoset
 
@@ -127,11 +127,11 @@ class AssertionFailed(rd: SchemaFileLocation, state: PState, msg: String, detail
 }
 
 class ParseAlternativeFailed(rd: SchemaFileLocation, state: PState, val errors: Seq[Diagnostic])
-  extends ParseError(One(rd), One(state), "Alternative failed. Reason(s): %s", errors)
+  extends ParseError(One(rd), One(state.currentLocation), "Alternative failed. Reason(s): %s", errors)
 
 class AltParseFailed(rd: SchemaFileLocation, state: PState,
   diags: Seq[Diagnostic])
-  extends ParseError(One(rd), One(state), "All alternatives failed. Reason(s): %s", diags) {
+  extends ParseError(One(rd), One(state.currentLocation), "All alternatives failed. Reason(s): %s", diags) {
 
   override def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = diags.flatMap { _.getLocationsInSchemaFiles }
 
@@ -167,7 +167,7 @@ class GeneralParseFailure(msg: String) extends Throwable with DiagnosticImplMixi
  * withParseErrorThrowing(pstate) { // something enclosing like the parser
  * ...
  *   // calls something which calls something which eventually calls
- *       PECheck(bitOffset % 8 == 0, "must be byte boundary, not bit %s", bitOffset)
+ *       PE(context, bitOffset % 8 == 0, "must be byte boundary, not bit %s", bitOffset)
  * ...
  * }
  * }}}
@@ -183,31 +183,6 @@ trait WithParseErrorThrowing {
    *
    * The schema component providing the context is implicit (via def context virtual member)
    */
-  def PECheck(
-    testTrueMeansOK: => Boolean,
-    kind: String, args: Any*) {
-    Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
-    if (!testTrueMeansOK) {
-      throw new ParseError(One(context.schemaFileLocation), Nope, kind, args: _*)
-    }
-  }
-
-  /**
-   * Passing the context explicitly
-   */
-  def PECheck(contextArg: SchemaFileLocation,
-    testTrueMeansOK: => Boolean,
-    kind: String, args: Any*) {
-    Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
-    if (!testTrueMeansOK) {
-      throw new ParseError(One(contextArg), Nope, kind, args: _*)
-    }
-  }
-
-  def PE(kind: String, args: Any*): Nothing = {
-    PE(context.schemaFileLocation, kind, args: _*)
-  }
-
   def PE(context: SchemaFileLocation, kind: String, args: Any*): Nothing = {
     Assert.usage(WithParseErrorThrowing.flag, "Must use inside of withParseErrorThrowing construct.")
     throw new ParseError(One(context), Nope, kind, args: _*)
@@ -225,18 +200,12 @@ trait WithParseErrorThrowing {
     WithParseErrorThrowing.flag = true
     try body
     catch {
+      case e: IndexOutOfBoundsException => {
+        Assert.invariantFailed("Should not be allowing propagation of " + e)
+        // pstate.setFailed(new ParseError(Nope, One(pstate.currentLocation), "%s", e))
+      }
       case e: ParseError => {
-        val maybePS = e.pstate
-        // if there is a maybePS, then use it to create the failed state (because it 
-        // is probably more specific about the failure location), otherwise
-        // use the one passed as an argument. 
-        if (maybePS.isDefined) {
-          val ps = maybePS.get
-          ps.setFailed(e)
-          pstate.assignFrom(ps)
-        } else {
-          pstate.setFailed(e)
-        }
+        pstate.setFailed(e)
       }
       // TODO: Runtime SDEs should be distinguished somehow usefully.
       //        case e : SchemaDefinitionError => {
@@ -250,7 +219,7 @@ trait WithParseErrorThrowing {
           if (e.getMessage() != null && e.getMessage() != "")
             e.getMessage()
           else Misc.getNameFromClass(e)
-        val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate), msg)
+        val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(pstate.currentLocation), msg)
         pstate.setFailed(pe)
       }
       // Note: We specifically do not catch other exceptions here

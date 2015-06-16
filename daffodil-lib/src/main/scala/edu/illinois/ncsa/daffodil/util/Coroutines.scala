@@ -5,6 +5,7 @@ import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 /**
  * General purpose Co-routines.
@@ -123,6 +124,8 @@ final class InvertControl[S](body: => Unit) extends Iterator[S] with Coroutine[S
         body
         resumeFinal(consumer, EndOfData)
       } catch {
+        case s: scala.util.control.ControlThrowable => throw s
+        case u: UnsuppressableException => throw u
         case r: RuntimeException => {
           resumeFinal(consumer, Failure(r))
           // throw r

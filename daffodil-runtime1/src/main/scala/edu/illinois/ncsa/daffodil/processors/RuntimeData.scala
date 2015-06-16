@@ -80,14 +80,13 @@ abstract class TermRuntimeData(
   val couldHaveText: Boolean,
   val alignmentValueInBits: Int,
   val hasNoSkipRegions: Boolean,
-  val fillByteValue: Int)
+  val fillByteValue: Int,
+  val defaultBitOrder: BitOrder)
   extends RuntimeData
   with Serializable
   with PreSerialization {
 
   lazy val immediateEnclosingRuntimeData = immedEnclosingRD
-
-  val defaultBitOrder: BitOrder
 
   override def preSerialization: Unit = {
     super.preSerialization
@@ -141,7 +140,7 @@ class ModelGroupRuntimeData(
   override val prettyName: String,
   override val path: String,
   override val namespaces: NamespaceBinding,
-  override val defaultBitOrder: BitOrder,
+  defaultBitOrder: BitOrder,
   val groupMembers: Seq[TermRuntimeData],
   val erd: ElementRuntimeData,
   isRepresented: Boolean,
@@ -149,7 +148,7 @@ class ModelGroupRuntimeData(
   alignmentValueInBits: Int,
   hasNoSkipRegions: Boolean,
   fillByteValue: Int)
-  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue) {
+  extends TermRuntimeData(Some(erd), encInfo, ci, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue, defaultBitOrder) {
 
   override lazy val variableMap = variableMapArg
 

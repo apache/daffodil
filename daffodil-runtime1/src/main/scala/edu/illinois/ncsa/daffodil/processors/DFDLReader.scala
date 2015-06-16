@@ -61,264 +61,189 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.compiler._
 import edu.illinois.ncsa.daffodil.dsom.SchemaDefinitionError
 import Maybe._
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 //
 // Convention: name index fields like bytePos or bitPos or charPos with suffixes to indicate
 // zero based or 1 based. Suffixes are ...0b and ...1b respectively.
 //
 
-/**
- * Pure functional Reader[Byte] that gets its data from a DFDL.Input (aka a ReadableByteChannel)
- *
- * All reading of data ultimately comes to this layer which retrieves data on demand.
- *
- * This layer doesn't know anything about bits and bit positions like all the higher layers do.
- */
-class DFDLByteReader private (psb: PagedSeq[Byte], bitOrder: BitOrder, val bytePos0b: Int = 0)
-  extends scala.util.parsing.input.Reader[Byte] with Logging {
-
-  def this(in: ReadableByteChannel, bitOrder: BitOrder) = this(PagedSeq.fromIterator(new IterableReadableByteChannel(in)),
-    bitOrder,
-    0)
-
-  def getBitOrder() = bitOrder
-  /**
-   * new reader that has different bit order.
-   */
-  def changeBitOrder(newBitOrder: BitOrder): DFDLByteReader = {
-    new DFDLByteReader(psb, newBitOrder, bytePos0b)
-  }
-
-  /**
-   * Note: calling this will force the entire input into memory.
-   */
-  def lengthInBytes: Long = psb.length
-
-  lazy val first: Byte = getByte(bytePos0b)
-
-  lazy val rest: DFDLByteReader = new DFDLByteReader(psb, bitOrder, bytePos0b + 1)
-
-  // needed because of contract from Reader superclass.
-  lazy val pos: scala.util.parsing.input.Position = new DFDLBytePosition(bytePos0b)
-
-  lazy val atEnd: Boolean = !psb.isDefinedAt(bytePos0b)
-
-  def atPos(bytePosition0b: Int): DFDLByteReader = {
-    // note: do NOT slice. That copies the psb.
-    //new DFDLByteReader(psb.slice(bytePosition), 0) 
-    if (bytePosition0b == bytePos0b) this // already at this position.
-    else new DFDLByteReader(psb, bitOrder, bytePosition0b)
-  }
-
-  def getByte(bytePosition0b: Int): Byte = {
-    val res = psb(bytePosition0b)
-    res
-  }
-
-  def getByteArray(bytePosition0b: Int, numBytes: Int): Array[Byte] = {
-
-    // It is important to sanitize the numBytes request. 
-    // If the parser is off the rails, it might get gibberish for 
-    // a stored length value. We don't want to allocate 
-    // a giant thing (and perhaps fail when doing so), if 
-    // the number is just noise.
-    val max = DaffodilTunableParameters.maxFieldContentLengthInBytes
-    if (numBytes > max) {
-      throw new DaffodilTunableParameters.TunableLimitExceededError(
-        "maxFieldContentLengthInBytes",
-        "Number of bytes %s exceeds tunable limit %s.", numBytes, max)
-    }
-    if (numBytes < 0) {
-      throw new ParseError(Nope, Nope, "Number of bytes is negative: %s.".format(numBytes))
-    }
-    val requestedEndBytePos = bytePosition0b + numBytes
-
-    // first let's check if the data is defined at this offset
-    // 
-    val realNumBytes =
-      if (psb.isDefinedAt(requestedEndBytePos)) numBytes
-      else {
-        //
-        // The requested length is bigger than our data, 
-        // so we can clamp this to the length of the data
-        //
-        lengthInBytes - bytePosition0b
-      }
-    if (realNumBytes < 0) {
-      throw new ParseError(Nope, Nope, "Number of bytes is negative: %s.".format(realNumBytes))
-    }
-    val arr = new Array[Byte](realNumBytes.toInt)
-    for (i <- 0 to (numBytes - 1)) {
-      arr(i) = getByte(bytePosition0b + i)
-    }
-    arr
-  }
-  //
-  // Note: code below doesn't work right
-  // the PSB delivers bytes that aren't actually in the data.
-  //
-  // slice does the right thing in that it gives you the requested amount
-  // or up to the amount available.
-  //  val newPSB = psb.slice(bytePosition0b, requestedEndBytePos)
-  // Just calling .toArray on the newPSB fails with "negative array size" ??? 
-  // So we create our own array and use the PSB copy methods.
-  //
-  // FIXME: PSB needs to go away. It isn't designed for the way we
-  // are using it. E.g, this psb.size call is linear in the size of the 
-  // data.... it literally calls next on itself repeatedly until it hits 
-  // the end. We want something where size is constant-time access.
-  //
-  //    val arr = new Array[Byte](scala.math.min(numBytes, psb.size))
-  //    newPSB.copyToArray(arr)
-  //    arr
-
-  /**
-   * Factory for a Reader[Char] that constructs characters by decoding them from this
-   * Reader[Byte] for a specific encoding starting at a particular bit position.
-   *
-   * Yes, I said "bit" position. Some characters are not a full byte wide (7-bit, 6-bit, and even 5-bit
-   * encodings exist)
-   *
-   * These are kept in the processor state for reuse.
-   */
-  def newCharReader(charset: Charset, bitPos: Long, bitLimit: Long): DFDLCharReader = {
-    log(LogLevel.Debug, "DFDLByteReader.newCharReader for bytePos %s.", (bitPos >> 3))
-    DFDLCharReader(psb, bitPos, bitLimit, charset)
-  }
-
-}
-
-object DFDLCharReader {
-
-  // TODO: make a specialized DFDLSingleByteCharReader for known single-byte character sets.
-  // This can bypass the PagedSeq[Char] entirely.
-  def apply(thePsb: PagedSeq[Byte], bitPosition: Long, bitLimit: Long, charset: Charset): DFDLCharReader = {
-
-    Assert.usage(bitPosition <= Int.MaxValue, "bit positions are limited to 32-bit signed integer by underlying libraries.")
-    val bitPos = bitPosition.toInt
-
-    val bitOffset = bitPos & 0x7
-    val bytePos = bitPos >> 3
-
-    val is = {
-      // 
-      // Removed slice call: psb.slice makes a copy of the psb.
-      // now passes the psb and start/end to the IteratorInputStream
-      // which manages delivery of bytes one by one so as to not 
-      // do any copying that isn't necessary.
-      //
-      val endBytePos =
-        if (bitLimit == -1) -1
-        // Here we want to limit the PagedSeq[Byte] via bitLimit
-        // because we need to determine the ending byte position from
-        // the bit limit we must divide by 8.0 (must divide by double)
-        // in order to round to the appropriate byte position
-        else scala.math.ceil(bitLimit / 8.0).toInt
-      new IteratorInputStream(thePsb, bytePos, endBytePos)
-    }
-
-    // TODO: Why is bitLimit not working for DFDLJavaIOInputStreamReader?
-    // it appears to not be implemented, why is it there at all?
-    val r = DFDLJavaIOInputStreamReader(is, charset, bitOffset, bitLimit)
-    // TRW - The following line was changed because the fromSource
-    // method was causing the readLine method of the BufferedReader class to be
-    // called.  This resulted in the loss of \n, \r and \r\n characters from the data.
-    //val psc = PagedSeq.fromSource(scala.io.Source.fromInputStream(is)(codec))
-    val psc = PagedSeq.fromReader(r)
-    val charOffset = 0
-    // val rdr = new DFDLPagedSeqCharReader(charset, bitOffset, bitLimit, psc, charOffset, thePsb)
-    val rdr = new DFDLPagedSeqCharReader(charset, bitPos, bitLimit, psc, charOffset, thePsb)
-    rdr
-  }
-}
-
-/**
- * Our version of Reader[Char] differs slightly from the Scala-provided
- * one in that end-of-data is signified by the first member value of
- * (-1.toChar). (Note: Scala's Reader[Char] uses ^Z i.e., 26.toChar, but we
- * want to preserve the ability for all 256 byte values to be used.
- *
- * This trait allows for multiple different implementations for performance
- * reasons.
- *
- * Some implementations deal with the general issue of variable-width
- * character encodings.
- *
- * Others are specialized for 1-to-1 single-byte character encodings
- * like US-ASCII or ISO-8859-1, where the mapping to unicode characters
- * is either trivial, or requires just a small lookup table.
- */
-
-trait DFDLCharReader
-  extends Reader[Char] {
-  def first: Char
-  def rest: DFDLCharReader
-  def atEnd: Boolean
-  def atCharPos(cp0b: Int): DFDLCharReader
-  def atBitPos(bp0b: Long): DFDLCharReader
-  def getCharsetName: String
-  def characterPos: Int
-  def charset: Charset
-  def bitLimit0b: Long
-  /**
-   * Returns string
-   */
-  def getStringInChars(nChars: Int): CharSequence = {
-    var next: DFDLCharReader = this
-    val sb = new StringBuilder(nChars)
-    1 to nChars foreach { _ =>
-      if (next.atEnd) {
-        return sb.toString
-      }
-      sb.append(next.first)
-      next = next.rest
-    }
-    val str: String = sb.toString
-    str
-  }
-}
-
-/**
- * This is to be used in the unparsing methods as they return
- * a string from the infoset.  This allows us to handle the
- * string as if it were a DFDLCharReader and use all of our
- * existing DFA scanning functionality.
- */
-class DFDLStringReader private (rdr: Reader[Char])
-  extends DFDLCharReader {
-  override def source = rdr.source
-  override def offset = rdr.offset
-  def this(data: String) = this(new CharSequenceReader(data))
-  def first = if (atEnd) -1.toChar else rdr.first
-  def rest = new DFDLStringReader(rdr.rest)
-  def atEnd = rdr.atEnd
-  def pos = rdr.pos
-  def atCharPos(cp0b: Int) = new DFDLStringReader(rdr.drop(cp0b))
-  def atBitPos(bp0b: Long) = Assert.usageError("not to be used")
-  def getCharsetName = Assert.usageError("not to be used")
-  def characterPos = Assert.usageError("not to be used")
-  def charset = Assert.usageError("not to be used")
-  def bitLimit0b = -1
-}
-
-/**
- * This is for unit tests that want to feed data from a string
- */
-class DFDLUTStringReader private (rdr: Reader[Char])
-  extends DFDLCharReader {
-  override def source = rdr.source
-  override def offset = rdr.offset
-  def this(data: String) = this(new CharSequenceReader(data))
-  def first = rdr.first
-  def rest = new DFDLUTStringReader(rdr.rest)
-  def atEnd = rdr.atEnd
-  def pos = rdr.pos
-  def atCharPos(cp0b: Int) = Assert.usageError("not to be used in test reader")
-  def atBitPos(bp0b: Long) = Assert.usageError("not to be used in test reader")
-  def getCharsetName = Assert.usageError("not to be used in test reader")
-  def characterPos = Assert.usageError("not to be used in test reader")
-  def charset = Assert.usageError("not to be used in test reader")
-  def bitLimit0b = -1
-}
+///**
+// * Our version of Reader[Char] differs slightly from the Scala-provided
+// * one in that end-of-data is signified by the first member value of
+// * (-1.toChar). (Note: Scala's Reader[Char] uses ^Z i.e., 26.toChar, but we
+// * want to preserve the ability for all 256 byte values to be used.
+// *
+// * This trait allows for multiple different implementations for performance
+// * reasons.
+// *
+// * Some implementations deal with the general issue of variable-width
+// * character encodings.
+// *
+// * Others are specialized for 1-to-1 single-byte character encodings
+// * like US-ASCII or ISO-8859-1, where the mapping to unicode characters
+// * is either trivial, or requires just a small lookup table.
+// */
+//
+//@deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//trait DFDLCharReader
+//  extends Reader[Char] {
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def first: Char
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def rest: DFDLCharReader
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def atEnd: Boolean
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def atCharPos(cp0b: Int): DFDLCharReader
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def copy: DFDLCharReader
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def characterPos: Int
+//  @deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//  def bitPos0b: Long
+//
+//  // needed to fulfill contract of Reader[Char]
+//  override def pos: scala.util.parsing.input.Position = Assert.usageError("not to be used")
+//}
+//
+//@deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//object DFDLCharReaderFromDataInputStream {
+//  def apply(is: InStream): DFDLCharReader = {
+//    val dupIs = is.duplicate() // decouples our position on the input from any other.
+//    val dis = dupIs.dataInputStream
+//    val markForRestart = dis.mark
+//    val iter = dis.asIteratorChar
+//    val cr = new DFDLCharReaderFromDataInputStream(0, iter, markForRestart, dupIs)
+//    cr
+//  }
+//}
+//
+///**
+// * Functional-style I/O layer (aka Reader[Char])
+// * built atop non-functional DataInputStream.
+// *
+// * This provides compatibility for parsers written to the older InStream API until
+// * converted to directly call DataInputStream methods.
+// */
+//@deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//class DFDLCharReaderFromDataInputStream private (var charPos0b: Int, var iter: Iterator[Char], var markForRestart: DataInputStream.Mark, var is: InStream)
+//  extends DFDLCharReader {
+//
+//  def inStream = is
+//  /**
+//   * Make a fully decoupled copy.
+//   */
+//  def copy() = {
+//    val savedCharPos0b = charPos0b
+//    //
+//    // Kind of twisted way to have to do this.
+//    // This reset side effects the current state
+//    // but we need the copy to restart the same way, so 
+//    // we want a copy of the reset input stream, not
+//    //
+//    is.dataInputStream.reset(markForRestart)
+//    markForRestart = is.dataInputStream.mark
+//    var newCopy: DFDLCharReader = DFDLCharReaderFromDataInputStream(is)
+//    //
+//    // Now we advance it back up to where we were when copy was called.
+//    newCopy = newCopy.atCharPos(savedCharPos0b)
+//    //
+//    // Now, because we reset the state above, we have to restore it.
+//    //
+//    charPos0b = 0
+//    val newThis = this.atCharPos(savedCharPos0b).asInstanceOf[DFDLCharReaderFromDataInputStream] // restore our position
+//    this.charPos0b = newThis.characterPos
+//    this.iter = newThis.iter
+//    this.markForRestart = newThis.markForRestart
+//    this.is = newThis.inStream
+//    //
+//    // Now this instance is back where it started, 
+//    // and we can return the new instance.
+//    newCopy
+//  }
+//
+//  lazy val first = if (!iter.hasNext) -1.toChar else iter.next
+//  lazy val rest = {
+//    val f = first
+//    if (atEnd)
+//      throw new NoSuchElementException("rest on empty reader")
+//    else
+//      new DFDLCharReaderFromDataInputStream(charPos0b + 1, iter, markForRestart, is)
+//  }
+//  def bitPos0b = is.dataInputStream.bitPos0b
+//  def atEnd = first == -1.toChar
+//
+//  /**
+//   * We just go back to the start, then advance characters.
+//   * This kind of backtracking will be inefficient unless the distances going back are very small.
+//   */
+//  def atCharPos(cp0b: Int): DFDLCharReader = {
+//    if (cp0b == charPos0b) return this
+//    is.dataInputStream.reset(markForRestart)
+//    markForRestart = is.dataInputStream.mark
+//    var rdr = DFDLCharReaderFromDataInputStream(is)
+//    var i = cp0b
+//    while (i > 0) {
+//      if (rdr.first != -1.toChar) rdr = rdr.rest
+//      i -= 1
+//    }
+//    rdr
+//  }
+//
+//  def atBitPos(bp0b: Long) = {
+//    val newIS = is.duplicate()
+//    newIS.withPos(bp0b, -1)
+//    DFDLCharReaderFromDataInputStream(newIS)
+//  }
+//
+//  def characterPos = charPos0b
+//
+//}
+//
+///**
+// * This is to be used in the unparsing methods as they return
+// * a string from the infoset.  This allows us to handle the
+// * string as if it were a DFDLCharReader and use all of our
+// * existing DFA scanning functionality.
+// */
+//@deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//class DFDLStringReader private (charPos: Int, data: String, rdr: Reader[Char])
+//  extends DFDLCharReader {
+//  def copy = {
+//    var c = new DFDLStringReader(charPos, data, (new CharSequenceReader(data)).drop(charPos))
+//    c
+//  }
+//  override def source = rdr.source
+//  override def offset = rdr.offset
+//  def this(data: String) = this(0, data, new CharSequenceReader(data))
+//  def first = if (atEnd) -1.toChar else rdr.first
+//  def rest = new DFDLStringReader(charPos + 1, data, rdr.rest)
+//  def atEnd = rdr.atEnd
+//  def atCharPos(cp0b: Int) = new DFDLStringReader(cp0b, data, (new CharSequenceReader(data)).drop(cp0b))
+//  def atBitPos(bp0b: Long) = Assert.usageError("not to be used")
+//  def characterPos = Assert.usageError("not to be used")
+//  def bitPos0b = Assert.usageError("not to be used")
+//}
+//
+///**
+// * This is for unit tests that want to feed data from a string
+// */
+//@deprecated("2015-06-22", "Should use methods of DataInputStream directly to iterate characters. Not use this which copies")
+//class DFDLUTStringReader private (rdr: Reader[Char])
+//  extends DFDLCharReader {
+//  def copy = Assert.usageError("not to be used in test reader")
+//  override def source = rdr.source
+//  override def offset = rdr.offset
+//  def this(data: String) = this(new CharSequenceReader(data))
+//  def first = rdr.first
+//  def rest = new DFDLUTStringReader(rdr.rest)
+//  def atEnd = rdr.atEnd
+//  def atCharPos(cp0b: Int) = Assert.usageError("not to be used in test reader")
+//  def atBitPos(bp0b: Long) = Assert.usageError("not to be used in test reader")
+//  def characterPos = Assert.usageError("not to be used in test reader")
+//  def bitPos0b = Assert.usageError("not to be used in test reader")
+//}
 
 // TODO: make this global singleton go away!
 // This state should be maintained in the DataProcessor object I think.
@@ -332,187 +257,4 @@ object DFDLCharCounter {
     count = 0
     c
   }
-}
-
-/**
- * This is for arbitrary character sets. Uses a PagedSeq[Char] as underlying cache.
- */
-class DFDLPagedSeqCharReader(charsetArg: Charset,
-  val startingBitPos: Int,
-  bitLimitArg0b: Long,
-  psc: PagedSeq[Char],
-  override val offset: Int,
-  psb: PagedSeq[Byte])
-  extends DFDLCharReader with Logging {
-
-  Assert.usage(offset >= 0)
-  Assert.usage(startingBitPos >= 0)
-
-  val charset = charsetArg
-  val bitLimit0b = bitLimitArg0b
-
-  override lazy val source: CharSequence = psc
-
-  def first: Char = {
-    if (atEnd) -1.toChar
-    else {
-      val char = psc(offset)
-      char
-    }
-  }
-
-  def rest: DFDLCharReader =
-    if (psc.isDefinedAt(offset)) new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, offset + 1, psb)
-    else this
-
-  def atEnd: Boolean = !psc.isDefinedAt(offset)
-
-  def pos: scala.util.parsing.input.Position = new OffsetPosition(source, offset) //new DFDLCharPosition(offset)
-
-  override def drop(n: Int): DFDLCharReader = new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, offset + n, psb)
-
-  def atCharPos(characterPos: Int): DFDLCharReader = {
-    if (characterPos == this.characterPos) this
-    else new DFDLPagedSeqCharReader(charset, startingBitPos, bitLimit0b, psc, characterPos, psb)
-  }
-
-  // We really want to be able to ask for a CharReader starting at said bitPos
-  def atBitPos(bitPos: Long): DFDLCharReader = {
-    log(LogLevel.Debug, "creating new DFDLCharReader.atBytePos(%s)", (bitPos >> 3))
-    new DFDLPagedSeqCharReader(charset, startingBitPos = bitPos.toInt, bitLimit0b, psc, characterPos, psb)
-  }
-
-  def getCharsetName: String = charset.name()
-
-  def characterPos: Int = offset
-
-  // def isDefinedAt(charPos : Int) : Boolean = psc.isDefinedAt(charPos)
-
-  def print: String = {
-    "DFDLCharReader - " + source.length() + ": " + source + "\nDFDLCharReader - " + characterPos + ": " + source.subSequence(characterPos, source.length())
-  }
-
-  override def toString = {
-    "DFDLCharReader starting at bitPos0b " + startingBitPos + " charPos0b " + characterPos + " bitLimit0b " + bitLimit0b
-  }
-
-}
-
-// Scala Reader stuff is not consistent about whether it is generic over the element type, 
-// or specific to Char. We want to have a Reader like abstraction that is over bytes, but 
-// be able to create real Reader[Char] from it at any byte position.
-
-object IterableReadableByteChannel {
-  private var byteCount: Long = 0
-  def getAndResetCalls = synchronized {
-    val res = byteCount
-    byteCount = 0
-    res
-  }
-  def increment = synchronized {
-    byteCount = byteCount + 1
-  }
-}
-
-/**
- * All this excess buffering layer for lack of a way to convert a ReadableByteChannel directly into
- * a PagedSeq. We need an Iterator[Byte] first to construct a PagedSeq[Byte].
- */
-class IterableReadableByteChannel(rbc: ReadableByteChannel)
-  extends scala.collection.Iterator[Byte] {
-
-  private final val bufferSize = 10000
-  private var currentBuf: java.nio.ByteBuffer = _
-  private var sz: Int = _
-
-  private def advanceToNextBuf() {
-    currentBuf = java.nio.ByteBuffer.allocate(bufferSize)
-    sz = rbc.read(currentBuf)
-    currentBuf.flip()
-  }
-
-  advanceToNextBuf()
-
-  def hasNext(): Boolean = {
-    if (sz == -1) return false
-    if (currentBuf.hasRemaining()) return true
-    advanceToNextBuf()
-    if (sz == -1) return false
-    if (currentBuf.hasRemaining()) return true
-    return false
-  }
-
-  var pos: Int = 0
-
-  def next(): Byte = {
-    if (!hasNext()) throw new IndexOutOfBoundsException(pos.toString)
-    pos += 1
-    IterableReadableByteChannel.increment
-    currentBuf.get()
-  }
-}
-
-/**
- * Scala's Position is document oriented in that it is 1-based indexing and assumes
- * line numbers and column numbers.
- *
- */
-class DFDLBytePosition(i: Int) extends scala.util.parsing.input.Position {
-  def line = 1
-  def column = i + 1
-  // IDEA: could we assume a 'line' of bytes is 32 bytes because those print out nicely as 
-  // as in HHHHHHHH HHHHHHHH ... etc. on a 72 character line?
-  // Could come in handy perhaps. 
-  val lineContents = "" // unused. Maybe this should throw. NoSuchOperation, or something.
-}
-
-/**
- * Position in a character stream.
- *
- * We ignore line/column structure. It's all one "line" as far as we are concerned.
- */
-class DFDLCharPosition(i: Int) extends scala.util.parsing.input.Position {
-  def line = 1
-  def column = i + 1
-  val lineContents = "" // unused
-}
-
-/**
- * Whole additional layer of byte-by-byte because there's no way to create
- * a Source (of Char) from a Seq[Byte]. Instead we have to take our
- * PagedSeq[Byte] to an Iterator, create an InputStream from the Iterator,
- * and create a Source (of Char) from that.
- *
- * Convert an iterator of bytes into an InputStream
- */
-
-object IteratorInputStream {
-  var calls: Long = 0 // instrumentation for performance analysis.
-  def getAndResetCalls: Long = {
-    val c = calls
-    calls = 0
-    c
-  }
-}
-
-class IteratorInputStream(psb: PagedSeq[Byte], startBytePos0b: Int, endBytePos0b: Int)
-  extends InputStream with Logging {
-
-  log(LogLevel.Debug, "Creating an IteratorInputStream. This should happen only once per DataProcessor.parse call")
-  var currentBytePos0b: Int = startBytePos0b
-
-  def read(): Int = {
-    if (currentBytePos0b == endBytePos0b
-      || !psb.isDefinedAt(currentBytePos0b)) -1
-    else {
-      IteratorInputStream.calls += 1
-      val byte = psb(currentBytePos0b)
-      // Signed byte comes back. Character code 0xFF or 255 comes back here as -1 since this is a PagedSeq[Byte]
-      // So, if it's a negative byte, convert to a positive int.
-      val res: Int = if (byte < 0) byte + 256 else byte
-      currentBytePos0b += 1
-      res
-    }
-  }
-
 }

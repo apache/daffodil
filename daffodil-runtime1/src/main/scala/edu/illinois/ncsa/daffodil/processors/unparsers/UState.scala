@@ -32,20 +32,38 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
 import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.DIElement
 import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
+import edu.illinois.ncsa.daffodil.io.DataOutputStream
+import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
+import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
 case object AccumulateNodesMode extends UnparserMode
 
 class UState(
-  infosetSource: InfosetSource, vmap: VariableMap, diagnosticsArg: List[Diagnostic],
-  dataProcArg: DataProcessor, var outStream: OutStream)
+  infosetSource: InfosetSource,
+  vmap: VariableMap,
+  diagnosticsArg: List[Diagnostic],
+  dataProcArg: DataProcessor,
+  var dataOutputStream: DataOutputStream)
   extends ParseOrUnparseState(new DState, vmap, diagnosticsArg, dataProcArg)
   with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
 
+  override def dataStream: DataStreamCommon = dataOutputStream
+
+  def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
+    val savedDOS = dataOutputStream
+    try {
+      dataOutputStream = temp
+      body
+    } finally {
+      dataOutputStream = savedDOS
+    }
+  }
+
   def copyUState() = {
-    val res = new UState(infosetSource, variableMap, diagnostics, dataProc, outStream)
-    res.outStream = outStream.copyOutStream()
+    val res = new UState(infosetSource, variableMap, diagnostics, dataProc, dataOutputStream)
+    res.dataOutputStream = dataOutputStream.asInstanceOf[BasicDataOutputStream].copyOutStream
     res
   }
 
@@ -79,8 +97,6 @@ class UState(
     currentInfosetNodeStack.push(One(ev.node))
     ev
   }
-
-  def lengthInBytes: Long = ???
 
   var mode: UnparserMode = UnparseMode
 
@@ -130,7 +146,7 @@ class UState(
   var removeUnneededInfosetElements = false // set from API of top level Unparser call. 
 
   def currentLocation: DataLocation = {
-    new DataLoc(bitPos1b, bitLimit1b, Left(outStream),
+    new DataLoc(bitPos1b, bitLimit1b, Left(dataOutputStream),
       maybeCurrentInfosetElement.map { _.runtimeData })
   }
 
@@ -165,8 +181,8 @@ class UState(
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top
 
-  def bitPos0b = outStream.bitPos0b
-  def bitLimit0b = outStream.bitLimit0b
+  def bitPos0b = dataOutputStream.bitPos0b
+  def bitLimit0b = dataOutputStream.bitLimit0b
 
   def charPos = -1L
 
@@ -182,7 +198,7 @@ class UState(
   }
 
   final def notifyDebugging(flag: Boolean) {
-    outStream.setDebugging(flag)
+    dataOutputStream.setDebugging(flag)
   }
 
 }
@@ -190,7 +206,7 @@ class UState(
 object UState {
 
   def createInitialUState(
-    out: OutStream,
+    out: DataOutputStream,
     dataProc: DFDL.DataProcessor,
     docSource: InfosetSource): UState = {
 

@@ -67,14 +67,10 @@ trait HasRuntimeExplicitByteOrder[T] { self: BinaryNumberBaseParser[T] =>
   def e: ElementRuntimeData
   def bo: CompiledExpression // ensure byteOrder compiled expression is computed non lazily at compile time
 
-  def getByteOrder(s: PState): java.nio.ByteOrder = {
+  def getByteOrder(s: PState): ByteOrder = {
     val byteOrderAsAny = bo.evaluate(s)
     val dfdlByteOrderEnum = ByteOrder(byteOrderAsAny.toString, s)
-    val byteOrder = dfdlByteOrderEnum match {
-      case ByteOrder.BigEndian => java.nio.ByteOrder.BIG_ENDIAN
-      case ByteOrder.LittleEndian => java.nio.ByteOrder.LITTLE_ENDIAN
-    }
-    byteOrder
+    dfdlByteOrderEnum
   }
 }
 

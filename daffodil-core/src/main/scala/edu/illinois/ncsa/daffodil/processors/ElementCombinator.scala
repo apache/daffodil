@@ -47,6 +47,7 @@ import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.StatementElementUnparserNoRep
+import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
 class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
   extends ElementCombinatorBase(context, eGram, eAfterGram) {
@@ -83,7 +84,7 @@ class ElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
 }
 
 class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gram)
-  extends ElementCombinatorBase(context, eGram, eAfterGram) {
+  extends ElementCombinatorBase(context, eGram, eAfterGram) with HasNoUnparser {
 
   def parser: Parser = new ChoiceStatementElementParser(
     context.erd,
@@ -96,9 +97,6 @@ class ChoiceElementCombinator(context: ElementBase, eGram: Gram, eAfterGram: Gra
     eParser,
     eAfterParser)
 
-  override def unparser: Unparser = ???
-  override lazy val eUnparser = ???
-  override lazy val eAfterUnparser = ???
 }
 
 abstract class ElementCombinatorBase(context: ElementBase, eGram: Gram, eGramAfter: Gram)

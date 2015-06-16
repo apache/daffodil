@@ -49,6 +49,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.grammar.UnaryGram
 import scala.xml.Elem
 import edu.illinois.ncsa.daffodil.xml.NS
+import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
 
 object UnorderedSequence {
   def apply(context: Term, eGram: Gram) = {
@@ -64,7 +65,7 @@ object UnorderedSequence {
 }
 
 class UnorderedSequence private (context: Sequence, eGram: Gram) // private to force use of the object as factory
-  extends UnaryGram(context, eGram) {
+  extends UnaryGram(context, eGram) with HasNoUnparser {
 
   // Forced as part of required evaluations in Sequence
   //context.checkIfValidUnorderedSequence

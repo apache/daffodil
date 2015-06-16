@@ -11,6 +11,11 @@ import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 
+trait HasNoUnparser {
+  final def unparser: Unparser = hasNoUnparser
+  private def hasNoUnparser = Assert.invariantFailed("no unparser for " + Misc.getNameFromClass(this))
+}
+
 /**
  * Gram - short for "Grammar Term"
  *
@@ -101,6 +106,8 @@ abstract class Gram(contextArg: SchemaComponent)
    */
   def parser: Parser
 
-  def unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this)) // context.runtimeData
+  protected final def hasNoParser: Parser = Assert.invariantFailed("Has no parser.")
+
+  def unparser: Unparser // = DummyUnparser(Misc.getNameFromClass(this)) // context.runtimeData
 
 }

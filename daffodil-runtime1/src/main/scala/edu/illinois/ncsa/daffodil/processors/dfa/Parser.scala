@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.parsing.input.Reader
-import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
@@ -92,21 +91,15 @@ abstract class DelimitedParser extends Parser {
 
 class ParseResult(val field: Maybe[String],
   val matchedDelimiterValue: Maybe[String],
-  val originalDelimiterRep: String,
-  val numCharsRead: Int,
-  val numBits: Int,
-  val next: DFDLCharReader) {
+  val originalDelimiterRep: String) {
 
-  private val format = "<DFAParseResult field='%s' foundDelimiter='%s' searchedFor='%s' readerAtEnd='%s' readerPos='%s'/>"
-  private val readerFormat = "readerAtEnd='%s' pos='%s'"
+  private val format = "<DFAParseResult field='%s' foundDelimiter='%s' searchedFor='%s'/>"
 
   private lazy val fieldStr = field.getOrElse("NOT-FOUND")
   private lazy val matchedDelimStr = matchedDelimiterValue.getOrElse("NOT-FOUND")
   private lazy val originalDelimiterStr = originalDelimiterRep
-  private lazy val readerAtEnd = next.atEnd
-  private lazy val pos = next.pos
 
-  private lazy val formattedString = format.format(fieldStr, matchedDelimStr, originalDelimiterStr, readerAtEnd, pos)
+  private lazy val formattedString = format.format(fieldStr, matchedDelimStr, originalDelimiterStr)
 
   override def toString(): String = formattedString
 }

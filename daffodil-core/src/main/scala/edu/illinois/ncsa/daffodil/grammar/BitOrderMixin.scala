@@ -39,21 +39,68 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen._
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.Term
+import edu.illinois.ncsa.daffodil.equality._
 
-trait BitOrderMixin extends GrammarMixin { self: Term =>
+trait BitOrderMixin extends GrammarMixin with ByteOrderMixin { self: Term =>
 
-  final lazy val defaultBitOrder = {
-    if (DaffodilTunableParameters.requireBitOrderProperty) {
-      bitOrder
-    } else {
-      optionBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
+  private val littleEndian = ByteOrder.LittleEndian.toString
+
+  def checkBitOrderByteOrderCompatibility(bitOrd: BitOrder): BitOrder = {
+    bitOrd match {
+      case BitOrder.LeastSignificantBitFirst => {
+        if (byteOrder.isConstant) {
+          val literalByteOrder = byteOrder.constantAsString
+          schemaDefinitionUnless(literalByteOrder =:= littleEndian,
+            "Bit order 'leastSignificantBitFirst' requires byte order 'littleEndian' but was '%s'.", literalByteOrder)
+        }
+      }
+      case BitOrder.MostSignificantBitFirst => {
+        // ok with either big or little endian.
+      }
     }
+    bitOrd
   }
 
-  private lazy val enclosingBitOrder = enclosingTerm.map(_.defaultBitOrder)
-  private lazy val priorSiblingBitOrder = priorSibling.map(_.defaultBitOrder)
-  private lazy val bitOrderBefore = priorSiblingBitOrder.getOrElse(enclosingBitOrder.getOrElse(defaultBitOrder))
+  final lazy val optDefaultBitOrder: Option[BitOrder] = {
+    val bitOrd =
+      if (DaffodilTunableParameters.requireBitOrderProperty) {
+        Some(checkBitOrderByteOrderCompatibility(bitOrder))
+      } else {
+        optionBitOrder.map { bitOrd =>
+          // Only need to check compatibility if it is specified
+          // because otherwise it is MostSignificantBitFirst, which can't conflict.
+          checkBitOrderByteOrderCompatibility(bitOrd)
+        }
+      }
+    bitOrd
+  }
 
-  protected final lazy val bitOrderChange = prod("bitOrderChange", bitOrderBefore != defaultBitOrder) { BitOrderChange(this) }
+  final lazy val defaultBitOrder = optDefaultBitOrder.getOrElse(BitOrder.MostSignificantBitFirst)
+
+  private lazy val isKnownSameBitOrder: Boolean = {
+    val res =
+      if (enclosingTerm.isEmpty) false // root needs bit order
+      else {
+        val optPrior = this.nearestPhysicalTermSatifying(_.optDefaultBitOrder.isDefined)
+        optPrior match {
+          case None => false // no prior that has a bit order we could be the same as
+          case Some(prior) => {
+            if (prior.defaultBitOrder =:= this.defaultBitOrder) true
+            else false
+          }
+        }
+      }
+    res
+  }
+
+  private lazy val hasUniformBitOrderThroughout: Boolean = termChildren.map { t => t.isKnownSameBitOrder && t.hasUniformBitOrderThroughout }.forall(x => x)
+
+  protected final lazy val bitOrderChange = prod("bitOrderChange",
+    optionBitOrder.isDefined &&
+      thereIsAByteOrderDefined && // if there is no byte order, then there's no need for bit order. The two go together. An all-textual format doesn't need either one.
+      (!isKnownSameBitOrder ||
+        (isArray && !hasUniformBitOrderThroughout))) {
+      BitOrderChange(this)
+    }
 }
 

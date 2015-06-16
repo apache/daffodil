@@ -62,6 +62,7 @@ import org.jdom2.output.Format
 import scala.collection.JavaConversions._
 import org.xml.sax.helpers.DefaultHandler
 import org.xml.sax.Attributes
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 // Leaving this in temporarily, but commented out.
 // We may want to use this for extra validation passes in the TDML Runner
@@ -104,6 +105,8 @@ object Validator extends NoBindingFactoryAdapter {
       //f.setValidating(true)
       parser = f.newSAXParser()
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e: Exception =>
         Console.err.println("error: Unable to instantiate parser")
         throw e

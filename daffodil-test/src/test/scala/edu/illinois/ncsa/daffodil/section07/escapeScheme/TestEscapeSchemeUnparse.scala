@@ -43,19 +43,11 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-object TestEscapeSchemeUnparse {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
-  val aa = testDir + "escapeSchemeUnparse.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-
-  @AfterClass def shutDown {
-    runner = null
-  }
-}
 class TestEscapeSchemeUnparse {
-
-  import TestEscapeSchemeUnparse._
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
+  val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
 
   @Test def test_unparseDelimitedEscapedString01() { runner.runOneTest("unparseDelimitedEscapedString01") }
   @Test def test_unparseDelimitedEscapedString02() { runner.runOneTest("unparseDelimitedEscapedString02") }

@@ -95,15 +95,21 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
-  
-  <tdml:parserTestCase name="encoding_property_expression" root="root1"
-    model="ContentFramingProperties-Embedded.dfdl.xsd" description="Use of DFDL expression for encoding property - DFDL-11-002R">
-    <tdml:document><tdml:documentPart type="text">ASCII</tdml:documentPart><tdml:documentPart type="byte">31</tdml:documentPart></tdml:document>
-    <tdml:errors>
-      <tdml:error>Schema Definition Error</tdml:error>
-        <tdml:error>runtime expression</tdml:error>
-        <tdml:error>encoding</tdml:error>
-      </tdml:errors>
+
+  <tdml:parserTestCase name="encoding_property_expression" root="root1" model="ContentFramingProperties-Embedded.dfdl.xsd" 
+    description="Use of DFDL expression for encoding property - DFDL-11-002R">
+    <tdml:document>
+      <tdml:documentPart type="text">UTF-8</tdml:documentPart>
+      <tdml:documentPart type="byte">E5 B9 B4</tdml:documentPart>
+    </tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:root1>
+          <e1>UTF-8</e1>
+          <e2>年</e2>
+        </ex:root1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
   </tdml:parserTestCase>
  
   <tdml:parserTestCase name="xml_illegal_chars" root="root"
@@ -173,7 +179,7 @@
   <tdml:defineSchema name="packed7BitASCII">
 
     <dfdl:format ref="ex:daffodilTest1" encoding="US-ASCII-7-bit-packed"
-      lengthUnits="characters" />
+      lengthUnits="characters"/>
 
     <xs:element name="e1" type="xs:string" dfdl:lengthKind="explicit"
       dfdl:length="2" />

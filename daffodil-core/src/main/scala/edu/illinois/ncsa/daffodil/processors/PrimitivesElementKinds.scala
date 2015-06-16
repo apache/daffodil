@@ -139,9 +139,8 @@ case class SequenceCombinator(sq: Sequence, rawTerms: Seq[Gram])
 }
 
 case class UnorderedSequenceCombinator(s: Sequence, terms: Seq[Gram])
-  extends Terminal(s, false) {
+  extends UnimplementedPrimitive(s, false) {
   // stub for now. These are not implemented currently.
-  override def parser: Parser = Assert.notYetImplemented("Unordered sequences")
 }
 
 case class ArrayCombinator(e: ElementBase, body: Gram) extends Terminal(e, !body.isEmpty) {

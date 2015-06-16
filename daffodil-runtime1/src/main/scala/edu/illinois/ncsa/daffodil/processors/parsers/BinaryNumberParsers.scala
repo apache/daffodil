@@ -41,6 +41,8 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
+import edu.illinois.ncsa.daffodil.equality._
 
 class FloatKnownLengthRuntimeByteOrderBinaryNumberParser(
   val bo: CompiledExpression,
@@ -71,12 +73,12 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(
   with HasKnownLengthInBits[Double] {
 
   final def convertValue(n: BigInt, ignored_msb: Int): Double = {
-    val nWith65thBit = n | (BigInt(1) << 65) // make sure we have 9 bytes of bigint here. Then we'll ignore the 9th byte.
+    val nWith65thBit = n.abs | (BigInt(1) << 65) // make sure we have 9 bytes of bigint here. Then we'll ignore the 9th byte.
     val ba = nWith65thBit.toByteArray
     val bb = java.nio.ByteBuffer.wrap(ba)
     val res = ba.length match {
       case 9 => bb.getDouble(1) // ignore first byte.
-      case _ => Assert.invariantFailed("byte array should be 9 long")
+      case _ => Assert.invariantFailed("byte array should be 9 long, but was " + ba.length)
     }
     res
   }
@@ -107,9 +109,7 @@ class HexBinaryRuntimeLengthBinaryNumberParser(
   extends BinaryNumberBaseParser[String](e)
   with HasRuntimeExplicitLength[String] {
 
-  def getByteOrder(s: PState): java.nio.ByteOrder = {
-    java.nio.ByteOrder.BIG_ENDIAN
-  }
+  def getByteOrder(s: PState) = ByteOrder.BigEndian
 
   final def convertValue(n: BigInt, ignored_msb: Int): String = n.toString(16)
 }
@@ -127,13 +127,12 @@ class HexBinaryKnownLengthBinaryNumberParser(
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def getByteOrder(s: PState): java.nio.ByteOrder = {
-    java.nio.ByteOrder.BIG_ENDIAN
-  }
+  def getByteOrder(s: PState) = ByteOrder.BigEndian
 
   def getBitLength(s: PState): Long = {
     len * toBits
   }
+
   def getLength(s: PState): Long = {
     len
   }
@@ -192,7 +191,7 @@ abstract class BinaryNumberBaseParser[T](
   val bitOrd = e.defaultBitOrder
 
   protected def getBitLength(s: PState): Long
-  protected def getByteOrder(s: PState): java.nio.ByteOrder
+  protected def getByteOrder(s: PState): ByteOrder
   protected def convertValue(n: BigInt, msb: Int): T
 
   override def toString = Misc.getNameFromClass(this) // e.prettyName
@@ -202,27 +201,23 @@ abstract class BinaryNumberBaseParser[T](
   }
 
   def parse(start: PState): Unit = withParseErrorThrowing(start) {
-    try {
-      val nBits = getBitLength(start)
-      val bo = getByteOrder(start)
-      if (start.bitLimit0b != -1L && (start.bitLimit0b - start.bitPos0b < nBits)) {
-        PE(start, "Insufficient bits to create an xs:" + primName)
-        return
-      }
-      val value = start.inStream.getBigInt(start.bitPos, nBits, bo, bitOrd)
-      val newPos = start.bitPos + nBits
-      val convertedValue: T = convertValue(value, nBits.toInt)
-      start.simpleElement.setDataValue(convertedValue)
-      start.setPos(newPos, -1, Nope)
-    } catch {
-      /*
-       * The reason we catch IndexOutOfBounds is that is the exception 
-       * thrown when indexing into the data stream and you reach past the end.
-       */
-      case e: IndexOutOfBoundsException => {
-        PE(start, "BinaryNumber - Insufficient Bits for xs:%s : IndexOutOfBounds: \n%s", primName, e.getMessage())
-      }
+    val nBits = getBitLength(start).toInt
+    val computedByteOrder = getByteOrder(start)
+    val dis = start.dataInputStream
+    // 
+    // The byte order is set now using the ByteOrderChange parser/unparser
+    // so we don't need to set this here anymore.
+    Assert.invariant(computedByteOrder =:= dis.byteOrder)
+
+    val maybeValue = dis.getUnsignedBigInt(nBits)
+    if (maybeValue.isEmpty) {
+      PE(start, "Insufficient bits to create an xs:" + primName)
+      return
     }
+    val value = maybeValue.get
+    val newPos = start.bitPos + nBits
+    val convertedValue: T = convertValue(value, nBits)
+    start.simpleElement.setDataValue(convertedValue)
   }
 
 }

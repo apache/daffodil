@@ -65,7 +65,7 @@ class TestDFDLExpressionEvaluation extends Parsers {
     val erd = decl.elementRuntimeData
     val infosetRootElem = Infoset.elem2Infoset(erd, infosetAsXML)
 
-    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo)
+    val exprCompiler = new DFDLPathExpressionParser(NodeInfo.AnyType, testSchema.scope, erd.dpathCompileInfo, false)
     val compiledExpr = exprCompiler.compile(expr)
     val doc = Infoset.newDocument(erd)
     doc.setRootElement(infosetRootElem)

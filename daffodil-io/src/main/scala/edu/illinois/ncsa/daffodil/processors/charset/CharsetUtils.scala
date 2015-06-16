@@ -59,7 +59,9 @@ object CharsetUtils {
 
     val cs = try {
       val cs =
-        if (csn.toUpperCase() == "US-ASCII-7-BIT-PACKED") USASCII7BitPackedCharset
+        if (csn.toUpperCase() == "US-ASCII-7-BIT-PACKED" || // deprecated name
+          csn.toUpperCase() == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name 
+          USASCII7BitPackedCharset
         else CharsetICU.forNameICU(csn)
       Some(cs)
     } catch {

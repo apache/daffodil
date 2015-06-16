@@ -37,21 +37,21 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.Implicits._
 
-trait TextReader extends Logging {
-
-  /**
-   * Readers are stored in the PState within the InStream object.
-   */
-  def getReader(charset: Charset, bitPos: Long, state: PState): DFDLCharReader = {
-    // withLoggingLevel(LogLevel.Info) 
-    {
-      val csName = charset.name()
-      log(LogLevel.Debug, "Retrieving reader at bytePos %s", bitPos >> 3)
-      // Do we already have a reader in the PState?
-      val res = state.inStream.getCharReader(charset, bitPos)
-      res
-    }
-  }
-
-}
+//trait TextReader extends Logging {
+//
+//  /**
+//   * Readers are stored in the PState within the InStream object.
+//   */
+//  def getReader(charset: Charset, bitPos: Long, state: PState): DFDLCharReader = {
+//    // withLoggingLevel(LogLevel.Info) 
+//    {
+//      val csName = charset.name()
+//      log(LogLevel.Debug, "Retrieving reader at bytePos %s", bitPos >> 3)
+//      // Do we already have a reader in the PState?
+//      val res = state.inStream.getCharReader(charset, bitPos)
+//      res
+//    }
+//  }
+//
+//}
 

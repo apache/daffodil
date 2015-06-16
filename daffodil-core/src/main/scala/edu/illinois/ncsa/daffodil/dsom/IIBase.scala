@@ -58,6 +58,7 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 import edu.illinois.ncsa.daffodil.api.DaffodilSchemaSource
 import edu.illinois.ncsa.daffodil.api.URISchemaSource
+import java.net.URISyntaxException
 
 /**
  * This file along with DFDLSchemaFile are the implementation of import and include
@@ -193,7 +194,7 @@ abstract class IIBase(xml: Node, xsdArg: XMLSchemaDocument, val seenBefore: IIMa
   final lazy val schemaLocationProperty = getAttributeOption("schemaLocation")
 
   protected final def isValidURI(uri: String): Boolean = {
-    try { val res = new URI(uri) } catch { case ex: Exception => return false }
+    try { val res = new URI(uri) } catch { case ex: URISyntaxException => return false }
     true
   }
 

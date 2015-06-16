@@ -44,6 +44,7 @@ import edu.illinois.ncsa.daffodil.dpath.DFDLCheckConstraintsFunction
 import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
+import edu.illinois.ncsa.daffodil.api.Diagnostic
 
 abstract class StatementElementParserBase(
   rd: RuntimeData,
@@ -99,29 +100,33 @@ abstract class StatementElementParserBase(
 
   def parse(pstate: PState): Unit = {
 
-    val startingBitPos = pstate.bitPos
-    val startingCharPos = pstate.charPos
-    val startingRdr = pstate.inStream.reader
+    var startingBitPos = pstate.dataInputStream.mark
+
+    def cleanup {
+      pstate.dataInputStream.discard(startingBitPos)
+    }
+
     patDiscrimParser.foreach(d => {
-      d.parse1(pstate, rd)
+      d.parse1(pstate)
       // Pattern fails at the start of the Element
-      if (pstate.status != Success) { return }
+      if (pstate.status != Success) { cleanup; return }
     })
 
     // now here we backup and run the pattern Asserts 
     // against the data at the start of the element's representation again.
-    pstate.setPos(startingBitPos, startingCharPos, startingRdr)
+    pstate.dataInputStream.reset(startingBitPos)
+    startingBitPos = pstate.dataInputStream.mark
     patAssertParser.foreach(d => {
-      d.parse1(pstate, rd)
+      d.parse1(pstate)
       // Pattern fails at the start of the Element
-      if (pstate.status != Success) { return }
+      if (pstate.status != Success) { cleanup; return }
     })
 
     // backup again. If all pattern discriminators and/or asserts
     // have passed, now we parse the element. But we backup
     // as if the pattern matching had not advanced the state.
-    pstate.setPos(startingBitPos, startingCharPos, startingRdr)
-
+    pstate.dataInputStream.reset(startingBitPos)
+    startingBitPos = pstate.dataInputStream.mark
     parseBegin(pstate)
     try {
 
@@ -132,16 +137,16 @@ abstract class StatementElementParserBase(
       pstate.dataProc.startElement(pstate, this)
 
       eParser.foreach { eParser =>
-        eParser.parse1(pstate, rd)
+        eParser.parse1(pstate)
       }
 
-      var someSetVarFailed: Maybe[PState] = Nope
+      var setVarFailureDiags: Seq[Diagnostic] = Nil
 
       if (pstate.status == Success) {
         setVarParser.foreach { d =>
-          d.parse1(pstate, rd)
+          d.parse1(pstate)
           if (pstate.status != Success) {
-            someSetVarFailed = One(pstate.duplicate())
+            setVarFailureDiags = pstate.diagnostics
             // a setVariable statement may fail. But we want to continue to try 
             // more of the setVariable statements, as they may be necessary
             // to evaluate the test discriminator below, and some might 
@@ -154,7 +159,7 @@ abstract class StatementElementParserBase(
       }
 
       testDiscrimParser.foreach(d => {
-        d.parse1(pstate, rd)
+        d.parse1(pstate)
         // Tests fail at the end of the Element
         if (pstate.status != Success) { return }
       })
@@ -163,8 +168,8 @@ abstract class StatementElementParserBase(
       // We're done with the discriminator, so now we revisit the set variable statements.
       // If a failure occurred there, then now we can fail out right here.
       // 
-      someSetVarFailed.foreach { svState =>
-        pstate.assignFrom(svState) // set state to failure of first setVar that failed.
+      if (!setVarFailureDiags.isEmpty) {
+        pstate.setFailed(setVarFailureDiags.head)
         return
       }
 
@@ -172,19 +177,20 @@ abstract class StatementElementParserBase(
       if (pstate.status != Success) { return }
 
       testAssertParser.foreach(d => {
-        d.parse1(pstate, rd)
+        d.parse1(pstate)
         // Tests fail at the end of the Element
         if (pstate.status != Success) { return }
       })
 
       eAfterParser.foreach { eAfterParser =>
-        eAfterParser.parse1(pstate, rd)
+        eAfterParser.parse1(pstate)
       }
 
       if (pstate.status != Success) return
     } finally {
       parseEnd(pstate)
       pstate.dataProc.endElement(pstate, this)
+      cleanup
     }
   }
 }
@@ -213,6 +219,7 @@ class StatementElementParser(
   def move(start: PState) {
     start.mpstate.moveOverOneGroupIndexOnly
     start.mpstate.moveOverOneElementChildOnly
+    ()
   }
 
   def parseBegin(pstate: PState): Unit = {

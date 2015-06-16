@@ -42,19 +42,18 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestContentFramingProperties {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml1 = testDir_01 + "dpaext1.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
+  lazy val runner1 = Runner(testDir_01, "dpaext1.tdml")
 
   @Test def test_encoding_11_01() { runner1.runOneTest("encoding_11_01") }
   @Test def test_encoding_11_02() { runner1.runOneTest("encoding_11_02") }
   @Test def test_encoding_11_03() { runner1.runOneTest("encoding_11_03") }
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
-  val tdml2 = testDir_02 + "ContentFramingProps.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+  lazy val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
 
   // Commented out due to 4byte char decode issue when implementing DFDL-951 - DFDL-965
   // @Test def test_xml_utf8_4byte_chars_01() { runner2.runOneTest("xml_utf8_4byte_chars_01") }
@@ -87,7 +86,8 @@ class TestContentFramingProperties {
   @Test def test_encoding_iso_8859_1() = { runner2.runOneTest("encoding_iso-8859-1") }
 
   @Test def test_encodingErrorReplace() { runner2.runOneTest("encodingErrorReplace") }
-  @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
+  // JIRA Ticket DFDL-1386 - 4-byte utf-8 characters/surrogate-pair issue.
+  // @Test def test_encodingNoError() { runner2.runOneTest("encodingNoError") }
   @Test def test_encodingErrorReplace2() { runner2.runOneTest("encodingErrorReplace2") }
   @Test def test_encodingErrorReplace3() { runner2.runOneTest("encodingErrorReplace3") }
   @Test def test_encodingErrorReplace4() { runner2.runOneTest("encodingErrorReplace4") }

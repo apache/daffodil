@@ -718,7 +718,8 @@
 
     <tdml:document><![CDATA[Four score and seven years ago our fathers brought forth on this continent a new nation, conceived in liberty, and dedicated to the proposition that all men are created equal. Now we are engaged in a great civil war, testing whether that nation, or any nation, so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altogether fitting and proper that we should do this]]></tdml:document>
     <tdml:errors>
-      <tdml:error>Parse failed to find exactly 557 characters</tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>557</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 
@@ -1350,10 +1351,12 @@
     root="bit9" model="bitSchema" description="Section 12 Length Properties - DFDL-12-154R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[100000001]]></tdml:documentPart>
+      <!-- 1000 0000 1000 0000 then swap bytes (looks same), then shift right until msb of byte becomes lsb.
+      resulting in 0000 0001 1000 0000 aka 0x0180 which is 384. -->
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <bit9>32896</bit9>
+        <bit9>384</bit9>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -1368,12 +1371,14 @@
     root="s1" model="bitSchema" description="Section 12 Length Properties - DFDL-12-153R">
     <tdml:document>
       <tdml:documentPart type="bits"><![CDATA[1000 0000 1|100 0000 001]]></tdml:documentPart>
+      <!-- 2nd number is Little Endian 100 0000 001 or 10000000 01000000 swapping bytes is 01000000 10000000
+       then shifting first byte down by 6 00000001 10000000 or 0x0180 which is 384 -->
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <s1>
           <bit10>257</bit10>
-          <bit11>16512</bit11>
+          <bit11>384</bit11>
         </s1>
       </tdml:dfdlInfoset>
     </tdml:infoset>

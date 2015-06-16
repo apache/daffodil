@@ -27,12 +27,18 @@
           <block1>item1</block1>
           <block1>,,2,,,</block1>
           <block1>3XXXEND3</block1>
-          <block1>item!S4</block1>
+          <block1>item!S4</block1><!-- DFDL Spec ambiguity. (See note below also.) This ! escapeEscape character does not precede an escape block end. -->
           <block2>item1</block2>
-          <block2>itemS2</block2>
+          <block2>itemS2</block2><!-- DFDL Spec ambiguity: Does not say whether escapeEscape characters -->
+          <!-- that do not precede an escape block end are to be removed or not. -->
+          <!-- Logically, it makes sense that like if they do not precede an -->
+          <!-- escape character they are preserved, if they do not precede an -->
+          <!-- escape block end they should be preserved. But the spec doesn't say this. -->
           <block2>itemSS3</block2>
           <block2>4</block2>
-          <block2>SSTARTX5XXEND</block2>
+          <block2>SSTARTX5XXEND</block2><!-- Per DFDL Spec: 13.2.1 "Occurrences of the dfdl:escapeCharacter and dfdl:escapeEscapeCharacter are removed from the data, unless the dfdl:escapeCharacter is preceded by the dfdl:escapeEscapeCharacter, or the dfdl:escapeEscapeCharacter does not precede the dfdl:escapeCharacter." -->
+          <!-- In this case the S is the escapeEscape and doesn't precede an escape character (though it does precede an escapeBlock start, but escape block starts don't have to be escaped.) -->
+          <!-- So according to the DFDL Spec 13.2.1 discussion of the dfdl:escapeKind property, this escapeEscape should be preserved in the data. -->
           <block2>,,6</block2>
           <block2>START777END</block2>
         </list>

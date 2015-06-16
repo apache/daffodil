@@ -49,7 +49,7 @@ case class DAFTrace(recipe: CompiledDPath, msg: String)
 case object DAFError extends RecipeOp {
   override def run(dstate: DState) {
     val ie = dstate.pstate.infoset.asInstanceOf[DIElement]
-    val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(dstate.pstate), "The error function was called.")
+    val pe = new ParseError(One(ie.runtimeData.schemaFileLocation), One(dstate.pstate.currentLocation), "The error function was called.")
     throw pe
   }
 }

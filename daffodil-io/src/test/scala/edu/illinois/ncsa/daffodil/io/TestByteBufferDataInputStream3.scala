@@ -16,7 +16,6 @@ class TestByteBufferDataInputStream3 {
     val dumpString =
       Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 0, lengthInBits, fb,
         includeHeadingLine = true).mkString("\n")
-    println(dumpString)
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000000: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
@@ -35,7 +34,6 @@ class TestByteBufferDataInputStream3 {
     val dumpString =
       Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 16 * 8, lengthInBits, fb,
         includeHeadingLine = true).mkString("\n")
-    println(dumpString)
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000010: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
@@ -54,7 +52,6 @@ class TestByteBufferDataInputStream3 {
     val dumpString =
       Dump.dump(Dump.MixedHexLTR(Some("utf-8")), 20 * 8, lengthInBits, fb,
         includeHeadingLine = true).mkString("\n")
-    println(dumpString)
     val expected = """
 87654321  0011 2233 4455 6677 8899 aabb ccdd eeff  0~1~2~3~4~5~6~7~8~9~a~b~c~d~e~f~
 00000010:           4461 7465 20e5 b9b4 e69c 88e6          D~a~t~e~␣~年~~~~月~~~~日

@@ -40,5 +40,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-tdml/lib_managed/docs/commons-io/commons-io/commons-io-2.4-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

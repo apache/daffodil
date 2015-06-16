@@ -42,12 +42,12 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestSequenceGroupInitiatedContent {
 
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-  val tdml_01 = testDir_01 + "SequenceGroupInitiatedContent.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  lazy val runner_01 = Runner(testDir_01, "SequenceGroupInitiatedContent.tdml")
 
   @Test def test_baseline() { runner_01.runOneTest("initiatedContentSeqBaseline") }
   @Test def test_1() { runner_01.runOneTest("initiatedContentSeq1") }

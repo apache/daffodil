@@ -40,12 +40,11 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.processors.Nada
 import edu.illinois.ncsa.daffodil.processors.SeqCompParser
 import edu.illinois.ncsa.daffodil.processors.AltCompParser
-import edu.illinois.ncsa.daffodil.processors.EmptyGramParser
-import edu.illinois.ncsa.daffodil.processors.ErrorParser
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr
@@ -143,7 +142,8 @@ object AltComp {
   }
 }
 
-class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children) {
+class AltComp private (context: SchemaComponent, children: Seq[Gram]) extends BinaryGram(context, children)
+  with HasNoUnparser {
   protected final override def op = "|"
   protected final override def open = "["
   protected final override def close = "]"
@@ -155,14 +155,15 @@ object EmptyGram extends Gram(null) {
   override def isEmpty = true
   override def toString = "Empty"
 
-  override lazy val parser = new EmptyGramParser
+  override lazy val parser = hasNoParser // new EmptyGramParser
+  override lazy val unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
-object ErrorGram extends Gram(null) {
+object ErrorGram extends Gram(null) with HasNoUnparser {
   override def isEmpty = false
   override def toString = "Error"
 
-  override lazy val parser = new ErrorParser
+  override lazy val parser = hasNoParser // new ErrorParser
 }
 
 abstract class NamedGram(context: SchemaComponent) extends Gram(context) {

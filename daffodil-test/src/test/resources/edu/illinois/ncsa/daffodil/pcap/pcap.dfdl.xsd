@@ -151,12 +151,12 @@ The message root is 'pcap'.
     <xs:restriction base="xs:hexBinary" />
   </xs:simpleType>
 
-  <xs:element name="PCAP">
+  <xs:element name="PCAP" dfdl:byteOrder="bigEndian">
     <xs:complexType>
-      <xs:sequence>
-        <xs:element name="PCAPHeader">
+      <xs:sequence dfdl:byteOrder="bigEndian">
+        <xs:element name="PCAPHeader" dfdl:byteOrder="bigEndian">
           <xs:complexType>
-            <xs:sequence>
+            <xs:sequence dfdl:byteOrder="bigEndian">
               <xs:element name="MagicNumber" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4" dfdl:lengthUnits="bytes" dfdl:byteOrder="bigEndian">
                 <xs:annotation>
                   <xs:appinfo source="http://www.ogf.org/dfdl/">

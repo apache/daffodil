@@ -46,11 +46,21 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.LengthUnits
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import edu.illinois.ncsa.daffodil.processors.parsers._
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsFixedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBitsUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesFixedUnparser
+import edu.illinois.ncsa.daffodil.grammar.HasNoUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitBytesUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersFixedUnparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.SpecifiedLengthExplicitCharactersUnparser
+import java.util.regex.PatternSyntaxException
 
 abstract class SpecifiedLengthCombinatorBase(val e: ElementBase, eGram: => Gram)
   extends Terminal(e, true) {
 
-  val eParser = eGram.parser
+  lazy val eParser = eGram.parser
+  lazy val eUnparser = eGram.unparser
 
   def kind: String
 
@@ -68,11 +78,22 @@ class SpecifiedLengthPattern(e: ElementBase, eGram: => Gram)
 
   val kind = "Pattern"
 
+  lazy val pattern =
+    try {
+      e.lengthPattern.r.pattern // imagine a really big expensive pattern to compile.
+    } catch {
+      case x: PatternSyntaxException =>
+        e.SDE(x)
+    }
+
   if (!e.encodingInfo.isScannable) e.SDE("Element %s does not meet the requirements of Pattern-Based lengths and Scanability.\nThe element and its children must be representation='text' and share the same encoding.", e.prettyName)
-  def parser: Parser = new SpecifiedLengthPatternParser(
+
+  override lazy val parser: Parser = new SpecifiedLengthPatternParser(
     eParser,
     e.elementRuntimeData,
-    e.lengthPattern)
+    pattern)
+
+  override lazy val unparser: Unparser = eUnparser
 
 }
 
@@ -81,12 +102,15 @@ class SpecifiedLengthExplicitBitsFixed(e: ElementBase, eGram: => Gram, nBits: Lo
 
   val kind = "ExplicitBitsFixed"
 
-  def parser: Parser = new SpecifiedLengthExplicitBitsFixedParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitBitsFixedParser(
     eParser,
     e.elementRuntimeData,
-    nBits,
-    e.knownEncodingCharset)
+    nBits)
 
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitBitsFixedUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    nBits)
 }
 
 class SpecifiedLengthExplicitBits(e: ElementBase, eGram: => Gram)
@@ -100,12 +124,16 @@ class SpecifiedLengthExplicitBits(e: ElementBase, eGram: => Gram)
     case _ => e.schemaDefinitionError("Binary Numbers must have length units of Bits or Bytes.")
   }
 
-  def parser: Parser = new SpecifiedLengthExplicitBitsParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitBitsParser(
     eParser,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.length,
     toBits)
+
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitBitsUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    e.length)
 
 }
 
@@ -114,12 +142,15 @@ class SpecifiedLengthExplicitBytesFixed(e: ElementBase, eGram: => Gram, nBytes: 
 
   val kind = "ExplicitBytesFixed"
 
-  def parser: Parser = new SpecifiedLengthExplicitBytesFixedParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitBytesFixedParser(
     eParser,
     e.elementRuntimeData,
-    nBytes,
-    e.knownEncodingCharset)
+    nBytes)
 
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitBytesFixedUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    nBytes)
 }
 
 class SpecifiedLengthExplicitBytes(e: ElementBase, eGram: => Gram)
@@ -127,12 +158,15 @@ class SpecifiedLengthExplicitBytes(e: ElementBase, eGram: => Gram)
 
   val kind = "ExplicitBytes"
 
-  def parser: Parser = new SpecifiedLengthExplicitBytesParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitBytesParser(
     eParser,
     e.elementRuntimeData,
-    e.knownEncodingCharset,
     e.length)
 
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitBytesUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    e.length)
 }
 
 class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nChars: Long)
@@ -140,8 +174,13 @@ class SpecifiedLengthExplicitCharactersFixed(e: ElementBase, eGram: => Gram, nCh
 
   val kind = "ExplicitCharactersFixed"
 
-  def parser: Parser = new SpecifiedLengthExplicitCharactersFixedParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitCharactersFixedParser(
     eParser,
+    e.elementRuntimeData,
+    nChars)
+
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitCharactersFixedUnparser(
+    eUnparser,
     e.elementRuntimeData,
     nChars)
 
@@ -152,10 +191,14 @@ class SpecifiedLengthExplicitCharacters(e: ElementBase, eGram: => Gram)
 
   val kind = "ExplicitCharacters"
 
-  def parser: Parser = new SpecifiedLengthExplicitCharactersParser(
+  lazy val parser: Parser = new SpecifiedLengthExplicitCharactersParser(
     eParser,
     e.elementRuntimeData,
     e.length)
 
+  lazy val unparser: Unparser = new SpecifiedLengthExplicitCharactersUnparser(
+    eUnparser,
+    e.elementRuntimeData,
+    e.length)
 }
 

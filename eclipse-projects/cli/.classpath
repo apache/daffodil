@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.6.1.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.fusesource.jansi/jansi/jansi-1.11.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

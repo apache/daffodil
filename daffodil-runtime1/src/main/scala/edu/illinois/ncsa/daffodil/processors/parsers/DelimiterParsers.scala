@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
 import edu.illinois.ncsa.daffodil.processors.DataLoc
 import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.PrimParser
-import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.processors.dfa.TextParser
 import edu.illinois.ncsa.daffodil.util.Maybe
@@ -53,6 +52,8 @@ import edu.illinois.ncsa.daffodil.util.Maybe.toMaybe
 import edu.illinois.ncsa.daffodil.util.Enum
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import java.nio.charset.StandardCharsets
+import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
+import edu.illinois.ncsa.daffodil.util.Misc
 
 trait ComputesValueFoundInstead {
   //
@@ -62,17 +63,9 @@ trait ComputesValueFoundInstead {
   //
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
     val ei = state.getContext().encodingInfo
-    val cs = if (ei.isKnownEncoding) ei.knownEncodingCharset.charset else StandardCharsets.UTF_8 // guess utf8
-    var rdr = state.inStream.getCharReader(cs, state.bitPos0b)
-    val sb = new StringBuilder(maxDelimiterLength)
-    var i = 0
-    while (i < maxDelimiterLength && !rdr.atEnd) {
-      i += 1
-      sb + rdr.first
-      rdr = rdr.rest
-    }
-    val foundInstead = sb.mkString
-    foundInstead
+    val foundInstead = state.dataInputStream.getSomeString(maxDelimiterLength)
+    val result = if (foundInstead.isDefined) foundInstead.get else ""
+    result
   }
 }
 
@@ -104,14 +97,20 @@ object DelimiterTextType extends Enum {
 abstract class DelimiterTextParserBase(rd: TermRuntimeData,
   delimiterType: DelimiterTextType.Type)
   extends PrimParser(rd)
-  with ComputesValueFoundInstead {
+  with ComputesValueFoundInstead with TextParserRuntimeMixin {
 
   val isInitiator: Boolean = delimiterType == DelimiterTextType.Initiator
 
-  def isLocalText(originalRepresentation: String, state: PState): Boolean =
-    if (delimiterType == DelimiterTextType.Initiator) state.mpstate.localDelimiters.existsInInitiator(originalRepresentation)
-    else if (delimiterType == DelimiterTextType.Separator) state.mpstate.localDelimiters.existsInSeparator(originalRepresentation)
-    else state.mpstate.localDelimiters.existsInTerminator(originalRepresentation)
+  def isLocalText(originalRepresentation: String, state: PState): Boolean = {
+    val res =
+      if (delimiterType == DelimiterTextType.Initiator)
+        state.mpstate.localDelimiters.existsInInitiator(originalRepresentation)
+      else if (delimiterType == DelimiterTextType.Separator)
+        state.mpstate.localDelimiters.existsInSeparator(originalRepresentation)
+      else
+        state.mpstate.localDelimiters.existsInTerminator(originalRepresentation)
+    res
+  }
 
   def isRemoteText(originalRepresentation: String, state: PState): Boolean = !isLocalText(originalRepresentation, state)
 
@@ -129,7 +128,8 @@ abstract class DelimiterTextParserBase(rd: TermRuntimeData,
       {
         val findResult = delimiters.map {
           case (delimValueList, elemName, elemPath) => {
-            val res = delimValueList.find(delim => delim == originalDelimRep) match {
+            val findResult = delimValueList.find(delim => delim == originalDelimRep)
+            val res = findResult match {
               case Some(d) => (d, elemName, elemPath, true)
               case None => (delimValueList.mkString(","), elemName, elemPath, false)
             }
@@ -137,7 +137,8 @@ abstract class DelimiterTextParserBase(rd: TermRuntimeData,
           }
         }.toSet.filter { x => x._4 == true }
 
-        if (findResult.size == 0) Assert.impossibleCase()
+        if (findResult.size == 0)
+          Assert.impossibleCase()
         findResult.head
       }
     (remoteDelimValue, remoteElemName, remoteElemPath)
@@ -151,8 +152,7 @@ class DelimiterTextParser(
   textParser: TextParser,
   positionalInfo: String,
   delimiterType: DelimiterTextType.Type)
-  extends DelimiterTextParserBase(rd, delimiterType)
-  with TextReader {
+  extends DelimiterTextParserBase(rd, delimiterType) {
 
   Assert.invariant(delimExpr.toString != "") // shouldn't be here at all in this case.
 
@@ -165,32 +165,61 @@ class DelimiterTextParser(
 
   override def parse(start: PState): Unit = withParseErrorThrowing(start) {
 
+    setupEncoding(start, rd)
+
     val localDelimsCooked = start.mpstate.localDelimiters.getAllDelimiters
 
-    val bytePos = (start.bitPos >> 3).toInt
+    // val bytePos = (start.bitPos >> 3).toInt
 
-    val reader = getReader(rd.encodingInfo.knownEncodingCharset.charset, start.bitPos, start)
-
-    if (isInitiator || !start.mpstate.foundDelimiter.isDefined) {
+    if (isInitiator || !start.foundDelimiter.isDefined) {
+      //
+      // We are going to scan for delimiter text.
+      //
+      // FIXME: This is incorrect. It grabs all local delimiters even if we're last in a group so the separator
+      // cannot be relevant, or if we're in the middle of a group with required elements following so 
+      // the terminator cannot be relevant.
+      //
+      // Fixing this is going to require the compiler to pre-compute the relevant delimiters for every
+      // Term. (relevant delimiters meaning the specific compiled expressions that are relevant.)
+      // PERFORMANCE: this should also help performance by eliminating the construction of lists/sets of 
+      // these things at run time.
+      //
       val delims = {
-        val localDelims = if (delimiterType == DelimiterTextType.Initiator) start.mpstate.localDelimiters.getInitiators.getOrElse(Assert.impossible("Initiator should always find at least one initiator on stack."))
-        else if (delimiterType == DelimiterTextType.Separator) start.mpstate.localDelimiters.getSeparators.getOrElse(Assert.impossible("Separator should always find at least one separator on stack."))
-        else start.mpstate.localDelimiters.getTerminators.getOrElse(Assert.impossible("Terminator should always find at least one terminator on stack."))
-        val remoteDelims = start.mpstate.getAllTerminatingMarkup
+        val localDelims =
+          if (delimiterType == DelimiterTextType.Initiator)
+            start.mpstate.localDelimiters.getInitiators.getOrElse(Assert.impossible("Initiator should always find at least one initiator on stack."))
+          else if (delimiterType == DelimiterTextType.Separator)
+            start.mpstate.localDelimiters.getSeparators.getOrElse(Assert.impossible("Separator should always find at least one separator on stack."))
+          else
+            start.mpstate.localDelimiters.getTerminators.getOrElse(Assert.impossible("Terminator should always find at least one terminator on stack."))
+
+        // FIXME: This is incorrect. It is going to get too many delimiters. See above.
+        // Nowever, code below does assume that we always find a match, even to incorrect markup, so fixing this is
+        // more than just getting the right set of remote delims here.
+        val remoteDelims = // start.mpstate.getAllTerminatingMarkup
+          start.mpstate.remoteDelimiters.flatMap { rd =>
+            rd.getTerminatingMarkup
+          } // FIXME: Performance - this is going to allocate a structure or several even
+
         localDelims ++ remoteDelims
       }
 
-      val result = textParser.parse(reader, delims, true)
+      val result = textParser.parse(start.dataInputStream, delims, true)
 
       if (!result.isDefined) {
+        //
+        // Did not find delimiter. 
+        //
+        // Still can be ok if ES is a delimiter. That's allowed when we're not lengthKind='delimited'
+        // That is, it is allowed if the delimiter is just part of the data syntax, but is not being 
+        // used to determine length.
+        //
         if (hasLocalES(start)) {
           // found local ES, regardless if there was a remote ES
-          val numBits = 0
-          val endCharPos = start.charPos
-          val endBitPosDelim = numBits + start.bitPos
+          //          val numBits = 0
+          //          val endBitPosDelim = numBits + start.bitPos
 
-          start.setPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-          start.mpstate.clearDelimitedText
+          start.clearDelimitedText
           return
         } else if (hasRemoteES(start)) {
           // has remote but not local (PE)
@@ -207,48 +236,65 @@ class DelimiterTextParser(
 
           val foundInstead = computeValueFoundInsteadOfDelimiter(start, maxDelimLength)
           PE(start, "%s - %s: Delimiter not found!  Was looking for (%s) but found \"%s\" instead.",
-            this.toString(), rd.prettyName, localDelimsCooked.mkString(", "), foundInstead)
+            this.toString(), rd.prettyName, delims.mkString(", "),
+            Misc.remapStringToVisibleGlyphs(foundInstead))
           return
         }
+        //
+        // end of !result.isDefined
       } else {
+        Assert.invariant(result.isDefined)
+        //
+        // Found a delimiter
+        //
         val res = result.get
 
         if (!isLocalText(res.originalDelimiterRep, start)) {
+          // 
+          // It was a remote delimiter but we should have found a local one.
+          //
+          // ??? Do not understand why we know it should have been a local one.
+          // An element that is last in a group can be terminated by the terminator of some enclosing 
+          // parent group that is not even the immediate parent.
+          //
           val (remoteDelimValue, remoteElemName, remoteElemPath) =
-            getMatchedDelimiterInfo(res.originalDelimiterRep,
-              start)
+            getMatchedDelimiterInfo(res.originalDelimiterRep, start)
 
           PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
             this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
-            kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+            kindString, delims.mkString(" "), rd.path, positionalInfo)
           return
         }
-
-        val numBits = res.numBits
-        val endCharPos = if (start.charPos == -1) res.numCharsRead else start.charPos + res.numCharsRead
-        val endBitPosDelim = numBits + start.bitPos
-
-        start.setPos(endBitPosDelim, endCharPos, Some(res.next))
+        // 
+        // It was a local delimiter.
+        // 
+        val nChars = res.matchedDelimiterValue.get.length
+        val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
+        Assert.invariant(wasDelimiterTextSkipped)
+        start.clearDelimitedText
         return
       }
     } else {
-      val found = start.mpstate.foundDelimiter.get
+      //
+      // A delimiter was found and cached as part of parsing a previous term.
+      // We will not scan for a delimiter. We will check that the cached one matches
+      // what we expect. 
+      //
+      // An invariant here is that the input stream has NOT been advanced yet
+      // past the delimiter. So we have to advance it here.
+      //
+      val found = start.foundDelimiter.get
       if (!isLocalText(found.originalRepresentation, start)) {
         val (remoteDelimValue, remoteElemName, remoteElemPath) =
-          getMatchedDelimiterInfo(found.originalRepresentation,
-            start)
-
-        PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s(%s) for %s %s",
-          this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath,
-          kindString, localDelimsCooked.mkString(" "), rd.path, positionalInfo)
+          getMatchedDelimiterInfo(found.originalRepresentation, start)
+        PE(start, "%s - %s: Found delimiter (%s) for %s when looking for %s for %s %s",
+          this.toString(), rd.prettyName, remoteDelimValue, remoteElemPath, localDelimsCooked.mkString(" "), this.context.path, positionalInfo)
         return
       } else {
-        val numBits = rd.encodingInfo.knownEncodingStringBitLength(found.foundText)
-        val endCharPos = if (start.charPos == -1) found.foundText.length() else start.charPos + found.foundText.length()
-        val endBitPosDelim = numBits + start.bitPos
-
-        start.setPos(endBitPosDelim, endCharPos, Some(reader.atBitPos(endBitPosDelim)))
-        start.mpstate.clearDelimitedText
+        val nChars = found.foundText.length
+        val wasDelimiterTextSkipped = start.dataInputStream.skipChars(nChars)
+        Assert.invariant(wasDelimiterTextSkipped)
+        start.clearDelimitedText
       }
     }
 

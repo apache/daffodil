@@ -37,7 +37,7 @@
 				<element name="requireEncodingErrorPolicyProperty" minOccurs="0" type="xs:boolean" />
 				<element name="maxFieldContentLengthInBytes" minOccurs="0" type="xs:int" />
 				<element name="maxOccursBounds" minOccurs="0" type="xs:int" />
-				<element name="maxSkipLength" minOccurs="0" type="xs:int" />
+				<element name="maxSkipLengthInBytes" minOccurs="0" type="xs:int" />
 				<element name="maxBinaryDecimalVirtualPoint" minOccurs="0" type="xs:int" />
 				<element name="minBinaryDecimalVirtualPoint" minOccurs="0" type="xs:int" />
 				<element name="generatedNamespacePrefixStem" minOccurs="0" type="xs:string" />

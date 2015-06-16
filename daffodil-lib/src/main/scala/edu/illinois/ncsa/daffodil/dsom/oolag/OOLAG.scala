@@ -551,6 +551,7 @@ object OOLAG extends Logging {
         val v = try {
           valueAsAny
         } catch {
+          case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => toss(u)
           case e: Error => toss(e)
           //
@@ -583,6 +584,8 @@ object OOLAG extends Logging {
           oolagAfterValue(v)
           v
         } catch {
+          case s: scala.util.control.ControlThrowable => throw s
+          case u: UnsuppressableException => throw u
           case e: Error => throw e
           case th: Throwable => oolagCatch(th)
         } finally {

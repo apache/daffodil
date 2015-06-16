@@ -940,7 +940,7 @@ class QNamePrefixNotInScopeException(pre: String, loc: LookupLocation)
 //      try {
 //        Validator.validateXMLStream(schemaResource, docReader)
 //      } catch {
-//        case e => {
+//        case e: ...  => {
 //          val exc = e
 //          // System.err.println(exc.getMessage())
 //          // Really useful place for a breakpoint.

@@ -46,3 +46,9 @@ trait HasVariableLength { self: PrimParser =>
     l
   }
 }
+
+trait HasFixedLength { self: PrimParser =>
+
+  def nItems: Long
+  def getLength(pstate: PState) = nItems
+}

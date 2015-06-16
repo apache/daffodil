@@ -47,8 +47,10 @@ import edu.illinois.ncsa.daffodil.processors.VariableMap
 import edu.illinois.ncsa.daffodil.api._
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.processors.EmptyVariableMap
-import edu.illinois.ncsa.daffodil.api.DFDL._
+import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetSource
+import edu.illinois.ncsa.daffodil.processors.DataProcessor
+import edu.illinois.ncsa.daffodil.debugger._
 
 /*
  * This is not a file of tests.
@@ -89,21 +91,21 @@ object TestUtils {
     throw new FileNotFoundException("Couldn't find file " + f + " relative to " + cwd + ".")
   }
 
-  def testString(testSchema: Node, data: String) = {
-    runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data))
+  def testString(testSchema: Node, data: String, isTracing: Boolean = false) = {
+    runSchemaOnData(testSchema, Misc.stringToReadableByteChannel(data), isTracing)
   }
 
-  def testBinary(testSchema: Node, hexData: String) = {
+  def testBinary(testSchema: Node, hexData: String, areTracing: Boolean = false) = {
     val b = Misc.hex2Bytes(hexData)
     val rbc = Misc.byteArrayToReadableByteChannel(b)
-    runSchemaOnData(testSchema, rbc)
+    runSchemaOnData(testSchema, rbc, areTracing)
   }
 
   def testFile(testSchema: Node, fileName: String) = {
     runSchemaOnData(testSchema, Misc.fileToReadableByteChannel(new java.io.File(fileName)))
   }
 
-  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String) {
+  def testUnparsing(testSchema: scala.xml.Elem, infosetXML: Node, unparseTo: String, areTracing: Boolean = false) {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     if (pf.isError) {
@@ -118,6 +120,10 @@ object TestUtils {
     val outputStream = new java.io.ByteArrayOutputStream()
     val out = java.nio.channels.Channels.newChannel(outputStream)
     val xmlEventReader = XMLUtils.nodeToXMLEventReader(infosetXML)
+    if (areTracing) {
+      u.setDebugger(builtInTracer)
+      u.setDebugging(true)
+    }
     val actual = u.unparse(out, xmlEventReader)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -152,7 +158,9 @@ object TestUtils {
     }
   }
 
-  def runSchemaOnData(testSchema: Node, data: ReadableByteChannel) = {
+  private lazy val builtInTracer = new InteractiveDebugger(new TraceDebuggerRunner, ExpressionCompiler)
+
+  def runSchemaOnData(testSchema: Node, data: ReadableByteChannel, areTracing: Boolean = false) = {
     val compiler = Compiler()
     val pf = compiler.compileNode(testSchema)
     val isError = pf.isError
@@ -161,13 +169,17 @@ object TestUtils {
     if (isError) {
       throw new Exception(msgs)
     }
-    val p = pf.onPath("/")
+    val p = pf.onPath("/").asInstanceOf[DataProcessor]
     val pIsError = p.isError
     if (pIsError) {
       val msgs = pf.getDiagnostics.map(_.getMessage).mkString("\n")
       throw new Exception(msgs)
     }
     val d = data
+    if (areTracing) {
+      p.setDebugger(builtInTracer)
+      p.setDebugging(true)
+    }
     val actual = p.parse(d)
     if (actual.isError) {
       val msgs = actual.getDiagnostics.map(_.getMessage).mkString("\n")
@@ -216,7 +228,7 @@ class Fakes private () {
   lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
   lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
 
-  class FakeDataProcessor extends DataProcessor {
+  class FakeDataProcessor extends DFDL.DataProcessor {
     def setValidationMode(mode: ValidationMode.Type): Unit = {}
     def getValidationMode(): ValidationMode.Type = { ValidationMode.Full }
     def save(output: DFDL.Output): Unit = {}
@@ -224,11 +236,11 @@ class Fakes private () {
     def setExternalVariables(extVars: Seq[Binding]): Unit = {}
     def setExternalVariables(extVars: File): Unit = {}
     def getVariables(): VariableMap = EmptyVariableMap
-    def parse(input: Input, lengthLimitInBits: Long = -1): ParseResult = null
-    def parse(file: File): ParseResult = null
-    def unparse(output: Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): UnparseResult = null
-    def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): UnparseResult = null
-    def unparse(output: DFDL.Output, infosetSource: InfosetSource): UnparseResult = null
+    def parse(input: DFDL.Input, lengthLimitInBits: Long = -1): DFDL.ParseResult = null
+    def parse(file: File): DFDL.ParseResult = null
+    def unparse(output: DFDL.Output, xmlEventReader: Iterator[scala.xml.pull.XMLEvent]): DFDL.UnparseResult = null
+    def unparse(output: DFDL.Output, infosetXML: scala.xml.Node): DFDL.UnparseResult = null
+    def unparse(output: DFDL.Output, infosetSource: InfosetSource): DFDL.UnparseResult = null
     def getDiagnostics: Seq[Diagnostic] = Seq.empty
     //final lazy val canProceed: Boolean = !isError
     def isError: Boolean = false

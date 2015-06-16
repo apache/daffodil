@@ -1,13 +1,17 @@
 package edu.illinois.ncsa.daffodil.processors.parsers
 
-import edu.illinois.ncsa.daffodil.processors.ScalaPatternParser
 import scala.collection.mutable.Queue
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.processors.Delimiter
+import edu.illinois.ncsa.daffodil.util.OnStack
+import java.util.regex.Matcher
 
 trait NilMatcherMixin {
 
-  protected def nilValues: List[String]
+  protected def cookedNilValuesForParse: List[String]
+
+  final lazy val isEmptyAllowed: Boolean =
+    cookedNilValuesForParse.contains("%ES;")
 
   /**
    * Constructs an Array of Parser[String] which holds the Parser representations
@@ -16,8 +20,7 @@ trait NilMatcherMixin {
    * Constructs an Array of String which holds the Regex representations of the
    * delimList.
    */
-  private def buildDelims(delimList: Set[String]): (Array[ScalaPatternParser], Array[String]) = {
-    var delimsParser: Queue[ScalaPatternParser] = Queue.empty
+  private def buildDelims(delimList: Set[String]): Array[String] = {
     var delimsRegex: Queue[String] = Queue.empty
 
     // We probably always want delims ordered:
@@ -26,10 +29,9 @@ trait NilMatcherMixin {
     sortDelims(delimList).toList.foreach(str => {
       val d = new Delimiter()
       d.compile(str)
-      delimsParser.enqueue(ScalaPatternParser(d.delimRegExParseDelim.r)) // The regex representing the actual delimiter
       delimsRegex.enqueue(d.delimRegExParseDelim) // The regex representing the actual delimiter
     })
-    (delimsParser.toArray, delimsRegex.toArray)
+    delimsRegex.toArray
   }
 
   private def sortDelims(delimList: Set[String]): Seq[String] = {
@@ -71,21 +73,30 @@ trait NilMatcherMixin {
   }
 
   private def getDfdlLiteralRegex(dfdlLiteralList: Set[String]): String = {
-    val (_, regex) = this.buildDelims(dfdlLiteralList)
+    val regex = this.buildDelims(dfdlLiteralList)
     combineDelimitersRegex(regex, Array.empty[String])
   }
 
-  private lazy val matcher = {
-    val dfdlLiteralRegex = getDfdlLiteralRegex(nilValues.toSet)
-    val m = Pattern.compile(dfdlLiteralRegex).matcher("")
-    m
+  private lazy val pattern: Pattern = {
+    val dfdlLiteralRegex = getDfdlLiteralRegex(cookedNilValuesForParse.toSet)
+    val p = Pattern.compile(dfdlLiteralRegex)
+    p
   }
+
+  private def newMatcher(): Matcher = {
+    pattern.matcher("")
+  }
+
+  object withFieldNilMatcher extends OnStack[Matcher](newMatcher(), (m: Matcher) => m.reset(""))
 
   // TODO: does this handle %ES; or do we have to have outside separate checks for that?
   // There is a separate check right now in LiteralNilDelimitedOrEndOfData. 
   final def isFieldNilLiteral(field: String): Boolean = {
-    matcher.reset(field)
-    matcher.find()
-    matcher.matches()
+    withFieldNilMatcher { matcher =>
+      matcher.reset(field)
+      matcher.find()
+      matcher.matches()
+    }
   }
 }
+

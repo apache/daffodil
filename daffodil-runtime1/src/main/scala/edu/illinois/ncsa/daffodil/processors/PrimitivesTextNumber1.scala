@@ -54,7 +54,6 @@ import edu.illinois.ncsa.daffodil.dsom.ListOfSingleCharacterLiteral
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 
-
 case class ConvertTextCombinatorParser(
   rd: RuntimeData,
   valueParser: Parser,
@@ -64,11 +63,11 @@ case class ConvertTextCombinatorParser(
   override lazy val childProcessors = Seq(valueParser, converterParser)
 
   def parse(start: PState): Unit = {
-    valueParser.parse1(start, rd)
-
-    if (start.status != Success) return
-
-    converterParser.parse1(start, rd)
+    valueParser.parse1(start)
+    if (start.status != Success) {
+      return
+    }
+    converterParser.parse1(start)
   }
 }
 
@@ -100,6 +99,7 @@ case class ConvertTextNumberParser[S](
         val num = try {
           df.get.parse(str, pos)
         } catch {
+          case s: scala.util.control.ControlThrowable => throw s
           case u: UnsuppressableException => throw u
           case e: Exception => {
             PE(start, "Convert to %s (for xs:%s): Parse of '%s' threw exception %s",

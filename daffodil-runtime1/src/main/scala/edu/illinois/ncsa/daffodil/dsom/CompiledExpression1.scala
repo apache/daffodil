@@ -82,6 +82,10 @@ import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
  */
 abstract class CompiledExpression(val value: Any) extends Serializable {
 
+  final def toBriefXML(depth: Int = -1) = {
+    "'" + prettyExpr + "'"
+  }
+
   def prettyExpr: String
   /**
    * used to determine whether we need a runtime evaluation or

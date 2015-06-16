@@ -44,16 +44,16 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 
-class UnparseAlternativeFailed(rd: RuntimeData, state: UState, val errors: Seq[Diagnostic])
-  extends UnparseError(One(rd.schemaFileLocation), One(state), "Alternative failed. Reason(s): %s", errors)
+class UnparseAlternativeFailed(rd: RuntimeData, loc: DataLocation, val errors: Seq[Diagnostic])
+  extends UnparseError(One(rd.schemaFileLocation), One(loc), "Alternative failed. Reason(s): %s", errors)
 
 object UnparseError {
-  def apply(rd: Maybe[SchemaFileLocation], ustate: Maybe[UState], formatString: String, args: Any*) = {
-    val ue = new UnparseError(rd, ustate, formatString, args: _*)
+  def apply(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], formatString: String, args: Any*) = {
+    val ue = new UnparseError(rd, loc, formatString, args: _*)
     throw ue
   }
 }
 
-class UnparseError(rd: Maybe[SchemaFileLocation], ustate: Maybe[UState], kind: String, args: Any*)
-  extends ProcessingError("Unparse Error", rd, ustate, kind, args: _*)
+class UnparseError(rd: Maybe[SchemaFileLocation], loc: Maybe[DataLocation], kind: String, args: Any*)
+  extends ProcessingError("Unparse Error", rd, loc, kind, args: _*)
 

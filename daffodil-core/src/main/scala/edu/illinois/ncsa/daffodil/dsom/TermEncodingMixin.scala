@@ -20,16 +20,6 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    */
 
   final lazy val isKnownEncoding = {
-    //
-    // Be sure we check this. encodingErrorPolicy='error' is harder
-    // to support because you have to get decode errors precisely
-    // in that case. Means you can't do things like just use
-    // a buffered reader since filling the buffer may encounter
-    // the error even though the parser won't actually consume
-    // that much of the data. 
-    //
-    schemaDefinitionUnless(defaultEncodingErrorPolicy == EncodingErrorPolicy.Replace,
-      "Property encodingErrorPolicy='error' not supported.")
     val isKnown = encoding.isConstant
     if (isKnown) {
       val encName = encoding.constantAsString.toUpperCase()
@@ -189,7 +179,9 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
    * for a character.
    */
   final lazy val hasTextAlignment = {
-    this.knownEncodingAlignmentInBits == alignmentValueInBits
+    val av = alignmentValueInBits
+    val kav = this.knownEncodingAlignmentInBits
+    av % kav == 0
   }
 
   private val RawByte = """\%\#r([0-9a-fA-F]{2})\;""".r
@@ -215,7 +207,7 @@ trait TermEncodingMixin extends KnownEncodingMixin { self: Term =>
     summaryEncoding match {
       case NamedEncoding(encName) => fillByteForCharacterKnownEncoding(encName, cookedFillByte)
       case Runtime => {
-        this.subsetError("The dfdl:fillByte property value could not be determined due to expressions not allowed for the dfdl:encoding property.")
+        this.subsetError("The dfdl:fillByte property value cannot be specified as a character when the dfdl:encoding property is a computed expression.")
         // -1
       }
       case Binary | NoText | Mixed => {

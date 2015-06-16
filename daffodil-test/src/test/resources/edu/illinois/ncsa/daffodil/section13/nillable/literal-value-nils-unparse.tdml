@@ -704,13 +704,13 @@
       terminator="" separator="" separatorSuppressionPolicy="anyEmpty"
       separatorPosition="infix" documentFinalTerminatorCanBeMissing="yes"
       encoding="ASCII" representation="text" occursCountKind="parsed"
-      nilValueDelimiterPolicy="none" nilValue="nil %WSP+;" nilKind="literalValue"
+      nilValueDelimiterPolicy="none"  nilKind="literalValue"
       textNumberRep="standard" ignoreCase="no" lengthKind="delimited"/>
 
     <xs:element name="doc" dfdl:lengthKind="implicit">
       <xs:complexType>
         <xs:sequence dfdl:separator="/">
-          <xs:element name="ct" nillable="true">
+          <xs:element name="ct" nillable="true" dfdl:nilValue="%ES;">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:terminator=";">
                 <xs:element name="e1" type="xsd:int" />
@@ -724,10 +724,10 @@
       </xs:complexType>
     </xs:element>
 
-    <xs:element name="doc2" nillable="true" dfdl:nilValue="NOPE %ES;">
+    <xs:element name="doc2" nillable="true" dfdl:nilValue="%ES;">
       <xs:complexType>
         <xs:sequence dfdl:separator="/">
-          <xs:element name="ct" nillable="true">
+          <xs:element name="ct" nillable="true" dfdl:nilValue="%ES;">
             <xs:complexType>
               <xs:sequence dfdl:separator="," dfdl:terminator=";">
                 <xs:element name="e1" type="xsd:int" />
@@ -741,7 +741,7 @@
       </xs:complexType>
     </xs:element>
     
-    <xs:element name="doc3" nillable="true" dfdl:nilValue="%ES; NIL">
+    <xs:element name="doc3" nillable="true" dfdl:nilValue="%ES;">
       <xs:complexType>
         <xs:choice>
           <xs:element name="e1" type="xsd:int" dfdl:initiator="#" />
@@ -765,8 +765,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0">
+        <doc>
           <ct xsi:nil="true" />
           <after>after</after>
         </doc>
@@ -774,7 +773,7 @@
     </tdml:infoset>
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[nil/after]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[/after]]></tdml:documentPart>
     </tdml:document>
 
   </tdml:unparserTestCase>
@@ -792,13 +791,12 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc2 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" xsi:nil="true"/>
+        <doc2 xsi:nil="true"/>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 
     <tdml:document>
-      <tdml:documentPart type="text"><![CDATA[NOPE]]></tdml:documentPart>
+      <tdml:documentPart type="text"><![CDATA[]]></tdml:documentPart>
     </tdml:document>
 
   </tdml:unparserTestCase>
@@ -816,8 +814,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <doc3 xmlns="http://www.example.org/example1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-          xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0" xsi:nil="true"/>
+        <doc3 xsi:nil="true"/>
       </tdml:dfdlInfoset>
     </tdml:infoset>
 

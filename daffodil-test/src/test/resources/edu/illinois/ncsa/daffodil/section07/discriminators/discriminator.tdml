@@ -471,12 +471,12 @@
     </tdml:errors>
   </tdml:parserTestCase>
 
-  <tdml:parserTestCase name="choiceBranchDiscrimFail"
-    root="e7" model="s1"
-    description="Parser bound to first choice branch by discriminator - DFDL-7-060R, DFDL--15-015R">
+  <tdml:parserTestCase name="choiceBranchDiscrimFail" root="e7" model="s1" description="Parser bound to first choice branch by discriminator - DFDL-7-060R, DFDL--15-015R">
     <tdml:document><![CDATA[1234]]></tdml:document>
     <tdml:errors>
-      <tdml:error></tdml:error>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>All Alternatives Failed</tdml:error>
+      <tdml:error>Insufficient</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
 

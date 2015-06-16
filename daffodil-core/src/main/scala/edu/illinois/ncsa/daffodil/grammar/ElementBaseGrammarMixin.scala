@@ -54,6 +54,7 @@ import edu.illinois.ncsa.daffodil.dsom.ElementBase
 trait ElementBaseGrammarMixin
   extends InitiatedTerminatedMixin
   with AlignedMixin
+  with ByteOrderMixin
   with HasStatementsGrammarMixin { self: ElementBase =>
 
   /**
@@ -71,25 +72,6 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val parsedValue = prod("parsedValue") { initiatorRegion ~ allowedValue ~ terminatorRegion }
-
-  //  private lazy val explicitLengthBinary = prod("explicitLengthBinary", !isFixedLength,
-  //    lengthUnits match {
-  //      case LengthUnits.Bytes => BinaryExplicitLengthInBytes(this)
-  //      case LengthUnits.Characters => schemaDefinitionError("Binary data elements cannot have lengthUnits='Character'.")
-  //      case LengthUnits.Bits => BinaryExplicitLengthInBits(this)
-  //    })
-  //
-  //  private lazy val binaryValueLength = binaryValueLength_.value
-  //  private lazy val binaryValueLength_ = LV {
-  //    val res = prod("BinaryValueLength", lengthKind match {
-  //      case LengthKind.Explicit => explicitLengthBinary
-  //      case LengthKind.Delimited => Assert.notYetImplemented() // Binary Data delimiters aren't supported TODO: Should we?
-  //      case LengthKind.Pattern => schemaDefinitionError("Binary data elements cannot have lengthKind='Pattern'.")
-  //      case LengthKind.Implicit => Assert.notYetImplemented() // TODO: Get size from xs:type
-  //      case _ => Assert.notYetImplemented()
-  //    })
-  //    res
-  //  }
 
   // Length is in bits, (size would be in bytes) (from DFDL Spec 12.3.3)
   private lazy val implicitBinaryLengthInBits: Long = primType match {
@@ -118,73 +100,11 @@ trait ElementBaseGrammarMixin
     case LengthKind.EndOfParent => schemaDefinitionError("Binary data elements cannot have lengthKind='endOfParent'.")
   }
 
-  private lazy val fixedLengthString = prod("fixedLengthString", isFixedLength) {
-    (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, fixedLength) // TODO: make sure it divides evenly.
-      //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => {
-        // StringFixedLengthInBytesVariableWidthCharacters(this, fixedLength)
-        subsetError("The lengthUnits for encoding '%s' (which is, or could be, variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
-      }
-      case (LengthUnits.Characters, true) => {
-        //
-        // we deal with the fact that some encodings have characters taking up smaller than 
-        // a full byte. E.g., encoding='US-ASCII-7-bit-packed' are 7-bits packed with no unused
-        // bits
-        //
-        val lengthInBits = fixedLength * knownEncodingWidthInBits
-        val lengthInBytes = lengthInBits / 8
-        val hasWholeBytesOnly = (lengthInBits % 8) == 0
-        if (hasWholeBytesOnly)
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
-        else
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
-      }
-      //
-      // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
-      // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, fixedLength)
-      case (LengthUnits.Bits, _) => notYetImplemented("lengthUnits='bits' for type " + typeDef)
-      case _ => Assert.invariantFailed("all cases should have been exhausted.")
-    }
-  }
-
   private lazy val fixedLengthHexBinary = prod("fixedLengthHexBinary", isFixedLength) {
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryFixedLengthInBytes(this, fixedLength)
       case LengthUnits.Bits => SDE("lengthUnits='bits' is not valid for hexBinary.")
       case LengthUnits.Characters => SDE("lengthUnits='characters' is not valid for hexBinary.")
-    }
-  }
-
-  private lazy val implicitLengthString = prod("implicitLengthString", hasSpecifiedLength) {
-    val maxLengthLong = maxLength.longValueExact
-    (lengthUnits, knownEncodingIsFixedWidth) match {
-      case (LengthUnits.Bytes, true) => StringFixedLengthInBytesFixedWidthCharacters(this, maxLengthLong) // TODO: make sure it divides evenly.
-      //case (LengthUnits.Bytes, true) => StringFixedLengthInBytes(this, fixedLength / knownEncodingWidth) // TODO: make sure it divides evenly.
-      case (LengthUnits.Bytes, false) => {
-        // StringFixedLengthInBytesVariableWidthCharacters(this, maxLengthLong)
-        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
-      }
-      case (LengthUnits.Characters, true) => {
-        //
-        // we deal with the fact that some encodings have characters taking up smaller than 
-        // a full byte. E.g., encoding='US-ASCII-7-bit-packed' are 7-bits packed with no unused
-        // bits
-        //
-        val lengthInBits = maxLengthLong * knownEncodingWidthInBits
-        val lengthInBytes = lengthInBits / 8
-        val hasWholeBytesOnly = (lengthInBits % 8) == 0
-        if (hasWholeBytesOnly)
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes)
-        else
-          StringFixedLengthInBytesFixedWidthCharacters(this, lengthInBytes + 1) // 1 more for fragment byte
-      }
-      //
-      // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
-      // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => StringFixedLengthInVariableWidthCharacters(this, maxLengthLong)
-      case (LengthUnits.Bits, _) => SDE("Strings with lengthKind='implicit' may not have lengthUnits='bits'")
     }
   }
 
@@ -197,34 +117,6 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  private lazy val variableLengthString = prod("variableLengthString", !isFixedLength) {
-    (lengthUnits, knownEncodingIsFixedWidth) match {
-      //case (LengthUnits.Bytes, true) => StringExplicitLengthInBytes(this)
-      //case (LengthUnits.Bytes, false) =>
-      //  notYetImplemented("lengthKind='explicit' and lengthUnits='bytes' with non-fixed-width or potentially non-fixed-width encoding='%s'.", this.encodingRaw)
-      //// StringExplicitLengthInBytesVariableWidthCharacters(this)
-      //case (LengthUnits.Characters, _) =>
-      // notYetImplemented("lengthKind='explicit' and lengthUnits='characters'")
-      //// Above, keep in mind fixed length but variable-width encoding means variable width.
-      //// The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
-      //// 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      //case (LengthUnits.Bits, _) =>
-      //  SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
-      case (LengthUnits.Bytes, true) => StringVariableLengthInBytes(this)
-      case (LengthUnits.Bytes, false) => {
-        // StringVariableLengthInBytesVariableWidthCharacters(this)
-        subsetError("The lengthUnits for encoding '%s' (which is variable width) must be 'characters', not 'bytes'", this.knownEncodingName)
-      }
-      case (LengthUnits.Characters, true) => StringVariableLengthInBytes(this)
-      // The string may be "fixed" length, but a variable-width charset like utf-8 means that N characters can take anywhere from N to 
-      // 4*N bytes. So it's not really fixed width. We'll have to parse the string to determine the actual length.
-      case (LengthUnits.Characters, false) => {
-        StringVariableLengthInVariableWidthCharacters(this)
-      }
-      case (LengthUnits.Bits, _) => SDE("lengthKind='explicit' and lengthUnits='bits' for type %s", this.typeDef)
-    }
-  }
-
   private lazy val variableLengthHexBinary = prod("variableLengthHexBinary", !isFixedLength) {
     lengthUnits match {
       case LengthUnits.Bytes => HexBinaryVariableLengthInBytes(this)
@@ -234,19 +126,17 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val stringDelimitedEndOfData = prod("stringDelimitedEndOfData") { StringDelimitedEndOfData(this) }
-  private lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
+  //  private lazy val stringPatternMatched = prod("stringPatternMatched") { StringPatternMatched(this) }
 
   private lazy val stringValue = prod("stringValue") {
     lengthKind match {
-      case LengthKind.Explicit if isFixedLength => fixedLengthString
-      case LengthKind.Explicit => variableLengthString
-      //case LengthKind.Delimited => stringDelimitedEndOfData
+      case LengthKind.Explicit => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Delimited => stringDelimitedEndOfData
-      case LengthKind.Pattern => stringPatternMatched
+      case LengthKind.Pattern => specifiedLength(StringOfSpecifiedLength(this))
       case LengthKind.Implicit => {
         val pt = this.simpleType.primitiveType
         Assert.invariant(pt == PrimType.String)
-        implicitLengthString
+        specifiedLength(StringOfSpecifiedLength(this))
       }
       case _ => SDE("Unimplemented lengthKind %s", lengthKind)
     }
@@ -265,50 +155,6 @@ trait ElementBaseGrammarMixin
     }
   }
 
-  //  private lazy val binaryByte = prod("binaryByte", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryShort = prod("binaryShort", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryLong = prod("binaryLong", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryInteger = prod("binaryInteger", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryUnsignedInt = prod("binaryInt", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryUnsignedByte = prod("binaryByte", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryUnsignedShort = prod("binaryShort", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-  //
-  //  private lazy val binaryUnsignedLong = prod("binaryLong", impliedRepresentation == Representation.Binary,
-  //    regularBinaryRepInt | bcdInt | packedInt)
-
-  //  private lazy val regularBinaryRepInt = prod("regularBinaryRepInt",
-  //    binaryNumberRep == BinaryNumberRep.Binary, lengthKind match {
-  //      case LengthKind.Implicit => {
-  //        if (byteOrder.isConstant) {
-  //          val javaByteOrder = ByteOrder(byteOrder.constantAsString, this) match {
-  //            case ByteOrder.BigEndian => java.nio.ByteOrder.BigEndian
-  //            case ByteOrder.LittleEndian => java.nio.ByteOrder.LittleEndian
-  //          }
-  //          Regular32bitIntPrim(this, javaByteOrder)
-  //        else Assert.notYetImplemented() // Dynamic byte order not implemented
-  //      }
-  //      case _ => Assert.notYetImplemented() // binary number length kinds other than implicit not implemented
-  //    })
-
-  //  private lazy val bcdInt = prod("bcdInt",
-  //    binaryNumberRep == BinaryNumberRep.Bcd, BCDIntPrim(this))
-  //  private lazy val packedInt = prod("packedInt",
-  //    binaryNumberRep == BinaryNumberRep.Packed, PackedIntPrim(this))
-
-  // TODO: Handle the zonedTextXXX possibilities
   private lazy val textInt = prod("textInt", impliedRepresentation == Representation.Text) {
     standardTextInt || zonedTextInt
   }
@@ -382,31 +228,9 @@ trait ElementBaseGrammarMixin
   private lazy val zonedTextInt = prod("zonedTextInt",
     textNumberRep == TextNumberRep.Zoned) { ZonedTextIntPrim(this) }
 
-  //  private lazy val binaryDouble = prod("binaryDouble", impliedRepresentation == Representation.Binary){
-  //    ieeeBinaryRepDouble || ibm390HexBinaryRepDouble
-  //    }
-
   private lazy val textDouble = prod("textDouble", impliedRepresentation == Representation.Text) {
     standardTextDouble || zonedTextDouble
   }
-
-  //  private lazy val ieeeBinaryRepDouble = prod("ieeeBinaryRepDouble",
-  //    {
-  //      val bfr = binaryFloatRep
-  //      val res = bfr.isConstant &&
-  //        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
-  //      res
-  //    }){
-  //    lengthKind match {
-  //      case LengthKind.Implicit => {
-  //        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
-  //          case ByteOrder.BigEndian => BigEndianDoublePrim(this)
-  //          case ByteOrder.LittleEndian => LittleEndianDoublePrim(this)
-  //        }
-  //        else Assert.notYetImplemented()
-  //      }
-  //      case _ => Assert.notYetImplemented()
-  //    }}
 
   private lazy val ibm390HexBinaryRepDouble = prod("ibm390HexBinaryRepDouble",
     binaryFloatRep.isConstant &&
@@ -420,37 +244,9 @@ trait ElementBaseGrammarMixin
   private lazy val zonedTextDouble = prod("zonedTextDouble",
     textNumberRep == TextNumberRep.Zoned) { SDE("Zoned not supported for float and double") }
 
-  //  private lazy val binaryFloat = prod("binaryFloat", impliedRepresentation == Representation.Binary){
-  //    ieeeBinaryRepFloat || ibm390HexBinaryRepFloat
-  //  }
-
   private lazy val textFloat = prod("textFloat", impliedRepresentation == Representation.Text) {
     standardTextFloat || zonedTextFloat
   }
-
-  //  private lazy val ieeeBinaryRepFloat = prod("ieeeBinaryRepFloat",
-  //    {
-  //      val bfr = binaryFloatRep
-  //      val res = bfr.isConstant &&
-  //        BinaryFloatRep(bfr.constantAsString, this) == BinaryFloatRep.Ieee
-  //      res
-  //    }) {
-  //    lengthKind match {
-  //      case LengthKind.Implicit => {
-  //        if (byteOrder.isConstant) ByteOrder(byteOrder.constantAsString, this) match {
-  //          case ByteOrder.BigEndian => BigEndianFloatPrim(this)
-  //          case ByteOrder.LittleEndian => LittleEndianFloatPrim(this)
-  //        }
-  //        else Assert.notYetImplemented()
-  //      }
-  //      case _ => Assert.notYetImplemented()
-  //    }}
-  //
-  //  private lazy val ibm390HexBinaryRepFloat = prod("ibm390HexBinaryRepFloat",
-  //    binaryFloatRep.isConstant &&
-  //      binaryFloatRep.constantAsString == BinaryFloatRep.Ibm390Hex.toString){
-  //    subsetError("ibm390Hex not supported")
-  //    }
 
   private lazy val standardTextFloat = prod("standardTextFloat",
     textNumberRep == TextNumberRep.Standard) { ConvertTextCombinator(this, stringValue, ConvertTextFloatPrim(this)) }
@@ -475,22 +271,6 @@ trait ElementBaseGrammarMixin
     val res = typeDef.asInstanceOf[SimpleTypeBase].primitiveType
     res
   }
-
-  //  private lazy val value = prod("value", isSimpleType){
-  //    // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
-  //    // This gets used for array contents also.
-  //    {
-  //      primType.name match {
-  //        case "string" => stringValue
-  //        case _ => {
-  //          val res = impliedRepresentation match {
-  //            case Representation.Binary => binaryValue
-  //            case Representation.Text => textValue
-  //          }
-  //          res
-  //        }
-  //      }
-  //    }}
 
   protected final lazy val value = prod("value", isSimpleType) {
     // TODO: Consider issues with matching a stopValue. Can't say isScalar here because
@@ -545,22 +325,6 @@ trait ElementBaseGrammarMixin
     // This is in the spirit of that section.
     val res: Gram = primType match {
 
-      //      case PrimType.HexBinary =>
-      //        (primType, binary) match { // TODO: Only takes explicit length
-      //          case (PrimType.HexBinary, b) => new BinaryNumberBase[Array[Byte]](this.length.constantAsLong) {
-      //            def getNum(bp : Long, in : InStream, bo : BO) = {
-      //              // FIXME: size constraints, overflow
-      //              in.getByteArray(bp, bo, length.constantAsLong.asInstanceOf[Int])
-      //            }
-      //            override def getNum(num : Number) = null //FIXME
-      //            protected override val GramName = "hexBinary"
-      //            protected override val GramDescription = "Hex Binary"
-      //            protected override def numFormat = NumberFormat.getIntegerInstance()
-      //            protected override def isInt = true
-      //          }
-      //          case _ => Assert.impossibleCase()
-      //        }
-
       case PrimType.Byte | PrimType.Short | PrimType.Int | PrimType.Long | PrimType.Integer => {
         Assert.invariant(binaryIntRep == bin)
         binaryNumberKnownLengthInBits match {
@@ -595,27 +359,6 @@ trait ElementBaseGrammarMixin
           SDE("Property binaryDecimalVirtualPoint %s is less than limit %s", binaryDecimalVirtualPoint, DaffodilTunableParameters.minBinaryDecimalVirtualPoint)
         new DecimalKnownLengthRuntimeByteOrderBinaryNumber(this, binaryNumberKnownLengthInBits)
       }
-      //        (primType, staticBinaryFloatRep) match {
-      //          case (PrimType.Double, ieee) => new BinaryNumber[Double](this, 64) {
-      //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-      //            def getNum(bp : Long, in : InStream, bo : BO) = in.getDouble(bp, bo)
-      //            override def getNum(num : Number) = num.doubleValue
-      //            protected override val GramName = "double"
-      //            protected override val GramDescription = "Double"
-      //            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-      //            protected override def isInt = false
-      //          }
-      //          case (PrimType.Float, ieee) => new BinaryNumber[Float](this, 32) {
-      //            Assert.invariant(staticBinaryFloatRep == BinaryFloatRep.Ieee)
-      //            def getNum(bp : Long, in : InStream, bo : BO) = in.getFloat(bp, bo)
-      //            override def getNum(num : Number) = num.floatValue
-      //            protected override val GramName = "float"
-      //            protected override val GramDescription = "Float"
-      //            protected override def numFormat = NumberFormat.getNumberInstance() // .getScientificInstance() Note: scientific doesn't allow commas as grouping separators.
-      //            protected override def isInt = false
-      //          }
-      //          case (_, floatRep) => subsetError("binaryFloatRep='%s' not supported. Only binaryFloatRep='ieee'", floatRep.toString)
-      //        }
       case _ => notYetImplemented("Type %s when representation='binary'", primType.name)
     }
     res
@@ -692,42 +435,38 @@ trait ElementBaseGrammarMixin
   private lazy val nilLit = prod("nilLit",
     isNillable && nilKind == NilKind.LiteralValue) {
       if (hasDelimiters)
-        DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitContent ~ nilElementTerminator)
+        DelimiterStackCombinatorElement(this, nilElementInitiator ~ nilLitSimpleOrComplex ~ nilElementTerminator)
       else
-        nilLitContent
+        nilLitSimpleOrComplex
     }
 
-  private lazy val nilLitSpecifiedLength = prod("nilLitSpecifiedLength", isNillable && nilKind == NilKind.LiteralValue) {
-    if (hasDelimiters)
-      DelimiterStackCombinatorElement(this, nilElementInitiator ~ specifiedLength(nilLitContent) ~ nilElementTerminator)
-    else specifiedLength(nilLitContent)
+  private lazy val nilLitSimpleOrComplex = prod("nilLitSimpleOrComplex") { nilLitSimple || nilLitComplex }
+
+  private lazy val nilLitSimple = prod("nilLitSimple", isSimpleType) { specifiedLength(nilLitContent) }
+
+  private lazy val nilLitComplex = prod("nilLitComplex", isComplexType) {
+    // Note: the only allowed nil value for a complex type is ES. It's length will be zero always. (as of DFDL v1.0 - 2015-07-15)
+    schemaDefinitionUnless(this.hasESNilValue && cookedNilValuesForParse.length == 1, "Nillable complex type elements can only have '%ES;' as their dfdl:nilValue property.")
+    val nilLength = 0
+    new SpecifiedLengthExplicitBytesFixed(this, LiteralNilOfSpecifiedLength(this), nilLength)
   }
 
   private lazy val nilLitContent = prod("nilLitContent",
     isNillable && nilKind == NilKind.LiteralValue) {
       // if (impliedRepresentation != Representation.Text) this.SDE("LiteralValue Nils require representation='text'.")
       lengthKind match {
-        //          case LengthKind.Delimited => LiteralNilDelimitedOrEndOfData(this)
         case LengthKind.Delimited => LiteralNilDelimitedEndOfData(this)
-        case LengthKind.Pattern => LiteralNilPattern(this)
-        case LengthKind.Explicit => {
-          lengthUnits match {
-            case LengthUnits.Bits => notYetImplemented("nilKind='literalValue' with lengthKind='bits'")
-            case LengthUnits.Bytes => LiteralNilExplicitLengthInBytes(this)
-            case LengthUnits.Characters => LiteralNilExplicitLengthInChars(this)
-          }
-        }
-        case LengthKind.Implicit => {
+        case LengthKind.Pattern => LiteralNilOfSpecifiedLength(this)
+        case LengthKind.Explicit => LiteralNilOfSpecifiedLength(this)
+        case LengthKind.Implicit if isSimpleType => {
           schemaDefinitionUnless(impliedRepresentation != Representation.Text, "LiteralValue Nils with lengthKind='implicit' cannot have representation='text'.")
-          val lengthInBytes = implicitBinaryLengthInBits / 8
-          LiteralNilKnownLengthInBytes(this, lengthInBytes)
+          LiteralNilOfSpecifiedLength(this)
         }
+        case LengthKind.Implicit if isComplexType => Assert.invariantFailed("literal nil complex types aren't handled here.")
         case LengthKind.Prefixed => notYetImplemented("lengthKind='prefixed'")
         case LengthKind.EndOfParent => notYetImplemented("lengthKind='endOfParent'")
       }
     }
-
-  //  private lazy val leftPadding =  Prod("leftPadding", hasLeftPadding, LeftPadding(this))
 
   private def withDelimiterStack(body: => Gram) = {
     if (hasDelimiters) DelimiterStackCombinatorElement(this, body)
@@ -765,18 +504,50 @@ trait ElementBaseGrammarMixin
     withDelimiterStack(nilOrValue || nonNilNonEmptyParsedValue)
   }
 
+  /**
+   * Note: This must handle unspecified lengths, like lengthKind delimited,
+   * as well, by not enclosing the body in a specified length enforcer.
+   */
   private def specifiedLength(bodyArg: => Gram) = {
     lazy val body = bodyArg
     lengthKind match {
+      case LengthKind.Delimited => body
       case LengthKind.Pattern => new SpecifiedLengthPattern(this, body)
       case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && isFixedLength => new SpecifiedLengthExplicitBitsFixed(this, body, fixedLength)
       case LengthKind.Explicit if lengthUnits == LengthUnits.Bits && !isFixedLength => new SpecifiedLengthExplicitBits(this, body)
       case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && isFixedLength => new SpecifiedLengthExplicitBytesFixed(this, body, fixedLength)
       case LengthKind.Explicit if lengthUnits == LengthUnits.Bytes && !isFixedLength => new SpecifiedLengthExplicitBytes(this, body)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength => new SpecifiedLengthExplicitCharactersFixed(this, body, fixedLength)
-      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && !isFixedLength => new SpecifiedLengthExplicitCharacters(this, body)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength
+        && encodingInfo.knownEncodingIsFixedWidth => {
+        //
+        // Important case to optimize
+        // If we can convert to a number of bits, then we should do so
+        //
+        val nBits = encodingInfo.knownFixedWidthEncodingInCharsToBits(fixedLength)
+        new SpecifiedLengthExplicitBitsFixed(this, body, nBits)
+      }
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && isFixedLength =>
+        new SpecifiedLengthExplicitCharactersFixed(this, body, fixedLength)
+      case LengthKind.Explicit if lengthUnits == LengthUnits.Characters && !isFixedLength =>
+        new SpecifiedLengthExplicitCharacters(this, body)
+      case LengthKind.Implicit if isSimpleType && primType == PrimType.String &&
+        encodingInfo.knownEncodingIsFixedWidth => {
+        //
+        // Important case to optimize
+        // If we can convert to a number of bits, then we should do so
+        //
+        val nBits = encodingInfo.knownFixedWidthEncodingInCharsToBits(this.maxLength.longValue)
+        new SpecifiedLengthExplicitBitsFixed(this, body, nBits)
+      }
+      case LengthKind.Implicit if isSimpleType && primType == PrimType.String =>
+        new SpecifiedLengthExplicitCharactersFixed(this, body, this.maxLength.longValue)
+      case LengthKind.Implicit if isSimpleType && primType == PrimType.HexBinary =>
+        new SpecifiedLengthExplicitBytesFixed(this, body, this.maxLength.longValue)
+      case LengthKind.Implicit if isSimpleType && impliedRepresentation == Representation.Binary =>
+        new SpecifiedLengthExplicitBitsFixed(this, body, implicitBinaryLengthInBits)
+      case LengthKind.Implicit if isComplexType => body // for complex types, implicit means "roll up from the bottom"
       case _ => {
-        // TODO: implement other specified length restrictions
+        // TODO: implement other specified length like prefixed and end of parent
         // for now, no restriction
         body
       }
@@ -790,8 +561,8 @@ trait ElementBaseGrammarMixin
   }
 
   private lazy val scalarComplexContent = prod("scalarComplexContent", isComplexType) {
-    if (!nilLitSpecifiedLength.isEmpty) {
-      ComplexNilOrContent(this, nilLitSpecifiedLength, complexContentSpecifiedLength)
+    if (!nilLit.isEmpty) {
+      ComplexNilOrContent(this, nilLit, complexContentSpecifiedLength)
     } else {
       complexContentSpecifiedLength
     }
@@ -822,7 +593,7 @@ trait ElementBaseGrammarMixin
    * the element left framing does not include the initiator nor the element right framing the terminator
    */
   private lazy val elementLeftFraming = prod("elementLeftFraming") {
-    leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
+    ioPropertiesChange ~ leadingSkipRegion ~ alignmentFill ~ PrefixLength(this)
   }
 
   private lazy val elementRightFraming = prod("elementRightFraming") { trailingSkipRegion }

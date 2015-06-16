@@ -42,11 +42,11 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestPCAP {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  lazy val runner = Runner("/edu/illinois/ncsa/daffodil/pcap/", "pcap.tdml")
 
   @Test def test_pcap_test_dns() = // Debugger.withDebugger 
     { runner.runOneTest("pcap_test_dns") }

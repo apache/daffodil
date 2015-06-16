@@ -109,6 +109,8 @@ object Maybe {
 
   val Nope = new Maybe[Nothing](NopeValue)
 
+  type One[T] = Maybe[T]
+
   object One {
     @inline
     final def apply[T](value: T) = Maybe(value)

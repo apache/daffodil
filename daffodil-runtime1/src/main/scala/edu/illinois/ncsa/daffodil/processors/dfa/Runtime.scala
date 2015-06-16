@@ -77,19 +77,21 @@ trait DFA {
   def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
     var stateNum = initialState
     while (stateNum != DFA.FinalState) {
-      states(stateNum).run(actionNum, r) match {
+      val state = states(stateNum)
+      val runResult = state.run(actionNum, r) // Performance: every call here allocates an Either object. Should store this information in the state.
+      runResult match {
         case Right(nextStateNum) => stateNum = nextStateNum
         case Left(status) => return status
       }
     }
-    new DFAStatus(stateNum, 0, StateKind.Succeeded)
+    new DFAStatus(stateNum, 0, StateKind.Succeeded) // Performance: every return allocates a DFAStatus object. Should store this information in the state.
   }
 }
 
 class DFADelimiterImpl(val states: Array[State], val lookingFor: String)
   extends DFADelimiter
   with Serializable {
-  
+
   def unparseValue: String = Assert.invariantFailed("Parser should not ask for unparseValue")
 
 }
@@ -142,18 +144,19 @@ trait DFAField extends DFA {
     var stateNum = initialState
     var resume: Boolean = actionNum > 0
     while (stateNum != DFA.EndOfData) {
+      val state = states(stateNum)
       val res = if (resume) {
         resume = false
-        states(stateNum).run(actionNum, r)
+        state.run(actionNum, r) // Performance: allocates an Either. Should provide this info via the state
       } else {
-        states(stateNum).run(0, r)
+        state.run(0, r) // Performance: allocates an Either. should provide this info via the state
       }
       res match {
         case Right(num) => stateNum = num
         case Left(status) => return status
       }
     }
-    new DFAStatus(stateNum, 0, StateKind.EndOfData)
+    new DFAStatus(stateNum, 0, StateKind.EndOfData) // Performance: allocates. Should provide this result via the state.
   }
 
 }

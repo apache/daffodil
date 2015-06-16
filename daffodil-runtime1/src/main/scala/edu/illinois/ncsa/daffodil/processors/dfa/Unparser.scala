@@ -1,6 +1,5 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.ArrayBuffer

@@ -10,8 +10,8 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 
-class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpression, dcharset: DFDLCharset)
-  extends Unparser(erd) {
+class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpression)
+  extends Unparser(erd) with TextUnparserRuntimeMixin {
 
   override lazy val childProcessors = Nil
   /**
@@ -21,6 +21,7 @@ class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpr
    */
   def unparse(ustate: UState): Unit = {
     Assert.invariant(ustate.mode == UnparseMode)
+    setupEncoding(ustate, erd)
 
     ustate.mode = AccumulateNodesMode
     val currentSimple = ustate.currentInfosetNode.get.asSimple
@@ -33,9 +34,10 @@ class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpr
       //
       // If we get here, then we're ready to evaluate the expression
       // 
-      val value = expr.evaluate(ustate)
-      val outStream = ustate.outStream
-      outStream.encode(dcharset.charset, value.toString)
+      val value = expr.evaluate(ustate).toString
+      val outStream = ustate.dataOutputStream
+      val nCharsWritten = outStream.putString(value)
+      if (nCharsWritten != value.length) UE(ustate, "%s - Too many bits in field: IndexOutOfBounds. Insufficient space to write %s characters.", nom, value.length)
 
       log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
     } catch {
@@ -44,7 +46,7 @@ class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpr
       // This won't actually be thrown until encodingErrorPolicy='error' is
       // implemented. 
       //
-      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(ustate), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
+      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
       //
       // Thrown if the length is explicit but are too many bytes/bits to
       // fit within the length.
@@ -55,7 +57,7 @@ class ElementOutputValueCalcUnparser(erd: ElementRuntimeData, expr: CompiledExpr
         // which tells you whether you should just truncate the string in this case.
         // 
         // It needs the textStringJustification property knowledge of whether to truncate on left or right.
-        UnparseError(One(erd.schemaFileLocation), One(ustate), "%s - Too many bits in field: IndexOutOfBounds: \n%s", nom, e.getMessage())
+        UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "%s - Too many bits in field: IndexOutOfBounds: \n%s", nom, e.getMessage())
       }
     }
 

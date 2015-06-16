@@ -36,7 +36,6 @@ import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import edu.illinois.ncsa.daffodil.dsom.ListOfStringValueAsLiteral
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
-import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeParserHelper
 import edu.illinois.ncsa.daffodil.processors.FieldFactoryBase
@@ -44,7 +43,6 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.ParseError
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.processors.dfa.DFADelimiter
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
@@ -57,6 +55,12 @@ import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeBlockParserHelper
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeCharParserHelper
+import java.nio.charset.CharsetDecoder
+import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
+import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.equality._
+import java.nio.charset.StandardCharsets
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
@@ -65,10 +69,7 @@ class StringDelimitedParser(
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean)
-  extends PrimParser(erd)
-  with TextReader {
-
-  protected def dcharset = erd.encodingInfo.knownEncodingCharset.charset
+  extends PrimParser(erd) {
 
   def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
 
@@ -76,12 +77,9 @@ class StringDelimitedParser(
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")
-      val numBits = result.numBits
-      val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
-      val endBitPos = state.bitPos + numBits
       state.simpleElement.setDataValue(field)
-      state.setPos(endBitPos, endCharPos, One(result.next))
-      if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+      if (result.matchedDelimiterValue.isDefined)
+        state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
     }
 
   }
@@ -97,21 +95,22 @@ class StringDelimitedParser(
 
     val bytePos = (start.bitPos >> 3).toInt
 
-    val reader = getReader(dcharset, start.bitPos, start)
     val hasDelim = delimsCooked.length > 0
 
-    start.mpstate.clearDelimitedText
+    start.clearDelimitedText
 
     val result = try {
       if (scheme.isDefined) {
         scheme.get match {
-          case s: EscapeSchemeBlockParserHelper => textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(reader, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
-          case s: EscapeSchemeCharParserHelper => textParser.parse(reader, fieldDFA, delims, isDelimRequired)
+          case s: EscapeSchemeBlockParserHelper =>
+            textParser.asInstanceOf[TextDelimitedParserWithEscapeBlock].parse(start.dataInputStream, fieldDFA, s.fieldEscDFA, s.blockStartDFA, s.blockEndDFA, delims, isDelimRequired)
+          case s: EscapeSchemeCharParserHelper =>
+            textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
         }
-      } else textParser.parse(reader, fieldDFA, delims, isDelimRequired)
+      } else textParser.parse(start.dataInputStream, fieldDFA, delims, isDelimRequired)
     } catch {
       case mie: MalformedInputException =>
-        throw new ParseError(One(erd.schemaFileLocation), Some(start), "Malformed input, length: %s", mie.getInputLength())
+        throw new ParseError(One(erd.schemaFileLocation), One(start.currentLocation), "Malformed input, length: %s", mie.getInputLength())
     }
     processResult(result, start)
   }
@@ -123,40 +122,42 @@ class LiteralNilDelimitedEndOfDataParser(
   pad: Maybe[Char],
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
-  override val nilValues: List[String])
+  override val cookedNilValuesForParse: List[String],
+  rawNilValuesForParse: List[String])
   extends StringDelimitedParser(erd, justificationTrim, pad, ff, pf, false)
   with NilMatcherMixin {
 
-  val isEmptyAllowed = nilValues.contains("%ES;") // TODO: move outside parser
-
   val isDelimRequired: Boolean = false
 
+  private def doPE(state: PState) = {
+    val nilValuesDescription =
+      if (rawNilValuesForParse.length > 1)
+        "(one of) '" + rawNilValuesForParse.mkString(" ") + "'."
+      else
+        "'" + rawNilValuesForParse.head + "'"
+    this.PE(state, "%s - %s - Parse failed. Does not contain a nil literal matching %s", this.toString(), erd.prettyName, nilValuesDescription)
+  }
+
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+    if (!parseResult.isDefined) doPE(state)
     else {
       val result = parseResult.get
       // We have a field, is it empty?
       val field = result.field.getOrElse("")
       val isFieldEmpty = field.length() == 0 // Note: field has been stripped of padChars
 
-      if (isFieldEmpty && !isEmptyAllowed) {
-        this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
+      lazy val isNilLiteral = isFieldNilLiteral(field)
+      if (isFieldEmpty && !isEmptyAllowed && !isNilLiteral) {
+        doPE(state)
         return
       } else if ((isFieldEmpty && isEmptyAllowed) || // Empty, but must advance past padChars if there were any. 
-        isFieldNilLiteral(field)) { // Not empty, but matches.
+        isNilLiteral) { // Not empty, but matches.
         // Contains a nilValue, Success!
         state.thisElement.setNilled()
-
-        val numBits = result.numBits
-        val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
-        val endBitPos = numBits + state.bitPos
-
-        state.setPos(endBitPos, endCharPos, One(result.next))
-        if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+        if (result.matchedDelimiterValue.isDefined) state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
         return
       } else {
-        // Fail!
-        this.PE(state, "%s - Does not contain a nil literal!", erd.prettyName)
+        doPE(state)
         return
       }
     }
@@ -171,6 +172,8 @@ class HexBinaryDelimitedParser(
   extends StringDelimitedParser(erd, TextJustificationType.None, Nope, ff, pf, isDelimRequired) {
 
   /**
+   * HexBinary is just a string in iso-8859-1 encoding.
+   *
    * This works because java/scala's decoder for iso-8859-1 does not implement any
    * unmapping error detection. The official definition of iso-8859-1 has a few unmapped
    * characters, but most interpretations of iso-8859-1 implement these code points anyway, with
@@ -179,20 +182,19 @@ class HexBinaryDelimitedParser(
    * So, in scala/java anyway, it appears one can use iso-8859-1 as characters corresponding to
    * raw byte values.
    */
-  override lazy val dcharset = Charset.forName("ISO-8859-1")
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
+    Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
+
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
     else {
       val result = parseResult.get
       val field = result.field.getOrElse("")
       val numBits = field.length * 8 // hexBinary each byte is a iso-8859-1 character
-      val endCharPos = if (state.charPos == -1) result.numCharsRead else state.charPos + result.numCharsRead
       val endBitPos = state.bitPos + numBits
       val hexStr = field.map(c => c.toByte.formatted("%02X")).mkString
       state.simpleElement.setDataValue(hexStr)
-      state.setPos(endBitPos, endCharPos, One(result.next))
-      if (result.matchedDelimiterValue.isDefined) state.mpstate.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
+      if (result.matchedDelimiterValue.isDefined) state.withDelimitedText(result.matchedDelimiterValue.get, result.originalDelimiterRep)
       return
     }
   }

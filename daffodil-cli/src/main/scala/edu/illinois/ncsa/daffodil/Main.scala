@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
+import java.nio.charset.StandardCharsets
 import java.net.URI
 import scala.xml.SAXParseException
 import org.rogach.scallop
@@ -92,6 +93,9 @@ import org.rogach.scallop.ValueConverter
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
+import edu.illinois.ncsa.daffodil.processors.PState
+import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 class NullOutputStream extends OutputStream {
   override def close() {}
@@ -190,6 +194,8 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
             try {
               Right(Some(Some(conv(v))))
             } catch {
+              case s: scala.util.control.ControlThrowable => throw s
+              case u: UnsuppressableException => throw u
               case e: Exception => {
                 Left(e.getMessage())
               }
@@ -230,7 +236,13 @@ class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
     def parse(s: List[(String, List[String])]) = {
       s match {
         case (_, i :: Nil) :: Nil =>
-          try { Right(Some(conv(i))) } catch { case e: Throwable => Left(e.getMessage()) }
+          try {
+            Right(Some(conv(i)))
+          } catch {
+            case s: scala.util.control.ControlThrowable => throw s
+            case u: UnsuppressableException => throw u
+            case e: Throwable => Left(e.getMessage())
+          }
         case Nil => Right(None)
         case _ => Left("you should provide exactly one argument for this option")
       }
@@ -740,10 +752,23 @@ object Main extends Logging {
                   // we need to look at the internal state of the parser inStream to 
                   // see how big it is. We do this after execution so as
                   // not to traverse the data twice.
-                  val lengthInBytes = parseResult.resultState.lengthInBytes
-                  val positionInBytes = loc.bytePos1b
-                  if (positionInBytes != lengthInBytes) {
-                    log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
+                  val ps = parseResult.resultState.asInstanceOf[PState]
+                  val dis = ps.dataInputStream
+                  val hasMoreData = dis.isDefinedForLength(1) // do we have even 1 more bit?
+                  if (hasMoreData) {
+                    dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
+                    val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
+                    val lengthInBytes = maybeString.map { _.length }.getOrElse(0)
+                    if (lengthInBytes > 0)
+                      log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
+                    else {
+                      // less than 1 byte is available
+                      val bb = java.nio.ByteBuffer.allocate(1)
+                      val maybeN = dis.fillByteBuffer(bb) // if there are any bits, this will transfer 1 byte.
+                      val nBits = dis.bitPos0b % 8
+                      Assert.invariant(maybeN.isDefined && maybeN.get == 1)
+                      log(LogLevel.Error, "Left over data. %s bits available. Location: %s", nBits, loc)
+                    }
                     true
                   } else false
                 }
@@ -798,7 +823,7 @@ object Main extends Logging {
               val input = (new FileInputStream(filePath))
               val dataSize = filePath.length()
               var fileContent = new Array[Byte](dataSize.toInt)
-              input.read(fileContent)
+              input.read(fileContent) // For performance testing, we want everything in memory so as to remove I/O from consideration.
               (filePath, fileContent, dataSize * 8)
             }
 
@@ -1039,6 +1064,8 @@ object Main extends Logging {
                   println("[Pass] %s".format(name))
                   pass += 1
                 } catch {
+                  case s: scala.util.control.ControlThrowable => throw s
+                  case u: UnsuppressableException => throw u
                   case e: Throwable =>
                     println("[Fail] %s".format(name))
                     fail += 1
@@ -1125,6 +1152,7 @@ object Main extends Logging {
     val ret = try {
       run(arguments)
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
       case e: java.io.FileNotFoundException => {
         log(LogLevel.Error, "%s", e.getMessage)
         1

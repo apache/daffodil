@@ -61,15 +61,9 @@ trait ComputesValueFoundInstead {
   def computeValueFoundInsteadOfDelimiter(state: PState, maxDelimiterLength: Int): String = {
     val ei = state.getContext().encodingInfo
     val cs = if (ei.isKnownEncoding) ei.knownEncodingCharset.charset else StandardCharsets.UTF_8 // guess utf8
-    var rdr = state.inStream.getCharReader(cs, state.bitPos0b)
-    val sb = new StringBuilder(maxDelimiterLength)
-    var i = 0
-    while (i < maxDelimiterLength && !rdr.atEnd) {
-      i += 1
-      sb + rdr.first
-      rdr = rdr.rest
-    }
-    val foundInstead = sb.mkString
+    var dis = state.dataInputStream
+    val maybeFoundInstead = dis.getSomeString(maxDelimiterLength)
+    val foundInstead = maybeFoundInstead.getOrElse("")
     foundInstead
   }
 }

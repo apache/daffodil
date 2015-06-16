@@ -375,5 +375,27 @@
     </tdml:infoset>
     <tdml:document>one/,two,three,four\/,five</tdml:document>
   </tdml:unparserTestCase>
+  
+  <tdml:defineSchema name="foo">
+    <dfdl:format ref="ex:daffodilTest1" encoding="ascii" lengthUnits="bytes" outputNewLine="%CR;%LF;"/>
+        <dfdl:defineEscapeScheme name='quoteSlash'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd='"' escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="" />
+        </dfdl:defineEscapeScheme>
+
+      <xs:element name="foo" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash"/>
+ 
+   </tdml:defineSchema>
+    
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString12" model="foo" root="foo" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo>This contains a block end " followed by more text</ex:foo>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"This contains a block end \" followed by more text"</tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

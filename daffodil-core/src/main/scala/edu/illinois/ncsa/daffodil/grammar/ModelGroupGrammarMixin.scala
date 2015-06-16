@@ -50,7 +50,10 @@ trait ModelGroupGrammarMixin
   with HasStatementsGrammarMixin
   with GroupCommonAGMixin { self: ModelGroup =>
 
-  private lazy val groupLeftFraming = prod("groupLeftFraming") { leadingSkipRegion ~ alignmentFill }
+  private lazy val groupLeftFraming = prod("groupLeftFraming") {
+    ioPropertiesChange ~ leadingSkipRegion ~ alignmentFill
+  }
+
   private lazy val groupRightFraming = prod("groupRightFraming") { trailingSkipRegion }
 
   // I believe we can have the same grammar rules whether we're directly inside a complex type, or
@@ -58,7 +61,7 @@ trait ModelGroupGrammarMixin
   final lazy val asChildOfComplexType = termContentBody
 
   final override lazy val termContentBody = prod("termContentBody") {
-    bitOrderChange ~ dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
+    dfdlStatementEvaluations ~ groupLeftFraming ~ _content ~ groupRightFraming
   }
 
   private lazy val _content = prod("_content") {

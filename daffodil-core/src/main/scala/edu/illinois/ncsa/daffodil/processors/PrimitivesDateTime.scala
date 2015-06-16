@@ -32,16 +32,17 @@
 
 package edu.illinois.ncsa.daffodil.processors
 
-
 import com.ibm.icu.util.Calendar
 import com.ibm.icu.util.TimeZone
 import com.ibm.icu.util.ULocale
-
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.grammar.Terminal
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarCheckPolicy
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarFirstDayOfWeek
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.CalendarPatternKind
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
+import edu.illinois.ncsa.daffodil.util.Misc
 
 abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
   extends Terminal(e, guard) {
@@ -120,7 +121,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
       Some(tz) // Valid time zone
     }
   }
-  
+
   lazy val hasTZ: Boolean = {
     val tzPattern = "(?<!')((z{1,4}|Z{1,4})|(O{1}|O{4})|(v{1}|v{4})|(V{1,4})|(x{1,3}|X{1,3}))".r
 
@@ -141,7 +142,7 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     res
   }
 
-  def parser: Parser = new ConvertTextCalendarParser(
+  override lazy val parser: Parser = new ConvertTextCalendarParser(
     e.elementRuntimeData,
     xsdType,
     prettyType,
@@ -154,6 +155,8 @@ abstract class ConvertTextCalendarPrimBase(e: ElementBase, guard: Boolean)
     calendarCheckPolicy,
     calendarTz,
     TimeZone.GMT_ZONE)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 case class ConvertTextDatePrim(e: ElementBase) extends ConvertTextCalendarPrimBase(e, true) {

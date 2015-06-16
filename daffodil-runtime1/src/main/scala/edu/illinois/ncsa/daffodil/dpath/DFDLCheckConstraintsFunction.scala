@@ -233,8 +233,11 @@ object DFDLCheckConstraintsFunction {
     val dt = try {
       df.parse(date)
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e: Exception => eb.SDE("Failed to parse date (%s) to format (%s) due to %s.", date, format, e.getMessage())
     }
+    if (dt == null) eb.SDE("Failed to parse date (%s) to format (%s).", date, format)
     new java.math.BigDecimal(dt.getTime())
   }
 

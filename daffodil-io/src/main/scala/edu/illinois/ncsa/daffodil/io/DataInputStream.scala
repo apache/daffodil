@@ -9,8 +9,12 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import passera.unsigned.ULong
+import edu.illinois.ncsa.daffodil.util.Misc
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.util.OnStack
 
 /*
  * TODO:
@@ -113,13 +117,46 @@ object DataInputStream {
    * the bit position.
    */
   trait Mark
+
+  /**
+   * An Iterator[Char] with additional peek and peek2 methods.
+   */
+  trait CharIterator extends Iterator[Char] {
+
+    /**
+     * Looks ahead 1 into the data. Returns -1.toChar if there is no
+     * character to peek to.
+     *
+     * This does not advance the position in the data stream.
+     */
+    def peek(): Char
+
+    /**
+     * Looks ahead 2 into the data. Returns -1.toChar if there is no
+     * character to peek to.
+     *
+     * This does not advance the position in the data stream.
+     */
+    def peek2(): Char
+  }
+
 }
 
-trait DataInputStream {
-  import DataInputStream._
+trait NonByteSizeCharset {
+  def bitWidthOfACodeUnit: Int // in units of bits
+}
 
-  def limits: Limits
+/**
+ * Mixin for Charsets which support initial bit offsets so that
+ * their character codepoints need not be byte-aligned.
+ */
+trait NonByteSizeCharsetEncoderDecoder
+  extends NonByteSizeCharset {
+  def setInitialBitOffset(bitOffset0to7: Int): Unit
+  def setFinalByteBitLimitOffset0b(bitLimitOffset0b: Maybe[Long]): Unit
+}
 
+object DataStreamCommon {
   /*
    * These limits will come from tunables, or just hard implementation-specific
    * thresholds.
@@ -129,37 +166,66 @@ trait DataInputStream {
     def maximumSimpleElementSizeInCharacters: Long
     def maximumForwardSpeculationLengthInBytes: Long
     def maximumRegexMatchLengthInCharacters: Long
+    def defaultInitialRegexMatchLimitInChars: Long
   }
 
-  /*
-   * Setters for all the text and binary characteristics.
-   * <p>
-   * These are set rather than passed to various operations because 
-   * they will, most often, be very slow changing relative to the
-   * operations that actually perform data motion.
-   * <p>
-   * If any of these are not set as part of initialization,
-   * then IllegalStateException is
-   * thrown when any of the methods that access data are called, or
-   * any of the mark/reset/discard methods are called.
-   */
+  abstract class LocalBuffer[T <: java.nio.Buffer] {
+    protected def allocate(length: Long): T
+
+    private var tempBuf: Maybe[T] = Nope
+
+    def getBuf(length: Long) = {
+      Assert.usage(length <= Int.MaxValue)
+      if (tempBuf.isEmpty || tempBuf.get.capacity < length) {
+        tempBuf = Maybe(allocate(length.toInt))
+      }
+      val buf = tempBuf.get
+      buf.clear
+      buf.limit(length.toInt)
+      buf
+    }
+  }
 
   /**
-   * Sets the character set decoder.
-   * <p>
-   * If the `charWidthInBits` is less
-   * than 8, then the decoder must be an instance of
-   * `NonByteSizeCharsetEncoderDecoder` (a trait mixed into such decoders)
-   * so that an initial bit offset can be set if necessary.
+   * Use with OnStack idiom for temporary char buffers
    */
-  def setDecoder(decoder: CharsetDecoder): Unit
-  def setEncodingMandatoryAlignment(bitAlignment: Int): Unit
+  final class LocalCharBuffer extends LocalBuffer[CharBuffer] {
+    protected def allocate(length: Long) = CharBuffer.allocate(length.toInt)
+  }
+
+  object withLocalCharBuffer extends OnStack[LocalCharBuffer](new LocalCharBuffer)
+
+  class LocalByteBuffer extends LocalBuffer[ByteBuffer] {
+    protected def allocate(length: Long) = ByteBuffer.allocate(length.toInt)
+  }
+
+  object withLocalByteBuffer extends OnStack[LocalByteBuffer](new LocalByteBuffer)
+}
+
+trait DataStreamCommon {
+  import DataStreamCommon._
+  def limits: Limits
+
+  /**
+   * Allow tuning of these thresholds and starting values. These could,
+   * in principle, be tuned differently for different elements, thereby
+   * keeping limits small when the schema component can be determined to
+   * only require small space, but enabling larger limits/starting values
+   * when a component has larger needs.
+   *
+   * These could be cached on, say,
+   * the ElementRuntimeData object for each element, or some other kind
+   * of dynamic cache.
+   */
+  def setLimits(newLimits: Limits): Unit
+
+  // def setEncodingMandatoryAlignment(bitAlignment: Int): Unit
   def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit
 
   /**
    * Use Nope for variable-width encodings.
    */
-  def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit
+  //  def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit
   def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit
   def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit
 
@@ -180,6 +246,7 @@ trait DataInputStream {
    * code unit spans a byte boundary. 
    */
   def setByteOrder(byteOrder: ByteOrder): Unit
+  def byteOrder: ByteOrder
 
   /**
    * The position is maintained at bit granularity.
@@ -202,16 +269,29 @@ trait DataInputStream {
    * <p>
    * The bitLimit1b is the value of the first bitPos1b beyond the end of the data.
    * Valid bit positions are less than, but not equal to, the bit limit.
+   * <p>
+   * If bitLimit0b is defined, then there IS that much data available at least.
    */
   def bitLimit0b: Maybe[Long]
   final def bitLimit1b: Maybe[Long] = bitLimit0b.map { _ + 1 }
 
   /**
+   * Returns number of bits remaining (if a limit is defined). Nope if not defined.
+   */
+
+  def remainingBits: Maybe[Long]
+
+  /**
    * Convenience methods that temporarily set and (reliably) restore the bitLimit.
-   * The argument gives the limit length. This is added to the current
-   * bit position and the resulting position is set as the bitLimit when
+   * The argument gives the limit length. Note this is a length, not a bit position.
+   *
+   * This is added to the current bit position to get the limiting bit position
+   * which is then set as the bitLimit when
    * the body is evaluated. On return the bit limit is restored to its
    * prior value.
+   * <p>
+   * The return value is false if the new bit limit is beyond the existing bit limit range.
+   * Otherwise the return value is true.
    * <p>
    * The prior value is restored even if an Error/Exception is thrown. (ie., via a try-finally)
    * <p>
@@ -220,14 +300,117 @@ trait DataInputStream {
    * Note that length limits in lengthUnits Characters are not implemented
    * this way. See fillCharBuffer(cb) method.
    */
-  def withBitLengthLimit[T](lengthLimitInBits: Long)(body: => T): T
+  def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean
 
   /**
-   * Sets the bit limit to an absolute value.
+   * Sets the bit limit to an absolute value and returns true.
+   * Returns false if the new bit limit is beyond the existing bit limit range.
    */
-  def setBitLimit0b(bitLimit0b: Maybe[Long]): Unit
-  final def setBitLimit1b(bitLimit1b: Maybe[Long]): Unit =
+  def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean
+  final def setBitLimit1b(bitLimit1b: Maybe[Long]): Boolean =
     setBitLimit0b(bitLimit1b.map { _ - 1 })
+
+  /*
+   * Methods for moving through data.
+   */
+
+  /**
+   * advances the bit position to the specified alignment.
+   * <p>
+   * Note that the bitAlignment1b argument is 1-based.
+   * <p>
+   * Passing 0 as the argument is a usage error.
+   * <p>
+   * Passing 1 as the argument performs no alignment, as any bit position
+   * is 1-bit aligned.
+   * <p>
+   * For any other value, the bit position (1-based) is advanced to
+   * the next multiple of that argument value.
+   * <p>
+   * False is returned if there are insufficient available bits to achieve
+   * the alignment.
+   */
+
+  def align(bitAlignment1b: Int): Boolean
+
+  /**
+   * For assertion checking really. Optimizations should remove the need for most
+   * alignment operations. This can be used in assertions that check that this
+   * is working properly.
+   * <p>
+   * Note that the bitAlignment1b argument is 1-based.
+   * <p>
+   * Passing 0 as the argument is a usage error.
+   * <p>
+   * Passing 1 as the argument performs no alignment, as any bit position
+   * is 1-bit aligned.
+   */
+  def isAligned(bitAlignment1b: Int): Boolean
+
+  /**
+   * Advances the bit position by nBits. If nBits aren't available this
+   * returns false. Otherwise it returns true.
+   */
+  def skip(nBits: Long): Boolean
+
+  /**
+   * Debugging flag. If set then performance may be reduced, but
+   * historic and upcoming data may be viewed using the pastData and futureData
+   * methods.
+   *
+   * This should be set at the beginning of execution. If it is set after data has
+   * been accessed then IllegalStateException is thrown.
+   */
+  def areDebugging: Boolean
+  def setDebugging(setting: Boolean): Unit
+
+  /**
+   * Access to historic (past data) and upcoming data for
+   * purposes of display in a trace or debugger.
+   *
+   * If areDebugging is false, these throw IllegalStateException
+   */
+  def pastData(nBytesRequested: Int): ByteBuffer
+  def futureData(nBytesRequested: Int): ByteBuffer
+
+  /**
+   * Called once after each parse operation to verify final invariants for
+   * the implementation.
+   *
+   * Use to perform checks such as that data structures held in pools are
+   * all returned before end of parse.
+   */
+  def validateFinalStreamState: Unit
+}
+
+trait DataInputStream
+  extends DataStreamCommon {
+  import DataStreamCommon._
+  import DataInputStream._
+
+  /*
+   * Setters for all the text and binary characteristics.
+   * <p>
+   * These are set rather than passed to various operations because 
+   * they will, most often, be very slow changing relative to the
+   * operations that actually perform data motion.
+   * <p>
+   * If any of these are not set as part of initialization,
+   * then IllegalStateException is
+   * thrown when any of the methods that access data are called, or
+   * any of the mark/reset/discard methods are called.
+   */
+
+  /**
+   * Sets the character set decoder.
+   * <p>
+   * If the `charWidthInBits` is less
+   * than 8, then the decoder must be an instance of
+   * `NonByteSizeCharsetEncoderDecoder` (a trait mixed into such decoders)
+   * so that an initial bit offset can be set if necessary.
+   */
+  def getDecoder: CharsetDecoder
+  def setDecoder(decoder: CharsetDecoder): Unit
 
   /**
    * Returns a mark value. It saves the current state of the input stream such
@@ -273,41 +456,12 @@ trait DataInputStream {
    */
   def discard(mark: Mark): Unit
 
-  /*
-   * Methods for accessing and moving through data.
-   */
-
   /**
-   * advances the bit position to the specified alignment.
-   * <p>
-   * Note that the bitAlignment1b argument is 1-based.
-   * <p>
-   * Passing 0 as the argument is a usage error.
-   * <p>
-   * Passing 1 as the argument performs no alignment, as any bit position
-   * is 1-bit aligned.
-   * <p>
-   * For any other value, the bit position (1-based) is advanced to
-   * the next multiple of that argument value.
-   * <p>
-   * False is returned if there are insufficient available bits to achieve
-   * the alignment.
+   * Determines whether the input stream has this much more data.
+   *
+   * Does not advance the position
    */
-
-  def align(bitAlignment1b: Int): Boolean
-
-  /**
-   * For assertion checking really. Optimizations should remove the need for most
-   * alignment operations. This can be used in assertions that check that this
-   * is working properly.
-   */
-  def isAligned(bitAlignment1b: Int): Boolean
-
-  /**
-   * Advances the bit position by nBits. If nBits aren't available this
-   * returns false. Otherwise it returns true.
-   */
-  def skip(nBits: Long): Boolean
+  def isDefinedForLength(nBits: Long): Boolean
 
   /**
    * Returns Nope if no more data is possible (end of data), otherwise returns the number of
@@ -320,6 +474,15 @@ trait DataInputStream {
    * Upon return, the byte buffer is not 'flipped' by this call. To read out the data
    * that was just written to the byte buffer by this method using relative getter calls
    * the caller must flip the byte buffer.
+   * <p>
+   * If the data source ends in the middle of a byte (possible for bit-oriented data)
+   * then that partial final byte can be transferred. Bits past the end of the partial byte
+   * will be transferred along with the partial byte.
+   * <p>
+   * The final bit position of the DataInputStream excludes any of these additional bits
+   * that are transferred as part of a partial final byte. Hence, if this method is
+   * called and end of data is encountered, then upon return if any bytes are transferred
+   * then bitPos0b == bitLimit0b (if defined)
    */
   def fillByteBuffer(bb: ByteBuffer): Maybe[Int]
 
@@ -356,11 +519,6 @@ trait DataInputStream {
    * have sufficient bits, then Nope is returned.
    */
   def getSignedLong(bitLengthFrom1To64: Int): Maybe[Long]
-
-  //  /**
-  //   * get a byte at a byte position
-  //   */
-  //  def get(bytePos0b: Int): Byte
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
@@ -451,10 +609,71 @@ trait DataInputStream {
    * that are placed into the char buffer by this method using relative getter calls
    * the caller of this method must flip the char buffer.
    * <p>
+   * When characters are not made up of complete bytes, but fragments of a byte, then
+   * when data ends in the middle of a byte, a character can be decoded from the
+   * partial-final byte, if enough bits are available from the prior byte and the
+   * partial final byte.
+   * <p>
    * Implementation Note: a specialized 4-bit encoding which maps 4 bits to
    * 0-9A-F can be used to treat packed decimal representations like text strings.
    */
   def fillCharBuffer(cb: CharBuffer): Maybe[Long]
+
+  /**
+   * Returns true if it fills all remaining space in the char buffer.
+   *
+   * Convenience method since this idiom is so common due to the
+   * way fillCharBuffer works to return early when decode errors are
+   * encountered.
+   */
+  protected final def fillCharBufferLoop(cb: CharBuffer): Boolean = {
+    var maybeN: Maybe[Long] = Maybe(0)
+    var total: Long = 0
+    val nChars = cb.remaining
+    while (maybeN.isDefined && total < nChars) {
+      maybeN = fillCharBuffer(cb)
+      if (maybeN.isDefined) total += maybeN.get
+    }
+    total == nChars
+  }
+
+  /**
+   * Returns One(string) if nChars are available, Nope otherwise.
+   *
+   * Throws a CharacterCodingException if the encoding error policy is 'error'
+   * and a decode error is detected within nChars.
+   */
+  final def getString(nChars: Long): Maybe[String] = {
+    withLocalCharBuffer { lcb =>
+      val cb = lcb.getBuf(nChars)
+      val gotAll = fillCharBufferLoop(cb)
+      val res = if (!gotAll) Nope
+      else Maybe(cb.flip.toString)
+      res
+    }
+  }
+
+  /**
+   * Returns One(string) if any (up to nChars) are available, Nope otherwise.
+   *
+   * Throws a CharacterCodingException if the encoding error policy is 'error'
+   * and a decode error is detected within nChars.
+   */
+  final def getSomeString(nChars: Long): Maybe[String] = {
+    withLocalCharBuffer { lcb =>
+      val cb = lcb.getBuf(nChars)
+      val gotAll = fillCharBufferLoop(cb)
+      if (cb.position() == 0) Nope
+      else Maybe(cb.flip.toString)
+    }
+  }
+
+  /**
+   * Skips N characters and returns true, adjusting the bitPos0b based on
+   * parsing them. Returns false if there is not enough data
+   * to skip all N characters.
+   */
+  def skipChars(nChars: Long): Boolean
 
   /**
    * Matches a regex Matcher against a prefix of the data stream.
@@ -508,7 +727,7 @@ trait DataInputStream {
    * strings by the underlying Matcher and regular expression API upon which this is
    * built.
    */
-  def lookingAt(matcher: Matcher): Boolean
+  def lookingAt(matcher: Matcher, initialRegexMatchLimitInChars: Long = limits.defaultInitialRegexMatchLimitInChars): Boolean
 
   /**
    * As characters are iterated, the underlying bit position changes.
@@ -555,25 +774,6 @@ trait DataInputStream {
    * the lookingAt method above. The DFA stuff doesn't actually
    * need a Reader[Char]. It would be happy with this iterator.)
    */
-  def asIteratorChar: Iterator[Char]
+  def asIteratorChar: DataInputStream.CharIterator
 
-  /**
-   * Debugging flag. If set then performance may be reduced, but
-   * historic and upcoming data may be viewed using the pastData and futureData
-   * methods.
-   *
-   * This should be set at the beginning of execution. If it is set after data has
-   * been accessed then IllegalStateException is thrown.
-   */
-  def areDebugging: Boolean
-  def setDebugging(setting: Boolean): Unit
-
-  /**
-   * Access to historic (past data) and upcoming data for
-   * purposes of display in a trace or debugger.
-   *
-   * If areDebugging is false, these throw IllegalStateException
-   */
-  def pastData(nBytesRequested: Int): ByteBuffer
-  def futureData(nBytesRequested: Int): ByteBuffer
 }

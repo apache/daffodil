@@ -12,7 +12,7 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 
 class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
   delimiterType: DelimiterTextType.Type)
-  extends PrimUnparser(erd) {
+  extends PrimUnparser(erd) with TextUnparserRuntimeMixin {
 
   override lazy val nom = {
     if (delimiterType == DelimiterTextType.Initiator) "InitiatorUnparser"
@@ -26,6 +26,7 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
   }
 
   def unparse(state: UState): Unit = {
+    setupEncoding(state, erd)
 
     log(LogLevel.Debug, "Parsing starting at bit position: %s", state.bitPos1b)
 
@@ -44,23 +45,18 @@ class DelimiterTextUnparser(erd: TermRuntimeData, delimExpr: CompiledExpression,
     try {
       val valueString = delimDFA.unparseValue
 
-      val outStream = state.outStream
-      outStream.encode(erd.encodingInfo.knownEncodingCharset.charset, valueString)
-      log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
+      val outStream = state.dataOutputStream
+      val nCharsWritten = outStream.putString(valueString)
+      if (nCharsWritten != valueString.length)
+        UE(state, "%s - Too many bits in delimiter: IndexOutOfBounds. Insufficient space to write delimiter '%s'.",
+          nom, Misc.remapStringToVisibleGlyphs(valueString))
     } catch {
       // Characters in infoset element cannot be encoded without error.
       //
       // This won't actually be thrown until encodingErrorPolicy='error' is
       // implemented. 
       //
-      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
-      //
-      // Thrown if the length is explicit but are too many bytes/bits to
-      // fit within the length.
-      //
-      case e: IndexOutOfBoundsException => {
-        UnparseError(One(erd.schemaFileLocation), One(state), "%s - Too many bits in field: IndexOutOfBounds: \n%s", nom, e.getMessage())
-      }
+      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state.currentLocation), "%s - MalformedInputException: \n%s", nom, m.getMessage()) }
     }
   }
 

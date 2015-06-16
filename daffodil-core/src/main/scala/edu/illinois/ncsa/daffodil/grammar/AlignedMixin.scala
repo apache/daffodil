@@ -45,7 +45,7 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
 
   lazy val leadingSkipRegion = prod("leadingSkipRegion", leadingSkip > 0) { LeadingSkipRegion(this) }
   lazy val trailingSkipRegion = prod("trailingSkipRegion", trailingSkip > 0) { TrailingSkipRegion(this) }
-  lazy val alignmentFill = prod("alignmentFill", !isKnownPreAligned) { AlignmentFill(this) }
+  lazy val alignmentFill = prod("alignmentFill", !isKnownToBeAligned) { AlignmentFill(this) }
 
   /**
    * true if we can statically determine that the start of this
@@ -55,7 +55,23 @@ trait AlignedMixin extends GrammarMixin { self: Term =>
   // TODO: make this actually do the position analysis - that however, requires computing
   // known alignment information based on the starting known alignment and known length
   // of prior things (recursively). I.e., it's a bit tricky.
-  private lazy val isKnownPreAligned = self.isScannable || (alignment == 1 && alignmentUnits == AlignmentUnits.Bits)
+  private lazy val isKnownPreAligned = {
+    val res = self.isScannable || // if we are scannable, then mandatory text alignment takes care of this alignment. 
+      (alignment == 1 && alignmentUnits == AlignmentUnits.Bits) // if we are 1-bit alignment, we're always aligned.
+    // useful place for a breakpoint to watch this optimization
+    res
+  }
+
+  final def isKnownToBeAligned: Boolean = LV('isKnownToBeAligned) {
+    if (alignmentValueInBits == 1) {
+      alignmentUnits match {
+        case AlignmentUnits.Bits => true
+        case AlignmentUnits.Bytes => isKnownToBePrecededByAllByteLengthItems
+      }
+    } else if (alignmentValueInBits > 1) {
+      isKnownToBePrecededByAllByteLengthItems
+    } else false
+  }.value
 
   // TODO: deal with case of a bit field that is not a multiple of bytes wide
   // but has a terminator which is text and so has mandatory alignment.

@@ -57,6 +57,7 @@ import edu.illinois.ncsa.daffodil.dsom.oolag.ErrorsNotYetRecorded
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
+import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -216,19 +217,33 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     debugStep(state, state, unparser, false)
   }
 
-  private val parseStack = new scala.collection.mutable.Stack[(PState, Parser)]
+  private val parseStack = new scala.collection.mutable.Stack[(PState.Mark, Parser)]
 
   override def before(before: PState, parser: Parser) {
     if (isInteresting(parser)) {
-      parseStack.push((before.duplicate(), parser))
+      parseStack.push((before.mark, parser))
     }
+    // debugStep(before, before, parser, false)
   }
   override def after(after: PState, parser: Parser) {
     if (isInteresting(parser)) {
       val (before, beforeParser) = parseStack.pop
       Assert.invariant(beforeParser eq parser)
-      debugStep(before, after, parser, DebuggerConfig.breakOnlyOnCreation)
+      debugStep(before.get, after, parser, DebuggerConfig.breakOnlyOnCreation)
+      after.discard(before)
     }
+  }
+
+  override def beforeRepetition(before: PState, processor: Parser) {
+    parseStack.push((before.mark, processor))
+    // debugStep(before, before, processor, false)
+  }
+
+  override def afterRepetition(after: PState, processor: Parser) {
+    val (before, beforeParser) = parseStack.pop
+    Assert.invariant(beforeParser eq processor)
+    // debugStep(before.get, after, processor, false)
+    after.discard(before)
   }
 
   private def isInteresting(unparser: Unparser): Boolean = {
@@ -291,6 +306,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         case _ => false
       }
     } catch {
+      case s: scala.util.control.ControlThrowable => throw s
+      case u: UnsuppressableException => throw u
       case e: Throwable => false
     }
   }
@@ -548,7 +565,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         try {
           args.head.toInt
         } catch {
-          case _: Throwable => throw new DebugException("integer argument is required")
+          case _: NumberFormatException => throw new DebugException("integer argument is required")
         }
       }
     }
@@ -667,7 +684,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         val id = try {
           idArg.toInt
         } catch {
-          case _: Throwable => throw new DebugException("integer argument required")
+          case _: NumberFormatException => throw new DebugException("integer argument required")
         }
 
         DebuggerConfig.breakpoints.find(_.id == id).getOrElse {
@@ -963,6 +980,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
               throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
             }
           }
+          case s: scala.util.control.ControlThrowable => throw s
           case e: Throwable => {
             val ex = e // just so we can see it in the debugger.
             throw new DebugException("expression evaluation failed: %s".format(DiagnosticUtils.getSomeMessage(ex).get))
@@ -1033,6 +1051,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
               fw.close()
               debugPrintln("%s: written to %s".format(name, args.head))
             } catch {
+              case s: scala.util.control.ControlThrowable => throw s
+              case u: UnsuppressableException => throw u
               case e: Throwable => throw new DebugException("failed to write history file: " + e.getMessage)
             }
           }
@@ -1110,8 +1130,8 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         val desc = "display the current bit limit"
         val longDesc = desc
         def act(args: Seq[String], prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor): DebugState.Type = {
-          if (state.bitLimit0b != -1) {
-            debugPrintln("%s: %d".format(name, state.bitLimit0b))
+          if (state.bitLimit0b.isDefined) {
+            debugPrintln("%s: %d".format(name, state.bitLimit0b.get))
           } else {
             debugPrintln("%s: no bit limit set".format(name))
           }
@@ -1177,7 +1197,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
         def printData(rep: Option[Representation], l: Int, prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
           val dataLoc = state.currentLocation.asInstanceOf[DataLoc]
-          val lines = dataLoc.dump(rep, prestate, state)
+          val lines = dataLoc.dump(rep, prestate.currentLocation, state)
           debugPrintln(lines, "  ")
         }
 
@@ -1204,7 +1224,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             try {
               args(1).toInt
             } catch {
-              case _: Throwable => throw new DebugException("data length must be an integer")
+              case _: NumberFormatException => throw new DebugException("data length must be an integer")
             }
           } else {
             DebuggerConfig.dataLength

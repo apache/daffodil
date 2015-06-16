@@ -49,6 +49,9 @@ import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryRuntimeLengthBinar
 import edu.illinois.ncsa.daffodil.processors.parsers.FloatKnownLengthRuntimeByteOrderBinaryNumberParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DecimalKnownLengthRuntimeByteOrderBinaryNumberParser
 import edu.illinois.ncsa.daffodil.processors.parsers.DoubleKnownLengthRuntimeByteOrderBinaryNumberParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
+import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
+import edu.illinois.ncsa.daffodil.util.Misc
 
 trait RuntimeExplicitLengthMixin[T] {
   self: Terminal =>
@@ -105,22 +108,31 @@ class UnsignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) exten
   with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
 
   override lazy val parser = new UnsignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, e.length, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class UnsignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
   with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
 
   override lazy val parser = new UnsignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class SignedRuntimeLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase) extends BinaryNumberBase[T](e)
   with RuntimeExplicitLengthMixin[T] with RuntimeExplicitByteOrderMixin[T] {
+
   override lazy val parser = new SignedRuntimeLengthRuntimeByteOrderBinaryNumberParser(bo, lUnits, e.length, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class SignedKnownLengthRuntimeByteOrderBinaryNumber[T](e: ElementBase, val len: Long) extends BinaryNumberBase[T](e)
   with RuntimeExplicitByteOrderMixin[T] with KnownLengthInBitsMixin[T] {
   override lazy val parser = new SignedKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 // Not needed. No runtime-determined lengths for binary floats.
@@ -135,6 +147,8 @@ class HexBinaryKnownLengthBinaryNumber(e: ElementBase, val len: Long)
   lazy val lUnits = e.lengthUnits
 
   override lazy val parser = new HexBinaryKnownLengthBinaryNumberParser(len, e.elementRuntimeData, e.lengthUnits)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
@@ -147,6 +161,8 @@ class HexBinaryRuntimeLengthBinaryNumber(e: ElementBase)
   }
 
   override lazy val parser = new HexBinaryRuntimeLengthBinaryNumberParser(lUnits, e.length, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -155,6 +171,8 @@ class FloatKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long
   with KnownLengthInBitsMixin[Float] {
 
   override lazy val parser = new FloatKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -163,6 +181,8 @@ class DoubleKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lon
   with KnownLengthInBitsMixin[Double] {
 
   override lazy val parser = new DoubleKnownLengthRuntimeByteOrderBinaryNumberParser(bo, len, e.elementRuntimeData)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Long)
@@ -172,5 +192,7 @@ class DecimalKnownLengthRuntimeByteOrderBinaryNumber(e: ElementBase, val len: Lo
 
   override lazy val parser = new DecimalKnownLengthRuntimeByteOrderBinaryNumberParser(
     bo, len, e.elementRuntimeData, e.binaryDecimalVirtualPoint)
+
+  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 

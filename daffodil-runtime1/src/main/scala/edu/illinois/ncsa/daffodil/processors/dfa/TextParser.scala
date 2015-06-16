@@ -33,10 +33,10 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import edu.illinois.ncsa.daffodil.processors.DFDLCharReader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
+import edu.illinois.ncsa.daffodil.io.DataInputStream
 
 class TextParser(
   override val context: TermRuntimeData)
@@ -45,14 +45,15 @@ class TextParser(
   lazy val name: String = "TextParser"
   lazy val info: String = "" // Nothing additional to add here
 
-  def parse(input: DFDLCharReader, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
+  def parse(input: DataInputStream, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
-    val initialCharPos = input.characterPos
+    //val initialCharPos = input.characterPos
 
+    var m = input.mark
     delims.foreach(d => {
-      val reg = new Registers(delims)
-      reg.reset(input, 0)
-
+      val reg = new Registers(delims) // TODO: Performance - allocating. Use onStack? or local reserved state?
+      reg.reset(input, m)
+      m = input.mark
       val dfaStatus = d.run(0, reg)
       dfaStatus.status match {
         case StateKind.Failed => // Continue
@@ -60,6 +61,7 @@ class TextParser(
         case _ => // Continue
       }
     })
+    input.reset(m)
 
     val lm = longestMatch(successes)
     val result = {
@@ -67,9 +69,8 @@ class TextParser(
         if (isDelimRequired) Nope
         else {
           val totalNumCharsRead = 0
-          val numBits: Int = 0
-          val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
-          One(new ParseResult(Nope, Nope, "", totalNumCharsRead, numBits, nextReader))
+          input.getString(totalNumCharsRead)
+          One(new ParseResult(Nope, Nope, ""))
         }
       } else {
         val (dfa, r) = lm.get
@@ -78,10 +79,8 @@ class TextParser(
         }
         val lookingFor = dfa.lookingFor
         val totalNumCharsRead = r.numCharsRead
-        val numBits: Int = context.encodingInfo.knownEncodingStringBitLength(r.delimString.toString)
-        val nextReader: DFDLCharReader = input.drop(totalNumCharsRead).asInstanceOf[DFDLCharReader]
 
-        One(new ParseResult(Nope, delim, lookingFor, totalNumCharsRead, numBits, nextReader))
+        One(new ParseResult(Nope, delim, lookingFor))
       }
     }
     result

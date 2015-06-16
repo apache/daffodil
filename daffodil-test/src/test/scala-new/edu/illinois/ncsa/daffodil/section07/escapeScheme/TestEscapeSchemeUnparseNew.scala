@@ -48,5 +48,6 @@ class TestEscapeSchemeUnparseNew {
   val aa = testDir + "escapeSchemeUnparse.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
 
+  @Test def test_unparseDelimitedEscapedString12() { runner.runOneTest("unparseDelimitedEscapedString12") }
 
 }

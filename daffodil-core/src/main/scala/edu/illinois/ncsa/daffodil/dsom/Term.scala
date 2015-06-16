@@ -417,6 +417,23 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final lazy val priorSibling = priorSiblings.lastOption
   final lazy val nextSibling = laterSiblings.headOption
 
+  final lazy val priorPhysicalSiblings = priorSiblings.filter { _.isRepresented }
+  final lazy val priorPhysicalSibling = priorPhysicalSiblings.lastOption
+
+  final def nearestPhysicalTermSatifying(pred: Term => Boolean): Option[Term] = {
+    priorPhysicalSiblings.filter { pred(_) }.lastOption match {
+      case x @ Some(sib) => x
+      case None => {
+        // must try enclosing terms outward
+        enclosingTerm match {
+          case None => None
+          case x @ Some(t) if pred(t) => x
+          case Some(t) => t.nearestPhysicalTermSatifying(pred)
+        }
+      }
+    }
+  }
+
   final lazy val hasLaterRequiredSiblings = laterSiblings.exists(_.hasStaticallyRequiredInstances)
   final lazy val hasPriorRequiredSiblings = priorSiblings.exists(_.hasStaticallyRequiredInstances)
 

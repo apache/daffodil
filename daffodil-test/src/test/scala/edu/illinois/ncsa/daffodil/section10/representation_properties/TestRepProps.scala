@@ -51,7 +51,7 @@ class TestRepProps {
   @Test def test_repPropMissing() { runner.runOneTest("repPropMissing") }
   @Test def test_repPropMissing2() { runner.runOneTest("repPropMissing2") }
   @Test def test_repPropMissing3() { runner.runOneTest("repPropMissing3") }
-  
+
   //These tests are temporary - see DFDL-994
   @Test def test_temporaryDefaultProps_01() { runner.runOneTest("temporaryDefaultProps_01") }
   @Test def test_temporaryDefaultProps_02() { runner.runOneTest("temporaryDefaultProps_02") }

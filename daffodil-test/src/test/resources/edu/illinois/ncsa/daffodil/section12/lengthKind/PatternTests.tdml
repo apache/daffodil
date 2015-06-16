@@ -409,7 +409,7 @@
             dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
           <xs:element name="inner" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{2}"
-            dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
+            dfdl:lengthUnits="characters" dfdl:encoding="utf-8" dfdl:encodingErrorPolicy="replace"/>
           <xs:element name="last" type="xs:string"
             dfdl:lengthKind="explicit" dfdl:length="{2}"
             dfdl:lengthUnits="characters" dfdl:encoding="utf-8"/>
@@ -560,7 +560,7 @@
       <tdml:dfdlInfoset>
         <def_04>
           <first>!!</first>
-          <inner>&#xFFFD;&#xFFFD;</inner><!-- unicode replacement characters -->
+          <inner>&#xFFFD;</inner><!-- unicode replacement characters -->
           <last>!!</last>
         </def_04>
       </tdml:dfdlInfoset>

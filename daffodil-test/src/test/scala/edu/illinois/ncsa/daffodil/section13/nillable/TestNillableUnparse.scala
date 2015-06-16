@@ -49,12 +49,12 @@ object TestNillableUnparse {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
   val ln = testDir + "literal-value-nils-unparse.tdml"
   var runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
-  
+
   /**
    * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
    */
-  @AfterClass def tearDown() { 
-    runnerLN = null 
+  @AfterClass def tearDown() {
+    runnerLN = null
   }
 }
 
@@ -65,7 +65,7 @@ class TestNillableUnparse {
   @Test def test_scalar_nonDefaultable_nillable() { runnerLN.runOneTest("scalar_nonDefaultable_nillable") }
   @Test def test_scalar_nonDefaultable_nillable_02() { runnerLN.runOneTest("scalar_nonDefaultable_nillable_02") }
   @Test def test_scalar_nonDefaultable_nillable_03() { runnerLN.runOneTest("scalar_nonDefaultable_nillable_03") }
-  
+
   @Test def test_text_complex_nil() { runnerLN.runOneTest("text_complex_nil") }
   @Test def test_text_complex_nil2() { runnerLN.runOneTest("text_complex_nil2") }
   @Test def test_text_complex_nil3() { runnerLN.runOneTest("text_complex_nil3") }

@@ -46,6 +46,7 @@ import edu.illinois.ncsa.daffodil.CLI.Util
 import net.sf.expectit.Expect
 import net.sf.expectit.matcher.Matchers.contains
 import net.sf.expectit.matcher.Matchers.eof
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 class TestCLIparsing {
 
@@ -844,7 +845,7 @@ class TestCLIparsing {
     try {
       val cmd = String.format("echo test| %s -t parse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
-      shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element>"))
+      shell.expect(contains("parser: <Element name='rabbitHole'>"))
       shell.sendLine("exit")
       shell.expect(eof)
     } finally {

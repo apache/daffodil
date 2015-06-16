@@ -567,11 +567,19 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     lengthKind == LengthKind.Explicit && length.isConstant
   }
 
+  /**
+   * This notion of 'specified' length doesn't exactly match the definition
+   * in the DFDL spec. Rather, we mean here that the length is "somehow" determined
+   * a-priori, so the content can be extracted, or at least a specific length
+   * limit put in place.
+   */
   final lazy val hasSpecifiedLength = {
     isFixedLength ||
       lengthKind == LengthKind.Pattern ||
       lengthKind == LengthKind.Prefixed ||
-      lengthKind == LengthKind.Implicit
+      lengthKind == LengthKind.Implicit ||
+      lengthKind == LengthKind.Explicit ||
+      lengthKind == LengthKind.EndOfParent
   }
 
   final lazy val fixedLength = {
@@ -604,8 +612,23 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   private lazy val hasNilValueInitiator = initTermTestExpression(initiator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Initiator)
   private lazy val hasNilValueTerminator = initTermTestExpression(terminator, nilValueDelimiterPolicy, NVDP.Both, NVDP.Terminator)
 
-  lazy val nilValues = new ListOfStringValueAsLiteral(nilValue, this).cooked
-  lazy val hasESNilValue = nilValues.contains("")
+  /**
+   * We need the nil values in raw form for diagnostic messages.
+   *
+   * We need the nil values in cooked forms of two kinds. For parsing, and for unparsing.
+   *
+   * The difference is due to for unparsing the %NL; is treated specially
+   * because it must be computed based on dfdl:outputNewLine.
+   */
+  private lazy val nilValuesForParseListObject = new ListOfStringValueAsLiteral(nilValue, this, forUnparse = false)
+  lazy val cookedNilValuesForParse = nilValuesForParseListObject.cooked
+  lazy val rawNilValuesForParse = nilValuesForParseListObject.rawList
+
+  private lazy val nilValuesForUnparseListObject = new ListOfStringValueAsLiteral(nilValue, this, forUnparse = true)
+  lazy val cookedNilValuesForUnparse = nilValuesForUnparseListObject.cooked
+  lazy val rawNilValuesForUnparse = nilValuesForUnparseListObject.rawList
+
+  lazy val hasESNilValue = rawNilValuesForParse.contains("%ES;")
 
   final lazy val hasNilValueRequiredSyntax = isNillable &&
     ((isDefinedNilLit && (hasNilValueInitiator || hasNilValueTerminator)) ||

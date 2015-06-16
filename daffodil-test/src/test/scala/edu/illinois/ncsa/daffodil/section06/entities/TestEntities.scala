@@ -122,7 +122,8 @@ class TestEntities {
 
   @Test def test_text_entities_6_02() { runner_01.runOneTest("text_entities_6_02") }
   @Test def test_text_entities_6_03() { runner_01.runOneTest("text_entities_6_03") }
-  @Test def test_text_entities_6_03b() { runner_01.runOneTest("text_entities_6_03b") }
+  // JIRA DFDL-1400
+  // @Test def test_text_entities_6_03b() { runner_01.runOneTest("text_entities_6_03b") }
   @Test def test_text_entities_6_04() { runner_01.runOneTest("text_entities_6_04") }
   @Test def test_byte_entities_6_01() { runner_01.runOneTest("byte_entities_6_01") }
   @Test def test_byte_entities_6_02() { runner_01.runOneTest("byte_entities_6_02") }

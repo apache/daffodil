@@ -211,7 +211,7 @@ case class ValueCalc(
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
 
-  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr, e.knownEncodingCharset)
+  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr)
 
 }
 
@@ -219,7 +219,10 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
   extends Terminal(decl, true) {
 
   lazy val eName = decl.prettyName
-  lazy val testPattern = stmt.testTxt
+  lazy val testPattern = {
+    PatternChecker.checkPattern(stmt.testTxt, decl)
+    stmt.testTxt
+  }
 
   override val forWhat = ForParser
 
@@ -234,8 +237,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
   val kindString = "AssertPatternPrim"
 
   def parser: DaffodilParser = {
-    PatternChecker.checkPattern(stmt.testTxt, decl)
-    new AssertPatternParser(eName, kindString, decl.term.termRuntimeData, stmt.testTxt, stmt.message)
+    new AssertPatternParser(eName, kindString, decl.term.termRuntimeData, testPattern, stmt.message)
   }
 
 }

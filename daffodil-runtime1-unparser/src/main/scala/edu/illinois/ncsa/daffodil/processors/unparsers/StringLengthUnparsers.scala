@@ -43,7 +43,6 @@ import edu.illinois.ncsa.daffodil.processors.PState
 import edu.illinois.ncsa.daffodil.processors.PrimParser
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
-import edu.illinois.ncsa.daffodil.processors.TextReader
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
@@ -53,31 +52,91 @@ import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
 import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.equality._
+import java.io.ByteArrayOutputStream
+import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
+import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 
-abstract class StringLengthUnparser(
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData)
-  extends PrimUnparser(erd) {
-  override def toString = String.format("%sParser(%s)", unparserName, lengthText)
+class StringOfSpecifiedLengthUnparser(
+  val unparsingPadChar: Maybe[Char],
+  val justificationPad: TextJustificationType.Type,
+  val erd: ElementRuntimeData,
+  isForString: Boolean) extends PrimUnparser(erd)
+  with StringLengthMixin {
 
-  lazy val unparserName: String = Misc.getNameFromClass(this)
-  def lengthText: String
+  final override def justificationTrim = justificationPad
+  final override def pad = unparsingPadChar
 
-  def getLengthInBytes(state: UState): Long
+  private def getLengthInBits(str: String, state: UState): (Long, Long) = {
+    val baos = new ByteArrayOutputStream()
+    val dos = BasicDataOutputStream(baos)
+    val nChars = dos.putString(str)
+    val nBits = dos.bitPos0b
+    (nBits, nChars)
+  }
 
-  /**
-   * Return value is number of characters, and the number of fill bytes
-   * needed to fill out any fragment of a character because a whole
-   * character will not fit at the end of the length.
-   *
-   * This should be
-   * zero unless the length is specified in lengthUnits of bytes, and
-   * the encoding is variable width, or fixed width > 1 byte.
-   */
-  def getLengthInChars(state: UState): (Long, Int)
+  protected def contentString(state: UState) = state.currentInfosetNode.get.asSimple.dataValueAsString
 
-  def unparseValue(start: UState, charset: Charset, nBytes: Long): Unit
+  override def unparse(state: UState) {
+    val maybeAvailableLengthInBits = state.bitLimit0b.map { bitLim0b => bitLim0b - state.bitPos0b }
+    // this is the length we have to pad to, and fillByte any fragment of a character
+    //
+    // Now the problem is, we don't know how much to pad (or truncate) the string
+    // because until we know how many bits the string's value will take up, we
+    // can't figure out how many of the available bits will be remaining to be
+    // padded, and/or filled by fillByte. 
+    //
+    // We have to stage the bits of the value just so as to be able to count them
+    // Then we can figure out the number of padChars to add because a padChar must
+    // be a minimum-width character. 
+    //
+    val dos = state.dataOutputStream
+    val valueString = contentString(state)
+    val (valueToWrite, nBitsToFill) =
+      if (maybeAvailableLengthInBits.isEmpty) {
+        //
+        // No limit on available space to write to
+        // so we write just what we have. No padding, no truncation
+        (valueString, 0L)
+      } else {
+        //
+        // We have a limit on what space we can (and should) fill
+        // Note: This is an invariant on how this unparser is used.
+        // If a limit is set, then we're supposed to fill it.
+        //
+        val availableLengthInBits = maybeAvailableLengthInBits.get
+        val (nBits, nChars) = getLengthInBits(valueString, state)
+        val nBitsToPadOrFill = availableLengthInBits - nBits // can be negative if we need to truncate
+        val cs = erd.encodingInfo.getEncoder(state).charset
+        val minBitsPerChar = erd.encodingInfo.encodingMinimumCodePointWidthInBits(cs)
+        // padChar must be a minimum-width char
+        val nCharsToPad = nBitsToPadOrFill / minBitsPerChar
+        val nBitsToFill = nBitsToPadOrFill % minBitsPerChar
+        Assert.invariant(nCharsToPad <= Int.MaxValue)
+        val paddedValue = padOrTruncateByJustification(state, valueString, valueString.length + nCharsToPad.toInt, isForString)
+        (paddedValue, nBitsToFill)
+      }
+    val nCharsWritten = dos.putString(valueToWrite)
+    Assert.invariant(nCharsWritten == valueToWrite.length) // assertion because we figured this out above based on available space.
+    var nFillBytes = nBitsToFill.toInt / 8
+    val fb = fillByte(state)
+    if (nFillBytes > 0) {
+      while (nFillBytes > 0) {
+        Assert.invariant(dos.putLong(fb, 8))
+        nFillBytes -= 1
+      }
+    }
+    val nFillBits = nBitsToFill.toInt % 8
+    if (nFillBits > 0)
+      Assert.invariant(dos.putLong(fb, nFillBits))
+  }
+}
+
+trait StringLengthMixin {
+
+  def erd: ElementRuntimeData
+  def pad: Maybe[Char]
+  def justificationTrim: TextJustificationType.Type
 
   final def fillByte(state: UState): Int = erd.fillByte(state, erd.encodingInfo)
 
@@ -124,22 +183,23 @@ abstract class StringLengthUnparser(
     sb.mkString
   }
 
-  final def padOrTruncateByJustification(ustate: UState, str: String, nChars: Int): String = {
+  final def padOrTruncateByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
     if (str.length =#= nChars) str
     else if (str.length < nChars) {
-      padByJustification(ustate, str, nChars)
+      padByJustification(ustate, str, nChars, isForString)
     } else {
       Assert.invariant(str.length > nChars)
-      truncateByJustification(ustate, str, nChars)
+      truncateByJustification(ustate, str, nChars, isForString)
     }
   }
 
-  private def truncateByJustification(ustate: UState, str: String, nChars: Int): String = {
-    Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
+  private def truncateByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
+    if (isForString) Assert.invariant(erd.optTruncateSpecifiedLengthString.isDefined)
     val nCharsToTrim = str.length - nChars
     val result = justificationTrim match {
       case TextJustificationType.None => {
-        UnparseError(One(erd.schemaFileLocation), One(ustate), "Trimming is required, but the dfdl:textTrimKind property is 'none'.")
+        if (isForString) UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Trimming is required, but the dfdl:textTrimKind property is 'none'.")
+        else str
       }
       case TextJustificationType.Right => {
         str.substring(nCharsToTrim)
@@ -148,101 +208,25 @@ abstract class StringLengthUnparser(
         str.substring(0, str.length - nCharsToTrim)
       }
       case TextJustificationType.Center => {
-        UnparseError(One(erd.schemaFileLocation), One(ustate), "The dfdl:textJustificationType is 'center', but the value requires truncation to fit within the length %n.", nChars)
+        UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "The dfdl:textJustificationType is 'center', but the value requires truncation to fit within the length %n.", nChars)
       }
     }
     result
   }
 
-  private def padByJustification(ustate: UState, str: String, nChars: Int): String = {
+  private def padByJustification(ustate: UState, str: String, nChars: Int, isForString: Boolean): String = {
     val nCharsToPad = nChars - str.length
     val result = justificationTrim match {
       case TextJustificationType.None => {
-        UnparseError(One(erd.schemaFileLocation), One(ustate), "Padding is required, but the dfdl:textPadKind property is 'none'")
+        if (isForString)
+          UnparseError(One(erd.schemaFileLocation), One(ustate.currentLocation), "Padding is required, but the dfdl:textPadKind property is 'none'")
+        else
+          str
       }
       case TextJustificationType.Right => addLeftPadding(str, nCharsToPad)
       case TextJustificationType.Left => addRightPadding(str, nCharsToPad)
       case TextJustificationType.Center => addBothPadding(str, nCharsToPad)
     }
     result
-  }
-
-  def unparse(state: UState): Unit = {
-
-    log(LogLevel.Debug, "Parsing starting at bit position: %s", state.bitPos1b)
-
-    val nBytes = getLengthInBytes(state)
-    log(LogLevel.Debug, "Explicit length %s", nBytes)
-
-    if (state.bitPos0b % 8 != 0) { UnparseError(One(erd.schemaFileLocation), One(state), "%s - not byte aligned.", unparserName) }
-
-    try {
-      unparseValue(state, erd.encodingInfo.knownEncodingCharset.charset, nBytes)
-    } catch {
-      // Characters in infoset element cannot be encoded without error.
-      //
-      // This won't actually be thrown until encodingErrorPolicy='error' is
-      // implemented. 
-      //
-      case m: MalformedInputException => { UnparseError(One(erd.schemaFileLocation), One(state), "%s - MalformedInputException: \n%s", unparserName, m.getMessage()) }
-      //
-      // Thrown if the length is explicit but are too many bytes/bits to
-      // fit within the length.
-      //
-      case e: IndexOutOfBoundsException => {
-        UnparseError(One(erd.schemaFileLocation), One(state), "%s - Too many bits in field: IndexOutOfBounds: \n%s", unparserName, e.getMessage())
-      }
-    }
-  }
-}
-
-class StringFixedLengthInBytesFixedWidthCharactersUnparser(
-  nBytes: Long,
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData,
-  override val lengthText: String)
-  extends StringLengthInBytesUnparser(
-    justificationTrim: TextJustificationType.Type,
-    pad: Maybe[Char],
-    erd) {
-
-  override final def getLengthInBytes(state: UState): Long = nBytes
-
-  override final def getLengthInChars(state: UState): (Long, Int) = {
-    val encInfo = erd.encodingInfo
-    Assert.usage(encInfo.isKnownEncoding)
-    Assert.usage(encInfo.knownEncodingIsFixedWidth)
-    Assert.usage(encInfo.knownEncodingWidthInBits % 8 =#= 0)
-    val encWidthInBytes = encInfo.knownEncodingWidthInBits / 8
-    val nBytes = getLengthInBytes(state)
-    val nChars = nBytes / encWidthInBytes
-    val nLeftOverBytes = (nBytes % encWidthInBytes).toInt
-    (nChars, nLeftOverBytes)
-  }
-}
-
-abstract class StringLengthInBytesUnparser(
-  justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
-  erd: ElementRuntimeData)
-  extends StringLengthUnparser(justificationTrim, pad, erd) {
-
-  override def unparseValue(state: UState, charset: Charset, nBytes: Long): Unit = {
-
-    val valueString = state.currentInfosetNode.get.asSimple.dataValueAsString
-    var (lengthInChars, nFillBytes) = getLengthInChars(state)
-    Assert.invariant(lengthInChars <= Int.MaxValue)
-    val paddedValue = padOrTruncateByJustification(state, valueString, lengthInChars.toInt)
-    val outStream = state.outStream
-    outStream.encode(charset, paddedValue)
-    if (nFillBytes > 0) {
-      val fb = erd.fillByte(state, erd.encodingInfo)
-      while (nFillBytes > 0) {
-        outStream.writeByte(fillByte(state))
-        nFillBytes -= 1
-      }
-    }
-    log(LogLevel.Debug, "Ended at bit position " + outStream.bitPos1b)
   }
 }
