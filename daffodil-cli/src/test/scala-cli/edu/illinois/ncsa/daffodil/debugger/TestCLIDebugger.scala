@@ -988,6 +988,7 @@ class TestCLIdebugger {
     }
   }
 
+/* See DFDL-1264
   @Test def test_3585_CLI_Debugger_simpleDebugger_unparse() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/generalSchema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input12.txt")
@@ -1010,6 +1011,6 @@ class TestCLIdebugger {
     } finally {
       shell.close()
     }
-  }
+  }*/
 
 }
