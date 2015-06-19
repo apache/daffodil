@@ -452,4 +452,42 @@
     </tdml:errors>
   </tdml:unparserTestCase>
 
+  <tdml:defineSchema name="pattern">
+    <dfdl:format ref="ex:daffodilTest1" lengthKind="delimited" representation="text"
+        lengthUnits="bytes" encoding="US-ASCII" initiator="" terminator="" textNumberPattern="#,##0.###;-#,##0.###"
+        separator="" textNumberCheckPolicy="lax" ignoreCase="no" textNumberRep="standard"/>
+
+    <xs:element name="e1">
+      <xs:simpleType>
+        <xs:restriction base="xs:int">
+          <xs:minInclusive value="1000"/>
+          <xs:maxInclusive value="99999"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:element>
+
+  </tdml:defineSchema>
+  
+  <tdml:unparserTestCase name="unparse_int_01" root="e1"
+    model="pattern" description="">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>1576</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[1576]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:parserTestCase name="parse_int_01" root="e1"
+    model="pattern" description="" roundTrip="true">
+
+    <tdml:document><![CDATA[1576]]></tdml:document>
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>1576</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+  </tdml:parserTestCase>
+
 </tdml:testSuite>
