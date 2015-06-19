@@ -449,12 +449,12 @@ object DaffodilBuild extends Build {
 
   lazy val GenJavaDoc = config("genjavadoc") extend Compile
   lazy val genJavaDocSettings = inConfig(GenJavaDoc)(Defaults.configSettings) ++ Seq(
-    libraryDependencies += compilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.8" cross CrossVersion.full),
+    libraryDependencies += compilerPlugin("com.typesafe.genjavadoc" %% "genjavadoc-plugin" % "0.9" cross CrossVersion.full),
     scalacOptions <+= target map (t => "-P:genjavadoc:out=" + (t / "java")),
     packageDoc in Compile <<= packageDoc in GenJavaDoc,
     sources in GenJavaDoc <<= (target, compile in Compile, sources in Compile) map ((t, c, s) => (t / "java" ** "*.java").get.filterNot(f => f.toString.contains('$') || f.toString.contains("packageprivate")) ++ s.filter(_.getName.endsWith(".java"))),
     artifactName in packageDoc in GenJavaDoc := ((sv, mod, art) => "" + mod.name + "_" + sv.binary + "-" + mod.revision + "-javadoc.jar"),
-    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-quiet", "-windowtitle", "Daffodil-" + v + " Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
+    javacOptions in GenJavaDoc <<= (version) map ((v) => Seq("-Xdoclint:none", "-quiet", "-windowtitle", "Daffodil-" + v + " Java API", "-doctitle", "<h1>Daffodil-" + v + " Java API</h1>"))
   )
 
   lazy val sapiSettings = Seq(

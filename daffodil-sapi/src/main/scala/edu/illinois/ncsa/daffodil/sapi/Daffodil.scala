@@ -416,7 +416,7 @@ class DataProcessor private[sapi] (dp: SDataProcessor)
   /**
    * Enable/disable debugging.
    *
-   * Before enabling, [[Daffodil$#setDebugger]] must be called with a non-null debugger.
+   * Before enabling, [[DataProcessor#setDebugger]] must be called with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */

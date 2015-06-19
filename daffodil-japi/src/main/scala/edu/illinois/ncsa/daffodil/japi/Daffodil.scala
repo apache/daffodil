@@ -85,10 +85,18 @@ class Daffodil private {
 
 object Daffodil {
 
-  /** Create a new object used to compiled DFDL schemas */
+  /**
+   * Create a new object used to compiled DFDL schemas
+   *
+   * @return new object to compile DFDL schemas
+   */
   def compiler(): Compiler = new Compiler()
 
-  /** Set the LogWriter to use to capture logging messages from Daffodil */
+  /**
+   * Set the LogWriter to use to capture logging messages from Daffodil
+   *
+   * @param lw log writer to capture logging messages
+   */
   def setLogWriter(lw: LogWriter): Unit = {
     val slw: SLogWriter = lw match {
       case clw: ConsoleLogWriter => SConsoleWriter
@@ -99,7 +107,11 @@ object Daffodil {
     SLoggingDefaults.setLogWriter(slw)
   }
 
-  /** Set the maximum logging level */
+  /**
+   * Set the maximum logging level
+   *
+   * @param lvl log level
+   */
   def setLoggingLevel(lvl: LogLevel): Unit = {
     SLoggingDefaults.setLoggingLevel(LoggingConversions.levelToScala(lvl))
   }
@@ -152,9 +164,12 @@ class Compiler private[japi] () {
    * a [[java.nio.channels.ReadableByteChannel]] for a saved parser.
    *
    * @param savedParser file of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
+   *
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
-   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
+   *
+   * @throws InvalidParserException if the file is not a valid saved parser.
    */
+  @throws(classOf[InvalidParserException])
   def reload(savedParser: File): DataProcessor = {
     try {
       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
@@ -167,9 +182,12 @@ class Compiler private[japi] () {
    * Reload a saved parser from a [[java.nio.channels.ReadableByteChannel]]
    *
    * @param savedParser [[java.nio.channels.ReadableByteChannel]] of a saved parser, created with [[DataProcessor#save(java.nio.channels.WritableByteChannel)]]
+   *
    * @return [[DataProcessor]] used to parse data. Must check [[DataProcessor#isError]] before using it.
-   * @throws [[InvalidParserException]] if the file is not a valid saved parser.
+   *
+   * @throws InvalidParserException if the file is not a valid saved parser.
    */
+  @throws(classOf[InvalidParserException])
   def reload(savedParser: DFDL.Input): DataProcessor = {
     try {
       new DataProcessor(sCompiler.reload(savedParser).asInstanceOf[SDataProcessor])
@@ -365,6 +383,8 @@ class Diagnostic private[japi] (d: SDiagnostic) {
   /**
    * Positively get these things. No returning 'null' and making caller figure out
    * whether to look for cause object.
+   *
+   * @return the exception that caused the diagnostic
    */
   def getSomeCause: Throwable = d.getSomeCause.get
   def getSomeMessage: String = d.getSomeMessage.get
@@ -385,11 +405,15 @@ class DataLocation private[japi] (dl: SDataLocation) {
 
   /**
    * Get the position of the data, in bits, using 1-based indexing
+   *
+   * @return position of the data in bites
    */
   def bitPos1b() = dl.bitPos1b
 
   /**
    * Get the position of the data, in bytes, using 1-based indexing
+   *
+   * @return position of the data in bytes
    */
   def bytePos1b() = dl.bytePos1b
 }
@@ -413,7 +437,7 @@ class DataProcessor private[japi] (dp: SDataProcessor)
   /**
    * Enable/disable debugging.
    *
-   * Before enabling, [[Daffodil#setDebugger(DebuggerRunner)]] must be called with a non-null debugger.
+   * Before enabling, [[DataProcessor#setDebugger(DebuggerRunner)]] must be called with a non-null debugger.
    *
    * @param flag true to enable debugging, false to disabled
    */
@@ -522,11 +546,12 @@ class ParseResult private[japi] (pr: SParseResult)
   /**
    * Get the resulting infoset as a jdom2 Document
    *
-   * @throws [[IllegalStateException]] if you call this when isError is true
+   * @throws IllegalStateException if you call this when isError is true
    *         because in that case there is no result document.
    *
    * @return a jdom2 Document representing the DFDL infoset for the parsed data
    */
+  @throws(classOf[IllegalStateException])
   def result(): org.jdom2.Document = {
     val doc = new org.jdom2.Document()
     val rootElement = JDOMUtils.elem2Element(pr.result)
@@ -536,6 +561,8 @@ class ParseResult private[japi] (pr: SParseResult)
 
   /**
    * Get the [[DataLocation]] where the parse completed
+   *
+   * @return the data location where the parse completed
    */
   def location(): DataLocation = new DataLocation(pr.resultState.currentLocation)
 }

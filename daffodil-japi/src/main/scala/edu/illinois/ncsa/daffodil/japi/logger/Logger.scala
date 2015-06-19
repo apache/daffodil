@@ -131,6 +131,8 @@ final class NullLogWriter extends LogWriter {
 final class FileLogWriter(file: File) extends LogWriter {
   /**
    * Retrieve the file the log writer writes to
+   *
+   * @return the file the log writer writes to
    */
   def getFile = file
   protected def write(level: LogLevel, logID: String, msg: String): Unit = {}

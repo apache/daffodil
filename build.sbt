@@ -33,6 +33,13 @@ libraryDependencies in ThisBuild := Seq(
   "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
 )
 
+initialize := {
+  val _ = initialize.value
+  if (sys.props("java.specification.version") != "1.8") {
+    sys.error("Java 8 is required for this project.")
+  }
+}
+
 retrieveManaged := true
 
 exportJars in ThisBuild := true
