@@ -82,5 +82,7 @@ class TestTextNumberPropsUnparse {
 
   @Test def test_parseDelimitedPaddedString01() { runner.runOneTest("parseDelimitedPaddedString01") }
 
+  @Test def test_unparse_int_01() { runner.runOneTest("unparse_int_01") }
+  @Test def test_parse_int_01() { runner.runOneTest("parse_int_01") }
 }
 

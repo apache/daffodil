@@ -63,9 +63,5 @@ class TestTextNumberPropsUnparseDebug {
   //DFDL-1327
   @Test def test_unparseDelimitedPaddedString10() { runner.runOneTest("unparseDelimitedPaddedString10") }
 
-  //DFDL-1377
-  @Test def test_unparse_int_01() { runner.runOneTest("unparse_int_01") }
-  // Test passes but not sure if it should because roundTrip="true"
-  @Test def test_parse_int_01() { runner.runOneTest("parse_int_01") }
 }
 

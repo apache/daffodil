@@ -476,7 +476,7 @@
         <ex:e1>1576</ex:e1>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document><![CDATA[1576]]></tdml:document>
+    <tdml:document><![CDATA[1,576]]></tdml:document>
   </tdml:unparserTestCase>
 
   <tdml:parserTestCase name="parse_int_01" root="e1"
