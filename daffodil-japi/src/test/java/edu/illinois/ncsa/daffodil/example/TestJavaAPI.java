@@ -128,7 +128,7 @@ public class TestJavaAPI {
 	// This is a duplicate of test testJavaAPI1 that serializes the parser
 	// before executing the test.
 	@Test
-	public void testJavaAPI1_A() throws IOException {
+	public void testJavaAPI1_A() throws Exception {
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
 		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -195,7 +195,7 @@ public class TestJavaAPI {
 	// This is a duplicate of test testJavaAPI1 that serializes the parser
 	// before executing the test.
 	@Test
-	public void testJavaAPI1_A_FullFails() throws IOException {
+	public void testJavaAPI1_A_FullFails() throws Exception {
 		LogWriterForJAPITest lw = new LogWriterForJAPITest();
 		DebuggerRunnerForJAPITest debugger = new DebuggerRunnerForJAPITest();
 
@@ -322,7 +322,7 @@ public class TestJavaAPI {
 	// This is a duplicate of test testJavaAPI3 that serializes the parser
 	// before executing the test.
 	@Test
-	public void testJavaAPI3_A() throws IOException {
+	public void testJavaAPI3_A() throws Exception {
 		edu.illinois.ncsa.daffodil.japi.Compiler c = Daffodil.compiler();
 		c.setValidateDFDLSchemas(false);
 		java.io.File schemaFile = getResource("/test/japi/mySchema3.dfdl.xsd");
