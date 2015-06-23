@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.section15.choice_groups
 
 import junit.framework.Assert._
 import org.junit.Test
+import org.junit.AfterClass
 import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
@@ -43,5 +44,19 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
+object TestChoiceGroupInitiatedContentDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val aa = testDir + "ChoiceGroupInitiatedContent.tdml"
+  var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  @AfterClass def tearDown() {
+    runnerCH = null
+  }
+}
+
 class TestChoiceGroupInitiatedContentDebug {
+  import TestChoiceGroupInitiatedContentDebug._
+
+  //DFDL-1381
+  @Test def test_unparse_initiatedContentChoice1() { runnerCH.runOneTest("unparse_initiatedContentChoice1") }
 }

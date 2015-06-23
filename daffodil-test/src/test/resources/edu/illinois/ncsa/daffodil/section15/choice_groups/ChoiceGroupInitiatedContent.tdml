@@ -624,4 +624,22 @@
     </tdml:infoset>
 
   </tdml:parserTestCase>
+
+  <tdml:unparserTestCase name="unparse_initiatedContentChoice1"
+    description="unparse - initiatedContent='yes' - DFDL-15-003R" model="s1" root="e1">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>
+          <ex:s>
+            <ex:s2>abc</ex:s2>
+          </ex:s>
+          <ex:s>
+            <ex:s1>123</ex:s1>
+          </ex:s>
+        </ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[[s2:abc][s1:123]]]></tdml:document>
+  </tdml:unparserTestCase>
+
 </tdml:testSuite>
