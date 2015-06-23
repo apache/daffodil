@@ -62,6 +62,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnp
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
+import edu.illinois.ncsa.daffodil.compiler.ForParser
 
 abstract class AssertBase(decl: AnnotatedSchemaComponent,
   exprWithBraces: String,
@@ -86,7 +87,11 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   override lazy val exprComponent = scWherePropertyWasLocated
   override def nodeKind = NodeInfo.Boolean
 
+  override val forWhat = ForParser
+
   def parser: DaffodilParser = new AssertExpressionEvaluationParser(msg, discrim, decl.runtimeData, expr)
+
+  override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 
 }
 
@@ -216,7 +221,11 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
   lazy val eName = decl.prettyName
   lazy val testPattern = stmt.testTxt
 
+  override val forWhat = ForParser
+
   def parser: DaffodilParser
+
+  override def unparser: DaffodilUnparser = Assert.invariantFailed("should not request unparser for asserts/discriminators")
 }
 
 case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
