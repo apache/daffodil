@@ -382,8 +382,6 @@ class TestCLIunparsing {
   }
 */
 
-  /*
-  // See DFDL-1265
   @Test def test_3577_CLI_Unparsing_traceMode() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
@@ -392,6 +390,7 @@ class TestCLIunparsing {
     try {
       val cmd = String.format("echo '<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>'| %s -t unparse -s %s", Util.binPath, testSchemaFile)
       shell.sendLine(cmd)
+      shell.expect(contains("parser: <Element name='nest'><StringDelimitedUnparser/></Element>"))
       shell.expect(contains("parser: <Element name='rabbitHole'><ComplexType>...</ComplexType></Element>"))
       shell.expect(contains("test"))
       shell.sendLine("exit")
@@ -400,7 +399,6 @@ class TestCLIunparsing {
       shell.close()
     }
   }
-*/
 
   @Test def test_3662_CLI_Unparsing_badSchemaPath() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/doesnotexist.dfdl.xsd")
