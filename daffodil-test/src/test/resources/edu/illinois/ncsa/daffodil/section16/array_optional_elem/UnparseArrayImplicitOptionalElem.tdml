@@ -346,6 +346,24 @@
   </tdml:unparserTestCase>
 
 <!--
+  Test Name: impOptArrayThenScalar02parse
+     Schema: s1
+       Root: r4
+    Purpose: This test demonsrates parsing a sequence of an optional array and a scalar
+             with occursCountKind="implicit." In this case the optional array is not present.
+-->
+
+  <tdml:parserTestCase name="impOptArrayThenScalar02parse" root="r4"
+    model="s1">
+    <tdml:document><![CDATA[ 3]]></tdml:document>
+    <tdml:errors>
+      <tdml:error>Parse Error</tdml:error>
+      <tdml:error>Placeholder</tdml:error>
+    </tdml:errors>
+
+  </tdml:parserTestCase>
+
+<!--
   Test Name: impOptArrayThenScalar03
      Schema: s1
        Root: r4

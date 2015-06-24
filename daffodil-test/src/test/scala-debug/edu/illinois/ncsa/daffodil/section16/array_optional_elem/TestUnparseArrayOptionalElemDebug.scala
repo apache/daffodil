@@ -85,5 +85,8 @@ class TestUnparseArrayOptionalElemDebug {
 
   //DFDL-1301
   @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
+  
+  //DFDL-1382 
+  @Test def test_impOptArrayThenScalar02parse() { runner_imp.runOneTest("impOptArrayThenScalar02parse") }
 
 }

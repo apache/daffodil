@@ -78,6 +78,9 @@ object TestUnparseArrayOptionalElem {
 class TestUnparseArrayOptionalElem {
 
   import TestUnparseArrayOptionalElem._
+  
+  //DFDL-1382 
+  //@Test def test_impOptArrayThenScalar02parse() { runner_imp.runOneTest("impOptArrayThenScalar02parse") }
 
   //DFDL-1296
   //@Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
