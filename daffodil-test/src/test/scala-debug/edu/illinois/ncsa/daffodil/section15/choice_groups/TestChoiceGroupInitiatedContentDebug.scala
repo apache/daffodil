@@ -57,6 +57,4 @@ object TestChoiceGroupInitiatedContentDebug {
 class TestChoiceGroupInitiatedContentDebug {
   import TestChoiceGroupInitiatedContentDebug._
 
-  //DFDL-1381
-  @Test def test_unparse_initiatedContentChoice1() { runnerCH.runOneTest("unparse_initiatedContentChoice1") }
 }
