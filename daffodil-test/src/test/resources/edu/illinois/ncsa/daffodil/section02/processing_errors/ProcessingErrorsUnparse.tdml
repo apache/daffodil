@@ -245,5 +245,50 @@
     </tdml:errors>
 
   </tdml:unparserTestCase>
+  
+  <tdml:defineSchema name="roundTripErr">
+    <dfdl:format lengthKind="explicit" length="1" ref="ex:daffodilTest1"
+      separator="" initiator="" terminator="" occursCountKind="parsed"
+      ignoreCase="no" textNumberRep="standard" representation="text"
+      textPadKind='padChar' textStringPadCharacter="%SP;" textNumberJustification="center"/>
+    <dfdl:defineFormat name="root">
+      <dfdl:format lengthKind="implicit" ref="ex:daffodilTest1" textNumberJustification="center"
+        separator="" initiator="" terminator="" representation="text" />
+    </dfdl:defineFormat>
+    
+    <xs:element name="r1" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="opt" type="xs:string" minOccurs="0" />
+          <xs:element name="sca" type="xs:string" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+  </tdml:defineSchema>
+
+<!--
+  Test Name: roundTripErrorHalfwayThrough
+     Schema: roundTripErr
+       Root: r1
+    Purpose: This test demonsrates that if an error is detected in the parse step of a roundtrip
+             unparse test, the error is properly propagated to the user. To run this test, set 
+             roundTrip = "true", since there is currently no method for expecting an error partway
+             through a roundTrip test.
+-->
+
+  <tdml:unparserTestCase name="roundTripErrorHalfwayThrough" root="r1"
+    model="roundTripErr">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r1>
+          <opt/>
+          <sca>3</sca>
+        </r1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[ 3]]></tdml:document>
+
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>

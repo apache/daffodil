@@ -48,6 +48,8 @@ class TestProcessingErrorsUnparse {
   val ab = testDir + "ProcessingErrorsUnparse.tdml"
   lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false, validateDFDLSchemas = false)
   lazy val runner02Validate = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = true, validateDFDLSchemas = true)
+  
+  @Test def test_roundTripErrorHalfwayThrough() { runner02Validate.runOneTest("roundTripErrorHalfwayThrough") }
 
   @Test def test_upaInvalidSchemaUnparse() { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }
   @Test def test_upaInvalidSchemaUnparse2() { runner02Validate.runOneTest("upaInvalidSchemaUnparse2") }
