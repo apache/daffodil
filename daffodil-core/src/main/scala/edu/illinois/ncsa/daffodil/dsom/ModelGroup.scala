@@ -47,6 +47,9 @@ import edu.illinois.ncsa.daffodil.processors.ModelGroupRuntimeData
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.grammar.ModelGroupGrammarMixin
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 
 /**
  * A factory for model groups.
@@ -279,7 +282,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       listOfTerms
     }.value
 
-  final def identifyingElementsForChoiceBranch: Seq[ElementBase] = LV('identifyingElementsForChoiceBranch) {
+  final def identifyingEventsForChoiceBranch: Seq[ChoiceBranchEvent] = LV('identifyingEventsForChoiceBranch) {
     Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[Choice], "identifyingElementsForChoiceBranch must only be called on children of choices")
 
     val childrenIdentifiers = couldBeFirstChildElementInInfoset
@@ -289,7 +292,29 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       } else {
         Nil
       }
-    childrenIdentifiers ++ parentNextIdentifiers
+    val startEvents = (childrenIdentifiers ++ parentNextIdentifiers).map { e =>
+      ChoiceBranchStartEvent(e.namedQName)
+    }
+
+    // Look at the enclosing terms, and find either the first model group that
+    // has required next sibling elements, or find an element. If we find an
+    // element without finding such a model group, then the end event of that
+    // element could potentially be an identifying event for this model group
+    // Otherwise, only start events (either children start events next start
+    // events of enclosing model groups) could identify this branch, and no
+    // end event could identify this branch.
+    var ec = enclosingTerm.get
+    while (!ec.isInstanceOf[ElementBase] &&
+           !ec.asInstanceOf[ModelGroup].hasRequiredNextSiblingElement) {
+      ec = ec.enclosingTerm.get
+    }
+    val endEvent = ec match {
+      case e: ElementBase => Seq(ChoiceBranchEndEvent(e.namedQName))
+      case mg: ModelGroup => Nil
+    }
+
+    val idEvents = startEvents ++ endEvent
+    idEvents
   }.value
 
   /*

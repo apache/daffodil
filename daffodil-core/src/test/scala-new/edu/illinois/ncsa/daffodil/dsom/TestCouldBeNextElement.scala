@@ -39,6 +39,8 @@ import edu.illinois.ncsa.daffodil.util._
 import scala.xml._
 import edu.illinois.ncsa.daffodil.compiler._
 import junit.framework.Assert.assertEquals
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 
 class TestCouldBeNextElement {
 
@@ -94,18 +96,85 @@ class TestCouldBeNextElement {
     assertEquals(0, bar2.couldBeFirstChildElementInInfoset.length)
     assertEquals(0, bar2.couldBeNextElementInInfoset.length)
 
-    assertEquals(2, choice1seq1.identifyingElementsForChoiceBranch.length)
-    assertEquals("barOpt", choice1seq1.identifyingElementsForChoiceBranch(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("bar2", choice1seq1.identifyingElementsForChoiceBranch(1).asInstanceOf[LocalElementBase].name)
+    assertEquals(2, choice1seq1.identifyingEventsForChoiceBranch.length)
+    assertEquals("barOpt", choice1seq1.identifyingEventsForChoiceBranch(0).qname.local)
+    assertEquals("bar2", choice1seq1.identifyingEventsForChoiceBranch(1).qname.local)
 
-    assertEquals(2, choice1seq2.identifyingElementsForChoiceBranch.length)
-    assertEquals("barOpt", choice1seq2.identifyingElementsForChoiceBranch(0).asInstanceOf[LocalElementBase].name)
-    assertEquals("bar2", choice1seq2.identifyingElementsForChoiceBranch(1).asInstanceOf[LocalElementBase].name)
+    assertEquals(2, choice1seq2.identifyingEventsForChoiceBranch.length)
+    assertEquals("barOpt", choice1seq2.identifyingEventsForChoiceBranch(0).qname.local)
+    assertEquals("bar2", choice1seq2.identifyingEventsForChoiceBranch(1).qname.local)
 
     assertEquals(3, choice1.choiceBranchMap.size)
-    assertEquals(bar1.runtimeData, choice1.choiceBranchMap(bar1.namedQName))
-    assertEquals(choice1seq1.runtimeData, choice1.choiceBranchMap(barOpt.namedQName))
-    assertEquals(choice1seq1.runtimeData, choice1.choiceBranchMap(bar2.namedQName))
+    assertEquals(bar1.runtimeData, choice1.choiceBranchMap(ChoiceBranchStartEvent(bar1.namedQName)))
+    assertEquals(choice1seq1.runtimeData, choice1.choiceBranchMap(ChoiceBranchStartEvent(barOpt.namedQName)))
+    assertEquals(choice1seq1.runtimeData, choice1.choiceBranchMap(ChoiceBranchStartEvent(bar2.namedQName)))
   }
 
+  @Test def testCouldBeNextElement_2() {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="array" minOccurs="0" maxOccurs="unbounded" dfdl:occursCountKind="implicit">
+              <xs:complexType>
+                <xs:choice>
+                  <xs:element name="ch1" type="xs:string"/>
+                  <xs:element name="ch2" type="xs:string"/>
+                  <xs:element name="array" type="xs:string"/>
+                  <xs:sequence />
+                </xs:choice>
+              </xs:complexType>
+            </xs:element>
+            <xs:element name="after" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+
+    val compiler = Compiler()
+    val sset = compiler.compileNode(testSchema).sset
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val Seq(declf) = schemaDoc.globalElementDecls
+    val root = declf.forRoot()
+
+    val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val rootSeq = rootCT.modelGroup.asInstanceOf[Sequence]
+    val Seq(array: LocalElementBase, after: LocalElementBase) = rootSeq.groupMembers
+    val arrayCT = array.elementComplexType
+    val choice = arrayCT.modelGroup.asInstanceOf[Choice]
+    val Seq(ch1: LocalElementBase, ch2: LocalElementBase, array2: LocalElementBase, choiceSeq: Sequence) = choice.groupMembers
+
+    assertEquals(0, root.couldBeNextElementInInfoset.length)
+    assertEquals(2, root.couldBeFirstChildElementInInfoset.length)
+    assertEquals("array", root.couldBeFirstChildElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("after", root.couldBeFirstChildElementInInfoset(1).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(3, array.couldBeFirstChildElementInInfoset.length)
+    assertEquals("ch1", array.couldBeFirstChildElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("ch2", array.couldBeFirstChildElementInInfoset(1).asInstanceOf[LocalElementBase].name)
+    assertEquals("array", array.couldBeFirstChildElementInInfoset(2).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(2, array.couldBeNextElementInInfoset.length)
+    assertEquals("array", array.couldBeNextElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+    assertEquals("after", array.couldBeNextElementInInfoset(1).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(0, after.couldBeFirstChildElementInInfoset.length)
+    assertEquals(0, after.couldBeNextElementInInfoset.length)
+
+    assertEquals(0, ch1.couldBeFirstChildElementInInfoset.length)
+    assertEquals(0, ch1.couldBeNextElementInInfoset.length)
+
+    assertEquals(0, ch2.couldBeFirstChildElementInInfoset.length)
+    assertEquals(0, ch2.couldBeNextElementInInfoset.length)
+
+    assertEquals(0, array2.couldBeFirstChildElementInInfoset.length)
+    assertEquals(0, array2.couldBeNextElementInInfoset.length)
+
+    assertEquals(4, choice.choiceBranchMap.size)
+    assertEquals(ch1.runtimeData, choice.choiceBranchMap(ChoiceBranchStartEvent(ch1.namedQName)))
+    assertEquals(ch2.runtimeData, choice.choiceBranchMap(ChoiceBranchStartEvent(ch2.namedQName)))
+    assertEquals(array2.runtimeData, choice.choiceBranchMap(ChoiceBranchStartEvent(array2.namedQName)))
+    assertEquals(choiceSeq.runtimeData, choice.choiceBranchMap(ChoiceBranchEndEvent(array.namedQName)))
+  }
 }

@@ -43,6 +43,9 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Choice_AnnotationM
 import edu.illinois.ncsa.daffodil.grammar.ChoiceGrammarMixin
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchStartEvent
+import edu.illinois.ncsa.daffodil.processors.unparsers.ChoiceBranchEndEvent
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 
 /**
@@ -151,28 +154,26 @@ final class Choice(xmlArg: Node, parent: SchemaComponent, position: Int)
     assuming(branchesOk.forall { x => x })
   }.value
 
-  final def choiceBranchMap: Map[NamedQName, RuntimeData] = LV('choiceBranchMap) {
-    val qnameERDTuples = groupMembersNoRefs.flatMap {
-      case e: ElementBase => Seq((e.namedQName, e.runtimeData))
+  final def choiceBranchMap: Map[ChoiceBranchEvent, RuntimeData] = LV('choiceBranchMap) {
+    val eventERDTuples = groupMembersNoRefs.flatMap {
+      case e: ElementBase => Seq((ChoiceBranchStartEvent(e.namedQName), e.runtimeData))
       case mg: ModelGroup => {
-        val idElems = mg.identifyingElementsForChoiceBranch
-        if (idElems.isEmpty) {
-          Assert.notYetImplemented("Unable to find identifying element of %s.".format(mg))
-        }
-        idElems.map { e => (e.namedQName, mg.runtimeData) }
+        val idEvents = mg.identifyingEventsForChoiceBranch
+        Assert.invariant(!idEvents.isEmpty)
+        idEvents.map { (_, mg.runtimeData) }
       }
     }
 
     // converts a sequence of tuples into a multi-map
-    val qnameERDMap = qnameERDTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
+    val eventERDMap = eventERDTuples.groupBy { _._1 }.mapValues { _.map(_._2) }
 
-    val noDupes = qnameERDMap.map {
-      case (qname, erds) =>
+    val noDupes = eventERDMap.map {
+      case (event, erds) =>
         if (erds.length > 1) {
-          SDW("Element %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this element.",
-            qname, erds.mkString(", "))
+          SDW("Event %s could identify multiple choice branches (%s). The first branch will be chosen during unparse when seeing this event.",
+            event, erds.mkString(", "))
         }
-        (qname, erds(0))
+        (event, erds(0))
     }
 
     noDupes

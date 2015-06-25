@@ -57,4 +57,8 @@ object TestUnparseChoiceNew {
 class TestUnparseChoiceNew {
   import TestUnparseChoiceNew._
 
+  @Test def test_choice7() { runnerCH.runOneTest("choice7") }
+  @Test def test_choice8() { runnerCH.runOneTest("choice8") }
+  @Test def test_choice9() { runnerCH.runOneTest("choice9") }
+  @Test def test_choice10() { runnerCH.runOneTest("choice10") }
 }

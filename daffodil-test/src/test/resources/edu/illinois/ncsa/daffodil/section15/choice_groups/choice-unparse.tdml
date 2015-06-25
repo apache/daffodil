@@ -87,6 +87,27 @@
       </xs:complexType>
     </xs:element>
 
+    <xs:element name="root4">
+      <xs:complexType>
+         <xs:choice>
+           <xs:element name="root4" type="xs:string" dfdl:initiator="1=" dfdl:lengthKind="delimited" />
+           <xs:sequence dfdl:initiator="2=empty" />
+         </xs:choice>
+      </xs:complexType>
+    </xs:element>
+
+    <xs:element name="root5">
+      <xs:complexType>
+        <xs:sequence dfdl:separator=";">
+          <xs:choice>
+            <xs:element name="root5" type="xs:string" dfdl:initiator="1=" dfdl:lengthKind="delimited" />
+            <xs:sequence dfdl:initiator="2=empty" />
+          </xs:choice>
+          <xs:element name="extra" minOccurs="0" type="xs:string" dfdl:lengthKind="delimited" dfdl:occursCountKind="implicit" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
 
   <tdml:unparserTestCase name="choice1" root="root" model="choice">
@@ -161,6 +182,44 @@
       <tdml:error>Unparse Error</tdml:error>
       <tdml:error>expected one of</tdml:error>
     </tdml:errors>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choice7" root="root4" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root4>
+          <ex:root4>notempty</ex:root4>
+        </ex:root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[1=notempty]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choice8" root="root4" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root4></ex:root4>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[2=empty]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choice9" root="root5" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root5></ex:root5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[2=empty]]></tdml:document>
+  </tdml:unparserTestCase>
+
+  <tdml:unparserTestCase name="choice10" root="root5" model="choice">
+    <tdml:infoset>
+      <tdml:dfdlInfoset xmlns:ex="http://example.com">
+        <ex:root5><ex:extra>extra</ex:extra></ex:root5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[2=empty;extra]]></tdml:document>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>

@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.processors.dfa.CreateDelimiterDFA
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject
 import edu.illinois.ncsa.daffodil.xml.QNameBase
 import edu.illinois.ncsa.daffodil.xml.QName
+import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
@@ -148,24 +149,30 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
   }
 }
 
-class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, qnameUnparserMap: Map[QNameBase, Unparser])
+sealed trait ChoiceBranchEvent {
+  val qname: NamedQName
+}
+case class ChoiceBranchStartEvent(qname: NamedQName) extends ChoiceBranchEvent
+case class ChoiceBranchEndEvent(qname: NamedQName) extends ChoiceBranchEvent
+
+class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Map[ChoiceBranchEvent, Unparser])
   extends TermUnparser(mgrd)
   with ToBriefXMLImpl {
   override def nom = "Choice"
 
-  override lazy val childProcessors: Seq[Processor] = qnameUnparserMap.map { case (k, v) => v }.toSeq
+  override lazy val childProcessors: Seq[Processor] = eventUnparserMap.map { case (k, v) => v }.toSeq
 
   def unparse(start: UState): Unit = {
 
     val event: InfosetEvent = start.peek
-    val eventQName = event match {
-      case Start(diNode) => diNode.namedQName
-      case _ => UnparseError(Nope, One(start), "Expected element start event, but received: %s", event)
+    val key = event match {
+      case Start(diNode) => ChoiceBranchStartEvent(diNode.namedQName)
+      case End(diNode) => ChoiceBranchEndEvent(diNode.namedQName)
     }
 
-    val childUnparser = qnameUnparserMap.get(eventQName).getOrElse {
-      UnparseError(One(mgrd.schemaFileLocation), One(start), "Encountered element %s. Expected one of %s.",
-        eventQName, qnameUnparserMap.keys.mkString(", "))
+    val childUnparser = eventUnparserMap.get(key).getOrElse {
+      UnparseError(One(mgrd.schemaFileLocation), One(start), "Encountered event %s. Expected one of %s.",
+        key, eventUnparserMap.keys.mkString(", "))
     }
     childUnparser.unparse1(start, mgrd)
   }

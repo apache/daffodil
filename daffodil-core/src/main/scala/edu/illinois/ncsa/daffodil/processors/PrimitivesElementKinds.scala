@@ -171,17 +171,17 @@ case class ChoiceCombinator(ch: Choice, alternatives: Seq[Gram]) extends Termina
   }
 
   override def unparser: DaffodilUnparser = {
-    val qnameRDMap = ch.choiceBranchMap
-    val qnameUnparserMap = qnameRDMap.mapValues { v =>
-      alternatives.find(_.context.runtimeData =:= v).get.unparser
-    }.asInstanceOf[Map[QNameBase, DaffodilUnparser]]
+    val eventRDMap = ch.choiceBranchMap
+    val eventUnparserMap = eventRDMap.mapValues { rd =>
+      alternatives.find(_.context.runtimeData =:= rd).get.unparser
+    }
 
     // The following line is required because mapValues() creates a "view" of
     // the map, which is not serializable. map()ing this "view" with the
     // identity forces evaluation of the "view", creating a map that is
     // serializable and can be safely passed to a parser. See SI-7005 for
     // discussions about this issue.
-    val serializableMap = qnameUnparserMap.map(identity)
+    val serializableMap = eventUnparserMap.map(identity)
 
     new ChoiceCombinatorUnparser(ch.modelGroupRuntimeData, serializableMap)
   }
