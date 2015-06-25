@@ -61,7 +61,6 @@ class TestUnparseChoice {
   @Test def test_choice2() { runnerCH.runOneTest("choice2") }
   @Test def test_choice3() { runnerCH.runOneTest("choice3") }
   @Test def test_choice4() { runnerCH.runOneTest("choice4") }
-  //DFDL-1337
-  //@Test def test_choice5() { runnerCH.runOneTest("choice5") }
+  @Test def test_choice5() { runnerCH.runOneTest("choice5") }
   @Test def test_choice6() { runnerCH.runOneTest("choice6") }
 }

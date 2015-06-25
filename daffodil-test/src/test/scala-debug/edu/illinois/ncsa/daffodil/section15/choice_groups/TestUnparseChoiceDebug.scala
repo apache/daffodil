@@ -57,6 +57,4 @@ object TestUnparseChoiceDebug {
 class TestUnparseChoiceDebug {
   import TestUnparseChoiceDebug._
 
-  //DFDL-1337
-  @Test def test_choice5() { runnerCH.runOneTest("choice5") }
 }
