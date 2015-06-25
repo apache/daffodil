@@ -35,10 +35,10 @@ package edu.illinois.ncsa.daffodil
 import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import scala.xml._
+import org.junit.Test
+import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
-import org.junit.Test
-import org.junit.Test
 
 class TresysTestsDebug {
 
