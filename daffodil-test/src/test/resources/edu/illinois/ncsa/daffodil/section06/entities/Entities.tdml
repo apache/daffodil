@@ -942,13 +942,31 @@ is multiple bytes in UTF-8 encoding that is used"
   <!--
     Test Name: dataDumpEncoding
        Schema: utf16schema.dfdl.xsd
-      Purpose: This test demonstrates
+      Purpose: This test demonstrates that characters should be used in the debug data dump to represent newlines
+      and other traditionally non-text characters
   -->
 
   <tdml:parserTestCase name="dataDumpEncoding" root="e1" model="utf16schema.dfdl.xsd"
     description="">
     <tdml:document>
       <tdml:documentPart type="byte">00 74 24 0A 00 65 24 0A 00 78 24 0A 00 74 00 78 00 74</tdml:documentPart>
+    </tdml:document>
+    <tdml:errors>
+      <tdml:error>␊</tdml:error>
+    </tdml:errors>
+  </tdml:parserTestCase>
+  
+  <!--
+    Test Name: errorEncoding
+       Schema: utf16schema.dfdl.xsd
+      Purpose: This test demonstrates that characters should be used in the error messages to represent newlines
+      and other traditionally non-text characters
+  -->
+
+  <tdml:parserTestCase name="errorEncoding" root="e2" model="utf16schema.dfdl.xsd"
+    description="">
+    <tdml:document>
+      <tdml:documentPart type="byte">00 74 24 0A 00 65</tdml:documentPart>
     </tdml:document>
     <tdml:errors>
       <tdml:error>␊</tdml:error>

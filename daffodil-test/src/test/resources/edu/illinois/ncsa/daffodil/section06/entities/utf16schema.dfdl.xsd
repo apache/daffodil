@@ -42,7 +42,7 @@
       <dfdl:format ref="tns:daffodilTest1" initiator="" terminator="" leadingSkip="0"
         trailingSkip="0" textBidi="no" floating="no" encoding="utf-16"
         byteOrder="bigEndian" utf16Width="fixed" alignment="8" alignmentUnits="bits"
-        fillByte="f" occursCountKind="parsed"
+        occursCountKind="parsed"
         truncateSpecifiedLengthString="no" ignoreCase="no"
         representation="binary" lengthKind="delimited"
         nilValueDelimiterPolicy="both" emptyValueDelimiterPolicy="none"
@@ -55,6 +55,15 @@
     <xs:complexType>
       <xs:sequence dfdl:separator="%NL;">
         <xs:element name="e2" type="xs:string" minOccurs="4" maxOccurs="4" dfdl:length="1" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="e2">
+    <xs:complexType>
+      <xs:sequence dfdl:separator="%NL;">
+        <xs:element name="e2" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
+        <xs:element name="e3" type="xs:string" dfdl:length="2" dfdl:lengthKind="explicit" dfdl:lengthUnits="bytes"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

@@ -115,6 +115,7 @@ class TestEntities {
 
   // DFDL-378
   //  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
+  @Test def test_errorEncoding() { runner_01.runOneTest("errorEncoding") }
 
   @Test def test_doubleNLterminator() { runner_01.runOneTest("doubleNLterminator") }
   @Test def test_doubleNLseparator() { runner_01.runOneTest("doubleNLseparator") }
