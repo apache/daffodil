@@ -369,18 +369,18 @@
   </tdml:unparserTestCase>
 
 <!--
-      Test Name: unparseDelimitedPaddedString10
+      Test Name: unparsePaddedString10
       Schema: delimitedStringsPadding
       Purpose: This test demonstrates unparsing a string with padding
-               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the value of minLength
+               In this case, lengthKind is explicit and an expression, so the value is padded to the length given by the expression
 -->
-  <tdml:unparserTestCase name="unparseDelimitedPaddedString10" model="delimitedStringsPadding" root="e12">
+  <tdml:unparserTestCase name="unparsePaddedString10" model="delimitedStringsPadding" root="e12">
     <tdml:infoset>
       <tdml:dfdlInfoset>
         <ex:e12 xmlns:ex="http://example.com">O</ex:e12>
       </tdml:dfdlInfoset>
     </tdml:infoset>
-    <tdml:document>O#########</tdml:document>
+    <tdml:document>O#</tdml:document>
   </tdml:unparserTestCase>
 
 <!--
