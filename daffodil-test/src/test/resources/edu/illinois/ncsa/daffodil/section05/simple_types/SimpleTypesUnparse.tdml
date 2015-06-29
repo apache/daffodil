@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+   
+    Developed by: Tresys Technology, LLC
+                  http://www.tresys.com
+    
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal with
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+    of the Software, and to permit persons to whom the Software is furnished to do
+    so, subject to the following conditions:
+    
+     1. Redistributions of source code must retain the above copyright notice,
+        this list of conditions and the following disclaimers.
+    
+     2. Redistributions in binary form must reproduce the above copyright
+        notice, this list of conditions and the following disclaimers in the
+        documentation and/or other materials provided with the distribution.
+    
+     3. Neither the names of Tresys Technology, nor the names of its contributors
+        may be used to endorse or promote products derived from this Software
+        without specific prior written permission.
+    
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+    SOFTWARE.
+-->
+<tdml:testSuite suiteName="SimpleTypesUnparse" description="Section 5 - simple types unparsing"
+  xmlns:tdml="http://www.ibm.com/xmlns/dfdl/testData" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:dfdl="http://www.ogf.org/dfdl/dfdl-1.0/" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:ex="http://example.com" xmlns:tns="http://example.com">
+
+  <tdml:defineSchema name="SimpleTypes-binary">
+    <dfdl:format ref="ex:daffodilTest1" representation="binary" lengthUnits="bytes" />
+    <dfdl:defineVariable name="FOUR" type="xs:int" defaultValue="4" external="false" />
+
+    <xs:element name="hb_01" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="4" />
+    <xs:element name="hb_02" type="xs:hexBinary" dfdl:lengthKind="explicit" dfdl:length="{ $FOUR }" />
+
+  </tdml:defineSchema>
+
+  <!--
+    Test name: hexBinary_unparse_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type 
+  -->
+  <tdml:unparserTestCase name="hexBinary_unparse_01" root="hb_01"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_01>A1B1C1D1</ex:hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_unparse_02
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with more data in the infoset than the specified length
+  -->
+  <tdml:unparserTestCase name="hexBinary_unparse_02" root="hb_01"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_01>A1B1C1D1E1</ex:hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1e1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_unparse_03
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with less data in the infoset than the specified length
+  -->
+  <tdml:unparserTestCase name="hexBinary_unparse_03" root="hb_01"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_01>A1B1C1</ex:hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c120]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_unparse_04
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with no data in the infoset
+  -->
+  <tdml:unparserTestCase name="hexBinary_unparse_04" root="hb_01"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_01></ex:hb_01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[20202020]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+
+
+  <!--
+    Test name: hexBinary_variable_unparse_01
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with variable length
+  -->
+  <tdml:unparserTestCase name="hexBinary_variable_unparse_01" root="hb_02"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_02>A1B1C1D1</ex:hb_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_variable_unparse_02
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with more data in the infoset than a variable specified length
+  -->
+  <tdml:unparserTestCase name="hexBinary_variable_unparse_02" root="hb_02"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_02>A1B1C1D1E1</ex:hb_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c1d1e1]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_variable_unparse_03
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with less data in the infoset than a variable specified length
+  -->
+  <tdml:unparserTestCase name="hexBinary_variable_unparse_03" root="hb_02"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_02>A1B1C1</ex:hb_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[a1b1c120]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
+    Test name: hexBinary_variable_unparse_04
+    Schema: SimpleTypes-binary
+    Purpose: This document demonstrates the use of the hexBinary simple type with no data in the infoset and a variable length
+  -->
+  <tdml:unparserTestCase name="hexBinary_variable_unparse_04" root="hb_02"
+      model="SimpleTypes-binary" description="Section 5 Simple Types - hexBinary - DFDL-5-025R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:hb_02></ex:hb_02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>
+      <tdml:documentPart type="byte"><![CDATA[20202020]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+</tdml:testSuite>

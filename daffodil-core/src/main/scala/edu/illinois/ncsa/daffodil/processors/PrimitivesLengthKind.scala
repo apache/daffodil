@@ -63,12 +63,13 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
 import edu.illinois.ncsa.daffodil.dsom.ElementBase
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryVariableLengthInBytesParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryVariableLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.LiteralNilDelimitedEndOfDataParser
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.processors.parsers.StringDelimitedParser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBytesParser
+import edu.illinois.ncsa.daffodil.processors.unparsers.HexBinaryFixedLengthInBytesUnparser
 import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryDelimitedParser
-import edu.illinois.ncsa.daffodil.processors.parsers.HexBinaryFixedLengthInBitsParser
 import edu.illinois.ncsa.daffodil.dsom.Term
 import edu.illinois.ncsa.daffodil.dsom.DFDLEscapeScheme
 import edu.illinois.ncsa.daffodil.processors.dfa.TextDelimitedParserFactory
@@ -103,24 +104,8 @@ case class HexBinaryFixedLengthInBytes(e: ElementBase, nBytes: Long)
   override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBytesParser(nBytes,
     e.elementRuntimeData)
 
-  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
-}
-
-case class HexBinaryFixedLengthInBits(e: ElementBase, nBits: Long)
-  extends HexBinaryLengthInBytes(e) {
-
-  lazy val parserName = "HexBinaryFixedLengthInBits"
-  lazy val lengthText = nBits.toString
-
-  def getLength(pstate: PState): Long = {
-    val nBytes = scala.math.ceil(nBits / 8).toLong
-    nBytes
-  }
-
-  override lazy val parser: DaffodilParser = new HexBinaryFixedLengthInBitsParser(nBits,
+  override def unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(nBytes,
     e.elementRuntimeData)
-
-  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
 }
 
 case class HexBinaryVariableLengthInBytes(e: ElementBase)
@@ -132,7 +117,8 @@ case class HexBinaryVariableLengthInBytes(e: ElementBase)
   override lazy val parser: DaffodilParser = new HexBinaryVariableLengthInBytesParser(e.elementRuntimeData,
     e.length)
 
-  override lazy val unparser: Unparser = DummyUnparser(Misc.getNameFromClass(this))
+  override def unparser: DaffodilUnparser = new HexBinaryVariableLengthInBytesUnparser(e.elementRuntimeData,
+    e.length)
 }
 
 case class StringOfSpecifiedLength(e: ElementBase) extends Terminal(e, true) with Padded {
@@ -342,6 +328,9 @@ abstract class HexBinaryDelimited(e: ElementBase)
     parserFactory,
     isDelimRequired)
 
+  override def unparser: DaffodilUnparser = new HexBinaryFixedLengthInBytesUnparser(
+    e.minLength.longValue,
+    e.elementRuntimeData)
 }
 
 case class HexBinaryDelimitedEndOfData(e: ElementBase)

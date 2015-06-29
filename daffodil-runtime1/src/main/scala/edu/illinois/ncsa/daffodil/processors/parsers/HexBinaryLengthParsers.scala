@@ -91,15 +91,6 @@ final class HexBinaryFixedLengthInBytesParser(nBytes: Long, erd: ElementRuntimeD
 
 }
 
-final class HexBinaryFixedLengthInBitsParser(nBits: Long, erd: ElementRuntimeData)
-  extends HexBinaryLengthInBytesParser(erd) {
-
-  def getLength(pstate: PState): Long = {
-    val nBytes = scala.math.ceil(nBits / 8).toLong
-    nBytes
-  }
-}
-
 final class HexBinaryVariableLengthInBytesParser(erd: ElementRuntimeData, override val length: CompiledExpression)
   extends HexBinaryLengthInBytesParser(erd)
   with HasVariableLength {
