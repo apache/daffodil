@@ -145,8 +145,8 @@ trait RequiredOptionalMixin { self: ElementBase =>
   final lazy val isRequiredArrayElement = {
     isArray &&
       minOccurs > 0 &&
-      (occursCountKind == OccursCountKind.Fixed |
-        occursCountKind == OccursCountKind.Implicit |
+      (occursCountKind == OccursCountKind.Fixed ||
+        occursCountKind == OccursCountKind.Implicit ||
         occursCountKind == OccursCountKind.Expression)
   }
 }

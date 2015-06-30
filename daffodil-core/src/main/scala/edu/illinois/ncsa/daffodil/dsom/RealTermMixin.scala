@@ -129,7 +129,7 @@ trait RealTermMixin { self: Term =>
         // term that is/has a required element
         val nextSiblings = s.groupMembersNoRefs.dropWhile(_ != thisTermNoRefs).tail
         val (optional, firstRequiredAndLater) = nextSiblings.span {
-          case e: ElementBase => e.isOptional || !e.isRequiredArrayElement
+          case e: ElementBase => e.isOptional || (e.isArray && !e.isRequiredArrayElement)
           case mg: ModelGroup => !mg.mustHaveRequiredElement
         }
         optional ++ firstRequiredAndLater.take(1)

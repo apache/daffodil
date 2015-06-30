@@ -177,4 +177,43 @@ class TestCouldBeNextElement {
     assertEquals(array2.runtimeData, choice.choiceBranchMap(ChoiceBranchStartEvent(array2.namedQName)))
     assertEquals(choiceSeq.runtimeData, choice.choiceBranchMap(ChoiceBranchEndEvent(array.namedQName)))
   }
+
+  @Test def testCouldBeNextElement_3() {
+    val testSchema = SchemaUtils.dfdlTestSchema(
+      <dfdl:format ref="tns:daffodilTest1"/>,
+      <xs:element name="root">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="e1" type="xs:string"/>
+            <xs:element name="e2" type="xs:string"/>
+            <xs:element name="e3" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>)
+
+    val compiler = Compiler()
+    val sset = compiler.compileNode(testSchema).sset
+    val Seq(schema) = sset.schemas
+    val Seq(schemaDoc, _) = schema.schemaDocuments
+    val Seq(declf) = schemaDoc.globalElementDecls
+    val root = declf.forRoot()
+
+    val rootCT = root.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val rootSeq = rootCT.modelGroup.asInstanceOf[Sequence]
+    val Seq(e1: LocalElementBase, e2: LocalElementBase, e3: LocalElementBase) = rootSeq.groupMembers
+
+    assertEquals(0, root.couldBeNextElementInInfoset.length)
+    assertEquals(1, root.couldBeFirstChildElementInInfoset.length)
+    assertEquals("e1", root.couldBeFirstChildElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(1, e1.couldBeNextElementInInfoset.length)
+    assertEquals("e2", e1.couldBeNextElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(1, e2.couldBeNextElementInInfoset.length)
+    assertEquals("e3", e2.couldBeNextElementInInfoset(0).asInstanceOf[LocalElementBase].name)
+
+    assertEquals(0, e3.couldBeNextElementInInfoset.length)
+  }
+
+
 }

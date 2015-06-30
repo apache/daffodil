@@ -301,17 +301,26 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     // element without finding such a model group, then the end event of that
     // element could potentially be an identifying event for this model group
     // Otherwise, only start events (either children start events next start
-    // events of enclosing model groups) could identify this branch, and no
-    // end event could identify this branch.
-    var ec = enclosingTerm.get
-    while (!ec.isInstanceOf[ElementBase] &&
-           !ec.asInstanceOf[ModelGroup].hasRequiredNextSiblingElement) {
-      ec = ec.enclosingTerm.get
-    }
-    val endEvent = ec match {
-      case e: ElementBase => Seq(ChoiceBranchEndEvent(e.namedQName))
-      case mg: ModelGroup => Nil
-    }
+    // events of enclosing model groups) could identify this branch, and no end
+    // event could identify this branch. Also note that if this model group
+    // must have a required element (i.e. it must contribute to the infost)
+    // then none of this matters, and it will not have an identifying end
+    // event, since one of the child elements must appear in the infoset.
+    val endEvent =
+      if (mustHaveRequiredElement) {
+        Nil
+      } else {
+        var ec = enclosingTerm.get
+        while (!ec.isInstanceOf[ElementBase] &&
+               !ec.asInstanceOf[ModelGroup].hasRequiredNextSiblingElement) {
+          ec = ec.enclosingTerm.get
+        }
+        val ee = ec match {
+          case e: ElementBase => Seq(ChoiceBranchEndEvent(e.namedQName))
+          case mg: ModelGroup => Nil
+        }
+        ee
+      }
 
     val idEvents = startEvents ++ endEvent
     idEvents
@@ -327,7 +336,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
       case s: Sequence => {
         groupMembersNoRefs.headOption match {
           case None => Nil
-          case Some(e: ElementBase) if (e.isOptional || !e.isRequiredArrayElement) => Seq(e) ++ e.couldBeNextSiblingTerm
+          case Some(e: ElementBase) if (e.isOptional || (e.isArray && !e.isRequiredArrayElement)) => Seq(e) ++ e.couldBeNextSiblingTerm
           case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.couldBeNextSiblingTerm
           case Some(e: ElementBase) => Seq(e)
           case Some(mg: ModelGroup) => Seq(mg)
