@@ -59,6 +59,46 @@ class TestCLIparsing {
   val output10 = Util.getExpectedString("output10.txt")
   val output12 = Util.getExpectedString("output12.txt")
 
+  @Test def test_3677_CLI_Parsing_elementFormDefault_qualified() {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/elementFormDefaultQualified.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<tns:e1>strng</tns:e1>"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
+  @Test def test_3678_CLI_Parsing_elementFormDefault_unqualified() {
+
+    val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section00/general/elementFormDefaultUnqualified.dfdl.xsd")
+    val (testSchemaFile) = if (Util.isWindows) (Util.cmdConvert(schemaFile)) else (schemaFile)
+
+    val shell = Util.start("")
+
+    try {
+      var cmd = String.format("echo strng| %s parse -s %s -r s1", Util.binPath, testSchemaFile)
+      shell.sendLine(cmd)
+      shell.expect(contains("<e1>strng</e1>"))
+
+      shell.send("exit\n")
+      shell.expect(eof)
+      shell.close()
+    } finally {
+      shell.close()
+    }
+  }
+
   @Test def test_2358_CLI_Parsing_SimpleParse_stdOut_extVars() {
 
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section07/external_variables/external_variables.dfdl.xsd")

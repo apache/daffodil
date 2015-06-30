@@ -104,7 +104,7 @@
   Test Name: delimOptPresentQualified01
      Schema: s1
        Root: r1
-    Purpose: This test demonsrates unparsing fails with unqualified child elements
+    Purpose: This test demonstrates unparsing fails with unqualified child elements
              when elementFormDefault is qualified.
 -->
 
@@ -127,17 +127,17 @@
     </tdml:errors>
 
   </tdml:unparserTestCase>
-  
-  <!--
+
+<!--
   Test Name: delimOptPresentQualified02
      Schema: s1
        Root: r1
-    Purpose: This test demonsrates unparsing succeeds with qualified child elements
+    Purpose: This test demonstrates unparsing succeeds with qualified child elements
              when elementFormDefault is qualified.
 -->
 
   <tdml:unparserTestCase name="delimOptPresentQualified02" root="r1"
-    model="qualified">
+    model="qualified" roundTrip="true">
 
     <tdml:infoset >
       <tdml:dfdlInfoset>
@@ -150,16 +150,92 @@
 
   </tdml:unparserTestCase>
   
+<!--
+  Test Name: delimOptPresentQualified03
+     Schema: elementFormDefaultQualified.dfdl.xsd
+       Root: s1
+    Purpose: This test demonstrates unparsing succeeds with qualified child elements
+             when elementFormDefault is qualified in an external schema.
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentQualified03" root="s1"
+    model="elementFormDefaultQualified.dfdl.xsd" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <ex:s1>
+        <ex:e1>strng</ex:e1>
+      </ex:s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[strng]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentQualified04
+     Schema: elementFormDefaultQualified.dfdl.xsd
+       Root: s1
+    Purpose: This test demonstrates unparsing fails with unqualified child elements
+             when elementFormDefault is qualified in an external schema.
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentQualified04" root="s1"
+    model="elementFormDefaultQualified.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:s1>
+          <e1>strng</e1>
+        </ex:s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>found child</tdml:error>
+      <tdml:error>{}e1</tdml:error>
+      <tdml:error>expected</tdml:error>
+      <tdml:error>{http://example.com}e1</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentQualified05
+     Schema: elementFormDefaultQualified.dfdl.xsd
+       Root: e0
+    Purpose: This test demonstrates unparsing fails with unqualified root elements
+             when elementFormDefault is qualified in an external schema.
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentQualified05" root="e0"
+    model="elementFormDefaultQualified.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e0>strng</e0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>found root</tdml:error>
+      <tdml:error>{}e0</tdml:error>
+      <tdml:error>expected</tdml:error>
+      <tdml:error>{http://example.com}e0</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+  
   <!--
   Test Name: delimOptPresentUnqualified01
      Schema: s1
        Root: r1
-    Purpose: This test demonsrates unparsing succeeds with unqualified child elements
+    Purpose: This test demonstrates unparsing succeeds with unqualified child elements
              when elementFormDefault is unqualified.
 -->
 
   <tdml:unparserTestCase name="delimOptPresentUnqualified01" root="r1"
-    model="unqualified">
+    model="unqualified" roundTrip="true">
 
     <tdml:infoset >
       <tdml:dfdlInfoset>
@@ -176,7 +252,7 @@
   Test Name: delimOptPresentUnqualified02
      Schema: s1
        Root: r1
-    Purpose: This test demonsrates unparsing fails with qualified child elements
+    Purpose: This test demonstrates unparsing fails with qualified child elements
              when elementFormDefault is unqualified.
 -->
 
@@ -204,12 +280,12 @@
   Test Name: delimOptPresentMissing
      Schema: s1
        Root: r1
-    Purpose: This test demonsrates unparsing succeeds with unqualified child elements
+    Purpose: This test demonstrates unparsing succeeds with unqualified child elements
              when elementFormDefault is missing.
 -->
 
   <tdml:unparserTestCase name="delimOptPresentMissing" root="r1"
-    model="missing">
+    model="missing" roundTrip="true">
 
     <tdml:infoset >
       <tdml:dfdlInfoset>
@@ -220,6 +296,98 @@
     </tdml:infoset>
     <tdml:document><![CDATA[1]]></tdml:document>
 
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentUnqualified03
+     Schema: elementFormDefaultUnqualified.dfdl.xsd
+       Root: s1
+    Purpose: This test demonstrates unparsing succeeds with unqualified child elements
+             when elementFormDefault is unqualified in an external schema.
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentUnqualified03" root="s1"
+    model="elementFormDefaultUnqualified.dfdl.xsd" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+      <ex:s1>
+        <e1>strng</e1>
+      </ex:s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[strng]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentUnqualified04
+     Schema: elementFormDefaultUnqualified.dfdl.xsd
+       Root: s1
+    Purpose: This test demonstrates unparsing fails with qualified child elements
+             when elementFormDefault is unqualified in an external schema.
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentUnqualified04" root="s1"
+    model="elementFormDefaultUnqualified.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:s1>
+          <ex:e1>strng</ex:e1>
+        </ex:s1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>found child</tdml:error>
+      <tdml:error>{http://example.com}e1</tdml:error>
+      <tdml:error>expected</tdml:error>
+      <tdml:error>{}e1</tdml:error>
+    </tdml:errors>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentGlobalQualified01
+     Schema: elementFormDefaultUnqualified.dfdl.xsd
+       Root: e0
+    Purpose: This test demonstrates that by definition, global elements are always qualified,
+             even if elementFormDefault is "unqualified" 
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentGlobalQualified01" root="e0"
+    model="elementFormDefaultUnqualified.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e0>strng</ex:e0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>strng</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: delimOptPresentGlobalQualified02
+     Schema: elementFormDefaultUnqualified.dfdl.xsd
+       Root: e0
+    Purpose: This test demonstrates that by definition, global elements are always qualified,
+             even if elementFormDefault is "unqualified". In this case the commparison will fail. 
+-->
+
+  <tdml:unparserTestCase name="delimOptPresentGlobalQualified02" root="e0"
+    model="elementFormDefaultUnqualified.dfdl.xsd">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <e0>strng</e0>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:errors>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found root element {}e0</tdml:error>
+      <tdml:error>expected {http://example.com}e0</tdml:error>
+    </tdml:errors>
   </tdml:unparserTestCase>
 
 </tdml:testSuite>
