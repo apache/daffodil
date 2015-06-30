@@ -19,7 +19,7 @@ object UnsignedCheck extends Properties("Unsigned") {
 
   val nonNegLong = Gen.choose(0L, 0x00000000ffffffffL)
   property("long-toString") =
-    forAll(nonNegLong){ n => n.toUInt.toString == n.toString }
+    forAll(nonNegLong) { n => n.toUInt.toString == n.toString }
 
   property("toUInt->toInt inverses") =
     forAll { (a: Int) => a.toUInt.toInt == a }
@@ -42,9 +42,9 @@ object UnsignedCheck extends Properties("Unsigned") {
   property("+ associates") =
     forAll { (a: UInt, b: UInt, c: UInt) => a + (b + c) == (a + b) + c }
   property("* distributes left") =
-    forAll { (a: UInt, b: UInt, c: UInt) => a * (b + c) == (a*b) + (a*c) }
+    forAll { (a: UInt, b: UInt, c: UInt) => a * (b + c) == (a * b) + (a * c) }
   property("* distributes right") =
-    forAll { (a: UInt, b: UInt, c: UInt) => (a + b) * c == (a*c) + (b*c) }
+    forAll { (a: UInt, b: UInt, c: UInt) => (a + b) * c == (a * c) + (b * c) }
 
   property("+ and -") =
     forAll { (a: UInt, b: UInt) => a + (b - a) == b }
@@ -60,11 +60,13 @@ object UnsignedCheck extends Properties("Unsigned") {
   property("nonzero frac") =
     forAll { (a: UInt, b: UInt) => (a > b && b != 0) ==> ((a / b) > zero) }
   property("qr") =
-    forAll { (a: UInt, b: UInt) => (b != 0) ==> {
-      val q = a / b
-      val r = a % b
-      q * b + r == a
-    } }
+    forAll { (a: UInt, b: UInt) =>
+      (b != 0) ==> {
+        val q = a / b
+        val r = a % b
+        q * b + r == a
+      }
+    }
 
   property("< and >") =
     forAll { (a: UInt, b: UInt) => a < b == b > a }
@@ -79,9 +81,9 @@ object UnsignedCheck extends Properties("Unsigned") {
   property("> and >= and !=") =
     forAll { (a: UInt, b: UInt) => a > b == (a >= b && a != b) }
   property("<= and ! >") =
-    forAll { (a: UInt, b: UInt) => a <= b == ! (a > b) }
+    forAll { (a: UInt, b: UInt) => a <= b == !(a > b) }
   property(">= and ! <") =
-    forAll { (a: UInt, b: UInt) => a >= b == ! (a < b) }
+    forAll { (a: UInt, b: UInt) => a >= b == !(a < b) }
 
   property("<< by Int") =
     forAll { (a: Int, b: Int) => a.toUInt << (b & 0x1f) == (a << (b & 0x1f)).toUInt }

@@ -20,6 +20,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.10/scalacheck_2.10-1.10.1.jar"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
@@ -31,6 +32,12 @@
 	<classpathentry kind="lib" path="lib_managed/jars/com.ibm.icu/icu4j/icu4j-51.1.jar" sourcepath="lib_managed/srcs/com.ibm.icu/icu4j/icu4j-51.1-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/com.ibm.icu/icu4j/icu4j-51.1-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/jars/org.scala-tools.testing/test-interface/test-interface-0.5.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.scalatest/scalatest_2.10/scalatest_2.10-2.1.5.jar" sourcepath="lib_managed/srcs/org.scalatest/scalatest_2.10/scalatest_2.10-2.1.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-lib-unittest/lib_managed/docs/org.scalatest/scalatest_2.10/scalatest_2.10-2.1.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="output" path="target/eclipse/classes"/>

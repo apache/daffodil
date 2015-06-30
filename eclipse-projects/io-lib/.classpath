@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src/main/scala"/>
 	<classpathentry kind="src" path="src/test/scala"/>
+	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.jdom/jdom2/jdom2-2.0.5.jar" sourcepath="lib_managed/srcs/org.jdom/jdom2/jdom2-2.0.5-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:lib_managed/docs/org.jdom/jdom2/jdom2-2.0.5-javadoc.jar!/"/>
@@ -33,6 +34,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/passera-unsigned"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -34,6 +34,5 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/junit/junit/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/passera-unsigned"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
