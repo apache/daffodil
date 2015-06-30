@@ -132,7 +132,7 @@ class TestCLIPerformance {
       shell.close()
     }
   }
-
+/*
   @Test def test_3395_CLI_Performance_5_Threads_50_Times() {
     val schemaFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/cli_schema.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt")
@@ -171,7 +171,7 @@ class TestCLIPerformance {
       shell.close()
     }
   }
-
+*/
   @Test def test_3396_CLI_Performance_2_Threads_2_Times_Negative() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/entities/charClassEntities.dfdl.xsd")
     val inputFile = Util.daffodilPath("daffodil-cli/src/test/resources/edu/illinois/ncsa/daffodil/CLI/input/input5.txt")
