@@ -60,6 +60,7 @@ class TestDiscriminators {
   @Test def test_discrimPatternFail2() { runner.runOneTest("discrimPatternFail2") }
   @Test def test_discrimPatternFail3() { runner.runOneTest("discrimPatternFail3") }
   @Test def test_choiceBranchDiscrim() { runner.runOneTest("choiceBranchDiscrim") }
+  @Test def test_unparseDiscrimIgnored() { runner.runOneTest("unparseDiscrimIgnored") }
 
   @Test def test_discrimInvalidSchema() { runner.runOneTest("discrimInvalidSchema") }
   @Test def test_discrimOnSimpleType() { runner.runOneTest("discrimOnSimpleType") }

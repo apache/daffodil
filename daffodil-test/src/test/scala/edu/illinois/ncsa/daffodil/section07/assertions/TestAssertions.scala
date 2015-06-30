@@ -88,6 +88,7 @@ class TestAssertions {
   @Test def test_assertExpressionRef() { runner.runOneTest("assertExpressionRef") }
   @Test def test_assertExpressionRefFail() { runner.runOneTest("assertExpressionRefFail") }
   @Test def test_assertMessage() { runner.runOneTest("assertMessage") }
+  @Test def test_unparseAssertionIgnored() { runner.runOneTest("unparseAssertionIgnored") }
   
   @Test def test_testPatternX() { runner.runOneTest("testPatternX") }
   @Test def test_testPatternHex() { runner.runOneTest("testPatternHex") }

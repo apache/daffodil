@@ -899,6 +899,21 @@
   </tdml:parserTestCase>
   
   <!--
+    Test name: unparseAssertionIgnored
+    Schema: s2
+    Purpose: The test shows that assertions are not evaluated during unparsing.
+  -->
+  <tdml:unparserTestCase name="unparseAssertionIgnored" root="e10"
+    model="s2" description="Section 7 - Assert 'message' Property - DFDL-7-058R">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e10>22</ex:e10>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>22</tdml:document>
+  </tdml:unparserTestCase>
+
+  <!--
     `Test name: assertMultFormsFail
     Schema: s2
     Purpose: The schema used specifies the test expression in more than one form and should fail
