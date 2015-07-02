@@ -16,6 +16,7 @@ entityAndNonMix_01
 entityAndNonMix_02
 entityAndNonMix_03
 entityAndNonMix_04
+errorEncoding
 text_entities_6_02
 text_entities_6_03
 text_entities_6_03b
