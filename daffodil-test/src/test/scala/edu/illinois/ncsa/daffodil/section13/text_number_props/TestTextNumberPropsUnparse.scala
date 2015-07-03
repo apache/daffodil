@@ -83,5 +83,10 @@ class TestTextNumberPropsUnparse {
 
   @Test def test_unparse_int_01() { runner.runOneTest("unparse_int_01") }
   @Test def test_parse_int_01() { runner.runOneTest("parse_int_01") }
+
+  @Test def test_unparse_tnp_01() { runner.runOneTest("unparse_tnp_01") }
+  @Test def test_unparse_tnp_02() { runner.runOneTest("unparse_tnp_02") }
+  @Test def test_unparse_tnp_03() { runner.runOneTest("unparse_tnp_03") }
+  @Test def test_unparse_tnp_04() { runner.runOneTest("unparse_tnp_04") }
 }
 

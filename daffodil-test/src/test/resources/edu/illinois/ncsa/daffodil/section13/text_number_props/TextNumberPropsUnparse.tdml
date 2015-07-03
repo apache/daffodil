@@ -466,6 +466,11 @@
       </xs:simpleType>
     </xs:element>
 
+    <xs:element name="tnp01" type="xs:int" dfdl:textNumberRep="standard" dfdl:textNumberPattern="0000;" />
+    <xs:element name="tnp02" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="00.000;" />
+    <xs:element name="tnp03" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="##.##;" />
+    <xs:element name="tnp04" type="xs:decimal" dfdl:textNumberRep="standard" dfdl:textNumberPattern="#.####;" />
+
   </tdml:defineSchema>
   
   <tdml:unparserTestCase name="unparse_int_01" root="e1"
@@ -489,5 +494,81 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
+
+<!--
+     Test Name: unparse_tnp_01
+        Schema: pattern
+          Root: tnp01
+       Purpose: This test demonstrates that if the number of actual integer digits is less than the minimum integer digits,
+       then leading zeros are added.
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_01" root="tnp01"
+    model="pattern" description="DFDL-13-079R" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp01>123</ex:tnp01>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[0123]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: unparse_tnp_02
+        Schema: pattern
+          Root: tnp02
+       Purpose: This test demonstrates that if the number of actual fraction digits is less than the minimum fraction digits,
+       then trailing zeros are added.
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_02" root="tnp02"
+    model="pattern" description="DFDL-13-081R" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp02>12.1</ex:tnp02>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[12.100]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: unparse_tnp_03
+        Schema: pattern
+          Root: tnp03
+       Purpose: This test demonstrates that if the number of actual fraction digits exceeds the maximum fraction digits,
+       then half-even rounding it performed to the maximum fraction digits.
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_03" root="tnp03"
+    model="pattern" description="DFDL-13-080R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp03>0.125</ex:tnp03>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[0.12]]></tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+     Test Name: unparse_tnp_04
+        Schema: pattern
+          Root: tnp04
+       Purpose: This test demonstrates that trailing fractional zeros are not displayed if they occur j positions after the decimal,
+       where j is less than the maximum fraction digits.
+-->
+
+  <tdml:unparserTestCase name="unparse_tnp_04" root="tnp04"
+    model="pattern" description="DFDL-13-082R">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:tnp04>0.10004</ex:tnp04>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[0.1]]></tdml:document>
+  </tdml:unparserTestCase>
 
 </tdml:testSuite>
