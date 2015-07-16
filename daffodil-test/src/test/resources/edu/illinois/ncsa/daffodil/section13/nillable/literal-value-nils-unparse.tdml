@@ -46,7 +46,98 @@
     <xs:element name="doc6" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%CR;%LF;" dfdl:nilValue="%NL;"/>
     <xs:element name="doc7" dfdl:lengthKind="delimited" nillable="true" type="xsd:string" dfdl:outputNewLine="%LF;" dfdl:nilValue="%NL;"/>
 
+    <xs:simpleType name="type" dfdl:nilValue="NIL" dfdl:lengthKind="delimited">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:element name="doc8">
+        <xs:complexType>
+            <xs:sequence dfdl:separator=",">
+                <xs:element name="e1" type="ex:type" nillable="true" minOccurs="2" maxOccurs="10"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
   </tdml:defineSchema>
+
+<!--
+  Test Name: scalar_nonDefaultable_nillable
+     Schema: text_nil_only1
+       Root: doc8
+    Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
+-->
+
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable" root="doc8" model="text_nil_only1" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc8>
+            <e1>one</e1>
+            <e1>two</e1>
+            <e1>three</e1>
+            <e1 xsi:nil="true"/>
+            <e1>five</e1>
+        </doc8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[one,two,three,NIL,five]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: scalar_nonDefaultable_nillable_02
+     Schema: text_nil_only1
+       Root: doc8
+    Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
+-->
+
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_02" root="doc8" model="text_nil_only1" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc8>
+            <e1>one</e1>
+            <e1>two</e1>
+            <e1 xsi:nil="true"/>
+            <e1 xsi:nil="true"/>
+            <e1 xsi:nil="true"/>
+            <e1 xsi:nil="true"/>
+            <e1 xsi:nil="true"/>
+            <e1>eight</e1>
+        </doc8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[one,two,NIL,NIL,NIL,NIL,NIL,eight]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: scalar_nonDefaultable_nillable_03
+     Schema: text_nil_only1
+       Root: doc8
+    Purpose: This test demonstrates that you can successfully unparse scalar non-defaultable nillable simple types
+-->
+
+  <tdml:unparserTestCase name="scalar_nonDefaultable_nillable_03" root="doc8" model="text_nil_only1" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <doc8>
+            <e1>one</e1>
+            <e1>two</e1>
+            <e1>three</e1>
+        </doc8>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>
+      <tdml:documentPart type="text"><![CDATA[one,two,three]]></tdml:documentPart>
+    </tdml:document>
+  </tdml:unparserTestCase>
 
 <!--
   Test Name: text_nil_only1

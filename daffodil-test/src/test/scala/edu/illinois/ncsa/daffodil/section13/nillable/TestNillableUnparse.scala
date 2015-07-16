@@ -61,6 +61,10 @@ object TestNillableUnparse {
 class TestNillableUnparse {
 
   import TestNillableUnparse._
+
+  @Test def test_scalar_nonDefaultable_nillable() { runnerLN.runOneTest("scalar_nonDefaultable_nillable") }
+  @Test def test_scalar_nonDefaultable_nillable_02() { runnerLN.runOneTest("scalar_nonDefaultable_nillable_02") }
+  @Test def test_scalar_nonDefaultable_nillable_03() { runnerLN.runOneTest("scalar_nonDefaultable_nillable_03") }
   
   @Test def test_text_complex_nil() { runnerLN.runOneTest("text_complex_nil") }
   @Test def test_text_complex_nil2() { runnerLN.runOneTest("text_complex_nil2") }
