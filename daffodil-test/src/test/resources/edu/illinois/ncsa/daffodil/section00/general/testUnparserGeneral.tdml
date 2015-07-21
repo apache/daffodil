@@ -44,6 +44,87 @@
     <xs:element name="e3" dfdl:lengthKind="explicit" dfdl:length="5" type="xs:string" dfdl:textPadKind='none'/>
 
   </tdml:defineSchema>
+  
+  <tdml:defineSchema name="illegalChars">
+    <xs:include schemaLocation="xsd/built-in-formats.xsd" />
+    <dfdl:format ref="ex:daffodilTest1"/>
+
+    <xs:element name="e1" dfdl:lengthKind="delimited" type="xs:string"/>
+
+  </tdml:defineSchema>
+
+<!--
+      Test Name: puaInfosetChars_01
+         Schema: illegalChars
+        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
+-->
+
+  <tdml:parserTestCase name="puaInfosetChars_01" root="e1" model="illegalChars" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte">00</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE000;</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: puaInfosetChars_02
+         Schema: illegalChars
+        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
+-->
+
+  <tdml:parserTestCase name="puaInfosetChars_02" root="e1" model="illegalChars" roundTrip="true">
+    <tdml:document>
+      <tdml:documentPart type="byte">010203</tdml:documentPart>
+    </tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE001;&#xE002;&#xE003;</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: puaInfosetChars_03
+         Schema: illegalChars
+        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that unparsing and unparsing actual PUA values is handled correctly.
+-->
+
+  <tdml:parserTestCase name="puaInfosetChars_03" root="e1" model="illegalChars" roundTrip="true">
+    <tdml:document>&#xE001;</tdml:document>
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE001;</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+  </tdml:parserTestCase>
+
+<!--
+      Test Name: puaInfosetChars_04
+         Schema: illegalChars
+        Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.
+-->
+
+  <tdml:unparserTestCase name="puaInfosetChars_04" root="e1" model="illegalChars" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e1>&#xE001;&#xE002;&#xE003;</ex:e1>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+
+    <tdml:document>&#xE001;&#xE002;&#xE003;</tdml:document>
+
+  </tdml:unparserTestCase>
 
 <!--
       Test Name: unparseFixedLengthString01

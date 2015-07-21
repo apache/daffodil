@@ -48,6 +48,10 @@ class TestUnparserGeneralDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
   val aa = testDir + "testUnparserGeneral.tdml"
   lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  
+  //DFDL-1395
+  @Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
+  @Test def test_puaInfosetChars_04() { runner.runOneTest("puaInfosetChars_04") }
 
 }
 

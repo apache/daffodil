@@ -57,6 +57,13 @@ class TestUnparserGeneral {
 
   import TestUnparserGeneral._
 
+  //DFDL-1395
+  //@Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
+  //@Test def test_puaInfosetChars_04() { runner.runOneTest("puaInfosetChars_04") }
+  
+  @Test def test_puaInfosetChars_01() { runner.runOneTest("puaInfosetChars_01") }
+  @Test def test_puaInfosetChars_02() { runner.runOneTest("puaInfosetChars_02") }
+
   @Test def test_unparseFixedLengthString01() { runner.runOneTest("unparseFixedLengthString01") }
   @Test def test_unparseFixedLengthString02() { runner.runOneTest("unparseFixedLengthString02") }
   @Test def test_unparseFixedLengthString03() { runner.runOneTest("unparseFixedLengthString03") }
