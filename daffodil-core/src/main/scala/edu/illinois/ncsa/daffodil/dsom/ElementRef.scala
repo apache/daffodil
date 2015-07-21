@@ -97,7 +97,11 @@ final class ElementRef(xmlArg: Node, parent: ModelGroup, position: Int)
   }.value
 
   override lazy val runtimeData = referencedElement.runtimeData
+  override lazy val termRuntimeData = referencedElement.termRuntimeData
   override def erd = referencedElement.erd
+  override lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
+    referencedElement.elementRuntimeData
+  }.value
 
   // These will just delegate to the referenced element declaration
   def isNillable = referencedElement.isNillable

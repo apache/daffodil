@@ -298,7 +298,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val childElementResolver: NextElementResolver =
     computeNextElementResolver(possibleNextChildrenElementsForUnparse, ChildResolver)
 
-  final lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
+  lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val ee = enclosingElement
     //
     // Must be lazy below, because we are defining the elementRuntimeData in terms of 
