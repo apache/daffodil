@@ -64,7 +64,7 @@ class TestNillable {
   lazy val runnerLN = Runner(testDir, "literal-value-nils.tdml")
 
   //DFDL-1353
-  //@Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
+  @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
   //@Test def test_text_01() { runnerLN.runOneTest("text_01")}  This test is identical to litNil1.
   //@Test def test_text_02() { runnerLN.runOneTest("text_02")}  This test is identical to litNil2
