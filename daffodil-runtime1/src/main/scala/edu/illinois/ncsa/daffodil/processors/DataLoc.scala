@@ -55,7 +55,6 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import java.nio.charset.CharsetDecoder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.io.Utils
-import edu.illinois.ncsa.daffodil.io.Dump
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.io.DataInputStream
@@ -64,6 +63,7 @@ import java.nio.channels.Channels
 import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
+import edu.illinois.ncsa.daffodil.io.DataDumper
 
 class DataLoc(val bitPos1b: Long, bitLimit1b: Maybe[Long], eitherStream: Either[DataOutputStream, DataInputStream],
   val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
@@ -72,6 +72,8 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Maybe[Long], eitherStream: Either[
   override def toString() = {
     "byte " + bitPos1b / 8 + " limit " + bitLimit1b.map { _ / 8 }
   }
+
+  private val Dump = new DataDumper
 
   lazy val optERD = maybeERD.toScalaOption
 

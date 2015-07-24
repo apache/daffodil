@@ -6,6 +6,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 
 class TestByteBufferDataInputStream3 {
 
+  val Dump = new DataDumper
+
   @Test def dumpVisible1 {
     val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
     val lengthInBits = bytes.length * 8

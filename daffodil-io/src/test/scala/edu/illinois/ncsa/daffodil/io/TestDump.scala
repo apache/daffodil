@@ -7,6 +7,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 
 class TestDump {
 
+  val Dump = new DataDumper
+
   class BS(val bytes: Array[Byte]) {
 
     def this(hex: String) = this(Misc.hex2Bytes(hex))

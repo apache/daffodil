@@ -38,6 +38,11 @@ import java.io.FileInputStream
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import org.apache.commons.io.input.XmlStreamReader
 import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
+import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.equality._
+import java.nio.file.FileSystemNotFoundException
 
 /**
  * Our abstraction of the source of a schema.
@@ -62,12 +67,56 @@ sealed trait DaffodilSchemaSource {
 }
 
 case class URISchemaSource(fileOrResource: URI) extends DaffodilSchemaSource {
+
+  override def equals(other: Any) = other match {
+    case oth: URISchemaSource => this.fileOrResource == oth.fileOrResource
+    case _ => false
+  }
+
+  override def hashCode() = fileOrResource.hashCode()
+
+  private lazy val url = fileOrResource.toURL
+
+  /**
+   * Must be lazy so that it captures the file mod time when it is opened
+   * and the content used.
+   */
+  lazy val (isFile, file, fileModTime) = try {
+    val path = Paths.get(fileOrResource)
+    val f = path.toFile()
+    (true, f, f.lastModified())
+  } catch {
+    case e: FileSystemNotFoundException => (false, null, 0L)
+    case e: UnsupportedOperationException => (false, null, 0L)
+  }
+
   override def newInputSource() = {
-    val is = new InputSource(fileOrResource.toURL.openStream())
+    val modTime = fileModTime // demand this so we have it recorded
+    val is = new InputSource(url.openStream())
     is.setSystemId(fileOrResource.toString)
     is
   }
+
   override def uriForLoading = fileOrResource
+
+  /**
+   * True if this URI is for a file, other URI is for a file
+   * (it is required that they're both the same URI. Usage error otherwise),
+   * but the modification date
+   * of the two is such that this is newer than the other at the time the
+   * other was accessed via newInputSource()
+   *
+   * Otherwise false.
+   */
+  def isNewerThan(other: URISchemaSource): Boolean = {
+    Assert.usage(fileOrResource =:= other.fileOrResource)
+    if (this.isFile && other.isFile) {
+      val thisTime = fileModTime
+      val otherTime = other.fileModTime
+      if (thisTime > otherTime) true
+      else false
+    } else false
+  }
 }
 
 /**

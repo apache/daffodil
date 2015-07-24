@@ -134,7 +134,7 @@ class TestCLIPerformance {
     }
   }
 
-  lazy val runner = Runner("/", "clitests.tdml")
+  val runner = Runner("/", "clitests.tdml")
 
   @Test def test_3395_CLI_Performance_5_Threads_50_Times_tdml() { runner.runOneTest("test_3395_CLI_Performance_5_Threads_50_Times") }
 

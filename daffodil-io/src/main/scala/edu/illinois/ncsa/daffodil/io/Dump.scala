@@ -23,7 +23,7 @@ import edu.illinois.ncsa.daffodil.util.Bits
  * language, like DFDL, but this is here to help debug DFDL descriptions,
  * so it really cannot exploit any information about the data format)
  */
-object Dump {
+class DataDumper {
 
   import scala.language.reflectiveCalls
 
@@ -95,7 +95,7 @@ object Dump {
    *
    * The byte source is a window into the data stream.
    */
-  def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteSource: ByteSource, maxLineLength: Int = Dump.defaultMaxLineLength,
+  def dump(kind: Kind, shamStartBitAddress0b: Long, lengthInBits: Int, byteSource: ByteSource, maxLineLength: Int = defaultMaxLineLength,
     includeHeadingLine: Boolean = true,
     indicatorInfo: Option[(Long, Int)] = None): Seq[String] = {
     val (shamStartByteAddress0b, lengthInBytes, endByteAddress0b) = convertBitsToBytesUnits(shamStartBitAddress0b, lengthInBits)

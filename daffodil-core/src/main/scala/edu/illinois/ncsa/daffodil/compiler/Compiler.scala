@@ -310,25 +310,32 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
     compileSource(source)
   }
 
-  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory = {
-    val noParent = null // null indicates this is the root, and has no parent
-    val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent)
-    val pf = new ProcessorFactory(sset)
-    val err = pf.isError
-    val diags = pf.getDiagnostics // might be warnings even if not isError
-    if (err) {
-      Assert.invariant(diags.length > 0)
-      log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
-    } else {
-      if (diags.length > 0) {
-        log(Compile("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+  /**
+   * Synchronized on the global Compiler singleton object.
+   *
+   * This is to avoid issues when TDML tests are running in parallel
+   * and compiling schemas that are not in files, but just embedded in the tests.
+   */
+  def compileSource(schemaSource: DaffodilSchemaSource): ProcessorFactory =
+    Compiler.synchronized {
+      val noParent = null // null indicates this is the root, and has no parent
+      val sset = new SchemaSet(rootSpec, externalDFDLVariables, Seq(schemaSource), validateDFDLSchemas, checkAllTopLevel, noParent)
+      val pf = new ProcessorFactory(sset)
+      val err = pf.isError
+      val diags = pf.getDiagnostics // might be warnings even if not isError
+      if (err) {
+        Assert.invariant(diags.length > 0)
+        log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
       } else {
-        log(Compile("ProcessorFactory completed with no errors."))
+        if (diags.length > 0) {
+          log(Compile("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+        } else {
+          log(Compile("ProcessorFactory completed with no errors."))
+        }
       }
+      log(Compile("Schema had %s elements.", ElementBase.count))
+      pf
     }
-    log(Compile("Schema had %s elements.", ElementBase.count))
-    pf
-  }
 
   /**
    * For convenient unit testing allow a literal XML node.

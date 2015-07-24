@@ -51,7 +51,7 @@ import org.junit.AfterClass
 object TestLengthKindPatternDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
 
-  lazy val runner = Runner(testDir, "PatternTests.tdml")
+  val runner = Runner(testDir, "PatternTests.tdml")
 
   @AfterClass def shutDown {
     runner.reset

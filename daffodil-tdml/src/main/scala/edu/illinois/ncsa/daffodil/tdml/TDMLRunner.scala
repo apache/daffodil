@@ -99,11 +99,17 @@ import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable
 import org.apache.commons.io.IOUtils
 import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 
 /**
  * Parses and runs tests expressed in IBM's contributed tdml "Test Data Markup Language"
  */
 
+private[tdml] object DFDLTestSuite {
+  type CompileResult = Either[Seq[Diagnostic], DFDL.DataProcessor]
+  type CompileFailure = Left[Seq[Diagnostic], DFDL.DataProcessor]
+
+}
 //
 // TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
 // for the infoset. This would prevent errors where the infoset instance and the schema drift apart under maintenance.
@@ -126,10 +132,6 @@ import edu.illinois.ncsa.daffodil.processors.HasSetDebugger
  * Without this, you can't get to the validation errors, because it
  * rejects the TDML file itself.
  */
-
-private[tdml] object DFDLTestSuite {
-  val compiledSchemaCache: mutable.Map[URISchemaSource, DFDL.DataProcessor] = new mutable.HashMap
-}
 
 class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
@@ -379,7 +381,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
    * through a serialize then unserialize path to get a processor as if
    * it were being fetched from a file.
    */
-  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
+  private def generateProcessor(pf: DFDL.ProcessorFactory, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val p = pf.onPath("/")
     if (p.isError) Left(p.getDiagnostics)
     else {
@@ -398,7 +400,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
-  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
+  private def compileProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val pf = compiler.compileSource(schemaSource)
     if (pf.isError) {
       val diags = pf.getDiagnostics
@@ -409,22 +411,12 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
     }
   }
 
-  final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): Either[Seq[Diagnostic], DFDL.DataProcessor] = {
+  final protected def getProcessor(schemaSource: DaffodilSchemaSource, useSerializedProcessor: Boolean): DFDLTestSuite.CompileResult = {
     val res = schemaSource match {
-      case uss: URISchemaSource if parent.checkAllTopLevel == true => {
-        // check if we've already got this compiled
-        val cacheRes = DFDLTestSuite.compiledSchemaCache.get(uss)
-        val dp = cacheRes match {
-          case Some(dp) => Right(dp)
-          case None => {
-            // missed the cache. Let's compile it and put it in 
-            val dp = compileProcessor(schemaSource, useSerializedProcessor)
-            if (dp.isRight) DFDLTestSuite.compiledSchemaCache.put(uss, dp.right.get)
-            dp
-          }
+      case uss: URISchemaSource if parent.checkAllTopLevel =:= true =>
+        SchemaDataProcessorCache.compileAndCache(uss) {
+          compileProcessor(uss, useSerializedProcessor)
         }
-        dp
-      }
       case _ => {
         compileProcessor(schemaSource, useSerializedProcessor)
       }

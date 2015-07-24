@@ -15,6 +15,12 @@ object Runner {
   def apply(dir: String, file: String): Runner = new Runner(dir, file)
 }
 
+/**
+ * Needs to be thread-safe (i.e., use all thread-local state) so that
+ * test can be run in parallel.
+ *
+ * Note however, that each thread will get its own copy of the DFDLTestSuite
+ */
 class Runner private (dir: String, file: String) {
 
   private def getTS = {
@@ -23,12 +29,14 @@ class Runner private (dir: String, file: String) {
       // are not file-system paths that have to be made platform-specific. 
       // In other words, we don't need to use "\\" for windows here. "/" works there as well.
       val d = if (dir.endsWith("/")) dir else dir + "/"
-      ts = new DFDLTestSuite(Misc.getRequiredResource(d + file))
+      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file)))
     }
     ts
   }
 
-  private var ts: DFDLTestSuite = null
+  private object tl_ts extends ThreadLocal[DFDLTestSuite]
+
+  private def ts = tl_ts.get
 
   def runOneTest(testName: String, schema: Option[scala.xml.Node] = None, leakCheck: Boolean = false) =
     getTS.runOneTest(testName, schema, leakCheck)
@@ -38,7 +46,7 @@ class Runner private (dir: String, file: String) {
    *  to drop any state (like the test suite object) so we don't leak
    */
   def reset {
-    ts = null
+    tl_ts.set(null)
   }
 
   def trace = {

@@ -34,20 +34,22 @@ package edu.illinois.ncsa.daffodil.section05.simple_types
 
 import junit.framework.Assert._
 import org.junit.Test
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.xml.XMLUtils._
-import edu.illinois.ncsa.daffodil.compiler.Compiler
-import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
-import java.io.File
+import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.tdml.Runner
+
+object TestSimpleTypesNew {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+
+  val runner = Runner(testDir, "SimpleTypes.tdml")
+
+  @AfterClass private def shutdown {
+    runner.reset
+  }
+}
 
 class TestSimpleTypesNew {
-  val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
+  import TestSimpleTypesNew._
 
-  val aa = testDir + "SimpleTypes.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
   @Test def test_time_calendarTimeZone_EmptyString() { runner.runOneTest("time_calendarTimeZone_EmptyString") }
   @Test def test_time_calendarTimeZone_EST() { runner.runOneTest("time_calendarTimeZone_EST") }
   @Test def test_date_calendarTimeZone_EmptyString() { runner.runOneTest("date_calendarTimeZone_EmptyString") }
