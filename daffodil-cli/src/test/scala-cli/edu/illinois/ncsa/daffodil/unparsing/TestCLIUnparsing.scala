@@ -385,7 +385,7 @@ class TestCLIunparsing {
   @Test def test_3577_CLI_Unparsing_traceMode() {
     val schemaFile = Util.daffodilPath("daffodil-test/src/test/resources/edu/illinois/ncsa/daffodil/section06/namespaces/multi_base_15.dfdl.xsd")
     val testSchemaFile = if (Util.isWindows) Util.cmdConvert(schemaFile) else schemaFile
-    val shell = Util.start("", timeout = 5)
+    val shell = Util.start("")
 
     try {
       val cmd = String.format("echo '<rabbitHole><nestSequence><nest>test</nest></nestSequence></rabbitHole>'| %s -t unparse -s %s", Util.binPath, testSchemaFile)
