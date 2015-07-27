@@ -60,6 +60,9 @@ class TestEscapeSchemeUnparse {
   @Test def test_unparseDelimitedEscapedString09() { runner.runOneTest("unparseDelimitedEscapedString09") }
   @Test def test_unparseDelimitedEscapedString10() { runner.runOneTest("unparseDelimitedEscapedString10") }
   @Test def test_unparseDelimitedEscapedString11() { runner.runOneTest("unparseDelimitedEscapedString11") }
+  @Test def test_unparseDelimitedEscapedString12() { runner.runOneTest("unparseDelimitedEscapedString12") }
+  @Test def test_unparseDelimitedEscapedString13() { runner.runOneTest("unparseDelimitedEscapedString13") }
+  @Test def test_unparseDelimitedEscapedString14() { runner.runOneTest("unparseDelimitedEscapedString14") }
 
   @Test def test_parseDelimitedEscapedString01() { runner.runOneTest("parseDelimitedEscapedString01") }
   @Test def test_parseDelimitedEscapedString03() { runner.runOneTest("parseDelimitedEscapedString03") }

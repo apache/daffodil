@@ -383,11 +383,22 @@
             escapeBlockEnd='"' escapeKind="escapeBlock"
             escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="" />
         </dfdl:defineEscapeScheme>
+        <dfdl:defineEscapeScheme name='quoteSlash2'>
+          <dfdl:escapeScheme escapeBlockStart='"'
+            escapeBlockEnd="'" escapeKind="escapeBlock"
+            escapeEscapeCharacter="\" generateEscapeBlock="whenNeeded" extraEscapedCharacters="" />
+        </dfdl:defineEscapeScheme>
 
       <xs:element name="foo" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash"/>
+      <xs:element name="foo2" dfdl:lengthKind="delimited" type="xs:string" dfdl:escapeSchemeRef="quoteSlash2"/>
  
    </tdml:defineSchema>
     
+<!--
+      Test Name: unparseDelimitedEscapedString12
+      Schema: foo
+      Purpose: This test demonstrates unparsing escaping a block end character during unparse
+-->
     
     <tdml:unparserTestCase name="unparseDelimitedEscapedString12" model="foo" root="foo" roundTrip="true">
     <tdml:infoset>
@@ -397,5 +408,36 @@
     </tdml:infoset>
     <tdml:document>"This contains a block end \" followed by more text"</tdml:document>
   </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString13
+      Schema: foo2
+      Purpose: This test demonstrates unparsing escaping a block end character during unparse
+-->
+    
+    <tdml:unparserTestCase name="unparseDelimitedEscapedString13" model="foo" root="foo2" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:foo2>This contains a block end ' followed by more text</ex:foo2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>"This contains a block end \' followed by more text'</tdml:document>
+  </tdml:unparserTestCase>
+
+<!--
+      Test Name: unparseDelimitedEscapedString14
+      Schema: delimitedStringsEscapeScheme
+      Purpose: This test demonstrates escaping a block end character during unparse
+-->
+  <tdml:unparserTestCase name="unparseDelimitedEscapedString14" model="delimitedStringsEscapeScheme" root="e6" roundTrip="true">
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e6 xmlns:ex="http://example.com">
+          <ex:s1>one*/two</ex:s1>
+        </ex:e6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document>/*one#*/two*/</tdml:document>
+ </tdml:unparserTestCase>
 
 </tdml:testSuite>
