@@ -142,8 +142,10 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:errors>
-      <tdml:error>Error</tdml:error>
-      <tdml:error>Placeholder</tdml:error>
+      <tdml:error>Unparse Error</tdml:error>
+      <tdml:error>Found next element</tdml:error>
+      <tdml:error>opt</tdml:error>
+      <tdml:error>no element is expected</tdml:error>
     </tdml:errors>
 
   </tdml:unparserTestCase>

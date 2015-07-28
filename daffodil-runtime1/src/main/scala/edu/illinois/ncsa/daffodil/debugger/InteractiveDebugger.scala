@@ -78,7 +78,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
   }
 
   case class DebugException(str: String, cause: Throwable) extends java.lang.Exception(str, cause) {
-    override def toString = "error: " + DiagnosticUtils.getSomeMessage(this).get
+    override def toString = "Debugger error: " + DiagnosticUtils.getSomeMessage(this).get
     def this(str: String) = this(str, null)
   }
 

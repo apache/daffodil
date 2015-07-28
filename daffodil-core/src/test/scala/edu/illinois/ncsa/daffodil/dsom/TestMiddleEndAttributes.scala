@@ -67,8 +67,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
     assertTrue(s1.hasStaticallyRequiredInstances)
     assertTrue(s2.hasStaticallyRequiredInstances)
@@ -96,8 +96,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val seq = e1ct.sequence
     val Seq(s1, s2) = seq.groupMembers
     assertFalse(s1.hasStaticallyRequiredInstances)
     assertFalse(s2.hasStaticallyRequiredInstances)
@@ -128,8 +128,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val seq = e1ct.sequence
     val Seq(s1, s2, s3, s4, s5) = seq.groupMembers
     assertFalse(s1.hasStaticallyRequiredInstances)
     assertTrue(s2.hasStaticallyRequiredInstances)
@@ -169,8 +169,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val seq = e1ct.sequence
     val Seq(seqMem) = seq.groupMembers
     val cho = seqMem.asInstanceOf[Choice]
     val Seq(s1, s2) = cho.groupMembers
@@ -207,8 +207,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f, e2f) = sd.globalElementDecls
     val e2 = e2f.forRoot()
-    val e2ct = e2.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq = e2ct.modelGroup.asInstanceOf[Sequence]
+    val e2ct = e2.elementComplexType
+    val seq = e2ct.sequence
     val mems = seq.groupMembers
     val Seq(t1: Term) = mems
     val e1ref = t1.asInstanceOf[ElementRef]
@@ -253,8 +253,8 @@ class TestMiddleEndAttributes {
     // Explore global element decl
     val Seq(e1f, e2f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val e1seq = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val e1seq = e1ct.sequence
     val Seq(t1: Term) = e1seq.groupMembers
 
     val eMsg = t1.asInstanceOf[LocalElementDecl]
@@ -263,8 +263,8 @@ class TestMiddleEndAttributes {
     val Seq(t2: Term) = eMsgChoice.groupMembers
     val e2ref = t2.asInstanceOf[ElementRef]
     val e3 = e2ref.referencedElement
-    val e3ct = e3.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val e3seq = e3ct.modelGroup.asInstanceOf[Sequence]
+    val e3ct = e3.elementComplexType
+    val e3seq = e3ct.sequence
     val e3seqImmediatelyEnclosingModelGroup = e3seq.immediatelyEnclosingModelGroup
     // Sequence inside an element doesn't have an immediately enclosing model group
     assertEquals(None, e3seqImmediatelyEnclosingModelGroup)

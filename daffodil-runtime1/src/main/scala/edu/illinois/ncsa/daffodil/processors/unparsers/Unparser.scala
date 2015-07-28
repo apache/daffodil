@@ -124,7 +124,7 @@ class SeqCompUnparser(context: RuntimeData, val childUnparsers: Seq[Unparser])
   extends Unparser(context)
   with ToBriefXMLImpl {
 
-  override lazy val childProcessors = childUnparsers
+  override val childProcessors = childUnparsers
 
   override def nom = "seq"
 

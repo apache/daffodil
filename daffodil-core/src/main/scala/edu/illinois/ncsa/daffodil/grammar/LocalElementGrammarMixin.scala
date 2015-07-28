@@ -88,8 +88,18 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
       StopValue(this)
   }
 
+  private lazy val separatedContentWithMinAndMaxWithoutTrailingEmpties = prod("separatedContentWithMinAndMaxWithoutTrailingEmpties", isRecurring) {
+    RepExactlyN(self, minOccurs, separatedRecurringDefaultable) ~
+      RepAtMostTotalN(self, maxOccurs, separatedRecurringNonDefault) ~
+      StopValue(this)
+  }
+
   private lazy val separatedContentWithMinUnbounded = prod("separatedContentWithMinUnbounded", isRecurring) {
     separatedContentWithMinUnboundedWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
+  }
+
+  private lazy val separatedContentWithMinAndMax = prod("separatedContentWithMinAndMax", isRecurring) {
+    separatedContentWithMinAndMaxWithoutTrailingEmpties // These are for tolerating trailing empties. Let's not tolerate them for now.
   }
 
   private lazy val separatedContentZeroToUnbounded = prod("separatedContentZeroToUnbounded", isRecurring) {
@@ -205,6 +215,7 @@ trait LocalElementGrammarMixin extends GrammarMixin { self: LocalElementBase =>
       case (Never______, ock /****/ , ___, __2) => SDE("separatorSuppressionPolicy='never' not allowed in combination with occursCountKind='" + ock + "'.")
       case (Trailing___, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (Trailing___, Implicit__, UNB, min) => separatedContentWithMinUnbounded
+      case (Trailing___, Implicit__, max, min) if min > 0 => separatedContentWithMinAndMax
       case (Trailing___, Implicit__, max, ___) => separatedContentAtMostN // FIXME: have to have all of them - not trailing position 
       case (TrailingStr, Implicit__, UNB, ___) if (!isLastDeclaredRequiredElementOfSequence) => SDE("occursCountKind='implicit' with unbounded maxOccurs only allowed for last element of a sequence")
       case (TrailingStr, Implicit__, UNB, ___) => separatedContentWithMinUnboundedWithoutTrailingEmpties // we're depending on optionalEmptyPart failing on empty content.

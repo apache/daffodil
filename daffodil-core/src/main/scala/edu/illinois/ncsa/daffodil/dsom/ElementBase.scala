@@ -59,6 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.OnlyOnePossibilityForNext
 import edu.illinois.ncsa.daffodil.processors.unparsers.ChildResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.SiblingResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
+import edu.illinois.ncsa.daffodil.processors.UseNilForDefault
 
 /**
  * Note about DSOM design versus say XSOM or Apache XSD library.
@@ -73,6 +74,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.ResolverType
 object ElementBase {
   var count = 0
 }
+
 /**
  * Shared by all forms of elements, local or global or element reference.
  */
@@ -89,7 +91,8 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   with CalendarTextMixin
   with BooleanTextMixin
   with TextNumberFormatMixin
-  with RealTermMixin {
+  with RealTermMixin
+  with UnparserAugmentedInfosetElementMixin {
 
   ElementBase.count += 1 // how many elements in this schema.
 
@@ -256,31 +259,51 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   override lazy val runtimeData: RuntimeData = elementRuntimeData
   override lazy val termRuntimeData: TermRuntimeData = elementRuntimeData
 
-  final lazy val defaultValue =
+  final lazy val defaultValue = {
     if (isDefaultable && (isScalar || isRequiredArrayElement)) {
-      val value = Infoset.convertToInfosetRepType(
-        primType, // .typeRuntimeData, 
-        defaultValueAsString, this)
-      Some(value)
+      val dv =
+        if (isNillable && useNilForDefault =:= YesNo.Yes) {
+          UseNilForDefault // singleton object indicator
+        } else {
+          //
+          // Note: no remapping PUA chars or otherwise messing with the text of the default value
+          // because this must be a regular XSD default value so that Xerces validation
+          // will work.
+          // 
+          val str = defaultValueAsString
+          val value = Infoset.convertToInfosetRepType(
+            primType,
+            str, this)
+          value
+        }
+      Some(dv)
     } else None
+  }
 
   private lazy val isRequiredNonDefaultable: Boolean = !isDefaultable
 
-  private def possibleNextChildrenElementsForUnparse: Seq[ElementBase] =
-    couldBeFirstChildElementInInfoset
-
-  private def possibleNextElementsForUnparse: Seq[ElementBase] =
-    couldBeNextElementInInfoset
-
   /**
-   * Annoying, but scala's immutable Map is not covariant in its first argument
-   * the way one would normally expect a collection to be.
+   * There is a subtle distinction between the NextElementResolver and an InfosetAugmenter.
    *
-   * So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
+   * The NextElementResolver is used to determine what infoset event comes next, and "resolves" which is to say
+   * determines the ElementRuntimeData for that infoset event. This can be used to construct the initial
+   * infoset from a stream of XML events.
    *
-   * So we need a cast upward to Map[QNameBase,ElementRuntimeData]
+   * An InfosetAugmenter determines what infoset elements to insert (as computed or defaulted) to create the augmented
+   * infoset.
+   *
+   * TODO: PERFORMANCE - it is perhaps better to combine these mechanisms, and augment the infoset as it is created.
+   * However, that's non-trivial as there are two different ways Infosets come into existence. One is from XML events, the
+   * other is by the infoset pre-existing as a tree, and then it being unparsed. An example of the latter is the "round trip"
+   * scenario where data is parsed, and potentially transformed as the Infoset, and then that infoset is unparsed.
    */
   final def computeNextElementResolver(possibles: Seq[ElementBase], resolverType: ResolverType): NextElementResolver = {
+    //
+    // Annoying, but scala's immutable Map is not covariant in its first argument
+    // the way one would normally expect a collection to be.
+    // So Map[NamedQName, ElementRuntimeData] is not a subtype of Map[QNameBase, ElementRuntimeData]
+    // So we need a cast upward to Map[QNameBase,ElementRuntimeData]
+    //
     val eltMap = possibles.map {
       e => (e.namedQName, e.elementRuntimeData)
     }.toMap.asInstanceOf[Map[QNameBase, ElementRuntimeData]]
@@ -292,11 +315,26 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     resolver
   }
 
+  final lazy val unparserInfosetEventBehavior: UnparserInfo.InfosetEventBehavior = {
+    import UnparserInfo._
+    if (isScalar && isDefaultable) ScalarDefaultable
+    else if (isArray && isDefaultable) ArrayDefaultable
+    else if (isOutputValueCalc) Computed
+    else if (isOptional) Optional
+    else if (isArray) Optional
+    else MustExist
+  }
+
+  final lazy val canBeAbsentFromUnparseInfoset: Boolean = {
+    import UnparserInfo._
+    unparserInfosetEventBehavior !=:= MustExist
+  }
+
   final lazy val nextElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleNextElementsForUnparse, SiblingResolver)
+    computeNextElementResolver(possibleNextChildElementsInInfoset, SiblingResolver)
 
   final lazy val childElementResolver: NextElementResolver =
-    computeNextElementResolver(possibleNextChildrenElementsForUnparse, ChildResolver)
+    computeNextElementResolver(possibleFirstChildElementsInInfoset, ChildResolver)
 
   lazy val elementRuntimeData: ElementRuntimeData = LV('elementRuntimeData) {
     val ee = enclosingElement
@@ -382,7 +420,10 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
       //
       notReferencedByExpressions,
       fillByteValue,
-      optTruncateSpecifiedLengthString)
+      optTruncateSpecifiedLengthString,
+      if (isOutputValueCalc) Some(ovcCompiledExpression) else None,
+      maybeChildInfosetAugmenter,
+      maybeLaterSiblingInfosetAugmenter)
     newERD
   }
 
@@ -435,7 +476,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final lazy val elementChildren: Seq[ElementBase] = {
     this.typeDef match {
       case ct: ComplexTypeBase => {
-        ct.modelGroup.group.elementChildren.asInstanceOf[Seq[ElementBase]]
+        ct.group.elementChildren.asInstanceOf[Seq[ElementBase]]
       }
       case _ => Nil
     }
@@ -474,12 +515,12 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   final override lazy val couldHaveText: Boolean = {
     hasDelimiters ||
       (isSimpleType && impliedRepresentation == Representation.Text) ||
-      (isComplexType && elementComplexType.modelGroup.couldHaveText)
+      (isComplexType && elementComplexType.group.couldHaveText)
   }
 
   final override lazy val termChildren: Seq[Term] = {
     if (isSimpleType) Nil
-    else Seq(elementComplexType.modelGroup.group)
+    else Seq(elementComplexType.group)
   }
 
   final lazy val isParentUnorderedSequence: Boolean = {
@@ -564,7 +605,37 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
    * be fixed or variable width.
    */
   final lazy val isFixedLength = {
-    lengthKind == LengthKind.Explicit && length.isConstant
+    (lengthKind =:= LengthKind.Explicit && length.isConstant) ||
+      isImplicitLengthString
+  }
+
+  final def isImplicitLengthString = isSimpleType && primType =:= PrimType.String && lengthKind =:= LengthKind.Implicit
+
+  final lazy val fixedLengthValue: Long = {
+    Assert.usage(isFixedLength)
+    if (lengthKind =:= LengthKind.Explicit) length.constantAsLong
+    else {
+      Assert.invariant(lengthKind =:= LengthKind.Implicit)
+      // it's a string with implicit length. get from facets
+      schemaDefinitionUnless(this.hasMaxLength, "String with dfdl:lengthKind='implicit' must have an XSD maxLength facet value.")
+      val ml = this.maxLength
+      ml.longValue()
+    }
+  }
+
+  final def hasFixedLengthOf(n: Int) = {
+    if (!isFixedLength) false
+    else {
+      val fl = fixedLengthValue
+      n =#= fl
+    }
+  }
+
+  final lazy val isLengthAlwaysNonZero = {
+    Assert.usage(isRepresented)
+    if (hasFixedLengthOf(0)) false
+    else if (isFixedLength) true
+    else false
   }
 
   /**
@@ -662,20 +733,22 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
   def hasSep: Boolean
 
   /**
-   * check if there are delimiters such that there is a concept of something that we can call 'empty'
+   * check length and if there are delimiters such that there is a concept of something that we can call 'empty'
+   *
+   * Empty is observable so long as one can
+   * have zero length followed by a separator, or zero length between an
+   * initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
    */
-  // FIXME : This looks incorrect. empty is observable so long as one can 
-  // have zero length followed by a separator, or zero length between an 
-  // initiator and terminator (as required for empty by emptyValueDelimiterPolicy)
   final def emptyIsAnObservableConcept = LV('emptyIsAnObservableConcept) {
-    val res = if ((hasSep ||
-      hasEmptyValueInitiator ||
-      hasEmptyValueTerminator) &&
-      lengthKind != LengthKind.Implicit) {
-      // fixed length things can't be empty (assuming static length 0 isn't allowed.) 
-      false
-    } else true
-    res
+    if (this.isLengthAlwaysNonZero) false
+    else {
+      val res = if (hasSep || //FIXME: not sufficient unless it's a postfix separator, or we know there will be some other terminating markup after.
+        hasEmptyValueInitiator ||
+        hasEmptyValueTerminator) {
+        true
+      } else false
+      res
+    }
   }.value
 
   //  /**
@@ -1018,13 +1091,13 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
     case _ => None
   }
 
-  protected final def couldBeFirstChildTerm: Seq[Term] = termChildren
+  protected final def possibleFirstChildTerms: Seq[Term] = termChildren
 
   protected final def couldBeLastElementInModelGroup: Boolean = LV('couldBeLastElementInModelGroup) {
     val couldBeLast = enclosingTerm match {
       case None => true
       case Some(s: Sequence) if s.isOrdered => {
-        !couldBeNextSiblingTerm.exists {
+        !possibleNextSiblingTerms.exists {
           case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
@@ -1036,7 +1109,7 @@ abstract class ElementBase(xmlArg: Node, parent: SchemaComponent, position: Int)
 
   protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
     if (enclosingTerm.isDefined && couldBeLastElementInModelGroup) {
-      enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+      enclosingTerm.get.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
     } else {
       Nil
     }

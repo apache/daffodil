@@ -50,10 +50,17 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.Representation
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
+import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetAugmenter
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
 }
+
+/**
+ * Singleton. If found as the default value, means to use nil as
+ * the default value instead of an actual value.
+ */
+object UseNilForDefault
 
 class ElementRuntimeData(
   /**
@@ -126,7 +133,10 @@ class ElementRuntimeData(
    */
   val notReferencedByExpressions: Boolean,
   fillByteValue: Int,
-  val optTruncateSpecifiedLengthString: Option[Boolean])
+  val optTruncateSpecifiedLengthString: Option[Boolean],
+  val outputValueCalcExpr: Option[CompiledExpression],
+  val maybeChildInfosetAugmenter: Maybe[InfosetAugmenter],
+  val maybeLaterSiblingInfosetAugmenter: Maybe[InfosetAugmenter])
   extends TermRuntimeData(parentArg, encInfo, dpathElementCompileInfo, isRepresented, couldHaveText, alignmentValueInBits, hasNoSkipRegions, fillByteValue,
     defaultBitOrder)
   with HasSlotIndexInParent {

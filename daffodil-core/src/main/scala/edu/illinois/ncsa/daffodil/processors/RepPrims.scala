@@ -155,6 +155,6 @@ case class OccursCountExpression(e: ElementBase)
   extends Terminal(e, true) {
 
   override lazy val parser = new OccursCountExpressionParser(e.occursCount, e.elementRuntimeData)
-  override lazy val unparser = new NadaUnparser(e.runtimeData)
+  override lazy val unparser = new NadaUnparser(e.runtimeData) // DFDL v1.0 Section 16.1.4 - The occursCount expression is not evaluated.
 
 }

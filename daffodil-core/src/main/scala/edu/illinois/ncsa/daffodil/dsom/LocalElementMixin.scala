@@ -120,7 +120,7 @@ trait LocalElementMixin
           case _ => false // all other types require some syntax.
         }
       } else if (isComplexType) {
-        !elementComplexType.modelGroup.group.hasKnownRequiredSyntax
+        !elementComplexType.group.hasKnownRequiredSyntax
       } else Assert.impossibleCase()
     res
   }.value

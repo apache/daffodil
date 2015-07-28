@@ -17,6 +17,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import scala.collection.mutable.Buffer
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.util.IteratorWithPeek
 
 class InfosetError(kind: String, args: String*) extends ProcessingError("Infoset Error", Nope, Nope, kind, args: _*)
 
@@ -34,7 +35,8 @@ object InfosetSource {
   def fromXMLNode(xmlDocument: scala.xml.Node, erd: ElementRuntimeData): InfosetSource = {
     val doc = Infoset.newDocument(Infoset.elem2Infoset(erd, xmlDocument))
     val src = fromInfosetTree(doc)
-    src
+    val infosrc = new UnparserAugmentingInfosetSource(erd, src)
+    infosrc
   }
 
   /**
@@ -45,24 +47,28 @@ object InfosetSource {
    * in order to generate those events as well as the startElement endElement events.
    */
   def fromXMLSource(xmlEventReader: Iterator[scala.xml.pull.XMLEvent], rootElementERD: ElementRuntimeData): InfosetSource = {
-    new InfosetSourceFromXMLEventReader(xmlEventReader, rootElementERD)
+    val orig = new InfosetSourceFromXMLEventReader(xmlEventReader, rootElementERD)
+    val infosrc = new UnparserAugmentingInfosetSource(rootElementERD, orig)
+    infosrc
   }
 
 }
 
-trait InfosetSource extends Iterator[InfosetEvent] {
-
-  /**
-   * Looks ahead by one infoset event without consuming it.
-   * Note that hasNext must be true.
-   */
-  def peek: InfosetEvent
-}
+trait InfosetSource extends IteratorWithPeek[InfosetEvent]
 
 sealed abstract class InfosetEvent(val node: DINode) {
   def namedQName = node.namedQName
+  def erd: ElementRuntimeData = node match {
+    case a: DIArray => a.parent.runtimeData
+    case e: DIElement => e.runtimeData
+  }
 }
 
+/**
+ * TODO: PERFORMANCE: Why make these objects at all. Why not make them just be event call-backs so as to
+ * completely avoid allocating these little crud objects? A flat stream of these events has no structure
+ * that a set of flat callbacks doesn't convey.
+ */
 case class End(override val node: DINode) extends InfosetEvent(node)
 case class Start(override val node: DINode) extends InfosetEvent(node)
 

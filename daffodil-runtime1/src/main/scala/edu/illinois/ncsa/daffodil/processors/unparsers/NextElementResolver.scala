@@ -16,10 +16,19 @@ import edu.illinois.ncsa.daffodil.xml.NamedQName
  *
  * This is for use assembling the Daffodil Infoset from an XML representation.
  *
+ * Note that there is a variation of this for augmenting an XML Infoset.
  */
 
 trait NextElementResolver extends Serializable {
+
   def nextElement(name: String, nameSpace: String): ElementRuntimeData
+
+  // PERFORMANCE: We really should be interning all QNames so that comparison of QNames can be pointer equality
+  // or nearly so. We're going to do tons of lookups in hash tables, which will compute the hash code, find it is equal, 
+  // compare the entire namespace string character by character, only to say yes, and yes will be by far the vast
+  // bulk of the lookup results.  Pointer equality would be so much faster....
+  //
+  def nextElement(nqn: NamedQName): ElementRuntimeData = nextElement(nqn.local, nqn.namespace.toStringOrNullIfNoNS)
 }
 
 sealed abstract class ResolverType(val name: String) extends Serializable
@@ -33,6 +42,7 @@ class NoNextElement(schemaFileLocation: SchemaFileLocation, resolverType: Resolv
     val sqn = StepQName(None, local, NS(namespace))
     UnparseError(One(schemaFileLocation), Nope, "Found %s element %s, but no element is expected.", resolverType.name, sqn)
   }
+
 }
 
 class OnlyOnePossibilityForNextElement(schemaFileLocation: SchemaFileLocation, nextERD: ElementRuntimeData, resolverType: ResolverType)

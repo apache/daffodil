@@ -358,10 +358,8 @@
     <tdml:document><![CDATA[ 3]]></tdml:document>
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
-      <tdml:error>Insufficient bits available</tdml:error>
-      <tdml:error>Required 8 bits</tdml:error>
-      <tdml:error>0 were available.</tdml:error>
-      <tdml:error>Schema context: element.sca</tdml:error>
+      <tdml:error>Insufficient</tdml:error>
+      <tdml:error>element.sca</tdml:error>
     </tdml:errors>
 
   </tdml:parserTestCase>

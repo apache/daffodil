@@ -52,7 +52,7 @@
 					prefixIncludesPrefixLength="no"
 					representation="text" 
 					separator="" 
-					separatorSuppressionPolicy="never"
+					separatorSuppressionPolicy="trailingEmpty"
 					separatorPosition="infix" 
 					sequenceKind="ordered" 
 					terminator="" 

@@ -634,10 +634,15 @@ trait ElementBaseGrammarMixin
         ValueCalc("inputValueCalc", self, inputValueCalcOption), dfdlScopeEnd)
     }
 
+  private lazy val ovcValueCalcObject = ValueCalc("outputValueCalc", self, outputValueCalcOption)
+
+  protected final lazy val ovcCompiledExpression = ovcValueCalcObject.expr
+
   private lazy val outputValueCalcElement = prod("outputValueCalcElement",
     isSimpleType && outputValueCalcOption.isInstanceOf[Found], forWhat = ForUnparser) {
-      new ElementCombinator(this, dfdlScopeBegin ~
-        ValueCalc("outputValueCalc", self, outputValueCalcOption), dfdlScopeEnd)
+      new ElementCombinator(this,
+        dfdlScopeBegin ~ ovcValueCalcObject ~ elementLeftFraming ~ scalarNonDefaultContent,
+        elementRightFraming ~ dfdlScopeEnd)
     }
 
   private lazy val scalarDefaultablePhysical = prod("scalarDefaultablePhysical") {

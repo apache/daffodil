@@ -58,8 +58,6 @@ import edu.illinois.ncsa.daffodil.processors.parsers.IVCParser
 import java.util.regex.Pattern
 import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.ElementOutputValueCalcUnparser
-import edu.illinois.ncsa.daffodil.processors.unparsers.SetVariableUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceEndUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.NewVariableInstanceStartUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
@@ -211,7 +209,7 @@ case class ValueCalc(
 
   def parser: DaffodilParser = new IVCParser(expr, e.elementRuntimeData)
 
-  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData, expr)
+  override def unparser: DaffodilUnparser = new ElementOutputValueCalcUnparser(e.elementRuntimeData)
 
 }
 

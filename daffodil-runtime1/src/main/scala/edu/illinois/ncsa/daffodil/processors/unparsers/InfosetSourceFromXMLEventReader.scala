@@ -18,14 +18,9 @@ import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.util.OnStack
 
 /**
- * This converter uses Scala Streams extensively, and in principle it could be
- * written to work without them by maintaining a stack, and a bunch of
- * state variables.
- *
- * This is a lot easier to get correct.
- *
  * The primary goal for this converter is
  * "Streaming Behavior" meaning it doesn't need space proportional to how
  * big the input data is, in order to carry out the conversion. That is to say
@@ -40,6 +35,12 @@ import edu.illinois.ncsa.daffodil.util.MStack
  *
  * That however, is not the responsibility of this converter, but of the
  * consuming activity.
+ *
+ * Stateful, not thread safe.
+ *
+ * This object has state. Therefore it cannot be shared across threads. An unparser
+ * call must construct its own instance of this object for the thread running that
+ * unparse method call.
  */
 class InfosetSourceFromXMLEventReader(
   xer: Iterator[scala.xml.pull.XMLEvent],
@@ -68,125 +69,143 @@ class InfosetSourceFromXMLEventReader(
 
   private var nextElementResolver: NextElementResolver = initialNextElementResolver
 
-  private var savedEvents: Seq[InfosetEvent] = Seq()
+  private val savedEvents = new mutable.ArrayBuffer[InfosetEvent]
 
-  private val mtSeq = Seq()
+  private def fill {
+    if (savedEvents.isEmpty) {
+      nextEvents(savedEvents)
+    }
+  }
 
   override def peek = {
-    if (savedEvents =:= mtSeq) {
-      savedEvents = nextEvents
-    }
+    fill
     savedEvents.head
   }
 
   override def next = {
-    if (savedEvents =:= mtSeq) {
-      savedEvents = nextEvents
-    }
+    fill
     val thisEvent = savedEvents.head
-    savedEvents = savedEvents.tail
+    savedEvents.remove(0)
     thisEvent
   }
 
-  private def nextEvents: Seq[InfosetEvent] = {
+  /**
+   * Fills array buffer of infoset events given the next xml event.
+   *
+   * This will include events for any implied elements such as
+   * required defaultable elements, or elements with outputValueCalc.
+   */
+  private def nextEvents(accumulatedEvents: mutable.ArrayBuffer[InfosetEvent]): Unit = {
+    Assert.usage(accumulatedEvents.isEmpty)
     val xmlEvent: XMLInfosetEvent = xmlIterator.next()
     xmlEvent match {
       case EndComplex(ns, local) => {
         val node = nodeStack.pop
         val arr = arrayStack.popMaybe
-        val arrayTransition =
-          if (arr.isDefined)
-            Seq(End(arr.get))
-          else
-            Seq()
-        nextElementResolver = node.runtimeData.nextElementResolver // Not strict enough. This will accept children after the element.....
-        arrayTransition :+ End(node)
+        if (arr.isDefined)
+          accumulatedEvents += End(arr.get)
+        nextElementResolver = node.runtimeData.nextElementResolver // FIXME: Not strict enough. This will accept children after the element.....
+        accumulatedEvents.append(End(node))
       }
       case _ => {
         val ns = xmlEvent.ns
         val local = xmlEvent.local
+
         val arr = arrayStack.topMaybe
-        val erd = nextElementResolver.nextElement(local, ns)
-        val nodeEvents: Seq[InfosetEvent] = xmlEvent match {
+
+        var thisERD = nextElementResolver.nextElement(local, ns)
+
+        def erdNS = thisERD.namedQName.namespace.toStringOrNullIfNoNS
+        def erdLocal = thisERD.namedQName.local
+
+        //
+        // Now we're ready to handle this specific XML Event
+        // once we get here, the ERD must have ns and local that match the incoming event
+        //
+        Assert.invariant(ns =:= erdNS)
+        Assert.invariant(local =:= erdLocal)
+
+        xmlEvent match {
           case _: EndComplex => Assert.invariantFailed("EndComplex already handled")
           case StartComplex(ns, local) => {
-            nextElementResolver = erd.childElementResolver
-            val node = new DIComplex(erd)
+            nextElementResolver = thisERD.childElementResolver
+            val node = new DIComplex(thisERD)
             nodeStack.top.addChild(node)
             nodeStack.push(node)
-            Seq(Start(node))
+            accumulatedEvents += Start(node)
           }
-          case Simple(ns, local, text) if (erd.isSimpleType) => {
-            nextElementResolver = erd.nextElementResolver
-            val node = new DISimple(erd)
+          case Simple(ns, local, text) if (thisERD.isSimpleType) => {
+            nextElementResolver = thisERD.nextElementResolver
+            val node = new DISimple(thisERD)
             nodeStack.top.addChild(node)
-            val primType = erd.optPrimType.get
+            val primType = thisERD.optPrimType.get
             val remapped = XMLUtils.remapPUAToXMLIllegalCharacters(text)
             val obj = primType.fromXMLString(remapped)
             node.setDataValue(obj)
-            Seq(Start(node), End(node))
+            accumulatedEvents += Start(node)
+            accumulatedEvents += End(node)
           }
-          case Simple(ns, local, text) if (erd.isComplexType) => {
+          case Simple(ns, local, text) if (thisERD.isComplexType) => {
             //
             // This case comes up when a complexType has only an array child
             // and that array has zero elements. The non-schema-aware
             // XML stuff can't tell the difference between this and an 
             // element with simple content
             //
-            nextElementResolver = erd.nextElementResolver
-            val node = new DIComplex(erd)
+            nextElementResolver = thisERD.nextElementResolver
+            val node = new DIComplex(thisERD)
             nodeStack.top.addChild(node)
-            Seq(Start(node), End(node))
+            accumulatedEvents += Start(node)
+            accumulatedEvents += End(node)
           }
           case NilElt(ns, local) => {
-            nextElementResolver = erd.nextElementResolver
-            val node = if (erd.isSimpleType) new DISimple(erd) else new DIComplex(erd)
+            nextElementResolver = thisERD.nextElementResolver
+            val node = if (thisERD.isSimpleType) new DISimple(thisERD) else new DIComplex(thisERD)
             nodeStack.top.addChild(node)
             node.setNilled()
-            Seq(Start(node), End(node))
+            accumulatedEvents += Start(node)
+            accumulatedEvents += End(node)
           }
         }
-        val Start(node: DIElement) :: _ = nodeEvents
-        val arrayTransition =
-          (erd.isArray, arr.toScalaOption) match {
-            case (true, Some(diArray)) => {
-              Assert.invariant(diArray.totalElementCount > 0)
-              if (diArray(1).runtimeData =:= erd) {
-                // same array, another element
-                Nil
-              } else {
-                // end one array and start another immediately (adjacent array elements)
-                val newDIArray: DIArray = node.parent.get.getChildArray(erd).get.asInstanceOf[DIArray]
-                arrayStack.popMaybe
-                arrayStack.pushMaybe(One(newDIArray))
-                Seq(End(diArray), Start(newDIArray))
-              }
-            }
-            case (true, None) => {
-              // prior was not an array (or there is no prior - first in group)
-              // so start an array
-              val newDIArray: DIArray = node.parent.get.getChildArray(erd).get.asInstanceOf[DIArray]
+
+        val Start(node: DIElement) = accumulatedEvents.head
+        (thisERD.isArray, arr.toScalaOption) match {
+          case (true, Some(diArray)) => {
+            Assert.invariant(diArray.totalElementCount > 0)
+            if (diArray(1).runtimeData =:= thisERD) {
+              // same array, another element
+              // so do nothing
+            } else {
+              // end one array and start another immediately (adjacent array elements)
+              val newDIArray: DIArray = node.parent.get.getChildArray(thisERD).get.asInstanceOf[DIArray]
               arrayStack.popMaybe
               arrayStack.pushMaybe(One(newDIArray))
-              Seq(Start(newDIArray))
-            }
-            case (false, None) => {
-              // not an array, prior not an array. No array transitiion
-              Nil
-            }
-            case (false, Some(diArray)) => {
-              arrayStack.popMaybe
-              arrayStack.pushMaybe(Nope)
-              Seq(End(diArray))
+              accumulatedEvents.insert(0, End(diArray))
+              accumulatedEvents.insert(1, Start(newDIArray))
             }
           }
+          case (true, None) => {
+            // prior was not an array (or there is no prior - first in group)
+            // so start an array
+            val newDIArray: DIArray = node.parent.get.getChildArray(thisERD).get.asInstanceOf[DIArray]
+            arrayStack.popMaybe
+            arrayStack.pushMaybe(One(newDIArray))
+            accumulatedEvents.insert(0, Start(newDIArray))
+          }
+          case (false, None) => {
+            // not an array, prior not an array. No array transitiion
+            // do nothing
+          }
+          case (false, Some(diArray)) => {
+            arrayStack.popMaybe
+            arrayStack.pushMaybe(Nope)
+            accumulatedEvents.insert(0, End(diArray))
+          }
+        }
 
         if (xmlEvent.isInstanceOf[StartComplex]) {
           arrayStack.pushMaybe(Nope)
         }
-
-        val result = arrayTransition ++ nodeEvents
-        result
       }
     }
   }

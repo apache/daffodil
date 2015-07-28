@@ -42,11 +42,43 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestUnparseArrayFixedOptionalElemNew {
+object TestUnparseArrayFixedOptionalElemNew {
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "UnparseArrayFixedOptionalElem.tdml"
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner_fixed = Runner(testDir, "UnparseArrayFixedOptionalElem.tdml")
 
+  val runner_imp = Runner(testDir, "UnparseArrayImplicitOptionalElem.tdml")
+
+  val runner_parsed = Runner(testDir, "UnparseArrayParsedOptionalElem.tdml")
+
+  val runner_expr = Runner(testDir, "UnparseArrayExpressionConstant.tdml")
+
+  /**
+   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
+   */
+  @AfterClass private def tearDown() {
+    runner_fixed.reset
+    runner_imp.reset
+    runner_parsed.reset
+    runner_expr.reset
+  }
+}
+class TestUnparseArrayFixedOptionalElemNew {
+  import TestUnparseArrayFixedOptionalElemNew._
+
+  //DFDL-1296
+  @Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
+  @Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
+  @Test def test_exprOptAbsentArray() { runner_expr.runOneTest("exprOptAbsentArray") }
+  @Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
+  @Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
+  @Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
+
+  //DFDL-1301
+  @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
+
+  @Test def test_impOptArrayThenScalar02parse() { runner_imp.runOneTest("impOptArrayThenScalar02parse") }
 }

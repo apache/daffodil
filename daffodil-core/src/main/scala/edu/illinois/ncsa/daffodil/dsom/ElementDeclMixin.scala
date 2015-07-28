@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.processors._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.grammar.ElementDeclGrammarMixin
+import edu.illinois.ncsa.daffodil.equality._
 
 /**
  * Shared by all element declarations local or global
@@ -166,18 +167,36 @@ trait ElementDeclMixin
 
   final def isComplexType = !isSimpleType
 
-  final lazy val defaultValueAsString = (xml \ "@default").text
+  private def defaultAttr = xml.attribute("default")
 
-  final lazy val hasDefaultValue: Boolean = defaultValueAsString != ""
+  final lazy val defaultValueAsString = {
+    Assert.usage(hasDefaultValue)
+    Assert.usage(!isOutputValueCalc)
+    val dv = defaultAttr.get.text
+    schemaDefinitionWhen(dv =:= "" && !(primType =:= PrimType.String), "Type was %s, but only type xs:string can have XSD default=\"\".",
+      primType.toString)
+    dv
+  }
+
+  final lazy val hasDefaultValue: Boolean = {
+    Assert.usage(isSimpleType)
+    defaultAttr.isDefined
+  }
 
   final lazy val isNillable = (xml \ "@nillable").text == "true"
 
-  final lazy val elementComplexType = {
+  final lazy val elementComplexType = { // TODO: rename this to just complexType
     Assert.usage(isComplexType)
     typeDef.asInstanceOf[ComplexTypeBase]
   }
 
-  final lazy val elementSimpleType = {
+  /**
+   * Convenience methods for unit testing purposes.
+   */
+  final def sequence = elementComplexType.sequence
+  final def choice = elementComplexType.choice
+
+  final lazy val elementSimpleType = { // TODO: rename this to just simpleType
     Assert.usage(isSimpleType)
     typeDef.asInstanceOf[SimpleTypeBase]
   }
@@ -193,14 +212,28 @@ trait ElementDeclMixin
    */
   final lazy val isDefaultable: Boolean = LV('isDefaultable) {
     if (isSimpleType) {
-      val hasDefaultValue = defaultValueAsString match {
-        case "" => false // allowed for type string.
-        case _ if (emptyIsAnObservableConcept) => true
-        case _ => false
-      }
-      hasDefaultValue &&
+      if (!isRepresented) false
+      else if (!hasDefaultValue) false
+      else {
+        schemaDefinitionUnless(emptyIsAnObservableConcept,
+          "Element has no empty representation so cannot have XSD default='%s' as a default value.", defaultValueAsString)
+        schemaDefinitionWhen(isOptional, "Optional elements cannot have default values but default='%s' was found.", defaultValueAsString)
+        if (isArray && !isRequiredArrayElement) {
+          (optMinOccurs, occursCountKind) match {
+            case (_, OccursCountKind.Parsed) |
+              (_, OccursCountKind.StopValue) =>
+              SDE("XSD default='%s' can never be used since an element with dfdl:occursCountKind='%s' has no required occurrences.",
+                defaultValueAsString, occursCountKind)
+            case (Some(0), _) => SDE("XSD default='%s' can never be used since an element with XSD minOccurs='0' has no required occurrences.",
+              defaultValueAsString)
+            case _ => // ok
+          }
+        }
+        Assert.invariant(hasDefaultValue)
         !isOptional &&
-        (isScalar || isRequiredArrayElement)
+          (isScalar ||
+            isRequiredArrayElement)
+      }
     } else {
       // TODO: Implement complex element defaulting
       // JIRA issue DFDL-1277
@@ -211,7 +244,7 @@ trait ElementDeclMixin
       // (e.g., no required delimiters, no alignment, no skip, etc.)
       // furthermore, even the defaultable things inside must satisfy 
       // a stricter criterion. They must have emptyValueDelimiterPolicy='none'
-      // if delimiters are defined. 
+      // if delimiters are defined and they could be empty (which is implied if they are defaultable)
       false
     }
   }.value

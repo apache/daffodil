@@ -43,7 +43,13 @@ object MStack {
     @inline def topMaybe: Maybe[T] = Maybe(delegate.top)
 
     @inline def isEmpty = delegate.isEmpty
+
+    def clear() = delegate.clear()
+    def toListMaybe = delegate.toList.map {
+      x: AnyRef => Maybe(x).asInstanceOf[AnyRef] // Scala compiler bug without this cast
+    }.asInstanceOf[List[Maybe[T]]]
   }
+
   /**
    * Use for objects
    *
@@ -70,6 +76,8 @@ object MStack {
     @inline def pop: T = delegate.pop.asInstanceOf[T]
     @inline def top: T = delegate.top.asInstanceOf[T]
     @inline def isEmpty = delegate.isEmpty
+    def clear() = delegate.clear()
+    def toList = delegate.toList
 
     def iterator = delegate.iterator.asInstanceOf[Iterator[T]]
   }
@@ -150,6 +158,12 @@ protected class MStack[@specialized T] private[util] (arrayAllocator: (Int) => A
   @inline def top: T = table(index - 1).asInstanceOf[T]
 
   @inline def isEmpty: Boolean = index == 0
+
+  def clear() = {
+    index = 0
+  }
+
+  def toList = iterator.toList
 
   /**
    * Creates and iterator over the stack in LIFO order.

@@ -81,7 +81,7 @@ trait BitOrderMixin extends GrammarMixin with ByteOrderMixin { self: Term =>
     val res =
       if (enclosingTerm.isEmpty) false // root needs bit order
       else {
-        val optPrior = this.nearestPhysicalTermSatifying(_.optDefaultBitOrder.isDefined)
+        val optPrior = this.nearestPriorPhysicalTermSatisfying(_.optDefaultBitOrder.isDefined)
         optPrior match {
           case None => false // no prior that has a bit order we could be the same as
           case Some(prior) => {

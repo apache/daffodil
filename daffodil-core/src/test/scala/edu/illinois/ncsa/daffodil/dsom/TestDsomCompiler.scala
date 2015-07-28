@@ -270,9 +270,8 @@ class TestDsomCompiler extends Logging {
     val Seq(a1, a2) = e3.annotationObjs // third one has two annotations
     assertTrue(a2.isInstanceOf[DFDLAssert]) // second annotation is newVariableInstance
     assertEquals("implicit", a1.asInstanceOf[DFDLElement].getProperty("occursCountKind"))
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef] // first one has immediate complex type
     // Explore local complex type def
-    val seq = e1ct.modelGroup.asInstanceOf[Sequence] //... which is a sequence
+    val seq = e1.sequence //... which is a sequence
     val sfa = seq.formatAnnotation.asInstanceOf[DFDLSequence] //...annotated with...
     assertEquals(YesNo.No, seq.initiatedContent) // initiatedContent="no"
 
@@ -446,8 +445,8 @@ class TestDsomCompiler extends Logging {
     val Seq(sd, _) = sch.schemaDocuments
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val sq = ct.modelGroup.group.asInstanceOf[Sequence]
+    val ct = ge1.elementComplexType
+    val sq = ct.group.asInstanceOf[Sequence]
     val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
     val s1tm = s1.terminatingMarkup
     val Seq(ce) = s1tm
@@ -472,8 +471,8 @@ class TestDsomCompiler extends Logging {
 
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
-    val ct = ge1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val sq = ct.modelGroup.group.asInstanceOf[Sequence]
+    val ct = ge1.elementComplexType
+    val sq = ct.group.asInstanceOf[Sequence]
     val Seq(s1, s2) = sq.groupMembers.asInstanceOf[List[LocalElementDecl]]
     val s1tm = s1.terminatingMarkup
     val Seq(ce) = s1tm
@@ -554,7 +553,7 @@ class TestDsomCompiler extends Logging {
     val e4 = e4f.forRoot() // groupRefTest
     // println(e4)
 
-    val e4ct = e4.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val e4ct = e4.elementComplexType
 
     // println(e4ct)
     val e4ctgref = e4ct.modelGroup.asInstanceOf[GroupRef] // groupRefTests' local group decl
@@ -585,7 +584,7 @@ class TestDsomCompiler extends Logging {
 
     val e5 = e5f.forRoot() // groupRefTestOverlap
 
-    val e5ct = e5.immediateType.get.asInstanceOf[LocalComplexTypeDef]
+    val e5ct = e5.elementComplexType
 
     val e5ctgref = e5ct.modelGroup.asInstanceOf[GroupRef] // groupRefTestOverlap's local group decl
 
@@ -622,8 +621,8 @@ class TestDsomCompiler extends Logging {
     assertFalse(f1.verifyPropValue("representation", "text"))
     assertTrue(f1.verifyPropValue("textNumberRep", "standard"))
 
-    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
-    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val ct = ge1.elementComplexType
+    val seq = ct.sequence
 
     val Seq(e1: ElementBase, e2: ElementBase) = seq.groupMembers
 
@@ -701,8 +700,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
 
-    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
-    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val seq = ge1.sequence
 
     val Seq(e1: LocalElementDecl, e2: ElementBase, e3: ElementBase) = seq.groupMembers
 
@@ -761,8 +759,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
 
-    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
-    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val seq = ge1.sequence
 
     val Seq(e1: LocalElementDecl, e2: LocalElementDecl) = seq.groupMembers
     val e1f = e1.formatAnnotation.asInstanceOf[DFDLElement]
@@ -827,8 +824,7 @@ class TestDsomCompiler extends Logging {
     val Seq(ge1f) = sd.globalElementDecls // Obtain global element nodes
     val ge1 = ge1f.forRoot()
 
-    val ct = ge1.typeDef.asInstanceOf[ComplexTypeBase]
-    val seq = ct.modelGroup.asInstanceOf[Sequence]
+    val seq = ge1.sequence
 
     val Seq(s1, s2, s3) = seq.groupMembers
     val s3s = s3.asInstanceOf[Sequence]

@@ -266,7 +266,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     LV('allSelfContainedTermsTerminatedByRequiredElement) {
       val listOfTerms = groupMembersNoRefs.map(m => {
         m match {
-          case e: LocalElementBase if e.isOptional => (Seq(e) ++ e.couldBeNext) // A LocalElement or ElementRef
+          case e: LocalElementBase if e.isOptional => (Seq(e) ++ e.possibleNextTerms) // A LocalElement or ElementRef
           case e: LocalElementBase => Seq(e)
           case mg: ModelGroup => Seq(mg)
         }
@@ -277,10 +277,10 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   final def identifyingEventsForChoiceBranch: Seq[ChoiceBranchEvent] = LV('identifyingEventsForChoiceBranch) {
     Assert.usage(enclosingTerm.isDefined && enclosingTerm.get.isInstanceOf[Choice], "identifyingElementsForChoiceBranch must only be called on children of choices")
 
-    val childrenIdentifiers = couldBeFirstChildElementInInfoset
+    val childrenIdentifiers = possibleFirstChildElementsInInfoset
     val parentNextIdentifiers =
       if (!mustHaveRequiredElement) {
-        enclosingTerm.get.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+        enclosingTerm.get.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
       } else {
         Nil
       }
@@ -321,15 +321,16 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
   /*
    * Returns list of Terms that could contain the first child element in the infoset
    */
-  protected final def couldBeFirstChildTerm: Seq[Term] = LV('couldBeFirstChildTerm) {
+  protected final def possibleFirstChildTerms: Seq[Term] = LV('possibleFirstChildTerms) {
     val firstTerms = this match {
       case c: Choice => groupMembersNoRefs
       case s: Sequence if !s.isOrdered => groupMembersNoRefs
       case s: Sequence => {
         groupMembersNoRefs.headOption match {
           case None => Nil
-          case Some(e: ElementBase) if (e.isOptional || (e.isArray && !e.isRequiredArrayElement)) => Seq(e) ++ e.couldBeNextSiblingTerm
-          case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.couldBeNextSiblingTerm
+          case Some(e: ElementBase) if e.canBeAbsentFromUnparseInfoset => Seq(e) ++ e.possibleNextSiblingTerms
+          case Some(mg: ModelGroup) if !mg.mustHaveRequiredElement => Seq(mg) ++ mg.possibleNextSiblingTerms
+          case Some(e: ElementBase) if e.isOutputValueCalc => e.possibleNextSiblingTerms
           case Some(e: ElementBase) => Seq(e)
           case Some(mg: ModelGroup) => Seq(mg)
         }
@@ -340,7 +341,7 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
 
   protected final def nextParentElements: Seq[ElementBase] = LV('nextParentElements) {
     if (parent.isInstanceOf[ModelGroup] && !hasRequiredNextSiblingElement) {
-      parent.asInstanceOf[ModelGroup].couldBeNextElementInInfoset
+      parent.asInstanceOf[ModelGroup].possibleNextChildElementsInInfoset
     } else {
       Nil
     }
@@ -358,10 +359,10 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     val hasRequired = enclosingTerm match {
       case None => false
       case Some(s: Sequence) if s.isOrdered => {
-        // couldBeNextSiblingTerm is either all optional/does not have a
+        // possibleNextSiblingTerms is either all optional/does not have a
         // required element, or the last one is required. Thus, this has a
         // required next sibling if the last sibling element is required
-        couldBeNextSiblingTerm.lastOption match {
+        possibleNextSiblingTerms.lastOption match {
           case None => false
           case Some(e: ElementBase) => !e.isOptional || e.isRequiredArrayElement
           case Some(mg: ModelGroup) => mg.mustHaveRequiredElement
@@ -381,12 +382,12 @@ abstract class ModelGroup(xmlArg: Node, parentArg: SchemaComponent, position: In
     this match {
       case s: Sequence if s.isOrdered =>
         groupMembersNoRefs.exists {
-          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case e: ElementBase => !e.canBeAbsentFromUnparseInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
       case _ =>
         groupMembersNoRefs.forall {
-          case e: ElementBase => !e.isOptional || e.isRequiredArrayElement
+          case e: ElementBase => !e.canBeAbsentFromUnparseInfoset
           case mg: ModelGroup => mg.mustHaveRequiredElement
         }
     }

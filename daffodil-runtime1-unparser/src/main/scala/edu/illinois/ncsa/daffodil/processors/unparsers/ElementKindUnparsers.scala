@@ -58,11 +58,11 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(start: UState): Unit = {
-    start.currentInfosetNodeStack.pushMaybe(Nope) // save
+    // start.currentInfosetNodeStack.pushMaybe(Nope) // save
     start.childIndexStack.push(1L) // one-based indexing
     bodyUnparser.unparse1(start, rd)
     start.childIndexStack.pop()
-    start.currentInfosetNodeStack.popMaybe // restore
+    // start.currentInfosetNodeStack.popMaybe // restore
   }
 }
 
@@ -149,12 +149,6 @@ class SequenceCombinatorUnparser(rdArg: ModelGroupRuntimeData, childUnparsers: V
   }
 }
 
-sealed trait ChoiceBranchEvent {
-  val qname: NamedQName
-}
-case class ChoiceBranchStartEvent(qname: NamedQName) extends ChoiceBranchEvent
-case class ChoiceBranchEndEvent(qname: NamedQName) extends ChoiceBranchEvent
-
 class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Map[ChoiceBranchEvent, Unparser])
   extends TermUnparser(mgrd)
   with ToBriefXMLImpl {
@@ -165,9 +159,16 @@ class ChoiceCombinatorUnparser(mgrd: ModelGroupRuntimeData, eventUnparserMap: Ma
   def unparse(start: UState): Unit = {
 
     val event: InfosetEvent = start.peek
-    val key = event match {
-      case Start(diNode) => ChoiceBranchStartEvent(diNode.namedQName)
-      case End(diNode) => ChoiceBranchEndEvent(diNode.namedQName)
+    val key: ChoiceBranchEvent = event match {
+      //
+      // The ChoiceBranchStartEvent(...) is not a case class constructor. It is a 
+      // hash-table lookup for a cached value. This avoids constructing these
+      // objects over and over again.
+      //
+      case Start(diNode: DIElement) => ChoiceBranchStartEvent(diNode.runtimeData.namedQName)
+      case End(diNode: DIElement) => ChoiceBranchEndEvent(diNode.runtimeData.namedQName)
+      case Start(diArray: DIArray) => ChoiceBranchStartEvent(diArray.arrayElementInfo.namedQName)
+      case End(diArray: DIArray) => ChoiceBranchEndEvent(diArray.arrayElementInfo.namedQName)
     }
 
     val childUnparser = eventUnparserMap.get(key).getOrElse {

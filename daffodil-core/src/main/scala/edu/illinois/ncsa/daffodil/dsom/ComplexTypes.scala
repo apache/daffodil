@@ -47,6 +47,14 @@ abstract class ComplexTypeBase(xmlArg: Node, parent: SchemaComponent)
 
   protected final lazy val <complexType>{ xmlChildren @ _* }</complexType> = xml
 
+  final def group = modelGroup.group
+
+  /**
+   * Convenience methods for unit testing. Just makes tests a bit more compact and clearer.
+   */
+  final def sequence = group.asInstanceOf[Sequence]
+  final def choice = group.asInstanceOf[Choice]
+
   final lazy val Seq(modelGroup) = {
     val s = smg
     // TODO: why check this? Schema validation will enforce this for us. (I think).

@@ -421,7 +421,9 @@ class UnparseResult(dp: DataProcessor, ustate: UState)
 
   override def resultState = ustate
 
-  private def encodingInfo = ustate.currentInfosetNode.get.asInstanceOf[DIElement].runtimeData.encodingInfo
+  private def maybeEncodingInfo = ustate.currentInfosetNode.map { _.asInstanceOf[DIElement].runtimeData.encodingInfo }
+
+  private def encodingInfo = maybeEncodingInfo.getOrElse(dp.ssrd.elementRuntimeData.encodingInfo)
 
   def summaryEncoding = encodingInfo.summaryEncoding
 

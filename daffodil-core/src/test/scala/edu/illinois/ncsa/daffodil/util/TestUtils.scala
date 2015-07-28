@@ -224,7 +224,7 @@ class Fakes private () {
   lazy val fakeSD = xsd_schema.schemaDocuments(0)
   lazy val fakeElem = fakeSD.getGlobalElementDecl("fake").get.forRoot()
   lazy val fakeCT = fakeSD.getGlobalElementDecl("fake2").get.forRoot().typeDef.asInstanceOf[GlobalComplexTypeDef]
-  lazy val fakeSequence = fakeCT.modelGroup.asInstanceOf[Sequence]
+  lazy val fakeSequence = fakeCT.sequence
   lazy val Seq(fs1, fs2) = fakeSequence.groupMembers
   lazy val fakeGroupRef = fs1.asInstanceOf[GroupRef]
 

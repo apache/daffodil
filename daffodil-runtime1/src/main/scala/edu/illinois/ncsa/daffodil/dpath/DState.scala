@@ -54,6 +54,11 @@ import com.ibm.icu.util.TimeZone
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.equality._
+
+sealed trait ParseOrUnparseMode
+case object ParseMode extends ParseOrUnparseMode
+case object UnparseMode extends ParseOrUnparseMode
 
 /**
  * expression evaluation side-effects this state block.
@@ -67,6 +72,12 @@ case class DState() {
    * nor variable value, nor their sum, has an element associated with it.
    */
   private var _currentValue: Any = null
+
+  private var mode: ParseOrUnparseMode = null
+
+  def setMode(m: ParseOrUnparseMode) {
+    mode = m
+  }
 
   def resetValue() {
     _currentValue = null
@@ -124,7 +135,24 @@ case class DState() {
     _currentValue = null
   }
 
-  def currentSimple = currentNode.asInstanceOf[DISimple]
+  def currentSimple = {
+    Assert.usage(currentNode != null)
+    Assert.usage(mode != null)
+    val cs = currentNode.asInstanceOf[DISimple]
+    //
+    // If this is a computed value (for unparsing for dfdl:outputValueCalc property)
+    // then if it is not yet computed, compute it.
+    //
+    // TODO: remove this code perhaps? This is demanded elsewhere....
+    //
+    //    if (mode =:= UnparseMode && !cs.hasValue && cs.runtimeData.outputValueCalcExpr.isDefined) {
+    //      val expr = cs.runtimeData.outputValueCalcExpr.get
+    //      val expressionValue = expr.evaluate(ustate)
+    //      cs.setDataValue(expressionValue)
+    //    }
+    cs
+  }
+
   def currentElement = currentNode.asInstanceOf[DIElement]
   def currentArray = currentNode.asInstanceOf[DIArray]
   def currentComplex = currentNode.asInstanceOf[DIComplex]

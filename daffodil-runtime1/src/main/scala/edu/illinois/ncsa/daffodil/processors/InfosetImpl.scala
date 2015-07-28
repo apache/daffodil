@@ -58,6 +58,8 @@ import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.xml.NamedQName
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
@@ -204,7 +206,10 @@ sealed trait DIElement extends DINode with InfosetElement {
 // code, rather than letting all sorts of map/flatmap compositions,
 // which may or may not be optimized effectively.
 //
-final class DIArray(val namedQName: NamedQName, val parent: DIComplex) extends DINode with InfosetArray {
+final class DIArray(val arrayElementInfo: DPathElementCompileInfo, val parent: DIComplex) extends DINode with InfosetArray {
+
+  def namedQName = arrayElementInfo.namedQName
+
   private val initialSize = DaffodilTunableParameters.initialElementOccurrencesHint.toInt
   //TODO: really this needs to be adaptive, and resize upwards reasonably. 
   //A non-copying thing - list like, may be better, but we do need access to be
@@ -251,6 +256,17 @@ final class DIArray(val namedQName: NamedQName, val parent: DIComplex) extends D
   }
 }
 
+/**
+ * Thrown when unparsing and demanding the dataValue of a DISimple
+ * when there is no value yet, but the element has dfdl:outputValueCalc
+ * expression.
+ *
+ * This should be caught in contexts that want to undertake on-demand
+ * evaluation of the OVC expression.
+ */
+case class OutputValueCalcEvaluationException(val erd: ElementRuntimeData)
+  extends Exception with ThinThrowable
+
 sealed class DISimple(val erd: ElementRuntimeData)
   extends DIElement
   with InfosetSimpleElement {
@@ -259,6 +275,11 @@ sealed class DISimple(val erd: ElementRuntimeData)
   private var _value: Any = null
 
   override def children: Stream[DINode] = Stream.Empty
+
+  def setDefaultedDataValue(defaultedValue: Any) = {
+    setDataValue(defaultedValue)
+    _isDefaulted = true
+  }
 
   override def setDataValue(x: Any) {
     Assert.invariant(x != null)
@@ -292,16 +313,23 @@ sealed class DISimple(val erd: ElementRuntimeData)
     _value = x
   }
 
+  def hasValue: Boolean = !_isNilled && _value != null
   /**
    * Obtain the data value. Implements default
-   * values.
+   * values, and outputValueCalc for unparsing.
    */
   override def dataValue = {
-    if (_value == null && erd.isDefaultable) {
-      val defaultVal = erd.defaultValue.get
-      _value = defaultVal
-      _isDefaulted = true
-    }
+    if (_value == null)
+      if (erd.isDefaultable) {
+        val defaultVal = erd.defaultValue.get
+        _value = defaultVal
+        _isDefaulted = true
+      } else if (erd.outputValueCalcExpr.isDefined) {
+        // want calling context to evaluate the expression.
+        // It has the information needed to provide the proper
+        // context
+        throw new OutputValueCalcEvaluationException(erd)
+      }
     this.erd.schemaDefinitionUnless(_value != null, "Value has not been set.")
     _value
   }
@@ -469,17 +497,15 @@ sealed class DIComplex(val erd: ElementRuntimeData)
 
   override def children = _slots.flatten.toStream
 
-  final override def getChild(erd: ElementRuntimeData): InfosetElement = getChildMaybe(erd).getOrElse {
-    throw new InfosetNoSuchChildElementException(erd)
+  final override def getChild(erd: ElementRuntimeData): InfosetElement = {
+    val res = getChildMaybe(erd).getOrElse {
+      throw new InfosetNoSuchChildElementException(erd)
+    }
+    res
   }
 
   final override def getChildMaybe(erd: ElementRuntimeData): Maybe[InfosetElement] =
     getChildMaybe(erd.slotIndexInParent)
-
-  final override def getChildArray(erd: ElementRuntimeData): Maybe[InfosetArray] = {
-    Assert.usage(erd.isArray)
-    getChildArray(erd.slotIndexInParent, erd.namedQName)
-  }
 
   final def getChild(slot: Int, namedQName: NamedQName): InfosetElement = getChildMaybe(slot).getOrElse {
     throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
@@ -488,7 +514,11 @@ sealed class DIComplex(val erd: ElementRuntimeData)
   final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
     _slots(slot).map { _.asInstanceOf[InfosetElement] }
 
-  final def getChildArray(slot: Int, namedQName: NamedQName): Maybe[DIArray] = {
+  final override def getChildArray(erd: ElementRuntimeData) = getChildArray(erd.dpathElementCompileInfo)
+
+  final def getChildArray(info: DPathElementCompileInfo): Maybe[InfosetArray] = {
+    Assert.usage(info.isArray)
+    val slot = info.slotIndexInParent
     val slotVal = _slots(slot)
     if (slotVal.isDefined)
       slotVal.get match {
@@ -498,7 +528,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     else {
       // slot is Nope. There isn't even an array object yet.
       // create one (it will have zero entries)
-      val ia = One(new DIArray(namedQName, this))
+      val ia = One(new DIArray(info, this))
       // no array there yet. So we have to create one.
       setChildArray(slot, ia)
       ia
@@ -521,7 +551,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       var ia: InfosetArray = null
       val arr = getChildArray(e.runtimeData)
       if (!arr.isDefined) {
-        ia = new DIArray(e.runtimeData.namedQName, this)
+        ia = new DIArray(e.runtimeData.dpathElementCompileInfo, this)
         // no array there yet. So we have to create one.
         setChildArray(e.runtimeData, ia)
       } else {
@@ -894,7 +924,7 @@ object Infoset {
           // In this case, the current slot must be filled in with 
           // a DIArray 
           val diComplex = ie.asInstanceOf[DIComplex]
-          val arr = new DIArray(childERD.namedQName, diComplex)
+          val arr = new DIArray(childERD.dpathElementCompileInfo, diComplex)
           val c = ie.asInstanceOf[DIComplex]
           c.setChildArray(childERD, arr)
 

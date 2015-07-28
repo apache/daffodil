@@ -77,6 +77,7 @@ import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.Pool
+import edu.illinois.ncsa.daffodil.dpath.ParseMode
 
 object MPState {
   class Mark {
@@ -215,12 +216,19 @@ case class TupleForDebugger(
  * places where points-of-uncertainty are handled.
  */
 abstract class ParseOrUnparseState(
-  val dstate: DState,
+  dstateArg: DState,
   var variableMap: VariableMap,
   var diagnostics: List[Diagnostic],
   var dataProc: DataProcessor) extends DFDL.State
   with StateForDebugger
   with ThrowsSDE with SavesErrorsAndWarnings {
+
+  val dstate = {
+    setMode(dstateArg)
+    dstateArg
+  }
+
+  def setMode(dstate: DState): Unit
 
   def copyStateForDebugger = {
     TupleForDebugger(
@@ -342,6 +350,8 @@ final class PState private (
 
   val discriminatorStack = new MStack.OfBoolean
   discriminatorStack.push(false)
+
+  def setMode(dstate: DState) = dstate.setMode(ParseMode)
 
   override def dataStream: DataStreamCommon = dataInputStream
 

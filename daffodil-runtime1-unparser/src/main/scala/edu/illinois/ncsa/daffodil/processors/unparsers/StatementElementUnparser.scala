@@ -45,6 +45,8 @@ import edu.illinois.ncsa.daffodil.processors.RuntimeData
 import edu.illinois.ncsa.daffodil.processors.Processor
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.DIElement
+import edu.illinois.ncsa.daffodil.processors.DISimple
+import edu.illinois.ncsa.daffodil.processors.DIComplex
 
 abstract class StatementElementUnparserBase(
   rd: ElementRuntimeData,
@@ -136,8 +138,13 @@ class StatementElementUnparser(
     event match {
       case Start(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
+        //
+        // When the infoset events are being advanced, the currentInfosetNodeStack
+        // is pushing and popping to match the events. This provides the proper
+        // context for evaluation of expressions.
+        // 
+        state.currentInfosetNodeStack.pushMaybe(One(infoElement))
       }
-      //      case Start(infoArr: DIArray) => UE(state, "Required Start Element event, but recieved: %s.", event)
       case _ => UnparseError(Nope, One(state.currentLocation), "Expected Start Element event, but received: %s.", event)
     }
   }
@@ -147,6 +154,8 @@ class StatementElementUnparser(
     event match {
       case End(infoElement: DIElement) => {
         Assert.invariant(infoElement.runtimeData == erd)
+
+        state.currentInfosetNodeStack.popMaybe
       }
       case _ => UnparseError(Nope, One(state.currentLocation), "Expected element end event, but received: %s.", event)
     }

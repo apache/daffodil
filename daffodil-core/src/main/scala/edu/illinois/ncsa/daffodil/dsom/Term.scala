@@ -72,7 +72,8 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   with TermGrammarMixin
   with DelimitedRuntimeValuedPropertiesMixin
   with InitiatedTerminatedMixin
-  with TermEncodingMixin {
+  with TermEncodingMixin
+  with UnparserAugmentedInfosetTermMixin {
 
   override final def term = this
 
@@ -414,13 +415,26 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
   final lazy val laterSiblings = ListUtils.tailAfter(allSiblings, this)
   final lazy val laterElementSiblings = laterSiblings.collect { case elt: ElementBase => elt }
 
+  final lazy val laterSiblingsWithinEnclosingElement: Seq[Term] = {
+    enclosingElement.flatMap { ee =>
+      enclosingTerm.map { et =>
+        val eeGroup = ee.elementComplexType.group
+        val res =
+          laterSiblings ++
+            (if (et eq eeGroup) Nil
+            else et.laterSiblingsWithinEnclosingElement)
+        res
+      }
+    }.getOrElse(Nil)
+  }
+
   final lazy val priorSibling = priorSiblings.lastOption
   final lazy val nextSibling = laterSiblings.headOption
 
   final lazy val priorPhysicalSiblings = priorSiblings.filter { _.isRepresented }
   final lazy val priorPhysicalSibling = priorPhysicalSiblings.lastOption
 
-  final def nearestPhysicalTermSatifying(pred: Term => Boolean): Option[Term] = {
+  final def nearestPriorPhysicalTermSatisfying(pred: Term => Boolean): Option[Term] = {
     priorPhysicalSiblings.filter { pred(_) }.lastOption match {
       case x @ Some(sib) => x
       case None => {
@@ -428,7 +442,7 @@ abstract class Term(xmlArg: Node, parentArg: SchemaComponent, val position: Int)
         enclosingTerm match {
           case None => None
           case x @ Some(t) if pred(t) => x
-          case Some(t) => t.nearestPhysicalTermSatifying(pred)
+          case Some(t) => t.nearestPriorPhysicalTermSatisfying(pred)
         }
       }
     }

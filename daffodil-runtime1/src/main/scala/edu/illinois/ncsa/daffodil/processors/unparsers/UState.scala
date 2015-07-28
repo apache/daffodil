@@ -33,15 +33,13 @@ import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import edu.illinois.ncsa.daffodil.dpath.UnparseMode
+import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.util.MStack
 
-sealed trait UnparserMode
-case object UnparseMode extends UnparserMode
-case object AccumulateNodesMode extends UnparserMode
-
 class UState(
-  infosetSource: InfosetSource,
+  private val infosetSource: InfosetSource,
   vmap: VariableMap,
   diagnosticsArg: List[Diagnostic],
   dataProcArg: DataProcessor,
@@ -50,6 +48,8 @@ class UState(
   with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def dataStream: DataStreamCommon = dataOutputStream
+
+  def setMode(dstate: DState) = dstate.setMode(UnparseMode)
 
   def withTemporaryDataOutputStream[T](temp: DataOutputStream)(body: => T): T = {
     val savedDOS = dataOutputStream
@@ -79,6 +79,14 @@ class UState(
   def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) Nope else currentInfosetNodeStack.topMaybe
   def currentInfosetEvent = currentInfosetEvent_
 
+  def setCurrentInfosetEvent(ev: Maybe[InfosetEvent]) {
+    currentInfosetEvent_ = ev
+  }
+
+  //  def setInfosetSource(newIS: InfosetSource) {
+  //    infosetSource = newIS
+  //  }
+
   def hasNext = infosetSource.hasNext
 
   def peek = infosetSource.peek // we depend on the infosetSource.peek method to check hasNext.
@@ -92,8 +100,6 @@ class UState(
     ev
   }
 
-  var mode: UnparserMode = UnparseMode
-
   override def hasInfoset = currentInfosetNode.isDefined
 
   override def infoset = {
@@ -106,21 +112,20 @@ class UState(
     }
   }
 
-  override def thisElement: InfosetElement = currentInfosetNode.get.asInstanceOf[InfosetElement]
+  override def thisElement: InfosetElement = {
+    Assert.usage(currentInfosetNode.isDefined)
+    val curNode = currentInfosetNode.get
+    curNode match {
+      case e: DIElement => e
+      case a: DIArray => a.parent
+    }
+  }
 
   private var status_ : ProcessorResult = Success
 
   override def status = status_
 
   val unparseResult = new UnparseResult(dataProcArg, this)
-
-  def addDeferredElement(elt: DINode) {
-    Assert.usage(elt.isInstanceOf[DISimple]) // only simple types for outputValueCalc
-
-    //TODO: Implement something here. For now, we're going to have a really 
-    //limited implementation - we know we can evaluate the deferred element
-    //expressions when we have the ENTIRE infoset.
-  }
 
   private def maybeCurrentInfosetElement: Maybe[DIElement] = {
     if (!currentInfosetNode.isDefined) Nope
@@ -153,6 +158,7 @@ class UState(
 
   val groupIndexStack = new MStack.OfLong
   groupIndexStack.push(1L)
+
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
@@ -164,6 +170,7 @@ class UState(
   def childPos = childIndexStack.top
 
   val occursBoundsStack = new MStack.OfLong
+
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)

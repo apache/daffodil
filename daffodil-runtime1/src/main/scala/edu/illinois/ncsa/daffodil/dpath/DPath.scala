@@ -50,6 +50,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.calendar.DFDLCalendar
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
+import edu.illinois.ncsa.daffodil.equality._
 
 class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
   dpathText: String,
@@ -117,7 +118,29 @@ class RuntimeExpressionDPath(tt: NodeInfo.Kind, recipe: CompiledDPath,
               Assert.invariant(!targetType.isInstanceOf[NodeInfo.AnyAtomic.Kind])
               c
             }
-            case s: DISimple => s.dataValue
+            case s: DISimple => {
+              try {
+                s.dataValue
+              } catch {
+                case ovc: OutputValueCalcEvaluationException => {
+                  // 
+                  // This is thrown when the infoset node is an element for an outputValueCalc which had
+                  // an expression that potentially reached into the future of the infoset.
+                  //
+                  // This leaves it up to the calling layer (i.e., right here)
+                  // to catch and decide whether evaluating the expression "on demand"
+                  // is the right thing to do. The notion there is that only the calling layer has enough context to
+                  // setup properly for this evaluation
+                  //
+                  Assert.invariant(s.runtimeData.outputValueCalcExpr.isDefined)
+                  Assert.invariant(s.runtimeData =:= ovc.erd)
+                  val expr = ovc.erd.outputValueCalcExpr.get
+                  val res = expr.evaluate(state)
+                  s.setDataValue(res)
+                  res
+                }
+              }
+            }
             case _ => Assert.invariantFailed("must be an element, simple or complex.")
           }
         }

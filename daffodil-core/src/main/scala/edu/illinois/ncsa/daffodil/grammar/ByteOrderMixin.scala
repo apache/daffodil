@@ -56,7 +56,7 @@ trait ByteOrderMixin extends GrammarMixin { self: Term =>
   }
 
   private lazy val isKnownSameByteOrder: Boolean = {
-    val optPrior = nearestPhysicalTermSatifying(_.thereIsAByteOrderDefined)
+    val optPrior = nearestPriorPhysicalTermSatisfying(_.thereIsAByteOrderDefined)
     optPrior match {
       case None => false
       case Some(prior) => {

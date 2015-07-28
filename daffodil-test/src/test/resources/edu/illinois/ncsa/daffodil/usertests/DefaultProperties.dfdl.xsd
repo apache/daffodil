@@ -28,7 +28,7 @@
 					initiatedContent="no" initiator="" leadingSkip="0" lengthKind="delimited"
 					lengthUnits="characters" nilKind="literalValue" nilValueDelimiterPolicy="none"
 					occursCountKind="fixed" outputNewLine="%CR;%LF;" prefixIncludesPrefixLength="no"
-					representation="text" separator="" separatorSuppressionPolicy="never"
+					representation="text" separator="" separatorSuppressionPolicy="trailingEmpty"
 					separatorPosition="infix" sequenceKind="ordered" terminator="" textBidi="no"
 					textBooleanFalseRep="false" textBooleanJustification="left"
 					textBooleanPadCharacter="%SP;" textBooleanTrueRep="true"

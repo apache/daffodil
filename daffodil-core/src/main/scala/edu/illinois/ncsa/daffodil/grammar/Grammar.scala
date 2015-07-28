@@ -45,6 +45,8 @@ import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.processors.unparsers.DummyUnparser
+import edu.illinois.ncsa.daffodil.processors.NadaUnparser
+import edu.illinois.ncsa.daffodil.processors.NadaParser
 
 abstract class UnaryGram(context: Term, rr: => Gram) extends NamedGram(context) {
   private lazy val r = rr
@@ -113,13 +115,21 @@ class SeqComp private (context: SchemaComponent, children: Seq[Gram]) extends Bi
 
   Assert.invariant(!children.exists { _.isInstanceOf[Nada] })
 
-  val parserChildren = children.filter(_.forWhat != ForUnparser)
+  lazy val parserChildren = children.filter(_.forWhat != ForUnparser).map { _.parser }.filterNot { _.isInstanceOf[NadaParser] }
 
-  final override lazy val parser = new SeqCompParser(context.runtimeData, parserChildren.map { _.parser })
+  final override lazy val parser = {
+    if (parserChildren.isEmpty) new NadaParser(context.runtimeData)
+    else if (parserChildren.length == 1) parserChildren(0)
+    else new SeqCompParser(context.runtimeData, parserChildren)
+  }
 
-  val unparserChildren = children.filter(_.forWhat != ForParser)
+  lazy val unparserChildren = children.filter(_.forWhat != ForParser).map { _.unparser }.filterNot { _.isInstanceOf[NadaUnparser] }
 
-  final override lazy val unparser = new SeqCompUnparser(context.runtimeData, unparserChildren.map { _.unparser })
+  final override lazy val unparser = {
+    if (unparserChildren.isEmpty) new NadaUnparser(context.runtimeData)
+    else if (unparserChildren.length == 1) unparserChildren(0)
+    else new SeqCompUnparser(context.runtimeData, unparserChildren)
+  }
 }
 
 /**

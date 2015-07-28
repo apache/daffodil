@@ -70,7 +70,7 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Maybe[Long], eitherStream: Either[
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {
-    "byte " + bitPos1b / 8 + " limit " + bitLimit1b.map { _ / 8 }
+    "byte " + bitPos1b / 8 + bitLimit1b.map { lim => " limit(bytes) " + lim / 8 }.getOrElse("")
   }
 
   private val Dump = new DataDumper

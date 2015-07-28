@@ -62,8 +62,8 @@ class TestMiddleEndAttributes2 {
     // Explore global element decl
     val Seq(e1f) = sd.globalElementDecls
     val e1 = e1f.forRoot()
-    val e1ct = e1.immediateType.get.asInstanceOf[LocalComplexTypeDef]
-    val seq1 = e1ct.modelGroup.asInstanceOf[Sequence]
+    val e1ct = e1.elementComplexType
+    val seq1 = e1ct.sequence
     val mems = seq1.groupMembers
     val Seq(t1: Term) = mems
     val seq2 = t1.asInstanceOf[Sequence]
