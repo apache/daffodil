@@ -6,11 +6,11 @@ scalaVersion in ThisBuild := "2.10.4"
 
 scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings") //, "-Xfatal-warnings")
 
-parallelExecution in ThisBuild := false
+// parallelExecution in ThisBuild := false
 
-concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
+// concurrentRestrictions in Global += Tags.limit(Tags.Test, 1)
 
-logBuffered in ThisBuild := false
+logBuffered in ThisBuild := true
 
 testOptions in ThisBuild += Tests.Argument(TestFrameworks.JUnit, "-v")
 
