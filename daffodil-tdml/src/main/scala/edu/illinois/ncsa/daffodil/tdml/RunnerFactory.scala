@@ -12,7 +12,10 @@ import edu.illinois.ncsa.daffodil.util.Misc
  * the test suite object (and avoid memory leak).
  */
 object Runner {
-  def apply(dir: String, file: String): Runner = new Runner(dir, file)
+  def apply(dir: String, file: String,
+    validateTDMLFile: Boolean = true,
+    validateDFDLSchemas: Boolean = true,
+    compileAllTopLevel: Boolean = false): Runner = new Runner(dir, file, validateTDMLFile, validateDFDLSchemas, compileAllTopLevel)
 }
 
 /**
@@ -21,7 +24,10 @@ object Runner {
  *
  * Note however, that each thread will get its own copy of the DFDLTestSuite
  */
-class Runner private (dir: String, file: String) {
+class Runner private (dir: String, file: String,
+  validateTDMLFile: Boolean = true,
+  validateDFDLSchemas: Boolean = true,
+  compileAllTopLevel: Boolean = false) {
 
   private def getTS = {
     if (ts == null) {
@@ -29,7 +35,7 @@ class Runner private (dir: String, file: String) {
       // are not file-system paths that have to be made platform-specific. 
       // In other words, we don't need to use "\\" for windows here. "/" works there as well.
       val d = if (dir.endsWith("/")) dir else dir + "/"
-      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file)))
+      tl_ts.set(new DFDLTestSuite(Misc.getRequiredResource(d + file), validateTDMLFile, validateDFDLSchemas, compileAllTopLevel))
     }
     ts
   }
