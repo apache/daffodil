@@ -43,11 +43,22 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestChoiceGroupInitiatedContent {
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
+
+  @AfterClass def shutDown {
+    runner_01.reset
+  }
+
+}
 
 class TestChoiceGroupInitiatedContent {
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  lazy val runner_01 = Runner(testDir_01, "ChoiceGroupInitiatedContent.tdml")
+  import TestChoiceGroupInitiatedContent._
 
   @Test def test_initiatedContentChoice1() { runner_01.runOneTest("initiatedContentChoice1") }
   @Test def test_initiatedContentChoice2() { runner_01.runOneTest("initiatedContentChoice2") }

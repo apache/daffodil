@@ -43,14 +43,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestUnparserGeneral {
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testUnparserGeneral.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "testUnparserGeneral.tdml")
 
   @AfterClass def shutDown {
-    runner = null
+    runner.reset
   }
 }
 class TestUnparserGeneral {

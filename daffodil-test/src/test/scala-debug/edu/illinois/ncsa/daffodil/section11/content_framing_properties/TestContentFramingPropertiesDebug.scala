@@ -41,11 +41,25 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestContentFramingPropertiesDebug {
+  private val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  lazy val runner1 = Runner(testDir_01, "dpaext1.tdml")
+
+  private val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
+  lazy val runner2 = Runner(testDir_02, "ContentFramingProps.tdml")
+
+  @AfterClass def shutdown {
+    runner1.reset
+    runner2.reset
+  }
+}
 
 class TestContentFramingPropertiesDebug {
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section11/content_framing_properties/"
-  val tdml2 = testDir_02 + "ContentFramingProps.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
+
+  import TestContentFramingPropertiesDebug._
 
   //  DFDL-751 - 7-bit ASCII alignment should be 1 bit, complains that it needs to be 8 bits
   @Test def test_alignmentPacked7BitASCII_02() { runner2.runOneTest("alignmentPacked7BitASCII_02") }

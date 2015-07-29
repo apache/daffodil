@@ -41,13 +41,25 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
-class TestDFDLSubset {
+object TestDFDLSubset {
+
   val testDir = "/edu/illinois/ncsa/daffodil/section05/dfdl_xsdl_subset/"
-  val tdml = testDir + "DFDLSubset.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner = Runner(testDir, "DFDLSubset.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+
+  @AfterClass def tearDown() { 
+    runner.reset 
+  }
+
+}
+
+class TestDFDLSubset {
+
+  import TestDFDLSubset._
 
   @Test def test_groupRefGroupRef() { { runner.runOneTest("groupRefGroupRef") } }
   @Test def test_refInitiator3() { { runner.runOneTest("refInitiator3") } }

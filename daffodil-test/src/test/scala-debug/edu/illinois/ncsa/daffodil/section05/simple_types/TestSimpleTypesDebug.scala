@@ -43,11 +43,38 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits._
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestSimpleTypes2 {
+object TestSimpleTypesDebug {
+
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-  val aa = testDir + "SimpleTypes.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+
+  val runner = Runner(testDir, "SimpleTypes.tdml")
+  val runnerAL = Runner(testDir, "AL.tdml")
+  val runner2 = Runner(testDir, "WhiteSpace.tdml")
+  val runnerAJ = Runner(testDir, "AJ.tdml")
+  val runnerAK = Runner(testDir, "AK.tdml")
+  val runner1 = Runner(testDir, "BitOrder.tdml")
+  val runnerST = Runner(testDir, "simple-type-bases.tdml")
+  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
+
+  @AfterClass def shutDown() {
+    runner.reset
+    runnerAL.reset
+    runner2.reset
+    runnerAJ.reset
+    runnerAK.reset
+    runner_01.reset
+    runner1.reset
+    runnerST.reset
+  }
+}
+
+class TestSimpleTypesDebug {
+
+  import TestSimpleTypesDebug._
 
   @Test def test_warning_exercise() {
     val exc = intercept[Exception] {
@@ -93,20 +120,14 @@ class TestSimpleTypes2 {
 
   @Test def test_posinteger_binary_01() { runner.runOneTest("nonNegInt_binary_01") }
 
-  val bb = testDir + "WhiteSpace.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
   @Test def test_whiteSpaceAfterLax() { runner2.runOneTest("whiteSpaceAfterLax") }
   @Test def test_redefinedFormat() { runner2.runOneTest("redefinedFormat") }
 
-  val cc = testDir + "BitOrder.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
   @Test def test_bigEndianLeastFirst() { runner1.runOneTest("bigEndianLeastFirst") }
   @Test def test_bitOrderChange() { runner1.runOneTest("bitOrderChange") }
   @Test def test_bitOrderDocument() { runner1.runOneTest("bitOrderDocument") }
   @Test def test_bitOrderTypeByte() { runner1.runOneTest("bitOrderTypeByte") }
   @Test def test_bitOrderChangeInvalid3() { runner1.runOneTest("bitOrderChangeInvalid3") }
 
-  val dd = testDir + "BitOrderInvalid.tdml"
-  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(dd))
-  @Test def test_bitOrderChangeInvalid() { runner3.runOneTest("bitOrderChangeInvalid") }
+  @Test def test_bitOrderChangeInvalid() { runner1.runOneTest("bitOrderChangeInvalid") }
 }

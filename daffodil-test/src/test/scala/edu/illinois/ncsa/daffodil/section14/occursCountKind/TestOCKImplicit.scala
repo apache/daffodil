@@ -40,14 +40,19 @@ import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Misc
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestOCKImplicit {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
-  val aa = testDir + "ockImplicit.tdml"
-  val res = Misc.getRequiredResource(aa)
-  lazy val runner = new DFDLTestSuite(res)
+  val runner = Runner(testDir, "ockImplicit.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
 }
+
 class TestOCKImplicit {
   import TestOCKImplicit._
 

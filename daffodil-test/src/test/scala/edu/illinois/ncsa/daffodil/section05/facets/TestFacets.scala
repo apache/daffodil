@@ -43,17 +43,15 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit._
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestFacets {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section05/facets/"
-  val aa = testDir + "Facets.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner = Runner(testDir, "Facets.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
 
-  /**
-   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
-   */
-  @AfterClass def tearDown() { runner = null }
+  @AfterClass def tearDown() { runner.reset }
 
 }
 

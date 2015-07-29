@@ -39,16 +39,21 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestAlignedData {
   val testDir_01 = "/edu/illinois/ncsa/daffodil/section12/aligned_data/"
-  val tdml1 = "Aligned_Data.tdml"
-  lazy val runner1 = Runner(testDir_01, tdml1) // new DFDLTestSuite(Misc.getRequiredResource(tdml1), validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner1 = Runner(testDir_01, "Aligned_Data.tdml")
+  val runner2 = Runner(testDir_01, "BinaryInput_01.tdml")
+  
+  @AfterClass def shutDown {
+    runner1.reset
+    runner2.reset
+  }
 }
 
 class TestAlignedData {
@@ -192,9 +197,6 @@ class TestAlignedData {
 
   @Test def test_alignmentLSBFirst() = { runner1.runOneTest("alignmentLSBFirst") }
   @Test def test_alignmentMSBFirst() = { runner1.runOneTest("alignmentMSBFirst") }
-
-  val tdml2 = testDir_01 + "BinaryInput_01.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
 
   @Test def test_LeadingSkipBytes() { runner2.runOneTest("LeadingSkipBytes") }
   @Test def test_LeadingSkipBits() { runner2.runOneTest("LeadingSkipBits") }

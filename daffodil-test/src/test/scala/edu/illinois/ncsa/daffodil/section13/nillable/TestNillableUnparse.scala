@@ -43,18 +43,15 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit._
 
 object TestNillableUnparse {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val ln = testDir + "literal-value-nils-unparse.tdml"
-  var runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  val runnerLN = Runner(testDir, "literal-value-nils-unparse.tdml")
 
-  /**
-   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
-   */
   @AfterClass def tearDown() {
-    runnerLN = null
+    runnerLN.reset
   }
 }
 

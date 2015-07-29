@@ -36,12 +36,22 @@ import junit.framework.Assert._
 import org.junit.Test
 
 import edu.illinois.ncsa.daffodil.util.Misc
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestEscapes {
+  val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
+  val runner = Runner(testDir, "parseUnparseModeTest.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestEscapes {
-  val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
-  val tdml = testDir + "parseUnparseModeTest.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import TestEscapes._
 
   @Test def test_parse1() { runner.runOneTest("parse1") }
 

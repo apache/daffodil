@@ -42,21 +42,31 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestDelimiterProperties {
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
+
+  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
+  val runner_02 = Runner(testDir_02, "DelimiterProperties.tdml")
+
+  @AfterClass def shutDown {
+    runner_01.reset
+    runner_02.reset
+  }
+
+}
 
 class TestDelimiterProperties {
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml_01 = testDir_01 + "dpaext1.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+  import TestDelimiterProperties._
 
   @Test def test_delimiter_12_01() { runner_01.runOneTest("delimiter_12_01") }
   //@Test def test_delimiter_12_02() { runner_01.runOneTest("delimiter_12_02") }
   @Test def test_delimiter_12_03() { runner_01.runOneTest("delimiter_12_03") }
   @Test def test_delimiter_12_04() { runner_01.runOneTest("delimiter_12_04") }
-
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
-  val tdml_02 = testDir_02 + "DelimiterProperties.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
   @Test def test_DelimProp_01() = { runner_02.runOneTest("DelimProp_01") }
   @Test def test_ParseSequence4() { runner_02.runOneTest("ParseSequence4") }
@@ -71,16 +81,10 @@ class TestDelimiterProperties {
   @Test def test_initiatedContentSimple1() { runner_02.runOneTest("initiatedContentSimple1") }
   @Test def test_Lesson4_initiators_terminators() { runner_02.runOneTest("Lesson4_initiators_terminators") }
 
-  @Test def test_DelimProp_10() = {
-    runner_02.runOneTest("DelimProp_10")
-  }
-  @Test def test_DelimProp_10_01() = {
-    runner_02.runOneTest("DelimProp_10_01")
-  }
+  @Test def test_DelimProp_10() = { runner_02.runOneTest("DelimProp_10") }
+  @Test def test_DelimProp_10_01() = { runner_02.runOneTest("DelimProp_10_01") }
 
-  @Test def test_E1() = {
-    runner_02.runOneTest("E1")
-  }
+  @Test def test_E1() = { runner_02.runOneTest("E1") }
 
   @Test def test_ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix() = {
     runner_02.runOneTest("ReqFieldMissingAndSepIsPrefixOfTerminator_Prefix")

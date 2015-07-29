@@ -45,9 +45,18 @@ import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class TestEscapeSchemeUnparse {
+object TestEscapeSchemeUnparse {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
   val runner = Runner(testDir, "escapeSchemeUnparse.tdml")
+  
+  @AfterClass def tearDown() { 
+    runner.reset 
+  }
+}
+
+class TestEscapeSchemeUnparse {
+
+  import TestEscapeSchemeUnparse._
 
   @Test def test_unparseDelimitedEscapedString01() { runner.runOneTest("unparseDelimitedEscapedString01") }
   @Test def test_unparseDelimitedEscapedString02() { runner.runOneTest("unparseDelimitedEscapedString02") }

@@ -43,11 +43,26 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestChoice {
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+
+  val runnerCH = Runner(testDir, "choice.tdml")
+  val runner = Runner(testDir1, "dpaext2.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerCH.reset
+  }
+
+}
 
 class TestChoice {
-  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  val aa = testDir + "choice.tdml"
-  lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestChoice._
 
   @Test def test_optionalChoice01() { runnerCH.runOneTest("optionalChoice01") }
   @Test def test_optionalChoice02() { runnerCH.runOneTest("optionalChoice02") }
@@ -114,10 +129,6 @@ class TestChoice {
   @Test def test_choice_maxOccurs() { runnerCH.runOneTest("choice_maxOccurs") }
 
   @Test def test_choice_with_inputvaluecalc() { runnerCH.runOneTest("choice_with_inputvaluecalc") }
-
-  val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml1 = testDir1 + "dpaext2.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
 
   @Test def test_choices_basic_15_01() { runner.runOneTest("choices_basic_15_01") }
   @Test def test_choices_basic_15_02() { runner.runOneTest("choices_basic_15_02") }

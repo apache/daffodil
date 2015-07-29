@@ -44,31 +44,38 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestInputValueCalc {
+  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
+
+  val runner = Runner(testDir, "inputValueCalc.tdml")
+  val runnerAR = Runner(testDir, "AR.tdml")
+  val runnerAQ = Runner(testDir, "AQ.tdml")
+  val runnerAA = Runner(testDir, "AA.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerAR.reset
+    runnerAQ.reset
+    runnerAA.reset
+  }
+
+}
 
 class TestInputValueCalc {
-  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
-  val ar = testDir + "AR.tdml"
-  lazy val runnerAR = new DFDLTestSuite(Misc.getRequiredResource(ar))
+
+  import TestInputValueCalc._
 
   @Test def test_AR000() { runnerAR.runOneTest("AR000") }
 
-  val aq = testDir + "AQ.tdml"
-  lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
-
   @Test def test_AQ000() { runnerAQ.runOneTest("AQ000") }
-
-  val aa = testDir + "AA.tdml"
-
-  lazy val runnerAA = { new DFDLTestSuite(Misc.getRequiredResource(aa)) }
 
   @Test def test_AA000() { runnerAA.runOneTest("AA000") }
   @Test def test_inputValueCalcErrorDiagnostic1() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic1") }
   @Test def test_inputValueCalcErrorDiagnostic2() { runnerAA.runOneTest("inputValueCalcErrorDiagnostic2") }
   @Test def test_inputValueCalcAbsolutePath() { runnerAA.runOneTest("inputValueCalcAbsolutePath") }
-
-  val tdml = testDir + "inputValueCalc.tdml"
-
-  lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
 
   @Test def test_InputValueCalc_01() { runner.runOneTest("InputValueCalc_01") }
   @Test def test_InputValueCalc_02() { runner.runOneTest("InputValueCalc_02") }

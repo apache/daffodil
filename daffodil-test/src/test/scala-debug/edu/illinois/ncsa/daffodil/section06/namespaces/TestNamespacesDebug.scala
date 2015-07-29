@@ -42,11 +42,29 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestNamespacesDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
+
+  val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner3 = Runner(testDir, "includeImport.tdml")
+  val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner2.reset
+    runner3.reset
+    runnerWithSchemaValidation.reset
+  }
+}
 
 class TestNamespacesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
-  val aa = testDir + "namespaces.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestNamespacesDebug._
 
   @Test def test_multi_encoding_04() { runner.runOneTest("multi_encoding_04") }
   @Test def test_multi_encoding_05() { runner.runOneTest("multi_encoding_05") }

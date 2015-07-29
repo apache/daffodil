@@ -42,11 +42,23 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPropertyScopingDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
+  val runner = Runner(testDir, "PropertyScoping.tdml")
+  val runner_01 = Runner(testDir, "PropertyScoping_01.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner_01.reset
+  }
+}
 
 class TestPropertyScopingDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
-  val aa = testDir + "PropertyScoping.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestPropertyScopingDebug._
 
   //DFDL-1036 (was fixed) now DFDL-1159
   @Test def test_localAnnotation_05() { runner.runOneTest("localAnnotation_05") }

@@ -46,12 +46,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import scala.math.Pi
 import edu.illinois.ncsa.daffodil.util.Fakes
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestVariables {
   val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
-  val tdml = testDir + "variables.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  val runner = Runner(testDir, "variables.tdml")
+  val runner_01 = Runner(testDir, "variables_01.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner_01.reset
+  }
+
 }
+
 class TestVariables {
   import TestVariables._
 
@@ -87,9 +96,6 @@ class TestVariables {
 
   @Test def test_var_end_path() { runner.runOneTest("var_end_path") }
   @Test def test_var_in_path() { runner.runOneTest("var_in_path") }
-
-  val tdml_01 = testDir + "variables_01.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
   @Test def test_doubleSetErr_d() { runner_01.runOneTest("doubleSetErr_d") }
   @Test def test_setVar1_d() { runner_01.runOneTest("setVar1_d") }

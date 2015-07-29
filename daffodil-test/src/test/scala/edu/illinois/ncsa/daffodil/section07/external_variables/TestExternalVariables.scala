@@ -37,13 +37,23 @@ import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util._
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestExternalVariables {
+
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
+  val runner = Runner(testDir, "external_variables.tdml")
+
+  @AfterClass def tearDown() { 
+    runner.reset 
+  }
+
+}
 
 class TestExternalVariables {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/external_variables/"
-  val tdml = testDir + "external_variables.tdml"
-
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  import TestExternalVariables._
 
   // It's important to note here that external variables
   // via the TDMLRunner are currently passed in during

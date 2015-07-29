@@ -41,11 +41,24 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestVariablesDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
+  val runner = Runner(testDir, "variables.tdml")
+  val runner_01 = Runner(testDir, "variables_01.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner_01.reset
+  }
+
+}
 
 class TestVariablesDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/variables/"
-  val tdml = testDir + "variables.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import TestVariablesDebug._
 
   @Test def test_varInstance() { runner.runOneTest("varInstance") }
 

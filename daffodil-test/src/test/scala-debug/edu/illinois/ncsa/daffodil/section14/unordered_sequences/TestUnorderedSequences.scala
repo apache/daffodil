@@ -39,12 +39,22 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestUnorderedSequences {
+object TestUnorderedSequencesDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section14/unordered_sequences/"
-  val uos = testDir + "UnorderedSequences.tdml"
-  val res = Misc.getRequiredResource(uos)
-  lazy val runner = new DFDLTestSuite(res)
+  val runner = Runner(testDir, "UnorderedSequences.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
+
+class TestUnorderedSequencesDebug {
+
+  import TestUnorderedSequencesDebug._
 
   //DFDL-1010
   @Test def test_simple = { runner.runOneTest("test_simple") }

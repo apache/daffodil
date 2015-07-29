@@ -41,11 +41,21 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestTextNumberPropsDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
+  val runner = Runner(testDir, "TextNumberProps.tdml")
+
+  @AfterClass def shutDown() {
+    runner.reset
+  }
+}
 
 class TestTextNumberPropsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
-  val aa = testDir + "TextNumberProps.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestTextNumberPropsDebug._
 
   // DFDL-845
   @Test def test_textNumberCheckPolicy_lax01() { runner.runOneTest("textNumberCheckPolicy_lax01") }

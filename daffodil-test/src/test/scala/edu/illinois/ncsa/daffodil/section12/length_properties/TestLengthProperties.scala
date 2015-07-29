@@ -43,20 +43,31 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.exceptions.Assert
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestLengthProperties {
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/length_properties/"
+
+  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
+  val runner_02 = Runner(testDir_02, "LengthProperties.tdml")
+
+  @AfterClass def shutDown {
+    runner_01.reset
+    runner_02.reset
+  }
+
+}
 
 class TestLengthProperties {
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml_01 = testDir_01 + "dpaext1.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
+
+  import TestLengthProperties._
 
   // uses lengthUnits bytes with lengthKind explicit and utf-8
   // @Test def test_length_explicit_12_01() { runner_01.runOneTest("length_explicit_12_01") }
   @Test def test_length_explicit_12_02() { runner_01.runOneTest("length_explicit_12_02") }
   @Test def test_length_delimited_12_06() { runner_01.runOneTest("length_delimited_12_06") }
-
-  val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/length_properties/"
-  val tdml_02 = testDir_02 + "LengthProperties.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
 
   // DFDL-931 Uses lengthUnits bytes with utf-8 encoding and explicit lengthKind
   // @Test def test_LengthProp_02() { runner_02.runOneTest("LengthProp_02") }

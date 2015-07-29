@@ -42,13 +42,22 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestUnparserGeneralDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val runner = Runner(testDir, "testUnparserGeneral.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+}
 
 class TestUnparserGeneralDebug {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testUnparserGeneral.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  
+  import TestUnparserGeneralDebug._
+
   //DFDL-1395
   @Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
   @Test def test_puaInfosetChars_04() { runner.runOneTest("puaInfosetChars_04") }

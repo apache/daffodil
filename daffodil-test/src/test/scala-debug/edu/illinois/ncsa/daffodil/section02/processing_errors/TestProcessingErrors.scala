@@ -42,11 +42,28 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import org.junit.AfterClass
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
-class TestProcessingErrors2 {
+object TestProcessingErrorsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
-  val aa = testDir + "ProcessingErrors.tdml"
-  lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val aa = testDir + "dfdl-schema-validation-diagnostics.tdml"
+  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false, validateDFDLSchemas = false)
+
+  val runner02 = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner02Validate = Runner(testDir, "ProcessingErrors.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+
+  @AfterClass def shutDown {
+    runner = null
+    runner02.reset
+    runner02Validate.reset
+  }
+
+}
+
+class TestProcessingErrorsDebug {
+
+  import TestProcessingErrorsDebug._
 
   @Test def test_delimiterNotFound01() { runner02.runOneTest("delimiterNotFound01") }
 

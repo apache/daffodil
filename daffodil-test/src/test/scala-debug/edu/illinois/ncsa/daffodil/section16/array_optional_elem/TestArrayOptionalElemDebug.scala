@@ -41,12 +41,31 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestArrayOptionalElemDebug {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
+  private val testDir01 = "/edu/illinois/ncsa/daffodil/section05/facets/"
+  private val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+
+  val runner = Runner(testDir, "ArrayOptionalElem.tdml")
+  val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
+  val runner1 = Runner(testDir1, "dpaext2.tdml")
+  val rBack = Runner(testDir, "backtracking.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner01.reset
+    runner1.reset
+    rBack.reset
+  }
+
+}
 
 class TestArrayOptionalElemDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa = testDir + "ArrayOptionalElem.tdml"
 
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  import TestArrayOptionalElemDebug._
 
   @Test def test_arrayExpressions03() { runner.runOneTest("arrayExpressions03") }
   

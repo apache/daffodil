@@ -43,12 +43,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit._
+
+object TestNillableUnparseDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
+  val runnerLN = Runner(testDir, "literal-value-nils-unparse.tdml")
+
+  @AfterClass def tearDown() {
+    runnerLN.reset
+  }
+}
 
 class TestNillableUnparseDebug {
 
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  val ln = testDir + "literal-value-nils-unparse.tdml"
-  lazy val runnerLN = new DFDLTestSuite(Misc.getRequiredResource(ln))
+  import TestNillableUnparseDebug._
   
   //DFDL-1304
   @Test def test_text_nil_only6() { runnerLN.runOneTest("text_nil_only6") }

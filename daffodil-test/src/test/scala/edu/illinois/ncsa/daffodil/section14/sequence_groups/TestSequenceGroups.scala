@@ -41,23 +41,37 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestSequenceGroups {
+
+  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+
+  val runner = Runner(testDir, "dpaext1.tdml")
+  val runner2 = Runner(testDir, "dpaext2.tdml")
+  val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
+  var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner2.reset
+    runner_01.reset
+    runner_02.reset
+  }
+
+}
 
 class TestSequenceGroups {
-  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val aa = testDir + "dpaext1.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestSequenceGroups._
 
   @Test def test_multiple_delimiters2() { runner.runOneTest("multiple_delimiters2") }
 
-  val tdml2 = testDir + "dpaext2.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
   @Test def test_sequences_separated_14_03() { runner2.runOneTest("sequences_separated_14_03") }
   @Test def test_sequences_separated_14_05() { runner2.runOneTest("sequences_separated_14_05") }
   @Test def test_sequences_separated_14_06() { runner2.runOneTest("sequences_separated_14_06") }
-
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-  val tdml_01 = testDir_01 + "SequenceGroupDelimiters.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
   @Test def test_SeqGrp_01() { runner_01.runOneTest("SeqGrp_01") }
   @Test def test_SeqGrp_02() { runner_01.runOneTest("SeqGrp_02") }
@@ -69,9 +83,6 @@ class TestSequenceGroups {
   @Test def test_groupRefInheritProps() { runner_01.runOneTest("groupRefInheritProps") }
   @Test def test_sequenceWithinSequence() { runner_01.runOneTest("sequenceWithinSequence") }
   @Test def test_delimitedByNextInitFail() { runner_01.runOneTest("delimitedByNextInitFail") }
-
-  val tdml_02 = testDir_01 + "SequenceGroup.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile = false)
 
   //  @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_complexEmptyContent() { runner_02.runOneTest("complexEmptyContent") }

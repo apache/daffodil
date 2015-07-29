@@ -39,16 +39,26 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestUserSubmittedTests {
+  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+  val runner = Runner(testDir, "UserSubmittedTests.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestUserSubmittedTests {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
-  val aa = testDir + "UserSubmittedTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestUserSubmittedTests._
 
   @Test def test_prefix_separator_as_variable() {
     runner.runOneTest("test_prefix_separator_as_variable")

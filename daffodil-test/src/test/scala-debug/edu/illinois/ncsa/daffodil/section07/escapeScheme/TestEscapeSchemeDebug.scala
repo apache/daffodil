@@ -42,11 +42,25 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestEscapeSchemeDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
+  val runner = Runner(testDir, "escapeScheme.tdml", validateTDMLFile = false)
+  val runnerNeg = Runner(testDir, "escapeSchemeNeg.tdml", validateTDMLFile = false)
+  val runner2 = Runner(testDir, "escapeScenarios.tdml", validateTDMLFile = false)
+
+  @AfterClass def shutDown() {
+    runner.reset
+    runnerNeg.reset
+    runner2.reset
+  }
+}
 
 class TestEscapeSchemeDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/escapeScheme/"
-  val aa = testDir + "escapeScheme.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = false)
+
+  import TestEscapeSchemeDebug._
 
   @Test def test_escapeSchemeNonUnique() { runner.runOneTest("escapeSchemeNonUnique") }
 

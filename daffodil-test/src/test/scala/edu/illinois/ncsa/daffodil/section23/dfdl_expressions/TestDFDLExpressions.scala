@@ -42,45 +42,35 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TestDFDLExpressions {
   val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
 
   // I'm not sure these belong in section23, but there is no section of the spec that 
   // is about all these properties together, yet, since there is common mechanism here
   // I really think their tests should not be scattered all over to the sections where each
   // property is defined.
+
   val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
-  val rp = testDir4 + "runtime-properties.tdml"
-  var runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp), validateTDMLFile = true, validateDFDLSchemas = false)
 
-  val tdml = testDir + "expressions.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false, validateDFDLSchemas = false)
-
-  val tdml2 = testDir + "functions.tdml"
-  var runner_fun = new DFDLTestSuite(Misc.getRequiredResource(tdml2))
-
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aa = testDir2 + "Functions.tdml"
-  val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
-  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  var runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa_utf8))
-
-  val testDir2b = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aab = testDir2b + "Functions-neg.tdml"
-  var runner2b = new DFDLTestSuite(Misc.getRequiredResource(aab))
-
-  val tdml3 = testDir + "expression_fail.tdml"
-  var runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdml3), validateTDMLFile = false)
+  val runner = Runner(testDir, "expressions.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner2 = Runner(testDir2, "Functions.tdml")
+  val runner2_utf8 = Runner(testDir2, "Functions_UTF8.tdml")
+  val runner2b = Runner(testDir2, "Functions-neg.tdml")
+  val runner3 = Runner(testDir, "expression_fail.tdml", validateTDMLFile = false)
+  val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner_fun = Runner(testDir, "functions.tdml")
 
   @AfterClass def shutDown() {
-    runner4 = null
-    runner = null
-    runner_fun = null
-    runner2 = null
-    runner2_utf8 = null
-    runner2b = null
-    runner3 = null
+    runner4.reset
+    runner.reset
+    runner_fun.reset
+    runner2.reset
+    runner2_utf8.reset
+    runner2b.reset
+    runner3.reset
   }
 }
 

@@ -42,35 +42,25 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit._
 
 object TestUnparseArrayOptionalElem {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  val aa_fixed = testDir + "UnparseArrayFixedOptionalElem.tdml"
-  var runner_fixed = new DFDLTestSuite(Misc.getRequiredResource(aa_fixed))
 
-  val aa_imp = testDir + "UnparseArrayImplicitOptionalElem.tdml"
-  var runner_imp = new DFDLTestSuite(Misc.getRequiredResource(aa_imp))
+  val runner_fixed = Runner(testDir, "UnparseArrayFixedOptionalElem.tdml")
+  val runner_imp = Runner(testDir, "UnparseArrayImplicitOptionalElem.tdml")
+  val runner_parsed = Runner(testDir, "UnparseArrayParsedOptionalElem.tdml")
+  val runner_expr = Runner(testDir, "UnparseArrayExpressionConstant.tdml")
+  val runner_delim = Runner(testDir, "UnparseArrayDelimitedOptionalElem.tdml")
 
-  val aa_parsed = testDir + "UnparseArrayParsedOptionalElem.tdml"
-  var runner_parsed = new DFDLTestSuite(Misc.getRequiredResource(aa_parsed))
-
-  val aa_expr = testDir + "UnparseArrayExpressionConstant.tdml"
-  var runner_expr = new DFDLTestSuite(Misc.getRequiredResource(aa_expr))
-
-  val aa_delim = testDir + "UnparseArrayDelimitedOptionalElem.tdml"
-  var runner_delim = new DFDLTestSuite(Misc.getRequiredResource(aa_delim))
-
-  /**
-   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
-   */
   @AfterClass def tearDown() {
-    runner_fixed = null
-    runner_imp = null
-    runner_parsed = null
-    runner_expr = null
-    runner_delim = null
+    runner_fixed.reset
+    runner_imp.reset
+    runner_parsed.reset
+    runner_expr.reset
+    runner_delim.reset
   }
 
 }

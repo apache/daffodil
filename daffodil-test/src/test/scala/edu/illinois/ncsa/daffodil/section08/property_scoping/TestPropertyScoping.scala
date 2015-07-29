@@ -42,11 +42,23 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPropertyScoping {
+  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
+  val runner = Runner(testDir, "PropertyScoping.tdml")
+  val runner_01 = Runner(testDir, "PropertyScoping_01.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner_01.reset
+  }
+}
 
 class TestPropertyScoping {
-  val testDir = "/edu/illinois/ncsa/daffodil/section08/property_scoping/"
-  val aa = testDir + "PropertyScoping.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestPropertyScoping._
 
   @Test def test_defaultForm_01() { runner.runOneTest("defaultForm_01") }
   @Test def test_defaultForm_02() { runner.runOneTest("defaultForm_02") }
@@ -75,9 +87,6 @@ class TestPropertyScoping {
   // @Test def test_property_shortFormSchemaFail() { runner.runOneTest("shortFormSchemaFail") }
 
   @Test def test_format_nesting_01() { runner.runOneTest("format_nesting_01") }
-
-  val tdml = testDir + "PropertyScoping_01.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml))
 
   @Test def test_property_scoping_02() { runner_01.runOneTest("property_scoping_02") }
   //See DFDL-1337

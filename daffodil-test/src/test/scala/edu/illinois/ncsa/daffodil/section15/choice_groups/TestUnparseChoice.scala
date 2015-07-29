@@ -41,16 +41,17 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 
 object TestUnparseChoice {
   val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  val aa = testDir + "choice-unparse.tdml"
-  var runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runnerCH = Runner(testDir, "choice-unparse.tdml")
 
   @AfterClass def tearDown() {
-    runnerCH = null
+    runnerCH.reset
   }
 }
 

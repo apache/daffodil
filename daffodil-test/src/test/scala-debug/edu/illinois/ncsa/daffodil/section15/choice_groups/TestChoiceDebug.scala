@@ -42,12 +42,26 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestChoiceDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
+  val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+
+  val runnerCH = Runner(testDir, "choice.tdml")
+  val runner = Runner(testDir1, "dpaext2.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerCH.reset
+  }
+
+}
 
 class TestChoiceDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section15/choice_groups/"
-  val aa = testDir + "choice.tdml"
 
-  lazy val runnerCH = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  import TestChoiceDebug._
 
   @Test def test_choice_noBranch() { runnerCH.runOneTest("choice_noBranch") }
 }

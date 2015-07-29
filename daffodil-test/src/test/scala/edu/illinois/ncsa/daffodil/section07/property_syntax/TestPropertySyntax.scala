@@ -39,21 +39,31 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPropertySyntax {
+  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val runner = Runner(testDir, "dpaext1.tdml")
+
+  val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
+  val runner1 = Runner(testDir1, "PropertySyntax.tdml", false, false)
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner1.reset
+  }
+
+}
 
 class TestPropertySyntax {
-  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val tdml = testDir + "dpaext1.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import TestPropertySyntax._
 
   @Test def test_property_syntax_7_01() { runner.runOneTest("property_syntax_7_01") }
   @Test def test_property_syntax_7_02() { runner.runOneTest("property_syntax_7_02") }
   @Test def test_property_syntax_7_03() { runner.runOneTest("property_syntax_7_03") }
-
-  val testDir1 = "/edu/illinois/ncsa/daffodil/section07/property_syntax/"
-  val aa = testDir1 + "PropertySyntax.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(aa), false, false)
 
   @Test def test_ShortAndLongForm() { runner1.runOneTest("ShortAndLongForm") }
   @Test def test_ShortAnnotationAndElementForm() { runner1.runOneTest("ShortAnnotationAndElementForm") }

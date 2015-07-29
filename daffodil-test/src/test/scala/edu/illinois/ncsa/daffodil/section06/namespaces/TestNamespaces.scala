@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 import org.junit.Rule
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -50,15 +51,18 @@ import java.io.ByteArrayInputStream
 
 object TestNamespaces {
   val testDir = "/edu/illinois/ncsa/daffodil/section06/namespaces/"
-  val aa = testDir + "namespaces.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = false)
-  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(testDir + "multiFile.tdml"), validateTDMLFile = false, validateDFDLSchemas = false)
-  var runnerWithSchemaValidation = new DFDLTestSuite(Misc.getRequiredResource(aa), validateTDMLFile = true, validateDFDLSchemas = true)
+
+  val runner = Runner(testDir, "namespaces.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner2 = Runner(testDir, "multiFile.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner3 = Runner(testDir, "includeImport.tdml")
+  val runnerWithSchemaValidation = Runner(testDir, "multiFile.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+
 
   @AfterClass def shutDown {
-    runner = null
-    runner2 = null
-    runnerWithSchemaValidation = null
+    runner.reset
+    runner2.reset
+    runner3.reset
+    runnerWithSchemaValidation.reset
   }
 }
 class TestNamespaces {
@@ -217,9 +221,6 @@ class TestNamespaces {
   @Test def test_nonsense_namespace_04() { runner.runOneTest("nonsense_namespace_04") }
 
   @Test def test_junkAnnotation01() { runner.runOneTest("junkAnnotation01") }
-
-  val tdmlFile = testDir + "includeImport.tdml"
-  lazy val runner3 = new DFDLTestSuite(Misc.getRequiredResource(tdmlFile))
 
   @Test def test_include01() { runner3.runOneTest("include01") }
   @Test def test_include02() { runner3.runOneTest("include02") }

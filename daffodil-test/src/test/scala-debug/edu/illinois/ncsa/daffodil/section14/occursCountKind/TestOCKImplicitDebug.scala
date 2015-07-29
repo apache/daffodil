@@ -32,23 +32,26 @@
 
 package edu.illinois.ncsa.daffodil.section14.occursCountKind
 
-/* This section00 is for testing general features of DFDL that are
- * not related to any specific requirement
- */
-
 import junit.framework.Assert._
 import org.junit.Test
 import edu.illinois.ncsa.daffodil.util.Misc
 
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestOCKImplicitDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
+  val runner = Runner(testDir, "ockImplicit.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestOCKImplicitDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section14/occursCountKind/"
-  val aa = testDir + "ockImplicit.tdml"
-  val res = Misc.getRequiredResource(aa)
-  println(res)
-  lazy val runner = new DFDLTestSuite(res)
 
+  import TestOCKImplicitDebug._
   
   // Waiting on DFDL-823 for clearer error message
   // @Test def test_ockImplicit7() { runner.runOneTest("ockImplicit7") }

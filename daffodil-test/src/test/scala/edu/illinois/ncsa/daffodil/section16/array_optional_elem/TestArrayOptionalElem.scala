@@ -45,39 +45,24 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestArrayOptionalElem {
   private val testDir = "/edu/illinois/ncsa/daffodil/section16/array_optional_elem/"
-  private val aa = testDir + "ArrayOptionalElem.tdml"
-
-  private var runnerv: DFDLTestSuite = null
-
-  def runner = {
-    if (runnerv == null) runnerv = new DFDLTestSuite(Misc.getRequiredResource(aa))
-    runnerv
-  }
-
   private val testDir01 = "/edu/illinois/ncsa/daffodil/section05/facets/"
-  private val ab = testDir01 + "Facets.tdml"
-  private var runner01v: DFDLTestSuite = null
-  def runner01 = {
-    if (runner01v == null) runner01v = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false)
-    runner01v
-  }
-
   private val testDir1 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  private val tdml1 = testDir1 + "dpaext2.tdml"
-  private var runner1v: DFDLTestSuite = null
-  def runner1 = {
-    if (runner1v == null) runner1v = new DFDLTestSuite(Misc.getRequiredResource(tdml1))
-    runner1v
-  }
 
-  private val tdmlBack = testDir + "backtracking.tdml"
-  private var rBackv: DFDLTestSuite = null
-  def rBack = {
-    if (rBackv == null) rBackv = new DFDLTestSuite(Misc.getRequiredResource(tdmlBack))
-    rBackv
+  val runner = Runner(testDir, "ArrayOptionalElem.tdml")
+  val runner01 = Runner(testDir01, "Facets.tdml", validateTDMLFile = false)
+  val runner1 = Runner(testDir1, "dpaext2.tdml")
+  val rBack = Runner(testDir, "backtracking.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner01.reset
+    runner1.reset
+    rBack.reset
   }
 
 }

@@ -46,16 +46,28 @@ import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestLengthKindDelimited {
-
+object TestLengthKindDelimited {
   private val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
 
   val runner = Runner(testDir, "DelimitedTests.tdml")
   val runnerAB = Runner(testDir, "AB.tdml")
   val runnerAN = Runner(testDir, "AN.tdml")
-
   val runner_01 = Runner("/edu/illinois/ncsa/daffodil/ibm-tests/", "dpaext1.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerAB.reset
+    runnerAN.reset
+    runner_01.reset
+  }
+
+}
+
+class TestLengthKindDelimited {
+
+  import TestLengthKindDelimited._
 
   @Test def test_delimited_binary_int_seqSep() = { runner.runOneTest("delimited_binary_int_seqSep") }
 

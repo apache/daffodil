@@ -41,20 +41,22 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 import java.io.File
 
 object TestEscapes {
   val testDir = "/edu/illinois/ncsa/daffodil/section31/escape_characters/"
-  val tdml = testDir + "Escapes.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  val runner = Runner(testDir, "Escapes.tdml")
 
   @AfterClass def shutDown() {
-    runner = null
+    runner.reset
   }
 }
 
 class TestEscapes {
   import TestEscapes._
+
   @Test def test_escape_entry1() { runner.runOneTest("escape_entry1") }
   @Test def test_escape_entry2() { runner.runOneTest("escape_entry2") }
   @Test def test_escape_entry3() { runner.runOneTest("escape_entry3") }

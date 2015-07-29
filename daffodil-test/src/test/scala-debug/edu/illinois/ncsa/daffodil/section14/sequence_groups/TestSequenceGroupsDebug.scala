@@ -45,12 +45,31 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.debugger._
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestSequenceGroupsDebug {
+
+  val testDir = "/edu/illinois/ncsa/daffodil/ibm-tests/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+
+  val runner = Runner(testDir, "dpaext1.tdml")
+  val runner2 = Runner(testDir, "dpaext2.tdml")
+  val runner_01 = Runner(testDir_01, "SequenceGroupDelimiters.tdml")
+  var runner_02 = Runner(testDir_01, "SequenceGroup.tdml", validateTDMLFile = false)
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner2.reset
+    runner_01.reset
+    runner_02.reset
+  }
+
+}
 
 class TestSequenceGroupsDebug {
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-  val tdml_02 = testDir_01 + "SequenceGroup.tdml"
-  lazy val runner_02 = new DFDLTestSuite(Misc.getRequiredResource(tdml_02), validateTDMLFile = false)
+  import TestSequenceGroupsDebug._
 
   //DFDL-284
   @Test def test_hiddenGroupLoop() { runner_02.runOneTest("hiddenGroupLoop") }
@@ -60,8 +79,5 @@ class TestSequenceGroupsDebug {
 
   @Test def test_emptySequenceSDE() { runner_02.runOneTest("emptySequenceSDE") }
   @Test def test_sequenceWithComplexType() { runner_02.runOneTest("sequenceWithComplexType") }
-
-  val tdml_01 = testDir_01 + "SequenceGroupInitiatedContent.tdml"
-  lazy val runner_01 = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
 
 }

@@ -39,14 +39,24 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPCAP {
+  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
+  val runner = Runner(testDir, "pcap.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestPCAP {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestPCAP._
 
   @Test def test_invalid_magic_number() { runner.runOneTest("invalid_magic_number") }
   @Test def test_invalid_version() { runner.runOneTest("invalid_version") }

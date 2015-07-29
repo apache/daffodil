@@ -43,11 +43,29 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestLengthKindDelimitedDebug {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+
+  val runner = Runner(testDir, "DelimitedTests.tdml")
+  val runnerAB = Runner(testDir, "AB.tdml")
+  val runnerAN = Runner(testDir, "AN.tdml")
+  val runner_01 = Runner("/edu/illinois/ncsa/daffodil/ibm-tests/", "dpaext1.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerAB.reset
+    runnerAN.reset
+    runner_01.reset
+  }
+
+}
 
 class TestLengthKindDelimitedDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
-  val aa = testDir + "DelimitedTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestLengthKindDelimitedDebug._
 
   //DFDL-230
   @Test def test_NumSeq_10() { runner.runOneTest("NumSeq_10") }

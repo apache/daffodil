@@ -43,14 +43,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TestTextNumberPropsUnparse {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
-  val aa = testDir + "TextNumberPropsUnparse.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  val runner = Runner(testDir, "TextNumberPropsUnparse.tdml")
 
   @AfterClass def shutDown {
-    runner = null
+    runner.reset
   }
 }
 class TestTextNumberPropsUnparse {

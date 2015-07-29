@@ -42,11 +42,23 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestSDE {
+
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
+  val runner = Runner(testDir, "SchemaDefinitionErrors.tdml")
+
+  @AfterClass def tearDown() { 
+    runner.reset 
+  }
+
+}
 
 class TestSDE {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/schema_definition_errors/"
-  val aa = testDir + "SchemaDefinitionErrors.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestSDE._
 
   @Test def test_AS000_rev() { runner.runOneTest("AS000_rev") }
 

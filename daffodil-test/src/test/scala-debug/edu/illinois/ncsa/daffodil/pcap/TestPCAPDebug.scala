@@ -42,11 +42,22 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestPCAPDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
+  val runner = Runner(testDir, "pcap.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestPCAPDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/pcap/"
-  val aa = testDir + "pcap.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestPCAPDebug._
 
   //DFDL-1341
   @Test def test_pcap_simple_outOfBoundsError() { runner.runOneTest("pcap_simple_outOfBoundsError") }

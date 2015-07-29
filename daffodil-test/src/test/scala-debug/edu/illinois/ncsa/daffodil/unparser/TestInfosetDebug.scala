@@ -43,14 +43,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestUnparseInfosetDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/unparser/"
-  val aa = testDir + "infosetTest.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "infosetTest.tdml")
 
   @AfterClass def tearDown() {
-    runner = null
+    runner.reset
   }
 }
 

@@ -41,53 +41,25 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
 import org.junit.AfterClass
 
 object TestEntities {
   private val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  private val tdml = testDir + "charClassEntities.tdml"
-  private var runnerv: DFDLTestSuite = null
-  def runner = {
-    if (runnerv == null) runnerv = new DFDLTestSuite(Misc.getRequiredResource(tdml))
-    runnerv
-  }
-
-  private val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  private val tdml_01 = testDir_01 + "Entities.tdml"
-  private var runner_01v: DFDLTestSuite = null
-  def runner_01 = {
-    if (runner_01v == null) runner_01v = new DFDLTestSuite(Misc.getRequiredResource(tdml_01))
-    runner_01v
-  }
-
   private val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  private val tdml_02 = testDir_02 + "dpaext1.tdml"
-  private var runner_02v: DFDLTestSuite = null
-  def runner_02 = {
-    if (runner_02v == null) runner_02v = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
-    runner_02v
-  }
 
-  private val entity = testDir + "entities_01.tdml"
-  private var runnerEntityv: DFDLTestSuite = null
-  def runnerEntity = {
-    if (runnerEntityv == null) runnerEntityv = new DFDLTestSuite(Misc.getRequiredResource(entity))
-    runnerEntityv
-  }
-
-  private val tdml_03 = testDir + "InvalidEntities.tdml"
-  private var runnerInvalidv: DFDLTestSuite = null
-  def runnerInvalid = {
-    if (runnerInvalidv == null) runnerInvalidv = new DFDLTestSuite(Misc.getRequiredResource(tdml_03))
-    runnerInvalidv
-  }
+  val runner = Runner(testDir, "charClassEntities.tdml")
+  val runner_01 = Runner(testDir, "Entities.tdml")
+  val runner_02 = Runner(testDir_02, "dpaext1.tdml")
+  val runnerEntity = Runner(testDir, "entities_01.tdml")
+  val runnerInvalid = Runner(testDir, "InvalidEntities.tdml")
 
   @AfterClass private def shutDown {
-    runnerv = null
-    runner_01v = null
-    runner_02v = null
-    runnerEntityv = null
-    runnerInvalidv = null
+    runner.reset
+    runner_01.reset
+    runner_02.reset
+    runnerEntity.reset
+    runnerInvalid.reset
   }
 }
 class TestEntities {

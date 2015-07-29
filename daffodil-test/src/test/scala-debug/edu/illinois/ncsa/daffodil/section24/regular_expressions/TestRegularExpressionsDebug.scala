@@ -41,11 +41,23 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestRegularExpressions2 {
+object TestRegularExpressionsDebug {
   val testDir = "/edu/illinois/ncsa/daffodil/section24/regular_expressions/"
-  val tdml = testDir + "RegularExpressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+  val runner = Runner(testDir, "RegularExpressions.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
+
+
+class TestRegularExpressionsDebug {
+
+  import TestRegularExpressionsDebug._
 
   // Unsupported Java 7 features (should return Schema Definition Errors)
   @Test def test_testRegEx_04() { runner.runOneTest("testRegEx_04") }

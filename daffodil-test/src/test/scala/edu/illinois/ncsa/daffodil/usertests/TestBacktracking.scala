@@ -37,11 +37,22 @@ import org.junit.Test
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestBacktracking {
+  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+  val runner = Runner(testDir, "backtrack.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestBacktracking {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
-  val aa = testDir + "backtrack.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestBacktracking._
 
   @Test def test_backtrack1() = { runner.runOneTest("backtrack1") }
 }

@@ -47,11 +47,32 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.Implicits.intercept
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestGeneral {
+  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
+  val runner = Runner(testDir, "general.tdml")
+
+  val runner1 = Runner(testDir, "largeInput.tdml")
+
+  val testDir2 = "/test space/"
+  val runnerA_B = Runner(testDir2, "A BTinyData.tdml.dat")
+
+  val testDir3 = "/test space/test 1/"
+  val runner_ns = Runner(testDir3, "namespaces.tdml")
+  
+  @AfterClass def shutDown() { 
+    runner.reset 
+    runner1.reset 
+    runnerA_B.reset 
+    runner_ns.reset 
+  }
+}
 
 class TestGeneral {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "general.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestGeneral._
 
   @Test def test_check_no_namespace_message() { runner.runOneTest("check_no_namespace_message") }
 
@@ -67,15 +88,7 @@ class TestGeneral {
   // Test causes exception as the file is not found
   // @Test def test_fileDNE() { runner.runOneTest("fileDNE") }
 
-  val bb = testDir + "largeInput.tdml"
-  lazy val runner1 = new DFDLTestSuite(Misc.getRequiredResource(bb))
-
   @Test def test_largeInput_01() { runner1.runOneTest("largeInput_01") }
-
-  val testDir2 = "/test space/"
-
-  val a_b = testDir2 + "A BTinyData.tdml.dat"
-  lazy val runnerA_B = new DFDLTestSuite(Misc.getRequiredResource(a_b))
 
   @Test def test_dir_and_file_with_spaces() {
     val e = intercept[Exception] {
@@ -87,10 +100,6 @@ class TestGeneral {
     assertTrue(m.toLowerCase.contains("not found"))
 
   }
-
-  val testDir3 = "/test space/test 1/"
-  val cc = testDir3 + "namespaces.tdml"
-  lazy val runner_ns = new DFDLTestSuite(Misc.getRequiredResource(cc))
 
   @Test def test_no_namespace_02() {
     val e = intercept[Exception] {

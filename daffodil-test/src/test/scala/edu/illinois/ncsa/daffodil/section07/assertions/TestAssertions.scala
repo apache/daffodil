@@ -37,11 +37,22 @@ import junit.framework.Assert._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestAssertions {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
+  val runner = Runner(testDir, "assert.tdml", validateTDMLFile = false)
+
+  @AfterClass def tearDown {
+    runner.reset
+  }
+
+}
 
 class TestAssertions {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/assertions/"
-  val tdml = testDir + "assert.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml), validateTDMLFile = false)
+
+  import TestAssertions._
 
   @Test def test_assertPass() { runner.runOneTest("assertPass") }
   @Test def test_assertFail1() { runner.runOneTest("assertFail1") }

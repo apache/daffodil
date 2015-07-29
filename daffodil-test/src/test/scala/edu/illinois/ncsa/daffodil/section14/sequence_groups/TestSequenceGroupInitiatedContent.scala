@@ -43,11 +43,21 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestSequenceGroupInitiatedContent {
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
+  val runner_01 = Runner(testDir_01, "SequenceGroupInitiatedContent.tdml")
+  
+  @AfterClass def shutDown {
+    runner_01.reset
+  }
+
+}
 
 class TestSequenceGroupInitiatedContent {
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section14/sequence_groups/"
-  lazy val runner_01 = Runner(testDir_01, "SequenceGroupInitiatedContent.tdml")
+  import TestSequenceGroupInitiatedContent._
 
   @Test def test_baseline() { runner_01.runOneTest("initiatedContentSeqBaseline") }
   @Test def test_1() { runner_01.runOneTest("initiatedContentSeq1") }

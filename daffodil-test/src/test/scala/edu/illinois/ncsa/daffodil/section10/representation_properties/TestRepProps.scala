@@ -42,11 +42,22 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestRepProps {
+  val testDir = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
+  val runner = Runner(testDir, "RepProps.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestRepProps {
-  val testDir = "/edu/illinois/ncsa/daffodil/section10/representation_properties/"
-  val aa = testDir + "RepProps.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+
+  import TestRepProps._
 
   @Test def test_repPropMissing() { runner.runOneTest("repPropMissing") }
   @Test def test_repPropMissing2() { runner.runOneTest("repPropMissing2") }

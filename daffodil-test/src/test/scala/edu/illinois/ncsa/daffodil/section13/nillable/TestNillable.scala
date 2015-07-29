@@ -43,10 +43,28 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.tdml.Runner
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestNillable {
+  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
+  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
+
+  val runnerAA = Runner(testDir, "nillable.tdml")
+  val runnerLN = Runner(testDir, "literal-value-nils.tdml")
+  val runnerEntity = Runner(testDir_01, "entities_01.tdml")
+
+  @AfterClass def shutDown {
+    runnerAA.reset
+    runnerLN.reset
+    runnerEntity.reset
+  }
+
+}
 
 class TestNillable {
-  val testDir = "/edu/illinois/ncsa/daffodil/section13/nillable/"
-  lazy val runnerAA = Runner(testDir, "nillable.tdml")
+
+  import TestNillable._
 
   @Test def test_complex_nil() { runnerLN.runOneTest("test_complex_nil") }
 
@@ -61,8 +79,6 @@ class TestNillable {
   @Test def test_missing_scalar() { runnerAA.runOneTest("missing_scalar") }
   @Test def test_nillable1() { runnerAA.runOneTest("nillable1") }
 
-  lazy val runnerLN = Runner(testDir, "literal-value-nils.tdml")
-
   @Test def test_text_nil_characterClass_04_parse() = { runnerLN.runOneTest("text_nil_characterClass_04_parse") }
 
   //@Test def test_text_01() { runnerLN.runOneTest("text_01")}  This test is identical to litNil1.
@@ -74,9 +90,6 @@ class TestNillable {
   @Test def test_binary_01() = { runnerLN.runOneTest("binary_01") }
   @Test def test_padded_nils() = { runnerLN.runOneTest("test_padded_nils") }
 
-  val testDir_01 = "/edu/illinois/ncsa/daffodil/section06/entities/"
-  val entity = testDir_01 + "entities_01.tdml"
-  lazy val runnerEntity = new DFDLTestSuite(Misc.getRequiredResource(entity))
   @Test def test_entity_fail_05() { runnerEntity.runOneTest("entity_fail_05") }
   @Test def test_entity_fail_06() { runnerEntity.runOneTest("entity_fail_06") }
   @Test def test_entity_success_05() { runnerEntity.runOneTest("entity_success_05") }

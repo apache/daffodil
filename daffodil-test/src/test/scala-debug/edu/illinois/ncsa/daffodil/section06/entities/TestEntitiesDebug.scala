@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2014 Tresys Technology, LLC. All rights reserved.
+/* Copyright (c) 2012-2013 Tresys Technology, LLC. All rights reserved.
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
@@ -30,7 +30,7 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.usertests
+package edu.illinois.ncsa.daffodil.section06.entities
 
 import junit.framework.Assert._
 import org.junit.Test
@@ -41,18 +41,42 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
-import edu.illinois.ncsa.daffodil.debugger.Debugger
-import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
-import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
-import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
-import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
-class TestJSON5Debug {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
-  val aa = testDir + "json5.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+object TestEntitiesDebug {
+  private val testDir = "/edu/illinois/ncsa/daffodil/section06/entities/"
+  private val testDir_02 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
 
-  val bb = testDir + "testWSPStar.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
+  val runner = Runner(testDir, "charClassEntities.tdml")
+  val runner_01 = Runner(testDir, "Entities.tdml")
+  val runner_02 = Runner(testDir_02, "dpaext1.tdml")
+  val runnerEntity = Runner(testDir, "entities_01.tdml")
+  val runnerInvalid = Runner(testDir, "InvalidEntities.tdml")
+
+  @AfterClass private def shutDown {
+    runner.reset
+    runner_01.reset
+    runner_02.reset
+    runnerEntity.reset
+    runnerInvalid.reset
+  }
+}
+
+class TestEntitiesDebug {
+
+  import TestEntitiesDebug._
+
+  // DFDL-378
+  @Test def test_dataDumpEncoding() { runner_01.runOneTest("dataDumpEncoding") }
+
+  // JIRA DFDL-1400 - separator in different encoding than terms being separated.
+  @Test def test_text_entities_6_03b() { runner_01.runOneTest("text_entities_6_03b") }
+
+  //DFDL-258 - raw byte entities
+  @Test def test_byte_entities_6_10() { runner_01.runOneTest("byte_entities_6_10") }
+
+  // Needs dfdl:utf16Width='variable' implementation
+  @Test def test_syntax_entities_6_03() { runner_02.runOneTest("syntax_entities_6_03") }
 
 }

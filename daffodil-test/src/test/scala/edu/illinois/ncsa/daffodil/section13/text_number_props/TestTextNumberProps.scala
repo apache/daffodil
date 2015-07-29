@@ -41,15 +41,16 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 import java.io.File
 
 object TestTextNumberProps {
   val testDir = "/edu/illinois/ncsa/daffodil/section13/text_number_props/"
-  val aa = testDir + "TextNumberProps.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "TextNumberProps.tdml")
 
   @AfterClass def shutDown() {
-    runner = null
+    runner.reset
   }
 }
 class TestTextNumberProps {

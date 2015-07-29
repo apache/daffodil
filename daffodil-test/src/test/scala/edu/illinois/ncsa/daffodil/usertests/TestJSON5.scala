@@ -46,19 +46,30 @@ import edu.illinois.ncsa.daffodil.debugger.InteractiveDebugger
 import edu.illinois.ncsa.daffodil.debugger.InteractiveDebuggerRunner
 import edu.illinois.ncsa.daffodil.debugger.TraceDebuggerRunner
 import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestJSON5 {
+  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
+
+  var runner = Runner(testDir, "json5.tdml", compileAllTopLevel = true)
+  val runner2 =  Runner(testDir, "testWSPStar.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runner2.reset
+  }
+
+}
 
 class TestJSON5 {
-  val testDir = "/edu/illinois/ncsa/daffodil/usertests/"
-  val aa = testDir + "json5.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa), compileAllTopLevel = true)
+
+  import TestJSON5._
 
   @Test def test_json5_1() { runner.runOneTest("json5_1") }
   @Test def test_json5_2() { runner.runOneTest("json5_2") }
   @Test def test_json5_3() { runner.runOneTest("json5_3") }
   @Test def test_json5_4() { runner.runOneTest("json5_4") }
-
-  val bb = testDir + "testWSPStar.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
 
   @Test def test_json5_5() { runner2.runOneTest("json5_5") }
 

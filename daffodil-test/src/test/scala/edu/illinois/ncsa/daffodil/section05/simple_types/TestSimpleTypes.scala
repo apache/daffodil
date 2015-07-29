@@ -41,37 +41,32 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestSimpleTypes {
 
   val testDir = "/edu/illinois/ncsa/daffodil/section05/simple_types/"
-  val aa = testDir + "SimpleTypes.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  val al = testDir + "AL.tdml"
-  var runnerAL = new DFDLTestSuite(Misc.getRequiredResource(al))
-  val bb = testDir + "WhiteSpace.tdml"
-  var runner2 = new DFDLTestSuite(Misc.getRequiredResource(bb))
-  val aj = testDir + "AJ.tdml"
-  var runnerAJ = new DFDLTestSuite(Misc.getRequiredResource(aj))
-  val ak = testDir + "AK.tdml"
-  var runnerAK = new DFDLTestSuite(Misc.getRequiredResource(ak))
   val testDir_01 = "/edu/illinois/ncsa/daffodil/ibm-tests/"
-  val aa_01 = testDir_01 + "dpaext1.tdml"
-  var runner_01 = new DFDLTestSuite(Misc.getRequiredResource(aa_01))
-  val cc = testDir + "BitOrder.tdml"
-  var runner1 = new DFDLTestSuite(Misc.getRequiredResource(cc))
-  val st = testDir + "simple-type-bases.tdml"
-  var runnerST = new DFDLTestSuite(Misc.getRequiredResource(st))
+
+  val runner = Runner(testDir, "SimpleTypes.tdml")
+  val runnerAL = Runner(testDir, "AL.tdml")
+  val runner2 = Runner(testDir, "WhiteSpace.tdml")
+  val runnerAJ = Runner(testDir, "AJ.tdml")
+  val runnerAK = Runner(testDir, "AK.tdml")
+  val runner1 = Runner(testDir, "BitOrder.tdml")
+  val runnerST = Runner(testDir, "simple-type-bases.tdml")
+  val runner_01 = Runner(testDir_01, "dpaext1.tdml")
 
   @AfterClass def shutDown() {
-    runner = null
-    runnerAL = null
-    runner2 = null
-    runnerAJ = null
-    runnerAK = null
-    runner_01 = null
-    runner1 = null
-    runnerST = null
+    runner.reset
+    runnerAL.reset
+    runner2.reset
+    runnerAJ.reset
+    runnerAK.reset
+    runner_01.reset
+    runner1.reset
+    runnerST.reset
   }
 }
 

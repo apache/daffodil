@@ -41,11 +41,22 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object defineFormatTestsDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
+  val runner = Runner(testDir, "defineFormat.tdml")
+
+  @AfterClass def tearDown() { 
+    runner.reset 
+  }
+
+}
 
 class defineFormatTestsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/defineFormat/"
-  val tdml = testDir + "defineFormat.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import defineFormatTestsDebug._
 
   //DFDL-1276
   @Test def test_format_with_comment() { runner.runOneTest("format_with_comment") }

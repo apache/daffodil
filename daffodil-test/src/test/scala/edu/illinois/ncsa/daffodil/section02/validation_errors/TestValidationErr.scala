@@ -38,14 +38,16 @@ import scala.xml._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils._
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 import org.junit.Test
 
 object TestValidationErr {
   val testDir = "/edu/illinois/ncsa/daffodil/section02/validation_errors/"
-  val aa = testDir + "Validation.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "Validation.tdml")
+
   @AfterClass def shutDown() {
-    runner = null
+    runner.reset
   }
 }
 class TestValidationErr {

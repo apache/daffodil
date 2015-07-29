@@ -39,11 +39,22 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.LogLevel
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestDiscriminators {
+  val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
+  val runner = Runner(testDir, "discriminator.tdml")
+
+  @AfterClass def shutDown() { 
+    runner.reset 
+  }
+
+}
 
 class TestDiscriminators {
-  val testDir = "/edu/illinois/ncsa/daffodil/section07/discriminators/"
-  val tdml = testDir + "discriminator.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import TestDiscriminators._
 
   @Test def test_discriminatorGuidesChoice() { runner.runOneTest("discriminatorGuidesChoice") }
   @Test def test_discriminatorGuidesChoice2() { runner.runOneTest("discriminatorGuidesChoice2") }

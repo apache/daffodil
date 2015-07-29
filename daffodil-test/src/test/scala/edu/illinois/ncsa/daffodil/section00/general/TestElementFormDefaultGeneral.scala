@@ -11,26 +11,22 @@ import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
 import org.junit._
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
 
 object TestElementFormDefaultGeneral {
   
   val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testElementFormDefault.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  val runner = Runner(testDir, "testElementFormDefault.tdml")
 
-  /**
-   * Avoid memory leak of adding more and more test suites to static objects as we run more and more test suites.
-   */
-  @AfterClass def tearDown() { 
-    runner = null 
+  @AfterClass def shutDown() { 
+    runner.reset
   }
 
 }
 
 class TestElementFormDefaultGeneral {
-  val testDir = "/edu/illinois/ncsa/daffodil/section00/general/"
-  val aa = testDir + "testElementFormDefault.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  import TestElementFormDefaultGeneral._
  
   @Test def test_delimOptPresentQualified01() { runner.runOneTest("delimOptPresentQualified01") }
   @Test def test_delimOptPresentQualified02() { runner.runOneTest("delimOptPresentQualified02") }

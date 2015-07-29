@@ -42,11 +42,42 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestDFDLExpressionsDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
+  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
+
+  // I'm not sure these belong in section23, but there is no section of the spec that 
+  // is about all these properties together, yet, since there is common mechanism here
+  // I really think their tests should not be scattered all over to the sections where each
+  // property is defined.
+
+  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
+
+  val runner = Runner(testDir, "expressions.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner2 = Runner(testDir2, "Functions.tdml")
+  val runner2_utf8 = Runner(testDir2, "Functions_UTF8.tdml")
+  val runner2b = Runner(testDir2, "Functions-neg.tdml")
+  val runner3 = Runner(testDir, "expression_fail.tdml", validateTDMLFile = false)
+  val runner4 = Runner(testDir4, "runtime-properties.tdml", validateTDMLFile = true, validateDFDLSchemas = false)
+  val runner_fun = Runner(testDir, "functions.tdml")
+
+  @AfterClass def shutDown() {
+    runner4.reset
+    runner.reset
+    runner_fun.reset
+    runner2.reset
+    runner2_utf8.reset
+    runner2b.reset
+    runner3.reset
+  }
+}
 
 class TestDFDLExpressionsDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section23/dfdl_expressions/"
-  val tdml = testDir + "expressions.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(tdml))
+
+  import TestDFDLExpressionsDebug._
 
   //DFDL-1287
   @Test def test_internal_space_preserved4() { runner.runOneTest("internal_space_preserved4") }
@@ -90,12 +121,6 @@ class TestDFDLExpressionsDebug {
 
   //DFDL-711
   @Test def test_short_parent_axis_01() { runner.runOneTest("short_parent_axis_01") }
-
-  val testDir2 = "/edu/illinois/ncsa/daffodil/section23/dfdl_functions/"
-  val aa = testDir2 + "Functions.tdml"
-  val aa_utf8 = testDir2 + "Functions_UTF8.tdml"
-  lazy val runner2 = new DFDLTestSuite(Misc.getRequiredResource(aa))
-  lazy val runner2_utf8 = new DFDLTestSuite(Misc.getRequiredResource(aa))
 
   //DFDL-1076
   @Test def test_not_04() { runner2.runOneTest("not_04") }
@@ -177,10 +202,6 @@ class TestDFDLExpressionsDebug {
   @Test def test_date_constructor_02a() { runner2.runOneTest("date_constructor_02a") }
   @Test def test_date_constructor_03a() { runner2.runOneTest("date_constructor_03a") }
   @Test def test_nonNeg_constructor_02a() { runner2.runOneTest("nonNeg_constructor_02a") }
-
-  val testDir4 = "/edu/illinois/ncsa/daffodil/section23/runtime_properties/"
-  val rp = testDir4 + "runtime-properties.tdml"
-  lazy val runner4 = new DFDLTestSuite(Misc.getRequiredResource(rp))
 
   @Test def test_element_long_form_whitespace() { runner.runOneTest("element_long_form_whitespace") }
 }

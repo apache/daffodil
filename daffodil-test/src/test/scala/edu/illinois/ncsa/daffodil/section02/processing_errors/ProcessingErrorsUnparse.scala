@@ -42,13 +42,26 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestProcessingErrorsUnparse {
+  val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
+
+  val runner02 = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = false, validateDFDLSchemas = false)
+  val runner02Validate = Runner(testDir, "ProcessingErrorsUnparse.tdml", validateTDMLFile = true, validateDFDLSchemas = true)
+  
+  @AfterClass def shutDown {
+    runner02.reset
+    runner02Validate.reset
+  }
+
+}
 
 class TestProcessingErrorsUnparse {
-  val testDir = "/edu/illinois/ncsa/daffodil/section02/processing_errors/"
-  val ab = testDir + "ProcessingErrorsUnparse.tdml"
-  lazy val runner02 = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = false, validateDFDLSchemas = false)
-  lazy val runner02Validate = new DFDLTestSuite(Misc.getRequiredResource(ab), validateTDMLFile = true, validateDFDLSchemas = true)
-  
+
+  import TestProcessingErrorsUnparse._
+
   @Test def test_roundTripErrorHalfwayThrough() { runner02Validate.runOneTest("roundTripErrorHalfwayThrough") }
 
   @Test def test_upaInvalidSchemaUnparse() { runner02Validate.runOneTest("upaInvalidSchemaUnparse") }

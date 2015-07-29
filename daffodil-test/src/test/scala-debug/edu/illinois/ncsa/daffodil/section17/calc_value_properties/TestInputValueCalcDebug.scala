@@ -44,26 +44,45 @@ import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.LoggingDefaults
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestInputValueCalcDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
+
+  val runner = Runner(testDir, "inputValueCalc.tdml")
+  val runnerAR = Runner(testDir, "AR.tdml")
+  val runnerAQ = Runner(testDir, "AQ.tdml")
+  val runnerAA = Runner(testDir, "AA.tdml")
+
+  @AfterClass def shutDown {
+    runner.reset
+    runnerAR.reset
+    runnerAQ.reset
+    runnerAA.reset
+  }
+
+}
 
 class TestInputValueCalcDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section17/calc_value_properties/"
-  val tdml = testDir + "inputValueCalc.tdml"
 
-  lazy val runner = { new DFDLTestSuite(Misc.getRequiredResource(tdml)) }
+  import TestInputValueCalcDebug._
+
   //DFDL-1025
   @Test def test_InputValueCalc_refers_self() { runner.runOneTest("InputValueCalc_refers_self") }
   @Test def test_InputValueCalc_circular_ref() { runner.runOneTest("InputValueCalc_circular_ref") }
+
   //DFDL-1024
   @Test def test_InputValueCalc_optional_elem() { runner.runOneTest("InputValueCalc_optional_elem") }
   @Test def test_InputValueCalc_array_elem() { runner.runOneTest("InputValueCalc_array_elem") }
   @Test def test_InputValueCalc_global_elem() { runner.runOneTest("InputValueCalc_global_elem") }
+
   //DFDL-1027
   @Test def test_InputValueCalc_with_outputValueCalc() { runner.runOneTest("InputValueCalc_with_outputValueCalc") }
+
   //DFDL-1028
   @Test def test_InputValueCalc_in_format() { runner.runOneTest("InputValueCalc_in_format") }
 
-  val aq = testDir + "AQ.tdml"
-  lazy val runnerAQ = new DFDLTestSuite(Misc.getRequiredResource(aq))
   @Test def test_AQ001() { runnerAQ.runOneTest("AQ001") } // This appears to expect an error, but doesn't state why.
 
 }

@@ -43,15 +43,15 @@ import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
 import edu.illinois.ncsa.daffodil.debugger.Debugger
+import edu.illinois.ncsa.daffodil.tdml.Runner
 
 object TestDelimiterPropertiesUnparse {
 
   val testDir_02 = "/edu/illinois/ncsa/daffodil/section12/delimiter_properties/"
-  val tdml_02 = testDir_02 + "DelimiterPropertiesUnparse.tdml"
-  var runner = new DFDLTestSuite(Misc.getRequiredResource(tdml_02))
+  val runner = Runner(testDir_02, "DelimiterPropertiesUnparse.tdml")
   
   @AfterClass def shutDown {
-    runner = null
+    runner.reset
   }
 
 }

@@ -41,12 +41,22 @@ import edu.illinois.ncsa.daffodil.compiler.Compiler
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.tdml.DFDLTestSuite
 import java.io.File
+import edu.illinois.ncsa.daffodil.tdml.Runner
+import org.junit.AfterClass
+
+object TestLengthKindExplicitDebug {
+  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
+  val runner = Runner(testDir, "ExplicitTests.tdml")
+  
+  @AfterClass def shutDown {
+    runner.reset
+  }
+
+}
 
 class TestLengthKindExplicitDebug {
-  val testDir = "/edu/illinois/ncsa/daffodil/section12/lengthKind/"
 
-  val aa = testDir + "ExplicitTests.tdml"
-  lazy val runner = new DFDLTestSuite(Misc.getRequiredResource(aa))
+  import TestLengthKindExplicitDebug._
 
   @Test def test_lengthRuntimeSDE() = { runner.runOneTest("test_lengthRuntimeSDE") }
 }
