@@ -260,6 +260,10 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   private lazy val myFirstThread = Thread.currentThread()
 
+  private lazy val converter_BE_MSBFirst = new Converter_BE_MSBFirst
+  private lazy val converter_LE_MSBFirst = new Converter_LE_MSBFirst
+  private lazy val converter_LE_LSBFirst = new Converter_LE_LSBFirst
+
   protected final def threadCheck() {
     Assert.invariant(Thread.currentThread eq myFirstThread)
   }
@@ -609,14 +613,14 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     val sl =
       if (data.order() eq java.nio.ByteOrder.BIG_ENDIAN) {
         Assert.invariant(st.bitOrder eq BitOrder.MostSignificantBitFirst)
-        Converter_BE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
+        converter_BE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
       } else {
         Assert.invariant(data.order() eq java.nio.ByteOrder.LITTLE_ENDIAN)
         if (st.bitOrder eq BitOrder.MostSignificantBitFirst) {
-          Converter_LE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
+          converter_LE_MSBFirst.getSignedLong(bitLengthFrom1To64, this)
         } else {
           Assert.invariant(st.bitOrder eq BitOrder.LeastSignificantBitFirst)
-          Converter_LE_LSBFirst.getSignedLong(bitLengthFrom1To64, this)
+          converter_LE_LSBFirst.getSignedLong(bitLengthFrom1To64, this)
         }
       }
     Assert.invariant(bitPos0b <= bitLimit0b.get)
@@ -1308,7 +1312,7 @@ private sealed trait LongConverter {
   }
 }
 
-private object Converter_BE_MSBFirst extends LongConverter {
+private class Converter_BE_MSBFirst extends LongConverter {
 
   final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Maybe[Long] = {
     val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
@@ -1347,7 +1351,7 @@ private object Converter_BE_MSBFirst extends LongConverter {
 
 }
 
-private object Converter_LE_MSBFirst extends LongConverter {
+private class Converter_LE_MSBFirst extends LongConverter {
 
   final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Maybe[Long] = {
     val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
@@ -1440,7 +1444,7 @@ private object Converter_LE_MSBFirst extends LongConverter {
 
 }
 
-private object Converter_LE_LSBFirst extends LongConverter {
+private class Converter_LE_LSBFirst extends LongConverter {
 
   final def getSignedLong(bitLengthFrom1To64: Int, dis: ByteBufferDataInputStream): Maybe[Long] = {
     val maybeNBytesNeeded = populateSmallBuf(bitLengthFrom1To64, dis)
