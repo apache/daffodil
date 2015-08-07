@@ -7,6 +7,8 @@ import java.nio.charset.CodingErrorAction
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
+import java.nio.charset.StandardCharsets
+import java.nio.charset.Charset
 
 trait DataStreamCommonState {
   def defaultCodingErrorAction: CodingErrorAction
@@ -17,6 +19,25 @@ trait DataStreamCommonState {
   var maybeUTF16Width: Maybe[UTF16Width] = Maybe(UTF16Width.Fixed)
   var debugging: Boolean = false
   var limits_ : DataStreamCommon.Limits = BBSLimits
+  //
+  // These are for dealing with 4-byte UTF-8 codepoints
+  // that require 2 16-bit charaters.
+  // 
+  // This only comes up in an incredibly obscure case
+  // when fillCharBuffer is called with a char buffer having
+  // room for only a single 16-bit codepoint, and the 
+  // data's first byte is 0xF0, which indicates 4-bytes
+  // need to be consumed, to create two 16 bit code units
+  // aka a surrogate-pair.
+  //
+  var maybeTrailingSurrogateForUTF8: Maybe[Char] = Nope
+  var priorEncoding: Charset = StandardCharsets.UTF_8
+  var priorBitPos: Long = 0L
+
+  def resetUTF8SurrogatePairCapture {
+    this.maybeTrailingSurrogateForUTF8 = Nope
+    this.priorBitPos = -1
+  }
 
   def assignFrom(other: DataStreamCommonState): Unit = {
     this.binaryFloatRep = other.binaryFloatRep
@@ -26,6 +47,9 @@ trait DataStreamCommonState {
     this.maybeUTF16Width = other.maybeUTF16Width
     this.debugging = other.debugging
     this.limits_ = other.limits_
+    this.maybeTrailingSurrogateForUTF8 = other.maybeTrailingSurrogateForUTF8
+    this.priorEncoding = other.priorEncoding
+    this.priorBitPos = other.priorBitPos
   }
 
 }

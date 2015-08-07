@@ -22,11 +22,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>lib</name>
-			<type>2</type>
-			<locationURI>DAFFODIL_ROOT/daffodil-lib/lib</locationURI>
-		</link>
-		<link>
 			<name>lib_managed</name>
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/lib_managed</locationURI>
@@ -37,15 +32,15 @@
 			<locationURI>DAFFODIL_ROOT/daffodil-lib/resource_managed</locationURI>
 		</link>
 		<link>
+			<name>src</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>src_managed</name>
 			<type>2</type>
 			<locationURI>DAFFODIL_ROOT/daffodil-lib/src_managed</locationURI>
 		</link>
-        <link>
-            <name>src</name>
-            <type>2</type>
-            <locationURI>virtual:/virtual</locationURI>
-        </link>
 		<link>
 			<name>src/main</name>
 			<type>2</type>

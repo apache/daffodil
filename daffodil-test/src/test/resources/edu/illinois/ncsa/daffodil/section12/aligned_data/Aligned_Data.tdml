@@ -1147,7 +1147,8 @@
     <tdml:errors>
       <tdml:error>Parse Error</tdml:error>
       <tdml:error>Convert to Unsigned Integer (for xs:unsignedInt)</tdml:error>
-      <tdml:error>Unable to parse '㐀' (using up all characters).</tdml:error>
+      <tdml:error>Unable to parse '㐀</tdml:error>
+      <tdml:error>(using up all characters).</tdml:error>
     </tdml:errors>
   </tdml:parserTestCase>
   

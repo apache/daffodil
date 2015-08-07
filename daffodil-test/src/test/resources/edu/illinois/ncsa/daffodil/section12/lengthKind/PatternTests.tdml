@@ -560,7 +560,7 @@
       <tdml:dfdlInfoset>
         <def_04>
           <first>!!</first>
-          <inner>&#xFFFD;</inner><!-- unicode replacement characters -->
+          <inner>&#xFFFD;&#xFFFD;</inner><!-- unicode replacement characters -->
           <last>!!</last>
         </def_04>
       </tdml:dfdlInfoset>

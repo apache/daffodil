@@ -388,6 +388,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // threadCheck()
     if (st.decoder == decoder) return
     st.decoder = decoder
+    st.priorEncoding = decoder.charset()
     st.decoder.onMalformedInput(st.codingErrorAction)
     st.decoder.onUnmappableCharacter(st.codingErrorAction)
     val cs = decoder.charset()
@@ -843,7 +844,27 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
   def fillCharBuffer(cb: java.nio.CharBuffer): Maybe[Long] = {
     // threadCheck()
     if (!align(st.encodingMandatoryAlignmentInBits)) return Nope
-    val cbRemainingBefore = cb.remaining()
+
+    val cbRemainingBefore = cb.remaining() // must capture this before the surrogate pair screwing around.
+
+    Assert.usage(cbRemainingBefore > 0)
+
+    //
+    // Corner case stuff for utf-8 and surrogate pairs.
+    //
+    if (st.decoder.charset() == StandardCharsets.UTF_8) {
+      if (st.maybeTrailingSurrogateForUTF8.isDefined &&
+        st.priorBitPos == bitPos0b &&
+        st.priorEncoding == StandardCharsets.UTF_8) {
+        // We're utf-8, the prior character was a leading surrogate,
+        // we're at the same location we were when we produced the
+        // leading surrogate. So produce the trailing.
+        val trailingSurrogate = st.maybeTrailingSurrogateForUTF8.get
+        cb.put(trailingSurrogate)
+        st.resetUTF8SurrogatePairCapture
+      }
+    }
+
     val bbRemainingBefore = data.remaining()
     val bitPos0bBefore = bitPos0b
     //
@@ -855,9 +876,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     var cr: CoderResult = null
     var nCharsTransferred: Int = 0
     var nBytesConsumed: Int = 0
+    st.decoder.reset()
     val decoder = st.decoder match {
       case decoderWithBits: NonByteSizeCharsetEncoderDecoder => {
-        decoderWithBits.reset()
         decoderWithBits.setInitialBitOffset(st.bitOffset0b)
         decoderWithBits.setFinalByteBitLimitOffset0b(st.maybeBitLimitOffset0b)
         decoderWithBits
@@ -868,6 +889,72 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
       cr = decoder.decode(data, cb, true)
       nCharsTransferred = cbRemainingBefore - cb.remaining()
       nBytesConsumed = bbRemainingBefore - data.remaining()
+      //
+      // Deal with utf-8 4-byte codepoints, that need room for 2 code units.
+      //
+      // This is a very obscure corner case. So let's waste minimal time.
+      // by checking the cheapest thing to check first
+      //
+      if (cbRemainingBefore == 1 && nCharsTransferred == 0 && nBytesConsumed == 0 && cr.isOverflow()) {
+        Assert.invariant(bbRemainingBefore >= 4)
+        Assert.invariant(st.decoder.charset() == StandardCharsets.UTF_8)
+        val firstByte = data.get(data.position())
+        Assert.invariant(firstByte == 0xF0.toByte) // F0 means 3 more bytes for a total of 4
+        //
+        // What's painful is that we have to detect this because any time F0 appears in 
+        // bad data that is UTF-8, we don't get an error unless we have room for 2
+        // characters in the char buffer. 
+        //
+        // The most common case is that F0 means there's broken data.
+        //
+        val tempCB = CharBuffer.allocate(2)
+        cr = decoder.decode(data, tempCB, true)
+        val nDecoded = 2 - tempCB.remaining()
+        //
+        // At this point either we got an error (most likely), or we
+        // didn't because the data really did use one of these obscure 4-byte
+        // characters.
+        //
+        val firstChar = tempCB.get(0)
+        if (nDecoded == 1 && firstChar == 0xFFFD.toChar) {
+          Assert.invariant(!cr.isError)
+          //
+          // we got exactly 1 substitution character
+          //
+          cb.put(0xFFFD.toChar)
+          st.resetUTF8SurrogatePairCapture
+        } else if (nDecoded == 2 && firstChar == 0xFFFD.toChar) {
+          //
+          // We got two characters because the decode error got substituted, and
+          // after that, another character got decoded.
+          //
+          // We want to back up to before that 2nd character
+          //
+          // We know that this situation can only arise if the substitution
+          // occurred for a 4-byte UTF-8 character, and it had to be broken at the 4th byte
+          // 
+          data.position(data.position - 1) // back up 1 byte.
+          cb.put(0xFFFD.toChar)
+          st.resetUTF8SurrogatePairCapture
+        } else if (nDecoded == 2 && firstChar.isHighSurrogate) {
+          Assert.invariant(!cr.isError)
+          // surrogate pair case
+          // note that the decode operation has advanced data by 4 bytes.
+          Assert.invariant(bbRemainingBefore - 4 =#= data.remaining)
+          val leadingSurrogate = firstChar
+          val trailingSurrogate = tempCB.get(1)
+          Assert.invariant(trailingSurrogate.isLowSurrogate)
+          st.maybeTrailingSurrogateForUTF8 = One(trailingSurrogate)
+          st.priorBitPos = bitPos0b
+          cb.put(leadingSurrogate)
+        } else {
+          Assert.invariant(cr.isError)
+          // error case - 
+          st.resetUTF8SurrogatePairCapture
+        }
+        nCharsTransferred = cbRemainingBefore - cb.remaining()
+        nBytesConsumed = bbRemainingBefore - data.remaining()
+      }
     }
     decodeIt
     //

@@ -45,7 +45,6 @@ import scala.xml.NodeSeq.seqToNodeSeq
 import scala.xml.SAXParseException
 import scala.xml.Utility
 import org.xml.sax.InputSource
-import com.ibm.icu.charset.CharsetICU
 import edu.illinois.ncsa.daffodil.Tak
 import edu.illinois.ncsa.daffodil.api.DFDL
 import edu.illinois.ncsa.daffodil.api.DataLocation

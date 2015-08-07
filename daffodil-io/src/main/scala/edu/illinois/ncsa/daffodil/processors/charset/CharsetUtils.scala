@@ -34,7 +34,6 @@ package edu.illinois.ncsa.daffodil.processors.charset
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.Charset
-import com.ibm.icu.charset.CharsetICU
 import java.nio.charset.IllegalCharsetNameException
 import java.io.UnsupportedEncodingException
 import java.nio.ByteBuffer
@@ -62,7 +61,7 @@ object CharsetUtils {
         if (csn.toUpperCase() == "US-ASCII-7-BIT-PACKED" || // deprecated name
           csn.toUpperCase() == "X-DFDL-US-ASCII-7-BIT-PACKED") // new official name 
           USASCII7BitPackedCharset
-        else CharsetICU.forNameICU(csn)
+        else Charset.forName(csn)
       Some(cs)
     } catch {
       case e: IllegalCharsetNameException => None
