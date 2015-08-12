@@ -39,6 +39,8 @@ import com.typesafe.sbt.SbtLicenseReport.autoImportImpl._
 import com.typesafe.sbt.license.LicenseCategory
 import com.typesafe.sbt.license.LicenseInfo
 import com.typesafe.sbt.license.DepModuleInfo
+import com.typesafe.sbt.license.DepLicense
+import com.typesafe.sbt.license.DepModuleInfo
 import com.typesafe.sbt.license.Html
 import com.typesafe.sbt.pgp.PgpSettings._
 
@@ -315,10 +317,8 @@ object DaffodilBuild extends Build {
     licenseSelection := Seq(LicenseCategory("NCSA"), LicenseCategory("ICU")) ++ LicenseCategory.all,
     licenseOverrides := {
       case DepModuleInfo("commons-io", "commons-io", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-      case DepModuleInfo("net.sf.expectit", "expectit-core", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
       case DepModuleInfo("xml-resolver", "xml-resolver", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
-      case DepModuleInfo("org.scala-tools.testing", "test-interface", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/sbt/test-interface/blob/master/LICENSE")
-      case DepModuleInfo("org.hamcrest", "hamcrest-core", _) => LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/hamcrest/JavaHamcrest/blob/master/LICENSE.txt")
+      case DepModuleInfo("org.fusesource.jansi", "jansi", _) => LicenseInfo(LicenseCategory.Apache, "The Apache Software License, Version 2.0", "http://www.apache.org/licenses/LICENSE-2.0.html")
     },
     licenseFilter := {
       case LicenseCategory("NCSA", _) => false
@@ -327,6 +327,13 @@ object DaffodilBuild extends Build {
     licenseReportMakeHeader := {
       case Html => Html.header1(licenseReportTitle.value.replace("_", " ")) + "<p>Daffodil is licensed under the <a href='http://opensource.org/licenses/NCSA'>University of Illinois/NCSA Open Source License</a>.</p><p>Below are the libraries that Daffodil depends on and their licenses.<br></p>"
       case l => l.header1(licenseReportTitle.value.replace("_", " "))
+    },
+    updateLicenses := {
+      val report = updateLicenses.value
+      val unmanaged_licenses = Seq(
+        DepLicense(DepModuleInfo("passera", "passera", "0.1"), LicenseInfo(LicenseCategory.BSD, "BSD", "https://github.com/nystrom/scala-unsigned/blob/master/BSD-LICENSE.txt"), Set("runtime"))
+      )
+      report.copy(licenses = report.licenses ++ unmanaged_licenses)
     }
   )
   cliOnlySettings ++= licenseSettings
