@@ -27,8 +27,8 @@ class TestByteBufferDataInputStream3 {
   }
 
   @Test def dumpVisible2 {
-    val bytes = "datadatadatadataDate 年月日=2003年08月27日".getBytes("utf-8")
-    val lengthInBits = bytes.length * 8 - (16 * 8)
+    val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
+    val lengthInBits = bytes.length * 8
     val dis = ByteBufferDataInputStream(bytes)
     dis.setDebugging(true)
     val fb = dis.futureData(48)
@@ -41,12 +41,13 @@ class TestByteBufferDataInputStream3 {
 00000010: 4461 7465 20e5 b9b4 e69c 88e6 97a5 3d32  D~a~t~e~␣~年~~~~月~~~~日~~~~=~2~
 00000020: 3030 33e5 b9b4 3038 e69c 8832 37e6 97a5  0~0~3~年~~~~0~8~月~~~~2~7~日~~~~
 """
+
     assertEquals(expected, "\n" + dumpString + "\n")
   }
 
   @Test def dumpVisible3 {
-    val bytes = "datadatadatadatadataDate 年月日=2003年08月27日".getBytes("utf-8")
-    val lengthInBits = bytes.length * 8 - (20 * 8)
+    val bytes = "Date 年月日=2003年08月27日".getBytes("utf-8")
+    val lengthInBits = bytes.length * 8
     val dis = ByteBufferDataInputStream(bytes)
     dis.setDebugging(true)
     val fb = dis.futureData(bytes.length)

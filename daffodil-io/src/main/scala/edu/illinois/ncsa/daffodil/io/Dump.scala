@@ -265,7 +265,7 @@ class DataDumper {
         // Hex dump
         //
         rowStart0b to limit0b foreach { i =>
-          val bytePos0b = addr + i
+          val bytePos0b = addr + i - startByteAddress0b
           val byteValue = try {
             byteSource.get(bytePos0b.toInt)
           } catch {
@@ -278,7 +278,7 @@ class DataDumper {
         //
         // Text dump
         //
-        textDump(addr, rowStart0b, txtsb,
+        textDump(addr - startByteAddress0b, rowStart0b, txtsb,
           limit0b, endByteAddress0b, byteSource, decoder,
           textByteWidth)
 
@@ -339,36 +339,31 @@ class DataDumper {
         val initialHexSpaces = "     " * indOffset2 +
           ("  " * (indicatorOffset0b & 0x1)) // blank first half of pair
 
-        val maxLengthOfIndcatorInBytes = 16 - (indByteAddress0b.toInt % 16)
-        val indEndAddress0b = // address of last byte included in the region. 
-          math.max(indByteAddress0b + indLengthInBytes - 1, 0)
-
-        val lengthOfIndicatorInBytes = math.min(maxLengthOfIndcatorInBytes, indLengthInBytes)
-
-        val pictureLengthInBytes = math.min(16, realLengthInBytes)
+        val pictureLengthInBytes = math.min(16 - indicatorOffset0b.toInt, realLengthInBytes)
         val hexIndicator = {
           val picture =
             (pictureLengthInBytes, indByteAddress0b % 2) match {
-              case (0, 0) => "│" // point at first byte of aaBB
-              case (0, 1) => " │" // point at 2nd byte of aaBB
-              case (1, 0) => "║"
-              case (1, 1) => "  ║"
-              case (2, 0) => "├──┤"
-              case (2, 1) => "  ├───┤" // middle dash spans the gutter
+              case (0, _) => "│"
+              case (1, _) if realLengthInBytes =#= 1 => "├┤"
+              case (1, _) => "├═"
+              case (2, 0) if realLengthInBytes =#= 2 => "├──┤"
+              case (2, 0) => "├──═"
+              case (2, 1) => "├───┤" // middle dash spans the gutter
               case (n, s) => {
                 Assert.invariant(n >= 3)
                 val startCap = "├─"
                 val endCap =
-                  if (realLengthInBytes > maxLengthOfIndcatorInBytes) "─═"
+                  if (realLengthInBytes > n) "─═"
                   else "─┤"
                 val startBytePic = if (s =#= 0) startCap + "──" else startCap
-                val endBytePic = if ((indEndAddress0b % 2) =#= 0) endCap else "──" + endCap
-                val middleBytePics = (s, indEndAddress0b % 2) match {
-                  case (0, 1) => 1 to ((pictureLengthInBytes - 4) / 2) map { _ => "────" }
-                  case (0, 0) => 1 to ((pictureLengthInBytes - 3) / 2) map { _ => "────" }
-                  case (1, 1) => 1 to ((pictureLengthInBytes - 3) / 2) map { _ => "────" }
-                  case (1, 0) => 1 to ((pictureLengthInBytes - 2) / 2) map { _ => "────" }
-                }
+                val endBytePic = if (((indicatorOffset0b.toInt + n) % 2) =#= 0) "──" + endCap else endCap
+
+                val startRoundUp2 = (indicatorOffset0b.toInt + 2) - (indicatorOffset0b.toInt + 2) % 2
+                val endRoundDown2 = (indicatorOffset0b.toInt + n - 1) - (indicatorOffset0b.toInt + n - 1) % 2
+
+                val middleBytes = (endRoundDown2 - startRoundUp2) / 2
+                val middleBytePics = Seq.fill(middleBytes.toInt)("────")
+
                 val bytePix = startBytePic +: middleBytePics :+ endBytePic
                 val pic = bytePix.mkString("─") // for the single space gutters between
                 pic
@@ -391,7 +386,7 @@ class DataDumper {
                 val pad = if (w =#= 1) "" else "─"
                 val startCap = "├" + pad
                 val endCap =
-                  if (realLengthInBytes > maxLengthOfIndcatorInBytes) pad + "═"
+                  if (realLengthInBytes > n) pad + "═"
                   else pad + "┤"
                 val middleBytePics = 1 to (pictureLengthInBytes - 2) map { _ => "─" + pad }
                 val allPix = startCap +: middleBytePics :+ endCap
@@ -559,7 +554,7 @@ class DataDumper {
     var i = startByteAddress0b
     val sb = new StringBuilder
     while (i <= endByteAddress0b) {
-      val (c, _, _) = convertToChar(i, endByteAddress0b, byteSource, decoder)
+      val (c, _, _) = convertToChar(i - startByteAddress0b, endByteAddress0b, byteSource, decoder)
       sb += c
       i += 1
     }

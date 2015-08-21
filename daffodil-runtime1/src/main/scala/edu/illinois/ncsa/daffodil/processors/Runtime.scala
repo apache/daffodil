@@ -300,6 +300,11 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
         this,
         infosetSource) // TODO also want to pass here the externally set variables, other flags/settings.
     try {
+      if (areDebugging) {
+        Assert.invariant(optDebugger.isDefined)
+        addEventHandler(debugger)
+        unparserState.notifyDebugging(true)
+      }
       unparserState.dataProc.init(ssrd.unparser)
       unparse(unparserState)
       unparserState.unparseResult
@@ -314,11 +319,6 @@ class DataProcessor(val ssrd: SchemaSetRuntimeData)
   }
 
   def unparse(state: UState): Unit = {
-    if (areDebugging) {
-      Assert.invariant(optDebugger.isDefined)
-      addEventHandler(debugger)
-      state.notifyDebugging(true)
-    }
     val rootUnparser = ssrd.unparser
     rootUnparser.unparse(state)
   }

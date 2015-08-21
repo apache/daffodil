@@ -251,12 +251,16 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
   def pastData(nBytesRequested: Int): ByteBuffer = {
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
-    val arr = st.debugOutputStream.toByteArray()
-    val bb = ByteBuffer.wrap(arr)
-    val sz = math.max(0, arr.length - nBytesRequested)
-    bb.limit(arr.length)
-    bb.position(sz)
-    bb
+    if (st.debugOutputStream == null) {
+        ByteBuffer.allocate(0)
+    } else {
+      val arr = st.debugOutputStream.toByteArray()
+      val bb = ByteBuffer.wrap(arr)
+      val sz = math.max(0, arr.length - nBytesRequested)
+      bb.limit(arr.length)
+      bb.position(sz)
+      bb
+    }
   }
 
   def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean = {

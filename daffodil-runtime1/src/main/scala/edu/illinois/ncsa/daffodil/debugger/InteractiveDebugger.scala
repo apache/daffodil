@@ -1196,7 +1196,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
 
         def printData(rep: Option[Representation], l: Int, prestate: ParseOrUnparseState, state: ParseOrUnparseState, processor: Processor) {
           val length = if (l <= 0) Int.MaxValue - 1 else l
-          val dataLoc = state.currentLocation.asInstanceOf[DataLoc]
+          val dataLoc = prestate.currentLocation.asInstanceOf[DataLoc]
           val lines = dataLoc.dump(rep, prestate.currentLocation, state)
           debugPrintln(lines, "  ")
         }
