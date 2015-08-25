@@ -55,6 +55,7 @@ import java.net.URL
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NS.implicitNStoString
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
+import scala.collection.mutable
 
 object Implicits {
   /**
@@ -341,7 +342,7 @@ class SchemaAwareFactoryAdapter()
   // starting element tag.
 
   // startElement saves locator information on stack
-  val locatorStack = new scala.collection.mutable.Stack[Locator]
+  val locatorStack = new mutable.ArrayStack[Locator]
   // endElement pops it off into here
   var elementStartLocator: Locator = _
 

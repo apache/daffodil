@@ -59,10 +59,8 @@ import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.dpath.DState
 import edu.illinois.ncsa.daffodil.processors.dfa.DFAField
-import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.unparsers.UnparseError
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
 import java.io.StringReader
@@ -81,21 +79,21 @@ import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 case class MPState() {
 
   val dstate: DState = new DState
-  val arrayIndexStack = Stack[Long](1L)
+  val arrayIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = Stack[Long](1L)
+  val groupIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = Stack[Long](1L)
+  val childIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new Stack[Long]
+  val occursBoundsStack = new mutable.ArrayStack[Long]
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
@@ -104,7 +102,7 @@ case class MPState() {
 
   var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
 
-  val delimiterStack = new ArrayStack[DelimiterStackNode]()
+  val delimiterStack = new mutable.ArrayStack[DelimiterStackNode]()
   def pushDelimiters(node: DelimiterStackNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top
@@ -163,7 +161,7 @@ abstract class ParseOrUnparseState(
   def groupPos: Long
   def arrayPos: Long
   def childPos: Long
-  def occursBoundsStack: Stack[Long]
+  def occursBoundsStack: mutable.ArrayStack[Long]
 
   def hasInfoset: Boolean
   def infoset: InfosetItem
@@ -495,8 +493,8 @@ object PState {
    */
   type Mark = One[PState]
 
-  private object PStateMarkPoolTL extends ThreadLocal[mutable.Stack[Mark]] {
-    private final def alloc = mutable.Stack[Mark]()
+  private object PStateMarkPoolTL extends ThreadLocal[mutable.ArrayStack[Mark]] {
+    private final def alloc = mutable.ArrayStack[Mark]()
     override protected def initialValue() = alloc
   }
   private def markPoolTL = PStateMarkPoolTL.get()

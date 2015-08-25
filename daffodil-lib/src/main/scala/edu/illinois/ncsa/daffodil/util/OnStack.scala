@@ -32,7 +32,7 @@
 
 package edu.illinois.ncsa.daffodil.util
 
-import scala.collection.mutable.Stack
+import scala.collection.mutable
 import java.util.regex.Matcher
 
 /**
@@ -42,7 +42,7 @@ import java.util.regex.Matcher
  * (which the DFDL compiler IS most definitely)
  */
 
-class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends ThreadLocal[Stack[T]] {
+class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends ThreadLocal[mutable.ArrayStack[T]] {
 
   /**
    * Can specify just the allocator, or you can
@@ -53,8 +53,8 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends 
 
   protected final def constructor = constructorFunc
 
-  protected final override def initialValue(): Stack[T] = {
-    val stack = new Stack[T]
+  protected final override def initialValue(): mutable.ArrayStack[T] = {
+    val stack = new mutable.ArrayStack[T]
     stack
   }
 

@@ -69,7 +69,6 @@ package edu.illinois.ncsa.daffodil.processors
  * Extensively modified - little of the original remains. - Mike Beckerle 2012.
  */
 
-import scala.collection.mutable.Stack
 import scala.collection.mutable.Set
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.XMLUtils

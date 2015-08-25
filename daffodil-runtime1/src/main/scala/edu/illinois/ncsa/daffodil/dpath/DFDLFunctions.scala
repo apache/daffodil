@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dpath
 
 import edu.illinois.ncsa.daffodil.processors._
-import scala.collection.mutable.Stack
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.exceptions._
 import edu.illinois.ncsa.daffodil.util.Maybe

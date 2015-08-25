@@ -51,8 +51,8 @@ class InfosetSourceFromXMLEventReader(
 
   private lazy val diDoc = new DIDocument(rootElementInfo)
 
-  private val nodeStack = mutable.Stack[DIComplex](diDoc)
-  private val arrayStack = mutable.Stack[Maybe[DIArray]](Nope)
+  private val nodeStack = mutable.ArrayStack[DIComplex](diDoc)
+  private val arrayStack = mutable.ArrayStack[Maybe[DIArray]](Nope)
 
   private var nextElementResolver: NextElementResolver = initialNextElementResolver
 

@@ -58,6 +58,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.dsom.RelativePathPastRootError
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
+import scala.collection.mutable
 
 abstract class InteractiveDebuggerRunner {
   def init(id: InteractiveDebugger): Unit
@@ -217,7 +218,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     debugStep(state, state, unparser, false)
   }
 
-  private val parseStack = new scala.collection.mutable.Stack[(PState.Mark, Parser)]
+  private val parseStack = new mutable.ArrayStack[(PState.Mark, Parser)]
 
   override def before(before: PState, parser: Parser) {
     if (isInteresting(parser)) {
@@ -250,7 +251,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
     true
   }
 
-  private val unparseStack = new scala.collection.mutable.Stack[(UState, Unparser)]
+  private val unparseStack = new mutable.ArrayStack[(UState, Unparser)]
 
   override def before(before: UState, unparser: Unparser) {
     if (isInteresting(unparser)) {

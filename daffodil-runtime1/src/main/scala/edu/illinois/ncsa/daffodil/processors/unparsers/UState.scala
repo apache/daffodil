@@ -6,7 +6,6 @@ import edu.illinois.ncsa.daffodil.processors.ProcessorResult
 import edu.illinois.ncsa.daffodil.api.Diagnostic
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
-import scala.collection.mutable.Stack
 import edu.illinois.ncsa.daffodil.processors.DINode
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DISimple
@@ -25,7 +24,6 @@ import edu.illinois.ncsa.daffodil.processors.Failure
 import edu.illinois.ncsa.daffodil.processors.InfosetElement
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.dsom.ValidationError
-import scala.collection.mutable.ArrayStack
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackNode
 import edu.illinois.ncsa.daffodil.processors.DelimiterStackUnparseNode
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeUnparserHelper
@@ -35,6 +33,7 @@ import edu.illinois.ncsa.daffodil.events.MultipleEventHandler
 import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import scala.collection.mutable
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -150,23 +149,23 @@ class UState(
       maybeCurrentInfosetElement.map { _.runtimeData })
   }
 
-  val currentInfosetNodeStack = Stack[Maybe[DINode]]()
+  val currentInfosetNodeStack = mutable.ArrayStack[Maybe[DINode]]()
 
-  val arrayIndexStack = Stack[Long](1L)
+  val arrayIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = Stack[Long](1L)
+  val groupIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = Stack[Long](1L)
+  val childIndexStack = mutable.ArrayStack[Long](1L)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new Stack[Long]
+  val occursBoundsStack = new mutable.ArrayStack[Long]
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
@@ -176,7 +175,7 @@ class UState(
 
   var currentEscapeScheme: Maybe[EscapeSchemeUnparserHelper] = Nope
 
-  val delimiterStack = new ArrayStack[DelimiterStackUnparseNode]()
+  val delimiterStack = new mutable.ArrayStack[DelimiterStackUnparseNode]()
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top

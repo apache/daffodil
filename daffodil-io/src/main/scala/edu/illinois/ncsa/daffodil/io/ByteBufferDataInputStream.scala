@@ -132,8 +132,8 @@ object ByteBufferDataInputStream {
  * This is very unlike the state that must be saved/restored by the mark/reset discipline
  */
 private class TLState {
-  val markStack = mutable.Stack[MarkState]()
-  val markPool = mutable.Stack[MarkState]()
+  val markStack = mutable.ArrayStack[MarkState]()
+  val markPool = mutable.ArrayStack[MarkState]()
   var numOutstandingMarks = 0
   val skipCharBuf = CharBuffer.allocate(BBSLimits.maximumSimpleElementSizeInCharacters.toInt)
   val regexMatchBuffer = CharBuffer.allocate(BBSLimits.maximumRegexMatchLengthInCharacters.toInt)
@@ -752,7 +752,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   private def releaseStateToPool(st: MarkState) {
     // threadCheck()
-    Assert.invariant(!markPool.contains(st))
+    //Assert.invariant(!markPool.contains(st)) // commented out, too intensive for inner loop
     markPool.push(st)
     Assert.invariant(numOutstandingMarks > 0)
     decrNumOutstandingMarks
@@ -760,7 +760,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def mark: DataInputStream.Mark = {
     val m = getStateFromPool
-    Assert.invariant(!markStack.contains(m))
+    //Assert.invariant(!markStack.contains(m)) // commented out, too intensive for inner loop
     m.assignFrom(st)
     m.savedBytePosition0b = data.position()
     m.savedByteLimit0b = data.limit()
@@ -773,20 +773,20 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     // threadCheck()
     Assert.usage(!markStack.isEmpty)
     Assert.usage(mark != null)
-    Assert.invariant(!markPool.contains(mark))
-    Assert.invariant(markStack.contains(mark))
+    //Assert.invariant(!markPool.contains(mark)) // commented out, too intensive for inner loop
+    //Assert.invariant(markStack.contains(mark)) // commented out, too intensive for inner loop
     var current = markStack.pop
     while (!(markStack.isEmpty) && (current ne mark)) {
       releaseStateToPool(current)
       current = markStack.pop
     }
-    Assert.invariant(current eq mark) // holds unless markStack was empty
+    //Assert.invariant(current eq mark) // holds unless markStack was empty // commented out, too intensive for inner loop
     current
   }
 
   def reset(mark: DataInputStream.Mark): Unit = {
     val current = releaseUntilMark(mark)
-    Assert.invariant(current eq mark)
+    //Assert.invariant(current eq mark) // commented out, too intensive for inner loop
     st.assignFrom(current)
     data.position(st.savedBytePosition0b)
     data.limit(st.savedByteLimit0b)
@@ -797,8 +797,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   def discard(mark: DataInputStream.Mark): Unit = {
     val current = releaseUntilMark(mark)
-    Assert.invariant(current eq mark)
-    Assert.invariant(!markStack.contains(mark))
+    //Assert.invariant(current eq mark) // commented out, too intensive for inner loop
+    //Assert.invariant(!markStack.contains(mark)) // commented out, too intensive for inner loop
     releaseStateToPool(current)
   }
 
