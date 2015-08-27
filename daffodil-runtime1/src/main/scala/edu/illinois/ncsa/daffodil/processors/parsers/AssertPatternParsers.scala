@@ -40,12 +40,12 @@ abstract class AssertPatternParserBase(
       log(LogLevel.Debug, "%s - Looking for testPattern = %s", eName, testPattern)
 
       val dis = start.dataInputStream
-      val mark = dis.mark
+      val mark = dis.markPos
       withMatcher { m =>
         val isMatch = dis.lookingAt(m)
         afterParse(start, isMatch, m)
       }
-      dis.reset(mark)
+      dis.resetPos(mark)
     }
   }
 

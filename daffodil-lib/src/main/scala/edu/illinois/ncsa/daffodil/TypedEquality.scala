@@ -80,6 +80,8 @@ package object equality {
   implicit class TypeEqual[L](val left: L) extends AnyVal {
     def =:=[R](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
       equality.areEqual(left, right)
+    def !=:=[R](right: R)(implicit equality: TypeEquality[L, R]): Boolean =
+      !equality.areEqual(left, right)
   }
 
   @implicitNotFound("Typed equality requires ${L} and ${R} to be in a subtype relationship!")

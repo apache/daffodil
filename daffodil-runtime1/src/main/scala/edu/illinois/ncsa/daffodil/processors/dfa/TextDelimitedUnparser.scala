@@ -80,7 +80,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     var numCharsInserted: Int = 0
 
     var shouldGenerateEscapeBlock: Boolean = false
-    var beforeDelimiter: DataInputStream.Mark = null
+    var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
 
     while (stillSearching) {
 
@@ -92,10 +92,10 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
       // starting with the character following that of the matched 
       // delimiter until we reach end of data.
       //
-      Assert.invariant(beforeDelimiter == null)
+      Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
       val dfaStatus = field.run(stateNum, fieldReg, actionNum)
       actionNum = 0
-      beforeDelimiter = input.mark
+      beforeDelimiter = input.markPos
 
       dfaStatus.status match {
         case StateKind.EndOfData => stillSearching = false
@@ -110,15 +110,14 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           val blockEndStatus = blockEnd.run(0, blockEndReg)
           blockEndStatus.status match {
             case StateKind.Succeeded if (!escapeEscapeChar.isDefined) => {
-              input.discard(beforeDelimiter) // cleanup 
-              beforeDelimiter = null
+              beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               UnparseError(One(context.schemaFileLocation),
                 One(state.currentLocation),
                 "escapeEscapeCharacter was not defined but the escapeBlockEnd (%s) was present in the data.",
                 blockEnd.lookingFor)
             }
             case StateKind.Succeeded => {
-              val afterBlockEnd = input.mark // save position immediately after the blockEnd we found.
+              val afterBlockEnd = input.markPos // save position immediately after the blockEnd we found.
               //
               // note. The appendToField code assumes that a character needs to be read from 
               // the input. However, the input has already been advanced past the blockEnd
@@ -126,16 +125,15 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               //
               // TODO: scrutinize DFA code. Why does appendToField call commitOneChar anyway?
               // It may not need to do that anymore, and that would allow us to get rid of the 
-              // input.mark above, and input.reset below.
+              // input.markPos above, and input.resetPos below.
               //
               fieldReg.appendToField(escapeEscapeChar.get)
               numCharsInserted += 1 // this is how many escape characters we've inserted to escape the delims/blockEnds in the data
               val blockEnd = blockEndReg.delimString
               blockEnd.foreach(fieldReg.appendToField(_))
-              input.reset(afterBlockEnd) // we want to resume scanning after the blockEnd.
+              input.resetPos(afterBlockEnd) // we want to resume scanning after the blockEnd.
               shouldGenerateEscapeBlock = true
-              input.discard(beforeDelimiter) // cleanup 
-              beforeDelimiter = null
+              beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               actionNum = 0
               stateNum = 0
               // now go around the while loop again
@@ -146,8 +144,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
               //
               delims.foreach(d => { // Pick up where field left off
                 val delimReg: Registers = new Registers(delims)
-                input.reset(beforeDelimiter)
-                beforeDelimiter = input.mark
+                input.resetPos(beforeDelimiter)
+                beforeDelimiter = input.markPos
                 delimReg.reset(input)
                 val delimStatus = d.run(0, delimReg)
                 delimStatus.status match {
@@ -167,8 +165,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
                   }
                 }
               })
-              input.reset(beforeDelimiter)
-              beforeDelimiter = null
+              input.resetPos(beforeDelimiter)
+              beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               fieldReg.resetChars
               if (successes.isEmpty) {
                 actionNum = dfaStatus.actionNum + 1 // goto next rule
@@ -193,7 +191,6 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     // That happens on end of data (end of the infoset string.. we're unparsing here)
     // It means we're done. 
     //
-    input.discard(beforeDelimiter)
     // No need to now advance the input, because we're unparsing, and we're done
     // so this input is going to be discarded since it existed only to enable
     // us to reuse the DFA for determining when to escape data while unparsing.
@@ -225,7 +222,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     var actionNum: Int = 0
     var numCharsInserted: Int = 0
     var escapeOccurred: Boolean = false
-    var beforeDelimiter: DataInputStream.Mark = null
+    var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
 
     while (stillSearching) {
 
@@ -238,7 +235,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
       // delimiter until we reach end of data.
       //
       val dfaStatus = field.run(stateNum, fieldReg, actionNum)
-      beforeDelimiter = input.mark
+      beforeDelimiter = input.markPos
 
       actionNum = 0
 
@@ -249,8 +246,8 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
           delims.foreach(d => { // Pick up where field left off
             val delimReg: Registers = new Registers(delims)
             delimReg.reset(input)
-            input.reset(beforeDelimiter)
-            beforeDelimiter = input.mark
+            input.resetPos(beforeDelimiter)
+            beforeDelimiter = input.markPos
             val delimStatus = d.run(0, delimReg)
             delimStatus.status match {
               case StateKind.Succeeded => successes += (d -> delimReg)
@@ -277,7 +274,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
             // position the input stream after the winning (longest) 
             // delimiter
             //
-            input.reset(beforeDelimiter)
+            input.resetPos(beforeDelimiter)
             Assert.invariant(input.skipChars(delim.length))
             fieldReg.resetChars
             successes.clear
@@ -296,7 +293,6 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
         }
       }
     }
-    input.discard(beforeDelimiter)
     // No need to now advance the input, because we're unparsing, and we're done
     // so this input is going to be discarded since it existed only to enable
     // us to reuse the DFA for determining when to escape data while unparsing.

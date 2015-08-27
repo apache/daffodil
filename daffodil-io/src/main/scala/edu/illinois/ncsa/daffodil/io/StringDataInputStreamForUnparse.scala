@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets
  */
 class StringDataInputStreamForUnparse
   extends DataInputStream {
+  import DataInputStream._
 
   var str: String = null
   var dis: DataInputStream = null
@@ -63,8 +64,10 @@ class StringDataInputStreamForUnparse
   def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
     dis.lookingAt(matcher, initialRegexMatchLimitInChars)
   def mark: DataInputStream.Mark = dis.mark
+  def markPos = dis.markPos
   def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
   def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
+  def resetPos(m: MarkPos) = dis.resetPos(m)
   def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit = doNotUse
   def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean = doNotUse
   def setBitOrder(bitOrder: BitOrder): Unit = doNotUse

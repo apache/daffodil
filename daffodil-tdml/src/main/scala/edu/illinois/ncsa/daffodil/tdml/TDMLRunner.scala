@@ -63,7 +63,6 @@ import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
-import edu.illinois.ncsa.daffodil.processors.DFDLCharCounter
 import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
 import edu.illinois.ncsa.daffodil.util.Error
 import edu.illinois.ncsa.daffodil.util.LogLevel

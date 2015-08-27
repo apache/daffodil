@@ -261,7 +261,7 @@ class RepUnboundedParser(occursCountKind: OccursCountKind.Value, rParser: Parser
       }
       // Success
       // Need to check for forward progress
-      if (pstate.bitPos =#= priorState.get.bitPos0b) {
+      if (pstate.bitPos =#= priorState.bitPos0b) {
         val bytePos = pstate.bytePos
         pstate.discard(priorState) // didn't move, but might have assigned variables.
         pstate.discard(startState)

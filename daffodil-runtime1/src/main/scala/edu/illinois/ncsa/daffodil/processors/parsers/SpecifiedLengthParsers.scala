@@ -75,7 +75,7 @@ class SpecifiedLengthPatternParser(
 
   final override protected def getBitLength(s: PState): Long = {
     val dis = s.dataInputStream
-    val mark = dis.mark
+    val mark = dis.markPos
     withMatcher { m =>
       val isMatch = dis.lookingAt(m)
 
@@ -84,7 +84,7 @@ class SpecifiedLengthPatternParser(
       // which means not at all if there was no match.
       val endBitLimit = dis.bitPos0b
 
-      dis.reset(mark)
+      dis.resetPos(mark)
       val length = endBitLimit - dis.bitPos0b
       length
     }
@@ -158,14 +158,14 @@ abstract class SpecifiedLengthExplicitCharactersParserBase(
 
   private def maybeBitPosAfterNChars(start: PState, nChars: Long): Maybe[Long] = {
     val dis = start.dataInputStream
-    val mark = dis.mark
+    val mark = dis.markPos
     val hasNChars = dis.skipChars(nChars)
     if (!hasNChars) {
-      dis.reset(mark)
+      dis.resetPos(mark)
       Nope
     } else {
       val bitLimitAfterNChars = dis.bitPos0b
-      dis.reset(mark)
+      dis.resetPos(mark)
       Maybe(bitLimitAfterNChars)
     }
   }

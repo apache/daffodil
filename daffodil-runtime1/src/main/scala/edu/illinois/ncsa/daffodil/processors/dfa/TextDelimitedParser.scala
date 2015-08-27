@@ -48,6 +48,7 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryBase
 import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
 import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.equality._
 
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
@@ -69,12 +70,12 @@ abstract class TextDelimitedParserBase(
     var stillSearching: Boolean = true
     var stateNum: Int = 0 // initial state is 0
     var actionNum: Int = 0
-    var beforeDelimiter: DataInputStream.Mark = null
+    var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
-      Assert.invariant(beforeDelimiter == null)
+      Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
       val dfaStatus = field.run(stateNum, fieldReg, actionNum)
-      beforeDelimiter = input.mark
+      beforeDelimiter = input.markPos
       actionNum = 0
       dfaStatus.status match {
         case StateKind.EndOfData => stillSearching = false
@@ -82,8 +83,8 @@ abstract class TextDelimitedParserBase(
         case StateKind.Paused => {
 
           delims.foreach(d => { // Pick up where field left off
-            input.reset(beforeDelimiter)
-            beforeDelimiter = input.mark
+            input.resetPos(beforeDelimiter)
+            beforeDelimiter = input.markPos
             val delimReg: Registers = new Registers(delims) // TODO: Performance - allocates new registers every time.
             delimReg.reset(input)
             val delimStatus = d.run(0, delimReg)
@@ -98,8 +99,8 @@ abstract class TextDelimitedParserBase(
           else {
             // resume field parse
             // TODO: Please explain here why this is the way one resumes the field dfa?
-            input.reset(beforeDelimiter) // reposition input to where we were trying to find a delimiter
-            beforeDelimiter = null
+            input.resetPos(beforeDelimiter) // reposition input to where we were trying to find a delimiter
+            beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
             actionNum = dfaStatus.actionNum + 1 // but force it to goto next rule so it won't just retry what it just did.
             stateNum = dfaStatus.currentStateNum
             stillSearching = true
@@ -107,8 +108,8 @@ abstract class TextDelimitedParserBase(
         }
       }
     }
-    Assert.invariant(beforeDelimiter != null)
-    input.reset(beforeDelimiter)
+    Assert.invariant(beforeDelimiter != DataInputStream.MarkPos.NoMarkPos)
+    input.resetPos(beforeDelimiter)
     val lm = longestMatch(successes)
     val result = {
       if (!lm.isDefined) {
@@ -241,12 +242,12 @@ class TextDelimitedParserWithEscapeBlock(
     var stateNum: Int = 0 // initial state is 0
     var actionNum: Int = 0
     var foundBlockEnd: Boolean = false
-    var beforeDelimiter: DataInputStream.Mark = null
+    var beforeDelimiter: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos
     while (stillSearching) {
 
-      Assert.invariant(beforeDelimiter == null)
+      Assert.invariant(beforeDelimiter =:= DataInputStream.MarkPos.NoMarkPos)
       val dfaStatus = fieldEsc.run(stateNum, fieldRegister, actionNum)
-      beforeDelimiter = input.mark // at this point the input is one past the end of the field. 
+      beforeDelimiter = input.markPos // at this point the input is one past the end of the field. 
       actionNum = 0
 
       dfaStatus.status match {
@@ -264,14 +265,13 @@ class TextDelimitedParserWithEscapeBlock(
               // Found the unescaped block end, now we need to
               // find any padding.
               this.removeRightPadding(input, endBlockRegister, delims)
-              input.discard(beforeDelimiter) // now set our position to after the padding (and after the end block
-              beforeDelimiter = input.mark
+              beforeDelimiter = input.markPos
 
               // Finally, we can look for the delimiter.
               delims.foreach(d => { // Pick up where end of block/padding left off
                 val delimRegister = new Registers(delims)
-                input.reset(beforeDelimiter)
-                beforeDelimiter = input.mark
+                input.resetPos(beforeDelimiter)
+                beforeDelimiter = input.markPos
                 delimRegister.reset(input)
 
                 val delimStatus = d.run(0, delimRegister)
@@ -296,8 +296,8 @@ class TextDelimitedParserWithEscapeBlock(
               // characters we were scrutinizing as the possible block end
               // into the field.
               //
-              input.reset(beforeDelimiter)
-              beforeDelimiter = null
+              input.resetPos(beforeDelimiter)
+              beforeDelimiter = DataInputStream.MarkPos.NoMarkPos
               fieldRegister.resetChars
 
               // resume field parse
@@ -313,8 +313,8 @@ class TextDelimitedParserWithEscapeBlock(
         }
       }
     } // End While
-    Assert.invariant(beforeDelimiter != null)
-    input.reset(beforeDelimiter)
+    Assert.invariant(beforeDelimiter !=:= DataInputStream.MarkPos.NoMarkPos)
+    input.resetPos(beforeDelimiter)
     val lm = longestMatch(successes)
     val result = {
       if (!lm.isDefined) {

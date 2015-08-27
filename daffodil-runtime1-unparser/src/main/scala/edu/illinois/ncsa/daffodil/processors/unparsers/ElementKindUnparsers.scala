@@ -58,11 +58,11 @@ class ComplexTypeUnparser(rd: RuntimeData, bodyUnparser: Unparser)
   override lazy val childProcessors = Seq(bodyUnparser)
 
   def unparse(start: UState): Unit = {
-    start.currentInfosetNodeStack.push(Nope) // save
+    start.currentInfosetNodeStack.pushMaybe(Nope) // save
     start.childIndexStack.push(1L) // one-based indexing
     bodyUnparser.unparse1(start, rd)
     start.childIndexStack.pop()
-    start.currentInfosetNodeStack.pop // restore
+    start.currentInfosetNodeStack.popMaybe // restore
   }
 }
 

@@ -54,7 +54,7 @@ trait DataStreamCommonState {
 
 }
 
-trait DataStreamCommonImplMixin extends DataStreamCommon with TLStateAccessMixin {
+trait DataStreamCommonImplMixin extends DataStreamCommon {
   import DataStreamCommon._
 
   protected def cst: DataStreamCommonState

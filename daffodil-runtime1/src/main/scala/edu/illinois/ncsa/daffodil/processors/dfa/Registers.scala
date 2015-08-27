@@ -2,6 +2,7 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.equality._
 
 // This is the block of mutable things
 // including the source of characters.
@@ -27,9 +28,9 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(input: DataInputStream, m: DataInputStream.Mark = null) {
+  def reset(input: DataInputStream, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
-    if (m != null) dataInputStream.reset(m)
+    if (m !=:= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
     resetChars
     resultString.clear()
     delimString.clear()

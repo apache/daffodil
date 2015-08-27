@@ -117,7 +117,7 @@ abstract class DelimiterTextParserBase(rd: TermRuntimeData,
   def hasLocalES(state: PState): Boolean = state.mpstate.localDelimiters.hasEmptyString(delimiterType)
   def hasRemoteES(state: PState): Boolean = {
     val remote = state.mpstate.remoteDelimiters
-    remote.find(r => r.hasEmptyString(delimiterType)).isDefined
+    remote.exists(r => r.hasEmptyString(delimiterType))
   }
 
   def getMatchedDelimiterInfo(originalDelimRep: String,

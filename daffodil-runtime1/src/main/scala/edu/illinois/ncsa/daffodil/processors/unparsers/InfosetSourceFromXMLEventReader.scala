@@ -17,6 +17,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
 import scala.annotation.tailrec
+import edu.illinois.ncsa.daffodil.util.MStack
 
 /**
  * This converter uses Scala Streams extensively, and in principle it could be
@@ -51,8 +52,19 @@ class InfosetSourceFromXMLEventReader(
 
   private lazy val diDoc = new DIDocument(rootElementInfo)
 
-  private val nodeStack = mutable.ArrayStack[DIComplex](diDoc)
-  private val arrayStack = mutable.ArrayStack[Maybe[DIArray]](Nope)
+  private val nodeStack = new MStack.Of[DIComplex]
+  nodeStack.push(diDoc)
+
+  /**
+   * Represents Maybe[DIArray] as just DIArray with null meaning Nope.
+   * This avoids allocating a Maybe object for every push.
+   *
+   * (Seems to be a Scala bug that you cannot create an Iterator[Maybe[T]]. It fails
+   * to compile the definition of next() : Maybe[T], so we have to go back to
+   * the old null vs. regular object reference.
+   */
+  private val arrayStack = new MStack.OfMaybe[DIArray]
+  arrayStack.pushMaybe(Nope)
 
   private var nextElementResolver: NextElementResolver = initialNextElementResolver
 
@@ -81,7 +93,7 @@ class InfosetSourceFromXMLEventReader(
     xmlEvent match {
       case EndComplex(ns, local) => {
         val node = nodeStack.pop
-        val arr = arrayStack.pop
+        val arr = arrayStack.popMaybe
         val arrayTransition =
           if (arr.isDefined)
             Seq(End(arr.get))
@@ -93,7 +105,7 @@ class InfosetSourceFromXMLEventReader(
       case _ => {
         val ns = xmlEvent.ns
         val local = xmlEvent.local
-        val arr = arrayStack.top
+        val arr = arrayStack.topMaybe
         val erd = nextElementResolver.nextElement(local, ns)
         val nodeEvents: Seq[InfosetEvent] = xmlEvent match {
           case _: EndComplex => Assert.invariantFailed("EndComplex already handled")
@@ -145,8 +157,8 @@ class InfosetSourceFromXMLEventReader(
               } else {
                 // end one array and start another immediately (adjacent array elements)
                 val newDIArray: DIArray = node.parent.get.getChildArray(erd).get.asInstanceOf[DIArray]
-                arrayStack.pop
-                arrayStack.push(One(newDIArray))
+                arrayStack.popMaybe
+                arrayStack.pushMaybe(One(newDIArray))
                 Seq(End(diArray), Start(newDIArray))
               }
             }
@@ -154,8 +166,8 @@ class InfosetSourceFromXMLEventReader(
               // prior was not an array (or there is no prior - first in group)
               // so start an array
               val newDIArray: DIArray = node.parent.get.getChildArray(erd).get.asInstanceOf[DIArray]
-              arrayStack.pop
-              arrayStack.push(One(newDIArray))
+              arrayStack.popMaybe
+              arrayStack.pushMaybe(One(newDIArray))
               Seq(Start(newDIArray))
             }
             case (false, None) => {
@@ -163,14 +175,14 @@ class InfosetSourceFromXMLEventReader(
               Nil
             }
             case (false, Some(diArray)) => {
-              arrayStack.pop
-              arrayStack.push(Nope)
+              arrayStack.popMaybe
+              arrayStack.pushMaybe(Nope)
               Seq(End(diArray))
             }
           }
 
         if (xmlEvent.isInstanceOf[StartComplex]) {
-          arrayStack.push(Nope)
+          arrayStack.pushMaybe(Nope)
         }
 
         val result = arrayTransition ++ nodeEvents

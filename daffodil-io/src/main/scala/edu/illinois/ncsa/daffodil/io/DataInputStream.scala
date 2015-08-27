@@ -116,7 +116,17 @@ object DataInputStream {
    * Use of mark/reset should eliminate any need for random-access setters of
    * the bit position.
    */
-  trait Mark
+  trait Mark {
+    def bitPos0b: Long
+  }
+
+  /**
+   * For mini-marks that just mark/reset the position
+   */
+  type MarkPos = Long
+  object MarkPos {
+    def NoMarkPos: MarkPos = -1L
+  }
 
   /**
    * An Iterator[Char] with additional peek and peek2 methods.
@@ -776,4 +786,9 @@ trait DataInputStream
    */
   def asIteratorChar: DataInputStream.CharIterator
 
+  /**
+   * Save the bitPos0b for restore later
+   */
+  def markPos: MarkPos
+  def resetPos(m: MarkPos): Unit
 }

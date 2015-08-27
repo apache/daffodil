@@ -49,11 +49,11 @@ class TextParser(
     val successes: ArrayBuffer[(DFADelimiter, Registers)] = ArrayBuffer.empty
     //val initialCharPos = input.characterPos
 
-    var m = input.mark
+    var m = input.markPos
     delims.foreach(d => {
       val reg = new Registers(delims) // TODO: Performance - allocating. Use onStack? or local reserved state?
       reg.reset(input, m)
-      m = input.mark
+      m = input.markPos
       val dfaStatus = d.run(0, reg)
       dfaStatus.status match {
         case StateKind.Failed => // Continue
@@ -61,7 +61,7 @@ class TextParser(
         case _ => // Continue
       }
     })
-    input.reset(m)
+    input.resetPos(m)
 
     val lm = longestMatch(successes)
     val result = {

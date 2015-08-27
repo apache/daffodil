@@ -153,14 +153,6 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
 
   protected final def cst: DataStreamCommonState = st
 
-  @deprecated("2015-07-14", "Don't copy these.")
-  def copyOutStream: BasicDataOutputStream = {
-    val newState = new BasicDataOutputStreamState
-    newState.assignFrom(st)
-    val newOS = new BasicDataOutputStream(outStream, newState)
-    newOS
-  }
-
   def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = ???
 
   private def exceedsBitLimit(lengthInBytes: Long): Boolean = {
@@ -252,7 +244,7 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     if (!areDebugging) throw new IllegalStateException("Must be debugging.")
     Assert.usage(nBytesRequested >= 0)
     if (st.debugOutputStream == null) {
-        ByteBuffer.allocate(0)
+      ByteBuffer.allocate(0)
     } else {
       val arr = st.debugOutputStream.toByteArray()
       val bb = ByteBuffer.wrap(arr)

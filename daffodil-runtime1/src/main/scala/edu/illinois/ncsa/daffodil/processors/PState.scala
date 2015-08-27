@@ -75,25 +75,70 @@ import java.nio.charset.CharsetEncoder
 import edu.illinois.ncsa.daffodil.io.ByteBufferDataInputStream
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
+import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.util.Pool
+
+object MPState {
+  class Mark {
+
+    var arrayIndexStackMark: MStack.Mark = _
+    var groupIndexStackMark: MStack.Mark = _
+    var childIndexStackMark: MStack.Mark = _
+    var occursBoundsStackMark: MStack.Mark = _
+    var delimiterStackMark: MStack.Mark = _
+    var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
+
+    clear()
+
+    def clear() {
+      arrayIndexStackMark = MStack.nullMark
+      groupIndexStackMark = MStack.nullMark
+      childIndexStackMark = MStack.nullMark
+      occursBoundsStackMark = MStack.nullMark
+      delimiterStackMark = MStack.nullMark
+      currentEscapeScheme = Nope
+    }
+
+    def setMarkFrom(mp: MPState) {
+      arrayIndexStackMark = mp.arrayIndexStack.mark
+      groupIndexStackMark = mp.groupIndexStack.mark
+      childIndexStackMark = mp.childIndexStack.mark
+      occursBoundsStackMark = mp.occursBoundsStack.mark
+      delimiterStackMark = mp.delimiterStack.mark
+      currentEscapeScheme = mp.currentEscapeScheme
+    }
+    def resetFromMark(mp: MPState) {
+      mp.arrayIndexStack.reset(this.arrayIndexStackMark)
+      mp.groupIndexStack.reset(this.groupIndexStackMark)
+      mp.childIndexStack.reset(this.childIndexStackMark)
+      mp.occursBoundsStack.reset(this.occursBoundsStackMark)
+      mp.delimiterStack.reset(this.delimiterStackMark)
+      mp.currentEscapeScheme = this.currentEscapeScheme
+    }
+  }
+}
 
 case class MPState() {
 
   val dstate: DState = new DState
-  val arrayIndexStack = mutable.ArrayStack[Long](1L)
+  val arrayIndexStack = new MStack.OfLong
+  arrayIndexStack.push(1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = mutable.ArrayStack[Long](1L)
+  val groupIndexStack = new MStack.OfLong
+  groupIndexStack.push(1L)
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = mutable.ArrayStack[Long](1L)
+  val childIndexStack = new MStack.OfLong
+  childIndexStack.push(1L)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new mutable.ArrayStack[Long]
+  val occursBoundsStack = new MStack.OfLong
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
@@ -102,14 +147,61 @@ case class MPState() {
 
   var currentEscapeScheme: Maybe[EscapeSchemeParserHelper] = Nope
 
-  val delimiterStack = new mutable.ArrayStack[DelimiterStackNode]()
-  def pushDelimiters(node: DelimiterStackNode) = delimiterStack.push(node)
-  def popDelimiters() = delimiterStack.pop
+  val delimiterStack = new MStack.Of[DelimiterStackNode]
+  def pushDelimiters(node: DelimiterStackNode) = {
+    Assert.usage(node != null)
+    delimiterStack.push(node)
+  }
+  def popDelimiters() = {
+    val res = delimiterStack.pop
+    Assert.invariant(res != null)
+    res
+  }
   def localDelimiters = delimiterStack.top
-  def remoteDelimiters = delimiterStack.tail
-  def getAllTerminatingMarkup = delimiterStack.iterator.flatMap { _.getTerminatingMarkup }.toList.toSeq // use list here because toSeq creates a lazy stream from an iterator
-  def getAllDelimitersWithPos = delimiterStack.iterator.flatMap { _.getDelimitersWithPos }.toList.toSeq
+  def remoteDelimiters = {
+    val iter = delimiterStack.iterator // PERFORMANCE: Allocates an iterator object
+    if (iter.hasNext) iter.next // skip top element. We want the "tail" of the stack
+    iter
+  }
+  def getAllTerminatingMarkup = delimiterStack.iterator.flatMap {
+    dsNode =>
+      {
+        Assert.invariant(dsNode != null)
+        dsNode.getTerminatingMarkup
+      }
+  }.toList.toSeq // use list here because toSeq creates a lazy stream from an iterator
+  def getAllDelimitersWithPos = delimiterStack.iterator.flatMap {
+    dsNode =>
+      {
+        Assert.invariant(dsNode != null)
+        dsNode.getDelimitersWithPos
+      }
+  }.toList.toSeq
 }
+
+/**
+ * Trait mixed into the PState.Mark object class and the ParseOrUnparseState
+ *
+ * contains member functions for everything the debugger needs to be able to observe.
+ */
+trait StateForDebugger {
+  def bytePos: Long
+  def childPos: Long
+  def groupPos: Long
+  def currentLocation: DataLocation
+  def arrayPos: Long
+  def bitLimit0b: Maybe[Long]
+  def discriminator: Boolean = false
+}
+
+case class TupleForDebugger(
+  val bytePos: Long,
+  val childPos: Long,
+  val groupPos: Long,
+  val currentLocation: DataLocation,
+  val arrayPos: Long,
+  val bitLimit0b: Maybe[Long],
+  override val discriminator: Boolean) extends StateForDebugger
 
 /**
  * A parser takes a state, and returns an updated state
@@ -123,15 +215,22 @@ case class MPState() {
  * places where points-of-uncertainty are handled.
  */
 abstract class ParseOrUnparseState(
-  var dstate: DState,
+  val dstate: DState,
   var variableMap: VariableMap,
   var diagnostics: List[Diagnostic],
-  var dataProc: DataProcessor) extends DFDL.State with ThrowsSDE with SavesErrorsAndWarnings {
+  var dataProc: DataProcessor) extends DFDL.State
+  with StateForDebugger
+  with ThrowsSDE with SavesErrorsAndWarnings {
 
-  private lazy val myFirstThread = Thread.currentThread()
-
-  protected final def threadCheck() {
-    Assert.invariant(Thread.currentThread eq myFirstThread)
+  def copyStateForDebugger = {
+    TupleForDebugger(
+      bytePos,
+      childPos,
+      groupPos,
+      currentLocation,
+      arrayPos,
+      bitLimit0b,
+      discriminator)
   }
 
   override def schemaFileLocation = getContext().schemaFileLocation
@@ -161,7 +260,7 @@ abstract class ParseOrUnparseState(
   def groupPos: Long
   def arrayPos: Long
   def childPos: Long
-  def occursBoundsStack: mutable.ArrayStack[Long]
+  def occursBoundsStack: MStack.OfLong
 
   def hasInfoset: Boolean
   def infoset: InfosetItem
@@ -173,20 +272,6 @@ abstract class ParseOrUnparseState(
     val currentElement = infoset.asInstanceOf[InfosetElement]
     val res = currentElement.runtimeData
     res
-  }
-
-  /**
-   * Change the bitOrder
-   *
-   * Must be done at a byte boundary.
-   */
-  @deprecated("2015-07-22", "Do not call this. Bit order is set by the BitOrderChange parser/unparser")
-  def setBitOrder(bitOrder: BitOrder) {
-    // threadCheck()
-    schemaDefinitionUnless((bitPos1b % 8) == 1,
-      "The bitOrder cannot be changed unless the data is aligned at a byte boundary. The bit position (1 based) mod 8 is %s.", bitPos1b)
-    // inStream = inStream.withBitOrder(bitOrder)
-    dataStream.setBitOrder(bitOrder)
   }
 
   /**
@@ -250,11 +335,13 @@ final class PState private (
   vmap: VariableMap,
   var status: ProcessorResult,
   diagnosticsArg: List[Diagnostic],
-  var discriminatorStack: List[Boolean],
   val mpstate: MPState,
   dataProcArg: DataProcessor,
   var foundDelimiter: Maybe[FoundDelimiterText])
   extends ParseOrUnparseState(mpstate.dstate, vmap, diagnosticsArg, dataProcArg) {
+
+  val discriminatorStack = new MStack.OfBoolean
+  discriminatorStack.push(false)
 
   override def dataStream: DataStreamCommon = dataInputStream
 
@@ -277,87 +364,25 @@ final class PState private (
   override def childPos = mpstate.childPos
   override def occursBoundsStack = mpstate.occursBoundsStack
 
-  // No longer a case-class, so we need our own copy routine.
-  private def copy(dataInputStream: DataInputStream = dataInputStream,
-    infoset: InfosetItem = infoset, variableMap: VariableMap = variableMap, status: ProcessorResult = status,
-    diagnostics: List[Diagnostic] = diagnostics,
-    discriminatorStack: List[Boolean] = discriminatorStack,
-    mpstate: MPState = mpstate, // don't copy the mpstate object itself, just the reference to it.
-    dataProc: DataProcessor = dataProc,
-    foundDelim: Maybe[FoundDelimiterText] = foundDelimiter) = {
-    // threadCheck()
-    new PState(infoset, dataInputStream,
-      variableMap, status, diagnostics, discriminatorStack, mpstate, dataProc, foundDelim)
-  }
-
-  @deprecated("2015-07-15", "must get rid of this copying!")
-  private def duplicate() = {
-    // threadCheck()
-    val res = copy()
-    res.dataInputStream = res.dataInputStream.asInstanceOf[ByteBufferDataInputStream].makeACopy
-    res
-  }
-
-  private def markPool = {
-    PState.markPoolTL
-  }
-
-  private def getMarkFromPool: PState.Mark =
-    {
-      // threadCheck()
-      if (markPool.isEmpty) One(duplicate())
-      else {
-        val pstate = markPool.pop().get
-        pstate.assignFrom(this) // TODO: Hack - must get rid of this copying.
-        pstate.dataInputStream = pstate.dataInputStream.asInstanceOf[ByteBufferDataInputStream].makeACopy
-        One(pstate)
-      }
-    }
+  private val markPool = new PState.MarkPool
 
   def mark: PState.Mark = {
     // threadCheck()
-    getMarkFromPool
+    val m = markPool.getFromPool
+    m.assignFromPState(this)
+    m
   }
 
   def reset(m: PState.Mark) {
     // threadCheck()
-    Assert.usage(m.get.dataInputStream != null)
-    this.assignFrom(m.get)
-    m.get.clear()
-    markPool.push(m)
+    m.resetOntoPState(this)
+    discard(m)
   }
 
   def discard(m: PState.Mark) {
     // threadCheck()
-    m.get.clear()
-  }
-
-  /**
-   * Clear so that PState saved on the Mark Stack aren't
-   * holding on to a lot of garbage.
-   */
-  private def clear() = {
-    // threadCheck()
-    dataInputStream = null
-    infoset = null
-    variableMap = null
-    diagnostics = null
-    status = null
-    discriminatorStack = null
-    dataProc = null
-  }
-
-  private def assignFrom(other: PState) {
-    // threadCheck()
-    if (dataInputStream != null) dataInputStream.asInstanceOf[ByteBufferDataInputStream].assignFrom(other.dataInputStream)
-    else dataInputStream = other.dataInputStream
-    infoset = other.infoset
-    variableMap = other.variableMap
-    status = other.status
-    diagnostics = other.diagnostics
-    discriminatorStack = other.discriminatorStack
-    dataProc = other.dataProc
-    foundDelimiter = other.foundDelimiter
+    m.clear()
+    markPool.returnToPool(m)
   }
 
   override def toString() = {
@@ -369,7 +394,7 @@ final class PState private (
     new DataLoc(bitPos1b, bitLimit1b, Right(dataInputStream),
       Maybe(thisElement.runtimeData))
 
-  def discriminator = discriminatorStack.head
+  override def discriminator = discriminatorStack.top
   def bitPos0b = dataInputStream.bitPos0b
   def bitLimit0b = dataInputStream.bitLimit0b
   //  def charLimit = inStream.charLimit0b
@@ -422,41 +447,20 @@ final class PState private (
 
   def pushDiscriminator {
     // threadCheck()
-    discriminatorStack = false +: discriminatorStack
+    discriminatorStack.push(false)
   }
 
   def popDiscriminator {
     // threadCheck()
-    discriminatorStack = discriminatorStack.tail
+    discriminatorStack.pop
   }
 
   def setDiscriminator(disc: Boolean) {
     // threadCheck()
-    discriminatorStack = disc +: discriminatorStack.tail
+    discriminatorStack.pop()
+    discriminatorStack.push(disc)
   }
 
-  /**
-   * withPos changes the bit position of the stream, and maintains the char reader
-   * which is available to decode characters at that position.
-   *
-   * It is critical to performance that the reader be preserved if it can be. That is, if we are
-   * moving through characters of text in the same encoding, with no binary data or alignment going on, then
-   * we *must* retain the reader. Creating a new reader has high overhead in that as soon as you create one and
-   * read anything from it, it will read-ahead a large block of characters. If every element was creating
-   * a new reader, we'd be reading data over and over again.
-   *
-   * So it is NOT ok to just pass None as the third argument. Only do that if you have
-   * just been handling binary data, or just did an alignmentFill that really inserted some bits.
-   *
-   * It is well worth it to test and branch to preserve the reader. E.g., AlignmentFill should not
-   * create a new reader unless it actually moved over some number of bits. If the alignment is 1 (bit),
-   * or the actual amount of alignment fill to be skipped in a particular data stream is 0, then
-   * one should preserve the reader.
-   *
-   * This method mostly just delegates to the inStream now. But the caller of this method
-   * needs to avoid just passing None also. So this Scaladoc appears both here and on the withPos
-   * method of inStream.
-   */
   //  def setPos(bitPos: Long) {
   ////    val newInStream = inStream.withPos(bitPos)
   ////    this.inStream = newInStream
@@ -473,12 +477,6 @@ final class PState private (
     thisElement.restoreState(st)
   }
 
-  //  /**
-  //   * calling this forces the entire input into memory
-  //   *
-  //   */
-  //  def lengthInBytes: Long = inStream.lengthInBytes
-
   final def notifyDebugging(flag: Boolean) {
     // threadCheck()
     dataInputStream.setDebugging(flag)
@@ -488,16 +486,61 @@ final class PState private (
 object PState {
 
   /**
-   * A Mark is just a copy of the whole pstate, but encapsulated so that it isn't *exactly* a PState
-   * so we can change the implementation someday
+   * A Mark for PState is a container for Marks for all the
+   * things a PState contains that have their own mark/reset protocol,
+   * and is a copy of everything else in PState.
    */
-  type Mark = One[PState]
+  class Mark {
 
-  private object PStateMarkPoolTL extends ThreadLocal[mutable.ArrayStack[Mark]] {
-    private final def alloc = mutable.ArrayStack[Mark]()
-    override protected def initialValue() = alloc
+    def bitPos0b = disMark.bitPos0b
+
+    var infosetState: InfosetElementState = _
+    var disMark: DataInputStream.Mark = _
+    var variableMap: VariableMap = _
+    var status: ProcessorResult = _
+    var diagnostics: List[Diagnostic] = _
+    var discriminatorStackMark: MStack.Mark = _
+    var foundDelimiter: Maybe[FoundDelimiterText] = Nope
+
+    val mpStateMark = new MPState.Mark
+
+    def clear() {
+      infosetState = null
+      disMark = null
+      variableMap = null
+      status = null
+      diagnostics = null
+      discriminatorStackMark = MStack.nullMark
+      foundDelimiter = Nope
+      mpStateMark.clear()
+    }
+
+    def assignFromPState(ps: PState) {
+      this.infosetState = ps.captureInfosetElementState
+      this.disMark = ps.dataInputStream.mark
+      this.variableMap = ps.variableMap
+      this.status = ps.status
+      this.diagnostics = ps.diagnostics
+      this.discriminatorStackMark = ps.discriminatorStack.mark
+      this.mpStateMark.setMarkFrom(ps.mpstate)
+    }
+
+    def resetOntoPState(ps: PState) {
+      ps.restoreInfosetElementState(this.infosetState)
+      ps.dataInputStream.reset(this.disMark)
+      ps.variableMap = this.variableMap
+      ps.status = this.status
+      ps.diagnostics = this.diagnostics
+      ps.discriminatorStack.reset(this.discriminatorStackMark)
+      ps.foundDelimiter = this.foundDelimiter
+      mpStateMark.resetFromMark(ps.mpstate)
+    }
+
   }
-  private def markPoolTL = PStateMarkPoolTL.get()
+
+  private class MarkPool extends Pool[Mark] {
+    override def allocate = new Mark
+  }
 
   /**
    * Initialize the state block given our InStream and a root element declaration.
@@ -511,9 +554,8 @@ object PState {
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
-    val discriminator = false
     val mutablePState = new MPState
-    val newState = new PState(doc, dis, variables, status, diagnostics, List(false), mutablePState,
+    val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }
@@ -530,10 +572,9 @@ object PState {
     val variables = dataProc.getVariables
     val status = Success
     val diagnostics = Nil
-    val discriminator = false
     val mutablePState = new MPState
 
-    val newState = new PState(doc, dis, variables, status, diagnostics, List(false), mutablePState,
+    val newState = new PState(doc, dis, variables, status, diagnostics, mutablePState,
       dataProc.asInstanceOf[DataProcessor], Nope)
     newState
   }

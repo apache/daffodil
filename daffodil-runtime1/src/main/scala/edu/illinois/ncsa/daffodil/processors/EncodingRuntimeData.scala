@@ -148,23 +148,6 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
     nBits
   }
 
-  //  @deprecated("2015-07-09", "Can't measure string bit lengths properly this way. Use DataInputStream.")
-  //  final def knownEncodingStringBitLength(str: String) = {
-  //    //
-  //    // This will be called at runtime, so let's decide
-  //    // what we can, and return an optimized function that 
-  //    // has characteristics of the encoding wired down.
-  //    //
-  //    if (knownEncodingIsFixedWidth) {
-  //      str.length * knownEncodingWidthInBits
-  //    } else {
-  //      // variable width encoding, so we have to convert each character 
-  //      // We assume here that it will be a multiple of bytes
-  //      // that is, that variable-width encodings are all some number
-  //      // of bytes.
-  //      str.getBytes(knownEncodingName).length * 8
-  //    }
-  //  }
 }
 
 /**

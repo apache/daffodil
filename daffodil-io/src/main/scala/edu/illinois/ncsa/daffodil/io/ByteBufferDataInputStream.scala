@@ -29,6 +29,8 @@ import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.Implicits
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.util.Pool
+import edu.illinois.ncsa.daffodil.util.MStack
 
 /**
  * Factory for creating this type of DataInputStream
@@ -37,6 +39,8 @@ import edu.illinois.ncsa.daffodil.equality._
  * to files. If so it memory maps the file.
  */
 object ByteBufferDataInputStream {
+
+  def defaultCodingErrorAction = CodingErrorAction.REPLACE
 
   /**
    * This is the only method that actually constructs the object.
@@ -115,65 +119,50 @@ object ByteBufferDataInputStream {
 /**
  * The state that should be merged into PState eventually.
  *
- * As of this writing, there is a bunch of copying of DataInputStream objects
- * to provide compatibility with the older functional-style input layer which
- * copied the PState objects and InStream objects endlessly.
- *
- * The compatibility code still does this copying.
- *
- * So, to make the copying cheaper, we recognize that all the copies of
- * a specific DataInputStream object are really all part of the backtracking
- * business for the same thread.
- *
  * Some state is only needed per thread, so we don't need to copy it
- * over and over for the compatibility layer. We can just share it via
- * thread-local data.
+ * over and over when backtracking to save/restore it. We just need
+ * a separate one per thread.
  *
  * This is very unlike the state that must be saved/restored by the mark/reset discipline
  */
-private class TLState {
-  val markStack = mutable.ArrayStack[MarkState]()
-  val markPool = mutable.ArrayStack[MarkState]()
-  var numOutstandingMarks = 0
+private[io] trait TLStateMixin {
+  val markStack = new MStack.Of[MarkState]
+  val markPool = new MarkPool()
+
+  /*
+   * Cache these so that rather than a hash-lookup for the thread-local each time we access this,
+   * we're just accessing a data member.
+   */
+  val skipCharBuf = TLStateCharBuffers.get.skipCharBuf
+  val regexMatchBuffer = TLStateCharBuffers.get.regexMatchBuffer
+  val lengthDeterminationBuffer = TLStateCharBuffers.get.lengthDeterminationBuffer
+}
+
+/**
+ * In performance testing, we sometimes do runs on 20K files or more, which means many
+ * PState instances and ByteBufferDataInputStream instances are allocated.
+ *
+ * To avoid allocating these fairly large objects more than once per thread,
+ * we use a ThreadLocal here.
+ */
+private[io] object TLStateCharBuffers extends ThreadLocal[TLStateCharBuffers] {
+  override def initialValue = new TLStateCharBuffers
+}
+
+private[io] class TLStateCharBuffers {
   val skipCharBuf = CharBuffer.allocate(BBSLimits.maximumSimpleElementSizeInCharacters.toInt)
   val regexMatchBuffer = CharBuffer.allocate(BBSLimits.maximumRegexMatchLengthInCharacters.toInt)
   val lengthDeterminationBuffer = CharBuffer.allocate(BBSLimits.maximumRegexMatchLengthInCharacters.toInt)
 }
-
-protected trait TLStateAccessMixin {
-  private def tlState = TLState.get() // def here, just in case this gets mixed into a singleton someplace.
-
-  protected final def markStack = tlState.markStack
-
-  protected final def numOutstandingMarks =
-    tlState.numOutstandingMarks
-
-  protected final def incrNumOutstandingMarks {
-    tlState.numOutstandingMarks += 1
-  }
-
-  protected final def decrNumOutstandingMarks {
-    tlState.numOutstandingMarks -= 1
-  }
-
-  protected final def markPool = tlState.markPool
-  protected final def skipCharBuf = tlState.skipCharBuf
-  protected final def regexMatchBuffer = tlState.regexMatchBuffer
-  protected final def lengthDeterminationBuffer = tlState.lengthDeterminationBuffer
-}
-
-private object TLState extends ThreadLocal[TLState] {
-  final private def alloc = new TLState
-  override protected def initialValue() = alloc
-}
-
 /**
  * The state that must be saved and restored by mark/reset calls
  */
-final class MarkState(initialBitPos0b: Long,
-  val defaultCodingErrorAction: CodingErrorAction,
-  var dis: ByteBufferDataInputStream)
+final class MarkState(initialBitPos0b: Long)
   extends DataInputStream.Mark with DataStreamCommonState {
+
+  def defaultCodingErrorAction = ByteBufferDataInputStream.defaultCodingErrorAction
+
+  def bitPos0b: Long = (savedBytePosition0b << 3) + bitOffset0b
 
   override def equals(other: Any) = other match {
     case ar: AnyRef => this eq ar // only if the same object
@@ -188,7 +177,7 @@ final class MarkState(initialBitPos0b: Long,
    * recombines the position() with this offset.
    */
   var bitOffset0b: Int = (initialBitPos0b % 8).toInt
-  var savedByteOrder: java.nio.ByteOrder = dis.data.order()
+  var savedByteOrder: java.nio.ByteOrder = _
 
   var maybeBitLimitOffset0b: Maybe[Long] = One(0)
 
@@ -202,12 +191,12 @@ final class MarkState(initialBitPos0b: Long,
 
   var adaptedRegexMatchBufferLimit: Int = 0
 
-  val charIterator = new BBDISCharIterator(this, dis)
+  val charIteratorState = new CharIteratorState
   // any members added here must be added to assignFrom below.
 
   def assignFrom(other: MarkState): Unit = {
     super.assignFrom(other)
-    this.dis = other.dis
+    // this.dis = other.dis
     this.savedBytePosition0b = other.savedBytePosition0b
     this.savedByteLimit0b = other.savedByteLimit0b
     this.bitOffset0b = other.bitOffset0b
@@ -216,8 +205,12 @@ final class MarkState(initialBitPos0b: Long,
     this.decoder = other.decoder
     this.codingErrorAction = other.codingErrorAction
     this.adaptedRegexMatchBufferLimit = other.adaptedRegexMatchBufferLimit
-    this.charIterator.assignFrom(other.charIterator)
+    this.charIteratorState.assignFrom(other.charIteratorState)
   }
+}
+
+private[io] class MarkPool() extends Pool[MarkState] {
+  override def allocate = new MarkState(0)
 }
 
 /**
@@ -248,7 +241,8 @@ private object BBSLimits extends DataStreamCommon.Limits {
  * these objects, and those may have non-zero positions. E.g., see the def makeACopy.
  */
 final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitPos0b: Long)
-  extends DataInputStream with TLStateAccessMixin with DataStreamCommonImplMixin {
+  extends DataInputStream with TLStateMixin with DataStreamCommonImplMixin {
+  import DataInputStream._
 
   Assert.usage(initialBitPos0b >= 0)
   val initialBytePos0b = initialBitPos0b / 8
@@ -258,15 +252,9 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
   data.position((initialBitPos0b / 8).toInt) // set data position based on the initialBitPos0b
 
-  private lazy val myFirstThread = Thread.currentThread()
-
   private lazy val converter_BE_MSBFirst = new Converter_BE_MSBFirst
   private lazy val converter_LE_MSBFirst = new Converter_LE_MSBFirst
   private lazy val converter_LE_LSBFirst = new Converter_LE_LSBFirst
-
-  protected final def threadCheck() {
-    Assert.invariant(Thread.currentThread eq myFirstThread)
-  }
 
   override def toString = {
     val bp0b = bitPos0b
@@ -277,30 +265,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     str
   }
 
-  @deprecated("2015-06-22", "Remove when InStream is replaced fully by DataInputStream - which uses mark/reset to backtrack, not copying")
-  def makeACopy() = {
-    threadCheck()
-    val newData = data.duplicate()
-    newData.order(data.order) // must copy the byte order explicitly. It is not inherited by copies.
-    val cl = new ByteBufferDataInputStream(newData, bitPos0b)
-    cl.st.assignFrom(st)
-    cl
-  }
-
-  @deprecated("2015-06-22", "Remove when InStream is replaced fully by DataInputStream - which uses mark/reset to backtrack, not copying")
-  def assignFrom(other: DataInputStream) {
-    threadCheck()
-    Assert.usage(other != null)
-    other match {
-      case other: ByteBufferDataInputStream => {
-        this.data = other.data // assign this so we get the position/limit/etc from the other.
-        this.st.assignFrom(other.st)
-      }
-      case x => Assert.invariantFailed("can only be a BBDIS. Was " + x)
-    }
-  }
-
-  val st = new MarkState(initialBitPos0b, defaultCodingErrorAction, this)
+  val st = new MarkState(initialBitPos0b)
 
   override final def cst = st
 
@@ -413,8 +378,6 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     st.maybeCharWidthInBits = mCharWidthInBits
     st.encodingMandatoryAlignmentInBits = mandatoryAlignInBits
   }
-
-  private def defaultCodingErrorAction = CodingErrorAction.REPLACE
 
   def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = {
     // threadCheck()
@@ -740,26 +703,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     result
   }
 
-  private def getStateFromPool: MarkState = {
-    // threadCheck()
-    val m = if (markPool.isEmpty) {
-      new MarkState(0, defaultCodingErrorAction, this)
-    } else markPool.pop
-    Assert.invariant(numOutstandingMarks >= 0)
-    incrNumOutstandingMarks
-    m
-  }
-
-  private def releaseStateToPool(st: MarkState) {
-    // threadCheck()
-    //Assert.invariant(!markPool.contains(st)) // commented out, too intensive for inner loop
-    markPool.push(st)
-    Assert.invariant(numOutstandingMarks > 0)
-    decrNumOutstandingMarks
-  }
-
   def mark: DataInputStream.Mark = {
-    val m = getStateFromPool
+    val m = markPool.getFromPool
     //Assert.invariant(!markStack.contains(m)) // commented out, too intensive for inner loop
     m.assignFrom(st)
     m.savedBytePosition0b = data.position()
@@ -777,7 +722,7 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     //Assert.invariant(markStack.contains(mark)) // commented out, too intensive for inner loop
     var current = markStack.pop
     while (!(markStack.isEmpty) && (current ne mark)) {
-      releaseStateToPool(current)
+      markPool.returnToPool(current)
       current = markStack.pop
     }
     //Assert.invariant(current eq mark) // holds unless markStack was empty // commented out, too intensive for inner loop
@@ -791,28 +736,25 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     data.position(st.savedBytePosition0b)
     data.limit(st.savedByteLimit0b)
     data.order(st.savedByteOrder)
-    releaseStateToPool(current)
-    st.charIterator.reset() // this also resets the decoder.
+    markPool.returnToPool(current)
+    charIterator.reset() // this also resets the decoder.
   }
 
   def discard(mark: DataInputStream.Mark): Unit = {
     val current = releaseUntilMark(mark)
     //Assert.invariant(current eq mark) // commented out, too intensive for inner loop
     //Assert.invariant(!markStack.contains(mark)) // commented out, too intensive for inner loop
-    releaseStateToPool(current)
+    markPool.returnToPool(current)
+  }
+
+  override def markPos: MarkPos = bitPos0b
+  override def resetPos(m: MarkPos) {
+    setBitPos0b(m)
   }
 
   def validateFinalStreamState {
     // threadCheck()
-    if (numOutstandingMarks != 0) {
-      System.err.println("Outstanding dataInputStream marks: " + numOutstandingMarks)
-      System.err.println("Still on markStack: " + markStack.toList)
-      System.err.println("In markPool: " + markPool.toList)
-      markStack.foreach { ms =>
-        if (markPool.contains(ms)) System.err.println("In BOTH: " + ms)
-      }
-    }
-    Assert.invariant(numOutstandingMarks == 0)
+    markPool.finalCheck
   }
 
   private def stringLengthInbits(nBytesConsumed: Long, nCharsTransferred: Long): Long = {
@@ -1197,7 +1139,8 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
     isAMatch // if true, then the matcher contains details about the match.
   }
 
-  def asIteratorChar: DataInputStream.CharIterator = st.charIterator
+  private val charIterator = new BBDISCharIterator(st, this)
+  def asIteratorChar: DataInputStream.CharIterator = charIterator
 
   def pastData(nBytesRequested: Int): ByteBuffer = {
     // threadCheck()
@@ -1226,39 +1169,38 @@ final class ByteBufferDataInputStream private (var data: ByteBuffer, initialBitP
 
 }
 
-private class CharIteratorState { // CharIterator state
+private[io] class CharIteratorState {
   var cb = CharBuffer.allocate(2) // allow for 2 in case of surrogate pair
   var deltaBits: Int = 0
   var isFetched = false
   var bitPos0bAtLastFetch = 0L
   // any members added here must be added to assignFrom below.
+
+  def assignFrom(other: CharIteratorState) {
+    // threadCheck()
+    this.cb = other.cb
+    this.deltaBits = other.deltaBits
+    this.isFetched = other.isFetched
+    this.bitPos0bAtLastFetch = other.bitPos0bAtLastFetch
+  }
+
+  def clear() {
+    // threadCheck()
+    isFetched = false
+    cb.clear()
+    deltaBits = 0
+  }
 }
 
-class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream) extends DataInputStream.CharIterator {
+class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream)
+  extends DataInputStream.CharIterator
+  with ThreadCheckMixin {
 
-  private lazy val myFirstThread = Thread.currentThread()
-
-  protected final def threadCheck() {
-    Assert.invariant(Thread.currentThread eq myFirstThread)
-  }
-
-  private val ist = new CharIteratorState
-
-  def assignFrom(other: BBDISCharIterator) {
-    // threadCheck()
-    this.ist.cb = other.ist.cb
-    this.ist.deltaBits = other.ist.deltaBits
-    this.ist.isFetched = other.ist.isFetched
-    this.ist.bitPos0bAtLastFetch = other.ist.bitPos0bAtLastFetch
-  }
+  private def ist = st.charIteratorState
 
   def reset() {
-    // threadCheck()
-    ist.isFetched = false
-    ist.cb.clear()
-    ist.deltaBits = 0
+    ist.clear()
     st.decoder.reset()
-    ()
   }
 
   /**
@@ -1300,12 +1242,12 @@ class BBDISCharIterator(st: MarkState, dis: ByteBufferDataInputStream) extends D
   def peek2(): Char = {
     // threadCheck()
     if (!hasNext) return -1.toChar
-    val m = dis.mark
+    val m = dis.markPos
     val c1 = next()
     val c2 =
       if (!hasNext) -1.toChar
       else next()
-    dis.reset(m)
+    dis.resetPos(m)
     c2
   }
 

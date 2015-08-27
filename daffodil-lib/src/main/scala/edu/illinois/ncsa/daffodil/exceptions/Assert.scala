@@ -68,14 +68,14 @@ class Assert {
 
 object Assert extends Assert {
 
-  def usage(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
+  @inline def usage(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
     usageErrorUnless(testAbortsIfFalse, message)
   }
 
   /**
    * Verbose name helps you get the sense of the predicate right.
    */
-  def usageErrorUnless(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
+  @inline def usageErrorUnless(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
     val r = testAbortsIfFalse
     if (!r)
       abort(message)
@@ -128,7 +128,7 @@ object Assert extends Assert {
    *
    * This is for more complex invariants than the simple 'impossible' case.
    */
-  def invariant(testThatWillAbortIfFalse: => Boolean) = {
+  @inline def invariant(testThatWillAbortIfFalse: => Boolean) = {
     val r = testThatWillAbortIfFalse
     if (!r) abort("Invariant broken.")
   }
@@ -149,11 +149,11 @@ object Assert extends Assert {
   /**
    * Conditional behavior for NYIs
    */
-  def notYetImplemented(testThatWillThrowIfTrue: => Boolean): Unit = {
+  @inline def notYetImplemented(testThatWillThrowIfTrue: => Boolean): Unit = {
     if (testThatWillThrowIfTrue) notYetImplemented()
   }
 
-  def notYetImplemented(testThatWillThrowIfTrue: => Boolean, msg: => String): Unit = {
+  @inline def notYetImplemented(testThatWillThrowIfTrue: => Boolean, msg: => String): Unit = {
     if (testThatWillThrowIfTrue) notYetImplemented(msg)
   }
 }

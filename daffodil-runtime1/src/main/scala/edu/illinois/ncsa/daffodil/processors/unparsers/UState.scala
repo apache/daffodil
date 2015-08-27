@@ -34,6 +34,7 @@ import edu.illinois.ncsa.daffodil.io.DataOutputStream
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import scala.collection.mutable
+import edu.illinois.ncsa.daffodil.util.MStack
 
 sealed trait UnparserMode
 case object UnparseMode extends UnparserMode
@@ -60,12 +61,6 @@ class UState(
     }
   }
 
-  def copyUState() = {
-    val res = new UState(infosetSource, variableMap, diagnostics, dataProc, dataOutputStream)
-    res.dataOutputStream = dataOutputStream.asInstanceOf[BasicDataOutputStream].copyOutStream
-    res
-  }
-
   def addUnparseError(ue: UnparseError) {
     diagnostics = ue :: diagnostics
     status_ = new Failure(ue)
@@ -81,7 +76,7 @@ class UState(
   }
 
   private var currentInfosetEvent_ : Maybe[InfosetEvent] = Nope
-  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) Nope else currentInfosetNodeStack.top
+  def currentInfosetNode = if (currentInfosetNodeStack.isEmpty) Nope else currentInfosetNodeStack.topMaybe
   def currentInfosetEvent = currentInfosetEvent_
 
   def hasNext = infosetSource.hasNext
@@ -92,8 +87,8 @@ class UState(
     Assert.usage(hasNext)
     val ev = infosetSource.next
     currentInfosetEvent_ = One(ev)
-    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.pop
-    currentInfosetNodeStack.push(One(ev.node))
+    if (!currentInfosetNodeStack.isEmpty) currentInfosetNodeStack.popMaybe
+    currentInfosetNodeStack.pushMaybe(One(ev.node))
     ev
   }
 
@@ -149,23 +144,26 @@ class UState(
       maybeCurrentInfosetElement.map { _.runtimeData })
   }
 
-  val currentInfosetNodeStack = mutable.ArrayStack[Maybe[DINode]]()
+  val currentInfosetNodeStack = new MStack.OfMaybe[DINode]
 
-  val arrayIndexStack = mutable.ArrayStack[Long](1L)
+  val arrayIndexStack = new MStack.OfLong
+  arrayIndexStack.push(1L)
   def moveOverOneArrayIndexOnly() = arrayIndexStack.push(arrayIndexStack.pop + 1)
   def arrayPos = arrayIndexStack.top
 
-  val groupIndexStack = mutable.ArrayStack[Long](1L)
+  val groupIndexStack = new MStack.OfLong
+  groupIndexStack.push(1L)
   def moveOverOneGroupIndexOnly() = groupIndexStack.push(groupIndexStack.pop + 1)
   def groupPos = groupIndexStack.top
 
   // TODO: it doesn't look anything is actually reading the value of childindex
   // stack. Can we get rid of it?
-  val childIndexStack = mutable.ArrayStack[Long](1L)
+  val childIndexStack = new MStack.OfLong
+  childIndexStack.push(1L)
   def moveOverOneElementChildOnly() = childIndexStack.push(childIndexStack.pop + 1)
   def childPos = childIndexStack.top
 
-  val occursBoundsStack = new mutable.ArrayStack[Long]
+  val occursBoundsStack = new MStack.OfLong
   def updateBoundsHead(ob: Long) = {
     occursBoundsStack.pop()
     occursBoundsStack.push(ob)
@@ -175,7 +173,7 @@ class UState(
 
   var currentEscapeScheme: Maybe[EscapeSchemeUnparserHelper] = Nope
 
-  val delimiterStack = new mutable.ArrayStack[DelimiterStackUnparseNode]()
+  val delimiterStack = new MStack.Of[DelimiterStackUnparseNode]()
   def pushDelimiters(node: DelimiterStackUnparseNode) = delimiterStack.push(node)
   def popDelimiters() = delimiterStack.pop
   def localDelimiters = delimiterStack.top

@@ -4,7 +4,7 @@ organization in ThisBuild := "edu.illinois.ncsa"
 
 scalaVersion in ThisBuild := "2.10.4"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings") //, "-Xfatal-warnings")
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings")
 
 // parallelExecution in ThisBuild := false
 
