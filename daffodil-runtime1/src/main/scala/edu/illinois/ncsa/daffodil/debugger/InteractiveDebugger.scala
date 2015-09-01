@@ -1256,7 +1256,7 @@ class InteractiveDebugger(runner: InteractiveDebuggerRunner, eCompiler: Expressi
             case (prestate: StateForDebugger, state: PState) => {
               if (prestate.discriminator != state.discriminator) { debugPrintln("discriminator: %s -> %s".format(prestate.discriminator, state.discriminator), "  "); diff = true }
             }
-            case (prestate: UState, state: UState) => {
+            case (prestate: StateForDebugger, state: UState) => {
               // nothing yet that is specific to Unparser
             }
             case _ => Assert.impossibleCase()
