@@ -69,13 +69,17 @@ class TestUnparseArrayOptionalElem {
 
   import TestUnparseArrayOptionalElem._
   
-  //DFDL-1296
-  //@Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
-  //@Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
-  //@Test def test_exprOptAbsentArray() { runner_expr.runOneTest("exprOptAbsentArray") }
-  //@Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
-  //@Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
-  //@Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
+  @Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
+  @Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
+  @Test def test_exprOptAbsentArray() { runner_expr.runOneTest("exprOptAbsentArray") }
+  @Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
+  @Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
+  @Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
+
+  @Test def test_exprOptParsedData_01() { runner_expr.runOneTest("exprOptParsedData_01") }
+  @Test def test_exprOptParsedData_02() { runner_expr.runOneTest("exprOptParsedData_02") }
+  @Test def test_exprOptParsedData_03() { runner_expr.runOneTest("exprOptParsedData_03") }
+  @Test def test_exprOptParsedData_04() { runner_expr.runOneTest("exprOptParsedData_04") }
 
   //DFDL-1301
   //@Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }

@@ -69,14 +69,6 @@ object TestUnparseArrayFixedOptionalElemNew {
 class TestUnparseArrayFixedOptionalElemNew {
   import TestUnparseArrayFixedOptionalElemNew._
 
-  //DFDL-1296
-  @Test def test_exprOptPresent() { runner_expr.runOneTest("exprOptPresent") }
-  @Test def test_exprOptPresentArray() { runner_expr.runOneTest("exprOptPresentArray") }
-  @Test def test_exprOptAbsentArray() { runner_expr.runOneTest("exprOptAbsentArray") }
-  @Test def test_exprOptTwoArrays() { runner_expr.runOneTest("exprOptTwoArrays") }
-  @Test def test_exprOptScalarThenArray() { runner_expr.runOneTest("exprOptScalarThenArray") }
-  @Test def test_exprOptArrayThenScalar() { runner_expr.runOneTest("exprOptArrayThenScalar") }
-
   //DFDL-1301
   @Test def test_fixedUnparseArrayTooManyElements01() { runner_fixed.runOneTest("fixedUnparseArrayTooManyElements01") }
 

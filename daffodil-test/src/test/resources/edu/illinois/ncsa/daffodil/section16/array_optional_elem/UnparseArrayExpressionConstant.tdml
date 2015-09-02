@@ -96,6 +96,25 @@
         </xs:sequence>
       </xs:complexType>
     </xs:element>
+    
+    <xs:element name="r5" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="sca" type="xs:int" />
+          <xs:element name="opt" type="xs:string" minOccurs="0"  dfdl:occursCount="{../ex:sca}" />
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="r6" dfdl:ref="ex:root">
+      <xs:complexType>
+        <xs:sequence>
+          <xs:element name="sca" type="xs:int" />
+          <xs:element name="opt" type="xs:string" minOccurs="0"  dfdl:occursCount="{../ex:sca}" />
+          <xs:element name="opt2" type="xs:string" minOccurs="0" maxOccurs="5" dfdl:occursCountKind="parsed"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:element>
 
   </tdml:defineSchema>
 
@@ -117,6 +136,104 @@
       </tdml:dfdlInfoset>
     </tdml:infoset>
     <tdml:document><![CDATA[1]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: exprOptParsedData_01
+     Schema: s1
+       Root: r5
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptParsedData_01" root="r5"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r5>
+          <sca>1</sca>
+          <opt>.</opt>
+        </r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[1.]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: exprOptParsedData_02
+     Schema: s1
+       Root: r5
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptParsedData_02" root="r5"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r5>
+          <sca>3</sca>
+          <opt>.</opt>
+          <opt>.</opt>
+          <opt>.</opt>
+        </r5>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[3...]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: exprOptParsedData_03
+     Schema: s1
+       Root: r6
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptParsedData_03" root="r6"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r6>
+          <sca>3</sca>
+          <opt>.</opt>
+          <opt>.</opt>
+          <opt>.</opt>
+          <opt2>.</opt2>
+          <opt2>.</opt2>
+          <opt2>.</opt2>
+        </r6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[3......]]></tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
+  Test Name: exprOptParsedData_04
+     Schema: s1
+       Root: r6
+    Purpose: This test demonsrates unparsing an array with occursCount set to an expression. 
+-->
+
+  <tdml:unparserTestCase name="exprOptParsedData_04" root="r6"
+    model="s1" roundTrip="true">
+
+    <tdml:infoset xmlns="http://example.com">
+      <tdml:dfdlInfoset>
+        <r6>
+          <sca>3</sca>
+          <opt>.</opt>
+          <opt>.</opt>
+          <opt>.</opt>
+          <opt2>.</opt2>
+        </r6>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    <tdml:document><![CDATA[3....]]></tdml:document>
 
   </tdml:unparserTestCase>
 
