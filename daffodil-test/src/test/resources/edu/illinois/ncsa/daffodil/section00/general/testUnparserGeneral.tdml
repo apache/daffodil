@@ -54,6 +54,25 @@
   </tdml:defineSchema>
 
 <!--
+      Test Name: apostrophe_01
+         Schema: fixedLengthStrings
+        Purpose: This test demonstrates that Daffodil can handle unparsing an apostrophe
+                 in the infoset, and parsing an apostrophe in the document.
+-->
+
+  <tdml:unparserTestCase name="apostrophe_01" root="e2" model="fixedLengthStrings" roundTrip="true">
+
+    <tdml:infoset>
+      <tdml:dfdlInfoset>
+        <ex:e2>&apos;</ex:e2>
+      </tdml:dfdlInfoset>
+    </tdml:infoset>
+    
+    <tdml:document>&apos;</tdml:document>
+
+  </tdml:unparserTestCase>
+
+<!--
       Test Name: puaInfosetChars_01
          Schema: illegalChars
         Purpose: When parsing illegal XML characters, they get mapped to PUA. This test demonstrates that when unparsing these mapped infosets, the characters get mapped back to their original values.

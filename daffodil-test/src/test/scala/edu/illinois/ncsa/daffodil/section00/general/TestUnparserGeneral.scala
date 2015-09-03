@@ -57,6 +57,9 @@ object TestUnparserGeneral {
 class TestUnparserGeneral {
 
   import TestUnparserGeneral._
+  
+  //DFDL-1420
+  //@Test def test_apostrophe_01() { runner.runOneTest("apostrophe_01") }
 
   //DFDL-1395
   //@Test def test_puaInfosetChars_03() { runner.runOneTest("puaInfosetChars_03") }
