@@ -18,7 +18,6 @@ import edu.illinois.ncsa.daffodil.processors.DIArray
 import edu.illinois.ncsa.daffodil.processors.DIDocument
 import scala.annotation.tailrec
 import edu.illinois.ncsa.daffodil.util.MStack
-import edu.illinois.ncsa.daffodil.util.OnStack
 
 /**
  * The primary goal for this converter is

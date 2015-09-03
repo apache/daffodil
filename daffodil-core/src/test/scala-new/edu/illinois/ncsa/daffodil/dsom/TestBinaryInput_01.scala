@@ -76,7 +76,7 @@ class TestBinaryInput_01 {
     dis.reset(startOver)
     startOver = dis.mark
     if (offset > 0) dis.skip(offset)
-    dis.getUnsignedLong(len).get.toLong
+    dis.getUnsignedLong(len).toLong
   }
 
   def getBigInt(dis: DataInputStream, offset: Int, len: Int) = {

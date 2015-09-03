@@ -35,33 +35,15 @@ package edu.illinois.ncsa.daffodil.util
 import scala.collection.mutable
 import java.util.regex.Matcher
 
-/**
- * Create a thread-local resource pool.
- *
- * It's a stack, so that we can even use it in recursive programs
- * (which the DFDL compiler IS most definitely)
- */
+sealed abstract class LocalStackBase[T](
+  constructorFunc: => T,
+  optionalResetFunc: (T => Unit)) {
 
-class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends ThreadLocal[mutable.ArrayStack[T]] {
-
-  /**
-   * Can specify just the allocator, or you can
-   * specify both an allocator, and a resetter which will be used to reset
-   * objects popped from the stack.
-   */
-  def this(constructorFunc: => T) = this(constructorFunc, x => {})
-
-  protected final def constructor = constructorFunc
-
-  protected final override def initialValue(): mutable.ArrayStack[T] = {
-    val stack = new mutable.ArrayStack[T]
-    stack
-  }
+  protected def stack: mutable.ArrayStack[T]
 
   def apply[R](body: T => R): R = {
-    val stack = this.get()
     val thing =
-      if (stack.isEmpty) constructor
+      if (stack.isEmpty) constructorFunc
       else stack.pop()
     val result =
       try {
@@ -72,6 +54,61 @@ class OnStack[T](constructorFunc: => T, optionalResetFunc: (T => Unit)) extends 
       }
     result
   }
+}
+
+/**
+ * Create a thread-local resource pool.
+ *
+ * It's a stack, so that we can even use it in recursive programs
+ * (which the DFDL compiler IS most definitely)
+ */
+class OnStack[T](
+  constructorFunc: => T,
+  optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+
+  /**
+   * Can specify just the allocator, or you can
+   * specify both an allocator, and a resetter which will be used to reset
+   * objects popped from the stack.
+   */
+  def this(constructorFunc: => T) = this(constructorFunc, x => {})
+
+  private val tl = new ThreadLocal[mutable.ArrayStack[T]] {
+    protected final override def initialValue(): mutable.ArrayStack[T] = {
+      val stack = new mutable.ArrayStack[T]
+      stack
+    }
+  }
+
+  override final protected def stack = tl.get()
+
+}
+
+/**
+ * Use this when you already have access to thread-specific state someplace.
+ *
+ * So you can add a member to your thread-local state object like
+ * `val withMatcherOnStack = new LocalStack[Matcher](pattern.matcher(""))`
+ * and use it like:
+ * `withMatcherOnStack{ m => ... }`
+ *
+ * This just avoids the access penalty associated with a ThreadLocal vs. just
+ * a data member. In many cases however, that hash lookup is more expensive than
+ * what you want to do with the local object.
+ */
+class LocalStack[T](
+  constructorFunc: => T,
+  optionalResetFunc: (T => Unit)) extends LocalStackBase[T](constructorFunc, optionalResetFunc) {
+
+  /**
+   * Can specify just the allocator, or you can
+   * specify both an allocator, and a resetter which will be used to reset
+   * objects popped from the stack.
+   */
+  def this(constructorFunc: => T) = this(constructorFunc, x => {})
+
+  final protected val stack = new mutable.ArrayStack[T]
+
 }
 
 private[util] object An_example_of_OnStack_use {

@@ -195,6 +195,7 @@ trait WithParseErrorThrowing {
    * This wrapper then implements the required behavior for parsers
    * that being returning a failed parser state.
    */
+  // TODO: Performance: make this inline or use a macro, so as to avoid allocating a closure for the function being passed.
   def withParseErrorThrowing(pstate: PState)(body: => Unit): Unit = {
     val saveCanThrowParseErrors = WithParseErrorThrowing.flag
     WithParseErrorThrowing.flag = true
@@ -241,7 +242,7 @@ trait WithParseErrorThrowing {
    *
    * No catching for this SDE throw, since SDEs are fatal.
    */
-  def SDECheck(testTrueMeansOK: => Boolean, context: SchemaFileLocation, pstate: PState, kind: String, args: Any*) = {
+  def SDECheck(testTrueMeansOK: Boolean, context: SchemaFileLocation, pstate: PState, kind: String, args: Any*) = {
     if (!testTrueMeansOK) {
       throw new SchemaDefinitionError(Some(context), None, kind, args: _*)
     }

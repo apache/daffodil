@@ -49,10 +49,10 @@ import edu.illinois.ncsa.daffodil.processors.charset.DFDLCharset
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import edu.illinois.ncsa.daffodil.dpath.AsIntConverters
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
@@ -62,7 +62,7 @@ import edu.illinois.ncsa.daffodil.processors.InfosetSimpleElement
  */
 final class LiteralNilOfSpecifiedLengthParser(
   override val cookedNilValuesForParse: List[String],
-  override val parsingPadChar: Maybe[Char],
+  override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val erd: ElementRuntimeData)
   extends PrimParser(erd)

@@ -14,7 +14,10 @@ import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BinaryFloatRep
 import passera.unsigned.ULong
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
-import edu.illinois.ncsa.daffodil.util.OnStack
+import edu.illinois.ncsa.daffodil.util.LocalStack
+import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /*
  * TODO:
@@ -96,6 +99,8 @@ import edu.illinois.ncsa.daffodil.util.OnStack
 
 object DataInputStream {
 
+  case class NotEnoughDataException(nBits: Long) extends Exception with ThinThrowable
+
   /**
    * Backtracking
    * <p>
@@ -163,7 +168,7 @@ trait NonByteSizeCharset {
 trait NonByteSizeCharsetEncoderDecoder
   extends NonByteSizeCharset {
   def setInitialBitOffset(bitOffset0to7: Int): Unit
-  def setFinalByteBitLimitOffset0b(bitLimitOffset0b: Maybe[Long]): Unit
+  def setFinalByteBitLimitOffset0b(bitLimitOffset0b: MaybeULong): Unit
 }
 
 object DataStreamCommon {
@@ -179,40 +184,9 @@ object DataStreamCommon {
     def defaultInitialRegexMatchLimitInChars: Long
   }
 
-  abstract class LocalBuffer[T <: java.nio.Buffer] {
-    protected def allocate(length: Long): T
-
-    private var tempBuf: Maybe[T] = Nope
-
-    def getBuf(length: Long) = {
-      Assert.usage(length <= Int.MaxValue)
-      if (tempBuf.isEmpty || tempBuf.get.capacity < length) {
-        tempBuf = Maybe(allocate(length.toInt))
-      }
-      val buf = tempBuf.get
-      buf.clear
-      buf.limit(length.toInt)
-      buf
-    }
-  }
-
-  /**
-   * Use with OnStack idiom for temporary char buffers
-   */
-  final class LocalCharBuffer extends LocalBuffer[CharBuffer] {
-    protected def allocate(length: Long) = CharBuffer.allocate(length.toInt)
-  }
-
-  object withLocalCharBuffer extends OnStack[LocalCharBuffer](new LocalCharBuffer)
-
-  class LocalByteBuffer extends LocalBuffer[ByteBuffer] {
-    protected def allocate(length: Long) = ByteBuffer.allocate(length.toInt)
-  }
-
-  object withLocalByteBuffer extends OnStack[LocalByteBuffer](new LocalByteBuffer)
 }
 
-trait DataStreamCommon {
+trait DataStreamCommon extends LocalBufferMixin {
   import DataStreamCommon._
   def limits: Limits
 
@@ -235,7 +209,6 @@ trait DataStreamCommon {
   /**
    * Use Nope for variable-width encodings.
    */
-  //  def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit
   def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit
   def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit
 
@@ -282,14 +255,14 @@ trait DataStreamCommon {
    * <p>
    * If bitLimit0b is defined, then there IS that much data available at least.
    */
-  def bitLimit0b: Maybe[Long]
-  final def bitLimit1b: Maybe[Long] = bitLimit0b.map { _ + 1 }
+  def bitLimit0b: MaybeULong
+  final def bitLimit1b: MaybeULong = if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get + 1)
 
   /**
    * Returns number of bits remaining (if a limit is defined). Nope if not defined.
    */
 
-  def remainingBits: Maybe[Long]
+  def remainingBits: MaybeULong
 
   /**
    * Convenience methods that temporarily set and (reliably) restore the bitLimit.
@@ -311,14 +284,17 @@ trait DataStreamCommon {
    * this way. See fillCharBuffer(cb) method.
    */
   def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean
+  //TODO: Convert to a macro
 
   /**
    * Sets the bit limit to an absolute value and returns true.
    * Returns false if the new bit limit is beyond the existing bit limit range.
    */
-  def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean
-  final def setBitLimit1b(bitLimit1b: Maybe[Long]): Boolean =
-    setBitLimit0b(bitLimit1b.map { _ - 1 })
+  def setBitLimit0b(bitLimit0b: MaybeULong): Boolean
+  final def setBitLimit1b(bitLimit1b: MaybeULong): Boolean = {
+    val newLimit = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
+    setBitLimit0b(newLimit)
+  }
 
   /*
    * Methods for moving through data.
@@ -494,7 +470,7 @@ trait DataInputStream
    * called and end of data is encountered, then upon return if any bytes are transferred
    * then bitPos0b == bitLimit0b (if defined)
    */
-  def fillByteBuffer(bb: ByteBuffer): Maybe[Int]
+  def fillByteBuffer(bb: ByteBuffer): MaybeInt
 
   /**
    * Returns a long integer containing the bits between the current bit position
@@ -504,14 +480,17 @@ trait DataInputStream
    * and byte order. The returned value is always non-negative.
    * <p>
    * This call is expected to be used for extracting data for all unsigned
-   * integer types up to UnsignedLong with 63 bits length. Calling code converts
+   * integer types up to UnsignedLong with 64 bits length. Calling code converts
    * into Byte, Short, or Int types if smaller size integers are required.
    * <p>
    * Usage: The bitLength must be between 1 and 64 inclusive.
    * <p>
-   * If the data stream does not have bitLengthFrom1To64 remaining bits, Nope is returned.
+   * If the data stream does not have bitLengthFrom1To64 remaining bits,
+   * NotEnoughDataException is thrown. Calls should be preceded by calls to isDefinedForLength
+   * to check if sufficient bits are available. Alternatively one can catch the exception,
+   * but that is likely less performant.
    */
-  def getUnsignedLong(bitLengthFrom1To64: Int): Maybe[ULong]
+  def getUnsignedLong(bitLengthFrom1To64: Int): ULong
 
   /**
    * Similar, but returns a negative value if the most-significant bit of the
@@ -525,10 +504,14 @@ trait DataInputStream
    * bit will be interpreted as a sign bit for a twos-complement representation.
    * (A 2-bit signed integer can represent the four values 1, 0, -1, -2 as bits 01, 00, 11, 10 respectively)
    * <p>
-   * Usage: The maximum number of bits is 64. If the data stream does not
-   * have sufficient bits, then Nope is returned.
+   * Usage: The maximum number of bits is 64.
+   *
+   * If the data stream does not have bitLengthFrom1To64 remaining bits,
+   * NotEnoughDataException is thrown. Calls should be preceded by calls to isDefinedForLength
+   * to check if sufficient bits are available. Alternatively one can catch the exception,
+   * but that is likely less performant.
    */
-  def getSignedLong(bitLengthFrom1To64: Int): Maybe[Long]
+  def getSignedLong(bitLengthFrom1To64: Int): Long
 
   /**
    * Constructs a big integer from the data. The current bit order and byte order are used.
@@ -539,7 +522,7 @@ trait DataInputStream
    * <p>
    * Usage: The smallest value of bitLengthFrom1 is 1.
    * <p>
-   * It is recommended that getUnsignedLong be used for any bit length 63 or less, as
+   * It is recommended that getUnsignedLong be used for any bit length 64 or less, as
    * that method does not require a heap allocated object to represent the value.
    */
   def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt]
@@ -565,10 +548,12 @@ trait DataInputStream
    * <p>
    * These are constructed per the currently set BinaryFloatRep.
    * <p>
-   * Return Nope if there are not 32 bits or 64 bits (respectively) available.
+   * Throws NotEnoughDataException if there are not 32 bits or 64 bits (respectively) available.
+   * Consider first calling isDefinedForLength before calling this in order to avoid the
+   * possibility of a throw.
    */
-  def getBinaryFloat(): Maybe[Float]
-  def getBinaryDouble(): Maybe[Double]
+  def getBinaryFloat(): Float
+  def getBinaryDouble(): Double
 
   /**
    * Fill a charBuffer with characters.
@@ -627,7 +612,7 @@ trait DataInputStream
    * Implementation Note: a specialized 4-bit encoding which maps 4 bits to
    * 0-9A-F can be used to treat packed decimal representations like text strings.
    */
-  def fillCharBuffer(cb: CharBuffer): Maybe[Long]
+  def fillCharBuffer(cb: CharBuffer): MaybeULong
 
   /**
    * Returns true if it fills all remaining space in the char buffer.
@@ -637,12 +622,12 @@ trait DataInputStream
    * encountered.
    */
   protected final def fillCharBufferLoop(cb: CharBuffer): Boolean = {
-    var maybeN: Maybe[Long] = Maybe(0)
+    var maybeN: MaybeULong = MaybeULong(0)
     var total: Long = 0
     val nChars = cb.remaining
     while (maybeN.isDefined && total < nChars) {
       maybeN = fillCharBuffer(cb)
-      if (maybeN.isDefined) total += maybeN.get
+      if (maybeN.isDefined) total += maybeN.get.toLong
     }
     total == nChars
   }

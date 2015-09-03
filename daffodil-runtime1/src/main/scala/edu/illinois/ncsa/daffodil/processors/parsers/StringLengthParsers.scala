@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.processors.TextParserRuntimeMixin
 import java.nio.charset.CharsetDecoder
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * Specifically designed to be used inside one of the SpecifiedLength parsers.
@@ -59,7 +60,7 @@ import java.nio.charset.CharsetDecoder
  * to constrain how much it can get.
  */
 final class StringOfSpecifiedLengthParser(
-  override val parsingPadChar: Maybe[Char],
+  override val parsingPadChar: MaybeChar,
   override val justificationTrim: TextJustificationType.Type,
   override val erd: ElementRuntimeData)
   extends PrimParser(erd)

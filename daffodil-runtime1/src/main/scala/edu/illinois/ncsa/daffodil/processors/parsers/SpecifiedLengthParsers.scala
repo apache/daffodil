@@ -17,6 +17,7 @@ import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CharsetDecoder
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
   erd: ElementRuntimeData)
@@ -42,7 +43,7 @@ abstract class SpecifiedLengthParserBase(eParser: DaffodilParser,
       eParser.parse1(pState)
     }
     if (!isLimitOk) {
-      val availBits = dis.remainingBits.map { _.toString }.getOrElse("(unknown)")
+      val availBits = if (dis.remainingBits.isDefined) dis.remainingBits.get.toString else "(unknown)"
       PE(pState, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
       return
     }
@@ -156,17 +157,17 @@ abstract class SpecifiedLengthExplicitCharactersParserBase(
   erd: ElementRuntimeData)
   extends SpecifiedLengthParserBase(eParser, erd) {
 
-  private def maybeBitPosAfterNChars(start: PState, nChars: Long): Maybe[Long] = {
+  private def maybeBitPosAfterNChars(start: PState, nChars: Long): MaybeULong = {
     val dis = start.dataInputStream
     val mark = dis.markPos
     val hasNChars = dis.skipChars(nChars)
     if (!hasNChars) {
       dis.resetPos(mark)
-      Nope
+      MaybeULong.Nope
     } else {
       val bitLimitAfterNChars = dis.bitPos0b
       dis.resetPos(mark)
-      Maybe(bitLimitAfterNChars)
+      MaybeULong(bitLimitAfterNChars)
     }
   }
 

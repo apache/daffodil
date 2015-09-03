@@ -376,7 +376,7 @@ object OOLAG extends Logging {
 
     private var alreadyTriedThis = false
     protected final def hasValue: Boolean = value_.isDefined
-    private var value_ : Maybe[Any] = Nope
+    private var value_ : Maybe[AnyRef] = Nope
 
     protected final def wasTried = alreadyTriedThis
 
@@ -501,7 +501,7 @@ object OOLAG extends Logging {
       log(OOLAGDebug(" " * indent + "Evaluating %s", thisThing))
     }
 
-    protected final def oolagAfterValue(res: Any) {
+    protected final def oolagAfterValue(res: AnyRef) {
       log(OOLAGDebug(" " * indent + "Evaluated %s", thisThing))
       value_ = One(res)
     }
@@ -581,7 +581,7 @@ object OOLAG extends Logging {
         try {
           oolagBefore
           val v = body // good place for a breakpoint
-          oolagAfterValue(v)
+          oolagAfterValue(v.asInstanceOf[AnyRef])
           v
         } catch {
           case s: scala.util.control.ControlThrowable => throw s

@@ -53,6 +53,7 @@ import com.ibm.icu.text.DecimalFormatSymbols
 import edu.illinois.ncsa.daffodil.processors.unparsers.Unparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextNumberUnparser
 import edu.illinois.ncsa.daffodil.processors.unparsers.ConvertTextCombinatorUnparser
+import edu.illinois.ncsa.daffodil.util.MaybeDouble
 
 case class ConvertTextCombinator(e: ElementBase, value: Gram, converter: Gram)
   extends Terminal(e, !(value.isEmpty || converter.isEmpty)) {
@@ -96,10 +97,10 @@ abstract class ConvertTextNumberPrim[S](e: ElementBase)
       (p, patternNoQuoted)
     }
 
-    val (roundingIncrement, roundingMode) =
+    val (roundingIncrement: MaybeDouble, roundingMode) =
       e.textNumberRounding match {
-        case TextNumberRounding.Explicit => (One(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
-        case TextNumberRounding.Pattern => (Nope, Nope)
+        case TextNumberRounding.Explicit => (MaybeDouble(e.textNumberRoundingIncrement), One(e.textNumberRoundingMode))
+        case TextNumberRounding.Pattern => (MaybeDouble.Nope, Nope)
       }
 
     val (infRep, nanRep) =

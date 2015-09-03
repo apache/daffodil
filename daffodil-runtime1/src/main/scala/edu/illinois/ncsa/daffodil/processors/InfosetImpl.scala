@@ -60,6 +60,7 @@ import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.exceptions.ThinThrowable
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
+import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 
 sealed trait DINode {
   def toXML(removeHidden: Boolean = true): scala.xml.NodeSeq
@@ -159,7 +160,7 @@ sealed trait DIElement extends DINode with InfosetElement {
   final def runtimeData = erd
   protected final var _parent: Maybe[InfosetComplexElement] = Nope
   protected final var _isNilled: Boolean = false
-  protected final var _validity: Maybe[Boolean] = Nope
+  protected final var _validity: MaybeBoolean = MaybeBoolean.Nope
 
   override def parent = _parent
   def diParent = _parent.asInstanceOf[Maybe[DIComplex]]
@@ -179,7 +180,7 @@ sealed trait DIElement extends DINode with InfosetElement {
    * valid = One(false) means invalid
    */
   override def valid = _validity
-  override def setValid(validity: Boolean) { _validity = One(validity) }
+  override def setValid(validity: Boolean) { _validity = MaybeBoolean(validity) }
 
   private def pre = erd.thisElementsNamespacePrefix
   private lazy val qn = if (pre == null | pre == "") erd.name else pre + ":" + erd.name
@@ -309,7 +310,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
     }
     _isNilled = false
     _isDefaulted = false
-    _validity = Nope // we have not tested this new value. 
+    _validity = MaybeBoolean.Nope // we have not tested this new value. 
     _value = x
   }
 
@@ -448,7 +449,7 @@ sealed class DISimple(val erd: ElementRuntimeData)
 
   case class DISimpleState(var isNilled: Boolean,
     var isDefaulted: Boolean,
-    var validity: Maybe[Boolean],
+    var validity: MaybeBoolean,
     var value: Any) extends InfosetElementState
 
 }
@@ -495,20 +496,21 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     slots
   }
 
-  override def children = _slots.flatten.toStream
+  override def children = _slots.map { _.toScalaOption }.flatten.toStream
 
   final override def getChild(erd: ElementRuntimeData): InfosetElement = {
-    val res = getChildMaybe(erd).getOrElse {
-      throw new InfosetNoSuchChildElementException(erd)
-    }
-    res
+    val res = getChildMaybe(erd)
+    if (res.isEmpty) throw new InfosetNoSuchChildElementException(erd)
+    res.get
   }
 
   final override def getChildMaybe(erd: ElementRuntimeData): Maybe[InfosetElement] =
     getChildMaybe(erd.slotIndexInParent)
 
-  final def getChild(slot: Int, namedQName: NamedQName): InfosetElement = getChildMaybe(slot).getOrElse {
-    throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
+  final def getChild(slot: Int, namedQName: NamedQName): InfosetElement = {
+    val res = getChildMaybe(slot)
+    if (res.isEmpty) throw new InfosetNoSuchChildElementException(namedQName.local, namedQName.namespace, slot)
+    res.get
   }
 
   final def getChildMaybe(slot: Int): Maybe[InfosetElement] =
@@ -612,7 +614,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
     }
   }
 
-  class DIComplexState(val isNilled: Boolean, val validity: Maybe[Boolean], val slotsInfo: Array[Int])
+  class DIComplexState(val isNilled: Boolean, val validity: MaybeBoolean, val slotsInfo: Array[Int])
     extends InfosetElementState
   object DIComplexState {
 
@@ -648,7 +650,7 @@ sealed class DIComplex(val erd: ElementRuntimeData)
       slotsInfo
     }
 
-    def apply(isNilled: Boolean, validity: Maybe[Boolean], slots: Array[Maybe[DINode]]) =
+    def apply(isNilled: Boolean, validity: MaybeBoolean, slots: Array[Maybe[DINode]]) =
       new DIComplexState(isNilled, validity, slotsInfo(slots))
   }
 
@@ -659,8 +661,8 @@ sealed class DIComplex(val erd: ElementRuntimeData)
         if (erd.nilledXML.isDefined && isNilled) {
           erd.nilledXML.get
         } else {
-          val children = _slots.flatMap { _ map { slot => slot.toXML(removeHidden) } }.toSeq.flatten
-          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.minimizedScope, true, children: _*)
+          val nonHiddenChildren = children.flatMap { slot => slot.toXML(removeHidden) }
+          scala.xml.Elem(erd.thisElementsNamespacePrefix, erd.name, scala.xml.Null, erd.minimizedScope, true, nonHiddenChildren: _*)
         }
       elem
     }

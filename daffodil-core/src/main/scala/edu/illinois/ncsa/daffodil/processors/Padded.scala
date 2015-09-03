@@ -10,29 +10,30 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.TextPadKind
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 trait Padded { self: Terminal =>
   val eBase = self.context.asInstanceOf[ElementBase]
   /**
    * parsingPadChar is the pad character for parsing
    * unparsingPadChar is the pad character for unparsing
-   *  These are always carried as Maybe[Char].
+   *  These are always carried as MaybeChar.
    *
    * We need both, because in the same schema you can have textPadKind="padChar" but
    * textTrimKind="none", so there can't be just one pad char object if it is to
    * carry information about both whether or not a pad character is to be used, and the value.
    */
-  lazy val (parsingPadChar, justificationTrim): (Maybe[Char], TextJustificationType.Type) = eBase.textTrimKind match {
-    case TextTrimKind.None => (Nope, TextJustificationType.None)
+  lazy val (parsingPadChar, justificationTrim): (MaybeChar, TextJustificationType.Type) = eBase.textTrimKind match {
+    case TextTrimKind.None => (MaybeChar.Nope, TextJustificationType.None)
     case TextTrimKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
   }
 
-  lazy val (unparsingPadChar, justificationPad) = eBase.textPadKind match {
-    case TextPadKind.None => (Nope, TextJustificationType.None)
+  lazy val (unparsingPadChar: MaybeChar, justificationPad) = eBase.textPadKind match {
+    case TextPadKind.None => (MaybeChar.Nope, TextJustificationType.None)
     case TextPadKind.PadChar if eBase.isSimpleType => padCharAndJustificationForType
   }
 
-  private lazy val padCharAndJustificationForType: (Maybe[Char], TextJustificationType.Type) = {
+  private lazy val padCharAndJustificationForType: (MaybeChar, TextJustificationType.Type) = {
     val theJust = eBase.primType match {
       case PrimType.Int | PrimType.Byte | PrimType.Short | PrimType.Long |
         PrimType.Integer | PrimType.UnsignedInt | PrimType.UnsignedByte | PrimType.UnsignedShort |
@@ -44,7 +45,7 @@ trait Padded { self: Terminal =>
           case TextNumberJustification.Right => TextJustificationType.Right
           case TextNumberJustification.Center => TextJustificationType.Center
         }
-        (One(padChar), just)
+        (MaybeChar(padChar), just)
       }
       case PrimType.String => {
         val padChar = eBase.textStringPadCharacter.charAt(0)
@@ -53,7 +54,7 @@ trait Padded { self: Terminal =>
           case TextStringJustification.Right => TextJustificationType.Right
           case TextStringJustification.Center => TextJustificationType.Center
         }
-        (One(padChar), just)
+        (MaybeChar(padChar), just)
       }
       case PrimType.DateTime | PrimType.Date | PrimType.Time => {
         val padChar = eBase.textCalendarPadCharacter.charAt(0)
@@ -62,7 +63,7 @@ trait Padded { self: Terminal =>
           case TextCalendarJustification.Right => TextJustificationType.Right
           case TextCalendarJustification.Center => TextJustificationType.Center
         }
-        (One(padChar), just)
+        (MaybeChar(padChar), just)
       }
       case PrimType.Boolean => {
         val padChar = eBase.textBooleanPadCharacter.charAt(0)
@@ -71,10 +72,10 @@ trait Padded { self: Terminal =>
           case TextBooleanJustification.Right => TextJustificationType.Right
           case TextBooleanJustification.Center => TextJustificationType.Center
         }
-        (One(padChar), just)
+        (MaybeChar(padChar), just)
       }
       case PrimType.HexBinary => {
-        (Nope, TextJustificationType.None)
+        (MaybeChar.Nope, TextJustificationType.None)
       }
     }
     theJust

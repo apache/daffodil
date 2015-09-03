@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.ByteOrder
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.BitOrder
+import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class TestByteBufferDataInputStream {
   val tenDigits = "1234567890"
@@ -24,13 +26,30 @@ class TestByteBufferDataInputStream {
   val twentyDigits = tenDigits * 2
   val twenty = twentyDigits.getBytes("utf-8")
 
+  implicit class ExactTypeEqual[L](left: L) {
+    def assertEqualsTyped[R, D >: L <: R, D2 >: R <: L](right: R): Unit = assertEquals(left, right)
+  }
+
+  /**
+   * I am so sick of getting JUnit test-time errors where it says the two things are unequal, when
+   * they're different types.... I want a strongly typed assertEquals that won't compile if
+   * the two args are different types.
+   *
+   * However, I couldn't figure out how to do that. This form doesn't achieve that. Need to use an implicit type parameter or
+   * something like that.
+   */
+  def assertEqualsTyped[T](left: T, right: T): Unit = assertEquals(left, right)
+
+  def assertEqualsTyped(expected: Float, actual: Float, threshold: Float) = assertEquals(expected, actual, threshold)
+  def assertEqualsTyped(expected: Double, actual: Double, threshold: Double) = assertEquals(expected, actual, threshold)
+
   @Test def testBitAndBytePos0 {
     val dis = ByteBufferDataInputStream(ten)
-    assertEquals(0, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
-    assertEquals(1, dis.bitPos1b)
-    assertEquals(81, dis.bitLimit1b.get)
-    assertEquals(0, dis.bytePos0b)
+    0L assertEqualsTyped (dis.bitPos0b)
+    80L assertEqualsTyped (dis.bitLimit0b.get)
+    1L assertEqualsTyped (dis.bitPos1b)
+    81L assertEqualsTyped (dis.bitLimit1b.get)
+    0L assertEqualsTyped (dis.bytePos0b)
   }
 
   @Test def testBitAndBytePos1 {
@@ -38,14 +57,14 @@ class TestByteBufferDataInputStream {
     val bb = ByteBuffer.allocate(1)
     val n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
-    assertEquals(1, n.get)
+    assertEqualsTyped(1, n.get)
     bb.flip()
-    assertEquals(0x31.toByte, bb.get())
-    assertEquals(8, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
-    assertEquals(9, dis.bitPos1b)
-    assertEquals(81, dis.bitLimit1b.get)
-    assertEquals(1, dis.bytePos0b)
+    assertEqualsTyped[Long](0x31.toByte, bb.get())
+    assertEqualsTyped[Long](8, dis.bitPos0b)
+    assertEqualsTyped[Long](80, dis.bitLimit0b.get)
+    assertEqualsTyped[Long](9, dis.bitPos1b)
+    assertEqualsTyped[Long](81, dis.bitLimit1b.get)
+    assertEqualsTyped[Long](1, dis.bytePos0b)
   }
 
   @Test def testBitAndBytePos10 {
@@ -53,15 +72,15 @@ class TestByteBufferDataInputStream {
     val bb = ByteBuffer.allocate(10)
     val n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
-    assertEquals(10, n.get)
+    assertEqualsTyped[Long](10, n.get)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
-    assertEquals(0x30.toByte, bb.get())
-    assertEquals(80, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
-    assertEquals(81, dis.bitPos1b)
-    assertEquals(81, dis.bitLimit1b.get)
-    assertEquals(10, dis.bytePos0b)
+    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    assertEqualsTyped[Long](80, dis.bitPos0b)
+    assertEqualsTyped[Long](80, dis.bitLimit0b.get)
+    assertEqualsTyped[Long](81, dis.bitPos1b)
+    assertEqualsTyped[Long](81, dis.bitLimit1b.get)
+    assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
   @Test def testBitAndBytePosNotEnoughData1 {
@@ -69,13 +88,13 @@ class TestByteBufferDataInputStream {
     val bb = ByteBuffer.allocate(11)
     val n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
-    assertEquals(10, n.get)
+    assertEqualsTyped[Long](10, n.get)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
-    assertEquals(0x30.toByte, bb.get())
-    assertEquals(80, dis.bitPos0b)
-    assertEquals(80, dis.bitLimit0b.get)
-    assertEquals(10, dis.bytePos0b)
+    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    assertEqualsTyped[Long](80, dis.bitPos0b)
+    assertEqualsTyped[Long](80, dis.bitLimit0b.get)
+    assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
   @Test def testBitAndBytePosMoreThanEnoughData1 {
@@ -83,13 +102,13 @@ class TestByteBufferDataInputStream {
     val bb = ByteBuffer.allocate(10)
     val n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
-    assertEquals(10, n.get)
+    assertEqualsTyped[Long](10, n.get)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
-    assertEquals(0x30.toByte, bb.get())
-    assertEquals(80, dis.bitPos0b)
-    assertEquals(160, dis.bitLimit0b.get)
-    assertEquals(10, dis.bytePos0b)
+    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    assertEqualsTyped[Long](80, dis.bitPos0b)
+    assertEqualsTyped[Long](160, dis.bitLimit0b.get)
+    assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
   @Test def testBitLengthLimit1 {
@@ -97,210 +116,214 @@ class TestByteBufferDataInputStream {
     val bb = ByteBuffer.allocate(20)
     val isLimitOk = dis.withBitLengthLimit(80) {
       val maybeNBytes = dis.fillByteBuffer(bb)
-      assertEquals(80, dis.bitLimit0b.get)
-      assertEquals(80, dis.bitPos0b)
+      assertEqualsTyped[Long](80, dis.bitLimit0b.get)
+      assertEqualsTyped[Long](80, dis.bitPos0b)
       assertTrue(maybeNBytes.isDefined)
-      assertEquals(10, maybeNBytes.get)
+      assertEqualsTyped[Long](10, maybeNBytes.get)
     }
     assertTrue(isLimitOk)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
-    assertEquals(0x30.toByte, bb.get())
-    assertEquals(80, dis.bitPos0b)
-    assertEquals(160, dis.bitLimit0b.get)
-    assertEquals(10, dis.bytePos0b)
+    assertEqualsTyped[Long](0x30.toByte, bb.get())
+    assertEqualsTyped[Long](80, dis.bitPos0b)
+    assertEqualsTyped[Long](160, dis.bitLimit0b.get)
+    assertEqualsTyped[Long](10, dis.bytePos0b)
   }
 
   @Test def testBinaryDouble1 {
     val dis = ByteBufferDataInputStream("123".getBytes("utf-8"))
-    val expected = Nope
-    val md = dis.getBinaryDouble()
-    assertEquals(expected, md)
-    assertEquals(0, dis.bitPos0b)
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryDouble()
+    }
+    assertEqualsTyped[Long](0, dis.bitPos0b)
   }
 
   @Test def testBinaryDouble2 {
     val dis = ByteBufferDataInputStream(twenty)
     val expected = ByteBuffer.wrap(twenty).asDoubleBuffer().get()
-    val md = dis.getBinaryDouble()
-    assertEquals(expected, md.get, 0.0)
+    val d = dis.getBinaryDouble()
+    assertEqualsTyped(expected, d, 0.0)
   }
 
   @Test def testBinaryDouble3 {
     val dis = ByteBufferDataInputStream(twenty)
-    dis.setBitLimit1b(One(63)) // not enough bits
-    val expected = Nope
-    val md = dis.getBinaryDouble()
-    assertEquals(expected, md)
+    dis.setBitLimit1b(MaybeULong(63)) // not enough bits
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryDouble()
+    }
   }
 
   @Test def testBinaryDouble4 {
     val dis = ByteBufferDataInputStream(twenty)
     val bb = ByteBuffer.allocate(1)
     dis.fillByteBuffer(bb)
-    dis.setBitLimit1b(One(71)) // not enough bits
-    val expected = Nope
-    val md = dis.getBinaryDouble()
-    assertEquals(expected, md)
+    dis.setBitLimit1b(MaybeULong(71)) // not enough bits
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryDouble()
+    }
   }
 
   @Test def testBinaryFloat1 {
     val dis = ByteBufferDataInputStream("123".getBytes("utf-8"))
-    val expected = Nope
-    val md = dis.getBinaryFloat()
-    assertEquals(expected, md)
-    assertEquals(0, dis.bitPos0b)
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryFloat()
+    }
+    assertEqualsTyped[Long](0, dis.bitPos0b)
   }
 
   @Test def testBinaryFloat2 {
     val dis = ByteBufferDataInputStream(twenty)
     val expected = ByteBuffer.wrap(twenty).asFloatBuffer().get()
-    val md = dis.getBinaryFloat()
-    assertEquals(expected, md.get, 0.0)
+    val d = dis.getBinaryFloat()
+    assertEqualsTyped(expected, d, 0.0)
   }
 
   @Test def testBinaryFloat3 {
     val dis = ByteBufferDataInputStream(twenty)
-    dis.setBitLimit1b(One(31)) // not enough bits
-    val expected = Nope
-    val md = dis.getBinaryFloat()
-    assertEquals(expected, md)
+    dis.setBitLimit1b(MaybeULong(31)) // not enough bits
+    assertFalse(dis.isDefinedForLength(32))
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryFloat()
+    }
   }
 
   @Test def testBinaryFloat4 {
     val dis = ByteBufferDataInputStream(twenty)
     val bb = ByteBuffer.allocate(1)
     dis.fillByteBuffer(bb)
-    dis.setBitLimit1b(One(39)) // not enough bits
-    val expected = Nope
-    val md = dis.getBinaryFloat()
-    assertEquals(expected, md)
+    dis.setBitLimit1b(MaybeULong(39)) // not enough bits
+    assertFalse(dis.isDefinedForLength(32))
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getBinaryFloat()
+    }
   }
 
   @Test def testSignedLong1 {
     val dis = ByteBufferDataInputStream(twenty)
-    dis.setBitLimit1b(One(1))
-    var ml = dis.getSignedLong(1)
-    assertEquals(Nope, ml)
+    dis.setBitLimit1b(MaybeULong(1)) // 1b so 1 means no data
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getSignedLong(1)
+    }
   }
 
   @Test def testSignedLong2 {
     val dis = ByteBufferDataInputStream(twenty)
-    dis.setBitLimit1b(One(63))
-    var ml = dis.getSignedLong(64)
-    assertEquals(Nope, ml)
+    dis.setBitLimit1b(MaybeULong(63))
+    intercept[DataInputStream.NotEnoughDataException] {
+      dis.getSignedLong(64)
+    }
   }
 
   @Test def testSignedLong3 {
     val dis = ByteBufferDataInputStream(twenty)
     // buffer has 0x3132 in first 16 bits
     // binary that is 00110001 00110010
-    var ml = dis.getSignedLong(1)
-    assertEquals(0L, ml.get)
-    assertEquals(1, dis.bitPos0b)
-    ml = dis.getSignedLong(9)
+    var sl = dis.getSignedLong(1)
+    assertEqualsTyped[Long](0L, sl)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
+    sl = dis.getSignedLong(9)
     // those bits are 0110001 00 which is 0x0C4 and sign bit is 0 (positive)
-    assertEquals(0x0C4L, ml.get)
-    assertEquals(10, dis.bitPos0b)
+    assertEqualsTyped[Long](0x0C4L, sl)
+    assertEqualsTyped[Long](10, dis.bitPos0b)
   }
 
   @Test def testSignedLong4 {
     val dis = ByteBufferDataInputStream(twenty)
     var ml = dis.getSignedLong(1)
-    assertEquals(1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
     ml = dis.getSignedLong(64)
-    assertEquals(65, dis.bitPos0b)
-    assertEquals(0x3132333435363738L << 1, ml.get)
+    assertEqualsTyped[Long](65, dis.bitPos0b)
+    assertEqualsTyped[Long](0x3132333435363738L << 1, ml)
   }
 
   @Test def testSignedLong5 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xC0).map { _.toByte }.toArray)
     var ml = dis.getSignedLong(1)
-    assertEquals(1, dis.bitPos0b)
-    assertEquals(1, ml.get)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, ml)
     ml = dis.getSignedLong(64)
-    assertEquals(65, dis.bitPos0b)
-    assertEquals((0xC1C2C3C4C5C6C7C8L << 1) + (0xC9 >>> 7), ml.get)
+    assertEqualsTyped[Long](65, dis.bitPos0b)
+    assertEqualsTyped[Long]((0xC1C2C3C4C5C6C7C8L << 1) + (0xC9 >>> 7), ml)
   }
 
   @Test def testSignedLong6 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xC0).map { _.toByte }.toArray)
     var ml = dis.getSignedLong(1)
-    assertEquals(1, dis.bitPos0b)
-    assertEquals(1, ml.get)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, ml)
     ml = dis.getSignedLong(32)
-    assertEquals(33, dis.bitPos0b)
+    assertEqualsTyped[Long](33, dis.bitPos0b)
     val expected = (((0xC1C2C3C4C5L >> 7) & 0xFFFFFFFFL) << 32) >> 32 // sign extend
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[Long](expected, ml)
   }
 
   @Test def testSignedLong7 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     var ml = dis.getSignedLong(2)
-    assertEquals(2, dis.bitPos0b)
-    assertEquals(-1, ml.get)
+    assertEqualsTyped[Long](2, dis.bitPos0b)
+    assertEqualsTyped[Long](-1, ml)
     ml = dis.getSignedLong(32)
-    assertEquals(34, dis.bitPos0b)
+    assertEqualsTyped[Long](34, dis.bitPos0b)
     val expected = (0xC1C2C3C4C5L >> 6) & 0xFFFFFFFFL // will be positive, no sign extend
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[Long](expected, ml)
   }
 
   @Test def testUnsignedLong1 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     var ml = dis.getUnsignedLong(32)
-    assertEquals(32, dis.bitPos0b)
+    assertEqualsTyped[Long](32, dis.bitPos0b)
     val expected = ULong(0xC1C2C3C4L)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[ULong](expected, ml)
   }
 
   @Test def testUnsignedLong2 {
     val dis = ByteBufferDataInputStream(List(0xA5, 0xA5, 0xA5, 0xA5, 0xA5).map { _.toByte }.toArray)
     dis.getSignedLong(1)
-    assertEquals(1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
     var ml = dis.getUnsignedLong(32)
-    assertEquals(33, dis.bitPos0b)
+    assertEqualsTyped[Long](33, dis.bitPos0b)
     val expected = ULong(0x4b4b4b4bL)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[ULong](expected, ml)
   }
 
   @Test def testUnsignedLong3 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
     var ml = dis.getUnsignedLong(1)
-    assertEquals(1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = ULong(1)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[ULong](expected, ml)
   }
 
   @Test def testSignedBigInt1 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
     var ml = dis.getSignedBigInt(1)
-    assertEquals(1, dis.bitPos0b)
+    assertEqualsTyped[Long](1, dis.bitPos0b)
     val expected = BigInt(1)
-    assertEquals(expected, ml.get)
+    assertTrue(expected =:= ml.get)
   }
 
   @Test def testSignedBigInt2 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     var ml = dis.getSignedBigInt(40)
-    assertEquals(40, dis.bitPos0b)
+    assertEqualsTyped[Long](40, dis.bitPos0b)
     val expected = BigInt(0xFFFFFFC1C2C3C4C5L)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml.get)
   }
 
   @Test def testUnsignedBigInt1 {
     val dis = ByteBufferDataInputStream(List(0xFF).map { _.toByte }.toArray)
     var ml = dis.getUnsignedBigInt(2)
-    assertEquals(2, dis.bitPos0b)
+    assertEqualsTyped(2, dis.bitPos0b)
     val expected = BigInt(3)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml.get)
   }
 
   @Test def testUnsignedBigInt2 {
     val dis = ByteBufferDataInputStream(List(0xC1, 0xC2, 0xC3, 0xC4, 0xC5).map { _.toByte }.toArray)
     var ml = dis.getUnsignedBigInt(40)
-    assertEquals(40, dis.bitPos0b)
+    assertEqualsTyped(40, dis.bitPos0b)
     val expected = BigInt(0xC1C2C3C4C5L)
-    assertEquals(expected, ml.get)
+    assertEqualsTyped[BigInt](expected, ml.get)
   }
 
   @Test def testUnsignedBigInt3 {
@@ -314,22 +337,22 @@ class TestByteBufferDataInputStream {
     val expected = BigInt(dat.reverse, 16)
     val expectedHex = "%x".format(expected)
     val actualHex = "%x".format(mbi.get)
-    assertEquals(expectedHex, actualHex)
+    assertEqualsTyped[String](expectedHex, actualHex)
   }
 
   @Test def testUnsignedBigInt4 {
     val expectedHex = "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff0011223344556677"
-    assertEquals(720, expectedHex.length)
+    assertEqualsTyped(720, expectedHex.length)
     val expected = BigInt(expectedHex, 16)
     val valueWithExtraLSByte = expected << 8
-    assertEquals(0, (valueWithExtraLSByte & 0xFF).toInt)
-    assertEquals(0x77, (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xFF).toInt)
+    assertEqualsTyped[Long](0, (valueWithExtraLSByte & 0xFF).toInt)
+    assertEqualsTyped[Long](0x77, (valueWithExtraLSByte.toByteArray.dropRight(1).last & 0xFF).toInt)
     val valueWith3BitsInLSByte = valueWithExtraLSByte >> 3
-    assertEquals(0xE0, (valueWith3BitsInLSByte & 0xFF).toInt)
+    assertEqualsTyped[Long](0xE0, (valueWith3BitsInLSByte & 0xFF).toInt)
     val valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian = valueWith3BitsInLSByte.toByteArray.toList.reverse :+ 0.toByte
     val dat = valueWith3BitsInLSByteAsHexAsHexBytesLittleEndian.toArray
-    assertEquals(361, dat.length)
-    assertEquals(0xE0.toByte, dat.head)
+    assertEqualsTyped[Long](361, dat.length)
+    assertEqualsTyped[Long](0xE0.toByte, dat.head)
     val dis = ByteBufferDataInputStream(dat, 5)
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
@@ -339,7 +362,7 @@ class TestByteBufferDataInputStream {
     val actual = mbi.get
     val actualHex = "%x".format(actual)
     val expectedHexNoLeadingZeros = "%x".format(expected)
-    assertEquals(expectedHexNoLeadingZeros, actualHex)
+    assertEqualsTyped[String](expectedHexNoLeadingZeros, actualHex)
   }
 
   @Test def testAlignAndSkip1 {
@@ -348,11 +371,11 @@ class TestByteBufferDataInputStream {
     assertTrue(dis.isAligned(43))
     dis.getSignedLong(1)
     dis.align(4)
-    assertEquals(4, dis.bitPos0b)
+    assertEqualsTyped[Long](4, dis.bitPos0b)
     assertTrue(dis.isAligned(2))
     assertFalse(dis.isAligned(8))
     dis.skip(3)
-    assertEquals(7, dis.bitPos0b)
+    assertEqualsTyped[Long](7, dis.bitPos0b)
   }
 
   @Test def testFillCharBuffer1 {
@@ -360,9 +383,9 @@ class TestByteBufferDataInputStream {
     val cb = CharBuffer.allocate(1)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
-    assertEquals(1, ml.get)
-    assertEquals(8, dis.bitPos0b)
-    assertEquals('1', cb.get(0))
+    assertEqualsTyped[Long](1, ml.get.toLong)
+    assertEqualsTyped[Long](8, dis.bitPos0b)
+    assertEqualsTyped[Char]('1', cb.get(0))
   }
 
   @Test def testFillCharBuffer2 {
@@ -370,41 +393,41 @@ class TestByteBufferDataInputStream {
     val cb = CharBuffer.allocate(3)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
-    assertEquals(3, ml.get)
-    assertEquals('年', cb.get(0))
-    assertEquals('月', cb.get(1))
-    assertEquals('日', cb.get(2))
-    assertEquals(72, dis.bitPos0b)
+    assertEqualsTyped[Long](3, ml.get.toLong)
+    assertEqualsTyped[Char]('年', cb.get(0))
+    assertEqualsTyped[Char]('月', cb.get(1))
+    assertEqualsTyped[Char]('日', cb.get(2))
+    assertEqualsTyped[Long](72, dis.bitPos0b)
   }
 
   @Test def testFillCharBuffer3 {
     val dis = ByteBufferDataInputStream("年月日".getBytes("utf-8"))
-    dis.setBitLimit0b(One(8 * 6))
+    dis.setBitLimit0b(MaybeULong(8 * 6))
     val cb = CharBuffer.allocate(3)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
-    assertEquals(2, ml.get)
-    assertEquals('年', cb.get(0))
-    assertEquals('月', cb.get(1))
-    assertEquals(8 * 6, dis.bitPos0b)
+    assertEqualsTyped[Long](2, ml.get.toLong)
+    assertEqualsTyped[Char]('年', cb.get(0))
+    assertEqualsTyped[Char]('月', cb.get(1))
+    assertEqualsTyped[Long](8 * 6, dis.bitPos0b)
   }
 
   def unicodeReplacementCharacter = '\uFFFD'
 
   @Test def testFillCharBufferErrors1 {
     val data = List(0xFF.toByte).toArray ++ "年月日".getBytes("utf-8")
-    assertEquals(10, data.length)
+    assertEqualsTyped(10, data.length)
     val dis = ByteBufferDataInputStream(data)
     dis.setEncodingErrorPolicy(EncodingErrorPolicy.Replace)
     val cb = CharBuffer.allocate(20)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
-    assertEquals(4, ml.get)
-    assertEquals(unicodeReplacementCharacter, cb.get(0))
-    assertEquals('年', cb.get(1))
-    assertEquals('月', cb.get(2))
-    assertEquals('日', cb.get(3))
-    assertEquals(80, dis.bitPos0b)
+    assertEqualsTyped[Long](4, ml.get.toLong)
+    assertEqualsTyped[Char](unicodeReplacementCharacter, cb.get(0))
+    assertEqualsTyped[Char]('年', cb.get(1))
+    assertEqualsTyped[Char]('月', cb.get(2))
+    assertEqualsTyped[Char]('日', cb.get(3))
+    assertEqualsTyped[Long](80, dis.bitPos0b)
   }
 
   @Test def testFillCharBufferErrors2 {
@@ -416,17 +439,17 @@ class TestByteBufferDataInputStream {
     var ml = dis.fillCharBuffer(cb)
     cb.flip
     assertTrue(ml.isDefined)
-    assertEquals(3, ml.get)
+    assertEqualsTyped[Long](3, ml.get.toLong)
     var str: String = Misc.csToString(cb)
-    assertEquals("abc", str)
+    assertEqualsTyped[String]("abc", str)
     cb.clear
     ml = dis.fillCharBuffer(cb)
     cb.flip
     assertTrue(ml.isDefined)
-    assertEquals(9, ml.get)
+    assertEqualsTyped(9, ml.get)
     str = Misc.csToString(cb)
-    assertEquals("\uFFFD123\uFFFD\uFFFDdrm", str)
-    assertEquals(data.length * 8, dis.bitPos0b)
+    assertEqualsTyped[String]("\uFFFD123\uFFFD\uFFFDdrm", str)
+    assertEqualsTyped[Long](data.length * 8, dis.bitPos0b)
   }
 
   @Test def testFillCharBufferErrors3 {
@@ -438,28 +461,28 @@ class TestByteBufferDataInputStream {
     var ml = dis.fillCharBuffer(cb)
     cb.flip
     assertTrue(ml.isDefined)
-    assertEquals(3, ml.get)
+    assertEqualsTyped[Long](3, ml.get.toLong)
     var str: String = Misc.csToString(cb)
-    assertEquals("abc", str)
+    assertEqualsTyped("abc", str)
     cb.clear
     val e = intercept[MalformedInputException] {
       ml = dis.fillCharBuffer(cb)
     }
-    assertEquals(1, e.getInputLength())
+    assertEqualsTyped[Long](1, e.getInputLength())
   }
 
   @Test def testCharIterator1 {
     val dis = ByteBufferDataInputStream("年月日".getBytes("utf-8"))
     val iter = dis.asIteratorChar
-    dis.setBitLimit0b(One(8 * 6))
+    dis.setBitLimit0b(MaybeULong(8 * 6))
     assertTrue(iter.hasNext)
-    assertEquals(0, dis.bitPos0b)
-    assertEquals('年', iter.next)
-    assertEquals(24, dis.bitPos0b)
+    assertEqualsTyped[Long](0, dis.bitPos0b)
+    assertEqualsTyped('年', iter.next)
+    assertEqualsTyped[Long](24, dis.bitPos0b)
     assertTrue(iter.hasNext)
-    assertEquals(24, dis.bitPos0b)
-    assertEquals('月', iter.next)
-    assertEquals(48, dis.bitPos0b)
+    assertEqualsTyped[Long](24, dis.bitPos0b)
+    assertEqualsTyped('月', iter.next)
+    assertEqualsTyped[Long](48, dis.bitPos0b)
     assertFalse(iter.hasNext)
   }
 
@@ -469,19 +492,19 @@ class TestByteBufferDataInputStream {
     val dis = ByteBufferDataInputStream(data)
     dis.setEncodingErrorPolicy(EncodingErrorPolicy.Error)
     val iter = dis.asIteratorChar
-    dis.setBitLimit0b(One(8 * 6))
+    dis.setBitLimit0b(MaybeULong(8 * 6))
     assertTrue(iter.hasNext)
-    assertEquals(0, dis.bitPos0b)
+    assertEqualsTyped[Long](0, dis.bitPos0b)
     val sb = new StringBuilder
     sb + iter.next
     sb + iter.next
     sb + iter.next
-    assertEquals("abc", sb.mkString)
-    assertEquals(24, dis.bitPos0b)
+    assertEqualsTyped("abc", sb.mkString)
+    assertEqualsTyped[Long](24, dis.bitPos0b)
     val e = intercept[MalformedInputException] {
       iter.hasNext
     }
-    assertEquals(24, dis.bitPos0b)
+    assertEqualsTyped[Long](24, dis.bitPos0b)
   }
 
   @Test def testLookingAt1 {
@@ -491,10 +514,10 @@ class TestByteBufferDataInputStream {
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher)
     assertTrue(isMatch)
-    assertEquals(0, matcher.start)
-    assertEquals(1, matcher.end)
-    assertEquals("a", matcher.group())
-    assertEquals(8, dis.bitPos0b)
+    assertEqualsTyped[Long](0, matcher.start)
+    assertEqualsTyped[Long](1, matcher.end)
+    assertEqualsTyped("a", matcher.group())
+    assertEqualsTyped[Long](8, dis.bitPos0b)
   }
 
   /**
@@ -521,13 +544,13 @@ class TestByteBufferDataInputStream {
     requireEnd = m.requireEnd()
     assertTrue(!requireEnd)
     var start = m.start
-    assertEquals(0, start)
+    assertEqualsTyped[Long](0, start)
     var end = m.end
     // we want this to be 2. Bzzt. We were hoping it would be
     // because the matcher picked up where it left off and now
     // has "aa" as the match. But the matchers just don't 
     // work that way.
-    assertEquals(1, end)
+    assertEqualsTyped[Long](1, end)
   }
 
   @Test def testCharacterizeMatcherAfterHitEndRequireEnd2 {
@@ -543,11 +566,11 @@ class TestByteBufferDataInputStream {
     var requireEnd = m.requireEnd()
     assertTrue(!requireEnd)
     var start = m.start
-    assertEquals(0, start)
+    assertEqualsTyped[Long](0, start)
     var end = m.end
-    assertEquals(4, end)
+    assertEqualsTyped[Long](4, end)
     var group = m.group
-    assertEquals("aaab", group)
+    assertEqualsTyped("aaab", group)
     sb + group
   }
 
@@ -586,7 +609,7 @@ class TestByteBufferDataInputStream {
     isMatch = m.lookingAt()
     assertTrue(isMatch)
     var group = m.group
-    assertEquals("aaab", group)
+    assertEqualsTyped("aaab", group)
     hitEnd = m.hitEnd
     assertTrue(!hitEnd)
   }
@@ -598,10 +621,10 @@ class TestByteBufferDataInputStream {
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher)
     assertTrue(isMatch)
-    assertEquals(0, matcher.start)
-    assertEquals(3, matcher.end)
-    assertEquals("abc", matcher.group())
-    assertEquals(24, dis.bitPos0b)
+    assertEqualsTyped[Long](0, matcher.start)
+    assertEqualsTyped[Long](3, matcher.end)
+    assertEqualsTyped("abc", matcher.group())
+    assertEqualsTyped[Long](24, dis.bitPos0b)
   }
 
   @Test def testLookingAtManyMultibyteCharsAndDecodeError1 {
@@ -616,11 +639,11 @@ class TestByteBufferDataInputStream {
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher)
     assertTrue(isMatch)
-    assertEquals(0, matcher.start)
-    assertEquals(14, matcher.end)
+    assertEqualsTyped[Long](0, matcher.start)
+    assertEqualsTyped[Long](14, matcher.end)
     val actual = matcher.group()
-    assertEquals("abc年de月fg日\uFFFDхив", actual)
-    assertEquals(data.length * 8, dis.bitPos0b)
+    assertEqualsTyped("abc年de月fg日\uFFFDхив", actual)
+    assertEqualsTyped[Long](data.length * 8, dis.bitPos0b)
   }
 
   @Test def testLookingAtManyMultibyteCharsAndDecodeError2 {
@@ -635,12 +658,12 @@ class TestByteBufferDataInputStream {
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher)
     assertTrue(isMatch)
-    assertEquals(0, matcher.start)
-    assertEquals(13, matcher.end)
+    assertEqualsTyped[Long](0, matcher.start)
+    assertEqualsTyped[Long](13, matcher.end)
     val actual = matcher.group()
-    assertEquals("abc年de月fg日\uFFFDхи", actual)
+    assertEqualsTyped("abc年de月fg日\uFFFDхи", actual)
     val expectedByteLength = data1.length + 1 + "хи".getBytes("utf-8").length
-    assertEquals(expectedByteLength * 8, dis.bitPos0b)
+    assertEqualsTyped[Long](expectedByteLength * 8, dis.bitPos0b)
   }
 
   @Test def testLookingAtManyMultibyteCharsAndDecodeError3 {
@@ -657,12 +680,12 @@ class TestByteBufferDataInputStream {
     val matcher = pattern.matcher("")
     val isMatch = dis.lookingAt(matcher)
     assertTrue(isMatch)
-    assertEquals(0, matcher.start)
-    assertEquals(13, matcher.end)
+    assertEqualsTyped[Long](0, matcher.start)
+    assertEqualsTyped[Long](13, matcher.end)
     val actual = matcher.group()
-    assertEquals("abc年de月fg日\uFFFDхи", actual)
+    assertEqualsTyped("abc年de月fg日\uFFFDхи", actual)
     val expectedByteLength = data1.length + badByte.length + "хи".getBytes(enc).length
-    assertEquals(expectedByteLength * 8, dis.bitPos0b)
+    assertEqualsTyped[Long](expectedByteLength * 8, dis.bitPos0b)
   }
 
   @Test def testDotMatchesNewline1 {

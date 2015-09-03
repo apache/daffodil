@@ -4,7 +4,6 @@ import org.junit.Test
 import org.junit.Assert._
 import java.nio.ByteBuffer
 import edu.illinois.ncsa.daffodil.util.Maybe
-import edu.illinois.ncsa.daffodil.util.Maybe._
 import passera.unsigned.ULong
 import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
@@ -15,6 +14,8 @@ import java.util.regex.Pattern
 import scala.collection.mutable.ArrayBuffer
 import java.nio.charset.StandardCharsets
 import edu.illinois.ncsa.daffodil.exceptions.Abort
+import edu.illinois.ncsa.daffodil.util.MaybeULong
+import edu.illinois.ncsa.daffodil.util.MaybeInt
 
 class TestByteBufferDataInputStream2 {
   val tenDigits = "1234567890"
@@ -63,10 +64,10 @@ class TestByteBufferDataInputStream2 {
       m1 = dis.mark
       assertFalse(dis.asIteratorChar.hasNext)
     }
-    dis.setBitLimit0b(One(10 * 8))
+    dis.setBitLimit0b(MaybeULong(10 * 8))
     var n = dis.fillByteBuffer(bb)
     val m2 = dis.mark
-    assertEquals(One(5), n)
+    assertEquals(MaybeInt(5), n)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
     assertEquals(0x30.toByte, bb.get())
@@ -79,7 +80,7 @@ class TestByteBufferDataInputStream2 {
     bb = ByteBuffer.allocate(10)
     n = dis.fillByteBuffer(bb)
     assertFalse(n.isDefined)
-    dis.asInstanceOf[ByteBufferDataInputStream].resetBitLimit0b(One(10 * 8))
+    dis.asInstanceOf[ByteBufferDataInputStream].resetBitLimit0b(MaybeULong(10 * 8))
     n = dis.fillByteBuffer(bb)
     assertEquals(5, n.get)
     bb.flip()
@@ -95,16 +96,16 @@ class TestByteBufferDataInputStream2 {
   @Test def testMark3 {
     val dis = ByteBufferDataInputStream(twenty).asInstanceOf[ByteBufferDataInputStream]
     var bb = ByteBuffer.allocate(20)
-    dis.setBitLimit0b(One(5 * 8))
+    dis.setBitLimit0b(MaybeULong(5 * 8))
     var n = dis.fillByteBuffer(bb)
     assertTrue(n.isDefined)
     assertEquals(5, n.get)
     val m1 = dis.mark
     assertFalse(dis.asIteratorChar.hasNext)
-    dis.resetBitLimit0b(One(10 * 8))
+    dis.resetBitLimit0b(MaybeULong(10 * 8))
     n = dis.fillByteBuffer(bb)
     val m2 = dis.mark
-    assertEquals(One(5), n)
+    assertEquals(MaybeInt(5), n)
     bb.flip()
     1 to 9 foreach { _ => bb.get() }
     assertEquals(0x30.toByte, bb.get())

@@ -67,13 +67,13 @@ sealed abstract class GlobBase(lvl: LogLevel.Type) {
   // Have to do this by having an overload for each number of args.
   // This is because we're depending on scala's call-by-name trick to NOT
   // evaluate these arguments unless something else decides to force this whole adventure.
-  def apply(msg: => String) = new Glob(lvl, msg, Seq())
-  def apply(msg: => String, arg: => Any) = new Glob(lvl, msg, Seq(arg))
-  def apply(msg: => String, arg0: => Any, arg1: => Any) = new Glob(lvl, msg, Seq(arg0, arg1))
-  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2))
-  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3))
-  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
-  def apply(msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any, arg5: => Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
+  def apply(msg: String) = new Glob(lvl, msg, Seq())
+  def apply(msg: String, arg: Any) = new Glob(lvl, msg, Seq(arg))
+  def apply(msg: String, arg0: Any, arg1: Any) = new Glob(lvl, msg, Seq(arg0, arg1))
+  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2))
+  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3))
+  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
+  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any, arg5: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
   // add more here if more than however many args are needed.
 }
 
@@ -267,18 +267,24 @@ trait Logging extends Identity {
 
   def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
 
-  final def getLoggingLevel(): LogLevel.Type = { logLevel.getOrElse(LoggingDefaults.logLevel) }
+  final def getLoggingLevel(): LogLevel.Type = {
+    if (logLevel.isDefined) logLevel.get
+    else LoggingDefaults.logLevel
+  }
 
   def setLogWriter(lw: LogWriter) { logWriter = One(lw) }
 
-  def getLogWriter(): LogWriter = { logWriter.getOrElse(LoggingDefaults.logWriter) }
+  def getLogWriter(): LogWriter = {
+    if (logWriter.isDefined) logWriter.get
+    else LoggingDefaults.logWriter
+  }
 
   /**
    * Use like `log(Error("the thing %s", toString))`
    *
    * TODO: Convert this into a macro so that we can avoid closure overheads of by-name passing.
    */
-  final def log(glob: => Glob) {
+  final def log(glob: Glob) {
     lazy val g = glob // exactly once
     if (getLoggingLevel >= g.lvl) getLogWriter.log(logID, g)
   }
@@ -288,13 +294,13 @@ trait Logging extends Identity {
 
   // TODO: Convert this into a macro so we don't end up allocating closures
   // for these by-name args.
-  final def log(lvl: LogLevel.Type, msg: => String) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq())
-  final def log(lvl: LogLevel.Type, msg: => String, arg: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg))
-  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1))
-  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2))
-  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3))
-  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
-  final def log(lvl: LogLevel.Type, msg: => String, arg0: => Any, arg1: => Any, arg2: => Any, arg3: => Any, arg4: => Any, arg5: => Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
+  final def log(lvl: LogLevel.Type, msg: String) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq())
+  final def log(lvl: LogLevel.Type, msg: String, arg: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg))
+  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1))
+  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2))
+  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3))
+  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
+  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any, arg5: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
   /**
    * Use to make debug printing over small code regions convenient. Turns on
    * your logging level of choice over a lexical region of code. Makes sure it is reset

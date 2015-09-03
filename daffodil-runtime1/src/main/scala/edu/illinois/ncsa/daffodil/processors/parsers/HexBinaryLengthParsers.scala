@@ -59,7 +59,8 @@ abstract class HexBinaryLengthInBytesParser(erd: ElementRuntimeData)
       currentElement.setDataValue(zeroLengthArray)
       return
     }
-    DataStreamCommon.withLocalByteBuffer { lbb =>
+
+    start.withLocalByteBuffer { lbb =>
       val bb = lbb.getBuf(nBytes)
       val mLen = start.dataInputStream.fillByteBuffer(bb)
       if (!mLen.isDefined) {

@@ -61,11 +61,12 @@ import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.equality._
 import java.nio.charset.StandardCharsets
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 class StringDelimitedParser(
   erd: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
+  pad: MaybeChar,
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean)
@@ -119,7 +120,7 @@ class StringDelimitedParser(
 class LiteralNilDelimitedEndOfDataParser(
   erd: ElementRuntimeData,
   justificationTrim: TextJustificationType.Type,
-  pad: Maybe[Char],
+  pad: MaybeChar,
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
   override val cookedNilValuesForParse: List[String],
@@ -169,7 +170,7 @@ class HexBinaryDelimitedParser(
   ff: FieldFactoryBase,
   pf: TextDelimitedParserFactory,
   isDelimRequired: Boolean)
-  extends StringDelimitedParser(erd, TextJustificationType.None, Nope, ff, pf, isDelimRequired) {
+  extends StringDelimitedParser(erd, TextJustificationType.None, MaybeChar.Nope, ff, pf, isDelimRequired) {
 
   /**
    * HexBinary is just a string in iso-8859-1 encoding.

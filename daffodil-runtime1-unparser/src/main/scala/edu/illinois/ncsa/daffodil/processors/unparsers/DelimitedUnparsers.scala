@@ -23,14 +23,12 @@ import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EntityReplacer
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
-import edu.illinois.ncsa.daffodil.util.OnStack
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
-
-object UnparserDataInputStream extends OnStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 class StringDelimitedUnparser(erd: ElementRuntimeData,
   justificationPad: TextJustificationType.Type,
-  override val pad: Maybe[Char],
+  override val pad: MaybeChar,
   isDelimRequired: Boolean)
   extends PrimUnparser(erd) with PaddingRuntimeMixin with TextUnparserRuntimeMixin {
 
@@ -64,7 +62,7 @@ class StringDelimitedUnparser(erd: ElementRuntimeData,
 
       val escapedValue =
         if (schemeOpt.isDefined) {
-          UnparserDataInputStream { dis =>
+          state.withUnparserDataInputStream { dis =>
             val inscopeDelimiters =
               if (state.delimiterStack.isEmpty) {
                 // no delimiters. 
@@ -144,7 +142,7 @@ class LiteralNilDelimitedEndOfDataUnparser(
   erd: ElementRuntimeData,
   outputNilValue: StringLiteralForUnparser,
   justPad: TextJustificationType.Type,
-  padChar: Maybe[Char],
+  padChar: MaybeChar,
   isDelimRequired: Boolean)
   extends StringDelimitedUnparser(erd, justPad, padChar, isDelimRequired) {
 

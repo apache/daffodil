@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.processors.DelimBase
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * This base class handles the connections from state to state (which form a directed graph)
@@ -154,7 +155,7 @@ abstract class State(states: => ArrayBuffer[State]) extends Serializable {
  * 1		1		0		Y
  * 1		1		1		Y
  */
-class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: Maybe[Char], EC: Maybe[Char], val stateNum: Int)
+class StartStateUnambiguousEscapeChar(states: => ArrayBuffer[State], EEC: MaybeChar, EC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
   val stateName: String = "StartState"
@@ -220,7 +221,7 @@ class StartStatePadding(states: => ArrayBuffer[State], val padChar: Char)
  * StartState for Field portion of EscapeBlock.
  * Here compiledDelims should only contain the endBlock DFADelimiter.
  */
-class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADelimiter, val EEC: Maybe[Char], val stateNum: Int)
+class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
   val stateName: String = "StartState"
 
@@ -238,7 +239,7 @@ class StartStateEscapeBlock(states: => ArrayBuffer[State], val blockEnd: DFADeli
 
 }
 
-class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char], val stateNum: Int)
+class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
   val stateName: String = "StartState"
@@ -426,7 +427,7 @@ class StartStateEscapeChar(states: => ArrayBuffer[State], val EEC: Maybe[Char], 
 
 }
 
-class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char], val stateNum: Int)
+class ECState(states: => ArrayBuffer[State], val EC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
   val stateName = "ECState"
@@ -470,7 +471,7 @@ class ECState(states: => ArrayBuffer[State], val EC: Maybe[Char], val stateNum: 
     })
 }
 
-class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Maybe[Char], val stateNum: Int)
+class EECState(states: => ArrayBuffer[State], val EEC: MaybeChar, val EC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
   val stateName = "EECState"
@@ -513,7 +514,7 @@ class EECState(states: => ArrayBuffer[State], val EEC: Maybe[Char], val EC: Mayb
     })
 }
 
-class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val EEC: Maybe[Char], val stateNum: Int)
+class EECStateBlock(states: => ArrayBuffer[State], blockEnd: DFADelimiter, val EEC: MaybeChar, val stateNum: Int)
   extends State(states) {
 
   val stateName = "EECState"
@@ -669,7 +670,7 @@ class WSPPlusState(states: => ArrayBuffer[State], val nextState: Int, val stateN
     },
     Rule { (r: Registers) => r.matchedAtLeastOnce } { (r: Registers) =>
       r.matchedAtLeastOnce = false
-      r.nextState =  nextState
+      r.nextState = nextState
     })
 }
 

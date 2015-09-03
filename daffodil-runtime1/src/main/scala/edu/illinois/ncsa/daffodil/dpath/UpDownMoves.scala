@@ -60,9 +60,10 @@ case object SelfMove extends RecipeOp {
 case object UpMove extends RecipeOp {
   override def run(dstate: DState) {
     val now = dstate.currentElement
-    val n = now.diParent.getOrElse(
-      Assert.invariantFailed(
-        "UpMove past root. Should never happen since an expression like that won't typecheck statically."))
+    val n = {
+      Assert.invariant(now.diParent.isDefined) // UpMove past root. Should never happen since an expression like that won't typecheck statically.
+      now.diParent.get
+    }
     dstate.setCurrentNode(n)
   }
 }

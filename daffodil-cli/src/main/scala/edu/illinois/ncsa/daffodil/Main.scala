@@ -758,7 +758,7 @@ object Main extends Logging {
                   if (hasMoreData) {
                     dis.setDecoder(StandardCharsets.ISO_8859_1.newDecoder())
                     val maybeString = dis.getSomeString(DaffodilTunableParameters.maxFieldContentLengthInBytes)
-                    val lengthInBytes = maybeString.map { _.length }.getOrElse(0)
+                    val lengthInBytes = if (maybeString.isEmpty) 0 else maybeString.get.length
                     if (lengthInBytes > 0)
                       log(LogLevel.Error, "Left over data. %s bytes available. Location: %s", lengthInBytes, loc)
                     else {

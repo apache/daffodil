@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.dsom.DPathElementCompileInfo
+import edu.illinois.ncsa.daffodil.util.MaybeBoolean
 
 /**
  * Saved for backtracking. Used to restore to prior Infoset element content.
@@ -67,7 +68,7 @@ trait InfosetElement extends InfosetItem {
 
   def isEmpty: Boolean
 
-  def valid: Maybe[Boolean]
+  def valid: MaybeBoolean
   def setValid(validity: Boolean): Unit
 
   /**

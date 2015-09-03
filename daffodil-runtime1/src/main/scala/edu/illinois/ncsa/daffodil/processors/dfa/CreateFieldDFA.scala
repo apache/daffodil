@@ -34,6 +34,7 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * (12:12:21 PM) Mike Beckerle: I think I understand this. Let me explain why the 'backtrack" is ok.
@@ -70,7 +71,7 @@ object CreateFieldDFA {
    * Constructs a DFAField object with EscapeSchemeKind.Character
    */
   def apply(
-    EC: Maybe[Char], EEC: Maybe[Char]): DFAField = {
+    EC: MaybeChar, EEC: MaybeChar): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 
@@ -89,7 +90,7 @@ object CreateFieldDFA {
    * Constructs a DFAField object with EscpaeSchemeKind.Block
    */
   def apply(blockEnd: DFADelimiter,
-    EEC: Maybe[Char]): DFAField = {
+    EEC: MaybeChar): DFAField = {
 
     val allStates: ArrayBuffer[State] = ArrayBuffer.empty
 

@@ -19,6 +19,7 @@ import java.nio.channels.Channels
 import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
 import java.nio.CharBuffer
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 private[io] class CharBufferDataOutputStreamState extends DataOutputStreamStateImplMixin
 /**
@@ -40,27 +41,27 @@ class CharBufferDataOutputStream
 
   private def notToBeUsed = Assert.usageError("not to be used")
 
-  def putCharBuffer(cb: java.nio.CharBuffer): Long = {
+  override def putCharBuffer(cb: java.nio.CharBuffer): Long = {
     Assert.usage(target != null)
     val numCharsTransferred = cb.read(target)
     numCharsTransferred
   }
 
-  def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = notToBeUsed
-  def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = notToBeUsed
-  def putBytes(ba: Array[Byte]) = notToBeUsed
-  def putByteBuffer(bb: java.nio.ByteBuffer): Long = notToBeUsed
-  def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
-  def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
-  def skip(nBits: Long): Boolean = notToBeUsed
-  def bitLimit0b: Maybe[Long] = notToBeUsed
-  def bitPos0b: Long = notToBeUsed
-  def setBitPos0b(bitPos0b: Long) = notToBeUsed
-  def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
-  def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
-  def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean = notToBeUsed
-  private[io] def resetBitLimit0b(saved: Maybe[Long]): Unit = notToBeUsed
-  def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed
-  def byteOrder: ByteOrder = notToBeUsed
-  def validateFinalStreamState { /* do nothing */ }
+  override def putBigInt(bigInt: BigInt, bitLengthFrom1: Int): Boolean = notToBeUsed
+  // override def putBytes(ba: Array[Byte], byteStartOffset0b: Int, lengthInBytes: Int): Long = notToBeUsed
+  override def putBytes(ba: Array[Byte]) = notToBeUsed
+  override def putByteBuffer(bb: java.nio.ByteBuffer): Long = notToBeUsed
+  override def putULong(unsignedLong: ULong, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  override def putLong(signedLong: Long, bitLengthFrom1To64: Int): Boolean = notToBeUsed
+  override def skip(nBits: Long): Boolean = notToBeUsed
+  override def bitLimit0b: MaybeULong = notToBeUsed
+  override def bitPos0b: Long = notToBeUsed
+  // override def setBitPos0b(bitPos0b: Long) = notToBeUsed
+  override def futureData(nBytesRequested: Int): ByteBuffer = notToBeUsed
+  override def pastData(nBytesRequested: Int): ByteBuffer = notToBeUsed
+  override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = notToBeUsed
+  private[io] override def resetBitLimit0b(saved: MaybeULong): Unit = notToBeUsed
+  override def setByteOrder(byteOrder: ByteOrder): Unit = notToBeUsed
+  override def byteOrder: ByteOrder = notToBeUsed
+  override def validateFinalStreamState { /* do nothing */ }
 }

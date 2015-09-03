@@ -64,25 +64,26 @@ import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.compiler.DaffodilTunableParameters
 import edu.illinois.ncsa.daffodil.io.DataDumper
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
-class DataLoc(val bitPos1b: Long, bitLimit1b: Maybe[Long], eitherStream: Either[DataOutputStream, DataInputStream],
+class DataLoc(val bitPos1b: Long, bitLimit1b: MaybeULong, eitherStream: Either[DataOutputStream, DataInputStream],
   val maybeERD: Maybe[ElementRuntimeData]) extends DataLocation {
 
   // override def toString = "DataLoc(bitPos1b='%s', bitLimit1b='%s')".format(bitPos1b, bitLimit1b)
   override def toString() = {
-    "byte " + bitPos1b / 8 + bitLimit1b.map { lim => " limit(bytes) " + lim / 8 }.getOrElse("")
+    "byte " + bitPos1b / 8 + (if (bitLimit1b.isDefined) " limit(bytes) " + bitLimit1b.get / 8 else "")
   }
 
   private val Dump = new DataDumper
 
   lazy val optERD = maybeERD.toScalaOption
 
-  Assert.usage(bitLimit1b.map { _ >= 0 }.getOrElse(true))
+  Assert.usage(bitLimit1b.isEmpty || bitLimit1b.get >= 0)
   Assert.usage(bitPos1b >= 1)
 
   val bitPos0b = math.max(bitPos1b - 1, 0).toInt
-  val bitLimit0b = bitLimit1b.map { _ - 1 }
-  val lengthInBits = bitLimit0b.map { lim0b => math.max(lim0b - bitPos0b, 0) }.getOrElse(256L)
+  val bitLimit0b = if (bitLimit1b.isDefined) MaybeULong(bitLimit1b.get - 1) else MaybeULong.Nope
+  val lengthInBits = if (bitLimit0b.isDefined) math.max(bitLimit0b.get - bitPos0b, 0) else 256L
 
   // The dump region is the identified data for this data loc
   lazy val regionStartBitPos0b = bitPos0b
@@ -187,9 +188,8 @@ class DataLoc(val bitPos1b: Long, bitLimit1b: Maybe[Long], eitherStream: Either[
    * We're at the end if the position is at the limit. 
    */
   def isAtEnd: Boolean = {
-    bitPos1b >= bitLimit1b.getOrElse {
-      Assert.invariantFailed("must be a bit limit")
-    }
+    Assert.invariant(bitLimit1b.isDefined)
+    bitPos1b >= bitLimit1b.get
   }
 }
 

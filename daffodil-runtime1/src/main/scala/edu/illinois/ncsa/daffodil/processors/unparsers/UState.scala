@@ -37,6 +37,11 @@ import edu.illinois.ncsa.daffodil.dpath.UnparseMode
 import edu.illinois.ncsa.daffodil.equality._
 import scala.collection.mutable
 import edu.illinois.ncsa.daffodil.util.MStack
+import edu.illinois.ncsa.daffodil.util.LocalStack
+import edu.illinois.ncsa.daffodil.io.CharBufferDataOutputStream
+import edu.illinois.ncsa.daffodil.io.StringDataInputStreamForUnparse
+import java.io.ByteArrayOutputStream
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class UState(
   private val infosetSource: InfosetSource,
@@ -48,6 +53,21 @@ class UState(
   with Iterator[InfosetEvent] with ThrowsSDE with SavesErrorsAndWarnings {
 
   override def dataStream: DataStreamCommon = dataOutputStream
+
+  final val charBufferDataOutputStream = new LocalStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
+  final val withUnparserDataInputStream = new LocalStack[StringDataInputStreamForUnparse](new StringDataInputStreamForUnparse)
+  final val withByteArrayOutputStream = new LocalStack[(ByteArrayOutputStream, BasicDataOutputStream)](
+    {
+      val baos = new ByteArrayOutputStream() // PERFORMANCE: Allocates new object. Can reuse one from an onStack/pool via reset()
+      val dos = BasicDataOutputStream(baos).asInstanceOf[BasicDataOutputStream]
+      (baos, dos)
+    },
+    pair => pair match {
+      case (baos, dos) =>
+        baos.reset()
+        dos.setBitLimit0b(MaybeULong.Nope)
+        dos.setBitPos0b(0L)
+    })
 
   def setMode(dstate: DState) = dstate.setMode(UnparseMode)
 

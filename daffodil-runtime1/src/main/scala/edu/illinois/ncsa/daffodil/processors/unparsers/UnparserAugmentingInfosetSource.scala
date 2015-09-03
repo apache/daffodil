@@ -81,7 +81,9 @@ class UnparserAugmentingInfosetSource(
           // The compiler will choose an augmenter object based on 
           // whether this is defaultable, computed, defaultable array, etc.
           //
-          val augmenter = maybeAugmenter.getOrElse(Assert.invariantFailed("must be an augmenter at this point"))
+          val augmenter =
+            if (maybeAugmenter.isDefined) maybeAugmenter.get
+            else Assert.invariantFailed("must be an augmenter at this point")
           augmenter.augment(incoming, arrayPos0b, addedEvents)
         }
       }

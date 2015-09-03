@@ -17,6 +17,7 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.charset.CoderResult
 import edu.illinois.ncsa.daffodil.processors.charset.USASCII7BitPackedDecoder
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
  * Helper class for creating example data that is unaligned.
@@ -106,7 +107,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testFillByteBufferLengthLimit1 {
     val dis = ByteBufferDataInputStream(Bitte.enc("abc"))
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(21))
+    dis.setBitLimit0b(MaybeULong(21))
     val bb = ByteBuffer.allocate(4)
     val n = dis.fillByteBuffer(bb)
     assertEquals(21, dis.bitLimit0b.get)
@@ -163,7 +164,7 @@ class TestByteBufferDataInputStream7 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(25))
+    dis.setBitLimit0b(MaybeULong(25))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
     val ml = dis.fillCharBuffer(cb)
@@ -187,7 +188,7 @@ class TestByteBufferDataInputStream7 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(20))
+    dis.setBitLimit0b(MaybeULong(20))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
     val ml = dis.fillCharBuffer(cb)
@@ -206,7 +207,7 @@ class TestByteBufferDataInputStream7 {
     val bytes = Bitte.toBytes(Bitte.rtl(Bitte.rtl("101"), Bitte.encode7("abcdefgh")))
     val dis = ByteBufferDataInputStream(bytes)
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(16))
+    dis.setBitLimit0b(MaybeULong(16))
     val cb = CharBuffer.allocate(8)
     dis.skip(3)
     val ml = dis.fillCharBuffer(cb)
@@ -228,7 +229,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testCharIteratorWithInterruptingBitSkips1 {
     val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(42))
+    dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     dis.skip(7)
     assertTrue(iter.hasNext)
@@ -268,7 +269,7 @@ class TestByteBufferDataInputStream7 {
   @Test def testCharIteratorWithInterruptingBitSkipsBetweenHasNextAndNext {
     val dis = ByteBufferDataInputStream(Bitte.enc("0a1b2c"))
     dis.setDecoder(new USASCII7BitPackedDecoder)
-    dis.setBitLimit0b(One(42))
+    dis.setBitLimit0b(MaybeULong(42))
     val iter = dis.asIteratorChar
     assertTrue(iter.hasNext)
     dis.skip(7)

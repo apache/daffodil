@@ -4,9 +4,10 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.processors.TextJustificationType
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
 import edu.illinois.ncsa.daffodil.processors.PrimUnparser
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 class LiteralNilOfSpecifiedLengthUnparser(
-  unparsingPadChar: Maybe[Char],
+  unparsingPadChar: MaybeChar,
   justificationPad: TextJustificationType.Type,
   erd: ElementRuntimeData,
   outputNilValue: StringLiteralForUnparser)

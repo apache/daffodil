@@ -49,14 +49,16 @@ import edu.illinois.ncsa.daffodil.processors.EscapeSchemeFactoryBase
 import edu.illinois.ncsa.daffodil.processors.parsers.PaddingRuntimeMixin
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 abstract class TextDelimitedParserBase(
   override val justificationTrim: TextJustificationType.Type,
-  override val parsingPadChar: Maybe[Char],
+  override val parsingPadChar: MaybeChar,
   override val context: TermRuntimeData)
   extends DelimitedParser with PaddingRuntimeMixin {
 
-  lazy val info: String = "justification='" + justificationTrim + "', padChar='" + parsingPadChar.getOrElse("NONE") + "'"
+  private lazy val padCharInfo = if (parsingPadChar.isDefined) parsingPadChar.toString else "NONE"
+  lazy val info: String = "justification='" + justificationTrim + "', padChar='" + padCharInfo + "'"
 
   def parse(input: DataInputStream, field: DFAField, delims: Seq[DFADelimiter], isDelimRequired: Boolean): Maybe[ParseResult] = {
     Assert.invariant(delims != null)
@@ -157,7 +159,7 @@ abstract class TextDelimitedParserBase(
  */
 class TextDelimitedParser(
   justArg: TextJustificationType.Type,
-  padCharArg: Maybe[Char],
+  padCharArg: MaybeChar,
   context: TermRuntimeData)
   extends TextDelimitedParserBase(justArg, padCharArg, context) {
 
@@ -171,7 +173,7 @@ class TextDelimitedParser(
  */
 class TextDelimitedParserWithEscapeBlock(
   justArg: TextJustificationType.Type,
-  padCharArg: Maybe[Char],
+  padCharArg: MaybeChar,
   context: TermRuntimeData)
   extends TextDelimitedParserBase(justArg, padCharArg, context) {
 
@@ -397,7 +399,7 @@ class TextDelimitedParserWithEscapeBlock(
  */
 case class TextDelimitedParserFactory(
   justArg: TextJustificationType.Type,
-  parsingPadChar: Maybe[Char],
+  parsingPadChar: MaybeChar,
   fieldFact: FieldFactoryBase,
   escapeSchemeFact: Option[EscapeSchemeFactoryBase],
   context: TermRuntimeData)

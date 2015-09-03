@@ -41,7 +41,7 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.OnStack
+import edu.illinois.ncsa.daffodil.util.LocalStack
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
@@ -65,6 +65,8 @@ case object UnparseMode extends ParseOrUnparseMode
  */
 case class DState() {
   import AsIntConverters._
+
+  val withArray8 = new LocalStack[Array[Int]](new Array[Int](8))
   /**
    * The currentValue is used when we have a value that is not
    * associated with an element of simple type. E.g., If I have

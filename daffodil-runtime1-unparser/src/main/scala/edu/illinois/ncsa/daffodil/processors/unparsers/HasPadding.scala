@@ -1,6 +1,7 @@
 package edu.illinois.ncsa.daffodil.processors.unparsers
 
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * When dfdl:lengthKind is 'explicit' (and dfdl:length is an expression),
@@ -23,7 +24,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
  */
 trait PaddingRuntimeMixin {
 
-  def pad: Maybe[Char]
+  def pad: MaybeChar
   def padToLength: Int
 
   def addRightPadding(str: String): String = {
@@ -64,7 +65,7 @@ trait PaddingRuntimeMixin {
 
     res
   }
-  
+
   private def append(sb: StringBuilder, numCharsToAppend: Int): StringBuilder = {
     for (i <- 1 to numCharsToAppend) { sb.append(pad.get) }
     sb

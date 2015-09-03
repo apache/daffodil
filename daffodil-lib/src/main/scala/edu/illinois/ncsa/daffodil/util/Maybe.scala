@@ -45,37 +45,32 @@ package edu.illinois.ncsa.daffodil.util
  *  Maybe(null) = Nope
  *  One(null) == Nope // can't construct a Maybe type containing null.
  */
-final class Maybe[+T] @inline private (val v: Any) extends AnyVal {
+final class Maybe[+T <: AnyRef] @inline private (val v: Any) extends AnyVal {
   import Maybe._
-  @inline final def get: T = if (isDefined) value.asInstanceOf[T] else noneGet
-  @inline final def value: T = v.asInstanceOf[T]
+  @inline final def get: T = if (isDefined) value else noneGet
+  @inline private final def value: T = v.asInstanceOf[T]
   final def noneGet = throw new NoSuchElementException("Nope.get")
-  // ?? I don't know how isEmpty can work. It requires the value to be a reference
-  // or a value, but there is no way to tell the difference without 
-  // storing more than just the value. 
-  // 
-  @inline final def isEmpty: Boolean = NopeValue eq value.asInstanceOf[AnyRef]
+
+  @inline final def isEmpty: Boolean = NopeValue eq v.asInstanceOf[AnyRef]
   @inline final def isDefined: Boolean = !isEmpty
   @inline final def nonEmpty = isDefined
   @inline final def contains[U >: T](elem: U): Boolean = !isEmpty && value == elem
   @inline final def exists(p: T => Boolean): Boolean = !isEmpty && p(get)
   @inline final def forall(p: T => Boolean): Boolean = isEmpty || p(get)
-  @inline final def orElse[U >: T](alternative: => Maybe[U]): Maybe[U] = if (isEmpty) alternative else this
-  @inline final def collect[U](pf: PartialFunction[T, U]): Maybe[U] = if (!isEmpty && pf.isDefinedAt(get)) One(pf(get)) else Nope
+  @inline final def collect[U <: AnyRef](pf: PartialFunction[T, U]): Maybe[U] = if (!isEmpty && pf.isDefinedAt(get)) One(pf(get)) else Nope
   @inline final def iterator: Iterator[T] = if (isEmpty) collection.Iterator.empty else collection.Iterator.single(get)
   @inline final def toList: List[T] = if (isEmpty) List() else new ::(get, Nil)
-  final def toRight[X](left: => X) = if (isEmpty) Left(left) else Right(value)
-  final def toLeft[X](right: => X) = if (isEmpty) Right(right) else Left(value)
-  final def getOrElse[U >: T](default: => U): U = if (isEmpty) default else get
+  @inline final def toSeq: Seq[T] = toList
+  @inline final def getOrElse[U >: T](default: U): U = if (isEmpty) default else get
   final def orNull[U >: T](implicit ev: Null <:< U): U = get
   final def filter(p: T => Boolean): Maybe[T] = if (isEmpty || p(get)) this else Nope
   final def filterNot(p: T => Boolean): Maybe[T] = if (isEmpty || !p(get)) this else Nope
   final def withFilter(f: T => Boolean): Maybe[T] = filter(f)
-  final def map[U](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
-  final def flatMap[U](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
+  final def map[U <: AnyRef](f: T => U): Maybe[U] = if (isEmpty) Nope else One(f(get))
+  final def flatMap[U <: AnyRef](f: T => Maybe[U]): Maybe[U] = if (isEmpty) Nope else f(get)
   final def foreach[U](f: T => U): Unit = if (!isEmpty) f(get)
   final def fold[U](ifEmpty: => U)(f: T => U): U = if (isEmpty) ifEmpty else f(get)
-  final def flatten[U](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
+  final def flatten[U <: AnyRef](implicit ev: T <:< Maybe[U]): Maybe[U] = if (isEmpty) Nope else ev(get)
   final def toScalaOption: scala.Option[T] = if (isEmpty) scala.None else scala.Some(get)
   override final def toString = if (isEmpty) "Nope" else "One(" + get + ")"
 }
@@ -87,33 +82,33 @@ object Maybe {
   /**
    *  implicitly treat as iterator/sequence/list (Scala's Option type has this)
    */
-  implicit def toIterator[T](m: Maybe[T]) = m.toList
+  // implicit def toIterator[T <: AnyRef](m: Maybe[T]) = m.toList
 
   /**
    * implicitly convert Option type to Maybe type.
    *
    * The conversion the other way must be explicit by calling toScalaOption
    */
-  implicit def toMaybe[T](o: Option[T]) = o match {
+  implicit def toMaybe[T <: AnyRef](o: Option[T]) = o match {
     case None => Nope
     case Some(x) => One(x)
   }
 
   @inline
-  final def apply[T](value: T) = if (value == null) Nope else some(value)
+  final def apply[T <: AnyRef](value: T) = if (value == null) Nope else some(value)
 
   @inline
-  final def some[T](value: T) = new Maybe[T](value)
+  final def some[T <: AnyRef](value: T) = new Maybe[T](value)
 
   def empty[T] = Nope
 
   val Nope = new Maybe[Nothing](NopeValue)
 
-  type One[T] = Maybe[T]
+  type One[T <: AnyRef] = Maybe[T]
 
   object One {
     @inline
-    final def apply[T](value: T) = Maybe(value)
+    final def apply[T <: AnyRef](value: T) = Maybe(value)
 
     // If the pattern matching is going to box an object then this is hardly
     // worth using. 

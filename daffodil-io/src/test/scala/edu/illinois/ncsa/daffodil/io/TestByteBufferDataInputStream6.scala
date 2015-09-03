@@ -11,7 +11,7 @@ import java.nio.CharBuffer
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.EncodingErrorPolicy
 import edu.illinois.ncsa.daffodil.Implicits._
 import java.nio.charset.MalformedInputException
-import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class TestByteBufferDataInputStream6 {
 
@@ -114,7 +114,7 @@ class TestByteBufferDataInputStream6 {
 
   @Test def testFillCharBufferDataEndsMidByte {
     val dis = ByteBufferDataInputStream("年月日".getBytes("utf-8"))
-    dis.setBitLimit0b(One((8 * 6) + 2)) // 2 extra bits after first 2 chars
+    dis.setBitLimit0b(MaybeULong((8 * 6) + 2)) // 2 extra bits after first 2 chars
     val cb = CharBuffer.allocate(3)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
@@ -127,7 +127,7 @@ class TestByteBufferDataInputStream6 {
   @Test def testFillCharBufferDataEndsMidByte2 {
     val dis = ByteBufferDataInputStream("年月日".getBytes("utf-8"))
     dis.setEncodingErrorPolicy(EncodingErrorPolicy.Replace)
-    dis.setBitLimit0b(One((8 * 6) + 2)) // 2 extra bits after first 2 chars
+    dis.setBitLimit0b(MaybeULong((8 * 6) + 2)) // 2 extra bits after first 2 chars
     val cb = CharBuffer.allocate(3)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
@@ -137,13 +137,13 @@ class TestByteBufferDataInputStream6 {
     assertEquals(8 * 6, dis.bitPos0b)
     cb.clear()
     val ml2 = dis.fillCharBuffer(cb) // ask for next character 
-    assertEquals(Nope, ml2)
+    assertEquals(MaybeULong.Nope, ml2)
   }
 
   @Test def testFillCharBufferDataEndsMidByte3 {
     val dis = ByteBufferDataInputStream("年月日".getBytes("utf-8"))
     dis.setEncodingErrorPolicy(EncodingErrorPolicy.Replace)
-    dis.setBitLimit0b(One((8 * 6) + 10)) // 1 more byte plus 2 extra bits after first 2 chars
+    dis.setBitLimit0b(MaybeULong((8 * 6) + 10)) // 1 more byte plus 2 extra bits after first 2 chars
     val cb = CharBuffer.allocate(3)
     val ml = dis.fillCharBuffer(cb)
     assertTrue(ml.isDefined)
@@ -160,7 +160,7 @@ class TestByteBufferDataInputStream6 {
     // Note that if there aren't enough bits for a single byte, then
     // we won't even decode at all. It will just return Nope. 
     //
-    assertEquals(One(1), ml2)
+    assertEquals(MaybeULong(1), ml2)
     assertEquals(this.unicodeReplacementCharacter, cb.get(0))
     assertEquals(8 * 7, dis.bitPos0b)
   }

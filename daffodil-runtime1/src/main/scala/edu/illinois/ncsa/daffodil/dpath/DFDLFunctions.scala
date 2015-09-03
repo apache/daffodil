@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.OnStack
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar
@@ -186,14 +185,12 @@ case class DFDLTestBit(dataRecipe: CompiledDPath, bitPos1bRecipe: CompiledDPath)
   }
 }
 
-object withArray8 extends OnStack(new Array[Int](8))
-
 case class DFDLSetBits(bitRecipes: List[CompiledDPath]) extends RecipeOpWithSubRecipes(bitRecipes) {
 
   override def run(dstate: DState) {
     Assert.invariant(bitRecipes.length == 8)
     val saved = dstate.currentNode
-    withArray8 { ar =>
+    dstate.withArray8 { ar =>
       {
         var i = 0
         var bitR = bitRecipes

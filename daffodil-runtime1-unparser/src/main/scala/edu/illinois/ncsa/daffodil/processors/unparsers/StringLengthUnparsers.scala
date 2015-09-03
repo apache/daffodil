@@ -55,9 +55,11 @@ import java.io.ByteArrayOutputStream
 import edu.illinois.ncsa.daffodil.io.BasicDataOutputStream
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.processors.ElementRuntimeData
+import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 class StringOfSpecifiedLengthUnparser(
-  val unparsingPadChar: Maybe[Char],
+  val unparsingPadChar: MaybeChar,
   val justificationPad: TextJustificationType.Type,
   val erd: ElementRuntimeData,
   isForString: Boolean) extends PrimUnparser(erd)
@@ -67,17 +69,21 @@ class StringOfSpecifiedLengthUnparser(
   final override def pad = unparsingPadChar
 
   private def getLengthInBits(str: String, state: UState): (Long, Long) = {
-    val baos = new ByteArrayOutputStream()
-    val dos = BasicDataOutputStream(baos)
-    val nChars = dos.putString(str)
-    val nBits = dos.bitPos0b
-    (nBits, nChars)
+    state.withByteArrayOutputStream {
+      case (_, dos) =>
+        val nChars = dos.putString(str)
+        val nBits = dos.bitPos0b
+        (nBits, nChars)
+    }
   }
 
   protected def contentString(state: UState) = state.currentInfosetNode.get.asSimple.dataValueAsString
 
   override def unparse(state: UState) {
-    val maybeAvailableLengthInBits = state.bitLimit0b.map { bitLim0b => bitLim0b - state.bitPos0b }
+    val maybeAvailableLengthInBits = {
+      if (state.bitLimit0b.isDefined) MaybeULong(state.bitLimit0b.get - state.bitPos0b)
+      else MaybeULong.Nope
+    }
     // this is the length we have to pad to, and fillByte any fragment of a character
     //
     // Now the problem is, we don't know how much to pad (or truncate) the string
@@ -134,7 +140,7 @@ class StringOfSpecifiedLengthUnparser(
 trait StringLengthMixin {
 
   def erd: ElementRuntimeData
-  def pad: Maybe[Char]
+  def pad: MaybeChar
   def justificationTrim: TextJustificationType.Type
 
   final def fillByte(state: UState): Int = erd.fillByte(state, erd.encodingInfo)

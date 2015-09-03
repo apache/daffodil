@@ -22,8 +22,7 @@ class TestByteBufferDataInputStream5 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val md = dis.getSignedLong(64)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -39,8 +38,7 @@ class TestByteBufferDataInputStream5 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val md = dis.getSignedLong(32)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(32, dis.bitPos0b)
   }
 
@@ -56,8 +54,7 @@ class TestByteBufferDataInputStream5 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val md = dis.getSignedLong(64)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -73,8 +70,7 @@ class TestByteBufferDataInputStream5 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val md = dis.getSignedLong(32)
-    assertTrue(md.isDefined)
-    assertEquals(0x80706050.toInt, md.get)
+    assertEquals(0x80706050.toInt, md)
     assertEquals(32, dis.bitPos0b)
   }
 
@@ -90,8 +86,7 @@ class TestByteBufferDataInputStream5 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     dis.setBitOrder(BitOrder.LeastSignificantBitFirst)
     val md = dis.getSignedLong(1)
-    assertTrue(md.isDefined)
-    assertEquals(1, md.get)
+    assertEquals(1, md)
     assertEquals(1, dis.bitPos0b)
   }
 }

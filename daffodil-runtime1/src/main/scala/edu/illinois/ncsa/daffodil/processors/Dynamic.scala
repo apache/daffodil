@@ -69,7 +69,7 @@ trait Dynamic {
   // this evaluates that. This is used to evaluate only runtime expressions.
   // This also carries along PState that is modified during expression
   // evaluation.
-  def evalWithConversion[A](s: ParseOrUnparseState, e: CachedDynamic[A])(conv: (ParseOrUnparseState, Any) => A): A = {
+  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, e: CachedDynamic[A])(conv: (ParseOrUnparseState, Any) => A): A = {
     e match {
       case Right(r) => r
       case Left(l) => {
@@ -89,14 +89,14 @@ trait Dynamic {
     }
   }
 
-  def evalWithConversion[A](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
+  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, oe: Maybe[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): Maybe[A] = {
     if (oe.isDefined) {
       val a = evalWithConversion[A](s, oe.get)(conv)
       One(a)
     } else Nope
   }
 
-  def evalWithConversion[A](s: ParseOrUnparseState, oe: List[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): List[A] = {
+  def evalWithConversion[A <: AnyRef](s: ParseOrUnparseState, oe: List[CachedDynamic[A]])(conv: (ParseOrUnparseState, Any) => A): List[A] = {
     var state = s
     val listE = oe.map(e => {
       val exp = evalWithConversion[A](state, e)(conv)
@@ -109,14 +109,14 @@ trait Dynamic {
   // which is either Some(s) if the value of the property is static, or None
   // otherwise
 
-  def getStatic[A](e: CachedDynamic[A]): Maybe[A] = {
+  def getStatic[A <: AnyRef](e: CachedDynamic[A]): Maybe[A] = {
     e match {
       case Left(l) => Nope
       case Right(r) => One(r)
     }
   }
 
-  def getStatic[A](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
+  def getStatic[A <: AnyRef](oe: Maybe[CachedDynamic[A]]): Maybe[A] = {
     if (oe.isDefined) getStatic(oe.get)
     else Nope
   }

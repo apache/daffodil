@@ -41,7 +41,6 @@ import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import edu.illinois.ncsa.daffodil.util.OnStack
 import edu.illinois.ncsa.daffodil.util.PreSerialization
 import com.ibm.icu.text.SimpleDateFormat
 import com.ibm.icu.util.Calendar

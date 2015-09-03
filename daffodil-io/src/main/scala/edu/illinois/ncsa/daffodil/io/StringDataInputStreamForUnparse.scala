@@ -10,6 +10,8 @@ import edu.illinois.ncsa.daffodil.util.Misc
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.nio.ByteBuffer
 import java.nio.charset.StandardCharsets
+import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
  * When unparsing, we reuse all the DFA logic to identify delimiters within
@@ -46,45 +48,45 @@ class StringDataInputStreamForUnparse
     dis.asIteratorChar
   }
 
-  def align(bitAlignment1b: Int): Boolean = dis.align(bitAlignment1b)
-  def bitLimit0b: Maybe[Long] = dis.bitLimit0b
-  def bitPos0b: Long = dis.bitPos0b
-  def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
-  def fillByteBuffer(bb: java.nio.ByteBuffer): Maybe[Int] = doNotUse
-  def fillCharBuffer(cb: java.nio.CharBuffer): Maybe[Long] = dis.fillCharBuffer(cb)
-  def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
-  def getBinaryDouble(): Maybe[Double] = doNotUse
-  def getBinaryFloat(): Maybe[Float] = doNotUse
-  def getSignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
-  def getSignedLong(bitLengthFrom1To64: Int): Maybe[Long] = doNotUse
-  def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
-  def getUnsignedLong(bitLengthFrom1To64: Int): Maybe[passera.unsigned.ULong] = doNotUse
-  def isAligned(bitAlignment1b: Int): Boolean = dis.isAligned(bitAlignment1b)
-  def limits: DataStreamCommon.Limits = dis.limits
-  def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
+  override def align(bitAlignment1b: Int): Boolean = dis.align(bitAlignment1b)
+  override def bitLimit0b = dis.bitLimit0b
+  override def bitPos0b: Long = dis.bitPos0b
+  override def discard(mark: DataInputStream.Mark): Unit = dis.discard(mark)
+  override def fillByteBuffer(bb: java.nio.ByteBuffer): MaybeInt = doNotUse
+  override def fillCharBuffer(cb: java.nio.CharBuffer) = dis.fillCharBuffer(cb)
+  override def futureData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
+  override def getBinaryDouble(): Double = doNotUse
+  override def getBinaryFloat(): Float = doNotUse
+  override def getSignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
+  override def getSignedLong(bitLengthFrom1To64: Int): Long = doNotUse
+  override def getUnsignedBigInt(bitLengthFrom1: Int): Maybe[BigInt] = doNotUse
+  override def getUnsignedLong(bitLengthFrom1To64: Int): passera.unsigned.ULong = doNotUse
+  override def isAligned(bitAlignment1b: Int): Boolean = dis.isAligned(bitAlignment1b)
+  override def limits: DataStreamCommon.Limits = dis.limits
+  override def lookingAt(matcher: java.util.regex.Matcher, initialRegexMatchLimitInChars: Long): Boolean =
     dis.lookingAt(matcher, initialRegexMatchLimitInChars)
-  def mark: DataInputStream.Mark = dis.mark
-  def markPos = dis.markPos
-  def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
-  def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
-  def resetPos(m: MarkPos) = dis.resetPos(m)
-  def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit = doNotUse
-  def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean = doNotUse
-  def setBitOrder(bitOrder: BitOrder): Unit = doNotUse
-  def setByteOrder(byteOrder: ByteOrder): Unit = doNotUse
-  def byteOrder: ByteOrder = doNotUse
-  def setCharWidthInBits(charWidthInBits: Maybe[Int]): Unit = doNotUse
-  def setDebugging(setting: Boolean): Unit = doNotUse
-  def getDecoder = doNotUse
-  def setDecoder(decoder: java.nio.charset.CharsetDecoder): Unit = doNotUse
-  def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = doNotUse
-  def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = doNotUse
-  def setLimits(newLimits: DataStreamCommon.Limits): Unit = doNotUse
-  def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = doNotUse
-  def isDefinedForLength(length: Long): Boolean = doNotUse
-  def skip(nBits: Long): Boolean = doNotUse
-  def skipChars(nChars: Long): Boolean = getString(nChars).isDefined
-  def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = doNotUse
-  def remainingBits: Maybe[Long] = doNotUse
-  def validateFinalStreamState {} // does nothing
+  override def mark: DataInputStream.Mark = dis.mark
+  override def markPos = dis.markPos
+  override def pastData(nBytesRequested: Int): java.nio.ByteBuffer = doNotUse
+  override def reset(mark: DataInputStream.Mark): Unit = dis.reset(mark)
+  override def resetPos(m: MarkPos) = dis.resetPos(m)
+  override def setBinaryFloatRep(binaryFloatRep: BinaryFloatRep): Unit = doNotUse
+  override def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = doNotUse
+  override def setBitOrder(bitOrder: BitOrder): Unit = doNotUse
+  override def setByteOrder(byteOrder: ByteOrder): Unit = doNotUse
+  override def byteOrder: ByteOrder = doNotUse
+  // override def setCharWidthInBits(charWidthInBits: MaybeInt): Unit = doNotUse
+  override def setDebugging(setting: Boolean): Unit = doNotUse
+  override def getDecoder = doNotUse
+  override def setDecoder(decoder: java.nio.charset.CharsetDecoder): Unit = doNotUse
+  override def setEncodingErrorPolicy(eep: EncodingErrorPolicy): Unit = doNotUse
+  // override def setEncodingMandatoryAlignment(bitAlignment: Int): Unit = doNotUse
+  override def setLimits(newLimits: DataStreamCommon.Limits): Unit = doNotUse
+  override def setMaybeUTF16Width(maybeUTF16Width: Maybe[UTF16Width]): Unit = doNotUse
+  override def isDefinedForLength(length: Long): Boolean = doNotUse
+  override def skip(nBits: Long): Boolean = doNotUse
+  override def skipChars(nChars: Long): Boolean = getString(nChars).isDefined
+  override def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = doNotUse
+  override def remainingBits: MaybeULong = doNotUse
+  override def validateFinalStreamState {} // does nothing
 }

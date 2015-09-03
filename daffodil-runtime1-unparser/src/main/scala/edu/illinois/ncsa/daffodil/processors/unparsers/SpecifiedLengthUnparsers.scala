@@ -11,7 +11,6 @@ import edu.illinois.ncsa.daffodil.processors.Success
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
 import java.util.regex.Pattern
-import edu.illinois.ncsa.daffodil.util.OnStack
 import java.util.regex.Matcher
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import java.io.ByteArrayOutputStream
@@ -45,7 +44,7 @@ abstract class SpecifiedLengthUnparserBase(eUnparser: Unparser,
       eUnparser.unparse1(state, erd)
     }
     if (!isLimitOk) {
-      val availBits = dos.remainingBits.map { _.toString }.getOrElse("(unknown)")
+      val availBits = if (dos.remainingBits.isDefined) dos.remainingBits.get.toString else "(unknown)"
       UE(state, "Insufficient bits available. Required %s bits, but only %s were available.", nBits, availBits)
     }
     // at this point the recursive parse of the children is finished
@@ -138,8 +137,6 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
 
   protected def getCharLength(s: UState): Long
 
-  object charBufferDataOutputStream extends OnStack[CharBufferDataOutputStream](new CharBufferDataOutputStream)
-
   override final def unparse(state: UState) {
     import DataStreamCommon._
 
@@ -147,8 +144,8 @@ abstract class SpecifiedLengthExplicitCharactersUnparserBase(
 
     val nChars = getCharLength(state)
 
-    charBufferDataOutputStream { cbdos =>
-      withLocalCharBuffer { lcb =>
+    state.charBufferDataOutputStream { cbdos =>
+      state.withLocalCharBuffer { lcb =>
         val cb = lcb.getBuf(nChars)
         cbdos.setCharBuffer(cb)
         state.withTemporaryDataOutputStream(cbdos) {

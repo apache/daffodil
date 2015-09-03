@@ -1,6 +1,7 @@
 package edu.illinois.ncsa.daffodil.io
 
 import edu.illinois.ncsa.daffodil.util.Maybe
+import edu.illinois.ncsa.daffodil.util.MaybeInt
 import edu.illinois.ncsa.daffodil.util.Maybe.One
 import edu.illinois.ncsa.daffodil.util.Maybe.Nope
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
@@ -19,6 +20,7 @@ import java.nio.channels.Channels
 import java.io.ByteArrayOutputStream
 import org.apache.commons.io.output.TeeOutputStream
 import java.nio.CharBuffer
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 trait DataOutputStreamStateImplMixin extends DataStreamCommonState {
 
@@ -44,7 +46,7 @@ trait DataOutputStreamStateImplMixin extends DataStreamCommonState {
 class BasicDataOutputStreamState extends DataOutputStreamStateImplMixin {
 
   var bitPos0b: Long = 0
-  var bitLimit0b: Maybe[Long] = Nope
+  var bitLimit0b: MaybeULong = MaybeULong.Nope
 
   var byteOrder: ByteOrder = ByteOrder.BigEndian
   var debugOutputStream: ByteArrayOutputStream = null
@@ -101,20 +103,20 @@ private[io] trait DataOutputStreamCharImplMixin extends DataStreamCommonImplMixi
     st.encoder.onMalformedInput(st.codingErrorAction)
     st.encoder.onUnmappableCharacter(st.codingErrorAction)
     val cs = encoder.charset()
-    val (mCharWidthInBits, mandatoryAlignInBits) = {
+    val (mCharWidthInBits: MaybeInt, mandatoryAlignInBits) = {
       if (cs == StandardCharsets.UTF_16 || cs == StandardCharsets.UTF_16BE || cs == StandardCharsets.UTF_16LE)
-        if (st.maybeUTF16Width.isDefined && st.maybeUTF16Width.get == UTF16Width.Fixed) (One(16), 8)
-        else (Nope, 8)
+        if (st.maybeUTF16Width.isDefined && st.maybeUTF16Width.get == UTF16Width.Fixed) (MaybeInt(16), 8)
+        else (MaybeInt.Nope, 8)
       else {
         cs match {
           case encoderWithBits: NonByteSizeCharsetEncoderDecoder =>
-            (One(encoderWithBits.bitWidthOfACodeUnit), 1)
+            (MaybeInt(encoderWithBits.bitWidthOfACodeUnit), 1)
           case _ => {
             val encoder = cs.newEncoder()
             val maxBytes = encoder.maxBytesPerChar()
             if (maxBytes == encoder.averageBytesPerChar())
-              (One((maxBytes * 8).toInt), 8)
-            else (Nope, 8)
+              (MaybeInt((maxBytes * 8).toInt), 8)
+            else (MaybeInt.Nope, 8)
           }
         }
       }
@@ -221,8 +223,9 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
 
   def skip(nBits: Long): Boolean = {
     Assert.notYetImplemented(nBits % 8 != 0, "skips that aren't a multiple of 8 bits")
-    bitLimit0b.foreach {
-      lim => if (bitPos0b + nBits > lim) return false
+    if (bitLimit0b.isDefined) {
+      val lim = bitLimit0b.get
+      if (bitPos0b + nBits > lim) return false
     }
     var nBytes = nBits / 8
     while (nBytes > 0) {
@@ -234,7 +237,7 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
   }
 
   // Members declared in DataStreamCommon   
-  def bitLimit0b: Maybe[Long] = st.bitLimit0b
+  def bitLimit0b: MaybeULong = st.bitLimit0b
   def bitPos0b: Long = st.bitPos0b
   def setBitPos0b(bitPos0b: Long) = st.bitPos0b = bitPos0b
 
@@ -255,14 +258,14 @@ class BasicDataOutputStream private (realStream: java.io.OutputStream,
     }
   }
 
-  def setBitLimit0b(bitLimit0b: Maybe[Long]): Boolean = {
+  def setBitLimit0b(bitLimit0b: MaybeULong): Boolean = {
     if (st.bitLimit0b.isDefined && bitLimit0b.isDefined)
       if (bitLimit0b.get > st.bitLimit0b.get) return false
     st.bitLimit0b = bitLimit0b
     true
   }
 
-  final private[io] override def resetBitLimit0b(savedBitLimit0b: Maybe[Long]): Unit = {
+  final private[io] override def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit = {
     st.bitLimit0b = savedBitLimit0b
   }
 

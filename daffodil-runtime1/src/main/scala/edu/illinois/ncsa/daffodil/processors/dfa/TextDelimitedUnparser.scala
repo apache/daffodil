@@ -9,6 +9,7 @@ import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.TermRuntimeData
 import edu.illinois.ncsa.daffodil.equality._
 import edu.illinois.ncsa.daffodil.io.DataInputStream
+import edu.illinois.ncsa.daffodil.util.MaybeChar
 
 /**
  * When 'escapeCharacter': On unparsing a single character of the data
@@ -39,7 +40,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     field: DFAField,
     delims: Seq[DFADelimiter],
     blockEndDFA: DFADelimiter,
-    escapeEscapeChar: Maybe[Char],
+    escapeEscapeChar: MaybeChar,
     blockStart: String,
     blockEnd: String,
     generateEscapeBlock: Boolean, state: UState): (String, Boolean) = {
@@ -57,7 +58,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     field: DFAField,
     delims: Seq[DFADelimiter],
     blockEnd: DFADelimiter,
-    escapeEscapeChar: Maybe[Char],
+    escapeEscapeChar: MaybeChar,
     state: UState): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
@@ -213,7 +214,7 @@ class TextDelimitedUnparser(override val context: TermRuntimeData)
     delims: Seq[DFADelimiter],
     hasEscCharAsDelimiter: Boolean,
     escapeChar: Char,
-    escapeEscapeChar: Maybe[Char], state: UState): (String, Boolean) = {
+    escapeEscapeChar: MaybeChar, state: UState): (String, Boolean) = {
     Assert.invariant(delims != null)
     Assert.invariant(field != null)
 

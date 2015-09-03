@@ -43,6 +43,7 @@ import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharsetEncoderDecoder
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 /**
  * Some encodings are not byte-oriented.
@@ -81,7 +82,7 @@ trait NonByteSizeCharsetEncoderDecoderImpl
   private var startBitOffset = 0
   private var startBitOffsetHasBeenSet = false
   private var startBitOffsetHasBeenUsed = false
-  private var maybeBitLimitOffset0b: Maybe[Long] = Nope
+  private var maybeBitLimitOffset0b: MaybeULong = MaybeULong.Nope
 
   final def setInitialBitOffset(bitOffset0to7: Int) {
     Assert.usage(!startBitOffsetHasBeenSet, "Already set. Cannot set again until decoder is reset().")
@@ -90,7 +91,7 @@ trait NonByteSizeCharsetEncoderDecoderImpl
     startBitOffsetHasBeenSet = true
   }
 
-  final def setFinalByteBitLimitOffset0b(bitLimitOffset0b: Maybe[Long]) {
+  final def setFinalByteBitLimitOffset0b(bitLimitOffset0b: MaybeULong) {
     maybeBitLimitOffset0b = bitLimitOffset0b
   }
 

@@ -19,8 +19,7 @@ class TestByteBufferDataInputStream4 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     val expected = 1.125.toFloat
     val md = dis.getBinaryFloat()
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get, 0.01)
+    assertEquals(expected, md, 0.01)
     assertEquals(32, dis.bitPos0b)
   }
 
@@ -35,8 +34,7 @@ class TestByteBufferDataInputStream4 {
     dis.setByteOrder(ByteOrder.LittleEndian)
     val expected = 1.125
     val md = dis.getBinaryDouble()
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get, 0.01)
+    assertEquals(expected, md, 0.01)
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -51,8 +49,7 @@ class TestByteBufferDataInputStream4 {
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     val md = dis.getSignedLong(64)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -67,8 +64,7 @@ class TestByteBufferDataInputStream4 {
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     val md = dis.getSignedLong(32)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(32, dis.bitPos0b)
   }
 
@@ -83,8 +79,7 @@ class TestByteBufferDataInputStream4 {
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     val md = dis.getSignedLong(64)
-    assertTrue(md.isDefined)
-    assertEquals(expected, md.get)
+    assertEquals(expected, md)
     assertEquals(64, dis.bitPos0b)
   }
 
@@ -99,8 +94,7 @@ class TestByteBufferDataInputStream4 {
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     val md = dis.getSignedLong(32)
-    assertTrue(md.isDefined)
-    assertEquals(0x80706050.toInt, md.get)
+    assertEquals(0x80706050.toInt, md)
     assertEquals(32, dis.bitPos0b)
   }
 
@@ -115,8 +109,7 @@ class TestByteBufferDataInputStream4 {
     val dis = ByteBufferDataInputStream(bytes)
     dis.setByteOrder(ByteOrder.LittleEndian)
     val md = dis.getSignedLong(1)
-    assertTrue(md.isDefined)
-    assertEquals(1, md.get)
+    assertEquals(1, md)
     assertEquals(1, dis.bitPos0b)
   }
 }

@@ -9,12 +9,15 @@ import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.schema.annotation.props.gen.UTF16Width
 import java.nio.charset.StandardCharsets
 import java.nio.charset.Charset
+import edu.illinois.ncsa.daffodil.util.MaybeInt
+import edu.illinois.ncsa.daffodil.util.MaybeChar
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 trait DataStreamCommonState {
   def defaultCodingErrorAction: CodingErrorAction
   var binaryFloatRep: BinaryFloatRep = BinaryFloatRep.Ieee
   var bitOrder: BitOrder = BitOrder.MostSignificantBitFirst
-  var maybeCharWidthInBits: Maybe[Int] = Nope
+  var maybeCharWidthInBits: MaybeInt = MaybeInt.Nope
   var encodingMandatoryAlignmentInBits: Int = 8
   var maybeUTF16Width: Maybe[UTF16Width] = Maybe(UTF16Width.Fixed)
   var debugging: Boolean = false
@@ -30,12 +33,12 @@ trait DataStreamCommonState {
   // need to be consumed, to create two 16 bit code units
   // aka a surrogate-pair.
   //
-  var maybeTrailingSurrogateForUTF8: Maybe[Char] = Nope
+  var maybeTrailingSurrogateForUTF8: MaybeChar = MaybeChar.Nope
   var priorEncoding: Charset = StandardCharsets.UTF_8
   var priorBitPos: Long = 0L
 
   def resetUTF8SurrogatePairCapture {
-    this.maybeTrailingSurrogateForUTF8 = Nope
+    this.maybeTrailingSurrogateForUTF8 = MaybeChar.Nope
     this.priorBitPos = -1
   }
 
@@ -71,7 +74,7 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
 
   final override def withBitLengthLimit(lengthLimitInBits: Long)(body: => Unit): Boolean = {
     val savedLengthLimit = bitLimit0b
-    if (!setBitLimit0b(Maybe(bitPos0b + lengthLimitInBits))) false
+    if (!setBitLimit0b(MaybeULong(bitPos0b + lengthLimitInBits))) false
     else {
       try {
         body
@@ -82,10 +85,10 @@ trait DataStreamCommonImplMixin extends DataStreamCommon {
     }
   }
 
-  private[io] def resetBitLimit0b(savedBitLimit0b: Maybe[Long]): Unit
+  private[io] def resetBitLimit0b(savedBitLimit0b: MaybeULong): Unit
 
-  final override def remainingBits: Maybe[Long] = {
-    bitLimit0b.map { _ - bitPos0b }
+  final override def remainingBits: MaybeULong = {
+    if (bitLimit0b.isEmpty) MaybeULong.Nope else MaybeULong(bitLimit0b.get - bitPos0b)
   }
 
   final def isFixedWidthEncoding = cst.maybeCharWidthInBits.isDefined

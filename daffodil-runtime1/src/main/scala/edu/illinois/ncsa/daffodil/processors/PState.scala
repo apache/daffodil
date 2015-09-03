@@ -78,6 +78,8 @@ import edu.illinois.ncsa.daffodil.io.DataStreamCommon
 import edu.illinois.ncsa.daffodil.util.MStack
 import edu.illinois.ncsa.daffodil.util.Pool
 import edu.illinois.ncsa.daffodil.dpath.ParseMode
+import edu.illinois.ncsa.daffodil.io.LocalBufferMixin
+import edu.illinois.ncsa.daffodil.util.MaybeULong
 
 object MPState {
   class Mark {
@@ -191,7 +193,7 @@ trait StateForDebugger {
   def groupPos: Long
   def currentLocation: DataLocation
   def arrayPos: Long
-  def bitLimit0b: Maybe[Long]
+  def bitLimit0b: MaybeULong
   def discriminator: Boolean = false
 }
 
@@ -201,7 +203,7 @@ case class TupleForDebugger(
   val groupPos: Long,
   val currentLocation: DataLocation,
   val arrayPos: Long,
-  val bitLimit0b: Maybe[Long],
+  val bitLimit0b: MaybeULong,
   override val discriminator: Boolean) extends StateForDebugger
 
 /**
@@ -221,7 +223,8 @@ abstract class ParseOrUnparseState(
   var diagnostics: List[Diagnostic],
   var dataProc: DataProcessor) extends DFDL.State
   with StateForDebugger
-  with ThrowsSDE with SavesErrorsAndWarnings {
+  with ThrowsSDE with SavesErrorsAndWarnings
+  with LocalBufferMixin {
 
   val dstate = {
     setMode(dstateArg)
@@ -246,11 +249,11 @@ abstract class ParseOrUnparseState(
   def dataStream: DataStreamCommon
 
   def bitPos0b: Long
-  def bitLimit0b: Maybe[Long]
+  def bitLimit0b: MaybeULong
   final def bytePos0b = bitPos0b >> 3
   final def bytePos1b = (bitPos0b >> 3) + 1
   final def bitPos1b = bitPos0b + 1
-  final def bitLimit1b = bitLimit0b.map { _ + 1 }
+  final def bitLimit1b = if (bitLimit0b.isDefined) MaybeULong(bitLimit0b.get + 1) else MaybeULong.Nope
   final def whichBit0b = bitPos0b % 8
 
   // TODO: many off-by-one errors due to not keeping strong separation of 
@@ -427,7 +430,7 @@ final class PState private (
   def parentDocument = infoset.asInstanceOf[InfosetDocument]
 
   def setEndBitLimit(bitLimit0b: Long) {
-    dataInputStream.setBitLimit0b(One(bitLimit0b))
+    dataInputStream.setBitLimit0b(MaybeULong(bitLimit0b))
   }
 
   def setParent(newParent: InfosetItem) {

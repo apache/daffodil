@@ -83,6 +83,7 @@ import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.xml.RefQName
 import edu.illinois.ncsa.daffodil.xml.GlobalQName
+import edu.illinois.ncsa.daffodil.dsom.ExpressionCompiler
 
 /**
  * Factory for Variable objects
@@ -106,7 +107,8 @@ object VariableFactory {
     }
 
     val defaultValIsConstant = {
-      val isConst = defaultValExpr.map { _.isConstant }.getOrElse(true)
+      val jlTrue = true.asInstanceOf[java.lang.Boolean] // need an AnyRef
+      val isConst = defaultValExpr.map { _.isConstant.asInstanceOf[java.lang.Boolean] }.getOrElse(jlTrue)
       defv.schemaDefinitionUnless(isConst, "Variable default value %s is not a constant.", defaultValue)
       isConst
     }
