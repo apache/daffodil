@@ -40,6 +40,7 @@ import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.dsom.FindPropertyMixin
+import scala.collection.mutable
 
 /**
  * Enum class as basis for our DFDL properties
@@ -117,16 +118,22 @@ abstract class Enum[A] extends EnumBase {
 
   def toPropName(prop: A) = prop.toString
 
-  private var _values = scala.collection.mutable.Map[String, A]()
-  def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE) = {
-    val opt = _values.getOrElse(str.toLowerCase, context.SDE("Unknown value for %s property: %s", enumTypeName, str))
-    opt
+  private var _values = mutable.ArrayBuffer.empty[Tuple2[String,A]]
+  def stringToEnum(enumTypeName: String, str: String, context: ThrowsSDE): A = {
+    var i: Int = 0
+    while (i < _values.size) {
+      if (_values(i)._1.equalsIgnoreCase(str)) {
+        return _values(i)._2
+      }
+      i += 1
+    }
+    context.SDE("Unknown value for %s property: %s", enumTypeName, str)
   }
 
   /**
    * Useful for diagnostic messages where you want to say "must be one of ...." and list the possibilities.
    */
-  def allValues = _values.toList.map { case (k, v) => v }
+  def allValues = _values.map { case (k, v) => v }
 
   /**
    * Scala delays construction of case objects (presumably because many programs don't use them at all)
