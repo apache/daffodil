@@ -184,7 +184,7 @@ class HexBinaryDelimitedParser(
    */
 
   override def processResult(parseResult: Maybe[dfa.ParseResult], state: PState): Unit = {
-    Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
+    //Assert.invariant(erd.encodingInfo.isKnownEncoding && erd.encodingInfo.knownEncodingCharset.charset =:= StandardCharsets.ISO_8859_1)
 
     if (!parseResult.isDefined) this.PE(state, "%s - %s - Parse failed.", this.toString(), erd.prettyName)
     else {

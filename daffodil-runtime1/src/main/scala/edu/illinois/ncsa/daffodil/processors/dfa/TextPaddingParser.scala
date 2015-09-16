@@ -48,13 +48,17 @@ class TextPaddingParser(val padChar: Char,
 
   def parse(input: DataInputStream, delims: Seq[DFADelimiter]): Maybe[ParseResult] = {
 
-    val paddingReg: Registers = new Registers(delims)
+    val paddingReg: Registers = TLRegistersPool.getFromPool()
 
-    paddingReg.reset(input)
+    paddingReg.reset(input, delims)
 
     val dfaStatus = paddingDFA.run(0, paddingReg, 0) // Will always succeed.
 
     val paddingValue = One(paddingReg.resultString.toString)
+
+    TLRegistersPool.returnToPool(paddingReg)
+    TLRegistersPool.pool.finalCheck
+
     One(new ParseResult(paddingValue, Nope, ""))
   }
 

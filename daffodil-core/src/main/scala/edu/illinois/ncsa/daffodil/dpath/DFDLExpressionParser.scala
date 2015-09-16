@@ -167,7 +167,7 @@ class DFDLPathExpressionParser(
       case NoSuccess(msg, next) => {
         // blech - no easy way to just grab up to 30 chars from a Reader[Char]
         var nextRdr = next
-        var nextString = new StringBuffer()
+        var nextString = new StringBuilder()
         var i = 0
         while (!nextRdr.atEnd && i < 30) {
           nextString.append(nextRdr.first)

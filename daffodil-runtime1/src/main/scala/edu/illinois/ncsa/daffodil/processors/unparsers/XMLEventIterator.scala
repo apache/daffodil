@@ -125,7 +125,7 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
     val simpleParts = tl.takeWhile { ev => !ev.isInstanceOf[EvElemEnd] }.toList
     val EvElemEnd(pre, `label`) #:: after = tl.drop(simpleParts.length)
     Assert.invariant(ns =:= scopeStack.top.getURI(pre))
-    val sb = new StringBuffer
+    val sb = new StringBuilder
     simpleParts.foreach {
       _ match {
         case EvText(s) => sb.append(s)

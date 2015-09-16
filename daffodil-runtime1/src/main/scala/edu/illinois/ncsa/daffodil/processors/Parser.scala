@@ -198,27 +198,32 @@ trait ToBriefXMLImpl {
   override def toString = toBriefXML() // pParser.toString + " ~ " + qParser.toString
 }
 
-class SeqCompParser(context: RuntimeData, val childParsers: Seq[Parser])
+class SeqCompParser(context: RuntimeData, val childParsers: Array[Parser])
   extends Parser(context) {
 
   override def childProcessors = childParsers
 
   override def nom = "seq"
 
+  val numChildParsers = childParsers.size
+
   def parse(pstate: PState): Unit = {
-    childParsers.foreach { parser =>
-      {
-        val handlers = pstate.dataProc.handlers
-        // val beforeParse = pstate.dataInputStream.mark
-        parser.parse1(pstate)
-        Assert.invariant(pstate.dataProc.handlers == handlers)
-        if (pstate.status != Success) {
-          // pstate.dataInputStream.reset(beforeParse)
-          return
-        } else {
-          // pstate.dataInputStream.discard(beforeParse)
-        }
+    var i: Int = 0
+    while (i < numChildParsers) {
+      val parser = childParsers(i)
+
+      val handlers = pstate.dataProc.handlers
+      // val beforeParse = pstate.dataInputStream.mark
+      parser.parse1(pstate)
+      //Assert.invariant(pstate.dataProc.handlers == handlers)
+      if (pstate.status != Success) {
+        // pstate.dataInputStream.reset(beforeParse)
+        return
+      } else {
+        // pstate.dataInputStream.discard(beforeParse)
       }
+
+      i += 1
     }
   }
 

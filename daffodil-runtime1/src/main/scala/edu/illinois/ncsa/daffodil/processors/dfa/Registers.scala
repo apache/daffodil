@@ -3,10 +3,27 @@ package edu.illinois.ncsa.daffodil.processors.dfa
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.io.DataInputStream
 import edu.illinois.ncsa.daffodil.equality._
+import edu.illinois.ncsa.daffodil.util.Pool
+
+
+private[dfa] object TLRegistersPool extends ThreadLocal[RegistersPool] {
+  override def initialValue = new RegistersPool()
+
+  def pool() = this.get
+
+  def getFromPool() = pool.getFromPool
+
+  def returnToPool(r: Registers) = pool.returnToPool(r)
+}
+
+private[dfa] class RegistersPool() extends Pool[Registers] {
+  override def allocate = new Registers()
+}
+
 
 // This is the block of mutable things
 // including the source of characters.
-class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
+class Registers() extends Serializable {
 
   var dataInputStream: DataInputStream = null
   var numCharsRead: Int = 0
@@ -17,7 +34,11 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
   var matchStartPos: Int = 0
   var matchedAtLeastOnce: Boolean = false // WSPStar WSPPlus
 
-  def charIterator = dataInputStream.asIteratorChar
+  var charIterator: DataInputStream.CharIterator = null //dataInputStream.asIteratorChar
+
+  var nextState: Int = -1 // used to determine the next state to go to, should only be used when status == StateKind.Parsing
+  var status: StateKind.Value = StateKind.Parsing
+  var delimiters: Seq[DFADelimiter] = Nil
 
   /**
    * Very important. We don't want to create these
@@ -28,7 +49,7 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
    * and then reset before first use. I.e.,
    * reset() is also init().
    */
-  def reset(input: DataInputStream, m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
+  def reset(input: DataInputStream, delims: Seq[DFADelimiter], m: DataInputStream.MarkPos = DataInputStream.MarkPos.NoMarkPos) {
     dataInputStream = input
     if (m !=:= DataInputStream.MarkPos.NoMarkPos) dataInputStream.resetPos(m)
     resetChars
@@ -39,9 +60,13 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
     numCharsDropped = 0
     Registers.this.matchStartPos = matchStartPos
     matchedAtLeastOnce = false
+    charIterator = dataInputStream.asIteratorChar
+    status = StateKind.Parsing
+    delimiters = delims
   }
 
   def resetChars {
+    charIterator = dataInputStream.asIteratorChar
     data0 = charIterator.peek()
     data1 = charIterator.peek2()
   }
@@ -77,6 +102,7 @@ class Registers(val delimiters: Seq[DFADelimiter]) extends Serializable {
     numCharsReadUntilDelim = 0
     numCharsDropped = 0
     matchedAtLeastOnce = false
+    status = StateKind.Parsing
   }
 
   /**

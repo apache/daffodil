@@ -98,8 +98,8 @@ case class FieldFactoryStatic(ef: Option[EscapeSchemeFactoryBase], context: Thro
 
   def getFieldDFA(start: PState) = {
     val scheme = if (ef.isDefined) start.mpstate.currentEscapeScheme else Nope
-    val delimsCooked = start.mpstate.getAllTerminatingMarkup.map(d => d.lookingFor).toList
     val delimDFAs = start.mpstate.getAllTerminatingMarkup
+    val delimsCooked = delimDFAs.map(d => d.lookingFor).toList
 
     (delimDFAs, delimsCooked, fieldDFA, scheme)
   }
@@ -112,8 +112,8 @@ case class FieldFactoryDynamic(ef: Option[EscapeSchemeFactoryBase],
   def getFieldDFA(start: PState): (Seq[DFADelimiter], List[String], DFAField, Maybe[EscapeSchemeParserHelper]) = {
 
     val scheme = start.mpstate.currentEscapeScheme
-    val delimsCooked = start.mpstate.getAllTerminatingMarkup.map(d => d.lookingFor).toList
     val delimDFAs = start.mpstate.getAllTerminatingMarkup
+    val delimsCooked = delimDFAs.map(d => d.lookingFor).toList
 
     val fieldDFA =
       if (scheme.isDefined) {

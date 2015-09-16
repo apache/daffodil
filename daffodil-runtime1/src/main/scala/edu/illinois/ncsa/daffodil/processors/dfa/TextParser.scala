@@ -51,14 +51,16 @@ class TextParser(
 
     var m = input.markPos
     delims.foreach(d => {
-      val reg = new Registers(delims) // TODO: Performance - allocating. Use onStack? or local reserved state?
-      reg.reset(input, m)
+      val reg = TLRegistersPool.getFromPool()
+      reg.reset(input, delims, m)
       m = input.markPos
       val dfaStatus = d.run(0, reg)
       dfaStatus.status match {
-        case StateKind.Failed => // Continue
         case StateKind.Succeeded => successes += (d -> reg)
-        case _ => // Continue
+        case _ => {
+          // Continue
+          TLRegistersPool.returnToPool(reg)
+        }
       }
     })
     input.resetPos(m)
@@ -83,6 +85,9 @@ class TextParser(
         One(new ParseResult(Nope, delim, lookingFor))
       }
     }
+    successes.foreach { case (d, r) => TLRegistersPool.returnToPool(r) }
+    TLRegistersPool.pool.finalCheck
+
     result
   }
 }

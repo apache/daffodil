@@ -76,13 +76,14 @@ trait DFA {
    */
   def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
     var stateNum = initialState
+    r.status = StateKind.Parsing
     while (stateNum != DFA.FinalState) {
       val state = states(stateNum)
-      val runResult = state.run(actionNum, r) // Performance: every call here allocates an Either object. Should store this information in the state.
-      runResult match {
-        case Right(nextStateNum) => stateNum = nextStateNum
-        case Left(status) => return status
+      val runResult = state.run(actionNum, r)
+      if (r.status!= StateKind.Parsing) {
+        return runResult
       }
+      stateNum = r.nextState
     }
     new DFAStatus(stateNum, 0, StateKind.Succeeded) // Performance: every return allocates a DFAStatus object. Should store this information in the state.
   }
@@ -120,7 +121,7 @@ class DFAFieldImpl(val states: Array[State])
  */
 object StateKind extends Enumeration {
   type StateKind = Value
-  val EndOfData, Failed, Succeeded, Paused = Value
+  val EndOfData, Failed, Succeeded, Paused, Parsing = Value
 }
 
 import StateKind._
@@ -143,17 +144,19 @@ trait DFAField extends DFA {
   override def run(initialState: Int, r: Registers, actionNum: Int = 0): DFAStatus = {
     var stateNum = initialState
     var resume: Boolean = actionNum > 0
+    r.status = StateKind.Parsing
     while (stateNum != DFA.EndOfData) {
       val state = states(stateNum)
       val res = if (resume) {
         resume = false
-        state.run(actionNum, r) // Performance: allocates an Either. Should provide this info via the state
+        state.run(actionNum, r)
       } else {
-        state.run(0, r) // Performance: allocates an Either. should provide this info via the state
+        state.run(0, r)
       }
-      res match {
-        case Right(num) => stateNum = num
-        case Left(status) => return status
+      if (r.status!= StateKind.Parsing) {
+        return res
+      } else {
+        stateNum = r.nextState
       }
     }
     new DFAStatus(stateNum, 0, StateKind.EndOfData) // Performance: allocates. Should provide this result via the state.
@@ -186,7 +189,7 @@ trait DFADelimiter extends DFA {
  */
 trait Rule extends Serializable {
   def test(r: Registers): Boolean // take this action?
-  def act(r: Registers): Either[StateKind, Int] // modifies the registers and returns next state's index.
+  def act(r: Registers): Unit // modifies the registers
 }
 
 /**
@@ -196,7 +199,7 @@ trait Rule extends Serializable {
  * Examples in other file.
  */
 object Rule {
-  def apply(testBody: Registers => Boolean)(actionBody: Registers => Either[StateKind, Int]) = {
+  def apply(testBody: Registers => Boolean)(actionBody: Registers => Unit) = {
     new Rule {
       override def test(r: Registers) = testBody(r)
       override def act(r: Registers) = actionBody(r)

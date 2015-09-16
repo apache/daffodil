@@ -535,7 +535,7 @@ class TestByteBufferDataInputStream {
     val m = pat.matcher("")
     val cb = CharBuffer.wrap("aaab")
     m.reset(cb)
-    val sb = new StringBuffer
+    val sb = new StringBuilder
     var isMatch = m.lookingAt()
     assertTrue(isMatch)
     var hitEnd = m.hitEnd
