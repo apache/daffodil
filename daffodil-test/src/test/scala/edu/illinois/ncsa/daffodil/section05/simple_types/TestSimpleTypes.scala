@@ -73,18 +73,18 @@ class TestSimpleTypes {
 
   @Test def test_AL000() { runnerAL.runOneTest("AL000") }
 
-  @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") }
+  @Test def test_hexBinary_rep() { runner.runOneTest("hexBinary_rep") } //roundTrip
 
-  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") }
-  @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") }
-  @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") }
-  @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") }
-  @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") }
-  @Test def test_hexBinary_Implicit_02() { runner.runOneTest("hexBinary_Implicit_02") }
-  @Test def test_hexBinary_Implicit_03() { runner.runOneTest("hexBinary_Implicit_03") }
-  @Test def test_hexBinary_Implicit_03b() { runner.runOneTest("hexBinary_Implicit_03b") }
-  @Test def test_hexBinary_Implicit_03c() { runner.runOneTest("hexBinary_Implicit_03c") }
-  @Test def test_hexBinary_Implicit_04() { runner.runOneTest("hexBinary_Implicit_04") }
+  @Test def test_hexBinary_01() { runner.runOneTest("hexBinary_01") } //roundTrip
+  @Test def test_hexBinary_Delimited_01() { runner.runOneTest("hexBinary_Delimited_01") } //roundTrip
+  @Test def test_hexBinary_Delimited_02() { runner.runOneTest("hexBinary_Delimited_02") } //roundTrip
+  @Test def test_hexBinary_Delimited_03() { runner.runOneTest("hexBinary_Delimited_03") } //roundTrip
+  @Test def test_hexBinary_Implicit_01() { runner.runOneTest("hexBinary_Implicit_01") } //roundTrip
+  @Test def test_hexBinary_Implicit_02() { runner.runOneTest("hexBinary_Implicit_02") } //roundTrip
+  @Test def test_hexBinary_Implicit_03() { runner.runOneTest("hexBinary_Implicit_03") } //roundTrip
+  @Test def test_hexBinary_Implicit_03b() { runner.runOneTest("hexBinary_Implicit_03b") } //roundTrip
+  @Test def test_hexBinary_Implicit_03c() { runner.runOneTest("hexBinary_Implicit_03c") } //roundTrip
+  @Test def test_hexBinary_Implicit_04() { runner.runOneTest("hexBinary_Implicit_04") } //roundTrip
   @Test def test_hexBinary_func() { runner.runOneTest("hexBinary_func") }
   @Test def test_hexBinary_func_neg() { runner.runOneTest("hexBinary_func_neg") }
 
