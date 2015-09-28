@@ -51,6 +51,7 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.NextElementResolver
 import edu.illinois.ncsa.daffodil.processors.unparsers.InfosetAugmenter
+import edu.illinois.ncsa.daffodil.util.TransientParam
 
 trait HasSlotIndexInParent {
   def slotIndexInParent: Int
@@ -69,11 +70,11 @@ class ElementRuntimeData(
    * all transient elements must be added to the preSerialization method below
    * to allow parser serialization/deserialization to work.
    */
-  @transient parentArg: => Option[ElementRuntimeData],
-  @transient childrenArg: => Seq[ElementRuntimeData],
-  @transient variableMapArg: => VariableMap,
-  @transient nextElementResolverArg: => NextElementResolver,
-  @transient childElementResolverArg: => NextElementResolver,
+  @TransientParam parentArg: => Option[ElementRuntimeData],
+  @TransientParam childrenArg: => Seq[ElementRuntimeData],
+  @TransientParam variableMapArg: => VariableMap,
+  @TransientParam nextElementResolverArg: => NextElementResolver,
+  @TransientParam childElementResolverArg: => NextElementResolver,
   encInfo: EncodingRuntimeData,
   val dpathElementCompileInfo: DPathElementCompileInfo,
   override val schemaFileLocation: SchemaFileLocation,

@@ -1568,7 +1568,11 @@ case class DFDLInfoset(di: Node, parent: Infoset) {
   val Seq(contents) = {
     val c = rawContents
     val expected = c // Utility.trim(c) // must be exactly one root element in here.
-    val expectedNoAttrs = XMLUtils.removeAttributes(expected)
+    val expectedNoAttrs = try {
+      XMLUtils.removeAttributes(expected)
+    } catch {
+      case e: Exception => throw new TDMLException(e)
+    }
     //
     // Let's validate the expected content against the schema
     // Just to be sure they don't drift.

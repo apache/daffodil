@@ -49,7 +49,7 @@ trait EncodingChangeMixin extends GrammarMixin { self: Term =>
   private lazy val priorSiblingEncoding = priorSibling.map(_.encoding)
   private lazy val encodingBefore: CompiledExpression = priorSiblingEncoding.getOrElse(enclosingEncoding.getOrElse(encoding))
 
-  private lazy val isKnownSameEncoding: Boolean = {
+  protected lazy val isKnownSameEncoding: Boolean = {
     if (enclosingTerm.isEmpty) false // root always gets a encoding change.
     else {
       val thisEncoding = encoding
@@ -62,7 +62,7 @@ trait EncodingChangeMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val hasUniformEncodingThroughout: Boolean = termChildren.map { t => t.isKnownSameEncoding && t.hasUniformEncodingThroughout }.forall(x => x)
+  protected lazy val hasUniformEncodingThroughout: Boolean = termChildren.map { t => t.isKnownSameEncoding && t.hasUniformEncodingThroughout }.forall(x => x)
 
   protected final lazy val encodingChange = prod("encodingChange",
     !isKnownSameEncoding ||

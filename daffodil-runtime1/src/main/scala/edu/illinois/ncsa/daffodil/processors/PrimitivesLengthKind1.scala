@@ -36,7 +36,6 @@ import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.nio.charset.MalformedInputException
 import scala.Array.canBuildFrom
-import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dsom.CompiledExpression
 import edu.illinois.ncsa.daffodil.dsom.EscapeSchemeObject

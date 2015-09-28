@@ -200,7 +200,7 @@ class QNameSyntaxException(offendingSyntax: Option[String], cause: Option[Throwa
 class QNameUndefinedPrefixException(pre: String)
   extends Exception("Undefined QName prefix '%s'".format(pre))
 
-protected trait QNameBase {
+trait QNameBase {
 
   /**
    * The prefix is not generally involved in matching, but they

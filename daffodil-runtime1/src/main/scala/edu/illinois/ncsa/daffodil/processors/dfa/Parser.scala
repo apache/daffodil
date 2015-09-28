@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.processors.dfa
 
 import scala.collection.mutable.ArrayBuffer
-import scala.util.parsing.input.Reader
 import edu.illinois.ncsa.daffodil.util.Maybe
 import edu.illinois.ncsa.daffodil.util.Maybe._
 import edu.illinois.ncsa.daffodil.processors.RuntimeData

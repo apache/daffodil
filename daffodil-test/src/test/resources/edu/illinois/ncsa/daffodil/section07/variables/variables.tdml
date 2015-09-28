@@ -334,7 +334,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <c xmlns="http://www.example.org/example1/">
+        <c xmlns="http://example.com">
           <d type="xsd:int">42</d>
           <e type="xsd:int">42</e>
         </c>
@@ -394,7 +394,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <a xmlns="http://www.example.org/example1/">
+        <a xmlns="http://example.com">
           <b type="xsd:int">7</b>
         </a>
       </tdml:dfdlInfoset>
@@ -408,7 +408,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e1 xmlns="http://www.example.org/example1/">
+        <e1 xmlns="http://example.com">
           <b type="xsd:int">23</b>
           <b type="xsd:int">45</b>
           <b type="xsd:int">110</b>
@@ -425,7 +425,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e3 xmlns="http://www.example.org/example1/">
+        <e3 xmlns="http://example.com">
           <month>January</month>
           <day>23</day>
           <hour>9</hour>
@@ -441,7 +441,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e7 xmlns="http://www.example.org/example1/">
+        <e7 xmlns="http://example.com">
           <month>January</month>
           <day>23</day>
           <hour>9</hour>
@@ -458,7 +458,7 @@
     <tdml:document><![CDATA[Monday]]></tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e4 xmlns="http://www.example.org/example1/">
+        <e4 xmlns="http://example.com">
           <NoSale>Monday</NoSale>
           <month>January</month>
           <price>36</price>
@@ -472,7 +472,7 @@
     description="setVariable on a choice and choice branches - DFDL-7-132R, DFDL-7-121R">
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e9 xmlns="http://www.example.org/example1/">
+        <e9 xmlns="http://example.com">
           <NoSale>Monday</NoSale>
           <month>month</month>
           <price>36</price>
@@ -488,7 +488,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e5 xmlns="http://www.example.org/example1/">
+        <e5 xmlns="http://example.com">
           <month>January</month>
           <day>23</day>
         </e5>
@@ -501,7 +501,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e8 xmlns="http://www.example.org/example1/">
+        <e8 xmlns="http://example.com">
           <month>anything</month>
           <day>23</day>
         </e8>
@@ -517,7 +517,7 @@
 
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <e6 xmlns="http://www.example.org/example1/">
+        <e6 xmlns="http://example.com">
           <e1>23</e1>
           <e2>41</e2>
         </e6>
@@ -711,7 +711,7 @@
     <tdml:document/>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <r1 xmlns="http://www.example.org/example1/">
+        <r1 xmlns="http://example.com">
           <one>42</one>
           <two>41</two>
         </r1>

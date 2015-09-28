@@ -238,7 +238,6 @@ object XMLUtils {
    * trees of XML that may have been created different ways.
    */
   def coalesceAdjacentTextNodes(seq: Seq[Node]): Seq[Node] = {
-    type Atom = scala.xml.Atom[String]
     if (seq.length == 0) return seq
     if (seq.length == 1) {
       seq(0) match {
@@ -287,7 +286,7 @@ object XMLUtils {
     while (i < seq.length) {
       val current = seq(i)
       i = i + 1
-      if (current.isInstanceOf[Atom] && !current.isInstanceOf[PCData]) {
+      if ((current.isInstanceOf[Text] || current.isInstanceOf[Unparsed])) {
         if (tn == null) {
           if (sb == null || sb.length == 0) {
             // hold onto this text node. It might be isolated
@@ -575,28 +574,34 @@ object XMLUtils {
    * If a scope is given, it will be used for a child element if the
    * childs filtered scope is the same as the scope.
    *
-   * Also strips out comments and all-whitespace nodes
+   * Also strips out comments and mixed whitespace nodes. Throws an exception
+   * if it contains mixed non-whitespace nodes.
    */
   def removeAttributes(n: Node, ns: Seq[NS] = Seq[NS](), parentScope: Option[NamespaceBinding] = None): Node = {
     val res1 = removeAttributes1(n, ns, parentScope).asInstanceOf[scala.xml.Node]
-    val res2 = removeAllEntirelyWhitespaceNodes(res1)
+    val res2 = removeMixedWhitespace(res1)
     val res = res2(0) // .asInstanceOf[scala.xml.Node]
     res
   }
 
-  private def removeAllEntirelyWhitespaceNodes(ns: NodeSeq): NodeSeq = {
-    val res: NodeSeq = ns flatMap { n =>
-      n match {
-        case Text(data) if data.matches("""\s*""") =>
-          NodeSeq.Empty // remove all-whitespace nodes.
-        case Elem(prefix, label, attributes, scope, children @ _*) => {
-          val newChildren = removeAllEntirelyWhitespaceNodes(children)
-          Elem(prefix, label, attributes, scope, true, newChildren: _*)
-        }
-        case _ => n
+  private def removeMixedWhitespace(ns: Node): Node = {
+    Assert.usage(ns.isInstanceOf[Elem])
+
+    val e = ns.asInstanceOf[Elem]
+    val children = e.child
+
+    val noMixedChildren =
+      if (children.exists(_.isInstanceOf[Elem])) {
+        children.filter {
+          case Text(data) if data.matches("""\s*""") => false
+          case Text(data) => throw new Exception("Element %s contains mixed data: %s".format(e.label, data))
+          case _ => true
+        }.map(removeMixedWhitespace)
+      } else {
+        children
       }
-    }
-    res
+
+    e.copy(child = noMixedChildren)
   }
 
   def convertPCDataToText(n: Node): Node = {

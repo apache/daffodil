@@ -77,9 +77,8 @@ import edu.illinois.ncsa.daffodil.api.URISchemaSource
  * schema components obviously it does not live within a schema document.
  */
 
-final class SchemaSet(rootSpec: Option[RootSpec] = None,
-  // very annoying, but had to change the order of args here because otherwise
-  // both constructors have "same signature after erasure" problem.
+final class SchemaSet(
+  rootSpec: Option[RootSpec],
   externalVariables: Seq[Binding],
   schemaSourcesArg: Seq[DaffodilSchemaSource],
   validateDFDLSchemas: Boolean,

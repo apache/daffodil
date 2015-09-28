@@ -30,46 +30,13 @@
  * SOFTWARE.
  */
 
-package edu.illinois.ncsa.daffodil.xml.test.unit
+package edu.illinois.ncsa.daffodil.util
 
-import scala.xml._
-import edu.illinois.ncsa.daffodil.xml.XMLUtils
-import junit.framework.Assert._
-import org.junit.Test
-import edu.illinois.ncsa.daffodil.Implicits._
-import edu.illinois.ncsa.daffodil.xml.NS
+import scala.annotation.meta._
 
-class TestXMLLiterals {
-
-  /**
-   * Characterize behavior of scala's xml literals w.r.t. CDATA preservation
-   */
-  @Test def test_scala_literals_cdata_bug() {
-    //
-    // because we know scala's XML literals don't preserve CDATA as PCData nodes
-    // we force it to have a PCData node by constructing one explicitly here.
-    //
-    val actual = <x><![CDATA[a
-b]]></x>
-    val <x>{ xbody @ _* }</x> = actual
-    assertEquals(1, xbody.length)
-    val body = xbody(0)
-    val txt = body.text
-    assertTrue(txt.contains("a"))
-    assertTrue(txt.contains("b"))
-    assertFalse(txt.contains("<![CDATA[")) // wrong
-    assertFalse(txt.contains("]]>")) // wrong
-    assertTrue(txt.contains("a\nb")) // they preserve the contents
-    assertTrue(body.isInstanceOf[scala.xml.PCData])
-    assertFalse(body.isInstanceOf[scala.xml.Text])
-    //
-    // Note to developer - whomewever sees this test failing....
-    //
-    // IF this test fails, it means that the scala xml literals have been FIXED (hooray!)
-    // and a bunch of hacks where we have XML literals with manual splicing of PCData objects
-    // can go away. Look for tests with "PCData(" in them.
-    //
-    // Note this test now passes, scala-xml does the correct thing with Xxml:-coalescing compile option set
-  }
-
-}
+// The @transient annotation on a constructor parameter doesn't work properly
+// in scala >= 2.11, this is because it does not include the @param annotation.
+// This custom annotation extends transient, but adds the @param annotation so
+// construcutor parameters are properly made transient
+@param
+class TransientParam extends scala.transient

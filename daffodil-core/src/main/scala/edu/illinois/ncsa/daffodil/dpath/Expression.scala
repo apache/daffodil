@@ -1129,7 +1129,7 @@ abstract class LiteralExpressionBase(value: Any)
     }
     case bd: BigDecimal => {
       if (bd.isValidLong) bd.toLongExact
-      else if (bd.isValidDouble) bd.toDouble
+      else if (bd.isDecimalDouble) bd.toDouble
       else bd
     }
     case f: Float => f.toDouble

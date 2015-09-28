@@ -55,7 +55,7 @@ trait ByteOrderMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val isKnownSameByteOrder: Boolean = {
+  protected lazy val isKnownSameByteOrder: Boolean = {
     val optPrior = nearestPriorPhysicalTermSatisfying(_.thereIsAByteOrderDefined)
     optPrior match {
       case None => false
@@ -69,7 +69,7 @@ trait ByteOrderMixin extends GrammarMixin { self: Term =>
     }
   }
 
-  private lazy val hasUniformByteOrderThroughout: Boolean = termChildren.map { t =>
+  protected lazy val hasUniformByteOrderThroughout: Boolean = termChildren.map { t =>
     t.thereIsAByteOrderDefined && t.isKnownSameByteOrder && t.hasUniformByteOrderThroughout
   }.forall(x => x)
 

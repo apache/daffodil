@@ -53,8 +53,8 @@ class TestRounding {
     //
     val f: Float = 3.455f
 
-    val bd0 = BigDecimal(f) // 3.4549999237060547
-    val bd1 = BigDecimal.valueOf(f) // 3.4549999237060547
+    //val bd0 = BigDecimal(f) // 3.4549999237060547 Deprecated
+    //val bd1 = BigDecimal.valueOf(f) // 3.4549999237060547 Deprecated
     val bd2 = BigDecimal(f.doubleValue()) // 3.4549999237060547
     val bd3 = BigDecimal(f.toString) // 3.455
 
@@ -66,13 +66,13 @@ class TestRounding {
     val expected0_to_2 = BigDecimal(3.45) // Incorrect/unexpected result
     val expected3 = BigDecimal(3.46) // Correct result
 
-    val res0 = round(bd0, 2)
-    val res1 = round(bd1, 2)
+    //val res0 = round(bd0, 2) Deprecated
+    //val res1 = round(bd1, 2) Deprecated
     val res2 = round(bd2, 2)
     val res3 = round(bd3, 2)
 
-    assertEquals(0, res0.compare(expected0_to_2))
-    assertEquals(0, res1.compare(expected0_to_2))
+    //assertEquals(0, res0.compare(expected0_to_2)) Deprecated
+    //assertEquals(0, res1.compare(expected0_to_2)) Deprecated
     assertEquals(0, res2.compare(expected0_to_2))
     assertEquals(0, res3.compare(expected3))
 

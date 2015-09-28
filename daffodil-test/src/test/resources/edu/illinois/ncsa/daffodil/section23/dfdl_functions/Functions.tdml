@@ -7063,7 +7063,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <decimal02>60.0</decimal02>
+        <decimal02>60</decimal02>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>
@@ -7127,7 +7127,7 @@
     </tdml:document>
     <tdml:infoset>
       <tdml:dfdlInfoset>
-        <decimal04>-60.0</decimal04>
+        <decimal04>-60</decimal04>
       </tdml:dfdlInfoset>
     </tdml:infoset>
   </tdml:parserTestCase>

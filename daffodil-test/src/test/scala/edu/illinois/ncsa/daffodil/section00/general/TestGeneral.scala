@@ -113,6 +113,6 @@ class TestGeneral {
 
   @Test def test_1530_scala_version() {
     val versionStr = scala.util.Properties.versionNumberString
-    assertTrue("The scala version must begin with 2.10. The current version is: " + versionStr, versionStr.startsWith("2.10."))
+    assertTrue("The scala version must begin with 2.11. The current version is: " + versionStr, versionStr.startsWith("2.11."))
   }
 }

@@ -332,7 +332,7 @@ case class FNRoundHalfToEven(recipeNum: CompiledDPath, recipePrecision: Compiled
     val bd = unrounded match {
       case s: String => BigDecimal(s) // TODO: Remove eventually. Holdover from JDOM where everything is a string.
       case l: Long => BigDecimal.valueOf(l)
-      case f: Float => BigDecimal.valueOf(f)
+      case f: Float => BigDecimal.valueOf(f.toDouble)
       case d: Double => BigDecimal.valueOf(d)
       case bd: BigDecimal => bd
       case _ => Assert.invariantFailed("not a number")

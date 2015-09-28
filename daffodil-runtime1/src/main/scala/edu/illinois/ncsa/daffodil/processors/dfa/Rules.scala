@@ -32,7 +32,6 @@
 
 package edu.illinois.ncsa.daffodil.processors.dfa
 
-import scala.util.parsing.input.Reader
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.ListBuffer
 import edu.illinois.ncsa.daffodil.processors.WSP

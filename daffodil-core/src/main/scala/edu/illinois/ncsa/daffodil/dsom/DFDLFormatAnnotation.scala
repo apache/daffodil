@@ -118,7 +118,7 @@ abstract class DFDLFormatAnnotation(nodeArg: Node, annotatedSCArg: AnnotatedSche
   /**
    * build up map of what we have 'seen' as we go so we can detect cycles
    */
-  private def getFormatRefs(seen: NamedFormatMap): NamedFormatMap = {
+  protected def getFormatRefs(seen: NamedFormatMap): NamedFormatMap = {
     val res =
       qns.map {
         case qn =>

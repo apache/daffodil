@@ -7,7 +7,7 @@ import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.equality._
 import scala.xml.pull.XMLEvent
 import scala.xml.pull._
-import scala.collection.immutable.Stack
+import scala.collection.mutable
 
 sealed abstract class XMLInfosetEvent(val ns: String, val local: String)
 case class Simple(override val ns: String, override val local: String, text: String) extends XMLInfosetEvent(ns, local)
@@ -34,7 +34,7 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
 
   import XMLEventIterator._
 
-  private lazy val iterator = trans(preprocess(xsr.toStream), Stack.empty).toIterator
+  private lazy val iterator = trans(preprocess(xsr.toStream), new mutable.ArrayStack[scala.xml.NamespaceBinding]()).toIterator
   override def hasNext = iterator.hasNext
   override def next = iterator.next
 
@@ -86,17 +86,18 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
     }
   }
 
-  private[unparsers] def trans(xes: Stream[XMLEvent], parentScope: Stack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
+  private[unparsers] def trans(xes: Stream[XMLEvent], parentScope: mutable.ArrayStack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
     if (xes.isEmpty) return Stream.Empty
     val hd #:: tl = xes
     hd match {
       case start @ EvElemStart(pre, label, attrs, scope) => {
         val mode = findMode(xes)
         val ns = scope.getURI(pre)
+        parentScope.push(scope)
         mode match {
-          case SimpleContent => accumulateSimpleContent(ns, label, tl, parentScope.push(scope))
-          case ElementOnly => startComplexContent(ns, label, tl, parentScope.push(scope))
-          case NilContent => nilContent(ns, label, tl, parentScope.push(scope))
+          case SimpleContent => accumulateSimpleContent(ns, label, tl, parentScope)
+          case ElementOnly => startComplexContent(ns, label, tl, parentScope)
+          case NilContent => nilContent(ns, label, tl, parentScope)
         }
       }
       case end @ EvElemEnd(pre, label) => {
@@ -112,16 +113,17 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
   }
 
   private[unparsers] def nilContent(ns: String, label: String, xes: Stream[XMLEvent],
-    scopeStack: Stack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
+    scopeStack: mutable.ArrayStack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
     val EvElemEnd(pre, `label`) #:: after = xes
     Assert.invariant(ns =:= scopeStack.top.getURI(pre))
-    NilElt(ns, label) #:: trans(after, scopeStack.pop)
+    scopeStack.pop
+    NilElt(ns, label) #:: trans(after, scopeStack)
   }
 
   private[unparsers] def accumulateSimpleContent(ns: String,
     label: String,
     tl: Stream[XMLEvent],
-    scopeStack: Stack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
+    scopeStack: mutable.ArrayStack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
     val simpleParts = tl.takeWhile { ev => !ev.isInstanceOf[EvElemEnd] }.toList
     val EvElemEnd(pre, `label`) #:: after = tl.drop(simpleParts.length)
     Assert.invariant(ns =:= scopeStack.top.getURI(pre))
@@ -133,17 +135,19 @@ class XMLEventIterator(xsr: Iterator[scala.xml.pull.XMLEvent]) extends Iterator[
         case _ => Assert.invariantFailed("Can only be text or entity ref")
       }
     }
-    Simple(ns, label, sb.toString) #:: trans(after, scopeStack.pop)
+    scopeStack.pop
+    Simple(ns, label, sb.toString) #:: trans(after, scopeStack)
   }
 
   private def startComplexContent(ns: String, label: String, tl: Stream[XMLEvent],
-    scopeStack: Stack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
+    scopeStack: mutable.ArrayStack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
     StartComplex(ns, label) #:: trans(tl, scopeStack)
   }
 
   private def endComplexContent(ns: String, label: String, tl: Stream[XMLEvent],
-    scopeStack: Stack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
-    EndComplex(ns, label) #:: trans(tl, scopeStack.pop)
+    scopeStack: mutable.ArrayStack[scala.xml.NamespaceBinding]): Stream[XMLInfosetEvent] = {
+    scopeStack.pop
+    EndComplex(ns, label) #:: trans(tl, scopeStack)
   }
 
   private def decodeEntityRef(er: String): String = {

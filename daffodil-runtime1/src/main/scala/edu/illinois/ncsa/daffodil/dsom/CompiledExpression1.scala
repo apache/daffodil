@@ -59,6 +59,7 @@ import edu.illinois.ncsa.daffodil.processors.HasSlotIndexInParent
 import edu.illinois.ncsa.daffodil.dpath.NodeInfo.PrimType
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
 import edu.illinois.ncsa.daffodil.processors.ParseOrUnparseState
+import edu.illinois.ncsa.daffodil.util.TransientParam
 
 /**
  * For the DFDL path/expression language, this provides the place to
@@ -150,8 +151,8 @@ case class ConstantExpression(kind: NodeInfo.Kind, v: Any) extends CompiledExpre
  * DPath Expression Compilation. Nothing else.
  */
 class DPathCompileInfo(
-  @transient parentArg: => Option[DPathCompileInfo],
-  @transient variableMapArg: => VariableMap,
+  @TransientParam parentArg: => Option[DPathCompileInfo],
+  @TransientParam variableMapArg: => VariableMap,
   val namespaces: scala.xml.NamespaceBinding,
   val path: String,
   override val schemaFileLocation: SchemaFileLocation)
@@ -230,8 +231,8 @@ class DPathCompileInfo(
  * DPath Expression Compilation. Nothing else.
  */
 class DPathElementCompileInfo(
-  @transient parentArg: => Option[DPathCompileInfo],
-  @transient variableMap: => VariableMap,
+  @TransientParam parentArg: => Option[DPathCompileInfo],
+  @TransientParam variableMap: => VariableMap,
   namespaces: scala.xml.NamespaceBinding,
   path: String,
   val slotIndexInParent: Int,

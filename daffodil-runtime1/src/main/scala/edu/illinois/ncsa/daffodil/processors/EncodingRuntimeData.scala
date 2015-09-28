@@ -49,6 +49,7 @@ import java.nio.charset.CharsetEncoder
 import java.nio.charset.CharsetDecoder
 import java.nio.charset.Charset
 import edu.illinois.ncsa.daffodil.io.NonByteSizeCharset
+import edu.illinois.ncsa.daffodil.util.TransientParam
 
 /**
  * To eliminate circularities between RuntimeData objects and the
@@ -161,7 +162,7 @@ trait KnownEncodingMixin { self: ThrowsSDE =>
  */
 
 final class EncodingRuntimeData(
-  @transient termRuntimeDataArg: => TermRuntimeData,
+  @TransientParam termRuntimeDataArg: => TermRuntimeData,
   override val schemaFileLocation: SchemaFileLocation,
   val encoding: CompiledExpression,
   val optionUTF16Width: Option[UTF16Width],

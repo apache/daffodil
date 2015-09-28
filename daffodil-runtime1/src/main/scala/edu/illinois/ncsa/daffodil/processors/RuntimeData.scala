@@ -52,6 +52,7 @@ import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocation
 import edu.illinois.ncsa.daffodil.exceptions.HasSchemaFileLocation
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.processors.unparsers.UState
+import edu.illinois.ncsa.daffodil.util.TransientParam
 
 trait RuntimeData
   extends ImplementsThrowsSDE
@@ -73,7 +74,7 @@ abstract class TermRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
-  @transient immedEnclosingRD: => Option[RuntimeData],
+  @TransientParam immedEnclosingRD: => Option[RuntimeData],
   final val encodingInfo: EncodingRuntimeData,
   val dpathCompileInfo: DPathCompileInfo,
   val isRepresented: Boolean,
@@ -107,7 +108,7 @@ class NonTermRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
-  @transient variableMapArg: => VariableMap,
+  @TransientParam variableMapArg: => VariableMap,
   override val schemaFileLocation: SchemaFileLocation,
   override val prettyName: String,
   override val path: String,
@@ -133,7 +134,7 @@ class ModelGroupRuntimeData(
    * hook these objects into a parent-child tree without
    * having to use an assignment to a var.
    */
-  @transient variableMapArg: => VariableMap,
+  @TransientParam variableMapArg: => VariableMap,
   encInfo: EncodingRuntimeData,
   override val schemaFileLocation: SchemaFileLocation,
   ci: DPathCompileInfo,

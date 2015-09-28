@@ -183,11 +183,22 @@ class TestXMLUtils {
   @Test def testScalaLiteralXMLCoalesceText() {
     val xml = <foo>abc<![CDATA[&&&]]>def&#xE000;ghi</foo>
     assertEquals(5, xml.child.length)
-    assertTrue(xml.child.forall { _.isInstanceOf[Text] })
+    assertTrue(xml.child(0).isInstanceOf[Text] )
+    assertTrue(xml.child(1).isInstanceOf[PCData] )
+    assertTrue(xml.child(2).isInstanceOf[Text] )
+    assertTrue(xml.child(3).isInstanceOf[Text] )
+    assertTrue(xml.child(4).isInstanceOf[Text] )
+
     val res = XMLUtils.coalesceAdjacentTextNodes(xml.child)
-    assertEquals(1, res.length)
-    assertEquals("abc&amp;&amp;&amp;def" + 0xE000.toChar + "ghi", res(0).toString)
-    assertEquals("abc&&&def" + 0xE000.toChar + "ghi", res(0).text)
+    assertEquals(3, res.length)
+
+    assertEquals("abc", res(0).toString)
+    assertEquals("<![CDATA[&&&]]>", res(1).toString)
+    assertEquals("def" + 0xE000.toChar + "ghi", res(2).toString)
+
+    assertEquals("abc", res(0).text)
+    assertEquals("&&&", res(1).text)
+    assertEquals("def" + 0xE000.toChar + "ghi", res(2).text)
   }
 
   @Test def testConstructingParserCoalesceText() {

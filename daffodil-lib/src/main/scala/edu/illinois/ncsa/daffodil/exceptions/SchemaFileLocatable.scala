@@ -37,6 +37,7 @@ import scala.xml.Node
 import edu.illinois.ncsa.daffodil.api.LocationInSchemaFile
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import edu.illinois.ncsa.daffodil.dsom.LookupLocation
+import edu.illinois.ncsa.daffodil.util.TransientParam
 
 object NoSchemaFileLocation extends SchemaFileLocation(NotLocatable)
 
@@ -51,7 +52,7 @@ trait HasSchemaFileLocation extends LookupLocation {
   override def locationDescription: String = schemaFileLocation.locationDescription
 }
 
-class SchemaFileLocation(@transient context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
+class SchemaFileLocation(@TransientParam context: SchemaFileLocatable) extends LocationInSchemaFile with Serializable {
 
   val lineNumber = context.lineNumber
   val columnNumber = context.columnNumber
