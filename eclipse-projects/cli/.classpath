@@ -23,12 +23,18 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-tdml"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-core"/>
-	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.10/scallop_2.10-0.9.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1-unparser"/>
 	<classpathentry kind="lib" path="lib_managed/jars/net.sf.expectit/expectit-core/expectit-core-0.6.1.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
 	<classpathentry kind="lib" path="lib_managed/jars/org.fusesource.jansi/jansi/jansi-1.11.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-io"/>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.11/scala-parser-combinators_2.11-1.0.4.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.rogach/scallop_2.11/scallop_2.11-0.9.5.jar" sourcepath="lib_managed/srcs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

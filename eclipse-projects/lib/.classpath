@@ -19,5 +19,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="lib" path="lib_managed/jars/commons-io/commons-io/commons-io-2.4.jar" sourcepath="lib_managed/srcs/commons-io/commons-io/commons-io-2.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

@@ -20,7 +20,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/xml-resolver/xml-resolver/xml-resolver-1.2.jar" sourcepath="lib_managed/srcs/xml-resolver/xml-resolver/xml-resolver-1.2-sources.jar"/>
-	<classpathentry kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.10/scalacheck_2.10-1.10.1.jar"/>
 	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-lib"/>
@@ -35,5 +34,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/org.scala-tools.testing/test-interface/test-interface-0.5.jar"/>
+	<classpathentry kind="lib" path="lib_managed/jars/org.scalacheck/scalacheck_2.11/scalacheck_2.11-1.10.1.jar"/>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-parser-combinators_2.11/scala-parser-combinators_2.11-1.0.4.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

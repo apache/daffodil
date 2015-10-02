@@ -32,5 +32,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli-unittest/lib_managed/docs/net.sf.expectit/expectit-core/expectit-core-0.6.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>
