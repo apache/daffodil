@@ -32,7 +32,7 @@ libraryDependencies in ThisBuild := Seq(
   "org.fusesource.jansi" % "jansi" % "1.11",
   "org.rogach" %% "scallop" % "0.9.5",
   "commons-io" % "commons-io" % "2.4",
-  "org.scalacheck" %% "scalacheck" % "1.10.1" % "test"
+  "org.scalacheck" %% "scalacheck" % "1.11.4" % "test"
 )
 
 initialize := {

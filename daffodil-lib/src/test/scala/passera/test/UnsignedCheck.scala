@@ -1,7 +1,7 @@
 package passera.test
 
 import org.scalacheck._
-import org.scalacheck.ConsoleReporter
+// import org.scalacheck.ConsoleReporter
 import org.scalacheck.Prop._
 import passera.unsigned._
 
