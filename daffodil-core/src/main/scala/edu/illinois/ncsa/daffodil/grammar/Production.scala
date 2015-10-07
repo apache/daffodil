@@ -1,14 +1,13 @@
 package edu.illinois.ncsa.daffodil.grammar
 
 import edu.illinois.ncsa.daffodil.dsom.SchemaComponent
-import edu.illinois.ncsa.daffodil.util.Compile
 import edu.illinois.ncsa.daffodil.compiler.ParserOrUnparser
 import edu.illinois.ncsa.daffodil.processors.NadaParser
 import edu.illinois.ncsa.daffodil.processors.NadaUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForUnparser
 import edu.illinois.ncsa.daffodil.compiler.ForParser
 import edu.illinois.ncsa.daffodil.compiler.BothParserAndUnparser
-import edu.illinois.ncsa.daffodil.util.Debug
+import edu.illinois.ncsa.daffodil.util.LogLevel
 
 /**
  * Prod or Grammar Production
@@ -27,7 +26,7 @@ import edu.illinois.ncsa.daffodil.util.Debug
  * because a grammar term object will display as it's name, not as some anonymous object.
  */
 final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramArg: => Gram, override val forWhat: ParserOrUnparser)
-  extends NamedGram(sc) {
+    extends NamedGram(sc) {
 
   final override def deref = gram
 
@@ -50,7 +49,7 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
         g
       }
       case false => {
-        log(Debug("Prod %s removed.", name))
+        log(LogLevel.Debug, "Prod %s removed.", name)
         EmptyGram
       }
     }
@@ -74,4 +73,3 @@ final class Prod(nameArg: String, val sc: SchemaComponent, guard: Boolean, gramA
     }
   }.value
 }
-

@@ -36,5 +36,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1"/>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
 	<classpathentry kind="lib" path="lib_managed/bundles/org.scala-lang.modules/scala-xml_2.11/scala-xml_2.11-1.0.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

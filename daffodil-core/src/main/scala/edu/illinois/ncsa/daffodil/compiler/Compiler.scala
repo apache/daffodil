@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,10 +46,7 @@ import edu.illinois.ncsa.daffodil.dsom.SchemaSet
 import edu.illinois.ncsa.daffodil.dsom.oolag.OOLAG
 import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.processors.DataProcessor
-import edu.illinois.ncsa.daffodil.util.Compile
-import edu.illinois.ncsa.daffodil.util.Error
-import edu.illinois.ncsa.daffodil.util.Warning
-import edu.illinois.ncsa.daffodil.util.Info
+import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.xml._
 import edu.illinois.ncsa.daffodil.api.DFDL
@@ -88,9 +85,9 @@ object ForUnparser extends ParserOrUnparser
 object BothParserAndUnparser extends ParserOrUnparser
 
 class ProcessorFactory(val sset: SchemaSet)
-  extends SchemaComponentBase(<pf/>, sset)
-  with DFDL.ProcessorFactory
-  with HavingRootSpec {
+    extends SchemaComponentBase(<pf/>, sset)
+    with DFDL.ProcessorFactory
+    with HavingRootSpec {
 
   lazy val parser = LV('parser) {
     val par = rootElem.document.parser
@@ -127,8 +124,8 @@ class ProcessorFactory(val sset: SchemaSet)
           // no point in going forward with more
           // checks if the schema isn't valid
           // The code base is written assuming valid
-          // schema input. It's just going to hit 
-          // assertion failures and such if we 
+          // schema input. It's just going to hit
+          // assertion failures and such if we
           // try to compile invalid schemas.
           val requiredErr = super.isError
           val ssetErr = sset.isError
@@ -162,12 +159,12 @@ class ProcessorFactory(val sset: SchemaSet)
       if (dataProc.isError) {
         // NO longer printing anything here. Callers must do this.
         //        val diags = dataProc.getDiagnostics
-        //        log(Error("Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length))
-        //        diags.foreach { diag => log(Error(diag.toString())) }
+        //        log(LogLevel.Error,"Compilation (DataProcessor) reports %s compile errors/warnings.", diags.length)
+        //        diags.foreach { diag => log(LogLevel.Error, diag.toString()) }
       } else {
-        log(Compile("Parser = %s.", ssrd.parser.toString))
-        //log(Error("Unparser = %s.", ssrd.unparser.toString))
-        log(Compile("Compilation (DataProcesor) completed with no errors."))
+        log(LogLevel.Compile, "Parser = %s.", ssrd.parser.toString)
+        //log(LogLevel.Error, "Unparser = %s.", ssrd.unparser.toString)
+        log(LogLevel.Compile, "Compilation (DataProcesor) completed with no errors.")
       }
       dataProc
     }
@@ -196,9 +193,9 @@ trait HavingRootSpec extends Logging {
 class InvalidParserException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 
 class Compiler(var validateDFDLSchemas: Boolean = true)
-  extends DFDL.Compiler
-  with Logging
-  with HavingRootSpec {
+    extends DFDL.Compiler
+    with Logging
+    with HavingRootSpec {
 
   def setValidateDFDLSchemas(value: Boolean) = validateDFDLSchemas = value
 
@@ -249,7 +246,7 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       case "inputfilememorymaplowthreshold" => DaffodilTunableParameters.inputFileMemoryMapLowThreshold = java.lang.Long.valueOf(value)
       case "initialelementoccurrenceshint" => DaffodilTunableParameters.initialElementOccurrencesHint = java.lang.Long.valueOf(value)
       case "prettyprintelementlimit" => DaffodilTunableParameters.prettyPrintElementLimit = java.lang.Integer.valueOf(value)
-      case _ => log(Warning("Ignoring unknown tunable: %s", tunable))
+      case _ => log(LogLevel.Warning, "Ignoring unknown tunable: %s", tunable)
     }
   }
 
@@ -325,15 +322,15 @@ class Compiler(var validateDFDLSchemas: Boolean = true)
       val diags = pf.getDiagnostics // might be warnings even if not isError
       if (err) {
         Assert.invariant(diags.length > 0)
-        log(Compile("Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length))
+        log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d errors/warnings.", diags.length)
       } else {
         if (diags.length > 0) {
-          log(Compile("Compilation (ProcessorFactory) produced %d warnings.", diags.length))
+          log(LogLevel.Compile, "Compilation (ProcessorFactory) produced %d warnings.", diags.length)
         } else {
-          log(Compile("ProcessorFactory completed with no errors."))
+          log(LogLevel.Compile, "ProcessorFactory completed with no errors.")
         }
       }
-      log(Compile("Schema had %s elements.", ElementBase.count))
+      log(LogLevel.Compile, "Schema had %s elements.", ElementBase.count)
       pf
     }
 
@@ -355,4 +352,3 @@ object Compiler {
   def apply() = new Compiler()
 
 }
-

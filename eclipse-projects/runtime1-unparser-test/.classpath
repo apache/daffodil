@@ -34,5 +34,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib_managed/jars/jline/jline/jline-2.12.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-runtime1-unparser"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

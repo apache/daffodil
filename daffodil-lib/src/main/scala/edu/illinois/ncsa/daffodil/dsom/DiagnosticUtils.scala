@@ -78,7 +78,7 @@ object DiagnosticUtils {
 }
 
 trait DiagnosticImplMixin
-  extends Diagnostic {
+    extends Diagnostic {
   def getSomeCause() = DiagnosticUtils.getSomeCause(this)
   def getSomeMessage() = DiagnosticUtils.getSomeMessage(this)
   def getLocationsInSchemaFiles(): Seq[LocationInSchemaFile] = Nil

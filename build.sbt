@@ -4,7 +4,7 @@ organization in ThisBuild := "edu.illinois.ncsa"
 
 scalaVersion in ThisBuild := "2.11.7"
 
-scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings", "-Xxml:-coalescing")
+scalacOptions in ThisBuild ++= Seq("-unchecked", "-deprecation", "-Yinline-warnings", "-Xfatal-warnings", "-Xxml:-coalescing", "-language:experimental.macros")
 
 // parallelExecution in ThisBuild := false
 

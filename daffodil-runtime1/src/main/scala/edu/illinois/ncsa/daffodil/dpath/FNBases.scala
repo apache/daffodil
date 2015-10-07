@@ -66,7 +66,7 @@ trait StringCompareOp extends CompareOpBase {
 }
 
 abstract class CompareOp
-  extends RecipeOp with BinaryOpMixin {
+    extends RecipeOp with BinaryOpMixin {
 
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
@@ -84,13 +84,13 @@ abstract class CompareOp
 }
 
 case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPath)
-  extends CompareOp {
+    extends CompareOp {
 
   def compare(op: String, v1: Any, v2: Any): Boolean = {
     (op, v1, v2) match {
       case ("eq", a, b) => a == b
       case ("ne", a, b) => a != b
-      case _ => Assert.notYetImplemented("operator " + op +
+      case _ => Assert.nyi("operator " + op +
         " on types " + Misc.getNameFromClass(v1) + ", " +
         Misc.getNameFromClass(v2))
     }
@@ -98,7 +98,7 @@ case class EqualityCompareOp(op: String, left: CompiledDPath, right: CompiledDPa
 }
 
 case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
-  extends RecipeOp with BinaryOpMixin {
+    extends RecipeOp with BinaryOpMixin {
   override def run(dstate: DState) {
     val savedNode = dstate.currentNode
     left.run(dstate)
@@ -106,7 +106,7 @@ case class BooleanOp(op: String, left: CompiledDPath, right: CompiledDPath)
 
     val result =
       if ((op == "and" && leftValue == false) ||
-          (op == "or" && leftValue == true)) {
+        (op == "or" && leftValue == true)) {
         leftValue
       } else {
         dstate.setCurrentNode(savedNode)
@@ -137,7 +137,7 @@ case class NegateOp(recipe: CompiledDPath) extends RecipeOpWithSubRecipes(recipe
 }
 
 abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
-  extends RecipeOpWithSubRecipes(recipe) {
+    extends RecipeOpWithSubRecipes(recipe) {
   override def run(dstate: DState) {
     recipe.run(dstate)
     val arg = dstate.currentValue
@@ -150,7 +150,7 @@ abstract class FNOneArg(recipe: CompiledDPath, argType: NodeInfo.Kind)
 }
 
 abstract class FNTwoArgs(recipes: List[CompiledDPath])
-  extends RecipeOpWithSubRecipes(recipes) {
+    extends RecipeOpWithSubRecipes(recipes) {
   override def run(dstate: DState) {
 
     val List(recipe1, recipe2) = recipes
@@ -202,7 +202,7 @@ abstract class FNArgsList(recipes: List[CompiledDPath]) extends RecipeOpWithSubR
     val savedNode = dstate.currentNode
 
     // FIXME: rewrite to use an OnStack ListBuffer, and
-    // a while loop with index vs. the foreach. 
+    // a while loop with index vs. the foreach.
     val args: List[Any] = {
       val list = new ListBuffer[Any]
 

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,7 +33,6 @@
 package edu.illinois.ncsa.daffodil.dsom
 
 import edu.illinois.ncsa.daffodil.exceptions.SchemaFileLocatable
-import edu.illinois.ncsa.daffodil.util.Info
 import edu.illinois.ncsa.daffodil.util._
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.schema.annotation.props.PropertyMixin
@@ -65,7 +64,7 @@ import edu.illinois.ncsa.daffodil.exceptions.ThrowsSDE
  * format annotations together.
  */
 trait LeafPropProvider
-  extends LookupLocation with PropTypes with Logging {
+    extends LookupLocation with PropTypes with Logging {
 
   /**
    * for debug/test only
@@ -73,7 +72,7 @@ trait LeafPropProvider
   final lazy val properties: PropMap = justThisOneProperties
 
   //TODO: optimize by having this object actually check if there
-  // are any property bindings. if not, this should get removed 
+  // are any property bindings. if not, this should get removed
   // from any Seq[LeafPropProvider] it is put into.
 
   def prettyName: String
@@ -94,7 +93,7 @@ trait LeafPropProvider
         // schema-aware processing that was trimming off whitespace
         // from properties/attributes declared as xs:tokens automatically.
         //
-        // Instead we have to implement our own trim logic on a 
+        // Instead we have to implement our own trim logic on a
         // case by case basis. (which means not here)
         // Ex: textNumberPattern spaces are significant and important to preserve
         // AND tend to be leading or trailing in the string value. So if anyone
@@ -118,7 +117,7 @@ trait LeafPropProvider
  * be the default formats being chained together.
  */
 class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: String)
-  extends Logging with PropTypes {
+    extends Logging with PropTypes {
 
   /**
    * for debug/test only
@@ -153,17 +152,17 @@ class ChainPropProvider(leafProvidersArg: Seq[LeafPropProvider], forAnnotation: 
 }
 
 // TODO: Check for circularity if schema validation doesn't.
-// That is, we check for circularity in the ref chain from a 
+// That is, we check for circularity in the ref chain from a
 // format annotation to a defineFormat.
 //
-// What we may need to check is for recursive circularity of 
+// What we may need to check is for recursive circularity of
 // the chains from say, simpleTypes to their bases.
-// 
+//
 // There are other funny circularities possible also. E.g,
 // a sequence contains a group ref, to a group def, which contains
 // the original sequence.
 // Element refs and elements can set up the same sort of
-// nesting cycle. 
+// nesting cycle.
 // A ComplexType can contain an element which has that same
 // ComplexType.
 

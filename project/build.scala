@@ -65,6 +65,8 @@ object DaffodilBuild extends Build {
     extraProjects.foldLeft(r) { (r, p) => r.aggregate(p) }
   }
 
+  lazy val macroLib = Project(id = "daffodil-macro-lib", base = file("daffodil-macro-lib"), settings = s ++ nopub)
+
   lazy val propgen = Project(id = "daffodil-propgen", base = file("daffodil-propgen"), settings = s ++ nopub)
                              .configs(DebugTest)
                              .configs(NewTest)
@@ -73,6 +75,7 @@ object DaffodilBuild extends Build {
   lazy val lib     = Project(id = "daffodil-lib", base = file("daffodil-lib"), settings = s ++ propgenSettings ++ schemasgenSettings ++ managedgenSettings)
                              .configs(DebugTest)
                              .configs(NewTest)
+                             .dependsOn(macroLib)
 
   lazy val io    = Project(id = "daffodil-io", base = file("daffodil-io"), settings = s)
                              .configs(DebugTest)

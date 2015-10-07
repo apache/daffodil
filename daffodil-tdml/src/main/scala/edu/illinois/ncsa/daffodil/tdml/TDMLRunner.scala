@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -64,7 +64,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.externalvars.Binding
 import edu.illinois.ncsa.daffodil.externalvars.ExternalVariablesLoader
 import edu.illinois.ncsa.daffodil.processors.GeneralParseFailure
-import edu.illinois.ncsa.daffodil.util.Error
 import edu.illinois.ncsa.daffodil.util.LogLevel
 import edu.illinois.ncsa.daffodil.util.Logging
 import edu.illinois.ncsa.daffodil.util.Misc
@@ -112,7 +111,7 @@ private[tdml] object DFDLTestSuite {
 // TODO: validate the infoset XML (expected result) against the DFDL Schema, that is using it as an XML Schema
 // for the infoset. This would prevent errors where the infoset instance and the schema drift apart under maintenance.
 //
-// TODO: validate the actual result against the DFDL Schema using it as an XML Schema. 
+// TODO: validate the actual result against the DFDL Schema using it as an XML Schema.
 //
 /**
  * TDML test suite runner
@@ -135,7 +134,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
   validateTDMLFile: Boolean = true,
   val validateDFDLSchemas: Boolean = true,
   val compileAllTopLevel: Boolean = false)
-  extends Logging with HasSetDebugger {
+    extends Logging with HasSetDebugger {
 
   System.err.println("Creating DFDL Test Suite for " + aNodeFileOrURL)
   val TMP_DIR = System.getProperty("java.io.tmpdir", ".")
@@ -186,7 +185,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     case tsNode: Node => {
       //
       // We were passed a literal schema node. This is for unit testing
-      // purposes. 
+      // purposes.
       //
       val tmpDir = new File(TMP_DIR, "daffodil")
       tmpDir.mkdirs()
@@ -257,7 +256,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
     if (isTDMLFileValid)
       testCases.map { _.run(schema) }
     else {
-      log(Error("TDML file %s is not valid.", tsURI))
+      log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
     }
   }
 
@@ -319,7 +318,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
         }
       }
     } else {
-      log(Error("TDML file %s is not valid.", tsURI))
+      log(LogLevel.Error, "TDML file %s is not valid.", tsURI)
       val msgs = this.loadingExceptions.map { _.toString }.mkString(" ")
       throw new TDMLException(msgs)
     }
@@ -372,7 +371,7 @@ class DFDLTestSuite(aNodeFileOrURL: Any,
 }
 
 abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
-  extends Logging {
+    extends Logging {
 
   /**
    * This doesn't fetch a serialized processor, it runs whatever the processor is
@@ -478,7 +477,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
         // unit test case. There is no URI/file location
         if (model != "") throw new TDMLException("You supplied a model attribute, and a schema argument. Can't have both.")
         // note that in this case, since a node was passed in, this node has no file/line/col information on it
-        // so error messages will end up being about some temp file. 
+        // so error messages will end up being about some temp file.
         UnitTestSchemaSource(node, name)
       }
       case (None, Some(defSchema), None) => {
@@ -550,7 +549,7 @@ abstract class TestCase(testCaseXML: NodeSeq, val parent: DFDLTestSuite)
 }
 
 case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
+    extends TestCase(ptc, parentArg) {
 
   lazy val optExpectedInfoset = this.optExpectedOrInputInfoset
 
@@ -666,7 +665,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
         case ValidationMode.Off => // Don't Validate
         case mode => {
           if (actual.isValidationSuccess) {
-            // println("Validation Succeeded!") 
+            // println("Validation Succeeded!")
           }
         }
       }
@@ -727,7 +726,7 @@ case class ParserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 }
 
 case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
-  extends TestCase(ptc, parentArg) {
+    extends TestCase(ptc, parentArg) {
 
   lazy val inputInfoset = this.optExpectedOrInputInfoset.get
 
@@ -787,7 +786,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
       VerifyTestCase.verifyTextData(expectedData, outStream, actual.encodingName)
     } else {
       // data is not all textual, or in mixture of encodings
-      // So while we can still use the encoding as a heuristic, 
+      // So while we can still use the encoding as a heuristic,
       // we will need to treat as Hex bytes as well.
       VerifyTestCase.verifyBinaryOrMixedData(expectedData, outStream)
     }
@@ -851,7 +850,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
                 VerifyTestCase.verifyTextData(data, outStream, actual.encodingName)
               } else {
                 // data is not all textual, or in mixture of encodings
-                // So while we can still use the encoding as a heuristic, 
+                // So while we can still use the encoding as a heuristic,
                 // we will need to treat as Hex bytes as well.
                 VerifyTestCase.verifyBinaryOrMixedData(data, outStream)
               }
@@ -861,7 +860,7 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
               // verifyData throws TDMLExceptions if the data doesn't match
               // In order for negative tests to look for these errors
               // we need to capture them and treat like regular diagnostics.
-              // 
+              //
               case x: TDMLException =>
                 Some(x)
             }
@@ -879,19 +878,19 @@ case class UnparserTestCase(ptc: NodeSeq, parentArg: DFDLTestSuite)
 object VerifyTestCase {
   def verifyParserTestData(actual: DFDL.ParseResult, infoset: Infoset) {
     //
-    // Attributes on the XML like xsi:type and also namespaces (I think) are 
-    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't 
+    // Attributes on the XML like xsi:type and also namespaces (I think) are
+    // making things fail these comparisons, so we strip all attributes off (since DFDL doesn't
     // use attributes at all)
-    // 
+    //
     val actualNoAttrs = XMLUtils.removeAttributes(actual.result)
-    // 
+    //
     // Would be great to validate the actuals against the DFDL schema, used as
     // an XML schema on the returned infoset XML.
     // Getting this to work is a bigger issue. What with stripping of attributes
     // and that our internal Daffodil XML Catalog has a special treatment of the
     // mapping of the XML Schema URI.
     // etc.
-    // 
+    //
     // TODO: Fix so we can validate here.
     //
 
@@ -1132,7 +1131,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
     this.documentExplicitBitOrder match {
       case Some(order) => order
       case None => {
-        // analyze the child parts 
+        // analyze the child parts
         val groups = dataDocumentParts.groupBy(_.explicitBitOrder).map {
           case (key, seq) => (key, seq.length)
         }
@@ -1167,7 +1166,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
       }
   }
 
-  // check that document element either contains text content directly with no other documentPart children, 
+  // check that document element either contains text content directly with no other documentPart children,
   // or it contains ONLY documentPart children (and whitespace around them).
   //
   if (actualDocumentPartElementChildren.length > 0) {
@@ -1278,7 +1277,7 @@ case class Document(d: NodeSeq, parent: TestCase) {
    */
   final def data = {
     if (isDPFile) {
-      // direct I/O to the file. No 'bits' lowering involved. 
+      // direct I/O to the file. No 'bits' lowering involved.
       val dp = documentParts(0).asInstanceOf[FileDocumentPart]
       val input = dp.fileDataInput
       input
@@ -1334,7 +1333,7 @@ class TextDocumentPart(part: Node, parent: Document) extends DataDocumentPart(pa
     // and that will fail on things like unpaired surrogate characters that we allow
     // in our data and our infoset.
     // So instead we must do our own UTF-8-like encoding of the data
-    // so that we can put in codepoints we want. 
+    // so that we can put in codepoints we want.
     val bytes = UTF8Encoder.utf8LikeEncode(textContentWithoutEntities).toArray
     val res = bytes.map { b => (b & 0xFF).toBinaryString.reverse.padTo(8, '0').reverse }.toList
     res
@@ -1458,7 +1457,7 @@ class FileDocumentPart(part: Node, parent: Document) extends DocumentPart(part, 
  * Base class for all document parts that contain data directly expressed in the XML
  */
 sealed abstract class DataDocumentPart(part: Node, parent: Document)
-  extends DocumentPart(part, parent) {
+    extends DocumentPart(part, parent) {
 
   def dataBits: Seq[String]
 
@@ -1515,7 +1514,7 @@ sealed abstract class DocumentPart(part: Node, parent: Document) {
       case scala.xml.Text(s) => Some(childNode)
       //      {
       //        // can't just use s.trim here as that would remove explicit
-      //        // carriage returns like &#x0D; if they have already been 
+      //        // carriage returns like &#x0D; if they have already been
       //        // replaced by the corresponding character.
       //        val trimmedEnd = s.replaceFirst("\\ +$", "") // spaces only
       //        val trimmed = trimmedEnd.replaceFirst("^\\ +", "") // spaces only
@@ -1597,21 +1596,21 @@ abstract class ErrorWarningBase(n: NodeSeq, parent: TestCase) {
 }
 
 case class ExpectedErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
 }
 
 case class ExpectedWarnings(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "warning"
 
 }
 
 case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
-  extends ErrorWarningBase(node, parent) {
+    extends ErrorWarningBase(node, parent) {
 
   val diagnosticNodes = node \\ "error"
 
@@ -1619,14 +1618,14 @@ case class ExpectedValidationErrors(node: NodeSeq, parent: TestCase)
 
 object UTF8Encoder {
   def utf8LikeEncode(s: String): Seq[Byte] = {
-    // 
+    //
     // Scala/Java strings represent characters above 0xFFFF as a surrogate pair
-    // of two codepoints. 
+    // of two codepoints.
     //
     // We want to handle both properly match surrogate pairs, and isolated surrogate characters.
-    // That means if we see an isolated low (second) surrogate character, we have to know 
+    // That means if we see an isolated low (second) surrogate character, we have to know
     // whether it was preceded by a high surrogate or not.
-    // 
+    //
     // For every 16-bit code point, do do this right we need to potentially also see the previous
     // or next codepoint.
     //
@@ -1707,7 +1706,7 @@ object UTF8Encoder {
       case _ if (XMLUtils.isTrailingSurrogate(c)) => {
         // Low (subsequent) Surrogate character case.
         if (XMLUtils.isLeadingSurrogate(prev)) {
-          // Previous codepoint was a high surrogate. 
+          // Previous codepoint was a high surrogate.
           // This codepoint was handled as part of converting the
           // surrogate pair.
           // so we output no bytes at all.

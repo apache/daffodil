@@ -51,7 +51,6 @@ import edu.illinois.ncsa.daffodil.debugger.{ InteractiveDebuggerRunner => SInter
 
 import scala.collection.JavaConversions._
 
-
 private[japi] object LoggingConversions {
 
   def levelToScala(lvl: LogLevel): SLogLevel.Type = {
@@ -108,13 +107,13 @@ private[japi] object ValidationConversions {
  * onto the java LogWriter, if a user implements their own log writer in java.
  */
 private[japi] class JavaLogWriter(logWriter: LogWriter)
-  extends SLogWriter {
+    extends SLogWriter {
 
   protected def write(msg: String): Unit = {}
 
-  override def log(logID: String, glob: SGlob) {
+  override def log(lvl: SLogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
     if (logWriter != null) {
-      logWriter.log(LoggingConversions.levelFromScala(glob.lvl), logID, glob.msg, glob.args)
+      logWriter.log(LoggingConversions.levelFromScala(lvl), logID, msg, args)
     }
   }
 }
@@ -124,10 +123,9 @@ private[japi] class JavaLogWriter(logWriter: LogWriter)
  * their own debugger in java.
  */
 private[japi] class JavaInteractiveDebuggerRunner(dr: DebuggerRunner)
-  extends SInteractiveDebuggerRunner {
+    extends SInteractiveDebuggerRunner {
   def init(id: SInteractiveDebugger): Unit = dr.init
   def getCommand(): String = dr.getCommand
   def lineOutput(line: String): Unit = dr.lineOutput(line)
   def fini(): Unit = dr.fini
 }
-

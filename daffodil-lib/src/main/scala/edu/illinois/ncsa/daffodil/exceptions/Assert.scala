@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -68,21 +68,35 @@ class Assert {
 
 object Assert extends Assert {
 
-  // TODO: replace with MACRO
-  @inline def usage(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
-    usageErrorUnless(testAbortsIfFalse, message)
-  }
+  /*
+   * Note that in macro definitions, the argument names here must match the argument names
+   * in the macro implementations.
+   */
 
   /**
    * Verbose name helps you get the sense of the predicate right.
    */
-  // TODO: replace with MACRO
-  @inline def usageErrorUnless(testAbortsIfFalse: Boolean, message: => String = "Usage error.") = {
-    val r = testAbortsIfFalse
-    if (!r)
-      abort(message)
-  }
+  def usageErrorUnless(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
+  def usageErrorUnless(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
+  /**
+   * Brief form
+   */
+  def usage(testAbortsIfFalse: Boolean, message: String): Unit = macro AssertMacros.usageMacro2
+  def usage(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.usageMacro1
 
+  /**
+   * test for something that the program is supposed to be insuring.
+   *
+   * This is for more complex invariants than the simple 'impossible' case.
+   */
+  def invariant(testAbortsIfFalse: Boolean): Unit = macro AssertMacros.invariantMacro1
+
+  /**
+   * Conditional behavior for NYIs
+   */
+  def notYetImplemented(): Nothing = macro AssertMacros.notYetImplementedMacro0
+  def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit = macro AssertMacros.notYetImplementedMacro1
+  def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit = macro AssertMacros.notYetImplementedMacro2
   //
   // Throughout this file, specifying return type Nothing
   // gets rid of many spurious (scala compiler bug) dead code
@@ -95,16 +109,24 @@ object Assert extends Assert {
     abort(message)
   }
 
-  def notYetImplemented(info: String): Nothing = {
+  def nyi(info: String): Nothing = {
     toss(new NotYetImplementedException(info + "\n" + shortBacktrace))
   }
 
-  def notYetImplemented(): Nothing = {
+  def nyi(): Nothing = {
     toss(new NotYetImplementedException(shortBacktrace))
   }
 
   def abort(message: String = ""): Nothing = {
     toss(new Abort(message + "\n" + shortBacktrace))
+  }
+
+  /**
+   * Like abort, but takes 2nd argument that is expected to be the text
+   * of the test expression (as captured by macro.
+   */
+  def abort2(message: String, testAsString: String): Nothing = {
+    abort(message + " (" + testAsString + ")")
   }
 
   def abort(th: Throwable): Nothing = {
@@ -126,16 +148,6 @@ object Assert extends Assert {
   def impossibleCase() = impossible("should be no fall through to this case")
 
   /**
-   * test for something that the program is supposed to be insuring.
-   *
-   * This is for more complex invariants than the simple 'impossible' case.
-   */
-  @inline def invariant(testThatWillAbortIfFalse: Boolean) = {
-    val r = testThatWillAbortIfFalse
-    if (!r) abort("Invariant broken.")
-  }
-
-  /**
    * Use when a case or if/then analysis has fallen through to a situation that
    * a program invariant should be assuring doesn't happen. That is, where
    * the case analysis has exhaused all the situations that are consistent with
@@ -148,14 +160,4 @@ object Assert extends Assert {
     abort("Invariant broken. " + msg)
   }
 
-  /**
-   * Conditional behavior for NYIs
-   */
-  @inline def notYetImplemented(testThatWillThrowIfTrue: Boolean): Unit = {
-    if (testThatWillThrowIfTrue) notYetImplemented()
-  }
-
-  @inline def notYetImplemented(testThatWillThrowIfTrue: Boolean, msg: String): Unit = {
-    if (testThatWillThrowIfTrue) notYetImplemented(msg)
-  }
 }

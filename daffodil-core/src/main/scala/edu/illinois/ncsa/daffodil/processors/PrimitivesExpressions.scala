@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,7 @@ import edu.illinois.ncsa.daffodil.dsom._
 import edu.illinois.ncsa.daffodil.dpath._
 import edu.illinois.ncsa.daffodil.xml.XMLUtils
 import scala.xml.Node
-import edu.illinois.ncsa.daffodil.util.{ Debug, LogLevel, Logging, Info }
+import edu.illinois.ncsa.daffodil.util.{ LogLevel, Logging }
 import edu.illinois.ncsa.daffodil.processors.{ Parser => DaffodilParser }
 import edu.illinois.ncsa.daffodil.processors.unparsers.{ Unparser => DaffodilUnparser }
 import edu.illinois.ncsa.daffodil.exceptions.Assert
@@ -69,7 +69,7 @@ abstract class AssertBase(decl: AnnotatedSchemaComponent,
   msg: String,
   discrim: Boolean, // are we a discriminator or not.
   assertKindName: String)
-  extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
+    extends ExpressionEvaluatorBase(scWherePropertyWasLocated) {
 
   def this(
     decl: AnnotatedSchemaComponent,
@@ -102,13 +102,13 @@ abstract class AssertBooleanPrimBase(
 case class AssertBooleanPrim(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase)
-  extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
+    extends AssertBooleanPrimBase(decl, stmt, false, "assert") {
 }
 
 case class DiscriminatorBooleanPrim(
   decl: AnnotatedSchemaComponent,
   stmt: DFDLAssertionBase)
-  extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
+    extends AssertBooleanPrimBase(decl, stmt, true, "discriminator")
 
 // TODO: performance wise, initiated content is supposed to be faster
 // than evaluating an expression. There should be a better way to say
@@ -116,16 +116,16 @@ case class DiscriminatorBooleanPrim(
 // an XPath evaluator that runs fn:true() expression.
 case class InitiatedContent(
   decl: AnnotatedSchemaComponent)
-  extends AssertBase(decl,
-    "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
-    // always true. We're just an assertion that says an initiator was found.
-    "initiatedContent. This message should not be used.",
-    true,
-    "initiatedContent") {
+    extends AssertBase(decl,
+      "{ fn:true() }", <xml xmlns:fn={ XMLUtils.XPATH_FUNCTION_NAMESPACE }/>.scope, decl,
+      // always true. We're just an assertion that says an initiator was found.
+      "initiatedContent. This message should not be used.",
+      true,
+      "initiatedContent") {
 }
 
 case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
-  extends ExpressionEvaluatorBase(decl) {
+    extends ExpressionEvaluatorBase(decl) {
 
   val baseName = "SetVariable[" + stmt.varQName.local + "]"
 
@@ -140,18 +140,18 @@ case class SetVariable(decl: AnnotatedSchemaComponent, stmt: DFDLSetVariable)
 }
 
 abstract class NewVariableInstanceBase(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-  extends Terminal(decl, true) {
+    extends Terminal(decl, true) {
 }
 
 case class NewVariableInstanceStart(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-  extends NewVariableInstanceBase(decl, stmt) {
+    extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceStartParser(decl.runtimeData)
   override def unparser: DaffodilUnparser = new NewVariableInstanceStartUnparser(decl.runtimeData)
 }
 
 case class NewVariableInstanceEnd(decl: AnnotatedSchemaComponent, stmt: DFDLNewVariableInstance)
-  extends NewVariableInstanceBase(decl, stmt) {
+    extends NewVariableInstanceBase(decl, stmt) {
 
   def parser: DaffodilParser = new NewVariableInstanceEndParser(decl.runtimeData)
   override def unparser: DaffodilUnparser = new NewVariableInstanceEndUnparser(decl.runtimeData)
@@ -187,7 +187,7 @@ abstract class ExpressionEvaluatorBase(e: AnnotatedSchemaComponent) extends Term
 }
 
 abstract class ValueCalcBase(e: ElementBase)
-  extends ExpressionEvaluatorBase(e) {
+    extends ExpressionEvaluatorBase(e) {
 
   def exprProp: Found
   override lazy val exprText = exprProp.value
@@ -203,7 +203,7 @@ case class ValueCalc(
   override val baseName: String,
   e: ElementBase,
   property: PropertyLookupResult)
-  extends ValueCalcBase(e) {
+    extends ValueCalcBase(e) {
 
   val exprProp = property.asInstanceOf[Found]
 
@@ -214,7 +214,7 @@ case class ValueCalc(
 }
 
 abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
-  extends Terminal(decl, true) {
+    extends Terminal(decl, true) {
 
   lazy val eName = decl.prettyName
   lazy val testPattern = {
@@ -230,7 +230,7 @@ abstract class AssertPatternPrimBase(decl: AnnotatedSchemaComponent, stmt: DFDLA
 }
 
 case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
-  extends AssertPatternPrimBase(decl, stmt) {
+    extends AssertPatternPrimBase(decl, stmt) {
 
   val kindString = "AssertPatternPrim"
 
@@ -241,7 +241,7 @@ case class AssertPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssert)
 }
 
 case class DiscriminatorPatternPrim(decl: AnnotatedSchemaComponent, stmt: DFDLAssertionBase)
-  extends AssertPatternPrimBase(decl, stmt) {
+    extends AssertPatternPrimBase(decl, stmt) {
 
   val kindString = "DiscriminatorPatternPrim"
 

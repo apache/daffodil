@@ -123,11 +123,11 @@ class CommandLineXMLLoaderErrorHandler() extends org.xml.sax.ErrorHandler with L
 }
 
 trait CLILogPrefix extends LogWriter {
-  override def prefix(logID: String, glob: Glob): String = {
-    "[" + glob.lvl.toString.toLowerCase + "] "
+  override def prefix(lvl: LogLevel.Type, logID: String): String = {
+    "[" + lvl.toString.toLowerCase + "] "
   }
 
-  override def suffix(logID: String, glob: Glob): String = {
+  override def suffix(logID: String): String = {
     ""
   }
 }
@@ -153,7 +153,7 @@ object TDMLLogWriter extends CLILogPrefix {
 }
 
 class CLIConf(arguments: Array[String]) extends scallop.ScallopConf(arguments)
-  with Logging {
+    with Logging {
 
   /**
    * This is used when the flag is optional and so is its
@@ -653,7 +653,7 @@ object Main extends Logging {
     // Wrap timing around the whole of compilation
     //
     // compilation extends from the call to compile
-    // to also include the call to pf.onPath. (which is the last phase 
+    // to also include the call to pf.onPath. (which is the last phase
     // of compilation, where it asks for the parser)
     //
     val schemaSource = URISchemaSource(schema)
@@ -749,7 +749,7 @@ object Main extends Logging {
                   } else false
                 }
                 case None => {
-                  // we need to look at the internal state of the parser inStream to 
+                  // we need to look at the internal state of the parser inStream to
                   // see how big it is. We do this after execution so as
                   // not to traverse the data twice.
                   val ps = parseResult.resultState.asInstanceOf[PState]
@@ -940,7 +940,7 @@ object Main extends Logging {
         }
 
         val outChannel = java.nio.channels.Channels.newChannel(output)
-        // 
+        //
         // We are not loading a schema here, we're loading the infoset to unparse.
         //
         val source = unparseOpts.infile.get match {

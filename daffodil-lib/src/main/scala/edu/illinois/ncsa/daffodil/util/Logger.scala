@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -46,6 +46,8 @@ import edu.illinois.ncsa.daffodil.exceptions.UnsuppressableException
  * Simple logging system evolved from code found on Stack Overflow, on the web.
  * http://stackoverflow.com/questions/2018528/logging-in-scala
  * Mostly based on the contribution of Don Mackenzie.
+ *
+ * Extensively modified to use Macros for performance now.
  */
 
 object LogLevel extends Enum {
@@ -63,36 +65,6 @@ object LogLevel extends Enum {
   case object DelimDebug extends Type(70)
 }
 
-sealed abstract class GlobBase(lvl: LogLevel.Type) {
-  // Have to do this by having an overload for each number of args.
-  // This is because we're depending on scala's call-by-name trick to NOT
-  // evaluate these arguments unless something else decides to force this whole adventure.
-  def apply(msg: String) = new Glob(lvl, msg, Seq())
-  def apply(msg: String, arg: Any) = new Glob(lvl, msg, Seq(arg))
-  def apply(msg: String, arg0: Any, arg1: Any) = new Glob(lvl, msg, Seq(arg0, arg1))
-  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2))
-  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3))
-  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
-  def apply(msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any, arg5: Any) = new Glob(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
-  // add more here if more than however many args are needed.
-}
-
-object Error extends GlobBase(LogLevel.Error)
-
-object Warning extends GlobBase(LogLevel.Warning)
-
-object Info extends GlobBase(LogLevel.Info)
-
-object Resolver extends GlobBase(LogLevel.Resolver)
-
-object Compile extends GlobBase(LogLevel.Compile)
-
-object Debug extends GlobBase(LogLevel.Debug)
-
-object OOLAGDebug extends GlobBase(LogLevel.OOLAGDebug)
-
-object DelimDebug extends GlobBase(LogLevel.DelimDebug)
-
 trait Identity {
   def logID: String
 }
@@ -103,55 +75,36 @@ abstract class LogWriter {
 
   protected def tstamp = tstampFormat.format(new Date)
 
-  protected def prefix(logID: String, glob: Glob): String = {
-    val areStamping = glob.lvl < LogLevel.Debug
+  protected def prefix(lvl: LogLevel.Type, logID: String): String = {
+    val areStamping = lvl < LogLevel.Debug
     val pre = (if (areStamping) tstamp + " " else "")
-    pre + logID + " " + glob.lvl + "["
+    pre + logID + " " + lvl + "["
   }
 
-  protected def suffix(logID: String, glob: Glob): String = {
+  protected def suffix(logID: String): String = {
     "]"
   }
 
-  def log(logID: String, glob: Glob) {
+  def log(lvl: LogLevel.Type, logID: String, msg: String, args: Seq[Any]) {
     try {
-      val mess = glob.stringify
-      val p = prefix(logID, glob)
-      val s = suffix(logID, glob)
+      val mess = Glob.stringify(msg, args)
+      val p = prefix(lvl, logID)
+      val s = suffix(logID)
       write(p + mess + s)
     } catch {
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
       case e: Exception => {
-        val estring = try { e.toString } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case _: Throwable => e.getClass.getName
-        }
-        System.err.println("Exception while logging: " + estring)
-        val globmsg = try { glob.msg } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case _: Throwable => "?glob.msg?"
-        }
-        val globargs = try { glob.args } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case _: Throwable => Nil
-        }
-        val globargsList = try { glob.args.map { x => x } } catch {
-          case s: scala.util.control.ControlThrowable => throw s
-          case u: UnsuppressableException => throw u
-          case _: Throwable => List("globargsList failed")
-        }
-        val globargsListStrings = globargsList.map { arg =>
-          try { arg.toString } catch {
+        val (estring, argStrings) =
+          try {
+            (e.toString, args.map { _.toString })
+          } catch {
             case s: scala.util.control.ControlThrowable => throw s
             case u: UnsuppressableException => throw u
-            case _: Throwable => "?arg?"
+            case _: Throwable => (e.getClass.getName, Nil)
           }
-        }
-        System.err.println("Glob was: " + globmsg + " " + globargsListStrings)
+        System.err.println("Exception while logging: " + estring)
+        System.err.println("msg='%s' args=%s".format(msg, argStrings))
         Assert.abort("Exception while logging")
       }
     }
@@ -160,7 +113,7 @@ abstract class LogWriter {
 
 object ForUnitTestLogWriter extends LogWriter {
   var loggedMsg: String = null
-  //  protected val writer = actor { loop { react { case msg : String => 
+  //  protected val writer = actor { loop { react { case msg : String =>
   //    loggedMsg = msg
   //    Console.out.println("Was Logged: " + loggedMsg)
   //    Console.out.flush()
@@ -208,29 +161,23 @@ class FileWriter(val file: File) extends LogWriter {
     catch {
       case s: scala.util.control.ControlThrowable => throw s
       case u: UnsuppressableException => throw u
-      case e: Throwable =>
-        ConsoleWriter.log("FileWriter", Error("Unable to create FileWriter for file %s exception was %s", file, e)); Console.out
+      case e: Throwable => {
+        ConsoleWriter.log(LogLevel.Error, "FileWriter", "Unable to create FileWriter for file %s exception was %s", Seq(file, e))
+        Console.out
+      }
     }
   }
 
 }
 
-/**
- * i18n support for logging.
- *
- * Instead of creating a string, worrying about locale-based reinterpretation, etc.
- * Just make a Glob (short for globalized message). This is intended to be passed by name,
- *
- */
-class Glob(val lvl: LogLevel.Type, msgArg: => String, argSeq: => Seq[Any]) {
-  lazy val args = argSeq
-  lazy val msg = msgArg
+object Glob {
+
   // for now: quick and dirty English-centric approach.
-  // In the future, use msg to index into i18n resource bundle for 
+  // In the future, use msg to index into i18n resource bundle for
   // properly i18n-ized string. Can use context to avoid ambiguities.
-  def stringify = {
+  def stringify(msg: String, args: Seq[Any]) = {
     val res =
-      try { // this can fail, if for example the string uses % for other than 
+      try { // this can fail, if for example the string uses % for other than
         // formats (so if the string is something that mentions DFDL entities,
         // which use % signs in their syntax.
         val str = {
@@ -263,9 +210,10 @@ trait Logging extends Identity {
   }
 
   private var logWriter: Maybe[LogWriter] = Nope
-  private var logLevel: Maybe[LogLevel.Type] = Nope
+  protected var logLevel: Maybe[LogLevel.Type] = Nope
 
   def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
+  def setLoggingOff() { logLevel = Nope }
 
   final def getLoggingLevel(): LogLevel.Type = {
     if (logLevel.isDefined) logLevel.get
@@ -279,28 +227,13 @@ trait Logging extends Identity {
     else LoggingDefaults.logWriter
   }
 
-  /**
-   * Use like `log(Error("the thing %s", toString))`
-   *
-   * TODO: Convert this into a macro so that we can avoid closure overheads of by-name passing.
-   */
-  final def log(glob: Glob) {
-    lazy val g = glob // exactly once
-    if (getLoggingLevel >= g.lvl) getLogWriter.log(logID, g)
-  }
-
-  private def doLogging(lvl: LogLevel.Type, msg: String, args: Seq[Any]) =
-    getLogWriter.log(logID, new Glob(lvl, msg, args))
+  protected def doLogging(lvl: LogLevel.Type, msg: String, args: Seq[Any]) =
+    getLogWriter.log(lvl, logID, msg, args)
 
   // TODO: Convert this into a macro so we don't end up allocating closures
   // for these by-name args.
-  final def log(lvl: LogLevel.Type, msg: String) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq())
-  final def log(lvl: LogLevel.Type, msg: String, arg: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg))
-  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1))
-  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2))
-  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3))
-  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4))
-  final def log(lvl: LogLevel.Type, msg: String, arg0: Any, arg1: Any, arg2: Any, arg3: Any, arg4: Any, arg5: Any) = if (getLoggingLevel >= lvl) doLogging(lvl, msg, Seq(arg0, arg1, arg2, arg3, arg4, arg5))
+  final def log(lvl: LogLevel.Type, msg: String, args: Any*): Unit = macro LoggerMacros.logMacro
+
   /**
    * Use to make debug printing over small code regions convenient. Turns on
    * your logging level of choice over a lexical region of code. Makes sure it is reset
@@ -309,14 +242,8 @@ trait Logging extends Identity {
    * Call with no log level argument to turn it off (when done debugging). That way you
    * can leave it sitting there.
    */
-  def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S) = {
-    val previousLogLevel = logLevel
-    logLevel = One(newLevel)
-    try body
-    finally {
-      logLevel = previousLogLevel
-    }
-  }
+  final def withLoggingLevel[S](newLevel: LogLevel.Type = getLoggingLevel)(body: => S): Unit = macro LoggerMacros.withLoggingLevelMacro
+
 }
 
 object LoggingDefaults {

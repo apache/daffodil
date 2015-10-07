@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -80,10 +80,10 @@ object OOLAG extends Logging {
       body
     } catch {
       // We suppress errors here because a rethrow indicates that somebody else
-      // has already recorded the exception in the diagnostics, and it was of the 
+      // has already recorded the exception in the diagnostics, and it was of the
       // kind that can be recorded and issued later as a compile-time diagnostic.
       case e: OOLAGRethrowException =>
-        log(OOLAGDebug("OOLAG.keepGoing is suppressing exception already recorded: %s", e))
+        log(LogLevel.OOLAGDebug, "OOLAG.keepGoing is suppressing exception already recorded: %s", e)
         alt
     }
   }
@@ -138,7 +138,7 @@ object OOLAG extends Logging {
    * to be determined by its calculation have been recorded.
    */
   abstract class OOLAGHost private (oolagContextArg: OOLAGHost, nArgs: Args)
-    extends Logging with WithDiagnostics {
+      extends Logging with WithDiagnostics {
 
     private var oolagContextViaSet: Option[OOLAGHost] = None
 
@@ -299,7 +299,7 @@ object OOLAG extends Logging {
      * (Likely the SchemaSet object.)
      */
 
-    //TODO: why store these on all the objects if the 
+    //TODO: why store these on all the objects if the
     //only one where they are used is the root object.
     private var errors_ : Seq[Diagnostic] = Nil
     private var warnings_ : Seq[Diagnostic] = Nil
@@ -368,7 +368,7 @@ object OOLAG extends Logging {
    * An OOLAG value is created as a val of an OOLAGHost class.
    */
   sealed abstract class OOLAGValueBase(val oolagContext: OOLAGHost, nameArg: String)
-    extends Logging {
+      extends Logging {
 
     Assert.usage(oolagContext != null)
 
@@ -416,34 +416,34 @@ object OOLAG extends Logging {
     protected final def oolagCatch(th: Throwable): Nothing = {
       Assert.invariant(!hasValue)
       th match {
-        case le: scala.Error => { // note that Exception does NOT inherit from Error 
-          log(Error(" " * indent + catchMsg, thisThing, le)) // tell us which lazy attribute it was
+        case le: scala.Error => { // note that Exception does NOT inherit from Error
+          log(LogLevel.Error, " " * indent + catchMsg, thisThing, le) // tell us which lazy attribute it was
           toss(le)
         }
-        // 
+        //
         // Don't catch RuntimeException as this makes using the debugger
         // to isolate bugs harder. You just end up converting them into unsuppressible,
         // but with loss of context.
         //
         case ue: UnsuppressableException => {
           val ex = ue
-          log(OOLAGDebug(" " * indent + catchMsg, this.getClass.getName, ue)) // tell us which lazy attribute it was            
+          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, this.getClass.getName, ue) // tell us which lazy attribute it was
           toss(ue)
         }
         //
-        // These are OOLAGs own Throwables. 
+        // These are OOLAGs own Throwables.
         // ErrorAlreadyHandled means we are headed back to some top-level that
         // can tolerate errors and go on with compilation.
         case eah: ErrorAlreadyHandled => {
-          log(OOLAGDebug(" " * indent + catchMsg, thisThing, eah))
+          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, thisThing, eah)
           toss(eah)
         }
         //
-        // Already tried means we got to this same OOLAG value evaluation again, 
+        // Already tried means we got to this same OOLAG value evaluation again,
         // and as values, they can't behave differently, so the same error will
         // just get reported again.
         case at: AlreadyTried => {
-          log(OOLAGDebug(" " * indent + "Caught %s", at))
+          log(LogLevel.OOLAGDebug, " " * indent + "Caught %s", at)
           toss(at)
         }
         case AssumptionFailed => {
@@ -453,13 +453,13 @@ object OOLAG extends Logging {
           // we threw, instead of producing a value
           //
           // Typically this will be for a Schema Definition Error
-          // 
+          //
           Assert.invariant(hasValue == false)
           Assert.invariant(alreadyTriedThis == true)
 
-          log(OOLAGDebug(" " * indent + catchMsg, thisThing, e))
+          log(LogLevel.OOLAGDebug, " " * indent + catchMsg, thisThing, e)
           error(e)
-          // 
+          //
           // Catch this if you can carry on with more error gathering
           // from other contexts. Otherwise just let it propagate.
           //
@@ -476,7 +476,7 @@ object OOLAG extends Logging {
     private def initialize = {
       val now = oolagContext.currentOVList
       oolagContext.currentOVList = this +: oolagContext.currentOVList
-      // log(OOLAGDebug(" " * indent + "push: " + thisThing))
+      // log(LogLevel.OOLAGDebug, " " * indent + "push: " + thisThing))
       setIndent(indent + 2)
       now
     }
@@ -486,29 +486,29 @@ object OOLAG extends Logging {
       if (initialize.contains(this)) {
         // System.err.println("Circular OOLAG Value Definition")
         // This next println was causing problems because toString was
-        // itself causing circular evaluation. The abort above 
+        // itself causing circular evaluation. The abort above
         // System.err.println("OOLAGValues (aka 'LVs') on stack are: " + currentOVList.mkString(", "))
         val c = CircularDefinition(this, oolagContext.currentOVList)
-        log(OOLAGDebug(" " * indent + "LV: " + thisThing + " CIRCULAR"))
+        log(LogLevel.OOLAGDebug, " " * indent + "LV: " + thisThing + " CIRCULAR")
         toss(c)
       }
       if (alreadyTriedThis) {
-        log(OOLAGDebug(" " * indent + "LV: %s was tried and failed", thisThing))
+        log(LogLevel.OOLAGDebug, " " * indent + "LV: %s was tried and failed", thisThing)
         val e = AlreadyTried(this)
         toss(e)
       }
       alreadyTriedThis = true
-      log(OOLAGDebug(" " * indent + "Evaluating %s", thisThing))
+      log(LogLevel.OOLAGDebug, " " * indent + "Evaluating %s", thisThing)
     }
 
     protected final def oolagAfterValue(res: AnyRef) {
-      log(OOLAGDebug(" " * indent + "Evaluated %s", thisThing))
+      log(LogLevel.OOLAGDebug, " " * indent + "Evaluated %s", thisThing)
       value_ = One(res)
     }
 
     protected final def oolagFinalize = {
       setIndent(indent - 2)
-      // log(OOLAGDebug(" " * indent + "pop:  " + thisThing))
+      // log(LogLevel.OOLAGDebug, " " * indent + "pop:  " + thisThing))
       oolagContext.currentOVList = oolagContext.currentOVList.tail
     }
 
@@ -532,7 +532,7 @@ object OOLAG extends Logging {
           }
         }
       if (res == true) {
-        log(OOLAGDebug(" " * indent + "LV %s has an error", this))
+        log(LogLevel.OOLAGDebug, " " * indent + "LV %s has an error", this)
       }
       res
     }
@@ -572,7 +572,7 @@ object OOLAG extends Logging {
   }
 
   final class OOLAGValue[T](ctxt: OOLAGHost, nameArg: String, body: => T)
-    extends OOLAGValueBase(ctxt, nameArg) {
+      extends OOLAGValueBase(ctxt, nameArg) {
 
     @inline final def valueAsAny: Any = value
 
@@ -618,7 +618,7 @@ object OOLAG extends Logging {
  * or we need to evolve a new wrapper.
  */
 // allow outside world to see this base, for maintainability catches
-// 
+//
 private[oolag] trait OOLAGException extends Exception with ThinThrowable {
   def lv: OOLAG.OOLAGValueBase
 }
@@ -645,7 +645,7 @@ case class ErrorsNotYetRecorded(diags: Seq[Diagnostic]) extends OOLAGRethrowExce
 }
 
 private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
-  extends OOLAGRethrowException {
+    extends OOLAGRethrowException {
   override def getMessage() = lv.toString
   override val cause1 = None
 }
@@ -657,7 +657,7 @@ private[oolag] case class AlreadyTried(val lv: OOLAG.OOLAGValueBase)
 // I'd like this package private, but they leak out due to compile time errors
 // that are not being seen until runtime.
 final case class ErrorAlreadyHandled(val th: Diagnostic, lv: OOLAG.OOLAGValueBase)
-  extends Exception(th) with OOLAGRethrowException {
+    extends Exception(th) with OOLAGRethrowException {
   override val cause1 = Some(th)
 }
 

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,7 +45,6 @@ import edu.illinois.ncsa.daffodil.exceptions.Assert
 import edu.illinois.ncsa.daffodil.xml.NS
 import edu.illinois.ncsa.daffodil.xml.NoNamespace
 import edu.illinois.ncsa.daffodil.util._
-import edu.illinois.ncsa.daffodil.util.Info
 import IIUtils._
 import java.io.File
 import java.net.URI
@@ -67,7 +66,7 @@ import java.net.URLEncoder
  * a targetNamespace.
  */
 final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
-  extends IIBase(xml, xsd, seenArg) {
+    extends IIBase(xml, xsd, seenArg) {
 
   protected final def mapPair = LV('mapPair) {
     // for an include, the targetNamespace of the schema document that contained us is right.
@@ -87,7 +86,7 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
           schemaDefinitionError("Unable to determine target namespace.")) {
             xsd.targetNamespace
           }
-        log(Debug("Included schema from %s into namespace %s.", rsl, ns))
+        log(LogLevel.Debug, "Included schema from %s into namespace %s.", rsl, ns)
         rsl
       }
       case None => schemaDefinitionError("Included schema not found at location %s. %s", slText, whereSearched)
@@ -95,4 +94,3 @@ final class Include(xml: Node, xsd: XMLSchemaDocument, seenArg: IIMap)
   }.value
 
 }
-

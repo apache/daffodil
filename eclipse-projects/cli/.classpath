@@ -36,5 +36,6 @@
 			<attribute name="javadoc_location" value="jar:platform:/resource/daffodil-cli/lib_managed/docs/org.rogach/scallop_2.11/scallop_2.11-0.9.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/daffodil-macro-lib"/>
 	<classpathentry kind="output" path="target/eclipse/classes"/>
 </classpath>

@@ -2,25 +2,25 @@
  *
  * Developed by: Tresys Technology, LLC
  *               http://www.tresys.com
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal with
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
  * of the Software, and to permit persons to whom the Software is furnished to do
  * so, subject to the following conditions:
- * 
+ *
  *  1. Redistributions of source code must retain the above copyright notice,
  *     this list of conditions and the following disclaimers.
- * 
+ *
  *  2. Redistributions in binary form must reproduce the above copyright
  *     notice, this list of conditions and the following disclaimers in the
  *     documentation and/or other materials provided with the distribution.
- * 
+ *
  *  3. Neither the names of Tresys Technology, nor the names of its contributors
  *     may be used to endorse or promote products derived from this Software
  *     without specific prior written permission.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -48,18 +48,19 @@ class MyClass extends Logging {
     "about nothing at all."
   }
 
-  // TODO: once log is a macro, switch these back.
-  lazy val bombArg = "bombArg should not be used" // Assert.abort("bombArg should not be evaluated")
-  lazy val bombMsg = "bombMsg should not be used" // Assert.abort("bombMsg should not be evaluated")
+  lazy val bombArg: String = Assert.abort("bombArg should not be evaluated")
+  lazy val bombMsg: String = Assert.abort("bombMsg should not be evaluated")
 
   def logSomething() {
-    setLoggingLevel(LogLevel.Error)
+
+    ForUnitTestLogWriter.loggedMsg = null
+
     setLogWriter(ForUnitTestLogWriter)
 
     // won't log because below threshhold. Won't even evaluate args.
     log(LogLevel.Debug, msg, bombArg) // Won't show up in log. Won't bomb.
 
-    // alas, no by-name passing of var-args. 
+    // alas, no by-name passing of var-args.
     // so instead, we pass by name, a by-name/lazy constructed tuple
     // instead.
 
@@ -67,12 +68,12 @@ class MyClass extends Logging {
     // does NOT force evaluation of the pieces that go into it.
     // So it really makes the whole system behave like it was entirely lazy.
 
-    // If we're logging below the threshhold of Debug, then this log line 
-    // doesn't evaluate bombMsg or bombArg. So it is ok if those are expensive 
-    // to compute. 
-    
-    log(Debug(bombMsg, bombArg)) // bomb is not evaluated at all.
-    log(Error(msg, argString)) // Will show up in log.
+    // If we're logging below the threshhold of Debug, then this log line
+    // doesn't evaluate bombMsg or bombArg. So it is ok if those are expensive
+    // to compute.
+
+    log(LogLevel.Debug, bombMsg, bombArg) // bomb is not evaluated at all.
+    log(LogLevel.Error, msg, argString) // Will show up in log.
 
     setLoggingLevel(LogLevel.Info)
     setLogWriter(ConsoleWriter)
@@ -83,14 +84,26 @@ class TestLogger {
 
   @Test def test1() {
     val c = new MyClass
+    c.setLoggingLevel(LogLevel.Error)
     c.logSomething()
     Console.out.flush()
     val fromLog = ForUnitTestLogWriter.loggedMsg
-    println(fromLog)
+    // println(fromLog)
     val hasExpected = fromLog.contains("Message about nothing at all.")
     val doesntHaveUnexpected = !fromLog.contains("number 1")
     assertTrue(hasExpected)
     assertTrue(doesntHaveUnexpected)
+  }
+
+  @Test def test2() {
+    val c = new MyClass
+    c.setLoggingOff()
+    c.logSomething()
+    Console.out.flush()
+    val fromLog = ForUnitTestLogWriter.loggedMsg
+    println(fromLog)
+    val hasExpected = fromLog == null
+    assertTrue(hasExpected)
   }
 
 }
