@@ -213,7 +213,6 @@ trait Logging extends Identity {
   protected var logLevel: Maybe[LogLevel.Type] = Nope
 
   def setLoggingLevel(level: LogLevel.Type) { logLevel = One(level) }
-  def setLoggingOff() { logLevel = Nope }
 
   final def getLoggingLevel(): LogLevel.Type = {
     if (logLevel.isDefined) logLevel.get

@@ -95,15 +95,4 @@ class TestLogger {
     assertTrue(doesntHaveUnexpected)
   }
 
-  @Test def test2() {
-    val c = new MyClass
-    c.setLoggingOff()
-    c.logSomething()
-    Console.out.flush()
-    val fromLog = ForUnitTestLogWriter.loggedMsg
-    println(fromLog)
-    val hasExpected = fromLog == null
-    assertTrue(hasExpected)
-  }
-
 }
